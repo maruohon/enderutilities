@@ -13,7 +13,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import fi.dy.masa.minecraft.mods.enderutilities.EnderUtilities;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.minecraft.mods.enderutilities.reference.GuiReference;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 
 public class EnderBag extends Item
@@ -38,10 +40,16 @@ public class EnderBag extends Item
 			// The bag must be in public mode, or the player must be the owner
 			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
 			{
-				// Unbind the bag when sneak + right clicking on air
+				// Unbind the bag when sneak + right clicking on air TODO is there any point in this?
 				if (player.isSneaking() == true && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
 				{
 					stack.setTagCompound(null);
+				}
+				// Access the inventory
+				else
+				{
+					//player.openGui(EnderUtilities.instance, GuiReference.GUI_ID_ENDER_BAG,
+					//		player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
 				}
 			}
 		}
@@ -65,8 +73,6 @@ public class EnderBag extends Item
 			{
 				int numSlots = ((IInventory) te).getSizeInventory();
 				int dim = player.dimension; // FIXME is this the right way of getting the dimension?
-				//System.out.printf("Block at %d, %d, %d (dim: %d) has an inventory of %d slots\n", x, y, z, dim, numSlots); // FIXME debug
-				//System.out.println("te: " + te.toString()); // FIXME debug
 
 				NBTTagCompound nbt = stack.getTagCompound();
 
@@ -94,12 +100,8 @@ public class EnderBag extends Item
 					stack.setTagCompound(nbt);
 				}
 			}
-			//System.out.println("Is Tile Entity");
 		}
-		else
-		{
-			//System.out.println("Not a Tile Entity");
-		}
+
 		return false;
 	}
 

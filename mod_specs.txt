@@ -1,7 +1,7 @@
 * Ender Utilities
   - Ender Bag: Can be linked to any(?) inventories
   - Ender Link: A block/machine that can remotely access another, linked block's inventory
-  - Ender Sider: Similar to above, but acesses the block sides, not the inventory
+  - Ender Sider: Similar to above, but accesses the block's sides, not the inventory
   - Ender Sender: Can be linked to any(?) inventory, has a filter setting, will auto-send any
     picked up items (according to the filter) to the inventory it is linked to
   - Ender Lasso: Will teleport any living entities it is right clicked on, to the pre-bound location
