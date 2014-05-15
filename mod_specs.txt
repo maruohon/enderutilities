@@ -1,1 +1,9 @@
 * Ender Utilities
+  - Ender Bag: Can be linked to any(?) inventories
+  - Ender Sender: Can be linked to any(?) inventory, has a filter setting, will auto-send any
+    picked up items (according to the filter) to the inventory it is linked to
+  - Ender Bucket: Cab hold a maximum of 16 buckets
+  - Ender Activator: Has an inventory for items, will use them when right clicking
+    - Active slot selectable with sneak + scroll? When empty, uses the next one (with wrap).
+    - What about items that would require sneak + right click? How do we access the activator's inventory?
+  - Inventory Probe: Can search and view inventories by pointing at them
