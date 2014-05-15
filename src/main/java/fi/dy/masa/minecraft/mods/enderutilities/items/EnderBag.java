@@ -31,16 +31,17 @@ public class EnderBag extends Item
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		if (stack.stackTagCompound != null)
+		NBTTagCompound nbt = stack.getTagCompound();
+
+		if (nbt != null)
 		{
 			// The bag must be in public mode, or the player must be the owner
-			if (stack.stackTagCompound.getByte("mode") == 1
-				|| stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
+			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
 			{
 				// Unbind the bag when sneak + right clicking on air
 				if (player.isSneaking() == true && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
 				{
-					stack.stackTagCompound = null;
+					stack.setTagCompound(null);
 				}
 			}
 		}
@@ -67,30 +68,30 @@ public class EnderBag extends Item
 				//System.out.printf("Block at %d, %d, %d (dim: %d) has an inventory of %d slots\n", x, y, z, dim, numSlots); // FIXME debug
 				//System.out.println("te: " + te.toString()); // FIXME debug
 
-				// The bag must be in public mode, or the player must be the owner
-				if (stack.stackTagCompound == null
-					|| stack.stackTagCompound.getByte("mode") == 1
-					|| stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
+				NBTTagCompound nbt = stack.getTagCompound();
+
+				// The bag must be unbound, or in public mode, or the player must be the owner
+				if (nbt == null || nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
 				{
-					stack.stackTagCompound = new NBTTagCompound();
+					nbt = new NBTTagCompound();
 					NBTTagCompound target = new NBTTagCompound();
 					target.setInteger("dim", dim);
 					target.setInteger("posX", x);
 					target.setInteger("posY", y);
 					target.setInteger("posZ", z);
 					target.setShort("numslots", (short)numSlots);
+
 					Block b = te.getBlockType();
 					if (b != null)
 					{
-						String name = b.getUnlocalizedName();
-						target.setString("unlocname", name); // FIXME crappy check
-						name = b.getLocalizedName();
-						target.setString("locname", name); // FIXME crappy check
+						target.setString("unlocname", b.getUnlocalizedName()); // FIXME crappy check
+						target.setString("locname", b.getLocalizedName()); // FIXME crappy check
 					}
 
-					stack.stackTagCompound.setString("owner", player.getDisplayName()); // FIXME
-					stack.stackTagCompound.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
-					stack.stackTagCompound.setTag("target", target);
+					nbt.setString("owner", player.getDisplayName()); // FIXME
+					nbt.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
+					nbt.setTag("target", target);
+					stack.setTagCompound(nbt);
 				}
 			}
 			//System.out.println("Is Tile Entity");
@@ -105,31 +106,37 @@ public class EnderBag extends Item
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
-		if (stack.stackTagCompound != null)
+		if (stack.getTagCompound() != null)
 		{
-			String owner = stack.stackTagCompound.getString("owner");
-			int dim = stack.stackTagCompound.getCompoundTag("target").getInteger("dim");
-			int x = stack.stackTagCompound.getCompoundTag("target").getInteger("posX");
-			int y = stack.stackTagCompound.getCompoundTag("target").getInteger("posY");
-			int z = stack.stackTagCompound.getCompoundTag("target").getInteger("posZ");
-			short numSlots = stack.stackTagCompound.getCompoundTag("target").getShort("numslots");
-			String locName = stack.stackTagCompound.getCompoundTag("target").getString("locname");
-			list.add("owner: " + owner);
+			NBTTagCompound nbt = stack.getTagCompound();
+			String owner	= nbt.getString("owner");
+			int dim			= nbt.getCompoundTag("target").getInteger("dim");
+			int x			= nbt.getCompoundTag("target").getInteger("posX");
+			int y			= nbt.getCompoundTag("target").getInteger("posY");
+			int z			= nbt.getCompoundTag("target").getInteger("posZ");
+			short numSlots	= nbt.getCompoundTag("target").getShort("numslots");
+			String locName	= nbt.getCompoundTag("target").getString("locname");
 
-			String dimPre = "" + EnumChatFormatting.BLUE;
-			String cPre = "" + EnumChatFormatting.BLUE;
+			String regPre = "" + EnumChatFormatting.OBFUSCATED;
+			String dimPre = "" + EnumChatFormatting.OBFUSCATED;
+			String coordPre = "" + EnumChatFormatting.OBFUSCATED;
 			String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-			// Don't show the bound location to others, only the owner sees that
-			if (stack.stackTagCompound.getByte("mode") != 1 && player.getDisplayName().equals(owner) == false) // FIXME
+			// Only show the bound location, if the bag is set to public, or if the player is the owner
+			if (nbt.getByte("mode") == 1 || player.getDisplayName().equals(owner) == true) // FIXME
 			{
-				dimPre = "" + EnumChatFormatting.OBFUSCATED;
-				cPre = "" + EnumChatFormatting.OBFUSCATED;
+				regPre = "" + EnumChatFormatting.GRAY;
+				dimPre = "" + EnumChatFormatting.BLUE;
+				coordPre = "" + EnumChatFormatting.BLUE;
 			}
 
-
-			list.add(String.format("dim: %s%d%s x: %s%d%s, y: %s%d%s, z: %s%d%s", dimPre, dim, rst, cPre, x, rst, cPre, y, rst, cPre, z, rst));
-			list.add("type: " + locName);
+			list.add("owner: " + owner);
+			list.add(String.format("dim: %s%d%s x: %s%d%s, y: %s%d%s, z: %s%d%s",
+						dimPre, dim, rst,
+						coordPre, x, rst,
+						coordPre, y, rst,
+						coordPre, z, rst));
+			list.add(String.format("type: %s%s%s", regPre, locName, rst));
 			list.add(String.format("slots: %s%d%s", dimPre, numSlots, rst));
 		}
 	}
