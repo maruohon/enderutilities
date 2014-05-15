@@ -2,8 +2,7 @@ package fi.dy.masa.minecraft.mods.enderutilities.items;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -11,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
@@ -32,43 +32,23 @@ public class EnderBag extends Item
 	{
 		// Unbind the bag when sneak + right clicking on air
 		if (player.isSneaking() == true
+			&& Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS
 			&& stack.stackTagCompound != null
 			&& stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
 		{
 			stack.stackTagCompound = null;
 		}
-/*
-		System.out.println("onItemRightClick");
-		if (world.isRemote == false)
-		{
-			System.out.println("world.isRemote == false");
-		}
-		else
-		{
-			System.out.println("world.isRemote == true");
-		}
-*/
+
 		return stack;
 	}
 
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	//public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		// Do nothing on the client side
 		if (world.isRemote == true)
 		{
 			return false;
-		}
-
-		// FIXME debug code below!!
-		//System.out.println("onItemUseFirst");
-
-		Block block = world.getBlock(x, y, z);
-
-		if (block instanceof BlockChest)
-		{
-			//System.out.println("Is a Chest!");
 		}
 
 		TileEntity te = world.getTileEntity(x, y, z);
@@ -78,7 +58,8 @@ public class EnderBag extends Item
 			{
 				int numSlots = ((IInventory) te).getSizeInventory();
 				int dim = player.dimension; // FIXME is this the right way of getting the dimension?
-				System.out.printf("Block at %d, %d, %d (dim: %d) has an inventory of %d slots\n", x, y, z, dim, numSlots); // FIXME debug
+				//System.out.printf("Block at %d, %d, %d (dim: %d) has an inventory of %d slots\n", x, y, z, dim, numSlots); // FIXME debug
+				//System.out.println("te: " + te.toString()); // FIXME debug
 
 				// Only the owner is allowed to change the binding
 				if (stack.stackTagCompound == null || stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
