@@ -1,0 +1,9 @@
+.gradle
+.settings
+bin/
+build/
+eclipse/
+.classpath
+.project
+*.txt
+!mod_specs.txt
