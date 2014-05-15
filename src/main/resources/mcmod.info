@@ -1,0 +1,16 @@
+[
+{
+  "modid": "enderutilities",
+  "name": "Ender Utilities",
+  "description": "Some random, maybe even useful utilities",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["masa"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
