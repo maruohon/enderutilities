@@ -2,6 +2,7 @@ package fi.dy.masa.minecraft.mods.enderutilities.items;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -30,13 +31,18 @@ public class EnderBag extends Item
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		// Unbind the bag when sneak + right clicking on air
-		if (player.isSneaking() == true
-			&& Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS
-			&& stack.stackTagCompound != null
-			&& stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
+		if (stack.stackTagCompound != null)
 		{
-			stack.stackTagCompound = null;
+			// The bag must be in public mode, or the player must be the owner
+			if (stack.stackTagCompound.getByte("mode") == 1
+				|| stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
+			{
+				// Unbind the bag when sneak + right clicking on air
+				if (player.isSneaking() == true && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
+				{
+					stack.stackTagCompound = null;
+				}
+			}
 		}
 
 		return stack;
@@ -61,8 +67,10 @@ public class EnderBag extends Item
 				//System.out.printf("Block at %d, %d, %d (dim: %d) has an inventory of %d slots\n", x, y, z, dim, numSlots); // FIXME debug
 				//System.out.println("te: " + te.toString()); // FIXME debug
 
-				// Only the owner is allowed to change the binding
-				if (stack.stackTagCompound == null || stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
+				// The bag must be in public mode, or the player must be the owner
+				if (stack.stackTagCompound == null
+					|| stack.stackTagCompound.getByte("mode") == 1
+					|| stack.stackTagCompound.getString("owner").equals(player.getDisplayName()) == true)
 				{
 					stack.stackTagCompound = new NBTTagCompound();
 					NBTTagCompound target = new NBTTagCompound();
@@ -70,8 +78,18 @@ public class EnderBag extends Item
 					target.setInteger("posX", x);
 					target.setInteger("posY", y);
 					target.setInteger("posZ", z);
+					target.setShort("numslots", (short)numSlots);
+					Block b = te.getBlockType();
+					if (b != null)
+					{
+						String name = b.getUnlocalizedName();
+						target.setString("unlocname", name); // FIXME crappy check
+						name = b.getLocalizedName();
+						target.setString("locname", name); // FIXME crappy check
+					}
 
 					stack.stackTagCompound.setString("owner", player.getDisplayName()); // FIXME
+					stack.stackTagCompound.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
 					stack.stackTagCompound.setTag("target", target);
 				}
 			}
@@ -94,6 +112,8 @@ public class EnderBag extends Item
 			int x = stack.stackTagCompound.getCompoundTag("target").getInteger("posX");
 			int y = stack.stackTagCompound.getCompoundTag("target").getInteger("posY");
 			int z = stack.stackTagCompound.getCompoundTag("target").getInteger("posZ");
+			short numSlots = stack.stackTagCompound.getCompoundTag("target").getShort("numslots");
+			String locName = stack.stackTagCompound.getCompoundTag("target").getString("locname");
 			list.add("owner: " + owner);
 
 			String dimPre = "" + EnumChatFormatting.BLUE;
@@ -101,14 +121,16 @@ public class EnderBag extends Item
 			String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
 			// Don't show the bound location to others, only the owner sees that
-			if (player.getDisplayName().equals(owner) == false) // FIXME
+			if (stack.stackTagCompound.getByte("mode") != 1 && player.getDisplayName().equals(owner) == false) // FIXME
 			{
 				dimPre = "" + EnumChatFormatting.OBFUSCATED;
 				cPre = "" + EnumChatFormatting.OBFUSCATED;
 			}
 
-			list.add(String.format("dimension: %s%d%s", dimPre, dim, rst));
-			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", cPre, x, rst, cPre, y, rst, cPre, z, rst));
+
+			list.add(String.format("dim: %s%d%s x: %s%d%s, y: %s%d%s, z: %s%d%s", dimPre, dim, rst, cPre, x, rst, cPre, y, rst, cPre, z, rst));
+			list.add("type: " + locName);
+			list.add(String.format("slots: %s%d%s", dimPre, numSlots, rst));
 		}
 	}
 
