@@ -6,6 +6,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import fi.dy.masa.minecraft.mods.enderutilities.event.EntityAttack;
 import fi.dy.masa.minecraft.mods.enderutilities.event.EntityInteract;
 import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
@@ -27,6 +28,7 @@ public class EnderUtilities
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+		MinecraftForge.EVENT_BUS.register(new EntityAttack());
 		MinecraftForge.EVENT_BUS.register(new EntityInteract());
 	}
 

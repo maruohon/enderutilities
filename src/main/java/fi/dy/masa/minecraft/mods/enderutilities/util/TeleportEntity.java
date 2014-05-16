@@ -3,16 +3,124 @@ package fi.dy.masa.minecraft.mods.enderutilities.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 public class TeleportEntity
 {
+	public static void addEnderSoundsAndParticles(EntityLiving entity)
+	{
+		double entX = entity.posX;
+		double entY = entity.posY;
+		double entZ = entity.posZ;
+
+		World world = entity.worldObj;
+		world.playSoundEffect(entX, entY, entZ, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+
+		// Spawn some particles
+		for (int i = 0; i < 20; i++)
+		{
+			double offX = (Math.random() - 0.5d) * 1.0d;
+			double offY = (Math.random() - 0.5d) * 1.0d;
+			double offZ = (Math.random() - 0.5d) * 1.0d;
+
+			double velX = (Math.random() - 0.5d) * 1.0d;
+			double velY = (Math.random() - 0.5d) * 1.0d;
+			double velZ = (Math.random() - 0.5d) * 1.0d;
+			world.spawnParticle("portal", entX + offX, entY + offY, entZ + offZ, velX, velY, velZ);
+		}
+	}
+
+	public static void teleportEntityRandomly(EntityLiving entity, double maxDist)
+	{
+		double deltaYaw = 0.0d;
+		double deltaPitch = 0.0d;
+		double x = 0.0d;
+		double y = 0.0d;
+		double z = 0.0d;
+		maxDist *= Math.random();
+
+		// Try to find a free spot (non-colliding with blocks)
+		int i;
+		for (i = 0; i < 10; i++)
+		{
+			deltaYaw = (Math.random() * 360.0f) / (2.0d / Math.PI);
+			deltaPitch = ((90.0d - (Math.random() * 180.0d)) / (2.0d * Math.PI));
+			x = entity.posX;
+			y = entity.posY;
+			z = entity.posZ;
+			x += Math.cos(deltaPitch) * Math.cos(deltaYaw) * maxDist;
+			z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
+			y += Math.sin(deltaPitch) * maxDist;
+
+			if (entity.worldObj.getBlock((int)x, (int)y, (int)z) == Blocks.air &&
+				entity.worldObj.getBlock((int)x, (int)y + 1, (int)z) == Blocks.air)
+			//if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
+			{
+				TeleportEntity.addEnderSoundsAndParticles(entity);
+				entity.setPosition(x, y, z);
+				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+				return;
+			}
+		}
+	}
+
 	public static boolean transferEntityToDimension(EntityLiving entity, int dim)
 	{
 		TeleportEntity.transferEntityToDimension(entity, dim, entity.posX, entity.posY, entity.posZ);
 		return true;
+	}
+
+	public static void teleportEntity(ItemStack stack, EntityLiving entity, int dim)
+	{
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || ! nbt.hasKey("x") || ! nbt.hasKey("y") || ! nbt.hasKey("z") || ! nbt.hasKey("dim")
+				|| entity.riddenByEntity != null || entity.ridingEntity != null)
+		{
+			return;
+		}
+		double x = (double)nbt.getInteger("x") + 0.5d;
+		double y = (double)nbt.getInteger("y");
+		double z = (double)nbt.getInteger("z") + 0.5d;
+		int targetDim = nbt.getInteger("dim");
+
+		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
+		if (targetDim != 0 && targetDim != -1)
+		{
+			return;
+		}
+
+		// FIXME does this chunkloading work?
+		//MinecraftServer minecraftserver = MinecraftServer.getServer();
+		//WorldServer worldServerDst = minecraftserver.worldServerForDimension(targetDim);
+
+		WorldServer worldServerDst = DimensionManager.getWorld(targetDim);
+		if (worldServerDst != null && worldServerDst.theChunkProviderServer != null)
+		{
+			worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
+		}
+
+		// TODO: Stop the mob AI: is this correct?
+		entity.setMoveForward(0.0f);
+		entity.getNavigator().clearPathEntity();
+
+		TeleportEntity.addEnderSoundsAndParticles(entity);
+
+		// FIXME Check for chunk loaded etc.
+		if (dim != targetDim)
+		{
+			TeleportEntity.transferEntityToDimension(entity, targetDim, x, y, z);
+		}
+		else
+		{
+			entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+		}
 	}
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)
