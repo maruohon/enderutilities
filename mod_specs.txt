@@ -9,6 +9,7 @@
   - Ender Arrows: Will teleport the entity they hit, to the location that has been bound to the stack
 
   - Ender Bag: Can be linked to any(?) inventories
+    ~ TODO: All the GUI and inventory stuff
 
   - Ender Bucket: Can hold a maximum of 16 buckets
     ~ TODO: check mod interaction/Forge API stuff

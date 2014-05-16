@@ -8,4 +8,5 @@ public class Reference
 
 	public static final String NAME_ITEM_ENDER_BAG = "enderbag";
 	public static final String NAME_ITEM_ENDER_BUCKET = "enderbucket";
+	public static final String NAME_ITEM_ENDER_LASSO = "enderlasso";
 }

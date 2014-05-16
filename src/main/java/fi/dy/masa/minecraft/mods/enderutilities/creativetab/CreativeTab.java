@@ -4,7 +4,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.minecraft.mods.enderutilities.init.ModItems;
+import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 
 public class CreativeTab
@@ -14,7 +14,7 @@ public class CreativeTab
 		@Override
 		public Item getTabIconItem()
 		{
-			return ModItems.enderBucket;
+			return EnderUtilitiesItems.enderBucket;
 		}
 
 		@Override

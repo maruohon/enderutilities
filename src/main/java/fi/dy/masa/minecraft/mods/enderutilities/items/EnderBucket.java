@@ -27,7 +27,7 @@ public class EnderBucket extends Item
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_BUCKET);
-		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName()); // FIXME?
+		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName());
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
@@ -91,8 +91,7 @@ public class EnderBucket extends Item
 			}
 
 			// Same fluid, or empty bucket
-			//if (targetFluidName.equals(nbtFluid) == true || nbtAmount == 0) // FIXME needs a proper block type check?
-			if (nbtAmount == 0 || targetMaterial.equals(nbtFluidMaterial) == true) // FIXME needs a proper block type check?
+			if (nbtAmount == 0 || targetMaterial.equals(nbtFluidMaterial) == true) // FIXME is this a sufficient block type check?
 			{
 				// Do we have space, and can we change the fluid block?
 				if ((MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
