@@ -29,65 +29,37 @@ public class TeleportEntity
 			WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
 			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
 			entitySrc.dimension = dimDst;
-			
+
 			entitySrc.worldObj.removeEntity(entitySrc);
 			entitySrc.isDead = false;
 			entitySrc.worldObj.theProfiler.startSection("reposition");
-			
-			// FIXME have to get rid of transferEntityToWorld, it will create portals, check spawn points etc.
-			//this.transferEntityToWorld(entitySrc, dimSrc, worldServerSrc, worldServerDst);
-			
+
 			entitySrc.worldObj.theProfiler.endStartSection("reloading");
 			Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
-			
+
 			if (entityDst != null && entityDst.isEntityAlive() == true)
 			{
 				x = (double)MathHelper.clamp_int((int)x, -29999872, 29999872);
 				z = (double)MathHelper.clamp_int((int)z, -29999872, 29999872);
-			
+
 				entityDst.copyDataFrom(entitySrc, true);
 				entityDst.setLocationAndAngles(x + 0.5d, y, z + 0.5d, entitySrc.rotationYaw, entitySrc.rotationPitch);
 				worldServerDst.spawnEntityInWorld(entityDst);
 				worldServerDst.updateEntityWithOptionalForce(entityDst, false);
 				entityDst.setWorld(worldServerDst);
-				System.out.printf("debug: yawSrc: %f yawDst: %f\n", entitySrc.rotationYaw, entityDst.rotationYaw);
 			}
-			
-			entitySrc.isDead = true; // FIXME debug: this actually kills the original entity, commenting it will make clones
+
+			// FIXME debug: this actually kills the original entity, commenting it will make clones
+			entitySrc.isDead = true;
+
 			entitySrc.worldObj.theProfiler.endSection();
 			worldServerSrc.resetUpdateEntityTick();
 			worldServerDst.resetUpdateEntityTick();
 			entitySrc.worldObj.theProfiler.endSection();
 
-			// FIXME: debug
-			System.out.println("transferEntityToDimension("
-								+ entitySrc.toString() + ", "
-								+ dimDst + ", " + x + ", " + y + ", " + z + ")");
 			return true;
 		}
-		
+
 		return false;
 	}
-
-/*
-	private void transferEntityToWorld(Entity entity, int dimSrc, WorldServer worldServerSrc, WorldServer worldServerDst)
-	{
-		double x = entity.posX;
-		double y = entity.posY;
-		double z = entity.posZ;
-
-		worldServerSrc.theProfiler.startSection("placing");
-		x = (double)MathHelper.clamp_int((int)x, -29999872, 29999872);
-		z = (double)MathHelper.clamp_int((int)z, -29999872, 29999872);
-
-		if (entity.isEntityAlive())
-		{
-			entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-			worldServerDst.spawnEntityInWorld(entity);
-			worldServerDst.updateEntityWithOptionalForce(entity, false);
-		}
-		worldServerSrc.theProfiler.endSection();
-		entity.setWorld(worldServerDst);
-	}
-*/
 }

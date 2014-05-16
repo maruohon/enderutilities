@@ -26,28 +26,6 @@ public class EnderLasso extends Item
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
-/*
-	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
-	{
-		System.out.println("onItemRightClick");
-		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-		if (movingobjectposition == null)
-		{
-			System.out.println("onItemRightClick: mop: null");
-			return stack;
-		}
-
-		System.out.println("onItemRightClick: mop: " + movingobjectposition.toString());
-		if (movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
-		{
-			System.out.println("onItemRightClick: hit entity");
-			System.out.println(movingobjectposition.entityHit.toString()); // FIXME debug
-		}
-		return stack;
-	}
-*/
-
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
@@ -79,7 +57,6 @@ public class EnderLasso extends Item
 				if (side == 4) { --x; strSide = "north"; }
 				if (side == 5) { ++x; strSide = "south"; }
 
-				System.out.printf("x: %d,  y: %d, z: %d side: %d strSide: %s\n", x, y, z, side, strSide); // FIXME debug
 				nbt.setInteger("dim", player.dimension);
 				nbt.setInteger("x", x);
 				nbt.setInteger("y", y);
@@ -160,10 +137,9 @@ public class EnderLasso extends Item
 		entity.setMoveForward(0.0f);
 		entity.getNavigator().clearPathEntity();
 
-		// FIXME change the dimension, check for chunk loaded etc.
-		if (entX != 0.0d) //dim != targetDim)
+		// FIXME Check for chunk loaded etc.
+		if (dim != targetDim)
 		{
-			//entity.travelToDimension(targetDim);
 			TeleportEntity.transferEntityToDimension(entity, targetDim, x, y, z);
 		}
 		else
