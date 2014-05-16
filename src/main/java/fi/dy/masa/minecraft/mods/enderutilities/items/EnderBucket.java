@@ -49,7 +49,6 @@ public class EnderBucket extends Item
 
 		if (movingobjectposition == null)
 		{
-			System.out.println("null"); // FIXME debug
 			return stack;
 		}
 
@@ -98,7 +97,6 @@ public class EnderBucket extends Item
 				// Do we have space, and can we change the fluid block?
 				if ((MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
 				{
-					System.out.println("no space or can't edit"); // FIXME debug
 					return stack;
 				}
 
@@ -116,15 +114,8 @@ public class EnderBucket extends Item
 						stack.setTagCompound(nbt);
 					}
 				}
-				else
-				{
-					System.out.println("failed material check"); // FIXME debug
-				}
+
 				return stack;
-			}
-			else
-			{
-				System.out.println("targetFluidName: " + targetFluidName + " nbtFluid: " + nbtFluid); // FIXME Debug
 			}
 
 			// Different fluid, or other block type, we try to place a fluid block in the world
@@ -156,7 +147,6 @@ public class EnderBucket extends Item
 			nbtFluidBlock = Block.getBlockFromName(nbtFluid);
 			if (nbtFluidBlock == null)
 			{
-				FMLLog.warning("Fluid block was null");
 				return stack;
 			}
 
