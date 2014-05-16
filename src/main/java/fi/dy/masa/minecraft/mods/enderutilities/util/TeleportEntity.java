@@ -3,9 +3,9 @@ package fi.dy.masa.minecraft.mods.enderutilities.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 
 public class TeleportEntity
 {
@@ -17,22 +17,30 @@ public class TeleportEntity
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)
 	{
+/*
+		// FIXME debug
+		if (dimDst == 1)
+		{
+			entitySrc.travelToDimension(1);
+			return true;
+		}
+*/
 		if (entitySrc != null && entitySrc.worldObj.isRemote == false && entitySrc.isDead == false)
 		{
 			int dimSrc = entitySrc.dimension;
 
 			if (dimSrc == dimDst)
 			{
-				return true;
+				return false;
 			}
 
 			entitySrc.worldObj.theProfiler.startSection("changeDimension");
 
-			WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
-			WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
-			//MinecraftServer minecraftserver = MinecraftServer.getServer();
-			//WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
-			//WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+			//WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
+			//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+			MinecraftServer minecraftserver = MinecraftServer.getServer();
+			WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
+			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
 
 			if (worldServerSrc == null || worldServerDst == null)
 			{

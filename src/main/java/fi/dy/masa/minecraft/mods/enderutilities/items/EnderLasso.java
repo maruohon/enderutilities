@@ -11,6 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
@@ -92,8 +94,17 @@ public class EnderLasso extends Item
 		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-		list.add(String.format("dim: %s%d%s x: %s%d%s, y: %s%d%s, z: %s%d%s",
-					dimPre, dim, rst, coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+		if (dim >= -1 && dim <= 1)
+		{
+			String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
+			list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
+		}
+		else
+		{
+			list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
+		}
+
+		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
 	}
 
 	@Override
@@ -114,6 +125,22 @@ public class EnderLasso extends Item
 		double y = (double)nbt.getInteger("y");
 		double z = (double)nbt.getInteger("z") + 0.5d;
 		int targetDim = nbt.getInteger("dim");
+
+		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
+		if (targetDim != 0 && targetDim != -1)
+		{
+			return;
+		}
+
+		// FIXME does this chunkloading work?
+		//MinecraftServer minecraftserver = MinecraftServer.getServer();
+		//WorldServer worldServerDst = minecraftserver.worldServerForDimension(targetDim);
+
+		WorldServer worldServerDst = DimensionManager.getWorld(targetDim);
+		if (worldServerDst != null && worldServerDst.theChunkProviderServer != null)
+		{
+			worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
+		}
 
 		double entX = entity.posX;
 		double entY = entity.posY;
