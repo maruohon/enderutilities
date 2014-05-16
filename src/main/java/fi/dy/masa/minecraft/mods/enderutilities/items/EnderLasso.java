@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeChunkManager;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 import fi.dy.masa.minecraft.mods.enderutilities.util.TeleportEntity;
@@ -80,6 +81,7 @@ public class EnderLasso extends Item
 			return;
 		}
 
+		ForgeChunkManager fcm = new ForgeChunkManager();
 		String side	= nbt.getString("side");
 		int dim		= nbt.getInteger("dim");
 		int x		= nbt.getInteger("x");
@@ -108,9 +110,9 @@ public class EnderLasso extends Item
 		{
 			return;
 		}
-		double x = (double)nbt.getInteger("x");
+		double x = (double)nbt.getInteger("x") + 0.5d;
 		double y = (double)nbt.getInteger("y");
-		double z = (double)nbt.getInteger("z");
+		double z = (double)nbt.getInteger("z") + 0.5d;
 		int targetDim = nbt.getInteger("dim");
 
 		double entX = entity.posX;
@@ -118,7 +120,7 @@ public class EnderLasso extends Item
 		double entZ = entity.posZ;
 
 		World world = entity.worldObj;
-		world.playSoundEffect(entX, entY, entZ, "mob.endermen.portal", 0.5F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+		world.playSoundEffect(entX, entY, entZ, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
 
 		// Spawn some particles
 		for (int i = 0; i < 20; i++)
@@ -144,7 +146,7 @@ public class EnderLasso extends Item
 		}
 		else
 		{
-			entity.setLocationAndAngles(x + 0.5d, y, z + 0.5d, entity.rotationYaw, entity.rotationPitch);
+			entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 		}
 	}
 }
