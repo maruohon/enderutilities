@@ -24,6 +24,7 @@ public class EntityAttack
 			{
 				if (stack.getItem() == EnderUtilitiesItems.enderArrow)
 				{
+					// TODO change the maxDistance into a config value
 					TeleportEntity.teleportEntityRandomly((EntityLiving)event.target, 10.0d);
 					event.setCanceled(true);
 					return;

@@ -23,19 +23,7 @@ public class EntityInteract
 			{
 				if (stack.getItem() == EnderUtilitiesItems.enderLasso)
 				{
-					// FIXME debug: trying to figure out the chunks-loaded-check
-					for (int i = -1; i <= 1; i++)
-					{
-						WorldServer worldServerDst = DimensionManager.getWorld(i);
-						System.out.printf("Loaded chunk count for dim %d: %d\n", i, worldServerDst.getChunkProvider().getLoadedChunkCount());
-						System.out.println("isDimensionRegistered(): " + DimensionManager.isDimensionRegistered(i));
-
-						for (ChunkCoordIntPair coord : worldServerDst.getPersistentChunks().keySet())
-						{
-							System.out.printf("Persistent: x: %d, z: %d\n", coord.chunkXPos, coord.chunkZPos);
-						}
-					}
-					TeleportEntity.teleportEntity(stack, (EntityLiving)event.target, event.entity.dimension);
+					TeleportEntity.lassoTeleportEntity(stack, (EntityLiving)event.target, event.entity.dimension);
 					event.setCanceled(true);
 					return;
 				}

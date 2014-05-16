@@ -9,7 +9,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.DimensionManager;
+import cpw.mods.fml.common.FMLLog;
 
 public class TeleportEntity
 {
@@ -69,13 +71,7 @@ public class TeleportEntity
 		}
 	}
 
-	public static boolean transferEntityToDimension(EntityLiving entity, int dim)
-	{
-		TeleportEntity.transferEntityToDimension(entity, dim, entity.posX, entity.posY, entity.posZ);
-		return true;
-	}
-
-	public static void teleportEntity(ItemStack stack, EntityLiving entity, int dim)
+	public static void lassoTeleportEntity(ItemStack stack, EntityLiving entity, int dimSrc)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null || ! nbt.hasKey("x") || ! nbt.hasKey("y") || ! nbt.hasKey("z") || ! nbt.hasKey("dim")
@@ -86,30 +82,45 @@ public class TeleportEntity
 		double x = (double)nbt.getInteger("x") + 0.5d;
 		double y = (double)nbt.getInteger("y");
 		double z = (double)nbt.getInteger("z") + 0.5d;
-		int targetDim = nbt.getInteger("dim");
+		int dimDst = nbt.getInteger("dim");
 
+		TeleportEntity.teleportEntity(entity, dimSrc, dimDst, x, y, z);
+	}
+
+	public static void teleportEntity(EntityLiving entity, int dimSrc, int dimDst, double x, double y, double z)
+	{
 		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
-		if (targetDim != 0 && targetDim != -1)
+/*
+		if (dimDst != 0 && dimDst != -1)
 		{
-			//return;
+			return;
 		}
-
-		// FIXME does this chunkloading work?
-		//MinecraftServer minecraftserver = MinecraftServer.getServer();
-		//WorldServer worldServerDst = minecraftserver.worldServerForDimension(targetDim);
-
-		WorldServer worldServerDst = DimensionManager.getWorld(targetDim);
-		System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
-
-		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
-		if (targetDim < 5) //targetDim != 0 && targetDim != -1)
+*/
+		if (entity == null || entity.worldObj.isRemote != false || entity.isDead == true)
 		{
 			return;
 		}
 
-		if (worldServerDst != null && worldServerDst.getChunkProvider() != null)
+		WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+		if (worldServerDst == null)
 		{
-			worldServerDst.getChunkProvider().loadChunk((int)x >> 4, (int)z >> 4);
+			FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
+			return;
+		}
+
+		System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
+		// FIXME: only allow overworld and nether until I figure out the dimension and chunk loading stuff...
+/*
+		if (dimDst < 5) //targetDim != 0 && targetDim != -1)
+		{
+			return;
+		}
+*/
+		IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
+		if (chunkProvider != null && chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
+		{
+			//worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
+			chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
 		}
 
 		// TODO: Stop the mob AI: is this correct?
@@ -119,9 +130,9 @@ public class TeleportEntity
 		TeleportEntity.addEnderSoundsAndParticles(entity);
 
 		// FIXME Check for chunk loaded etc.
-		if (dim != targetDim)
+		if (dimSrc != dimDst)
 		{
-			TeleportEntity.transferEntityToDimension(entity, targetDim, x, y, z);
+			TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
 		}
 		else
 		{
@@ -189,6 +200,12 @@ public class TeleportEntity
 			return true;
 		}
 		return false;
+	}
+
+	public static boolean transferEntityToDimension(EntityLiving entity, int dim)
+	{
+		TeleportEntity.transferEntityToDimension(entity, dim, entity.posX, entity.posY, entity.posZ);
+		return true;
 	}
 
 	private static void transferEntityToWorld(Entity entity, int dimSrc, WorldServer worldServerSrc, WorldServer worldServerDst)
