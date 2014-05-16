@@ -38,7 +38,7 @@
   - Ender Sender: Can be linked to any(?) inventory, has a filter setting, will auto-send any
     picked up items (according to the filter) to the inventory it is linked to
 
-  - Ender Sider: Similar to above, but accesses the block's sides, not the inventory
+  - Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 
   - Ender Swapper: Swaps two pre-set blocks with eachother
 
