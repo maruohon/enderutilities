@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -47,8 +46,7 @@ public class TeleportEntity
 		maxDist *= Math.random();
 
 		// Try to find a free spot (non-colliding with blocks)
-		int i;
-		for (i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			deltaYaw = (Math.random() * 360.0f) / (2.0d / Math.PI);
 			deltaPitch = ((90.0d - (Math.random() * 180.0d)) / (2.0d * Math.PI));
@@ -93,7 +91,7 @@ public class TeleportEntity
 		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
 		if (targetDim != 0 && targetDim != -1)
 		{
-			return;
+			//return;
 		}
 
 		// FIXME does this chunkloading work?
@@ -101,9 +99,17 @@ public class TeleportEntity
 		//WorldServer worldServerDst = minecraftserver.worldServerForDimension(targetDim);
 
 		WorldServer worldServerDst = DimensionManager.getWorld(targetDim);
-		if (worldServerDst != null && worldServerDst.theChunkProviderServer != null)
+		System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
+
+		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
+		if (targetDim < 5) //targetDim != 0 && targetDim != -1)
 		{
-			worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
+			return;
+		}
+
+		if (worldServerDst != null && worldServerDst.getChunkProvider() != null)
+		{
+			worldServerDst.getChunkProvider().loadChunk((int)x >> 4, (int)z >> 4);
 		}
 
 		// TODO: Stop the mob AI: is this correct?
@@ -144,11 +150,11 @@ public class TeleportEntity
 
 			entitySrc.worldObj.theProfiler.startSection("changeDimension");
 
-			//WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
-			//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
-			MinecraftServer minecraftserver = MinecraftServer.getServer();
-			WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
-			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+			WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
+			WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+			//MinecraftServer minecraftserver = MinecraftServer.getServer();
+			//WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
+			//WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
 
 			if (worldServerSrc == null || worldServerDst == null)
 			{
