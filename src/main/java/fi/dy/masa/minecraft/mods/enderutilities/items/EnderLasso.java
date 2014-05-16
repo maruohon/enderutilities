@@ -2,21 +2,18 @@ package fi.dy.masa.minecraft.mods.enderutilities.items;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import fi.dy.masa.minecraft.mods.enderutilities.EnderUtilities;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.minecraft.mods.enderutilities.reference.GuiReference;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
+import fi.dy.masa.minecraft.mods.enderutilities.util.TeleportEntity;
 
 public class EnderLasso extends Item
 {
@@ -124,5 +121,54 @@ public class EnderLasso extends Item
 	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
 	{
 		return true;
+	}
+
+	public void teleportEntity(ItemStack stack, EntityLiving entity, int dim)
+	{
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || ! nbt.hasKey("x") || ! nbt.hasKey("y") || ! nbt.hasKey("z") || ! nbt.hasKey("dim")
+				|| entity.riddenByEntity != null || entity.ridingEntity != null)
+		{
+			return;
+		}
+		double x = (double)nbt.getInteger("x");
+		double y = (double)nbt.getInteger("y");
+		double z = (double)nbt.getInteger("z");
+		int targetDim = nbt.getInteger("dim");
+
+		double entX = entity.posX;
+		double entY = entity.posY;
+		double entZ = entity.posZ;
+
+		World world = entity.worldObj;
+		world.playSoundEffect(entX, entY, entZ, "mob.endermen.portal", 0.5F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+
+		// Spawn some particles
+		for (int i = 0; i < 20; i++)
+		{
+			double offX = (Math.random() - 0.5d) * 1.0d;
+			double offY = (Math.random() - 0.5d) * 1.0d;
+			double offZ = (Math.random() - 0.5d) * 1.0d;
+
+			double velX = (Math.random() - 0.5d) * 1.0d;
+			double velY = (Math.random() - 0.5d) * 1.0d;
+			double velZ = (Math.random() - 0.5d) * 1.0d;
+			world.spawnParticle("portal", entX + offX, entY + offY, entZ + offZ, velX, velY, velZ);
+		}
+
+		// TODO: Stop the mob AI: is this correct?
+		entity.setMoveForward(0.0f);
+		entity.getNavigator().clearPathEntity();
+
+		// FIXME change the dimension, check for chunk loaded etc.
+		if (entX != 0.0d) //dim != targetDim)
+		{
+			//entity.travelToDimension(targetDim);
+			TeleportEntity.transferEntityToDimension(entity, targetDim, x, y, z);
+		}
+		else
+		{
+			entity.setLocationAndAngles(x + 0.5d, y, z + 0.5d, entity.rotationYaw, entity.rotationPitch);
+		}
 	}
 }
