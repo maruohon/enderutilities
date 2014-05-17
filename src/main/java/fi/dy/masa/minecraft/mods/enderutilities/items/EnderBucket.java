@@ -96,8 +96,9 @@ public class EnderBucket extends Item
 				}
 			}
 
-			// Same fluid, or empty bucket
-			if (nbtAmount == 0 || targetMaterial.equals(nbtFluidMaterial) == true) // FIXME is this a sufficient block type check?
+			// Empty bucket, or same fluid and not sneaking (to be able to empty a bucket into the same fluid blocks)
+			// FIXME is this a sufficient block type check?
+			if (nbtAmount == 0 || (targetMaterial.equals(nbtFluidMaterial) == true && player.isSneaking() == false))
 			{
 				// Do we have space, and can we change the fluid block?
 				if ((MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
@@ -235,6 +236,7 @@ public class EnderBucket extends Item
 		{
 			if (world.isRemote == false && material.isSolid() == false && material.isLiquid() == false)
 			{
+				// Set a replaceable block to air, and drop the items
 				world.func_147480_a(x, y, z, true);
 			}
 
