@@ -128,18 +128,24 @@ public class EnderBag extends Item
 			if (nbt.getByte("mode") == 1 || player.getDisplayName().equals(owner) == true) // FIXME
 			{
 				regPre = "" + EnumChatFormatting.GRAY;
-				dimPre = "" + EnumChatFormatting.BLUE;
+				dimPre = "" + EnumChatFormatting.GREEN;
 				coordPre = "" + EnumChatFormatting.BLUE;
 			}
 
-			list.add("owner: " + owner);
-			list.add(String.format("dim: %s%d%s x: %s%d%s, y: %s%d%s, z: %s%d%s",
-						dimPre, dim, rst,
-						coordPre, x, rst,
-						coordPre, y, rst,
-						coordPre, z, rst));
-			list.add(String.format("type: %s%s%s", regPre, locName, rst));
-			list.add(String.format("slots: %s%d%s", dimPre, numSlots, rst));
+			if (dim >= -1 && dim <= 1)
+			{
+				String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
+				list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
+			}
+			else
+			{
+				list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
+			}
+
+			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+			list.add(String.format("Type: %s%s%s", coordPre, locName, rst));
+			list.add(String.format("Slots: %s%d%s", coordPre, numSlots, rst));
+			list.add("Owner: " + owner);
 		}
 	}
 
