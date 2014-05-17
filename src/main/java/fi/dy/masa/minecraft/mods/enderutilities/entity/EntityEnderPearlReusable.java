@@ -1,12 +1,13 @@
 package fi.dy.masa.minecraft.mods.enderutilities.entity;
 
+import java.util.Random;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -77,15 +78,12 @@ public class EntityEnderPearlReusable extends EntityThrowable
 
 			EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
 						new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
-/*
-			if (itemstack.hasTagCompound())
-			{
-				entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-			}
-*/
-			entityitem.motionX = 0.0d;
-			entityitem.motionY = 0.2d;
-			entityitem.motionZ = 0.2d;
+
+			Random r = new Random();
+			entityitem.motionX = 0.05d * r.nextGaussian();
+			entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
+			entityitem.motionZ = 0.05d * r.nextGaussian();
+			entityitem.delayBeforeCanPickup = 20;
 			this.worldObj.spawnEntityInWorld(entityitem);
 
 			this.setDead();
