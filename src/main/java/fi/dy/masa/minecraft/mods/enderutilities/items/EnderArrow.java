@@ -28,6 +28,12 @@ public class EnderArrow extends Item
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
+		// Do nothing on the client side
+		if (world.isRemote == true)
+		{
+			return stack;
+		}
+
 		NBTTagCompound nbt = stack.getTagCompound();
 
 		if (nbt != null)

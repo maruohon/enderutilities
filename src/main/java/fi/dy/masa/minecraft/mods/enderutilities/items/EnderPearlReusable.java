@@ -23,6 +23,11 @@ public class EnderPearlReusable extends Item
 	 */
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
+		if (player.worldObj.isRemote == true)
+		{
+			return stack;
+		}
+
 		--stack.stackSize;
 		world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 

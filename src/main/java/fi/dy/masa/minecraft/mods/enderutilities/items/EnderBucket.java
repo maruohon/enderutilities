@@ -34,6 +34,12 @@ public class EnderBucket extends Item
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
+		// Do nothing on the client side
+		if (world.isRemote == true)
+		{
+			return stack;
+		}
+
 		String nbtFluid = "";
 		short nbtAmount = 0;
 
@@ -164,41 +170,6 @@ public class EnderBucket extends Item
 		return stack;
 	}
 
-	/**
-	* Attempts to place the fluid contained inside the bucket.
-	*/
-	public boolean tryPlaceContainedFluid(World world, int x, int y, int z, Block fluid)
-	{
-		Material material = world.getBlock(x, y, z).getMaterial();
-
-		if (world.isAirBlock(x, y, z) == false && material.isSolid() == true)
-		{
-			return false;
-		}
-
-		if (world.provider.isHellWorld && fluid == Blocks.flowing_water)
-		{
-			world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
-
-			for (int l = 0; l < 8; ++l)
-			{
-				world.spawnParticle("largesmoke", (double)x + Math.random(), (double)y + Math.random(), (double)z + Math.random(), 0.0D, 0.0D, 0.0D);
-			}
-		}
-		else
-		{
-			if (world.isRemote == false && material.isSolid() == false && material.isLiquid() == false)
-			{
-				world.func_147480_a(x, y, z, true);
-			}
-
-			world.setBlock(x, y, z, fluid, 0, 3);
-			//world.notifyBlockChange(x, y, z, fluid); // FIXME this doesn't work
-		}
-
-		return true;
-	}
-
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
@@ -238,6 +209,39 @@ public class EnderBucket extends Item
 	@Override
 	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
 	{
+		return true;
+	}
+
+	// Attempts to place the fluid contained inside the bucket.
+	public boolean tryPlaceContainedFluid(World world, int x, int y, int z, Block fluid)
+	{
+		Material material = world.getBlock(x, y, z).getMaterial();
+
+		if (world.isAirBlock(x, y, z) == false && material.isSolid() == true)
+		{
+			return false;
+		}
+
+		if (world.provider.isHellWorld && fluid == Blocks.flowing_water)
+		{
+			world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+
+			for (int l = 0; l < 8; ++l)
+			{
+				world.spawnParticle("largesmoke", (double)x + Math.random(), (double)y + Math.random(), (double)z + Math.random(), 0.0D, 0.0D, 0.0D);
+			}
+		}
+		else
+		{
+			if (world.isRemote == false && material.isSolid() == false && material.isLiquid() == false)
+			{
+				world.func_147480_a(x, y, z, true);
+			}
+
+			world.setBlock(x, y, z, fluid, 0, 3);
+			//world.notifyBlockChange(x, y, z, fluid); // FIXME this doesn't work
+		}
+
 		return true;
 	}
 }
