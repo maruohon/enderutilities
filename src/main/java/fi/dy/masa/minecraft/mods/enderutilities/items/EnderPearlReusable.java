@@ -14,7 +14,7 @@ public class EnderPearlReusable extends Item
 	{
 		this.setMaxStackSize(4);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_PEARL_REUSABLE);
-		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName());
+		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

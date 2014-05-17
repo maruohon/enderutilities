@@ -11,6 +11,6 @@ public class EnderUtilitiesBlocks
 
 	public static void init()
 	{
-		GameRegistry.registerBlock(enderFurnace, Reference.NAME_BLOCK_ENDER_FURNACE);
+		GameRegistry.registerBlock(enderFurnace, Reference.NAME_TILE_ENDER_FURNACE);
 	}
 }

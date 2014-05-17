@@ -1,3 +1,9 @@
+language.name=English
+language.region=US
+language.code=en_US
+
+tile.enderfurnace.name=Ender Furnace
+
 item.enderarrow.name=Ender Arrow
 item.enderbag.name=Ender Bag
 item.enderbucket.name=Ender Bucket

@@ -6,7 +6,9 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -17,6 +19,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 
 public class EnderFurnace extends BlockContainer
@@ -31,12 +34,16 @@ public class EnderFurnace extends BlockContainer
 	public EnderFurnace()
 	{
 		super(Material.rock);
+		this.setHardness(10.0f);
+		this.setHarvestLevel("pickaxe", 2);
+		this.setStepSound(soundTypePiston);
+		this.setBlockName(Reference.NAME_TILE_ENDER_FURNACE);
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
 	public Item getItemDropped(int p1, Random r, int p3)
 	{
-		return Item.getItemFromBlock(Blocks.furnace);
+		return Item.getItemFromBlock(EnderUtilitiesBlocks.enderFurnace);
 	}
 
 	// Returns a new instance of a block's tile entity class. Called on placing the block.
@@ -49,29 +56,26 @@ public class EnderFurnace extends BlockContainer
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack)
 	{
 		int rot = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-		world.setBlockMetadataWithNotify(x, y, z, rot, 2);
-
-		//if (rot == 0) { world.setBlockMetadataWithNotify(x, y, z, 2, 2); }
-		//if (rot == 1) { world.setBlockMetadataWithNotify(x, y, z, 5, 2); }
-		//if (rot == 2) { world.setBlockMetadataWithNotify(x, y, z, 3, 2); }
-		//if (rot == 3) { world.setBlockMetadataWithNotify(x, y, z, 4, 2); }
+		if (rot == 0) { world.setBlockMetadataWithNotify(x, y, z, 2, 2); }
+		if (rot == 1) { world.setBlockMetadataWithNotify(x, y, z, 5, 2); }
+		if (rot == 2) { world.setBlockMetadataWithNotify(x, y, z, 3, 2); }
+		if (rot == 3) { world.setBlockMetadataWithNotify(x, y, z, 4, 2); }
 
 		if (stack.hasDisplayName())
 		{
+			// FIXME add custom TileEntity
 			((TileEntityFurnace)world.getTileEntity(x, y, z)).func_145951_a(stack.getDisplayName());
 		}
 	}
 
-	/**
-	 * Called whenever the block is added into the world. Args: world, x, y, z
-	 */
-/*
+	// Called whenever the block is added into the world. Args: world, x, y, z
 	public void onBlockAdded(World world, int x, int y, int z)
 	{
 		super.onBlockAdded(world, x, y, z);
-		this.func_149930_e(world, x, y, z);
+		//this.func_149930_e(world, x, y, z);
 	}
 
+/*
 	private void func_149930_e(World p_149930_1_, int p_149930_2_, int p_149930_3_, int p_149930_4_)
 	{
 		if (!p_149930_1_.isRemote)
@@ -105,27 +109,29 @@ public class EnderFurnace extends BlockContainer
 			p_149930_1_.setBlockMetadataWithNotify(p_149930_2_, p_149930_3_, p_149930_4_, b0, 2);
 		}
 	}
-
+*/
 	// Called upon block activation (right click on the block.)
-	public boolean onBlockActivated(World p_149727_1_, int p_149727_2_, int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float hitX, float hitY, float hitZ)
 	{
-		if (p_149727_1_.isRemote)
+		if (world.isRemote == true)
 		{
 			return true;
 		}
 		else
 		{
-			TileEntityFurnace tileentityfurnace = (TileEntityFurnace)p_149727_1_.getTileEntity(p_149727_2_, p_149727_3_, p_149727_4_);
+			// FIXME debug
+			//System.out.printf("x: %d y: %d z: %d hitX: %f hitY: %f hitZ: %f\n", x, y, z, hitX, hitY, hitZ);
+			TileEntityFurnace tileentityfurnace = (TileEntityFurnace)world.getTileEntity(x, y, z);
 
 			if (tileentityfurnace != null)
 			{
-				p_149727_5_.func_146101_a(tileentityfurnace);
+				player.func_146101_a(tileentityfurnace);
 			}
 
 			return true;
 		}
 	}
-
+/*
 	// Update which block the furnace is using depending on whether or not it is burning
 	public static void updateFurnaceBlockState(boolean p_149931_0_, World p_149931_1_, int p_149931_2_, int p_149931_3_, int p_149931_4_)
 	{
@@ -202,7 +208,7 @@ public class EnderFurnace extends BlockContainer
 	
 		super.breakBlock(world, x, y, z, block, meta);
 	}
-
+*/
 	// If this returns true, then comparators facing away from this block will use the value from
 	// getComparatorInputOverride instead of the actual redstone signal strength.
 	public boolean hasComparatorInputOverride()
@@ -216,7 +222,7 @@ public class EnderFurnace extends BlockContainer
 	{
 		return Container.calcRedstoneFromInventory((IInventory)world.getTileEntity(x, y, z));
 	}
-
+/*
 	// A randomly called display update to be able to add particles or other items for display
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World p_149734_1_, int p_149734_2_, int p_149734_3_, int p_149734_4_, Random p_149734_5_)
@@ -257,7 +263,7 @@ public class EnderFurnace extends BlockContainer
 	@SideOnly(Side.CLIENT)
 	public Item getItem(World world, int x, int y, int z)
 	{
-		return Item.getItemFromBlock(Blocks.furnace);
+		return Item.getItemFromBlock(EnderUtilitiesBlocks.enderFurnace);
 	}
 
 	// Gets the block's texture. Args: side, meta
@@ -272,9 +278,9 @@ public class EnderFurnace extends BlockContainer
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		this.blockIcon = iconRegister.registerIcon(Reference.NAME_ITEM_ENDER_FURNACE + "_side");
-		this.iconTop = iconRegister.registerIcon(Reference.NAME_ITEM_ENDER_FURNACE + "_top");
-		// FIXME how can we do the front icon based on state? Needs TESR?
-		this.iconFront = iconRegister.registerIcon(Reference.NAME_ITEM_ENDER_FURNACE + "_front_off");
+		this.blockIcon = iconRegister.registerIcon(Reference.getTileName(Reference.NAME_ITEM_ENDER_FURNACE) + ".side");
+		this.iconTop = iconRegister.registerIcon(Reference.getTileName(Reference.NAME_ITEM_ENDER_FURNACE) + ".top");
+		// FIXME how can we do the front texture based on state? Needs TESR?
+		this.iconFront = iconRegister.registerIcon(Reference.getTileName(Reference.NAME_ITEM_ENDER_FURNACE) + ".front.off");
 	}
 }

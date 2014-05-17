@@ -21,7 +21,7 @@ public class EnderArrow extends Item
 		super();
 		this.setMaxStackSize(64);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_ARROW);
-		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName());
+		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

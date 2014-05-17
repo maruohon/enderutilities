@@ -24,9 +24,9 @@ public class EnderBag extends Item
 	{
 		super();
 		this.setMaxStackSize(1);
-		this.setHasSubtypes(true);
+		//this.setHasSubtypes(true);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_BAG);
-		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName()); // FIXME?
+		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

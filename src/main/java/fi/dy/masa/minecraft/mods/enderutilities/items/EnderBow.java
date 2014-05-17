@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -29,6 +30,8 @@ public class EnderBow extends ItemBow
 	{
 		this.maxStackSize = 1;
 		this.setMaxDamage(384);
+		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_BOW);
+		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

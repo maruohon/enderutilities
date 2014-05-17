@@ -25,7 +25,7 @@ public class EnderLasso extends Item
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_LASSO);
-		this.setTextureName(Reference.MOD_ID + ":" + this.getUnlocalizedName());
+		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

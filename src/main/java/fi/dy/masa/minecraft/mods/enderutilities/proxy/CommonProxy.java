@@ -18,6 +18,6 @@ public abstract class CommonProxy implements IProxy
 	public void registerTileEntities()
 	{
 		// FIXME: create my own tile entity?
-		GameRegistry.registerTileEntity(TileEntityFurnace.class, Reference.NAME_BLOCK_ENDER_FURNACE);
+		GameRegistry.registerTileEntity(TileEntityFurnace.class, Reference.NAME_TILE_ENDER_FURNACE);
 	}
 }
