@@ -6,11 +6,11 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.DimensionManager;
 import cpw.mods.fml.common.FMLLog;
 
 public class TeleportEntity
@@ -89,19 +89,14 @@ public class TeleportEntity
 
 	public static void teleportEntity(EntityLiving entity, int dimSrc, int dimDst, double x, double y, double z)
 	{
-		// FIXME: only allow overworld and nether until I figure out the dimension and chunk laoding stuff...
-/*
-		if (dimDst != 0 && dimDst != -1)
-		{
-			return;
-		}
-*/
 		if (entity == null || entity.worldObj.isRemote != false || entity.isDead == true)
 		{
 			return;
 		}
 
-		WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+		MinecraftServer minecraftserver = MinecraftServer.getServer();
+		WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+		//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
 		if (worldServerDst == null)
 		{
 			FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
@@ -109,13 +104,7 @@ public class TeleportEntity
 		}
 
 		System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
-		// FIXME: only allow overworld and nether until I figure out the dimension and chunk loading stuff...
-/*
-		if (dimDst < 5) //targetDim != 0 && targetDim != -1)
-		{
-			return;
-		}
-*/
+
 		IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
 		if (chunkProvider != null && chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
 		{
@@ -123,7 +112,6 @@ public class TeleportEntity
 			chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
 		}
 
-		// TODO: Stop the mob AI: is this correct?
 		entity.setMoveForward(0.0f);
 		entity.getNavigator().clearPathEntity();
 
@@ -142,14 +130,6 @@ public class TeleportEntity
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)
 	{
-/*
-		// FIXME debug
-		if (dimDst == 1)
-		{
-			entitySrc.travelToDimension(1);
-			return true;
-		}
-*/
 		if (entitySrc != null && entitySrc.worldObj.isRemote == false && entitySrc.isDead == false)
 		{
 			int dimSrc = entitySrc.dimension;
@@ -161,14 +141,15 @@ public class TeleportEntity
 
 			entitySrc.worldObj.theProfiler.startSection("changeDimension");
 
-			WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
-			WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
-			//MinecraftServer minecraftserver = MinecraftServer.getServer();
-			//WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
-			//WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+			//WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
+			//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+			MinecraftServer minecraftserver = MinecraftServer.getServer();
+			WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
+			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
 
 			if (worldServerSrc == null || worldServerDst == null)
 			{
+				FMLLog.warning("[Ender Utilities] transferEntityToDimension(): worldServer[Src|Dst] == null");
 				return false;
 			}
 
