@@ -106,10 +106,12 @@ public class TeleportEntity
 			return;
 		}
 
-		System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
+		//System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
 
 		IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
-		if (chunkProvider != null && chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
+		if (chunkProvider == null) { return; }
+
+		if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
 		{
 			//worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
 			chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
