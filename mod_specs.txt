@@ -15,7 +15,7 @@
     ~ TODO: check mod interaction/Forge API stuff
     ~ Add the icon dynamics
 
-  - Ender Educator: Can instantly grow a baby mob into an adult. Has a 40% chance to fail and fill the mob.
+  - Ender Educator: Can instantly grow a baby mob into an adult. Has a 40% chance to fail and kill the mob.
     "Use the mystical powers of the void to transfer all the knowledge and experiences of several years of life
     in a blink of an eye. Beware though, this might be too much for the subject to handle, and he has a 40% chance
     of dying from this."
@@ -40,7 +40,7 @@
 
   - Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 
-  - Ender Swapper: Swaps two pre-set blocks with eachother
+  - Ender Swapper: Swaps two pre-set blocks or entities with eachother
 
   - Ender Tranceiver: Wirelessly transmits the redstone signal it receives to another, paired device
 
