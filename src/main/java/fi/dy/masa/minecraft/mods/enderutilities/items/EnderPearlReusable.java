@@ -23,7 +23,7 @@ public class EnderPearlReusable extends Item
 	 */
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		if (player.worldObj.isRemote == true)
+		if (world.isRemote == true)
 		{
 			return stack;
 		}
