@@ -28,6 +28,11 @@ public class Reference
 		return Reference.MOD_ID + ":" + name;
 	}
 
+	public static String getEntityTextureName(String name)
+	{
+		return Reference.MOD_ID + ":textures/entity/entity." + name;
+	}
+
 	public static String getTileName(String name)
 	{
 		return Reference.MOD_ID + ":tile." + name;

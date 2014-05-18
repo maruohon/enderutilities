@@ -70,16 +70,15 @@ public class EntityEnderPearlReusable extends EntityThrowable
 				if (MinecraftForge.EVENT_BUS.post(event) == false)
 				{
 					/*
-					if (this.getThrower().isRiding())
+					if (entityplayermp.isRiding())
 					{
-						this.getThrower().mountEntity((Entity)null);
+						entityplayermp.mountEntity((Entity)null);
 					}
 					*/
 
-					EntityPlayerMP player = (EntityPlayerMP)this.getThrower();
-					if (player.isRiding() == true && player.ridingEntity instanceof EntityLiving)
+					if (entityplayermp.isRiding() == true && entityplayermp.ridingEntity instanceof EntityLiving)
 					{
-						EntityLiving entity = (EntityLiving)player.ridingEntity;
+						EntityLiving entity = (EntityLiving)entityplayermp.ridingEntity;
 						entity.setPositionAndUpdate(this.posX, this.posY, this.posZ);
 						entity.fallDistance = 0.0f;
 						// TODO: Add a config option to decide if the ridingEntity should take damage
@@ -87,9 +86,9 @@ public class EntityEnderPearlReusable extends EntityThrowable
 					}
 					else
 					{
-						player.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-						player.fallDistance = 0.0f;
-						player.attackEntityFrom(DamageSource.fall, this.teleportDamage);
+						entityplayermp.setPositionAndUpdate(this.posX, this.posY, this.posZ);
+						entityplayermp.fallDistance = 0.0f;
+						entityplayermp.attackEntityFrom(DamageSource.fall, this.teleportDamage);
 					}
 				}
 			}
