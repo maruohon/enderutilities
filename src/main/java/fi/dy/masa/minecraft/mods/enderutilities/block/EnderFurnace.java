@@ -2,25 +2,32 @@ package fi.dy.masa.minecraft.mods.enderutilities.block;
 
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerFurnace;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.S2DPacketOpenWindow;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.minecraft.mods.enderutilities.EnderUtilities;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
+import fi.dy.masa.minecraft.mods.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class EnderFurnace extends BlockContainer
 {
@@ -49,7 +56,7 @@ public class EnderFurnace extends BlockContainer
 	// Returns a new instance of a block's tile entity class. Called on placing the block.
 	public TileEntity createNewTileEntity(World world, int i)
 	{
-		return new TileEntityFurnace();
+		return new TileEntityEnderFurnace();
 	}
 
 	// Called when the block is placed in the world.
@@ -64,7 +71,7 @@ public class EnderFurnace extends BlockContainer
 		if (stack.hasDisplayName())
 		{
 			// FIXME add custom TileEntity
-			((TileEntityFurnace)world.getTileEntity(x, y, z)).func_145951_a(stack.getDisplayName());
+			((TileEntityEnderFurnace)world.getTileEntity(x, y, z)).func_145951_a(stack.getDisplayName());
 		}
 	}
 
@@ -121,11 +128,47 @@ public class EnderFurnace extends BlockContainer
 		{
 			// FIXME debug
 			//System.out.printf("x: %d y: %d z: %d hitX: %f hitY: %f hitZ: %f\n", x, y, z, hitX, hitY, hitZ);
-			TileEntityFurnace tileentityfurnace = (TileEntityFurnace)world.getTileEntity(x, y, z);
+			TileEntityEnderFurnace te = (TileEntityEnderFurnace)world.getTileEntity(x, y, z);
 
-			if (tileentityfurnace != null)
+			if (te != null)
 			{
-				player.func_146101_a(tileentityfurnace);
+/*
+				if (x >= 1260)
+				{
+					ItemStack stack;
+					int size = te.getSizeInventory();
+					for (int j = 0; j < size; j++)
+					{
+						System.out.printf("activated: x: %d y: %d z: %d size: %d j: %d\n", x, y, z, size, j);
+						stack = te.getStackInSlot(j);
+						if (stack != null)
+						{
+							System.out.println("onBlockActivated(): stack not null: " + j);
+						}
+					}
+					World wo = te.getWorldObj();
+					if (wo != null && wo.isRemote == false)
+					{
+						System.out.println("marked");
+						wo.markBlockForUpdate(x, y, z);
+						int meta = wo.getBlockMetadata(x, y, z);
+						//wo.notifyBlockChange(x, y, z, wo.getBlock(x, y, z));
+						//wo.setBlockMetadataWithNotify(x, y, z, (++meta & 0x7), 2);
+						//wo.setBlockMetadataWithNotify(x, y, z, meta, 2);
+					}
+				}
+*/
+				//TileEntity tev = world.getTileEntity(x, y, z);
+				//player.func_146101_a((TileEntityFurnace)tev);
+/*
+				this.getNextWindowId();
+		        this.playerNetServerHandler.sendPacket(new S2DPacketOpenWindow(this.currentWindowId, 2, p_146101_1_.getInventoryName(), p_146101_1_.getSizeInventory(), p_146101_1_.hasCustomInventoryName()));
+		        this.openContainer = new ContainerFurnace(this.inventory, p_146101_1_);
+		        this.openContainer.windowId = this.currentWindowId;
+		        this.openContainer.addCraftingToCrafters(this);
+*/
+		        //if (te instanceof TileEntityEnderFurnace && te.getContainer(player.inventory) != null)
+				//player.openGui(EnderUtilities.instance, 0, world, x, y, z);
 			}
 
 			return true;
@@ -157,18 +200,18 @@ public class EnderFurnace extends BlockContainer
 			p_149931_1_.setTileEntity(p_149931_2_, p_149931_3_, p_149931_4_, tileentity);
 		}
 	}
-
+*/
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
 		if (!field_149934_M)
 		{
-			TileEntityFurnace tileentityfurnace = (TileEntityFurnace)world.getTileEntity(x, y, z);
+			TileEntityEnderFurnace te = (TileEntityEnderFurnace)world.getTileEntity(x, y, z);
 	
-			if (tileentityfurnace != null)
+			if (te != null)
 			{
-				for (int i1 = 0; i1 < tileentityfurnace.getSizeInventory(); ++i1)
+				for (int i1 = 0; i1 < te.getSizeInventory(); ++i1)
 				{
-					ItemStack itemstack = tileentityfurnace.getStackInSlot(i1);
+					ItemStack itemstack = te.getStackInSlot(i1);
 	
 					if (itemstack != null)
 					{
@@ -208,7 +251,7 @@ public class EnderFurnace extends BlockContainer
 	
 		super.breakBlock(world, x, y, z, block, meta);
 	}
-*/
+
 	// If this returns true, then comparators facing away from this block will use the value from
 	// getComparatorInputOverride instead of the actual redstone signal strength.
 	public boolean hasComparatorInputOverride()
@@ -265,7 +308,7 @@ public class EnderFurnace extends BlockContainer
 	{
 		return Item.getItemFromBlock(EnderUtilitiesBlocks.enderFurnace);
 	}
-
+/*
 	// Gets the block's texture. Args: side, meta
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int side, int meta)
@@ -274,6 +317,46 @@ public class EnderFurnace extends BlockContainer
 		if (side != meta) { return this.blockIcon; }
 		return this.iconFront;
 	}
+*/
+	@SideOnly(Side.CLIENT)
+    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
+    {
+		//System.out.println("\nstart");
+		if (side == 0 || side == 1)
+		{
+			//System.out.println("top");
+			return this.iconTop;
+		}
+		if (side != blockAccess.getBlockMetadata(x, y, z))
+		{
+			//System.out.println("side");
+			return this.blockIcon;
+		}
+/*
+		//System.out.println("front");
+		if (x >= 1260)
+		{
+			TileEntityEnderFurnace te = (TileEntityEnderFurnace)blockAccess.getTileEntity(x, y, z);
+			if (te != null)
+			{
+				ItemStack stack;
+				int size = te.getSizeInventory();
+				for (int i = 0; i < size; i++)
+				{
+					System.out.printf("getIcon(): x: %d y: %d z: %d side: %d size: %d i:%d\n", x, y, z, side, size, i);
+					stack = te.getStackInSlot(i);
+					if (stack != null)
+					{
+						System.out.println("getIcon(): stack not null: " + i);
+					}
+				}
+				if (te.getStackInSlot(2) != null){ return this.iconTop; }
+				else { return this.iconFront; }
+			}
+		}
+*/
+		return this.iconFront;
+    }
 
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)

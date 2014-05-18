@@ -38,6 +38,7 @@ public class EnderUtilities
 	public void init(FMLInitializationEvent event)
 	{
 		proxy.registerEntities();
+		proxy.registerTileEntities();
 		proxy.registerRenderers();
 
 		MinecraftForge.EVENT_BUS.register(new EntityAttack());

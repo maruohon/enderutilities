@@ -1,11 +1,11 @@
 package fi.dy.masa.minecraft.mods.enderutilities.proxy;
 
-import net.minecraft.tileentity.TileEntityFurnace;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.minecraft.mods.enderutilities.EnderUtilities;
 import fi.dy.masa.minecraft.mods.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
+import fi.dy.masa.minecraft.mods.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public abstract class CommonProxy implements IProxy
 {
@@ -18,6 +18,6 @@ public abstract class CommonProxy implements IProxy
 	public void registerTileEntities()
 	{
 		// FIXME: create my own tile entity?
-		GameRegistry.registerTileEntity(TileEntityFurnace.class, Reference.NAME_TILE_ENDER_FURNACE);
+		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, Reference.NAME_TILE_ENDER_FURNACE);
 	}
 }

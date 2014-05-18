@@ -23,7 +23,7 @@ public class EnderUtilitiesItems
 	{
 		GameRegistry.registerItem(enderArrow, Reference.NAME_ITEM_ENDER_ARROW);
 		GameRegistry.registerItem(enderBag, Reference.NAME_ITEM_ENDER_BAG);
-		GameRegistry.registerItem(enderBow, Reference.NAME_ITEM_ENDER_BOW);
+		//GameRegistry.registerItem(enderBow, Reference.NAME_ITEM_ENDER_BOW);
 		GameRegistry.registerItem(enderBucket, Reference.NAME_ITEM_ENDER_BUCKET);
 		GameRegistry.registerItem(enderLasso, Reference.NAME_ITEM_ENDER_LASSO);
 		GameRegistry.registerItem(enderPearlReusable, Reference.NAME_ITEM_ENDER_PEARL_REUSABLE);
