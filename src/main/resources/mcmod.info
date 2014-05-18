@@ -2,7 +2,7 @@
 {
   "modid": "enderutilities",
   "name": "Ender Utilities",
-  "description": "Some random, maybe even useful utilities",
+  "description": "Some random, hopefully fun, and possibly even useful utilities (Modjam 4)",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
