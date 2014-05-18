@@ -9,9 +9,12 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 
+@SideOnly(Side.CLIENT)
 public class RenderEnderArrow extends Render
 {
 	/**

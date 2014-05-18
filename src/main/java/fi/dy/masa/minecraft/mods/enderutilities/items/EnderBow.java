@@ -89,11 +89,13 @@ public class EnderBow extends Item
 				dim = nbt.getInteger("dim");
 			}
 			entityenderarrow.setTpTarget(x, y, z, dim);
-/*
+
 			if (f == 1.0F)
 			{
-				entityarrow.setIsCritical(true);
+				entityenderarrow.setIsCritical(true);
 			}
+			entityenderarrow.setDamage(0.0d);
+/*
 			int k = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, bowStack);
 			if (k > 0)
 			{
@@ -122,6 +124,7 @@ public class EnderBow extends Item
 			player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
 			bowStack.damageItem(1, player);
 			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+
 			if (world.isRemote == false)
 			{
 				world.spawnEntityInWorld(entityenderarrow);
@@ -270,7 +273,6 @@ public class EnderBow extends Item
 
 		for (int i = 0; i < this.iconArray.length; ++i)
 		{
-			System.out.printf("registered icon %d %s\n", i, this.getIconString() + "." + bowPullIconNameArray[i]);
 			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + bowPullIconNameArray[i]);
 		}
 	}
@@ -281,7 +283,6 @@ public class EnderBow extends Item
 	@SideOnly(Side.CLIENT)
 	public IIcon getItemIconForUseDuration(int par1)
 	{
-//		System.out.printf("geticon: %d\n", par1);
 		return this.iconArray[par1];
 	}
 
