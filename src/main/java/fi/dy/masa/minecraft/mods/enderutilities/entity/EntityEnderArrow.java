@@ -5,29 +5,25 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EntityTracker;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.S0DPacketCollectItem;
 import net.minecraft.network.play.server.S2BPacketChangeGameState;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.minecraft.mods.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.minecraft.mods.enderutilities.util.TeleportEntity;
 
 public class EntityEnderArrow extends Entity implements IProjectile
 {
@@ -122,10 +118,6 @@ public class EntityEnderArrow extends Entity implements IProjectile
 		this.motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
 		this.motionY = (double)(-MathHelper.sin(this.rotationPitch / 180.0F * (float)Math.PI));
 		this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, par3 * 1.5F, 1.0F);
-
-		// FIXME debug
-		System.out.printf("posX: %f posY: %f posZ: %f motionX: %f motionY: %f motionZ: %f shootingEntity: %s\n",
-				this.posX, this.posY, this.posZ, this.motionX, this.motionY, this.motionZ, this.shootingEntity.toString());
 	}
 
 	protected void entityInit()
@@ -304,12 +296,12 @@ public class EntityEnderArrow extends Entity implements IProjectile
 			if (movingobjectposition != null && movingobjectposition.entityHit != null && movingobjectposition.entityHit instanceof EntityPlayer)
 			{
 				EntityPlayer entityplayer = (EntityPlayer)movingobjectposition.entityHit;
-				System.out.println("hit a player (305): " + entityplayer.toString()); // FIXME debug
+				//System.out.println("hit a player (305): " + entityplayer.toString()); // FIXME debug
 
 				// entityplayer.capabilities.disableDamage || 
 				if (this.shootingEntity instanceof EntityPlayer && !((EntityPlayer)this.shootingEntity).canAttackPlayer(entityplayer))
 				{
-					System.out.println("can't attack player (310): " + entityplayer.toString()); // FIXME debug
+					//System.out.println("can't attack player (310): " + entityplayer.toString()); // FIXME debug
 					movingobjectposition = null;
 				}
 			}
@@ -320,17 +312,17 @@ public class EntityEnderArrow extends Entity implements IProjectile
 			// Hit something
 			if (movingobjectposition != null)
 			{
-				System.out.println("Hit something (321): " + movingobjectposition.toString()); // FIXME debug
+				//System.out.println("Hit something (321): " + movingobjectposition.toString()); // FIXME debug
 				// Hit an entity
 				if (movingobjectposition.entityHit != null)
 				{
-					System.out.println("Hit an entity (325)"); // FIXME debug
+					//System.out.println("Hit an entity (325)"); // FIXME debug
 					f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
 					// Hit a living entity
 					if (movingobjectposition.entityHit instanceof EntityLivingBase)
 					{
-						System.out.println("Hit a living entity (331)");
+						//System.out.println("Hit a living entity (331)");
 						EntityLivingBase entitylivingbase = (EntityLivingBase)movingobjectposition.entityHit;
 
 						if (this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity && movingobjectposition.entityHit instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP)
@@ -340,38 +332,37 @@ public class EntityEnderArrow extends Entity implements IProjectile
 
 						if (this.shootingEntity == null)
 						{
-							System.out.println("shootingEntity = null (341)");
+							//System.out.println("shootingEntity = null"); // FIXME debug
 						}
 						else
 						{
-						System.out.println("shootingEntity != null && hit (345)");
-						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-						// TODO: fix interdimensional teleport, get coordinates from entity NBT
-						double x = shootingEntity.posX;
-						double y = this.shootingEntity.posY + 5.0d;
-						double z = this.shootingEntity.posZ;
-						x = (double)this.tpTargetX;
-						y = (double)this.tpTargetY;
-						z = (double)this.tpTargetZ;
-						//int dim = this.tpTargetDim;
-						movingobjectposition.entityHit.setLocationAndAngles(x, y, z,
-								movingobjectposition.entityHit.rotationYaw, movingobjectposition.entityHit.rotationPitch);
+							//System.out.println("shootingEntity != null"); // FIXME debug
+							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-						EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
-								new ItemStack(EnderUtilitiesItems.enderArrow, 1, 0));
+							double x = shootingEntity.posX;
+							double y = this.shootingEntity.posY + 5.0d;
+							double z = this.shootingEntity.posZ;
+							x = (double)this.tpTargetX + 0.5d;
+							y = (double)this.tpTargetY;
+							z = (double)this.tpTargetZ + 0.5d;
+							int dim = this.tpTargetDim;
+							//System.out.printf("tp to: dim: %d x: %f y: %f z: %f\n", dim, x, y, z); // FIXME debug
+							TeleportEntity.teleportEntity((EntityLiving)entitylivingbase, this.dimension, this.tpTargetDim, x, y, z);
 
-						Random r = new Random();
-						entityitem.motionX = 0.01d * r.nextGaussian();
-						entityitem.motionY = 0.01d * r.nextGaussian() + 0.05d;
-						entityitem.motionZ = 0.01d * r.nextGaussian();
-						entityitem.delayBeforeCanPickup = 10;
-						this.worldObj.spawnEntityInWorld(entityitem);
-						this.setDead();
+							EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
+													new ItemStack(EnderUtilitiesItems.enderArrow, 1, 0));
+							Random r = new Random();
+							entityitem.motionX = 0.01d * r.nextGaussian();
+							entityitem.motionY = 0.01d * r.nextGaussian() + 0.05d;
+							entityitem.motionZ = 0.01d * r.nextGaussian();
+							entityitem.delayBeforeCanPickup = 10;
+							this.worldObj.spawnEntityInWorld(entityitem);
+
+							this.setDead();
 						}
 
 						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 						this.setRotation(0.0f, 0.0f);
-						//this.setDead(); // FIXME change this to drop the item
 					}
 					// In vanilla: Could not damage the entity
 					else
@@ -524,25 +515,9 @@ public class EntityEnderArrow extends Entity implements IProjectile
 		//System.out.println("onCollideWithPlayer()"); // FIXME debug
 		if (!this.worldObj.isRemote && this.inGround && this.arrowShake <= 0)
 		{
-/*
-			boolean flag = this.canBePickedUp == 1 || this.canBePickedUp == 2 && par1EntityPlayer.capabilities.isCreativeMode;
-			if (this.canBePickedUp == 1 && !par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Items.arrow, 1)))
-			{
-				flag = false;
-			}
-
-			if (flag)
-			{
-				this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-				//par1EntityPlayer.onItemPickup(this, 1);
-				EntityTracker entitytracker = ((WorldServer)this.worldObj).getEntityTracker();
-				entitytracker.func_151247_a(this, new S0DPacketCollectItem(this.getEntityId(), this.getEntityId()));
-				this.setDead();
-			}
-*/
 			par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderArrow, 1));
 			this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-			//par1EntityPlayer.onItemPickup(this, 1);
+			par1EntityPlayer.onItemPickup(this, 1);
 			// FIXME ??
 			//EntityTracker entitytracker = ((WorldServer)this.worldObj).getEntityTracker();
 			//entitytracker.func_151247_a(this, new S0DPacketCollectItem(this.getEntityId(), this.getEntityId()));
