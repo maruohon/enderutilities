@@ -20,6 +20,7 @@ public class Reference
 
 	public static final String NAME_TILE_ENDER_FURNACE			= "enderfurnace";
 
+	public static final String NAME_ENTITY_ENDER_ARROW			= "enderarrow";
 	public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
 
 	public static String getTextureName(String name)
