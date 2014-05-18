@@ -23,6 +23,8 @@ public class Reference
 	public static final String NAME_ENTITY_ENDER_ARROW			= "enderarrow";
 	public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
 
+	public static final short ENDER_BUCKET_MAX_AMOUNT = 16000; // Can contain 16 buckets
+
 	public static String getTextureName(String name)
 	{
 		return Reference.MOD_ID + ":" + name;

@@ -6,10 +6,12 @@
   - Ender Armor: Teleports anyone who does melee damage, to 5 * number of armor pieces blocks away randomly;
     randomly redirects projectiles; uses enderpearls or eyes of ender as power/energy source, one pearl per enemy teleport
 
-  - Ender Arrows: Will teleport the entity they hit, to the location that has been bound to the stack
+  - Ender Arrows: Will teleport the entity they hit to the location bound to the Ender Bow that shot them.
 
   - Ender Bag: Can be linked to any(?) inventories
     ~ TODO: All the GUI and inventory stuff
+
+  - Ender Bow: Shoots the Ender Arrows. Can be bound to a location by sneak + right clicking on a block.
 
   - Ender Bucket: Can hold a maximum of 16 buckets
     ~ TODO: check mod interaction/Forge API stuff
@@ -20,7 +22,7 @@
     in a blink of an eye. Beware though, this might be too much for the subject to handle, and he has a 40% chance
     of dying from this."
 
-  - Ender Furnace: A lot faster with fuel, can work without fuel but 10x slower than regular furnace
+  - Ender Furnace: A lot faster with fuel, can work without fuel but 10x slower than a regular furnace
 
   - Ender Lasso: Will teleport any living entities it is right clicked on, to the pre-bound location
 

@@ -2,9 +2,7 @@ package fi.dy.masa.minecraft.mods.enderutilities.items;
 
 import java.util.List;
 
-import cpw.mods.fml.common.FMLLog;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -14,14 +12,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
 import fi.dy.masa.minecraft.mods.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.minecraft.mods.enderutilities.reference.Reference;
 
 public class EnderBucket extends Item
 {
-	private static final short MAX_AMOUNT = 16000; // Can contain 16 buckets
-
 	public EnderBucket()
 	{
 		super();
@@ -101,7 +96,7 @@ public class EnderBucket extends Item
 			if (nbtAmount == 0 || (targetMaterial.equals(nbtFluidMaterial) == true && player.isSneaking() == false))
 			{
 				// Do we have space, and can we change the fluid block?
-				if ((MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
+				if ((Reference.ENDER_BUCKET_MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
 				{
 					return stack;
 				}
