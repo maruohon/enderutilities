@@ -13,11 +13,12 @@ public class EntityInteract
 	@SubscribeEvent
 	public void onEntityInteractEvent(EntityInteractEvent event)
 	{
+/*
 		if (event.target.worldObj.isRemote == true)
 		{
 			return;
 		}
-
+*/
 		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 		if (stack != null && stack.getItem() == EnderUtilitiesItems.enderLasso)
 		{

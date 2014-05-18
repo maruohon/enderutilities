@@ -23,6 +23,7 @@ public class EnderPearlReusable extends Item
 	 */
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
+		// Do nothing on the client side
 		if (world.isRemote == true)
 		{
 			return stack;
@@ -31,10 +32,7 @@ public class EnderPearlReusable extends Item
 		--stack.stackSize;
 		world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
-		if (world.isRemote == false)
-		{
-			world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
-		}
+		world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
 
 		return stack;
 	}

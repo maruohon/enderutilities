@@ -120,6 +120,7 @@ public class EnderFurnace extends BlockContainer
 	// Called upon block activation (right click on the block.)
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float hitX, float hitY, float hitZ)
 	{
+		// Do nothing on the client side
 		if (world.isRemote == true)
 		{
 			return true;

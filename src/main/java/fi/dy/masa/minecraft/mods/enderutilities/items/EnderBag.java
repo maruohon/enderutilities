@@ -24,7 +24,6 @@ public class EnderBag extends Item
 	{
 		super();
 		this.setMaxStackSize(1);
-		//this.setHasSubtypes(true);
 		this.setUnlocalizedName(Reference.NAME_ITEM_ENDER_BAG);
 		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
@@ -47,9 +46,13 @@ public class EnderBag extends Item
 			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
 			{
 				// Unbind the bag when sneak + right clicking on air TODO is there any point in this?
-				if (player.isSneaking() == true && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
+				if (player.isSneaking() == true)
 				{
-					stack.setTagCompound(null);
+					MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
+					if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
+					{
+						stack.setTagCompound(null);
+					}
 				}
 				// Access the inventory
 				else

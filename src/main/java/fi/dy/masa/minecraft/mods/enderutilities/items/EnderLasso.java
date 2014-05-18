@@ -48,7 +48,8 @@ public class EnderLasso extends Item
 		if (player.isSneaking() == true)
 		{
 			// Sneaking and targeting a block: store the location
-			if (Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
+			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
 				String strSide = "top";
 
