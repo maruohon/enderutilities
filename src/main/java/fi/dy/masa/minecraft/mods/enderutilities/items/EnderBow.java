@@ -162,6 +162,13 @@ public class EnderBow extends Item
 			return event.result;
 		}
 
+		// Don't shoot when sneaking and looking at a block, aka. binding the bow to a new location
+		if (Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK &&
+				player.isSneaking() == true)
+		{
+			return stack;
+		}
+
 		if (player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
