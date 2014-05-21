@@ -13,11 +13,11 @@ http://masa.dy.fi/minecraft/mods/enderutilities/enderutilities-1.7.2-0.1.jar
 =====================================
 Compilation/installation:
 
-git clone <url to this repo> enderutilities.git
-cd enderutilities.git
-gradlew build
+* git clone https://github.com/maruohon/modjam4.git enderutilities.git
+* cd enderutilities.git
+* gradlew build
 
-Then copy the enderutilities-<version>.jar from build/libs/enderutilities-version.jar into your Minecraft's mods/ directory
+Then copy the enderutilities-&lt;version&gt;.jar from build/libs/ into your Minecraft mods/ directory
 
 =====================================
 Status and summary at the end of Modjam 4:
@@ -34,7 +34,8 @@ Status and summary at the end of Modjam 4:
   - Ender Pearl (re-usable): Can be picked back up, deals 1 heart of fall damage. Stacks only up to 4.
 
 * Note:
-  Ender Furnace and Ender Bag are badly unfinished. In addition to the above items, there are 12 other items
-  on my TODO list. I simply didn't have enough time to implement what I wanted,
-  because I had to learn everything from the ground up, since this is my first mod
-  that adds any in-game content. (And my second mod overall.)
+  - Ender Furnace and Ender Bag are badly unfinished. In addition to the above items, there are 12 other items
+    on my TODO list. I simply didn't have enough time to implement what I wanted,
+    because I had to learn everything from the ground up, since this is my first mod
+    that adds any in-game content. (And my second mod overall.)
+  - There is a crash bug with the Ender Bow: don't shoot other players with it!
