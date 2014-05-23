@@ -10,6 +10,7 @@
 
   - Ender Bag: Can be linked to any(?) inventories
     ~ TODO: All the GUI and inventory stuff
+    ~ Make linkable to the vanilla Ender Chest
 
   - Ender Bow: Shoots the Ender Arrows. Can be bound to a location by sneak + right clicking on a block.
 
@@ -23,6 +24,8 @@
     of dying from this."
 
   - Ender Furnace: A lot faster with fuel, can work without fuel but 10x slower than a regular furnace
+    ~ Ender Furnace: Add filter settings, so that it can pull and push items and fuel to/from the owner's vanilla ender chest.
+    ~ Ender Furnace: Add toggles for automatic input/output (disabled/input only/output only/both)
 
   - Ender Lasso: Will teleport any living entities it is right clicked on, to the pre-bound location
 
@@ -42,8 +45,16 @@
 
   - Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 
+  - Ender Staff: Allos short distance teleportation (like levitation/flying when holding down)
+    ~ Configuration parameters: teleportation distance, fall damage when landing, velocity reset factor when teleporting
+      (to allow disabling instant fall damage cancellation when falling from high up and teleporting before impact)
+
   - Ender Swapper: Swaps two pre-set blocks or entities with eachother
 
   - Ender Tranceiver: Wirelessly transmits the redstone signal it receives to another, paired device
 
 * Balancing point: Crafting ingredient purchased from villagers?
+
+BUGS/TODO/etc:
+(SMP testing server chunk corruption, might just be a vanilla error, happened after the server crashed:)
+  [22:44:38] [Server thread/ERROR]: Chunk file at 3,-26 is in the wrong location; relocating. (Expected 3, -26, got 4, -22)
