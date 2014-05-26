@@ -45,7 +45,7 @@
 
   - Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 
-  - Ender Staff: Allos short distance teleportation (like levitation/flying when holding down)
+  - Ender Staff: Allows short distance teleportation (like levitation/flying when holding down)
     ~ Configuration parameters: teleportation distance, fall damage when landing, velocity reset factor when teleporting
       (to allow disabling instant fall damage cancellation when falling from high up and teleporting before impact)
 
@@ -53,10 +53,6 @@
 
   - Ender Tranceiver: Wirelessly transmits the redstone signal it receives to another, paired device
 
+  - Ender Vacuum: A throwable that sucks/teleports all item entities in a radius into the impact point
+
 * Balancing point: Crafting ingredient purchased from villagers?
-
-BUGS/TODO/etc:
- - Ender Bow/Arrows crashes the server/game if shot at a player
-
-(SMP testing server chunk corruption, might just be a vanilla error, happened after the server crashed:)
-  [22:44:38] [Server thread/ERROR]: Chunk file at 3,-26 is in the wrong location; relocating. (Expected 3, -26, got 4, -22)
