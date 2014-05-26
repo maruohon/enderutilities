@@ -9,6 +9,10 @@ Download of the version submitted at the end of Modjam 4:
 
 http://masa.dy.fi/minecraft/mods/enderutilities/enderutilities-1.7.2-0.1.jar
 
+*** NOTE ***
+ - The version submitted at the end of modjam (0.1) has a crash bug with the
+   Ender Bow/Arrows: Don't shoot any player with them!
+
 
 =====================================
 Compilation/installation:
@@ -38,4 +42,4 @@ Status and summary at the end of Modjam 4:
     on my TODO list. I simply didn't have enough time to implement what I wanted,
     because I had to learn everything from the ground up, since this is my first mod
     that adds any in-game content. (And my second mod overall.)
-  - There is a crash bug with the Ender Bow: don't shoot other players with it!
+  - There is a crash bug with the Ender Bow/Arrows: don't shoot any players with it!

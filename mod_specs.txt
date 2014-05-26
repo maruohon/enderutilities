@@ -56,5 +56,7 @@
 * Balancing point: Crafting ingredient purchased from villagers?
 
 BUGS/TODO/etc:
+ - Ender Bow/Arrows crashes the server/game if shot at a player
+
 (SMP testing server chunk corruption, might just be a vanilla error, happened after the server crashed:)
   [22:44:38] [Server thread/ERROR]: Chunk file at 3,-26 is in the wrong location; relocating. (Expected 3, -26, got 4, -22)
