@@ -2,10 +2,8 @@ package fi.dy.masa.minecraft.mods.enderutilities.items;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -60,7 +58,7 @@ public class EnderBow extends Item
 		{
 			return;
 		}
-//		j = event.charge;
+		j = event.charge;
 //		boolean flag = player.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, bowStack) > 0;
 
 		// flag ||

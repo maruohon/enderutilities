@@ -319,11 +319,11 @@ public class EntityEnderArrow extends Entity implements IProjectile
 					//System.out.println("Hit an entity (325)"); // FIXME debug
 					f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
-					// Hit a living entity
-					if (movingobjectposition.entityHit instanceof EntityLivingBase)
+					// Hit a living entity (non-player)
+					if (movingobjectposition.entityHit instanceof EntityLiving)
 					{
 						//System.out.println("Hit a living entity (331)");
-						EntityLivingBase entitylivingbase = (EntityLivingBase)movingobjectposition.entityHit;
+						EntityLiving entityliving = (EntityLiving)movingobjectposition.entityHit;
 
 						if (this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity && movingobjectposition.entityHit instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP)
 						{
@@ -347,7 +347,7 @@ public class EntityEnderArrow extends Entity implements IProjectile
 							z = (double)this.tpTargetZ + 0.5d;
 							int dim = this.tpTargetDim;
 							//System.out.printf("tp to: dim: %d x: %f y: %f z: %f\n", dim, x, y, z); // FIXME debug
-							TeleportEntity.teleportEntity((EntityLiving)entitylivingbase, this.dimension, this.tpTargetDim, x, y, z);
+							TeleportEntity.teleportEntity((EntityLiving)entityliving, this.dimension, this.tpTargetDim, x, y, z);
 
 							EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
 													new ItemStack(EnderUtilitiesItems.enderArrow, 1, 0));
@@ -364,6 +364,8 @@ public class EntityEnderArrow extends Entity implements IProjectile
 						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 						this.setRotation(0.0f, 0.0f);
 					}
+					// TODO: Hit a player
+					// else if (movingobjectposition.entityHit instanceof EntityPlayer) {}
 					// In vanilla: Could not damage the entity
 					else
 					{
