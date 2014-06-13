@@ -1,0 +1,14 @@
+#German Language by Cryma
+
+language.name=Deutsch
+language.region=DE
+language.code=de_DE
+
+tile.enderfurnace.name=Ender Ofen
+
+item.enderarrow.name=Ender Pfeil
+item.enderbag.name=Ender Tasche
+item.enderbow.name=Ender Bogen
+item.enderbucket.name=Ender Eimer
+item.enderlasso.name=Ender Lasso
+item.enderpearlreusable.name=Ender Perle (wiederverwendbar)
