@@ -17,12 +17,12 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.1.1"
-group= "fi.dy.masa" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderutilities-1.7.2"
+version = "0.1.1.1"
+group= "fi.dy.masa.minecraft.mods" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "enderutilities-1.7.10"
 
 minecraft {
-    version = "1.7.2-10.12.1.1060"
+    version = "1.7.10-10.13.0.1151"
     assetDir = "eclipse/assets"
 }
 
@@ -44,6 +44,9 @@ dependencies {
 
 processResources
 {
+    // Exclude the GIMP image files
+    exclude '**/*.xcf'
+
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
