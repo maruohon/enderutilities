@@ -35,131 +35,124 @@ public class EnderBucket extends Item
 			return stack;
 		}
 
-		String nbtFluid = "";
-		short nbtAmount = 0;
-
-		Block nbtFluidBlock;
-		Material nbtFluidMaterial = null;
-
-		String targetFluidName;
-		Block targetBlock;
-		Material targetMaterial;
-
 		// FIXME the boolean flag does what exactly? In vanilla it seems to indicate that the bucket is empty.
-        MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
+		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 
-		if (movingobjectposition == null)
+		if (movingobjectposition == null || movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
 		{
 			return stack;
 		}
 
-        NBTTagCompound nbt = stack.getTagCompound();
+		int x = movingobjectposition.blockX;
+		int y = movingobjectposition.blockY;
+		int z = movingobjectposition.blockZ;
+
+		// Spawn safe zone checks etc.
+		if (world.canMineBlock(player, x, y, x) == false)
+		{
+			return stack;
+		}
+
+		short nbtAmount = 0;
+		Block nbtBlock = null;
+		String nbtBlockName = "";
+		Material nbtMaterial = null;
+
+		Block targetBlock;
+		String targetBlockName;
+		Material targetMaterial;
+
+		targetBlock = world.getBlock(x, y, z);
+		if (targetBlock == null)
+		{
+			return stack;
+		}
+
+		NBTTagCompound nbt = stack.getTagCompound();
 
 		if (nbt != null)
 		{
-			nbtFluid = nbt.getString("fluid");
+			nbtBlockName = nbt.getString("fluid");
 			nbtAmount = nbt.getShort("amount");
+
+			if (nbtBlockName.length() > 0)
+			{
+				nbtBlock = Block.getBlockFromName(nbtBlockName);
+				if (nbtBlock != null)
+				{
+					nbtMaterial = nbtBlock.getMaterial();
+				}
+			}
 		}
 		else
 		{
 			nbt = new NBTTagCompound();
 		}
 
-		if (movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+		targetMaterial = targetBlock.getMaterial();
+		targetBlockName = Block.blockRegistry.getNameForObject(targetBlock);
+		int targetMeta = world.getBlockMetadata(x, y, z);
+
+		// Empty bucket, or same fluid and not sneaking: try to pick up fluid (sneaking allows emptying a bucket into the same fluid)
+		// FIXME is this a sufficient block type check?
+		if (nbtAmount == 0 || (targetBlock == nbtBlock && player.isSneaking() == false))
 		{
-			int x = movingobjectposition.blockX;
-			int y = movingobjectposition.blockY;
-			int z = movingobjectposition.blockZ;
-
-			// Spawn safe zone checks etc.
-			if (world.canMineBlock(player, x, y, x) == false)
+			// Bail out if we don't have space or we can't change the block
+			if ((Reference.ENDER_BUCKET_MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
 			{
 				return stack;
 			}
 
-			targetBlock = world.getBlock(x, y, z);
-			targetMaterial = targetBlock.getMaterial();
-			int meta = world.getBlockMetadata(x, y, z);
-			//targetFluidName = targetBlock.getUnlocalizedName();
-			targetFluidName = Block.blockRegistry.getNameForObject(targetBlock);
-
-			if (nbtFluid.length() > 0)
+			if (targetMaterial.isLiquid() == true)
 			{
-				if (Block.getBlockFromName(nbtFluid) != null)
+				if (world.setBlockToAir(x, y, z) == true)
 				{
-					nbtFluidMaterial = Block.getBlockFromName(nbtFluid).getMaterial();
-				}
-			}
+					nbtAmount += 1000;
+					nbt.setShort("amount", nbtAmount);
 
-			// Empty bucket, or same fluid and not sneaking (to be able to empty a bucket into the same fluid blocks)
-			// FIXME is this a sufficient block type check?
-			if (nbtAmount == 0 || (targetMaterial.equals(nbtFluidMaterial) == true && player.isSneaking() == false))
-			{
-				// Do we have space, and can we change the fluid block?
-				if ((Reference.ENDER_BUCKET_MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
-				{
-					return stack;
-				}
-
-				// FIXME: recognize fluids properly
-				if ((targetMaterial == Material.water && meta == 0) || (targetMaterial == Material.lava && meta == 0))
-				{
-					if (world.setBlockToAir(x, y, z) == true)
+					if (nbtBlockName.length() == 0)
 					{
-						nbtAmount += 1000;
-						nbt.setShort("amount", nbtAmount);
-						if (nbtFluid.length() == 0)
-						{
-							nbt.setString("fluid", targetFluidName);
-						}
-						stack.setTagCompound(nbt);
+						nbt.setString("fluid", targetBlockName);
 					}
+
+					stack.setTagCompound(nbt);
 				}
-
-				return stack;
 			}
 
-			// Different fluid, or other block type, we try to place a fluid block in the world
+			return stack;
+		}
 
-			// No fluid stored
-			if (nbtAmount < 1000)
-			{
-				return stack;
-			}
+		// Different fluid, or other block type, we try to place a fluid block in the world
 
-			// Don't adjust the target block for liquids, we want to replace them
-			if (targetBlock.getMaterial().isLiquid() == false)
-			{
-				// Adjust the target block position
-				if (movingobjectposition.sideHit == 0) { --y; }
-				if (movingobjectposition.sideHit == 1) { ++y; }
-				if (movingobjectposition.sideHit == 2) { --z; }
-				if (movingobjectposition.sideHit == 3) { ++z; }
-				if (movingobjectposition.sideHit == 4) { --x; }
-				if (movingobjectposition.sideHit == 5) { ++x; }
-			}
+		// No fluid stored, or we can't place fluid here
+		if (nbtAmount < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
+		{
+			return stack;
+		}
 
-			// Can we place a fluid block here?
-			if (player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
-			{
-				return stack;
-			}
+		// Don't adjust the target block for liquids, we want to replace them
+		if (targetBlock.getMaterial().isLiquid() == false)
+		{
+			// Adjust the target block position
+			if (movingobjectposition.sideHit == 0) { --y; }
+			if (movingobjectposition.sideHit == 1) { ++y; }
+			if (movingobjectposition.sideHit == 2) { --z; }
+			if (movingobjectposition.sideHit == 3) { ++z; }
+			if (movingobjectposition.sideHit == 4) { --x; }
+			if (movingobjectposition.sideHit == 5) { ++x; }
+		}
 
-			nbtFluidBlock = Block.getBlockFromName(nbtFluid);
-			if (nbtFluidBlock == null)
-			{
-				return stack;
-			}
+		// We need to convert water and lava to the flowing variant, otherwise we get non-flowing source blocks
+		if (nbtBlock == Blocks.water) { nbtBlock = Blocks.flowing_water; }
+		else if (nbtBlock == Blocks.lava) { nbtBlock = Blocks.flowing_lava; }
 
-			if (this.tryPlaceContainedFluid(world, x, y, z, nbtFluidBlock) == true)
+		if (this.tryPlaceContainedFluid(world, x, y, z, nbtBlock) == true)
+		{
+			nbtAmount -= 1000;
+			nbt.setShort("amount", nbtAmount);
+			if (nbtAmount == 0)
 			{
-				nbtAmount -= 1000;
-				nbt.setShort("amount", nbtAmount);
-				if (nbtAmount == 0)
-				{
-					nbt.setString("fluid", "");
-				}
-				stack.setTagCompound(nbt);
+				stack.setTagCompound(null);
 			}
 		}
 
