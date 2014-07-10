@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
@@ -19,7 +20,8 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 
 public class EntityEnderPearlReusable extends EntityThrowable
 {
-	private float teleportDamage = 2.0f;
+	public float teleportDamage = 2.0f;
+	public boolean canPickUp = true;
 
 	public EntityEnderPearlReusable(World world)
 	{
@@ -29,6 +31,11 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	public EntityEnderPearlReusable(World world, EntityLivingBase entity)
 	{
 		super(world, entity);
+		// Don't drop the items when in creative mode, since currently I can't decrease (or change at all) the stackSize when in creative mode (wtf?)
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode == true)
+		{
+			this.canPickUp = false;
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -77,9 +84,8 @@ public class EntityEnderPearlReusable extends EntityThrowable
 
 					if (entityplayermp.isRiding() == true && entityplayermp.ridingEntity instanceof EntityLiving)
 					{
-						EntityLiving entity = (EntityLiving)entityplayermp.ridingEntity;
-						entity.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-						entity.fallDistance = 0.0f;
+						((EntityLiving)entityplayermp.ridingEntity).setPositionAndUpdate(this.posX, this.posY, this.posZ);
+						((EntityLiving)entityplayermp.ridingEntity).fallDistance = 0.0f;
 						// TODO: Add a config option to decide if the ridingEntity should take damage
 						//entity.attackEntityFrom(DamageSource.fall, this.teleportDamage);
 					}
@@ -92,24 +98,19 @@ public class EntityEnderPearlReusable extends EntityThrowable
 				}
 			}
 		}
-/*
-		// Failed attempt to fix the portal duplication bug
-		if (movingObjectPosition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK &&
-			this.worldObj.getBlock(movingObjectPosition.blockX, movingObjectPosition.blockY, movingObjectPosition.blockZ) == Blocks.portal)
-		{
-			//System.out.println("portal");
-			return;
-		}
-*/
-		EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
-					new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
 
-		Random r = new Random();
-		entityitem.motionX = 0.05d * r.nextGaussian();
-		entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
-		entityitem.motionZ = 0.05d * r.nextGaussian();
-		entityitem.delayBeforeCanPickup = 20;
-		this.worldObj.spawnEntityInWorld(entityitem);
+		if (this.canPickUp == true)
+		{
+			EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
+						new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+
+			Random r = new Random();
+			entityitem.motionX = 0.05d * r.nextGaussian();
+			entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
+			entityitem.motionZ = 0.05d * r.nextGaussian();
+			entityitem.delayBeforeCanPickup = 20;
+			this.worldObj.spawnEntityInWorld(entityitem);
+		}
 
 		this.setDead();
 	}

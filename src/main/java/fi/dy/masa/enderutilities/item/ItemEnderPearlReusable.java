@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
@@ -19,21 +20,19 @@ public class ItemEnderPearlReusable extends Item
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
+	@Override
 	/**
 	 * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
 	 */
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		// Do nothing on the client side
-		if (world.isRemote == true)
-		{
-			return stack;
-		}
-
 		--stack.stackSize;
 		world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
-		world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
+		if (world.isRemote == false)
+		{
+			world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
+		}
 
 		return stack;
 	}
