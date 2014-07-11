@@ -16,7 +16,7 @@ public class EntityAttack
 		{
 			return;
 		}
-		if (event.target instanceof EntityLiving && event.target.worldObj.isRemote == false)
+		if (event.target instanceof EntityLiving)
 		{
 			ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 

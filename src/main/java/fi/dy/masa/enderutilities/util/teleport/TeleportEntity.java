@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.util.teleport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,30 +17,25 @@ import cpw.mods.fml.common.FMLLog;
 
 public class TeleportEntity
 {
-	public static void addEnderSoundsAndParticles(EntityLiving entity)
+	public static void addEnderSoundsAndParticles(double x, double y, double z, World world)
 	{
-		double entX = entity.posX;
-		double entY = entity.posY;
-		double entZ = entity.posZ;
-
-		World world = entity.worldObj;
-		world.playSoundEffect(entX, entY, entZ, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+		world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
 
 		// Spawn some particles
 		for (int i = 0; i < 20; i++)
 		{
-			double offX = (Math.random() - 0.5d) * 1.0d;
-			double offY = (Math.random() - 0.5d) * 1.0d;
-			double offZ = (Math.random() - 0.5d) * 1.0d;
+			double offX = 0.0d;
+			double offY = 0.0d;
+			double offZ = 0.0d;
 
-			double velX = (Math.random() - 0.5d) * 1.0d;
-			double velY = (Math.random() - 0.5d) * 1.0d;
-			double velZ = (Math.random() - 0.5d) * 1.0d;
-			world.spawnParticle("portal", entX + offX, entY + offY, entZ + offZ, velX, velY, velZ);
+			double velX = (world.rand.nextFloat() - 0.5d) * 2.0d;
+			double velY = (world.rand.nextFloat() - 0.5d) * 2.0d;
+			double velZ = (world.rand.nextFloat() - 0.5d) * 2.0d;
+			world.spawnParticle("portal", x + offX, y + offY, z + offZ, -velX, -velY, -velZ);
 		}
 	}
 
-	public static void teleportEntityRandomly(EntityLiving entity, double maxDist)
+	public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
 	{
 		double deltaYaw = 0.0d;
 		double deltaPitch = 0.0d;
@@ -65,16 +62,16 @@ public class TeleportEntity
 				entity.worldObj.getBlock((int)x, (int)y + 1, (int)z) == Blocks.air)
 			//if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
 			{
-				TeleportEntity.addEnderSoundsAndParticles(entity);
+				TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 				//System.out.printf("x: %f y: %f z: %f yaw: %f pitch: %f maxDist: %f\n", x, y, z, deltaYaw, deltaPitch, maxDist); // FIXME debug
-				entity.setPosition(x, y, z);
+				entity.setPositionAndUpdate(x, y, z);
 				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 				return;
 			}
 		}
 	}
 
-	public static void lassoTeleportEntity(ItemStack stack, EntityLiving entity, int dimSrc)
+	public static void lassoTeleportEntity(ItemStack stack, EntityLiving entity, EntityPlayer player, int dimSrc)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null || ! nbt.hasKey("x") || ! nbt.hasKey("y") || ! nbt.hasKey("z") || ! nbt.hasKey("dim")
@@ -87,50 +84,60 @@ public class TeleportEntity
 		double z = (double)nbt.getInteger("z") + 0.5d;
 		int dimDst = nbt.getInteger("dim");
 
-		TeleportEntity.teleportEntity(entity, dimSrc, dimDst, x, y, z);
+		TeleportEntity.teleportEntity(entity, player, dimSrc, dimDst, x, y, z);
 	}
 
-	public static void teleportEntity(EntityLiving entity, int dimSrc, int dimDst, double x, double y, double z)
+	public static void teleportEntity(EntityLiving entity, EntityPlayer player, int dimSrc, int dimDst, double x, double y, double z)
 	{
-		if (entity == null || entity.worldObj.isRemote != false || entity.isDead == true)
+		if (entity == null || entity.isDead == true)
 		{
 			return;
 		}
 
-		MinecraftServer minecraftserver = MinecraftServer.getServer();
-		WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
-		//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
-		if (worldServerDst == null)
+		// Original position
+		TeleportEntity.addEnderSoundsAndParticles(entity.posX, entity.posY, entity.posZ, entity.worldObj);
+
+		if (entity.worldObj.isRemote == false)
 		{
-			FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
-			return;
+			MinecraftServer minecraftserver = MinecraftServer.getServer();
+			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+			//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+			if (worldServerDst == null)
+			{
+				FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
+				return;
+			}
+
+			//System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
+
+			IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
+			if (chunkProvider == null)
+			{
+				return;
+			}
+
+			if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
+			{
+				//worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
+				chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
+			}
+
+			entity.setMoveForward(0.0f);
+			entity.getNavigator().clearPathEntity();
+
+			if (dimSrc != dimDst)
+			{
+				TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
+			}
+			else
+			{
+				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+				entity.setPositionAndUpdate(x, y, z);
+			}
 		}
 
-		//System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
-
-		IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
-		if (chunkProvider == null) { return; }
-
-		if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
-		{
-			//worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
-			chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
-		}
-
-		entity.setMoveForward(0.0f);
-		entity.getNavigator().clearPathEntity();
-
-		TeleportEntity.addEnderSoundsAndParticles(entity);
-
-		// FIXME Check for chunk loaded etc.
-		if (dimSrc != dimDst)
-		{
-			TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
-		}
-		else
-		{
-			entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-		}
+		// Final position
+		TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 	}
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)

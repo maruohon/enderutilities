@@ -1,16 +1,14 @@
 package fi.dy.masa.enderutilities;
 
-import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import fi.dy.masa.enderutilities.event.EntityAttack;
-import fi.dy.masa.enderutilities.event.EntityInteract;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 
@@ -27,10 +25,15 @@ public class EnderUtilities
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		proxy.registerKeyBindings();
+
+		// Initialize network stuff
+		PacketHandler.init();
+
 		// Initialize mod items
 		EnderUtilitiesItems.init();
 
-		// Init mod blocks
+		// Initialize mod blocks
 		EnderUtilitiesBlocks.init();
 	}
 
@@ -38,11 +41,9 @@ public class EnderUtilities
 	public void init(FMLInitializationEvent event)
 	{
 		proxy.registerEntities();
-		proxy.registerTileEntities();
+		proxy.registerEventHandlers();
 		proxy.registerRenderers();
-
-		MinecraftForge.EVENT_BUS.register(new EntityAttack());
-		MinecraftForge.EVENT_BUS.register(new EntityInteract());
+		proxy.registerTileEntities();
 	}
 
 /*

@@ -2,6 +2,9 @@ language.name=English
 language.region=US
 language.code=en_US
 
+category.enderutilities=Ender Utilities
+key.enderutilities.togglemode=Toggle Mode
+
 tile.enderfurnace.name=Ender Furnace
 
 item.enderarrow.name=Ender Arrow

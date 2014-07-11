@@ -17,6 +17,7 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEnderPearlReusable extends EntityThrowable
 {
@@ -49,28 +50,19 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	 */
 	protected void onImpact(MovingObjectPosition movingObjectPosition)
 	{
-		if (this.worldObj.isRemote == true)
-		{
-			return;
-		}
+		TeleportEntity.addEnderSoundsAndParticles(this.posX, this.posY, this.posZ, this.worldObj);
 
-		if (movingObjectPosition.entityHit != null)
-		{
-			movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
-		}
-
-		for (int i = 0; i < 32; ++i)
-		{
-			this.worldObj.spawnParticle("portal", this.posX, this.posY + this.rand.nextDouble() * 2.0d, this.posZ, this.rand.nextGaussian(), 0.0d, this.rand.nextGaussian());
-		}
-
-
-		if (this.getThrower() != null && this.getThrower() instanceof EntityPlayerMP)
+		if (this.worldObj.isRemote == false && this.getThrower() != null && this.getThrower() instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP entityplayermp = (EntityPlayerMP)this.getThrower();
 
 			if (entityplayermp.playerNetServerHandler.func_147362_b().isChannelOpen() && entityplayermp.worldObj == this.worldObj)
 			{
+				if (movingObjectPosition.entityHit != null)
+				{
+					movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
+				}
+
 				EnderTeleportEvent event = new EnderTeleportEvent(entityplayermp, this.posX, this.posY, this.posZ, this.teleportDamage);
 
 				if (MinecraftForge.EVENT_BUS.post(event) == false)
@@ -97,21 +89,21 @@ public class EntityEnderPearlReusable extends EntityThrowable
 					}
 				}
 			}
+
+			if (this.canPickUp == true)
+			{
+				EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
+							new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+
+				Random r = new Random();
+				entityitem.motionX = 0.05d * r.nextGaussian();
+				entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
+				entityitem.motionZ = 0.05d * r.nextGaussian();
+				entityitem.delayBeforeCanPickup = 20;
+				this.worldObj.spawnEntityInWorld(entityitem);
+			}
+
+			this.setDead();
 		}
-
-		if (this.canPickUp == true)
-		{
-			EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
-						new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
-
-			Random r = new Random();
-			entityitem.motionX = 0.05d * r.nextGaussian();
-			entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
-			entityitem.motionZ = 0.05d * r.nextGaussian();
-			entityitem.delayBeforeCanPickup = 20;
-			this.worldObj.spawnEntityInWorld(entityitem);
-		}
-
-		this.setDead();
 	}
 }

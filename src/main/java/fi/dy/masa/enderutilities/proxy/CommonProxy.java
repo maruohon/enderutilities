@@ -1,10 +1,13 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.event.EntityAttack;
+import fi.dy.masa.enderutilities.event.EntityInteract;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -16,6 +19,12 @@ public abstract class CommonProxy implements IProxy
 		int id = 0;
 		EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntity.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 10, true);
 		EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntity.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 10, true);
+	}
+
+	public void registerEventHandlers()
+	{
+		MinecraftForge.EVENT_BUS.register(new EntityAttack());
+		MinecraftForge.EVENT_BUS.register(new EntityInteract());
 	}
 
 	public void registerTileEntities()

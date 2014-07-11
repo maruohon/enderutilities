@@ -22,10 +22,12 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 
-public class ItemEnderBow extends Item
+public class ItemEnderBow extends Item implements IKeyBound
 {
-	public static final String[] bowPullIconNameArray = new String[] {"pulling.0", "pulling.1", "pulling.2"};
+	public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
+							"mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
 
@@ -60,10 +62,8 @@ public class ItemEnderBow extends Item
 			return;
 		}
 		j = event.charge;
-//		boolean flag = player.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, bowStack) > 0;
 
-		// flag ||
-		if (player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
+		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			float f = (float)j / 20.0F;
 			f = (f * f + f * 2.0F) / 3.0F;
@@ -78,9 +78,6 @@ public class ItemEnderBow extends Item
 				f = 1.0F;
 			}
 
-			EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0F);
-			//int slot = player.inventory.func_146029_c(EnderUtilitiesItems.enderArrow);
-			//ItemStack stack = player.inventory.getStackInSlot(slot);
 			NBTTagCompound nbt = bowStack.getTagCompound();
 			int x = (int)player.posX;
 			int y = (int)player.posY;
@@ -88,26 +85,29 @@ public class ItemEnderBow extends Item
 			int dim = player.dimension;
 			if (nbt != null)
 			{
-				x = nbt.getInteger("x");
-				y = nbt.getInteger("y");
-				z = nbt.getInteger("z");
-				dim = nbt.getInteger("dim");
+				x = nbt.getInteger("targetX");
+				y = nbt.getInteger("targetY");
+				z = nbt.getInteger("targetZ");
+				dim = nbt.getInteger("targetDim");
 			}
+
+			EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0F);
 			entityenderarrow.setTpTarget(x, y, z, dim);
+			entityenderarrow.setTpMode(nbt.getByte("mode"));
 
 			if (f == 1.0F)
 			{
 				entityenderarrow.setIsCritical(true);
 			}
 
-			player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
-			bowStack.damageItem(1, player);
-			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
-
-			if (world.isRemote == false)
+			if (player.capabilities.isCreativeMode == false)
 			{
-				world.spawnEntityInWorld(entityenderarrow);
+				player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
+				bowStack.damageItem(1, player);
 			}
+
+			world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+			world.spawnEntityInWorld(entityenderarrow);
 		}
 	}
 
@@ -132,6 +132,7 @@ public class ItemEnderBow extends Item
 		return EnumAction.bow;
 	}
 
+	@Override
     /**
 	 * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
 	 */
@@ -154,10 +155,10 @@ public class ItemEnderBow extends Item
 			}
 		}
 
-		if (player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
+		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt != null && nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z") && nbt.hasKey("dim"))
+			if (nbt != null && nbt.hasKey("targetX") && nbt.hasKey("targetY") && nbt.hasKey("targetZ") && nbt.hasKey("targetDim"))
 			{
 				player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 			}
@@ -184,26 +185,27 @@ public class ItemEnderBow extends Item
 
 		if (player.isSneaking() == true)
 		{
-			// Sneaking and targeting a block: store the location
 			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
+			// Sneaking and targeting a block: store the location
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				String strSide = "top";
-
 				// Adjust the target block position
-				if (side == 0) { --y; strSide = "bottom"; }
+				if (side == 0) { --y; }
 				if (side == 1) { ++y; }
-				if (side == 2) { --z; strSide = "east"; }
-				if (side == 3) { ++z; strSide = "west"; }
-				if (side == 4) { --x; strSide = "north"; }
-				if (side == 5) { ++x; strSide = "south"; }
+				if (side == 2) { --z; }
+				if (side == 3) { ++z; }
+				if (side == 4) { --x; }
+				if (side == 5) { ++x; }
 
-				nbt.setInteger("dim", player.dimension);
-				nbt.setInteger("x", x);
-				nbt.setInteger("y", y);
-				nbt.setInteger("z", z);
-				nbt.setString("side", strSide);
+				nbt.setInteger("targetX", x);
+				nbt.setInteger("targetY", y);
+				nbt.setInteger("targetZ", z);
+				nbt.setInteger("targetDim", player.dimension);
 				stack.setTagCompound(nbt);
+			}
+			// Sneak + right clicking on air: toggle the operation mode between "TP target" and "TP self"
+			else if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
+			{
 			}
 		}
 
@@ -211,6 +213,7 @@ public class ItemEnderBow extends Item
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
@@ -221,27 +224,37 @@ public class ItemEnderBow extends Item
 			return;
 		}
 
-		String side	= nbt.getString("side");
-		int dim		= nbt.getInteger("dim");
-		int x		= nbt.getInteger("x");
-		int y		= nbt.getInteger("y");
-		int z		= nbt.getInteger("z");
+		byte mode	= nbt.getByte("mode");
+		int x		= nbt.getInteger("targetX");
+		int y		= nbt.getInteger("targetY");
+		int z		= nbt.getInteger("targetZ");
+		int dim		= nbt.getInteger("targetDim");
 
 		String dimPre = "" + EnumChatFormatting.GREEN;
 		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-		if (dim >= -1 && dim <= 1)
+		// TP self to impact point
+		if (mode == (byte) 1)
 		{
-			String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
-			list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
+			list.add(String.format("Mode: %s%s%s", "" + EnumChatFormatting.RED, "TP self", rst));
 		}
+		// TP the target entity
 		else
 		{
-			list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
-		}
+			list.add(String.format("Mode: %s%s%s", "" + EnumChatFormatting.BLUE, "TP target", rst));
+			if (dim >= -1 && dim <= 1)
+			{
+				String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
+				list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
+			}
+			else
+			{
+				list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
+			}
 
-		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+		}
 	}
 
 	/**
@@ -270,6 +283,7 @@ public class ItemEnderBow extends Item
 	@SideOnly(Side.CLIENT)
 	public IIcon getItemIconForUseDuration(int par1)
 	{
+		this.itemIcon = this.iconArray[par1]; // this seems to be needed to update the icon used in the inventory
 		return this.iconArray[par1];
 	}
 
@@ -286,13 +300,58 @@ public class ItemEnderBow extends Item
 	@Override
 	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
 	{
-		if (player.getItemInUse() != null)
+		int index = 0;
+		byte mode = 0;
+
+		if (stack.getTagCompound() != null)
 		{
-			int inUse = stack.getMaxItemUseDuration() - useRemaining;
-			if (inUse >= 18) { return this.getItemIconForUseDuration(2); }
-			if (inUse >= 13) { return this.getItemIconForUseDuration(1); }
-			if (inUse > 0) { return this.getItemIconForUseDuration(0); }
+			mode = stack.getTagCompound().getByte("mode");
+			if (mode > 1 || mode < 0) { mode = 0; }
+			index = mode * 4;
 		}
-		return this.itemIcon;
+
+		if (player != null && player.getItemInUse() != null)
+		{
+			int inUse = 0;
+			if (stack != null)
+			{
+				inUse = stack.getMaxItemUseDuration() - useRemaining;
+			}
+			if (inUse >= 18) { index += 3; }
+			else if (inUse >= 13) { index += 2; }
+			else if (inUse > 0) { index += 1; }
+		}
+
+		return this.getItemIconForUseDuration(index);
+	}
+
+	@Override
+	public IIcon getIcon(ItemStack stack, int renderPass)
+	{
+		return this.getIcon(stack, renderPass, null, null, 0);
+	}
+
+	@Override
+	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+	{
+		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		{
+			byte val = 0;
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (nbt != null)
+			{
+				val = nbt.getByte("mode");
+				if (++val > 1)
+				{
+					val = 0;
+				}
+			}
+			else
+			{
+				nbt = new NBTTagCompound();
+				stack.setTagCompound(nbt);
+			}
+			nbt.setByte("mode", val);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
@@ -13,12 +14,6 @@ public class EntityInteract
 	@SubscribeEvent
 	public void onEntityInteractEvent(EntityInteractEvent event)
 	{
-/*
-		if (event.target.worldObj.isRemote == true)
-		{
-			return;
-		}
-*/
 		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 		if (stack != null && stack.getItem() == EnderUtilitiesItems.enderLasso)
 		{
@@ -27,9 +22,14 @@ public class EntityInteract
 				return;
 			}
 
-			if (event.target instanceof EntityLiving )
+			if (event.target instanceof EntityLiving)
 			{
-				TeleportEntity.lassoTeleportEntity(stack, (EntityLiving)event.target, event.entity.dimension);
+				EntityPlayer player = null;
+				if (event.entity instanceof EntityPlayer)
+				{
+					player = (EntityPlayer)event.entity;
+				}
+				TeleportEntity.lassoTeleportEntity(stack, (EntityLiving)event.target, player, player.dimension);
 				event.setCanceled(true);
 				return;
 			}
