@@ -17,13 +17,26 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.1.1.1"
-group= "fi.dy.masa.minecraft.mods" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "enderutilities-1.7.10"
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+group = "fi.dy.masa." + config.mod_id // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = config.mod_id
 
 minecraft {
-    version = "1.7.10-10.13.0.1151"
+    version = config.minecraft_version + "-" + config.forge_version
     assetDir = "eclipse/assets"
+
+    replaceIn "reference/Reference.java"
+    replace "@MOD_VERSION@", "${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+    if (project.hasProperty("mod_signature")) {
+        replace "@FINGERPRINT@", project.mod_signature
+    }
 }
 
 dependencies {
@@ -42,6 +55,8 @@ dependencies {
 
 }
 
+version = "${config.minecraft_version}-${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+
 processResources
 {
     // Exclude the GIMP image files
@@ -56,7 +71,8 @@ processResources
         include 'mcmod.info'
                 
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        //expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'mod_version': project.version, 'minecraft_version': project.config.minecraft_version
     }
         
     // copy everything else, thats not the mcmod.info
