@@ -37,6 +37,19 @@ public class TeleportEntity
 
 	public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
 	{
+		if (entity == null)
+		{
+			return;
+		}
+
+		TeleportEntity.addEnderSoundsAndParticles(entity.posX, entity.posY, entity.posZ, entity.worldObj);
+
+		// Do the actual teleportation only on the server side
+		if (entity.worldObj.isRemote == true)
+		{
+			return;
+		}
+
 		double deltaYaw = 0.0d;
 		double deltaPitch = 0.0d;
 		double x = 0.0d;
