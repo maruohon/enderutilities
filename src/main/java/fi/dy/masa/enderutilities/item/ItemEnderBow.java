@@ -260,12 +260,28 @@ public class ItemEnderBow extends Item implements IKeyBound
 	/**
 	 * Return the enchantability factor of the item, most of the time is based on material.
 	 */
+	@Override
 	public int getItemEnchantability()
 	{
 		return 0;
 	}
 
-    @SideOnly(Side.CLIENT)
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean requiresMultipleRenderPasses()
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getRenderPasses(int metadata)
+	{
+		return 1;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".standby");
@@ -283,11 +299,25 @@ public class ItemEnderBow extends Item implements IKeyBound
 	@SideOnly(Side.CLIENT)
 	public IIcon getItemIconForUseDuration(int par1)
 	{
-		this.itemIcon = this.iconArray[par1]; // this seems to be needed to update the icon used in the inventory
 		return this.iconArray[par1];
 	}
 
 	/**
+	 * Return the correct icon for rendering based on the supplied ItemStack and render pass.
+	 *
+	 * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
+	 * @param stack to render for
+	 * @param pass the multi-render pass
+	 * @return the icon
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(ItemStack stack, int renderPass)
+	{
+		return this.getIcon(stack, renderPass, null, null, 0);
+	}
+
+    /**
 	 * Player, Render pass, and item usage sensitive version of getIconIndex.
 	 *
 	 * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
@@ -298,6 +328,7 @@ public class ItemEnderBow extends Item implements IKeyBound
 	 * @return The icon index
 	 */
 	@Override
+	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
 	{
 		int index = 0;
@@ -323,12 +354,6 @@ public class ItemEnderBow extends Item implements IKeyBound
 		}
 
 		return this.getItemIconForUseDuration(index);
-	}
-
-	@Override
-	public IIcon getIcon(ItemStack stack, int renderPass)
-	{
-		return this.getIcon(stack, renderPass, null, null, 0);
 	}
 
 	@Override
