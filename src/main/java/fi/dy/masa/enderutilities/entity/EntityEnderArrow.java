@@ -31,29 +31,25 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEnderArrow extends Entity implements IProjectile
 {
-	private int field_145791_d = -1;
-	private int field_145792_e = -1;
-	private int field_145789_f = -1;
-	private Block field_145790_g;
-	private int inData;
-	private boolean inGround;
-	/** 1 if the player can pick up the arrow */
+	public int blockX = -1;
+	public int blockY = -1;
+	public int blockZ = -1;
+	public Block inBlock;
+	public int inData;
+	public boolean inGround;
 	public int canBePickedUp;
-	/** Seems to be some sort of timer for animating an arrow. */
 	public int arrowShake;
-	/** The owner of this arrow. */
-	private Entity shootingEntity;
-	private int ticksInGround;
-	private int ticksInAir;
-	// EnderArrow target coordinates:
-	private int tpTargetX;
-	private int tpTargetY;
-	private int tpTargetZ;
-	private int tpTargetDim;
-	private byte tpMode;
-	private String shooterName;
-	private UUID shooterUUID;
-	public static final float teleportDamage = 2.0f;
+	public Entity shootingEntity;
+	public int ticksInGround;
+	public int ticksInAir;
+	// "TP target" mode target coordinates:
+	public int tpTargetX;
+	public int tpTargetY;
+	public int tpTargetZ;
+	public int tpTargetDim;
+	public byte tpMode;
+	public UUID shooterUUID;
+	public float teleportDamage = 2.0f;
 
 	public EntityEnderArrow(World par1World)
 	{
@@ -111,7 +107,6 @@ public class EntityEnderArrow extends Entity implements IProjectile
 		if (par2EntityLivingBase instanceof EntityPlayer)
 		{
 			this.canBePickedUp = 1;
-			this.shooterName = ((EntityPlayer)par2EntityLivingBase).getCommandSenderName();
 			this.shooterUUID = ((EntityPlayer)par2EntityLivingBase).getUniqueID();
 
 			if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
@@ -122,15 +117,15 @@ public class EntityEnderArrow extends Entity implements IProjectile
 
 		this.setSize(0.5F, 0.5F);
 		this.setLocationAndAngles(par2EntityLivingBase.posX, par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight(), par2EntityLivingBase.posZ, par2EntityLivingBase.rotationYaw, par2EntityLivingBase.rotationPitch);
-		this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.5F);
+		this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.7F);
 		this.posY -= 0.10000000149011612D;
-		this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.5F);
+		this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.7F);
 		this.setPosition(this.posX, this.posY, this.posZ);
 		this.yOffset = 0.0F;
 		this.motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
 		this.motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
 		this.motionY = (double)(-MathHelper.sin(this.rotationPitch / 180.0F * (float)Math.PI));
-		this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, par3 * 1.5F, 1.0F);
+		this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, par3 * 1.7F, 1.0F);
 	}
 
 	protected void entityInit()
@@ -222,12 +217,12 @@ public class EntityEnderArrow extends Entity implements IProjectile
 			this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f) * 180.0D / Math.PI);
 		}
 
-		Block block = this.worldObj.getBlock(this.field_145791_d, this.field_145792_e, this.field_145789_f);
+		Block block = this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ);
 
 		if (block.getMaterial() != Material.air)
 		{
-			block.setBlockBoundsBasedOnState(this.worldObj, this.field_145791_d, this.field_145792_e, this.field_145789_f);
-			AxisAlignedBB axisalignedbb = block.getCollisionBoundingBoxFromPool(this.worldObj, this.field_145791_d, this.field_145792_e, this.field_145789_f);
+			block.setBlockBoundsBasedOnState(this.worldObj, this.blockX, this.blockY, this.blockZ);
+			AxisAlignedBB axisalignedbb = block.getCollisionBoundingBoxFromPool(this.worldObj, this.blockX, this.blockY, this.blockZ);
 
 			if (axisalignedbb != null && axisalignedbb.isVecInside(Vec3.createVectorHelper(this.posX, this.posY, this.posZ)))
 			{
@@ -242,9 +237,9 @@ public class EntityEnderArrow extends Entity implements IProjectile
 
 		if (this.inGround)
 		{
-			int j = this.worldObj.getBlockMetadata(this.field_145791_d, this.field_145792_e, this.field_145789_f);
+			int j = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
 
-			if (block == this.field_145790_g && j == this.inData)
+			if (block == this.inBlock && j == this.inData)
 			{
 				++this.ticksInGround;
 
@@ -278,7 +273,7 @@ public class EntityEnderArrow extends Entity implements IProjectile
 			}
 
 			Entity entity = null;
-			List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+			List<?> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
 			double d0 = 0.0D;
 			int i;
 			float f1;
@@ -438,11 +433,11 @@ public class EntityEnderArrow extends Entity implements IProjectile
 				// Hit a non-entity, so a block
 				else
 				{
-					this.field_145791_d = movingobjectposition.blockX;
-					this.field_145792_e = movingobjectposition.blockY;
-					this.field_145789_f = movingobjectposition.blockZ;
-					this.field_145790_g = block;
-					this.inData = this.worldObj.getBlockMetadata(this.field_145791_d, this.field_145792_e, this.field_145789_f);
+					this.blockX = movingobjectposition.blockX;
+					this.blockY = movingobjectposition.blockY;
+					this.blockZ = movingobjectposition.blockZ;
+					this.inBlock = block;
+					this.inData = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
 					this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
 					this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
 					this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));
@@ -455,9 +450,9 @@ public class EntityEnderArrow extends Entity implements IProjectile
 					this.arrowShake = 7;
 					this.setIsCritical(false);
 
-					if (this.field_145790_g.getMaterial() != Material.air)
+					if (this.inBlock.getMaterial() != Material.air)
 					{
-						this.field_145790_g.onEntityCollidedWithBlock(this.worldObj, this.field_145791_d, this.field_145792_e, this.field_145789_f, this);
+						this.inBlock.onEntityCollidedWithBlock(this.worldObj, this.blockX, this.blockY, this.blockZ, this);
 					}
 				}
 			}
@@ -518,11 +513,11 @@ public class EntityEnderArrow extends Entity implements IProjectile
 	 */
 	public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
 	{
-		par1NBTTagCompound.setShort("xTile", (short)this.field_145791_d);
-		par1NBTTagCompound.setShort("yTile", (short)this.field_145792_e);
-		par1NBTTagCompound.setShort("zTile", (short)this.field_145789_f);
+		par1NBTTagCompound.setShort("xTile", (short)this.blockX);
+		par1NBTTagCompound.setShort("yTile", (short)this.blockY);
+		par1NBTTagCompound.setShort("zTile", (short)this.blockZ);
 		par1NBTTagCompound.setShort("life", (short)this.ticksInGround);
-		par1NBTTagCompound.setByte("inTile", (byte)Block.getIdFromBlock(this.field_145790_g));
+		par1NBTTagCompound.setByte("inTile", (byte)Block.getIdFromBlock(this.inBlock));
 		par1NBTTagCompound.setByte("inData", (byte)this.inData);
 		par1NBTTagCompound.setByte("shake", (byte)this.arrowShake);
 		par1NBTTagCompound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
@@ -541,14 +536,22 @@ public class EntityEnderArrow extends Entity implements IProjectile
 	 */
 	public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
 	{
-		this.field_145791_d = par1NBTTagCompound.getShort("xTile");
-		this.field_145792_e = par1NBTTagCompound.getShort("yTile");
-		this.field_145789_f = par1NBTTagCompound.getShort("zTile");
+		this.blockX = par1NBTTagCompound.getShort("xTile");
+		this.blockY = par1NBTTagCompound.getShort("yTile");
+		this.blockZ = par1NBTTagCompound.getShort("zTile");
 		this.ticksInGround = par1NBTTagCompound.getShort("life");
-		this.field_145790_g = Block.getBlockById(par1NBTTagCompound.getByte("inTile") & 255);
+		this.inBlock = Block.getBlockById(par1NBTTagCompound.getByte("inTile") & 255);
 		this.inData = par1NBTTagCompound.getByte("inData") & 255;
 		this.arrowShake = par1NBTTagCompound.getByte("shake") & 255;
 		this.inGround = par1NBTTagCompound.getByte("inGround") == 1;
+		if (par1NBTTagCompound.hasKey("pickup", 99))
+		{
+			this.canBePickedUp = par1NBTTagCompound.getByte("pickup");
+		}
+		else if (par1NBTTagCompound.hasKey("player", 99))
+		{
+			this.canBePickedUp = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
+		}
 		this.tpTargetX = par1NBTTagCompound.getInteger("tpTargetX");
 		this.tpTargetY = par1NBTTagCompound.getInteger("tpTargetY");
 		this.tpTargetZ = par1NBTTagCompound.getInteger("tpTargetZ");
@@ -557,15 +560,6 @@ public class EntityEnderArrow extends Entity implements IProjectile
 		if (par1NBTTagCompound.hasKey("shooterUUIDMost", 4) && par1NBTTagCompound.hasKey("shooterUUIDLeast", 4))
 		{
 			this.shooterUUID = new UUID(par1NBTTagCompound.getLong("shooterUUIDMost"), par1NBTTagCompound.getLong("shooterUUIDLeast"));
-		}
-
-		if (par1NBTTagCompound.hasKey("pickup", 99))
-		{
-			this.canBePickedUp = par1NBTTagCompound.getByte("pickup");
-		}
-		else if (par1NBTTagCompound.hasKey("player", 99))
-		{
-			this.canBePickedUp = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
 		}
 	}
 
