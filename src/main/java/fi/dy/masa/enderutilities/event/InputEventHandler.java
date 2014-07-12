@@ -21,7 +21,7 @@ public class InputEventHandler
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onMouseInput(InputEvent.MouseInputEvent event)
+	public void onInput(InputEvent event)
 	{
 		// In-game (no GUI open)
 		if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
