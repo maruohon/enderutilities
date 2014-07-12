@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 

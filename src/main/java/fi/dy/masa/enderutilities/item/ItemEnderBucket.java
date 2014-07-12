@@ -57,7 +57,6 @@ public class ItemEnderBucket extends Item
 		short nbtAmount = 0;
 		Block nbtBlock = null;
 		String nbtBlockName = "";
-		Material nbtMaterial = null;
 
 		Block targetBlock;
 		String targetBlockName;
@@ -79,10 +78,6 @@ public class ItemEnderBucket extends Item
 			if (nbtBlockName.length() > 0)
 			{
 				nbtBlock = Block.getBlockFromName(nbtBlockName);
-				if (nbtBlock != null)
-				{
-					nbtMaterial = nbtBlock.getMaterial();
-				}
 			}
 		}
 		else
@@ -92,7 +87,6 @@ public class ItemEnderBucket extends Item
 
 		targetMaterial = targetBlock.getMaterial();
 		targetBlockName = Block.blockRegistry.getNameForObject(targetBlock);
-		int targetMeta = world.getBlockMetadata(x, y, z);
 
 		// Empty bucket, or same fluid and not sneaking: try to pick up fluid (sneaking allows emptying a bucket into the same fluid)
 		// FIXME is this a sufficient block type check?

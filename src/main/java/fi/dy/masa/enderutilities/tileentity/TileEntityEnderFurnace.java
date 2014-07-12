@@ -267,11 +267,10 @@ public class TileEntityEnderFurnace extends TileEntity implements ISidedInventor
 			}
 		}
 
-		//if (flag1)
-		//{
-		//	this.markDirty();
-		//}
-		this.markDirty();
+		if (flag1 || true) // FIXME debug
+		{
+			this.markDirty();
+		}
 
 		// Burning status changed
 		if (wasBurning != this.furnaceBurnTime > 0)

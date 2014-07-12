@@ -82,7 +82,6 @@ public class ItemEnderLasso extends Item
 			return;
 		}
 
-		String side	= nbt.getString("side");
 		int dim		= nbt.getInteger("dim");
 		int x		= nbt.getInteger("x");
 		int y		= nbt.getInteger("y");

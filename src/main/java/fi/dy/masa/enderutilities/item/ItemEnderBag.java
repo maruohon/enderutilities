@@ -41,7 +41,7 @@ public class ItemEnderBag extends Item
 		if (nbt != null)
 		{
 			// The bag must be in public mode, or the player must be the owner
-			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
+			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getCommandSenderName()) == true)
 			{
 				// Unbind the bag when sneak + right clicking on air TODO is there any point in this?
 				if (player.isSneaking() == true)
@@ -84,7 +84,7 @@ public class ItemEnderBag extends Item
 				NBTTagCompound nbt = stack.getTagCompound();
 
 				// The bag must be unbound, or in public mode, or the player must be the owner
-				if (nbt == null || nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getDisplayName()) == true)
+				if (nbt == null || nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getCommandSenderName()) == true)
 				{
 					nbt = new NBTTagCompound();
 					NBTTagCompound target = new NBTTagCompound();
@@ -101,7 +101,7 @@ public class ItemEnderBag extends Item
 						target.setString("locname", b.getLocalizedName()); // FIXME crappy check
 					}
 
-					nbt.setString("owner", player.getDisplayName()); // FIXME
+					nbt.setString("owner", player.getCommandSenderName()); // FIXME
 					nbt.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
 					nbt.setTag("target", target);
 					stack.setTagCompound(nbt);
@@ -126,15 +126,13 @@ public class ItemEnderBag extends Item
 			short numSlots	= nbt.getCompoundTag("target").getShort("numslots");
 			String locName	= nbt.getCompoundTag("target").getString("locname");
 
-			String regPre = "" + EnumChatFormatting.OBFUSCATED;
 			String dimPre = "" + EnumChatFormatting.OBFUSCATED;
 			String coordPre = "" + EnumChatFormatting.OBFUSCATED;
 			String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
 			// Only show the bound location, if the bag is set to public, or if the player is the owner
-			if (nbt.getByte("mode") == 1 || player.getDisplayName().equals(owner) == true) // FIXME
+			if (nbt.getByte("mode") == 1 || player.getCommandSenderName().equals(owner) == true) // FIXME
 			{
-				regPre = "" + EnumChatFormatting.GRAY;
 				dimPre = "" + EnumChatFormatting.GREEN;
 				coordPre = "" + EnumChatFormatting.BLUE;
 			}
