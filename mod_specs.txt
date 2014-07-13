@@ -1,4 +1,5 @@
 * Ender Utilities 'Have too many of those bloody enderballs? Well this mod adds some uses for them!'
+
   - Ender Activator: Has an inventory for items, will use them when right clicking
     ~ Active slot selectable with sneak + scroll? When empty, uses the next one (with wrap).
     ~ What about items that would require sneak + right click? How do we access the activator's inventory?
@@ -43,6 +44,10 @@
   - Ender Sender: Can be linked to any(?) inventory, has a filter setting, will auto-send any
     picked up items (according to the filter) to the inventory it is linked to
 
+  - Ender Servant: A "tamed" enderman, that can be bound to a location or an inventory. It will pick up all items it comes into
+    contact with and it will teleport and deposit the items to the bound location. Taming: an enderman must be at less than 2 hearts
+    and under regeneration effect, and the player feeds it a cookie.
+
   - Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 
   - Ender Staff: Allows short distance teleportation (like levitation/flying when holding down)
@@ -53,6 +58,22 @@
 
   - Ender Tranceiver: Wirelessly transmits the redstone signal it receives to another, paired device
 
+  - Ender Tools (Pick/Shovel/Axe/Sword): Can be bound to an inventory or the player's vanilla Ender Chest,
+    teleports all drops directly there.
+    ~ Ender Sword could also "teleport damage" to mobs near the player when blocking (?).
+
   - Ender Vacuum: A throwable that sucks/teleports all item entities in a radius into the impact point
 
+  - Ender Wand: Can be bound to an inventory. Can select a block type to work with.
+    Can then place blocks in a similar manner to the Extra Utilities' Builder's Wand, consuming them directly from the bound inventory.
+
 * Balancing point: Crafting ingredient purchased from villagers?
+
+* Ender Pearl changes/balancing ideas:
+  - Shared damage between stack? Can be really buggy to implement
+  - Launcher + projectiles, the launcher is the one crafted, has a set amount of uses
+  - The pearl has a chance to break on impact (I don't really like RNG though)
+  - Pearl has/takes damage, the damage is stored separately for each pearl in the stack, added in onPickup event and taken
+    out when used. Lowest durability is always the first one used, so basically only one pearl is ever damaged.
+    Similar to the shared damage though, and might have the same problems, ie. how do we properly handle it when the stack
+    is split/divided on slots etc.

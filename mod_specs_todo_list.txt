@@ -6,7 +6,7 @@ Ender Bag: Can be linked to any(?) inventories
 (*) Ender Bucket: Can hold a maximum of 16 buckets
 Ender Educator: Can instantly grow a baby mob into an adult. Has a 40% chance to fail and kill the mob.
 Ender Furnace: A lot faster with fuel, can work without fuel but 10x slower than regular furnace
-* Ender Lasso: Will teleport any living entities it is right clicked on, to the pre-bound location
+* Ender Lasso: Will teleport any living entities it is right clicked on, to the pre-bound location.
 Ender Link: A block/machine that can remotely access another, linked block's inventory
 * Ender Pearl (re-usable): Can be picked back up, deals 1 heart of fall damage
     - BUG: Duplicates when thrown into portals, because it both gets teleported and drops a new item.
@@ -16,11 +16,14 @@ Ender Porter: (One-time-use?) item that can teleport the player to a pre-bound l
 Ender Probe: Can search and view inventories by pointing at them
 Ender Quardian: Scans for endermen carrying blocks in a fixed radius, steals that block and sets
 Ender Sender: Can be linked to any(?) inventory, has a filter setting, will auto-send any
+Ender Servant: A "tamed" enderman
 Ender Sider: Similar to Ender Link, but accesses the block's sides, not the inventory
 Ender Staff: Allows short distance teleportation (like levitation/flying when holding down)
 Ender Swapper: Swaps two pre-set blocks or entities with eachother
+Ender Tools
 Ender Tranceiver: Wirelessly transmits the redstone signal it receives to another, paired device
 Ender Vacuum: A throwable that sucks/teleports all item entities in a radius into the impact point
+Ender Wand: Can be bound to an inventory. Can select a block type to work with.
 
 Balancing point: Crafting ingredient purchased from villagers?
 
