@@ -157,59 +157,55 @@ public class TeleportEntity
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)
 	{
-		if (entitySrc != null && entitySrc.worldObj.isRemote == false && entitySrc.isDead == false)
+		if (entitySrc == null || entitySrc.worldObj.isRemote == true || entitySrc.isDead == true || entitySrc.dimension == dimDst)
 		{
-			int dimSrc = entitySrc.dimension;
-
-			if (dimSrc == dimDst)
-			{
-				return false;
-			}
-
-			entitySrc.worldObj.theProfiler.startSection("changeDimension");
-
-			//WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
-			//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
-			MinecraftServer minecraftserver = MinecraftServer.getServer();
-			WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
-			WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
-
-			if (worldServerSrc == null || worldServerDst == null)
-			{
-				FMLLog.warning("[Ender Utilities] transferEntityToDimension(): worldServer[Src|Dst] == null");
-				return false;
-			}
-
-			entitySrc.dimension = dimDst;
-			entitySrc.worldObj.removeEntity(entitySrc);
-			entitySrc.isDead = false;
-
-			entitySrc.worldObj.theProfiler.startSection("reposition");
-			TeleportEntity.transferEntityToWorld(entitySrc, dimSrc, worldServerSrc, worldServerDst);
-
-			entitySrc.worldObj.theProfiler.endStartSection("reloading");
-			Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
-
-			if (entityDst != null && entityDst.isEntityAlive() == true)
-			{
-				entityDst.copyDataFrom(entitySrc, true);
-				entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
-				entityDst.motionX = 0.0d;
-				entityDst.motionY = 0.0d;
-				entityDst.motionZ = 0.0d;
-				worldServerDst.spawnEntityInWorld(entityDst);
-			}
-
-			// FIXME debug: this actually kills the original entity, commenting it will make clones
-			entitySrc.isDead = true;
-
-			entitySrc.worldObj.theProfiler.endSection();
-			worldServerSrc.resetUpdateEntityTick();
-			worldServerDst.resetUpdateEntityTick();
-			entitySrc.worldObj.theProfiler.endSection();
-			return true;
+			return false;
 		}
-		return false;
+
+		int dimSrc = entitySrc.dimension;
+
+		entitySrc.worldObj.theProfiler.startSection("changeDimension");
+
+		//WorldServer worldServerSrc = DimensionManager.getWorld(dimSrc);
+		//WorldServer worldServerDst = DimensionManager.getWorld(dimDst);
+		MinecraftServer minecraftserver = MinecraftServer.getServer();
+		WorldServer worldServerSrc = minecraftserver.worldServerForDimension(dimSrc);
+		WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+
+		if (worldServerSrc == null || worldServerDst == null)
+		{
+			FMLLog.warning("[Ender Utilities] transferEntityToDimension(): worldServer[Src|Dst] == null");
+			return false;
+		}
+
+		entitySrc.dimension = dimDst;
+		entitySrc.worldObj.removeEntity(entitySrc);
+		entitySrc.isDead = false;
+
+		entitySrc.worldObj.theProfiler.startSection("reposition");
+		TeleportEntity.transferEntityToWorld(entitySrc, dimSrc, worldServerSrc, worldServerDst);
+
+		entitySrc.worldObj.theProfiler.endStartSection("reloading");
+		Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
+
+		if (entityDst != null && entityDst.isEntityAlive() == true)
+		{
+			entityDst.copyDataFrom(entitySrc, true);
+			entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+			entityDst.motionX = 0.0d;
+			entityDst.motionY = 0.0d;
+			entityDst.motionZ = 0.0d;
+			worldServerDst.spawnEntityInWorld(entityDst);
+		}
+
+		// FIXME debug: this actually kills the original entity, commenting it will make clones
+		entitySrc.isDead = true;
+
+		entitySrc.worldObj.theProfiler.endSection();
+		worldServerSrc.resetUpdateEntityTick();
+		worldServerDst.resetUpdateEntityTick();
+		entitySrc.worldObj.theProfiler.endSection();
+		return true;
 	}
 
 	public static boolean transferEntityToDimension(EntityLiving entity, int dim)
