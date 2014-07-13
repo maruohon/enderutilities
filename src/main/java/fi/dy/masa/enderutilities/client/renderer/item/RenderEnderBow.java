@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.render;
+package fi.dy.masa.enderutilities.client.renderer.item;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;

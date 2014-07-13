@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.render;
+package fi.dy.masa.enderutilities.client.renderer.entity;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL12;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 
 @SideOnly(Side.CLIENT)
@@ -90,7 +90,7 @@ public class RenderEnderArrow extends Render
 	 */
 	protected ResourceLocation getEntityTexture(EntityEnderArrow par1EntityArrow)
 	{
-		return new ResourceLocation(Reference.getEntityTextureName(ReferenceEntity.NAME_ENTITY_ENDER_ARROW));
+		return new ResourceLocation(Textures.getEntityTextureName(ReferenceEntity.NAME_ENTITY_ENDER_ARROW));
 	}
 
 	/**

@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class ItemEnderPearlReusable extends Item
@@ -15,7 +15,7 @@ public class ItemEnderPearlReusable extends Item
 	{
 		this.setMaxStackSize(4);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_PEARL_REUSABLE);
-		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

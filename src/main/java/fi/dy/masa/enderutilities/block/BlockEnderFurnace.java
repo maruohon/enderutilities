@@ -23,7 +23,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -361,9 +361,9 @@ public class BlockEnderFurnace extends BlockContainer
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		this.blockIcon = iconRegister.registerIcon(Reference.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
-		this.iconTop = iconRegister.registerIcon(Reference.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
+		this.blockIcon = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
+		this.iconTop = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
 		// FIXME how can we do the front texture based on state? Needs TESR?
-		this.iconFront = iconRegister.registerIcon(Reference.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
+		this.iconFront = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
 	}
 }

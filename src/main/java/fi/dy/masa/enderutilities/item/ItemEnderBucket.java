@@ -4,26 +4,35 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class ItemEnderBucket extends Item
 {
+	@SideOnly(Side.CLIENT)
+	public static final String[] bowPullIconNameArray = new String[] {".32.main", ".32.windowbg", ".32.inside"};
+	@SideOnly(Side.CLIENT)
+	private IIcon[] iconParts;
+
 	public ItemEnderBucket()
 	{
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BUCKET);
-		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()) + ".32");
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
@@ -243,5 +252,26 @@ public class ItemEnderBucket extends Item
 		}
 
 		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void registerIcons(IIconRegister iconRegister)
+	{
+		this.itemIcon = iconRegister.registerIcon(this.getIconString());
+		this.iconParts = new IIcon[3];
+		this.iconParts[0] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.main");
+		this.iconParts[1] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.windowbg");
+		this.iconParts[2] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.inside");
+	}
+
+	@SideOnly(Side.CLIENT)
+	public IIcon getIconPart(int i)
+	{
+		if (i >= this.iconParts.length)
+		{
+			i = 0;
+		}
+		return this.iconParts[i];
 	}
 }

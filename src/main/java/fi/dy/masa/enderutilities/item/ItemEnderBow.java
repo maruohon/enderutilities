@@ -20,7 +20,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 
@@ -37,7 +37,7 @@ public class ItemEnderBow extends Item implements IKeyBound
 		this.maxStackSize = 1;
 		this.setMaxDamage(384);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BOW);
-		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

@@ -6,14 +6,15 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
+import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
+import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
 import fi.dy.masa.enderutilities.client.settings.Keybindings;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
-import fi.dy.masa.enderutilities.render.RenderEnderArrow;
-import fi.dy.masa.enderutilities.render.RenderEnderBow;
 
 public class ClientProxy extends CommonProxy
 {
@@ -40,5 +41,6 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderSnowball(EnderUtilitiesItems.enderPearlReusable));
 
 		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
+		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
 	}
 }

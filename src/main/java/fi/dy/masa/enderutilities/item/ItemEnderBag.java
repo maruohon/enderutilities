@@ -13,7 +13,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class ItemEnderBag extends Item
@@ -23,7 +23,7 @@ public class ItemEnderBag extends Item
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BAG);
-		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 

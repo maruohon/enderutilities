@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class ItemEnderLasso extends Item
@@ -22,7 +22,7 @@ public class ItemEnderLasso extends Item
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_LASSO);
-		this.setTextureName(Reference.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
