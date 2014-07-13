@@ -22,7 +22,7 @@ public class TeleportEntity
 		world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
 
 		// Spawn some particles
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 32; i++)
 		{
 			double offX = 0.0d;
 			double offY = 0.0d;
@@ -42,6 +42,7 @@ public class TeleportEntity
 			return;
 		}
 
+		// Sound and particles on the original location
 		TeleportEntity.addEnderSoundsAndParticles(entity.posX, entity.posY, entity.posZ, entity.worldObj);
 
 		// Do the actual teleportation only on the server side
@@ -75,10 +76,12 @@ public class TeleportEntity
 				entity.worldObj.getBlock((int)x, (int)y + 1, (int)z) == Blocks.air)
 			//if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
 			{
-				TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
-				//System.out.printf("x: %f y: %f z: %f yaw: %f pitch: %f maxDist: %f\n", x, y, z, deltaYaw, deltaPitch, maxDist); // FIXME debug
 				entity.setPositionAndUpdate(x, y, z);
 				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+
+				// Sound and particles on the new, destination location.
+				//TODO: Since this only happens on the server side, we currently get no particles here. Maybe add custom packets for effects?
+				TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 				return;
 			}
 		}
@@ -107,7 +110,7 @@ public class TeleportEntity
 			return;
 		}
 
-		// Original position
+		// Sound and particles on the original location
 		TeleportEntity.addEnderSoundsAndParticles(entity.posX, entity.posY, entity.posZ, entity.worldObj);
 
 		if (entity.worldObj.isRemote == false)
@@ -144,7 +147,6 @@ public class TeleportEntity
 			}
 			else
 			{
-				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 				entity.setPositionAndUpdate(x, y, z);
 			}
 		}
