@@ -68,6 +68,11 @@ public class ItemEnderBucket extends Item
 			return stack;
 		}
 
+		// Convert flowing variants to the still variants for logic and handling.
+		// We always convert water and lava to the flowing variant before placing.
+		if (targetBlock == Blocks.flowing_water) { targetBlock = Blocks.water; }
+		else if (targetBlock == Blocks.flowing_lava) { targetBlock = Blocks.lava; }
+
 		NBTTagCompound nbt = stack.getTagCompound();
 
 		if (nbt != null)
@@ -87,7 +92,17 @@ public class ItemEnderBucket extends Item
 
 		targetMaterial = targetBlock.getMaterial();
 		targetBlockName = Block.blockRegistry.getNameForObject(targetBlock);
-
+/*
+		// FIXME debug
+		if (world.isRemote == false)
+		{
+			String nbtBlockNameLoc = nbtBlockName;
+			if (nbtBlock == null) { nbtBlockNameLoc = ""; }
+			System.out.printf("nbtBlockName: %s\nnbtBlock: %s\nnbtAmount: %d\n", nbtBlockName, nbtBlockNameLoc, nbtAmount);
+			System.out.printf("targetBlockName: %s\ntargetBlock: %s\ntargetMaterial: %s\n", targetBlockName, targetBlock.toString(), targetMaterial);
+			System.out.println("---------------");
+		}
+*/
 		// Empty bucket, or same fluid and not sneaking: try to pick up fluid (sneaking allows emptying a bucket into the same fluid)
 		// FIXME is this a sufficient block type check?
 		if (nbtAmount == 0 || (targetBlock == nbtBlock && player.isSneaking() == false))
@@ -117,7 +132,7 @@ public class ItemEnderBucket extends Item
 			return stack;
 		}
 
-		// Different fluid, or other block type, we try to place a fluid block in the world
+		// Different fluid, other block type or we are sneaking and targeting the same fluid , we try to place a fluid block in the world
 
 		// No fluid stored, or we can't place fluid here
 		if (nbtAmount < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
