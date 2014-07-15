@@ -96,14 +96,17 @@ public class RenderEnderBow implements IItemRenderer
 		GL11.glPushMatrix();
 		TextureManager textureManager = this.mc.getTextureManager();
 		textureManager.bindTexture(textureManager.getResourceLocation(stack.getItemSpriteNumber()));
-		//ItemRenderer.renderItemIn2D(par0Tessellator, par1, par2, par3, par4, par5, par6, par7);
 
 		if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
 		{
-			GL11.glTranslatef(0.6f,  0.5f,  0.5f);
+			GL11.glTranslatef(0.6f, 0.5f, 0.5f);
 		}
 		else
 		{
+			GL11.glRotatef(10.0f, 0.0f, -1.0f, 1.0f);
+			GL11.glRotatef(-10.0f, -0.8f, 0.0f, -0.8f);
+			GL11.glRotatef(-20.0f, 0.1f, -1.0f, 0.2f);
+			GL11.glTranslatef(-0.32f, 0.0f, 0.1f);
 			GL11.glRotatef(180.0f, 0f, 0f, 1.0f);
 			GL11.glRotatef(45.0f, 1.0f, 0.0f, 0.75f);
 			GL11.glTranslatef(-0.6f, -0.25f, 1.0f);
@@ -117,6 +120,7 @@ public class RenderEnderBow implements IItemRenderer
 		float f3 = iicon.getMaxV();
 		float f4 = 0.0f;
 		float f5 = 0.3f;
+
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 		GL11.glTranslatef(-f4, -f5, 0.0f);
 		float f6 = 1.5f;
@@ -124,6 +128,7 @@ public class RenderEnderBow implements IItemRenderer
 		GL11.glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
 		GL11.glRotatef(335.0f, 0.0f, 0.0f, 1.0f);
 		GL11.glTranslatef(-0.9375f, -0.0625f, 0.0f);
+
 		ItemRenderer.renderItemIn2D(tessellator, f1, f2, f, f3, iicon.getIconWidth(), iicon.getIconHeight(), 0.0625f);
 
 		GL11.glPopMatrix();

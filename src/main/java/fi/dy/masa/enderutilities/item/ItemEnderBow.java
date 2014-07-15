@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -24,7 +24,7 @@ import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 
-public class ItemEnderBow extends Item implements IKeyBound
+public class ItemEnderBow extends ItemBow implements IKeyBound
 {
 	public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
 							"mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};
@@ -111,6 +111,7 @@ public class ItemEnderBow extends Item implements IKeyBound
 		}
 	}
 
+    @Override
 	public ItemStack onEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
 	{
 		return par1ItemStack;
@@ -119,6 +120,7 @@ public class ItemEnderBow extends Item implements IKeyBound
 	/**
 	 * How long it takes to use or consume an item
 	 */
+    @Override
 	public int getMaxItemUseDuration(ItemStack par1ItemStack)
 	{
 		return 72000;
@@ -127,15 +129,16 @@ public class ItemEnderBow extends Item implements IKeyBound
 	/**
 	 * returns the action that specifies what animation to play when the items is being used
 	 */
+    @Override
 	public EnumAction getItemUseAction(ItemStack par1ItemStack)
 	{
 		return EnumAction.bow;
 	}
 
-	@Override
     /**
 	 * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
 	 */
+    @Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
 		ArrowNockEvent event = new ArrowNockEvent(player, stack);
