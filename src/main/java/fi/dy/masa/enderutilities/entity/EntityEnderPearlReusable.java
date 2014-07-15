@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,6 +38,18 @@ public class EntityEnderPearlReusable extends EntityThrowable
 		{
 			this.canPickUp = false;
 		}
+
+		this.setLocationAndAngles(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
+		this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
+		this.posY -= 0.10000000149011612d;
+		this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
+		this.setPosition(this.posX, this.posY, this.posZ);
+
+		float f = 0.4f;
+		double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
+		double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
+		double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.func_70183_g()) / 180.0f * (float)Math.PI) * f);
+		this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 1.0f);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -48,6 +61,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	/**
 	 * Called when this EntityThrowable hits a block or entity.
 	 */
+	@Override
 	protected void onImpact(MovingObjectPosition movingObjectPosition)
 	{
 		TeleportEntity.addEnderSoundsAndParticles(this.posX, this.posY, this.posZ, this.worldObj);
