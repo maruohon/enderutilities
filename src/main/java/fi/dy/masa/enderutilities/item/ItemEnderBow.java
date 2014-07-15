@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -224,11 +225,11 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			return;
 		}
 
-		byte mode	= nbt.getByte("mode");
-		int x		= nbt.getInteger("targetX");
-		int y		= nbt.getInteger("targetY");
-		int z		= nbt.getInteger("targetZ");
-		int dim		= nbt.getInteger("targetDim");
+		byte mode = 0;
+		if (nbt.hasKey("mode"))
+		{
+			mode = nbt.getByte("mode");
+		}
 
 		String dimPre = "" + EnumChatFormatting.GREEN;
 		String coordPre = "" + EnumChatFormatting.BLUE;
@@ -242,6 +243,17 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		// TP the target entity
 		else
 		{
+			if (nbt.hasKey("targetX") == false || nbt.hasKey("targetY") == false || nbt.hasKey("targetZ") == false || nbt.hasKey("targetDim") == false)
+			{
+				list.add("No target set");
+				return;
+			}
+
+			int x		= nbt.getInteger("targetX");
+			int y		= nbt.getInteger("targetY");
+			int z		= nbt.getInteger("targetZ");
+			int dim		= nbt.getInteger("targetDim");
+
 			list.add(String.format("Mode: %s%s%s", "" + EnumChatFormatting.BLUE, "TP target", rst));
 			if (dim >= -1 && dim <= 1)
 			{
@@ -264,6 +276,19 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	public int getItemEnchantability()
 	{
 		return 0;
+	}
+
+	@Override
+	public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
+	{
+		if (stack1 != null && stack1.getItem() == EnderUtilitiesItems.enderBow)
+		{
+			if (stack2 != null && stack2.getItem() == Items.diamond)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
