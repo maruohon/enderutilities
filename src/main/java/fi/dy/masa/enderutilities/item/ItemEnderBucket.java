@@ -214,12 +214,6 @@ public class ItemEnderBucket extends Item
 		list.add(String.format("Amount: %d mB", amount));
 	}
 
-	@Override
-	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
-	{
-		return true;
-	}
-
 	// Attempts to place the fluid contained inside the bucket.
 	public boolean tryPlaceContainedFluid(World world, int x, int y, int z, Block fluid)
 	{
