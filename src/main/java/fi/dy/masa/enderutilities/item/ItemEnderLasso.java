@@ -103,10 +103,4 @@ public class ItemEnderLasso extends Item
 
 		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
 	}
-
-	@Override
-	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
-	{
-		return true;
-	}
 }
