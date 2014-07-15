@@ -44,7 +44,7 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	/**
 	 * called when the player releases the use item button. Args: itemstack, world, entityplayer, itemInUseCount
 	 */
-    @Override
+	@Override
 	public void onPlayerStoppedUsing(ItemStack bowStack, World world, EntityPlayer player, int itemInUseCount)
 	{
 		// Do nothing on the client side
@@ -111,7 +111,7 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		}
 	}
 
-    @Override
+	@Override
 	public ItemStack onEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
 	{
 		return par1ItemStack;
@@ -120,7 +120,7 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	/**
 	 * How long it takes to use or consume an item
 	 */
-    @Override
+	@Override
 	public int getMaxItemUseDuration(ItemStack par1ItemStack)
 	{
 		return 72000;
@@ -129,16 +129,16 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	/**
 	 * returns the action that specifies what animation to play when the items is being used
 	 */
-    @Override
+	@Override
 	public EnumAction getItemUseAction(ItemStack par1ItemStack)
 	{
 		return EnumAction.bow;
 	}
 
-    /**
+	/**
 	 * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
 	 */
-    @Override
+	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
 		ArrowNockEvent event = new ArrowNockEvent(player, stack);
@@ -161,7 +161,9 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt != null && nbt.hasKey("targetX") && nbt.hasKey("targetY") && nbt.hasKey("targetZ") && nbt.hasKey("targetDim"))
+			if (nbt != null
+				&& ((nbt.hasKey("mode") && nbt.getByte("mode") == (byte)1)
+				|| (nbt.hasKey("targetX") && nbt.hasKey("targetY") && nbt.hasKey("targetZ") && nbt.hasKey("targetDim"))))
 			{
 				player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 			}
@@ -180,7 +182,6 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		}
 
 		NBTTagCompound nbt = stack.getTagCompound();
-
 		if (nbt == null)
 		{
 			nbt = new NBTTagCompound();
@@ -369,15 +370,15 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			if (nbt != null)
 			{
 				val = nbt.getByte("mode");
-				if (++val > 1)
-				{
-					val = 0;
-				}
 			}
 			else
 			{
 				nbt = new NBTTagCompound();
 				stack.setTagCompound(nbt);
+			}
+			if (++val > 1)
+			{
+				val = 0;
 			}
 			nbt.setByte("mode", val);
 		}
