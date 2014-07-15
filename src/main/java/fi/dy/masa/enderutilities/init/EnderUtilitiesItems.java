@@ -24,12 +24,12 @@ public class EnderUtilitiesItems
 
 	public static void init()
 	{
-		GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
-		GameRegistry.registerItem(enderBag, ReferenceItem.NAME_ITEM_ENDER_BAG);
-		GameRegistry.registerItem(enderBow, ReferenceItem.NAME_ITEM_ENDER_BOW);
-		GameRegistry.registerItem(enderBucket, ReferenceItem.NAME_ITEM_ENDER_BUCKET);
-		GameRegistry.registerItem(enderLasso, ReferenceItem.NAME_ITEM_ENDER_LASSO);
 		GameRegistry.registerItem(enderPearlReusable, ReferenceItem.NAME_ITEM_ENDER_PEARL_REUSABLE);
+		GameRegistry.registerItem(enderBow, ReferenceItem.NAME_ITEM_ENDER_BOW);
+		GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
+		GameRegistry.registerItem(enderLasso, ReferenceItem.NAME_ITEM_ENDER_LASSO);
+		GameRegistry.registerItem(enderBucket, ReferenceItem.NAME_ITEM_ENDER_BUCKET);
+		GameRegistry.registerItem(enderBag, ReferenceItem.NAME_ITEM_ENDER_BAG);
 
 		ItemStack arrow = new ItemStack(Items.arrow);
 		ItemStack bucket = new ItemStack(Items.bucket);
