@@ -10,178 +10,249 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.ItemFluidContainer;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
-public class ItemEnderBucket extends Item
+public class ItemEnderBucket extends ItemFluidContainer
 {
 	@SideOnly(Side.CLIENT)
 	public static final String[] bowPullIconNameArray = new String[] {".32.main", ".32.windowbg", ".32.inside"};
 	@SideOnly(Side.CLIENT)
-	private IIcon[] iconParts;
+	public IIcon[] iconParts;
 
 	public ItemEnderBucket()
 	{
-		super();
+		// the id is actually unused though...
+		this(Item.getIdFromItem(GameRegistry.findItem(Reference.MOD_ID, ReferenceItem.NAME_ITEM_ENDER_BUCKET)));
+	}
+
+	public ItemEnderBucket(int itemID)
+	{
+		super(itemID);
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BUCKET);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()) + ".32");
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
+		this.setCapacity(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT);
 	}
 
 	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
 	{
 		// Do nothing on the client side
 		if (world.isRemote == true)
 		{
-			return stack;
+			return itemStack;
 		}
 
+		// First, get the stored fluid, if any
+		FluidStack storedFluidStack = this.getFluid(itemStack);
+		int storedFluidAmount = 0;
+
+		if (storedFluidStack != null)
+		{
+			storedFluidAmount = storedFluidStack.amount;
+		}
+
+		// Next find out what block we are targeting
 		// FIXME the boolean flag does what exactly? In vanilla it seems to indicate that the bucket is empty.
 		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 
 		if (movingobjectposition == null || movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
 		{
-			return stack;
+			return itemStack;
 		}
 
 		int x = movingobjectposition.blockX;
 		int y = movingobjectposition.blockY;
 		int z = movingobjectposition.blockZ;
 
+		Block targetBlock;
+
+		targetBlock = world.getBlock(x, y, z);
+		if (targetBlock == null || targetBlock.getMaterial() == null)
+		{
+			return itemStack;
+		}
+
 		// Spawn safe zone checks etc.
 		if (world.canMineBlock(player, x, y, x) == false)
 		{
-			return stack;
+			return itemStack;
 		}
 
-		short nbtAmount = 0;
-		Block nbtBlock = null;
-		String nbtBlockName = "";
-
-		Block targetBlock;
-		String targetBlockName;
-		Material targetMaterial;
-
-		targetBlock = world.getBlock(x, y, z);
-		if (targetBlock == null)
+		// Fluid block
+		if (targetBlock.getMaterial().isLiquid() == true)
 		{
-			return stack;
-		}
+			Fluid storedFluid = null;
+			Fluid targetFluid = null;
+			IFluidBlock iFluidBlock = null;
+			FluidStack fluidStack = null;
 
-		// Convert flowing variants to the still variants for logic and handling.
-		// We always convert water and lava to the flowing variant before placing.
-		if (targetBlock == Blocks.flowing_water) { targetBlock = Blocks.water; }
-		else if (targetBlock == Blocks.flowing_lava) { targetBlock = Blocks.lava; }
-
-		NBTTagCompound nbt = stack.getTagCompound();
-
-		if (nbt != null)
-		{
-			nbtBlockName = nbt.getString("fluid");
-			nbtAmount = nbt.getShort("amount");
-
-			if (nbtBlockName.length() > 0)
+			if (storedFluidStack != null)
 			{
-				nbtBlock = Block.getBlockFromName(nbtBlockName);
+				storedFluid = storedFluidStack.getFluid();
+			}
+			if (targetBlock instanceof IFluidBlock)
+			{
+				iFluidBlock = (IFluidBlock)targetBlock;
+				targetFluid = iFluidBlock.getFluid();
+			}
+			else
+			{
+				// We need to convert flowing water and lava to the still variant for logic stuffs
+				// We will always convert them to the flowing variant before placing
+				if (targetBlock == Blocks.flowing_water) { targetBlock = Blocks.water; }
+				else if (targetBlock == Blocks.flowing_lava) { targetBlock = Blocks.lava; }
+
+				//targetFluid = new Fluid(Block.blockRegistry.getNameForObject(targetBlock));
+				targetFluid = FluidRegistry.lookupFluidForBlock(targetBlock);
+			}
+
+			// Empty || (space && not sneaking && same fluid) => trying to pick up fluid
+			if (storedFluidAmount == 0 ||
+				((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME && player.isSneaking() == false && storedFluid == targetFluid))
+			{
+				if (player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, itemStack) == false)
+				{
+					return itemStack;
+				}
+
+				// Implements IFluidBlock
+				if (iFluidBlock != null)
+				{
+					if (iFluidBlock.canDrain(world, x, y, z) == true)
+					{
+						fluidStack = iFluidBlock.drain(world, x, y, z, false); // simulate
+
+						// Check that we can store that amount and that the fluid stacks are equal (including NBT, excluding amount)
+						if (this.fill(itemStack, fluidStack, false) >= FluidContainerRegistry.BUCKET_VOLUME)
+						{
+							fluidStack = iFluidBlock.drain(world, x, y, z, true);
+							this.fill(itemStack, fluidStack, true);
+						}
+					}
+					return itemStack;
+				}
+
+				// Does not implement IFluidBlock
+				if (targetFluid != null)
+				{
+					//fluidStack = new FluidStack(targetFluid, FluidContainerRegistry.BUCKET_VOLUME);
+					fluidStack = FluidRegistry.getFluidStack(targetFluid.getName(), FluidContainerRegistry.BUCKET_VOLUME);
+				}
+
+				// Check that we can store that amount and that the fluid stacks are equal (including NBT, excluding amount)
+				if (this.fill(itemStack, fluidStack, false) >= FluidContainerRegistry.BUCKET_VOLUME)
+				{
+					if (world.setBlockToAir(x, y, z) == true)
+					{
+						this.fill(itemStack, fluidStack, true);
+					}
+				}
+				return itemStack;
+			}
+			// Fluid stored, trying to place fluid
+			if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
+			{
+				// (fluid stored && different fluid) || (fluid stored && same fluid && sneaking) => trying to place fluid
+				if (storedFluid != targetFluid || player.isSneaking() == true)
+				{
+					if (this.tryPlaceContainedFluid(world, x, y, z, storedFluidStack) == true)
+					{
+						this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true);
+					}
+				}
+				return itemStack;
 			}
 		}
+		// Non-fluid block
 		else
 		{
-			nbt = new NBTTagCompound();
-		}
+			TileEntity te = world.getTileEntity(x, y, z);
 
-		targetMaterial = targetBlock.getMaterial();
-		targetBlockName = Block.blockRegistry.getNameForObject(targetBlock);
-/*
-		// FIXME debug
-		if (world.isRemote == false)
-		{
-			String nbtBlockNameLoc = nbtBlockName;
-			if (nbtBlock == null) { nbtBlockNameLoc = ""; }
-			System.out.printf("nbtBlockName: %s\nnbtBlock: %s\nnbtAmount: %d\n", nbtBlockName, nbtBlockNameLoc, nbtAmount);
-			System.out.printf("targetBlockName: %s\ntargetBlock: %s\ntargetMaterial: %s\n", targetBlockName, targetBlock.toString(), targetMaterial);
-			System.out.println("---------------");
-		}
-*/
-		// Empty bucket, or same fluid and not sneaking: try to pick up fluid (sneaking allows emptying a bucket into the same fluid)
-		// FIXME is this a sufficient block type check?
-		if (nbtAmount == 0 || (targetBlock == nbtBlock && player.isSneaking() == false))
-		{
-			// Bail out if we don't have space or we can't change the block
-			if ((ReferenceItem.ENDER_BUCKET_MAX_AMOUNT - nbtAmount) < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
+			// Is this a TileEntity that is also some sort of a fluid storage device?
+			if (te != null && te instanceof IFluidHandler)
 			{
-				return stack;
-			}
+				IFluidHandler iFluidHandler = (IFluidHandler)te;
+				FluidStack fluidStack;
+				ForgeDirection fDir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
 
-			if (targetMaterial.isLiquid() == true)
-			{
-				if (world.setBlockToAir(x, y, z) == true)
+				// With tanks we pick up fluid without sneaking
+				if (player.isSneaking() == false)
 				{
-					nbtAmount += 1000;
-					nbt.setShort("amount", nbtAmount);
-
-					if (nbtBlockName.length() == 0)
+					// We can still fit at least one bucket more
+					if ((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME)
 					{
-						nbt.setString("fluid", targetBlockName);
-					}
+						fluidStack = iFluidHandler.drain(fDir, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
 
-					stack.setTagCompound(nbt);
+						// If the bucket is currently empty, or the tank's fluid is the same we currently have
+						if (fluidStack != null && (storedFluidAmount == 0 || fluidStack.isFluidEqual(storedFluidStack) == true))
+						{
+							fluidStack = iFluidHandler.drain(fDir, FluidContainerRegistry.BUCKET_VOLUME, true); // actually drain
+							this.fill(itemStack, fluidStack, true);
+						}
+					}
+					return itemStack;
+				}
+				// Sneaking, try to deposit fluid to the tank
+				else
+				{
+					// At least one bucket of fluid stored
+					if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
+					{
+						fluidStack = this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
+
+						// Check if we can deposit one bucket of the fluid we have stored
+						if (iFluidHandler.fill(fDir, fluidStack, false) == FluidContainerRegistry.BUCKET_VOLUME) // simulate
+						{
+							this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true); // actually drain
+							iFluidHandler.fill(fDir, fluidStack, true);
+						}
+					}
 				}
 			}
 
-			return stack;
-		}
-
-		// Different fluid, other block type or we are sneaking and targeting the same fluid , we try to place a fluid block in the world
-
-		// No fluid stored, or we can't place fluid here
-		if (nbtAmount < 1000 || player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, stack) == false)
-		{
-			return stack;
-		}
-
-		// Don't adjust the target block for liquids, we want to replace them
-		if (targetBlock.getMaterial().isLiquid() == false)
-		{
-			// Adjust the target block position
-			if (movingobjectposition.sideHit == 0) { --y; }
-			if (movingobjectposition.sideHit == 1) { ++y; }
-			if (movingobjectposition.sideHit == 2) { --z; }
-			if (movingobjectposition.sideHit == 3) { ++z; }
-			if (movingobjectposition.sideHit == 4) { --x; }
-			if (movingobjectposition.sideHit == 5) { ++x; }
-		}
-
-		// We need to convert water and lava to the flowing variant, otherwise we get non-flowing source blocks
-		if (nbtBlock == Blocks.water) { nbtBlock = Blocks.flowing_water; }
-		else if (nbtBlock == Blocks.lava) { nbtBlock = Blocks.flowing_lava; }
-
-		if (this.tryPlaceContainedFluid(world, x, y, z, nbtBlock) == true)
-		{
-			nbtAmount -= 1000;
-			nbt.setShort("amount", nbtAmount);
-			if (nbtAmount == 0)
+			// target block is not fluid and not a tank: try to place a fluid block in world against the targeted side
+			else if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
 			{
-				stack.setTagCompound(null);
+				ForgeDirection dir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
+				x += dir.offsetX;
+				y += dir.offsetY;
+				z += dir.offsetZ;
+
+				if (this.tryPlaceContainedFluid(world, x, y, z, storedFluidStack) == true)
+				{
+					this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true);
+				}
 			}
 		}
 
-		return stack;
+		return itemStack;
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
 		{
@@ -189,30 +260,39 @@ public class ItemEnderBucket extends Item
 			return;
 		}
 
-		String fluid = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
-		short amount = 0;
+		FluidStack fluidStack = this.getFluid(itemStack);
+		String fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
+		int amount = 0;
 		String pre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-		NBTTagCompound nbt = stack.getTagCompound();
 
-		if (nbt != null)
+		if (fluidStack != null && fluidStack.getFluid() != null)
 		{
-			amount	= nbt.getShort("amount");
-
-			if (nbt.hasKey("fluid") == true && amount > 0)
-			{
-				String name = Block.getBlockFromName(nbt.getString("fluid")).getLocalizedName();
-				fluid = pre + name + rst;
-			}
+			amount = fluidStack.amount;
+			fluidName = pre + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
 		}
 
-		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluid);
+		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
 		list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
 	}
 
-	// Attempts to place the fluid contained inside the bucket.
-	public boolean tryPlaceContainedFluid(World world, int x, int y, int z, Block fluid)
+	/*
+	 *  Attempts to place one fluid block in the world, identified by the given FluidStack
+	 */
+	public boolean tryPlaceContainedFluid(World world, int x, int y, int z, FluidStack fluidStack)
 	{
+		if (fluidStack == null || fluidStack.getFluid() == null ||
+			fluidStack.getFluid().getBlock() == null || fluidStack.getFluid().canBePlacedInWorld() == false)
+		{
+			return false;
+		}
+
+		Block block = fluidStack.getFluid().getBlock();
+
+		// We need to convert water and lava to the flowing variant, otherwise we get non-flowing source blocks
+		if (block == Blocks.water) { block = Blocks.flowing_water; }
+		else if (block == Blocks.lava) { block = Blocks.flowing_lava; }
+
 		Material material = world.getBlock(x, y, z).getMaterial();
 
 		if (world.isAirBlock(x, y, z) == false && material.isSolid() == true)
@@ -220,7 +300,7 @@ public class ItemEnderBucket extends Item
 			return false;
 		}
 
-		if (world.provider.isHellWorld && fluid == Blocks.flowing_water)
+		if (world.provider.isHellWorld && block == Blocks.flowing_water)
 		{
 			world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
 
@@ -237,11 +317,55 @@ public class ItemEnderBucket extends Item
 				world.func_147480_a(x, y, z, true);
 			}
 
-			world.setBlock(x, y, z, fluid, 0, 3);
-			//world.notifyBlockChange(x, y, z, fluid); // FIXME this doesn't work
+			world.setBlock(x, y, z, block, 0, 3);
 		}
 
 		return true;
+	}
+
+	@Override
+	public FluidStack drain(ItemStack container, int maxDrain, boolean doDrain)
+	{
+		int drained = 0;
+
+		NBTTagCompound nbt = container.getTagCompound();
+		if (nbt == null || nbt.hasKey("Fluid") == false)
+		{
+			return null;
+		}
+
+		FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("Fluid"));
+		if (fluidStack == null)
+		{
+			return null;
+		}
+
+		// Amount that will or would be drained
+		drained = Math.min(fluidStack.amount, maxDrain);
+
+		// If not just simulating
+		if (doDrain == true)
+		{
+			// Drained all the fluid
+			if (drained >= fluidStack.amount)
+			{
+				nbt.removeTag("Fluid");
+				if (nbt.hasNoTags() == true)
+				{
+					container.setTagCompound(null);
+				}
+			}
+			else
+			{
+				NBTTagCompound fluidTag = nbt.getCompoundTag("Fluid");
+				fluidTag.setInteger("Amount", fluidTag.getInteger("Amount") - drained);
+				nbt.setTag("Fluid", fluidTag);
+			}
+		}
+
+		fluidStack.amount = drained;
+
+		return fluidStack; // Return the FluidStack that was or would be drained from the item
 	}
 
 	@Override

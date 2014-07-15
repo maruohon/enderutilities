@@ -1,17 +1,14 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
@@ -24,12 +21,13 @@ public class ItemRendererEnderBucket implements IItemRenderer
 	}
 
 	@Override
-	public boolean handleRenderType(ItemStack item, ItemRenderType type)
+	public boolean handleRenderType(ItemStack itemStack, ItemRenderType type)
 	{
-		if (item.getTagCompound() != null)
+		if (itemStack != null && itemStack.getItem() instanceof ItemEnderBucket)
 		{
-			NBTTagCompound nbt = item.getTagCompound();
-			if (nbt.hasKey("fluid") && nbt.hasKey("amount") && nbt.getShort("amount") >= 1000 && nbt.getString("fluid").length() > 0)
+			ItemEnderBucket item = (ItemEnderBucket)itemStack.getItem();
+			FluidStack fluidStack = item.getFluid(itemStack);
+			if (fluidStack != null && fluidStack.amount > 0)
 			{
 				return true;
 			}
@@ -46,42 +44,60 @@ public class ItemRendererEnderBucket implements IItemRenderer
 	}
 
 	@Override
-	public void renderItem(ItemRenderType type, ItemStack item, Object... data)
+	public void renderItem(ItemRenderType type, ItemStack itemStack, Object... data)
 	{
-		if (item == null)
+		if (itemStack == null)
 		{
 			return;
 		}
 		IIcon iicon = null;
-		short amount = 0;
+		int amount = 0;
 
-		final NBTTagCompound nbt = item.getTagCompound();
-		if (nbt != null)
+		ItemEnderBucket item = (ItemEnderBucket)itemStack.getItem();
+		FluidStack fluidStack = item.getFluid(itemStack);
+		if (fluidStack == null || fluidStack.amount == 0 || fluidStack.getFluid() == null)
 		{
-			final String fluidName = nbt.getString("fluid");
-			amount = nbt.getShort("amount");
-			if (nbt.hasKey("fluid") && nbt.hasKey("amount") && amount >= 1000 && fluidName.length() > 0)
-			{
-				Block block = Block.getBlockFromName(fluidName);
-				if (block != null)
-				{
-					// We won't find fluid for the flowing variants...
-					if (block == Blocks.flowing_water) { block = Blocks.water; }
-					else if (block == Blocks.flowing_lava) { block = Blocks.lava; }
-
-					final Fluid fluid = FluidRegistry.lookupFluidForBlock(block);
-					if (fluid != null)
-					{
-						iicon = fluid.getStillIcon();
-					}
-				}
-			}
+			return;
 		}
+		amount = fluidStack.amount;
+		iicon = fluidStack.getFluid().getStillIcon();
 
 		GL11.glPushMatrix();
 
+		switch(type)
+		{
+			case INVENTORY:
+				break;
+			default:
+				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+		}
+
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glDisable(GL11.GL_BLEND);
+
+		// Render the bucket upside down if the fluid is a gas
+		if (fluidStack.getFluid().isGaseous() == true)
+		{
+			switch(type)
+			{
+				case EQUIPPED_FIRST_PERSON:
+					GL11.glTranslatef(0.0f, 0.25f, 0.0F);
+					GL11.glRotatef(60.0f, 0.0f, 1.0f, 0.0f);
+				case EQUIPPED:
+					GL11.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+					GL11.glTranslatef(0.0f, -0.95f, 0.0F);
+					break;
+				case ENTITY:
+					GL11.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+					GL11.glTranslatef(0.0f, -0.5f, 0.0F);
+					break;
+				case INVENTORY:
+					GL11.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+					GL11.glTranslatef(0.0f, -16.0f, 0.0F);
+					break;
+				default:
+			}
+		}
 
 		Tessellator t = Tessellator.instance;
 
@@ -90,29 +106,38 @@ public class ItemRendererEnderBucket implements IItemRenderer
 			FMLClientHandler.instance().getClient().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
 			// Center part of fluid
-			this.renderQuad(type, t, iicon, 0.375f, 0.1875f, 0.25f, 0.625f, -0.000025d, -0.000025d, 0.00005d);
+			this.renderQuad(type, t, iicon, 0.375f, 0.1875f, 0.25f, 0.625f, -0.000025d, -0.000025d, 0.0001d);
 			// Left square
-			this.renderQuad(type, t, iicon, 0.25f, 0.25f, 0.125f, 0.125f, -0.000025d, -0.000025d, 0.00005d);
+			this.renderQuad(type, t, iicon, 0.25f, 0.25f, 0.125f, 0.125f, -0.000025d, -0.000025d, 0.0001d);
 			// Right square
-			this.renderQuad(type, t, iicon, 0.625f, 0.25f, 0.125f, 0.125f, -0.000025d, -0.000025d, 0.00005d);
+			this.renderQuad(type, t, iicon, 0.625f, 0.25f, 0.125f, 0.125f, -0.000025d, -0.000025d, 0.0001d);
 		}
 
 		FMLClientHandler.instance().getClient().renderEngine.bindTexture(TextureMap.locationItemsTexture);
 
 		GL11.glEnable(GL11.GL_BLEND);
 
-		iicon = ((ItemEnderBucket)item.getItem()).getIconPart(0); // 0: Bucket main part
+		iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(0); // 0: Bucket main part
 		this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
-		iicon = ((ItemEnderBucket)item.getItem()).getIconPart(1); // 1: Bucket window background (empty part of gauge)
+		iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(1); // 1: Bucket window background (empty part of gauge)
 		float scale = 1.0f - (((float)amount) / (float)ReferenceItem.ENDER_BUCKET_MAX_AMOUNT);
-		this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.000025d);
+		this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
 
-		iicon = ((ItemEnderBucket)item.getItem()).getIconPart(2); // 2: Bucket top part inside
-		this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.000025d);
+		iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(2); // 2: Bucket top part inside
+		this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
 
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_LIGHTING);
+
+		switch(type)
+		{
+			case INVENTORY:
+				break;
+			default:
+				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+		}
+
 		GL11.glPopMatrix();
 	}
 
@@ -134,12 +159,14 @@ public class ItemRendererEnderBucket implements IItemRenderer
 		float endV = relHeight * lenV + startV;
 
 		GL11.glPushMatrix();
+
 		switch(type)
 		{
 			case EQUIPPED_FIRST_PERSON:
 				GL11.glTranslatef(0.0f, 0.25f, 0.0F);
 				GL11.glRotatef(30.0f, 0.0f, 1.0f, 0.0f);
-				GL11.glScalef(0.8f, 0.8f, 0.8f);
+				GL11.glScalef(0.7f, 0.7f, 0.7f);
+				GL11.glTranslatef(0.0f, 0.02f, 0.0F);
 			case EQUIPPED:
 				GL11.glRotatef(180.0f, 0.0f, 0.0f, 1.0f);
 				GL11.glTranslatef(-1.0f, -1.0f, 0.0F);
@@ -148,7 +175,6 @@ public class ItemRendererEnderBucket implements IItemRenderer
 				GL11.glTranslatef(-0.5f, -0.25f, 0.0f);
 				GL11.glRotatef(180.0f, 0.0f, 0.0f, 1.0f);
 				GL11.glTranslatef(-1.0f, -1.0f, 0.0F);
-				//GL11.glScalef(relWidth, relHeight, 1.0f);
 				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glEnable(GL11.GL_LIGHTING);
 				break;
@@ -157,7 +183,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 				GL11.glScalef(16.0f, 16.0f, 1.0f);
 				// For debugging: scale up and reposition for a closer look:
 				//GL11.glScalef(4.0f, 4.0f, 1.0f);
-				//GL11.glTranslatef(-2.0f, -2.0f, 0.0f);
+				//GL11.glTranslatef(0.0f, -2.0f, 0.0f);
 				break;
 			default:
 		}
