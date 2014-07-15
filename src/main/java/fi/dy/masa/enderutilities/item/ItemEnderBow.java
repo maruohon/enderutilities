@@ -207,10 +207,6 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 				nbt.setInteger("targetDim", player.dimension);
 				stack.setTagCompound(nbt);
 			}
-			// Sneak + right clicking on air: toggle the operation mode between "TP target" and "TP self"
-			else if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
-			{
-			}
 		}
 
 		return false;
