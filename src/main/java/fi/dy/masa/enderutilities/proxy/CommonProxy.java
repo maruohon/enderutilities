@@ -32,4 +32,9 @@ public abstract class CommonProxy implements IProxy
 		// FIXME: create my own tile entity?
 		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
 	}
+
+	public boolean isShiftKeyDown()
+	{
+		return false;
+	}
 }

@@ -19,7 +19,7 @@ public class EnderUtilities
 	@Instance(Reference.MOD_ID)
 	public static EnderUtilities instance;
 
-	@SidedProxy(clientSide = Reference.CLASS_CLIENT_PROXY, serverSide = Reference.CLASS_COMMON_PROXY)
+	@SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
 	public static IProxy proxy;
 
 	@EventHandler

@@ -13,3 +13,21 @@ item.enderbow.name=Ender Bow
 item.enderbucket.name=Ender Bucket
 item.enderlasso.name=Ender Lasso
 item.enderpearlreusable.name=Ender Pearl (re-usable)
+
+gui.tooltip.holdshift=Shift for more
+gui.tooltip.owner=Owner
+gui.tooltip.slots=Slots
+gui.tooltip.type=Type
+
+gui.tooltip.empty=empty
+gui.tooltip.fluid=Fluid
+gui.tooltip.amount=Amount
+
+gui.tooltip.notargetset=No target set
+gui.tooltip.dimension=Dimension
+gui.tooltip.dimension.overworld=Overworld
+gui.tooltip.dimension.nether=Nether
+gui.tooltip.dimension.end=The End
+gui.tooltip.mode=Mode
+gui.tooltip.tpself=TP self
+gui.tooltip.tptarget=TP target

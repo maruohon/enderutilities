@@ -8,12 +8,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderLasso extends Item
 {
@@ -74,11 +77,17 @@ public class ItemEnderLasso extends Item
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
+		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+		{
+			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			return;
+		}
+
 		NBTTagCompound nbt = stack.getTagCompound();
 
 		if (nbt == null)
 		{
-			list.add("No target set");
+			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
 		}
 
@@ -91,16 +100,7 @@ public class ItemEnderLasso extends Item
 		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-		if (dim >= -1 && dim <= 1)
-		{
-			String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
-			list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
-		}
-		else
-		{
-			list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
-		}
-
-		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
+		list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
 	}
 }

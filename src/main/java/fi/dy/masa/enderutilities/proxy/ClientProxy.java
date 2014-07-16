@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -42,5 +44,11 @@ public class ClientProxy extends CommonProxy
 
 		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
 		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
+	}
+
+	@Override
+	public boolean isShiftKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
 	}
 }

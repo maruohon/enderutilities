@@ -13,9 +13,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
@@ -179,21 +181,15 @@ public class ItemEnderBucket extends Item
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	{
-		// Do nothing on the client side
-		if (world.isRemote == true)
-		{
-			return false;
-		}
-
-		return false;
-	}
-
-	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
-		String fluid = "<empty>";
+		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+		{
+			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			return;
+		}
+
+		String fluid = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
 		short amount = 0;
 		String pre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
@@ -210,8 +206,8 @@ public class ItemEnderBucket extends Item
 			}
 		}
 
-		list.add("Fluid: " + fluid);
-		list.add(String.format("Amount: %d mB", amount));
+		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluid);
+		list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
 	}
 
 	// Attempts to place the fluid contained inside the bucket.

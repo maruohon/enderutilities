@@ -11,10 +11,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBag extends Item
 {
@@ -98,10 +101,9 @@ public class ItemEnderBag extends Item
 					if (b != null)
 					{
 						target.setString("unlocname", b.getUnlocalizedName()); // FIXME crappy check
-						target.setString("locname", b.getLocalizedName()); // FIXME crappy check
 					}
 
-					nbt.setString("owner", player.getCommandSenderName()); // FIXME
+					nbt.setString("owner", player.getCommandSenderName());
 					nbt.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
 					nbt.setTag("target", target);
 					stack.setTagCompound(nbt);
@@ -115,16 +117,23 @@ public class ItemEnderBag extends Item
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
+		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+		{
+			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			return;
+		}
+
 		if (stack.getTagCompound() != null)
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
+			NBTTagCompound target = nbt.getCompoundTag("target");
 			String owner	= nbt.getString("owner");
-			int dim			= nbt.getCompoundTag("target").getInteger("dim");
-			int x			= nbt.getCompoundTag("target").getInteger("posX");
-			int y			= nbt.getCompoundTag("target").getInteger("posY");
-			int z			= nbt.getCompoundTag("target").getInteger("posZ");
-			short numSlots	= nbt.getCompoundTag("target").getShort("numslots");
-			String locName	= nbt.getCompoundTag("target").getString("locname");
+			int dim			= target.getInteger("dim");
+			int x			= target.getInteger("posX");
+			int y			= target.getInteger("posY");
+			int z			= target.getInteger("posZ");
+			short numSlots	= target.getShort("numslots");
+			String locName	= StatCollector.translateToLocal(target.getString("unlocname"));
 
 			String dimPre = "" + EnumChatFormatting.OBFUSCATED;
 			String coordPre = "" + EnumChatFormatting.OBFUSCATED;
@@ -137,20 +146,11 @@ public class ItemEnderBag extends Item
 				coordPre = "" + EnumChatFormatting.BLUE;
 			}
 
-			if (dim >= -1 && dim <= 1)
-			{
-				String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
-				list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
-			}
-			else
-			{
-				list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
-			}
-
+			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
 			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
-			list.add(String.format("Type: %s%s%s", coordPre, locName, rst));
-			list.add(String.format("Slots: %s%d%s", coordPre, numSlots, rst));
-			list.add("Owner: " + owner);
+			list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + coordPre + locName + rst);
+			list.add(StatCollector.translateToLocal("gui.tooltip.slots") + String.format(": %s%d%s", coordPre, numSlots, rst));
+			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
 		}
 	}
 

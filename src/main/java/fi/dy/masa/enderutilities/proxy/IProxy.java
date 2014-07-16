@@ -11,4 +11,6 @@ public interface IProxy
 	public abstract void registerRenderers();
 
 	public abstract void registerTileEntities();
+
+	public abstract boolean isShiftKeyDown();
 }

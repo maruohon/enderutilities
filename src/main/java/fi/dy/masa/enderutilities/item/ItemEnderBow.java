@@ -12,18 +12,21 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBow extends ItemBow implements IKeyBound
 {
@@ -217,11 +220,17 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
+		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+		{
+			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			return;
+		}
+
 		NBTTagCompound nbt = stack.getTagCompound();
 
 		if (nbt == null)
 		{
-			list.add("No target set");
+			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
 		}
 
@@ -238,14 +247,14 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		// TP self to impact point
 		if (mode == (byte) 1)
 		{
-			list.add(String.format("Mode: %s%s%s", "" + EnumChatFormatting.RED, "TP self", rst));
+			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("gui.tooltip.tpself") + rst);
 		}
 		// TP the target entity
 		else
 		{
 			if (nbt.hasKey("targetX") == false || nbt.hasKey("targetY") == false || nbt.hasKey("targetZ") == false || nbt.hasKey("targetDim") == false)
 			{
-				list.add("No target set");
+				list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 				return;
 			}
 
@@ -254,17 +263,8 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			int z		= nbt.getInteger("targetZ");
 			int dim		= nbt.getInteger("targetDim");
 
-			list.add(String.format("Mode: %s%s%s", "" + EnumChatFormatting.BLUE, "TP target", rst));
-			if (dim >= -1 && dim <= 1)
-			{
-				String dimStr = (dim == -1 ? "Nether" : (dim == 0 ? "Overworld" : "The End"));
-				list.add(String.format("Dimension: %s%s%s", dimPre, dimStr, rst));
-			}
-			else
-			{
-				list.add(String.format("Dimension: %s%d%s", dimPre, dim, rst));
-			}
-
+			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
+			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
 			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
 		}
 	}
