@@ -12,7 +12,6 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
@@ -77,11 +76,13 @@ public class ItemEnderLasso extends Item
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
+/*
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
 		{
 			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
 			return;
 		}
+*/
 
 		NBTTagCompound nbt = stack.getTagCompound();
 

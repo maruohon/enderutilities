@@ -13,7 +13,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
@@ -117,11 +116,13 @@ public class ItemEnderBag extends Item
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
+/*
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
 		{
 			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
 			return;
 		}
+*/
 
 		if (stack.getTagCompound() != null)
 		{

@@ -27,7 +27,6 @@ import net.minecraftforge.fluids.ItemFluidContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.Textures;
@@ -254,11 +253,14 @@ public class ItemEnderBucket extends ItemFluidContainer
 	@Override
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
+/*
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+
 		{
 			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
 			return;
 		}
+*/
 
 		FluidStack fluidStack = this.getFluid(itemStack);
 		String fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
