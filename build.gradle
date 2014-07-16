@@ -32,8 +32,16 @@ minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     assetDir = "eclipse/assets"
 
+    ext.mod_version = "${config.mod_version}"
+
+    if (mod_version.endsWith('-dev')) {
+        mod_version = mod_version + "-" + new Date().format('yyyyMMdd_HHmmss')
+    }
+
     replaceIn "reference/Reference.java"
-    replace "@MOD_VERSION@", "${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+    //replace "@MOD_VERSION@", "${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+    replace "@MOD_VERSION@", mod_version
+
     if (project.hasProperty("mod_signature")) {
         replace "@FINGERPRINT@", project.mod_signature
     }
@@ -55,7 +63,8 @@ dependencies {
 
 }
 
-version = "${config.minecraft_version}-${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+//version = "${config.minecraft_version}-${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"
+version = "${config.minecraft_version}-${project.minecraft.mod_version}"
 
 processResources
 {
@@ -72,7 +81,8 @@ processResources
                 
         // replace version and mcversion
         //expand 'version':project.version, 'mcversion':project.minecraft.version
-        expand 'mod_version': project.version, 'minecraft_version': project.config.minecraft_version
+        //expand 'mod_version': project.version, 'minecraft_version': project.config.minecraft_version
+        expand 'mod_version': project.minecraft.mod_version, 'minecraft_version': project.config.minecraft_version
     }
         
     // copy everything else, thats not the mcmod.info
