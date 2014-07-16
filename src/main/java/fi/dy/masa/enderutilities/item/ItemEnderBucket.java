@@ -35,8 +35,6 @@ import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 public class ItemEnderBucket extends ItemFluidContainer
 {
 	@SideOnly(Side.CLIENT)
-	public static final String[] bowPullIconNameArray = new String[] {".32.main", ".32.windowbg", ".32.inside"};
-	@SideOnly(Side.CLIENT)
 	public IIcon[] iconParts;
 
 	public ItemEnderBucket()
