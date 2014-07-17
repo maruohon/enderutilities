@@ -215,16 +215,17 @@ public class ItemEnderBucket extends ItemFluidContainer
 				// Sneaking, try to deposit fluid to the tank
 				else
 				{
-					// At least one bucket of fluid stored
-					if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
+					// Some fluid stored (we allow depositing less than a buckets worth of fluid into _tanks_)
+					if (storedFluidAmount > 0)
 					{
-						fluidStack = this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
+						// simulate, we try to deposit up to one bucket per use
+						fluidStack = this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, false);
 
-						// Check if we can deposit one bucket of the fluid we have stored
-						if (iFluidHandler.fill(fDir, fluidStack, false) == FluidContainerRegistry.BUCKET_VOLUME) // simulate
+						// Check if we can deposit (at least some) the fluid we have stored
+						if (iFluidHandler.fill(fDir, fluidStack, false) > 0) // simulate
 						{
-							this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true); // actually drain
-							iFluidHandler.fill(fDir, fluidStack, true);
+							int amount = iFluidHandler.fill(fDir, fluidStack, true);
+							this.drain(itemStack, amount, true); // actually drain fluid from the bucket (the amount that was deposited into the container)
 						}
 					}
 				}
