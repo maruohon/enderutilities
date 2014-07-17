@@ -166,11 +166,11 @@ public class TeleportEntity
 			else
 			{
 				entity.setPositionAndUpdate(x, y, z);
-
-				// Final position
-				TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 			}
 		}
+
+		// Final position
+		TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 
 		return true;
 	}

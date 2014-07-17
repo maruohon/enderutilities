@@ -16,7 +16,7 @@ public class EntityInteract
 	{
 		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 
-		if (stack == null || event.entityPlayer.worldObj.isRemote == true)
+		if (stack == null)
 		{
 			return;
 		}
