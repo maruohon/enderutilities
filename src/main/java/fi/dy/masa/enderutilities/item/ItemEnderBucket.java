@@ -143,7 +143,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 						fluidStack = iFluidBlock.drain(world, x, y, z, false); // simulate
 
 						// Check that we can store that amount and that the fluid stacks are equal (including NBT, excluding amount)
-						if (this.fill(itemStack, fluidStack, false) >= FluidContainerRegistry.BUCKET_VOLUME)
+						if (this.fill(itemStack, fluidStack, false) <= (this.capacity - storedFluidAmount))
 						{
 							fluidStack = iFluidBlock.drain(world, x, y, z, true);
 							this.fill(itemStack, fluidStack, true);
@@ -169,6 +169,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 				}
 				return itemStack;
 			}
+
 			// Fluid stored, trying to place fluid
 			if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
 			{
@@ -195,18 +196,25 @@ public class ItemEnderBucket extends ItemFluidContainer
 				FluidStack fluidStack;
 				ForgeDirection fDir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
 
-				// With tanks we pick up fluid without sneaking
+				// With tanks we pick up fluid when not sneaking
 				if (player.isSneaking() == false)
 				{
-					// We can still fit at least one bucket more
-					if ((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME)
+					int space = this.capacity - storedFluidAmount;
+
+					// We can still store more fluid
+					if (space > 0)
 					{
-						fluidStack = iFluidHandler.drain(fDir, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
+						if (space > FluidContainerRegistry.BUCKET_VOLUME)
+						{
+							space = FluidContainerRegistry.BUCKET_VOLUME;
+						}
+
+						fluidStack = iFluidHandler.drain(fDir, space, false); // simulate
 
 						// If the bucket is currently empty, or the tank's fluid is the same we currently have
 						if (fluidStack != null && (storedFluidAmount == 0 || fluidStack.isFluidEqual(storedFluidStack) == true))
 						{
-							fluidStack = iFluidHandler.drain(fDir, FluidContainerRegistry.BUCKET_VOLUME, true); // actually drain
+							fluidStack = iFluidHandler.drain(fDir, space, true); // actually drain
 							this.fill(itemStack, fluidStack, true);
 						}
 					}
