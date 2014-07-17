@@ -7,13 +7,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.FMLLog;
+import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 
 public class TeleportEntity
 {
@@ -89,18 +89,22 @@ public class TeleportEntity
 
 	public static void lassoTeleportEntity(ItemStack stack, EntityLiving entity, EntityPlayer player, int dimSrc)
 	{
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null || ! nbt.hasKey("x") || ! nbt.hasKey("y") || ! nbt.hasKey("z") || ! nbt.hasKey("dim")
-				|| entity.riddenByEntity != null || entity.ridingEntity != null)
+		if (entity.riddenByEntity != null || entity.ridingEntity != null)
 		{
 			return;
 		}
-		double x = (double)nbt.getInteger("x") + 0.5d;
-		double y = (double)nbt.getInteger("y");
-		double z = (double)nbt.getInteger("z") + 0.5d;
-		int dimDst = nbt.getInteger("dim");
 
-		TeleportEntity.teleportEntity(entity, player, dimSrc, dimDst, x, y, z);
+		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+		if (target.readFromNBT(stack.getTagCompound()) == false)
+		{
+			return;
+		}
+
+		double x = target.posX + 0.5d;
+		double y = target.posY;
+		double z = target.posZ + 0.5d;
+
+		TeleportEntity.teleportEntity(entity, player, dimSrc, target.dimension, x, y, z);
 	}
 
 	public static void teleportEntity(EntityLiving entity, EntityPlayer player, int dimSrc, int dimDst, double x, double y, double z)

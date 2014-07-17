@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderLasso extends Item
@@ -37,35 +38,15 @@ public class ItemEnderLasso extends Item
 			return false;
 		}
 
-		NBTTagCompound nbt = stack.getTagCompound();
-
-		if (nbt == null)
-		{
-			nbt = new NBTTagCompound();
-		}
-
 		if (player.isSneaking() == true)
 		{
 			// Sneaking and targeting a block: store the location
 			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				String strSide = "top";
+				stack = ItemNBTHelperTarget.writeTargetToItem(stack, x, y, z, player.dimension, side, true);
 
-				// Adjust the target block position
-				if (side == 0) { --y; strSide = "bottom"; }
-				if (side == 1) { ++y; }
-				if (side == 2) { --z; strSide = "east"; }
-				if (side == 3) { ++z; strSide = "west"; }
-				if (side == 4) { --x; strSide = "north"; }
-				if (side == 5) { ++x; strSide = "south"; }
-
-				nbt.setInteger("dim", player.dimension);
-				nbt.setInteger("x", x);
-				nbt.setInteger("y", y);
-				nbt.setInteger("z", z);
-				nbt.setString("side", strSide);
-				stack.setTagCompound(nbt);
+				return true;
 			}
 		}
 
@@ -85,23 +66,18 @@ public class ItemEnderLasso extends Item
 */
 
 		NBTTagCompound nbt = stack.getTagCompound();
-
-		if (nbt == null)
+		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+		if (target.readFromNBT(nbt) == false)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
 		}
 
-		int dim		= nbt.getInteger("dim");
-		int x		= nbt.getInteger("x");
-		int y		= nbt.getInteger("y");
-		int z		= nbt.getInteger("z");
-
 		String dimPre = "" + EnumChatFormatting.GREEN;
 		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
-		list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
+		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
 	}
 }

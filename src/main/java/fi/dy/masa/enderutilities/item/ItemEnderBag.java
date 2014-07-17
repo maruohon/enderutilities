@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBag extends Item
@@ -43,7 +44,7 @@ public class ItemEnderBag extends Item
 		if (nbt != null)
 		{
 			// The bag must be in public mode, or the player must be the owner
-			if (nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getCommandSenderName()) == true)
+			if (nbt.getByte("Mode") == 1 || nbt.getString("Owner").equals(player.getCommandSenderName()) == true)
 			{
 				// Unbind the bag when sneak + right clicking on air TODO is there any point in this?
 				if (player.isSneaking() == true)
@@ -76,37 +77,30 @@ public class ItemEnderBag extends Item
 		}
 
 		TileEntity te = world.getTileEntity(x, y, z);
-		if (te != null)
+		if (te != null && te instanceof IInventory)
 		{
-			if (te instanceof IInventory)
+			NBTTagCompound nbt = stack.getTagCompound();
+
+			// The bag must be unbound, or in public mode, or the player must be the owner
+			if (nbt == null || nbt.getByte("Mode") == 1 || nbt.getString("Owner").equals(player.getCommandSenderName()) == true)
 			{
-				int numSlots = ((IInventory) te).getSizeInventory();
-				int dim = player.dimension; // FIXME is this the right way of getting the dimension?
-
-				NBTTagCompound nbt = stack.getTagCompound();
-
-				// The bag must be unbound, or in public mode, or the player must be the owner
-				if (nbt == null || nbt.getByte("mode") == 1 || nbt.getString("owner").equals(player.getCommandSenderName()) == true)
+				if (nbt == null)
 				{
 					nbt = new NBTTagCompound();
-					NBTTagCompound target = new NBTTagCompound();
-					target.setInteger("dim", dim);
-					target.setInteger("posX", x);
-					target.setInteger("posY", y);
-					target.setInteger("posZ", z);
-					target.setShort("numslots", (short)numSlots);
-
-					Block b = te.getBlockType();
-					if (b != null)
-					{
-						target.setString("unlocname", b.getUnlocalizedName()); // FIXME crappy check
-					}
-
-					nbt.setString("owner", player.getCommandSenderName());
-					nbt.setByte("mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
-					nbt.setTag("target", target);
-					stack.setTagCompound(nbt);
 				}
+
+				nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
+
+				Block block = world.getBlock(x, y, z);
+				if (block != null)
+				{
+					nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
+				}
+
+				nbt.setShort("Slots", (short)((IInventory) te).getSizeInventory());
+				nbt.setByte("Mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
+				nbt.setString("Owner", player.getCommandSenderName());
+				stack.setTagCompound(nbt);
 			}
 		}
 
@@ -123,36 +117,34 @@ public class ItemEnderBag extends Item
 			return;
 		}
 */
-
-		if (stack.getTagCompound() != null)
+		NBTTagCompound nbt = stack.getTagCompound();
+		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+		if (target.readFromNBT(nbt) == false)
 		{
-			NBTTagCompound nbt = stack.getTagCompound();
-			NBTTagCompound target = nbt.getCompoundTag("target");
-			String owner	= nbt.getString("owner");
-			int dim			= target.getInteger("dim");
-			int x			= target.getInteger("posX");
-			int y			= target.getInteger("posY");
-			int z			= target.getInteger("posZ");
-			short numSlots	= target.getShort("numslots");
-			String locName	= StatCollector.translateToLocal(target.getString("unlocname"));
-
-			String dimPre = "" + EnumChatFormatting.OBFUSCATED;
-			String coordPre = "" + EnumChatFormatting.OBFUSCATED;
-			String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-			// Only show the bound location, if the bag is set to public, or if the player is the owner
-			if (nbt.getByte("mode") == 1 || player.getCommandSenderName().equals(owner) == true) // FIXME
-			{
-				dimPre = "" + EnumChatFormatting.GREEN;
-				coordPre = "" + EnumChatFormatting.BLUE;
-			}
-
-			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
-			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
-			list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + coordPre + locName + rst);
-			list.add(StatCollector.translateToLocal("gui.tooltip.slots") + String.format(": %s%d%s", coordPre, numSlots, rst));
-			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
+			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+			return;
 		}
+
+		String locName	= StatCollector.translateToLocal(nbt.getString("BlockName"));
+		short numSlots	= nbt.getShort("Slots");
+		String owner	= nbt.getString("Owner");
+
+		String dimPre = "" + EnumChatFormatting.OBFUSCATED;
+		String coordPre = "" + EnumChatFormatting.OBFUSCATED;
+		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+
+		// Only show the bound location, if the bag is set to public, or if the player is the owner
+		if (nbt.getByte("Mode") == 1 || player.getCommandSenderName().equals(owner) == true) // FIXME
+		{
+			dimPre = "" + EnumChatFormatting.GREEN;
+			coordPre = "" + EnumChatFormatting.BLUE;
+		}
+
+		list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + coordPre + locName + rst);
+		list.add(StatCollector.translateToLocal("gui.tooltip.slots") + ": " + coordPre + numSlots + rst);
+		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
+		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+		list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
 	}
 
 	@Override

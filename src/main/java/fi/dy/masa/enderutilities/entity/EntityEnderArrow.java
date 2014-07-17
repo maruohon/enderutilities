@@ -26,6 +26,7 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -325,7 +326,7 @@ public class EntityEnderArrow extends Entity implements IProjectile
 			EntityPlayerMP player = null;
 
 			// TP mode: TP shooter, hit something
-			if (this.tpMode == 1 && movingobjectposition != null)
+			if (this.tpMode == ItemEnderBow.BOW_MODE_TP_SELF && movingobjectposition != null)
 			{
 				if (this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity)
 				{

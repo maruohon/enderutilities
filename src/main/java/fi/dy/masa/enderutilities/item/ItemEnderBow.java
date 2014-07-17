@@ -25,10 +25,14 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBow extends ItemBow implements IKeyBound
 {
+	public static final byte BOW_MODE_TP_TARGET = 0;
+	public static final byte BOW_MODE_TP_SELF = 1;
+
 	public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
 							"mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};
 	@SideOnly(Side.CLIENT)
@@ -68,6 +72,33 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
+			int x = (int)player.posX;
+			int y = (int)player.posY;
+			int z = (int)player.posZ;
+			int dim = player.dimension;
+			byte mode = BOW_MODE_TP_TARGET;
+
+			NBTTagCompound nbt = bowStack.getTagCompound();
+			if (nbt != null)
+			{
+				mode = nbt.getByte("Mode");
+			}
+
+			if (mode == BOW_MODE_TP_TARGET)
+			{
+				ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+				// If we want to TP the target, we must have a valid target set
+				if (target.readFromNBT(nbt) == false)
+				{
+					return;
+				}
+
+				x = target.posX;
+				y = target.posY;
+				z = target.posZ;
+				dim = target.dimension;
+			}
+
 			float f = (float)j / 20.0F;
 			f = (f * f + f * 2.0F) / 3.0F;
 
@@ -81,22 +112,9 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 				f = 1.0F;
 			}
 
-			NBTTagCompound nbt = bowStack.getTagCompound();
-			int x = (int)player.posX;
-			int y = (int)player.posY;
-			int z = (int)player.posZ;
-			int dim = player.dimension;
-			if (nbt != null)
-			{
-				x = nbt.getInteger("targetX");
-				y = nbt.getInteger("targetY");
-				z = nbt.getInteger("targetZ");
-				dim = nbt.getInteger("targetDim");
-			}
-
 			EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0F);
 			entityenderarrow.setTpTarget(x, y, z, dim);
-			entityenderarrow.setTpMode(nbt.getByte("mode"));
+			entityenderarrow.setTpMode(mode);
 
 			if (f == 1.0F)
 			{
@@ -164,12 +182,18 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt != null
-				&& ((nbt.hasKey("mode") && nbt.getByte("mode") == (byte)1)
-				|| (nbt.hasKey("targetX") && nbt.hasKey("targetY") && nbt.hasKey("targetZ") && nbt.hasKey("targetDim"))))
+			if (nbt == null || nbt.hasKey("Mode") == false)
 			{
-				player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+				return stack;
 			}
+
+			// Check that the bow is either not in "TP target" mode, or has a valid target set
+			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && ItemNBTHelperTarget.getTargetTag(nbt) == null)
+			{
+				return stack;
+			}
+
+			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 		}
 
 		return stack;
@@ -184,31 +208,23 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			return false;
 		}
 
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
-		{
-			nbt = new NBTTagCompound();
-		}
-
 		if (player.isSneaking() == true)
 		{
-			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 			// Sneaking and targeting a block: store the location
+			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				// Adjust the target block position
-				if (side == 0) { --y; }
-				if (side == 1) { ++y; }
-				if (side == 2) { --z; }
-				if (side == 3) { ++z; }
-				if (side == 4) { --x; }
-				if (side == 5) { ++x; }
+				NBTTagCompound nbt = stack.getTagCompound();
+				if (nbt == null || nbt.hasKey("Mode") == false)
+				{
+					nbt = new NBTTagCompound();
+					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
+					stack.setTagCompound(nbt);
+				}
 
-				nbt.setInteger("targetX", x);
-				nbt.setInteger("targetY", y);
-				nbt.setInteger("targetZ", z);
-				nbt.setInteger("targetDim", player.dimension);
-				stack.setTagCompound(nbt);
+				stack = ItemNBTHelperTarget.writeTargetToItem(stack, x, y, z, player.dimension, side, true);
+
+				return true;
 			}
 		}
 
@@ -235,10 +251,10 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			return;
 		}
 
-		byte mode = 0;
-		if (nbt.hasKey("mode"))
+		byte mode = BOW_MODE_TP_TARGET;
+		if (nbt.hasKey("Mode"))
 		{
-			mode = nbt.getByte("mode");
+			mode = nbt.getByte("Mode");
 		}
 
 		String dimPre = "" + EnumChatFormatting.GREEN;
@@ -246,28 +262,23 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
 		// TP self to impact point
-		if (mode == (byte) 1)
+		if (mode == BOW_MODE_TP_SELF)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("gui.tooltip.tpself") + rst);
+			return;
 		}
+
 		// TP the target entity
-		else
+		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+		if (target.readFromNBT(nbt) == false)
 		{
-			if (nbt.hasKey("targetX") == false || nbt.hasKey("targetY") == false || nbt.hasKey("targetZ") == false || nbt.hasKey("targetDim") == false)
-			{
-				list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
-				return;
-			}
-
-			int x		= nbt.getInteger("targetX");
-			int y		= nbt.getInteger("targetY");
-			int z		= nbt.getInteger("targetZ");
-			int dim		= nbt.getInteger("targetDim");
-
-			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
-			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + dim + " " + dimPre + TooltipHelper.getLocalizedDimensionName(dim) + rst);
-			list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, x, rst, coordPre, y, rst, coordPre, z, rst));
+			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+			return;
 		}
+
+		list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
+		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
+		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
 	}
 
 	/**
@@ -362,7 +373,7 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 
 		if (stack.getTagCompound() != null)
 		{
-			mode = stack.getTagCompound().getByte("mode");
+			mode = stack.getTagCompound().getByte("Mode");
 			if (mode > 1 || mode < 0) { mode = 0; }
 			index = mode * 4;
 		}
@@ -391,18 +402,18 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (nbt != null)
 			{
-				val = nbt.getByte("mode");
+				val = nbt.getByte("Mode");
 			}
 			else
 			{
 				nbt = new NBTTagCompound();
-				stack.setTagCompound(nbt);
 			}
 			if (++val > 1)
 			{
 				val = 0;
 			}
-			nbt.setByte("mode", val);
+			nbt.setByte("Mode", val);
+			stack.setTagCompound(nbt);
 		}
 	}
 }
