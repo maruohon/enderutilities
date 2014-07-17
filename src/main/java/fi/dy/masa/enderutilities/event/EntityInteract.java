@@ -15,26 +15,25 @@ public class EntityInteract
 	public void onEntityInteractEvent(EntityInteractEvent event)
 	{
 		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
-		if (stack != null && stack.getItem() == EnderUtilitiesItems.enderLasso)
+
+		if (stack == null || event.entityPlayer.worldObj.isRemote == true)
+		{
+			return;
+		}
+
+		if(stack.getItem() == EnderUtilitiesItems.enderLasso)
 		{
 			if (event.target instanceof EntityPlayerMP)
 			{
 				return;
 			}
 
-			if (event.target instanceof EntityLiving)
+			if (event.target instanceof EntityLiving && event.entity instanceof EntityPlayer)
 			{
-				EntityPlayer player = null;
-				if (event.entity instanceof EntityPlayer)
-				{
-					player = (EntityPlayer)event.entity;
-				}
+				EntityPlayer player = (EntityPlayer)event.entity;
 				TeleportEntity.lassoTeleportEntity(stack, (EntityLiving)event.target, player, player.dimension);
 				event.setCanceled(true);
-				return;
 			}
-
-			return;
 		}
 	}
 }

@@ -35,6 +35,20 @@ public class TeleportEntity
 		}
 	}
 
+	public static boolean canTeleportEntity(Entity entity)
+	{
+		// TODO Add a blacklist for entities
+
+		// Don't allow teleporting entities that are riding something
+		// Note, that this means that we ARE allowed to teleport entities that are _ridden_ by something
+		if (entity != null)
+		{
+			return entity.ridingEntity == null;
+		}
+
+		return false;
+	}
+
 	public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
 	{
 		if (entity == null)
@@ -87,31 +101,31 @@ public class TeleportEntity
 		}
 	}
 
-	public static void lassoTeleportEntity(ItemStack stack, EntityLiving entity, EntityPlayer player, int dimSrc)
+	public static boolean lassoTeleportEntity(ItemStack stack, EntityLiving entity, EntityPlayer player, int dimSrc)
 	{
 		if (entity.riddenByEntity != null || entity.ridingEntity != null)
 		{
-			return;
+			return false;
 		}
 
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
 		if (target.readFromNBT(stack.getTagCompound()) == false)
 		{
-			return;
+			return false;
 		}
 
 		double x = target.posX + 0.5d;
 		double y = target.posY;
 		double z = target.posZ + 0.5d;
 
-		TeleportEntity.teleportEntity(entity, player, dimSrc, target.dimension, x, y, z);
+		return TeleportEntity.teleportEntity(entity, player, dimSrc, target.dimension, x, y, z);
 	}
 
-	public static void teleportEntity(EntityLiving entity, EntityPlayer player, int dimSrc, int dimDst, double x, double y, double z)
+	public static boolean teleportEntity(EntityLiving entity, EntityPlayer player, int dimSrc, int dimDst, double x, double y, double z)
 	{
 		if (entity == null || entity.isDead == true)
 		{
-			return;
+			return false;
 		}
 
 		// Sound and particles on the original location
@@ -125,7 +139,7 @@ public class TeleportEntity
 			if (worldServerDst == null)
 			{
 				FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
-				return;
+				return false;
 			}
 
 			//System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
@@ -133,7 +147,7 @@ public class TeleportEntity
 			IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
 			if (chunkProvider == null)
 			{
-				return;
+				return false;
 			}
 
 			if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
@@ -147,16 +161,18 @@ public class TeleportEntity
 
 			if (dimSrc != dimDst)
 			{
-				TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
+				return TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
 			}
 			else
 			{
 				entity.setPositionAndUpdate(x, y, z);
+
+				// Final position
+				TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
 			}
 		}
 
-		// Final position
-		TeleportEntity.addEnderSoundsAndParticles(x, y, z, entity.worldObj);
+		return true;
 	}
 
 	public static boolean transferEntityToDimension(EntityLiving entitySrc, int dimDst, double x, double y, double z)
@@ -209,6 +225,9 @@ public class TeleportEntity
 		worldServerSrc.resetUpdateEntityTick();
 		worldServerDst.resetUpdateEntityTick();
 		entitySrc.worldObj.theProfiler.endSection();
+
+		TeleportEntity.addEnderSoundsAndParticles(x, y, z, entityDst.worldObj);
+
 		return true;
 	}
 
