@@ -13,6 +13,7 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -30,7 +31,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class EntityEnderArrow extends Entity implements IProjectile
+public class EntityEnderArrow extends EntityArrow implements IProjectile
 {
 	public int blockX = -1;
 	public int blockY = -1;
@@ -239,7 +240,7 @@ public class EntityEnderArrow extends Entity implements IProjectile
 	 */
 	public void onUpdate()
 	{
-		super.onUpdate();
+		this.onEntityUpdate();
 
 		if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F)
 		{
@@ -577,14 +578,22 @@ public class EntityEnderArrow extends Entity implements IProjectile
 		//System.out.println("onCollideWithPlayer()"); // FIXME debug
 		if (this.worldObj.isRemote == false && this.inGround && this.arrowShake <= 0 && this.canBePickedUp != 0)
 		{
+			// Normal pick up to inventory
 			if (this.canBePickedUp == 1)
 			{
-				par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderArrow, 1));
+				if (par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderArrow, 1)) == true)
+				{
+					this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+					par1EntityPlayer.onItemPickup(this, 1);
+					this.setDead();
+				}
 			}
-
-			this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-			par1EntityPlayer.onItemPickup(this, 1);
-			this.setDead();
+			// Creative mode fake pick up (no actual items given)
+			else if (this.canBePickedUp == 2)
+			{
+				this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+				this.setDead();
+			}
 		}
 	}
 
