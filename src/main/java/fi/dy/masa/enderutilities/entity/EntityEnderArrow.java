@@ -17,7 +17,6 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -31,6 +30,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
+import fi.dy.masa.enderutilities.util.teleport.TeleportPlayer;
 
 public class EntityEnderArrow extends EntityArrow implements IProjectile
 {
@@ -356,71 +356,50 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 					if (player != null)
 					{
-						if (player.dimension == this.dimension)
+						double x = this.posX;
+						double y = this.posY;
+						double z = this.posZ;
+						// Hit an entity
+						if (movingobjectposition.entityHit != null)
 						{
-							double x = this.posX;
-							double y = this.posY;
-							double z = this.posZ;
+							x = movingobjectposition.entityHit.posX;
+							y = movingobjectposition.entityHit.posY;
+							z = movingobjectposition.entityHit.posZ;
+						}
+						// Hit a block
+						else if (movingobjectposition.hitVec != null)
+						{
+							//x = movingobjectposition.blockX;
+							//y = movingobjectposition.blockY;
+							//z = movingobjectposition.blockZ;
+							x = movingobjectposition.hitVec.xCoord;
+							y = movingobjectposition.hitVec.yCoord;
+							z = movingobjectposition.hitVec.zCoord;
 
-							// Hit an entity
-							if (movingobjectposition.entityHit != null)
+							ForgeDirection dir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
+							x += (dir.offsetX * 0.5d);
+							z += (dir.offsetZ * 0.5d);
+							if (dir.offsetY < 0)
 							{
-								x = movingobjectposition.entityHit.posX;
-								y = movingobjectposition.entityHit.posY;
-								z = movingobjectposition.entityHit.posZ;
+								y -= (0.5d + player.getDefaultEyeHeight());
 							}
-							// Hit a block
-							else
-							{
-								//x = movingobjectposition.blockX;
-								//y = movingobjectposition.blockY;
-								//z = movingobjectposition.blockZ;
-								x = movingobjectposition.hitVec.xCoord;
-								y = movingobjectposition.hitVec.yCoord;
-								z = movingobjectposition.hitVec.zCoord;
+						}
 
-								ForgeDirection dir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
-								x += (dir.offsetX * 0.5d);
-								z += (dir.offsetZ * 0.5d);
-								if (dir.offsetY < 0)
-								{
-									y -= (0.5d + player.getDefaultEyeHeight());
-								}
-							}
-
+						EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
+						if (MinecraftForge.EVENT_BUS.post(event) == false)
+						{
 							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-							EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
-
-							if (MinecraftForge.EVENT_BUS.post(event) == false)
+							if (player.dimension == this.dimension)
 							{
-								if (player.isRiding() == true && player.ridingEntity instanceof EntityLiving)
-								{
-									((EntityLiving)player.ridingEntity).setPositionAndUpdate(x, y, z);
-									((EntityLiving)player.ridingEntity).fallDistance = 0.0f;
-
-									// TODO: Add a config option to decide if the ridingEntity should take damage
-									player.ridingEntity.attackEntityFrom(DamageSource.fall, teleportDamage);
-									// TODO: Add a config option to decide if the rider should take damage when riding
-									//player.attackEntityFrom(DamageSource.fall, teleportDamage);
-								}
-								else
-								{
-									player.setPositionAndUpdate(x, y, z);
-									player.fallDistance = 0.0f;
-									player.attackEntityFrom(DamageSource.fall, teleportDamage);
-								}
-								// FIXME this part of code doesn't get executed on the client side (mop is null there)
-								// So currently we can't do particles :/
-								TeleportEntity.addEnderSoundsAndParticles(x, y, z, player.worldObj);
+								TeleportPlayer.teleportPlayerAndMountsInSameDimension(player, x, y, z, this.teleportDamage, this.teleportDamage);
+							}
+							// TODO: Interdimensional player teleportation
+							else
+							{
 							}
 						}
-						// TODO: Interdimensional player teleportation
-						else
-						{
-						}
 					}
-
 					this.dropAsItem();
 					this.setDead();
 				}
