@@ -7,7 +7,6 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.item.EntityItem;
@@ -17,6 +16,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
-import fi.dy.masa.enderutilities.util.teleport.TeleportPlayer;
 
 public class EntityEnderArrow extends EntityArrow implements IProjectile
 {
@@ -342,7 +341,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 		float f2;
 		float f4;
-		EntityPlayerMP player = null;
+		EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 
 		// Hit something
 		if (movingobjectposition != null)
@@ -353,7 +352,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				// Valid shooter
 				if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP)
 				{
-					player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 					if (player != null)
 					{
 						double x = this.posX;
@@ -388,15 +386,26 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 						EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
 						if (MinecraftForge.EVENT_BUS.post(event) == false)
 						{
-							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-
-							if (player.dimension == this.dimension)
+							int victim = 0;
+							// Player is riding something, inflict fall damage to the bottom most entity
+							if (player.ridingEntity != null)
 							{
-								TeleportPlayer.teleportPlayerAndMountsInSameDimension(player, x, y, z, this.teleportDamage, this.teleportDamage);
+								victim = 1;
 							}
-							// TODO: Interdimensional player teleportation
-							else
+
+							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+							Entity e = TeleportEntity.teleportEntity(player, x, y, z, this.dimension, true, true);
+
+							if (e != null)
 							{
+								if (victim == 1)
+								{
+									EntityUtils.getBottomEntity(e).attackEntityFrom(DamageSource.fall, this.teleportDamage);
+								}
+								else
+								{
+									e.attackEntityFrom(DamageSource.fall, this.teleportDamage);
+								}
 							}
 						}
 					}
@@ -409,15 +418,13 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 			{
 				if (this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity)
 				{
-					// Hit a living entity (non-player)
-					if (movingobjectposition.entityHit instanceof EntityLiving)
+					this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+
+					if (TeleportEntity.canTeleportEntity(movingobjectposition.entityHit) == true)
 					{
-						EntityLiving entityLiving = (EntityLiving)movingobjectposition.entityHit;
-
-						if (TeleportEntity.canTeleportEntity(entityLiving) == true)
+						// Hit a living entity (non-player)
+						if (movingobjectposition.entityHit instanceof EntityPlayer == false)
 						{
-							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-
 							double x = this.shootingEntity.posX;
 							double y = this.shootingEntity.posY + 5.0d;
 							double z = this.shootingEntity.posZ;
@@ -425,16 +432,17 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 							y = (double)this.tpTargetY;
 							z = (double)this.tpTargetZ + 0.5d;
 
-							player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
-							TeleportEntity.teleportEntity(entityLiving, player, this.dimension, this.tpTargetDim, x, y, z);
+							EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
+							if (MinecraftForge.EVENT_BUS.post(event) == false)
+							TeleportEntity.teleportEntity(movingobjectposition.entityHit, x, y, z, this.tpTargetDim, true, true);
 
 							this.dropAsItem();
 							this.setDead();
 						}
-					}
-					// TODO: Hit a player
-					else if (movingobjectposition.entityHit instanceof EntityPlayer)
-					{
+						// Hit a player, check if TP is allowed TODO
+						else //if (movingobjectposition.entityHit instanceof EntityPlayer)
+						{
+						}
 					}
 					// In vanilla: Could not damage the entity (aka. bouncing off an entity)
 					else
@@ -585,7 +593,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 	 */
 	public void onCollideWithPlayer(EntityPlayer par1EntityPlayer)
 	{
-		//System.out.println("onCollideWithPlayer()"); // FIXME debug
 		if (this.worldObj.isRemote == false && this.inGround && this.arrowShake <= 0 && this.canBePickedUp != 0)
 		{
 			// Normal pick up to inventory

@@ -6,8 +6,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
-import fi.dy.masa.enderutilities.event.EntityAttack;
-import fi.dy.masa.enderutilities.event.EntityInteract;
+import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
+import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
+import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -23,8 +24,9 @@ public abstract class CommonProxy implements IProxy
 
 	public void registerEventHandlers()
 	{
-		MinecraftForge.EVENT_BUS.register(new EntityAttack());
-		MinecraftForge.EVENT_BUS.register(new EntityInteract());
+		MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
+		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
+		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
 	}
 
 	public void registerTileEntities()

@@ -7,7 +7,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class EntityAttack
+public class AttackEntityEventHandler
 {
 	@SubscribeEvent
 	public void onEntityAttackEvent(AttackEntityEvent event)

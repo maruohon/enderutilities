@@ -64,7 +64,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	@Override
 	protected void onImpact(MovingObjectPosition movingObjectPosition)
 	{
-		TeleportEntity.addEnderSoundsAndParticles(this.posX, this.posY, this.posZ, this.worldObj);
+		TeleportEntity.addTeleportSoundsAndParticles(this.worldObj, this.posX, this.posY, this.posZ);
 
 		if (this.worldObj.isRemote == false && this.getThrower() != null && this.getThrower() instanceof EntityPlayerMP)
 		{
