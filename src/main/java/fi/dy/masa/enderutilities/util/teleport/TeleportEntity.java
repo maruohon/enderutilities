@@ -22,6 +22,9 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 
@@ -29,20 +32,21 @@ public class TeleportEntity
 {
 	public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
 	{
-		world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
-
-		// Spawn some particles
-		for (int i = 0; i < 32; i++)
+		if (world.isRemote == false)
 		{
-			double offX = 0.0d;
-			double offY = 0.0d;
-			double offZ = 0.0d;
+			world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
 
-			double velX = (world.rand.nextFloat() - 0.5d) * 2.0d;
-			double velY = (world.rand.nextFloat() - 0.5d) * 2.0d;
-			double velZ = (world.rand.nextFloat() - 0.5d) * 2.0d;
-			world.spawnParticle("portal", x + offX, y + offY, z + offZ, -velX, -velY, -velZ);
+			PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, x, y, z),
+													new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
 		}
+/*
+		List<EntityPlayerMP> players = world.getEntitiesWithinAABB(EntityPlayerMP.class, AxisAlignedBB.getBoundingBox(x - 16.0d, y - 16.0d, z - 16.0d, x + 16.0d, y + 16.0d, z + 16.0d));
+		Iterator<?> iterator = players.iterator();
+		while(iterator.hasNext() == true)
+		{
+			PacketHandler.INSTANCE.sendTo(MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, x, y, z), iterator.getNext());
+		}
+*/
 	}
 
 	public static boolean canTeleportEntity(Entity entity)
@@ -121,7 +125,6 @@ public class TeleportEntity
 		if (allowMounts == false && entity.ridingEntity != null) { return null; }
 		if (allowRiders == false && entity.riddenByEntity != null) { return null; }
 
-		//WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(dimDst);
 		Entity current, ret = null;
 		boolean reCreate = EntityUtils.doesEntityStackHavePlayers(entity);
 
@@ -177,7 +180,7 @@ public class TeleportEntity
 		}
 
 		// Sound and particles on the original location
-		TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY + entity.yOffset, entity.posZ);
+		TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
 
 		if (entity.worldObj.isRemote == false && entity.worldObj instanceof WorldServer)
 		{
@@ -247,7 +250,7 @@ public class TeleportEntity
 		if (entity != null)
 		{
 			// Final position
-			TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y + entity.yOffset, z);
+			TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
 		}
 
 		return entity;
