@@ -1,13 +1,17 @@
 package fi.dy.masa.enderutilities.proxy;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.MinecraftForgeClient;
+
+import org.lwjgl.input.Keyboard;
+
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
@@ -20,6 +24,21 @@ import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 
 public class ClientProxy extends CommonProxy
 {
+	@Override
+	public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
+	{
+		switch (ctx.side)
+		{
+			case CLIENT:
+				return FMLClientHandler.instance().getClientPlayerEntity();
+			case SERVER:
+				return ctx.getServerHandler().playerEntity;
+			default:
+				System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
+				return null;
+		}
+	}
+
 	@Override
 	public void registerEventHandlers()
 	{

@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -15,6 +17,19 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public abstract class CommonProxy implements IProxy
 {
+	@Override
+	public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
+	{
+		switch (ctx.side)
+		{
+			case SERVER:
+				return ctx.getServerHandler().playerEntity;
+			default:
+				System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
+				return null;
+		}
+	}
+
 	public void registerEntities()
 	{
 		int id = 0;

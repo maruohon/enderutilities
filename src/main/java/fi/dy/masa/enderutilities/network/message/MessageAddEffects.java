@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.network.message;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -58,13 +58,8 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
 	@Override
 	public IMessage onMessage(MessageAddEffects message, MessageContext ctx)
 	{
-		EntityPlayer player;
-		World world;
-		//player = ctx.getServerHandler().playerEntity;
-		//player = Minecraft.getMinecraft().thePlayer;
-		//world = FMLClientHandler.instance().getWorldClient();
-		player = FMLClientHandler.instance().getClientPlayerEntity();
-		world = player.worldObj;
+		EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+		World world = player.worldObj;
 
 		if (player != null && world != null)
 		{
