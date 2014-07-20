@@ -11,6 +11,8 @@ public interface IProxy
 
 	public abstract void registerEventHandlers();
 
+	public abstract void registerFuelHandlers();
+
 	public abstract void registerKeyBindings();
 
 	public abstract void registerRenderers();

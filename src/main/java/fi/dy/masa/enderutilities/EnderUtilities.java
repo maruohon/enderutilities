@@ -42,6 +42,7 @@ public class EnderUtilities
 	{
 		proxy.registerEntities();
 		proxy.registerEventHandlers();
+		proxy.registerFuelHandlers();
 		proxy.registerRenderers();
 		proxy.registerTileEntities();
 	}

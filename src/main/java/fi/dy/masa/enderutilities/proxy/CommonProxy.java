@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
+import fi.dy.masa.enderutilities.handler.FuelHandler;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -42,6 +43,11 @@ public abstract class CommonProxy implements IProxy
 		MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
 		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
 		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+	}
+
+	public void registerFuelHandlers()
+	{
+		GameRegistry.registerFuelHandler(new FuelHandler());
 	}
 
 	public void registerTileEntities()
