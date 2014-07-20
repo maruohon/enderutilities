@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.entity;
 
 import java.util.Random;
 
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,8 +12,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
@@ -77,31 +74,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
 					movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
 				}
 
-				EnderTeleportEvent event = new EnderTeleportEvent(entityplayermp, this.posX, this.posY, this.posZ, this.teleportDamage);
-
-				if (MinecraftForge.EVENT_BUS.post(event) == false)
-				{
-					/*
-					if (entityplayermp.isRiding())
-					{
-						entityplayermp.mountEntity((Entity)null);
-					}
-					*/
-
-					if (entityplayermp.isRiding() == true && entityplayermp.ridingEntity instanceof EntityLiving)
-					{
-						((EntityLiving)entityplayermp.ridingEntity).setPositionAndUpdate(this.posX, this.posY, this.posZ);
-						((EntityLiving)entityplayermp.ridingEntity).fallDistance = 0.0f;
-						// TODO: Add a config option to decide if the ridingEntity should take damage
-						//entity.attackEntityFrom(DamageSource.fall, this.teleportDamage);
-					}
-					else
-					{
-						entityplayermp.setPositionAndUpdate(this.posX, this.posY, this.posZ);
-						entityplayermp.fallDistance = 0.0f;
-						entityplayermp.attackEntityFrom(DamageSource.fall, this.teleportDamage);
-					}
-				}
+				TeleportEntity.playerTeleportSelfWithProjectile(entityplayermp, this, movingObjectPosition, this.teleportDamage, true, true);
 			}
 
 			if (this.canPickUp == true)

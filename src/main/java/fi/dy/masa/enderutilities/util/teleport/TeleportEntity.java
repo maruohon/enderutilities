@@ -16,10 +16,15 @@ import net.minecraft.network.play.server.S1DPacketEntityEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -98,6 +103,63 @@ public class TeleportEntity
 				//TODO: Since this only happens on the server side, we currently get no particles here. Maybe add custom packets for effects?
 				TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
 				return;
+			}
+		}
+	}
+
+	public static void playerTeleportSelfWithProjectile(EntityPlayer player, Entity entity, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
+	{
+		double x = entity.posX;
+		double y = entity.posY;
+		double z = entity.posZ;
+		// Hit an entity
+		if (mop.entityHit != null)
+		{
+			x = mop.entityHit.posX;
+			y = mop.entityHit.posY;
+			z = mop.entityHit.posZ;
+		}
+		// Hit a block
+		else if (mop.hitVec != null)
+		{
+			//x = mop.blockX;
+			//y = mop.blockY;
+			//z = mop.blockZ;
+			x = mop.hitVec.xCoord;
+			y = mop.hitVec.yCoord;
+			z = mop.hitVec.zCoord;
+
+			ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
+			x += (dir.offsetX * 0.5d);
+			z += (dir.offsetZ * 0.5d);
+			if (dir.offsetY < 0)
+			{
+				y -= (0.5d + player.getDefaultEyeHeight());
+			}
+		}
+
+		EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
+		if (MinecraftForge.EVENT_BUS.post(event) == false)
+		{
+			int victim = 0;
+			// Player is riding something, inflict fall damage to the bottom most entity
+			if (player.ridingEntity != null)
+			{
+				victim = 1;
+			}
+
+			Entity e = TeleportEntity.teleportEntity(player, x, y, z, entity.dimension, allowMounts, allowRiders);
+
+			if (e != null)
+			{
+				if (victim == 1)
+				{
+					EntityUtils.getBottomEntity(e).attackEntityFrom(DamageSource.fall, teleportDamage);
+				}
+				else
+				{
+					e.attackEntityFrom(DamageSource.fall, teleportDamage);
+				}
 			}
 		}
 	}

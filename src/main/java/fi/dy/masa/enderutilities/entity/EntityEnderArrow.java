@@ -16,13 +16,11 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -357,60 +355,8 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				{
 					if (player != null)
 					{
-						double x = this.posX;
-						double y = this.posY;
-						double z = this.posZ;
-						// Hit an entity
-						if (movingobjectposition.entityHit != null)
-						{
-							x = movingobjectposition.entityHit.posX;
-							y = movingobjectposition.entityHit.posY;
-							z = movingobjectposition.entityHit.posZ;
-						}
-						// Hit a block
-						else if (movingobjectposition.hitVec != null)
-						{
-							//x = movingobjectposition.blockX;
-							//y = movingobjectposition.blockY;
-							//z = movingobjectposition.blockZ;
-							x = movingobjectposition.hitVec.xCoord;
-							y = movingobjectposition.hitVec.yCoord;
-							z = movingobjectposition.hitVec.zCoord;
-
-							ForgeDirection dir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
-							x += (dir.offsetX * 0.5d);
-							z += (dir.offsetZ * 0.5d);
-							if (dir.offsetY < 0)
-							{
-								y -= (0.5d + player.getDefaultEyeHeight());
-							}
-						}
-
-						EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
-						if (MinecraftForge.EVENT_BUS.post(event) == false)
-						{
-							int victim = 0;
-							// Player is riding something, inflict fall damage to the bottom most entity
-							if (player.ridingEntity != null)
-							{
-								victim = 1;
-							}
-
-							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-							Entity e = TeleportEntity.teleportEntity(player, x, y, z, this.dimension, true, true);
-
-							if (e != null)
-							{
-								if (victim == 1)
-								{
-									EntityUtils.getBottomEntity(e).attackEntityFrom(DamageSource.fall, this.teleportDamage);
-								}
-								else
-								{
-									e.attackEntityFrom(DamageSource.fall, this.teleportDamage);
-								}
-							}
-						}
+						TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
+						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 					}
 					this.dropAsItem();
 					this.setDead();

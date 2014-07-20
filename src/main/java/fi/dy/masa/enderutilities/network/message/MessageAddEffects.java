@@ -67,12 +67,10 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
 			{
 				if ((message.flags & SOUND) == SOUND)
 				{
-					//System.out.println("sounds!?" + " isRemote: " + world.isRemote);
 					//world.playSoundEffect(message.x, message.y, message.z, "mob.endermen.portal", 0.8f, 1.0f + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5f);
 				}
 				if ((message.flags & PARTICLES) == PARTICLES)
 				{
-					//System.out.println("particles!?" + " isRemote: " + world.isRemote);
 					Particles.spawnEnderParticles(world, "portal", message.x, message.y, message.z, 32, 0.2d, 2.0d);
 				}
 			}
