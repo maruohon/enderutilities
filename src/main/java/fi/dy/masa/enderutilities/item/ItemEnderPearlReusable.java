@@ -19,19 +19,20 @@ public class ItemEnderPearlReusable extends Item
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
-	@Override
 	/**
 	 * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
 	 */
+	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		--stack.stackSize;
-		world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
-
-		if (world.isRemote == false)
+		if (world.isRemote == true)
 		{
-			world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
+			return stack;
 		}
+
+		--stack.stackSize;
+		world.spawnEntityInWorld(new EntityEnderPearlReusable(world, player));
+		world.playSoundAtEntity(player, "random.bow", 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
 		return stack;
 	}

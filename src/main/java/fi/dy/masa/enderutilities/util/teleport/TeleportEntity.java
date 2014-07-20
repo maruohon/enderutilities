@@ -32,21 +32,15 @@ public class TeleportEntity
 {
 	public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
 	{
-		if (world.isRemote == false)
+		if (world.isRemote == true)
 		{
-			world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+			return;
+		}
 
-			PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, x, y, z),
-													new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
-		}
-/*
-		List<EntityPlayerMP> players = world.getEntitiesWithinAABB(EntityPlayerMP.class, AxisAlignedBB.getBoundingBox(x - 16.0d, y - 16.0d, z - 16.0d, x + 16.0d, y + 16.0d, z + 16.0d));
-		Iterator<?> iterator = players.iterator();
-		while(iterator.hasNext() == true)
-		{
-			PacketHandler.INSTANCE.sendTo(MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, x, y, z), iterator.getNext());
-		}
-*/
+		world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
+
+		PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
+			new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
 	}
 
 	public static boolean canTeleportEntity(Entity entity)
@@ -58,7 +52,7 @@ public class TeleportEntity
 
 	public static void teleportEntityRandomly(Entity entity, double maxDist)
 	{
-		if (entity == null || canTeleportEntity(entity) == false)
+		if (entity == null || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
 		{
 			return;
 		}
@@ -110,6 +104,11 @@ public class TeleportEntity
 
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
 	{
+		if (entity.worldObj.isRemote == true)
+		{
+			return null;
+		}
+
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
 		if (target.readFromNBT(stack.getTagCompound()) == true)
 		{
@@ -121,52 +120,49 @@ public class TeleportEntity
 
 	public static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
 	{
-		if (entity == null) { return null; }
+		if (entity == null || entity.worldObj.isRemote == true) { return null; }
 		if (allowMounts == false && entity.ridingEntity != null) { return null; }
 		if (allowRiders == false && entity.riddenByEntity != null) { return null; }
 
 		Entity current, ret = null;
 		boolean reCreate = EntityUtils.doesEntityStackHavePlayers(entity);
 
-		if (entity.worldObj.isRemote == false)
+		Entity riddenBy, teleported, previous = null;
+		current = EntityUtils.getBottomEntity(entity);
+
+		// Teleport all the entities in this 'stack', starting from the bottom most entity
+		while (current != null)
 		{
-			Entity riddenBy, teleported, previous = null;
-			current = EntityUtils.getBottomEntity(entity);
-
-			// Teleport all the entities in this 'stack', starting from the bottom most entity
-			while (current != null)
+			riddenBy = current.riddenByEntity;
+			if (current.riddenByEntity != null)
 			{
-				riddenBy = current.riddenByEntity;
-				if (current.riddenByEntity != null)
-				{
-					current.riddenByEntity.mountEntity((Entity)null);
-				}
-
-				// Store the new instance of the original target entity for return
-				if (current == entity)
-				{
-					teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
-					ret = teleported;
-				}
-				else
-				{
-					teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
-				}
-
-				if (teleported == null)
-				{
-					break;
-				}
-
-				if (previous != null)
-				{
-					teleported.mountEntity(previous);
-				}
-
-				teleported.fallDistance = 0.0f;
-				current = riddenBy;
-				previous = teleported;
+				current.riddenByEntity.mountEntity((Entity)null);
 			}
+
+			// Store the new instance of the original target entity for return
+			if (current == entity)
+			{
+				teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
+				ret = teleported;
+			}
+			else
+			{
+				teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
+			}
+
+			if (teleported == null)
+			{
+				break;
+			}
+
+			if (previous != null)
+			{
+				teleported.mountEntity(previous);
+			}
+
+			teleported.fallDistance = 0.0f;
+			current = riddenBy;
+			previous = teleported;
 		}
 
 		return ret;
@@ -174,7 +170,7 @@ public class TeleportEntity
 
 	private static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean forceRecreate)
 	{
-		if (entity == null || entity.isDead == true || canTeleportEntity(entity) == false)
+		if (entity == null || entity.isDead == true || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
 		{
 			return null;
 		}
@@ -258,6 +254,11 @@ public class TeleportEntity
 
 	public static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
 	{
+		if (entitySrc.worldObj.isRemote == true)
+		{
+			return null;
+		}
+
 		WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);
 
 		if (worldServerDst == null)
@@ -292,14 +293,14 @@ public class TeleportEntity
 
 	public static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
 	{
-		if (entitySrc instanceof EntityPlayerMP)
-		{
-			return TeleportEntity.transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
-		}
-
 		if (entitySrc == null || entitySrc.isDead == true || entitySrc.dimension == dimDst || entitySrc.worldObj.isRemote == true)
 		{
 			return null;
+		}
+
+		if (entitySrc instanceof EntityPlayerMP)
+		{
+			return TeleportEntity.transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
 		}
 
 		WorldServer worldServerSrc = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);

@@ -341,6 +341,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 		float f2;
 		float f4;
+
+		if (this.worldObj.isRemote == false)
+		{
 		EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 
 		// Hit something
@@ -482,6 +485,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				}
 			}
 		}
+		} // isRemote == false
 
 		if (this.getIsCritical())
 		{

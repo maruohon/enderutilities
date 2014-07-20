@@ -162,6 +162,7 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
+		// This needs to also happen on the client, otherwise the bow won't be set to in use
 		ArrowNockEvent event = new ArrowNockEvent(player, stack);
 		MinecraftForge.EVENT_BUS.post(event);
 		if (event.isCanceled())

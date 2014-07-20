@@ -258,6 +258,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
 /*

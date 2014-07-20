@@ -12,7 +12,12 @@ public class EntityUtils
 {
 	public static EntityPlayerMP findPlayerFromUUID(UUID uuid)
 	{
-		List<EntityPlayerMP> playerList = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		if (uuid == null) { return null; }
+
+		MinecraftServer mcs = MinecraftServer.getServer();
+		if (mcs == null) { return null; }
+
+		List<EntityPlayerMP> playerList = mcs.getConfigurationManager().playerEntityList;
 
 		for (EntityPlayerMP player : playerList)
 		{
