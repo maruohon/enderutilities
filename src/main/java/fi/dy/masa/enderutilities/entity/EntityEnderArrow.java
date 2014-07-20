@@ -76,7 +76,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 		if (par2EntityLivingBase instanceof EntityPlayer)
 		{
-			this.canBePickedUp = 0;
+			this.canBePickedUp = 1;
 			this.shooterUUID = ((EntityPlayer)par2EntityLivingBase).getUniqueID();
 
 			if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
@@ -112,7 +112,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 		if (par2EntityLivingBase instanceof EntityPlayer)
 		{
-			this.canBePickedUp = 0;
+			this.canBePickedUp = 1;
 			this.shooterUUID = ((EntityPlayer)par2EntityLivingBase).getUniqueID();
 
 			if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
@@ -142,12 +142,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 	public void setTpMode(byte mode)
 	{
 		this.tpMode = mode;
-
-		// Allow picking up the arrows when teleporting targets, not when teleporting self
-		if (this.canBePickedUp == 0 && mode == ItemEnderBow.BOW_MODE_TP_TARGET)
-		{
-			this.canBePickedUp = 1;
-		}
 	}
 
 	public void setTpTarget(int x, int y, int z, int dim)
@@ -215,9 +209,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		}
 	}
 
-	public void dropAsItem()
+	public void dropAsItem(boolean doDrop)
 	{
-		if (this.canBePickedUp != 1)
+		if (this.canBePickedUp != 1 || doDrop == false)
 		{
 			return;
 		}
@@ -340,10 +334,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		float f2;
 		float f4;
 
-		if (this.worldObj.isRemote == false)
-		{
-		EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
-
 		// Hit something
 		if (movingobjectposition != null)
 		{
@@ -351,14 +341,15 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 			if (this.tpMode == ItemEnderBow.BOW_MODE_TP_SELF)
 			{
 				// Valid shooter
-				if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP)
+				if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP && this.worldObj.isRemote == false)
 				{
+					EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 					if (player != null)
 					{
 						TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
 						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 					}
-					this.dropAsItem();
+					this.dropAsItem(false);
 					this.setDead();
 				}
 			}
@@ -371,9 +362,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 					if (TeleportEntity.canTeleportEntity(movingobjectposition.entityHit) == true)
 					{
-						// Hit a living entity (non-player)
-						if (movingobjectposition.entityHit instanceof EntityPlayer == false)
+						if (this.worldObj.isRemote == false)
 						{
+							EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 							double x = this.shootingEntity.posX;
 							double y = this.shootingEntity.posY + 5.0d;
 							double z = this.shootingEntity.posZ;
@@ -385,12 +376,8 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 							if (MinecraftForge.EVENT_BUS.post(event) == false)
 							TeleportEntity.teleportEntity(movingobjectposition.entityHit, x, y, z, this.tpTargetDim, true, true);
 
-							this.dropAsItem();
+							this.dropAsItem(false);
 							this.setDead();
-						}
-						// Hit a player, check if TP is allowed TODO
-						else //if (movingobjectposition.entityHit instanceof EntityPlayer)
-						{
 						}
 					}
 					// In vanilla: Could not damage the entity (aka. bouncing off an entity)
@@ -431,7 +418,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				}
 			}
 		}
-		} // isRemote == false
 
 		if (this.getIsCritical())
 		{
@@ -543,7 +529,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 	 */
 	public void onCollideWithPlayer(EntityPlayer par1EntityPlayer)
 	{
-		if (this.worldObj.isRemote == false && this.inGround && this.arrowShake <= 0 && this.canBePickedUp != 0)
+		if (this.worldObj.isRemote == false && this.isDead == false && this.inGround == true && this.arrowShake <= 0 && this.canBePickedUp != 0)
 		{
 			// Normal pick up to inventory
 			if (this.canBePickedUp == 1)
