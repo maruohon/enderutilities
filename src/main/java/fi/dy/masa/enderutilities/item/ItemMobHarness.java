@@ -52,11 +52,17 @@ public class ItemMobHarness extends ItemEU
 
 	public boolean handleInteraction(ItemStack stack, EntityPlayer player, Entity entity)
 	{
-		if (player == null || entity == null || player.isSneaking() == false)
+		if (player == null || entity == null)
 		{
 			return false;
 		}
 		boolean hasTarget = this.hasTarget(stack);
+
+		if (player.isSneaking() == false)
+		{
+			player.mountEntity(entity);
+			return true;
+		}
 
 		if (hasTarget == false)
 		{
@@ -94,11 +100,11 @@ public class ItemMobHarness extends ItemEU
 		{
 			return false;
 		}
-		if (nbt.getByte("TargetType") == (byte)0 && (nbt.hasKey("TargetId") == false || nbt.hasKey("TargetString") == false))
+		if (nbt.getByte("TargetType") == (byte)1 && (nbt.hasKey("TargetId") == false || nbt.hasKey("TargetString") == false))
 		{
 			return false;
 		}
-		if (nbt.getByte("TargetType") == (byte)1 && (nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false))
+		if (nbt.getByte("TargetType") == (byte)2 && (nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false))
 		{
 			return false;
 		}
@@ -117,12 +123,12 @@ public class ItemMobHarness extends ItemEU
 			nbt = new NBTTagCompound();
 		}
 
-		byte mode = (byte)0;
+		byte mode = (byte)1;
 
 		if (entity instanceof EntityPlayer)
 		{
 			EntityPlayer targetPlayer = (EntityPlayer)entity;
-			mode = 1;
+			mode = 2;
 			nbt.setString("TargetPlayer", ((EntityPlayer)entity).getCommandSenderName());
 			nbt.setLong("PlayerUUIDMost", targetPlayer.getUniqueID().getMostSignificantBits());
 			nbt.setLong("PlayerUUIDLeast", targetPlayer.getUniqueID().getLeastSignificantBits());
@@ -149,8 +155,13 @@ public class ItemMobHarness extends ItemEU
 		NBTTagCompound nbt = stack.getTagCompound();
 		byte mode = nbt.getByte("TargetType");
 
-		// Mode 0: mount non-player living mobs
+		// Mount this player to the target entity
 		if (mode == (byte)0)
+		{
+			player.mountEntity(entity);
+		}
+		// Mode 1: mount non-player living mobs to eachother or to the player
+		else if (mode == (byte)1)
 		{
 			if (nbt.hasKey("TargetId") == false || nbt.hasKey("TargetString") == false)
 			{
@@ -188,8 +199,8 @@ public class ItemMobHarness extends ItemEU
 				}
 			}
 		}
-		// Mode 1: mount a player
-		else
+		// Mode 2: mount a player
+		else if (mode == (byte)2)
 		{
 			if (nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false)
 			{
@@ -207,6 +218,7 @@ public class ItemMobHarness extends ItemEU
 			{
 				targetPlayer.mountEntity(player);
 			}
+			// Mount the target player on top of an entity
 			else
 			{
 				targetPlayer.mountEntity(entity);
@@ -251,7 +263,7 @@ public class ItemMobHarness extends ItemEU
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 
-		if (nbt == null) // || this.hasTarget(stack) == false)
+		if (nbt == null || this.hasTarget(stack) == false)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
 			return;
@@ -259,8 +271,22 @@ public class ItemMobHarness extends ItemEU
 
 		String pre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+		String target;
 
-		String target = nbt.getByte("TargetType") == (byte)0 ? nbt.getString("TargetString") : nbt.getString("TargetPlayer");
+		byte mode = nbt.getByte("TargetType");
+		if (mode == (byte)1)
+		{
+			target = nbt.getString("TargetString");
+		}
+		else if (mode == (byte)2)
+		{
+			target = nbt.getString("TargetPlayer");
+		}
+		else
+		{
+			target = "unknown";
+		}
+
 		list.add(StatCollector.translateToLocal("gui.tooltip.linked") + ": " + pre + target + rst);
 	}
 }

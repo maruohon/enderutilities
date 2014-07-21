@@ -35,7 +35,7 @@ public class EntityInteractEventHandler
 
 		if(stack.getItem() == EnderUtilitiesItems.mobHarness)
 		{
-			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer && ((EntityPlayer)event.entity).isSneaking() == true)
+			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
 			{
 				if (event.entity.worldObj.isRemote == false)
 				{
