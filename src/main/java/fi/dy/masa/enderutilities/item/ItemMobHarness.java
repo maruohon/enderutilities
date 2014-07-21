@@ -167,17 +167,21 @@ public class ItemMobHarness extends ItemEU
 
 			for (Entity ent : list)
 			{
-				if (ent.getEntityId() == targetId && EntityList.getEntityString(ent).equals(targetString))
+				if (ent.getEntityId() == targetId)
 				{
-					// The harness was clicked twice on the same mob, mount that mob on top of the player
-					if (targetId == entity.getEntityId())
+					// Matching entityId and string TODO: would be better to change this to UUID also
+					if (EntityList.getEntityString(ent).equals(targetString))
 					{
-						entity.mountEntity(player);
-					}
-					// The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
-					else
-					{
-						ent.mountEntity(entity);
+						// The harness was clicked twice on the same mob, mount that mob on top of the player
+						if (targetId == entity.getEntityId())
+						{
+							entity.mountEntity(player);
+						}
+						// The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
+						else
+						{
+							ent.mountEntity(entity);
+						}
 					}
 
 					break;
