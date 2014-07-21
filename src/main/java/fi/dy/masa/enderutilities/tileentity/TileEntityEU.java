@@ -14,11 +14,11 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 {
 	protected String customInventoryName;
 	protected ItemStack[] itemStacks;
-	protected String name;
+	protected String tileEntityName;
 
 	public TileEntityEU(String name)
 	{
-		this.name = name;
+		this.tileEntityName = name;
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	{
 		if (this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord) != this)
 		{
-			return false; // : player.getDistanceSq((double)this.xCoord + 0.5D, (double)this.yCoord + 0.5D, (double)this.zCoord + 0.5D) <= 64.0D;
+			return false;
 		}
 
 		if (player.getDistanceSq((double)this.xCoord + 0.5d, (double)this.yCoord + 0.5d, (double)this.zCoord + 0.5d) >= 64.0d)
@@ -185,10 +185,9 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 		return null;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public String getGuiBackground()
+	public String getTEName()
 	{
-		return this.name.toLowerCase() + ".png";
+		return this.tileEntityName;
 	}
 
 	@Override

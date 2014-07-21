@@ -5,6 +5,8 @@ language.code=en_US
 category.enderutilities=Ender Utilities
 key.enderutilities.togglemode=Toggle Mode
 
+container.enderfurnace=Ender Furnace
+
 tile.enderfurnace.name=Ender Furnace
 
 item.enderarrow.name=Ender Arrow

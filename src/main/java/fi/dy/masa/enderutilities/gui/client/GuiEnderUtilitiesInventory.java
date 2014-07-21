@@ -18,7 +18,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
 	{
 		super(container);
 		this.te = te;
-		this.background = new ResourceLocation(Textures.GUI_SHEET_LOCATION + te.getGuiBackground());
+		this.background = Textures.getGuiTexture("gui.container." + te.getTEName());
 	}
 
 	@Override
@@ -29,6 +29,18 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float gameTicks)
+	{
+		super.drawScreen(mouseX, mouseY, gameTicks);
+
+		this.drawTooltips(mouseX, mouseY);
+	}
+
+	protected void drawTooltips(int mouseX, int mouseY)
+	{
 	}
 
 	protected void bindTexture(ResourceLocation rl)

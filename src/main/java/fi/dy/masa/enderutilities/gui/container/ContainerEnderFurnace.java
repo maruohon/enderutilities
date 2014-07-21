@@ -18,4 +18,10 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		this.addSlotToContainer(new Slot(this.te, 1, 56, 53));
 		this.addSlotToContainer(new SlotFurnace(this.inventoryPlayer.player, this.te, 2, 116, 35));
 	}
+
+	@Override()
+	public void detectAndSendChanges()
+	{
+		super.detectAndSendChanges();
+	}
 }

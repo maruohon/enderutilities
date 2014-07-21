@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.reference;
 
-import fi.dy.masa.enderutilities.util.ResourceLocationHelper;
 import net.minecraft.util.ResourceLocation;
+import fi.dy.masa.enderutilities.util.ResourceLocationHelper;
 
 public class Textures
 {
@@ -12,6 +12,11 @@ public class Textures
 
 	// Item textures (for custom rendered items)
 	public static final ResourceLocation TEXTURE_RESOURCE_ITEM_ENDER_BUCKET = ResourceLocationHelper.getResourceLocation(ITEM_SHEET_LOCATION + "item.enderbucket.32.sheet.png");
+
+	public static ResourceLocation getGuiTexture(String name)
+	{
+		return ResourceLocationHelper.getResourceLocation(GUI_SHEET_LOCATION + name + ".png");
+	}
 
 	public static String getTextureName(String name)
 	{
