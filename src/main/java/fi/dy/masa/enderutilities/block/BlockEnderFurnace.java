@@ -19,11 +19,17 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.reference.Textures;
+import fi.dy.masa.enderutilities.reference.gui.GuiIds;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -31,7 +37,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 public class BlockEnderFurnace extends BlockContainer
 {
 	private final Random random = new Random();
-	private static boolean field_149934_M;
 	@SideOnly(Side.CLIENT)
 	private IIcon iconTop;
 	@SideOnly(Side.CLIENT)
@@ -47,18 +52,21 @@ public class BlockEnderFurnace extends BlockContainer
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
+	@Override
 	public Item getItemDropped(int p1, Random r, int p3)
 	{
 		return Item.getItemFromBlock(EnderUtilitiesBlocks.enderFurnace);
 	}
 
 	// Returns a new instance of a block's tile entity class. Called on placing the block.
+	@Override
 	public TileEntity createNewTileEntity(World world, int i)
 	{
 		return new TileEntityEnderFurnace();
 	}
 
 	// Called when the block is placed in the world.
+	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack)
 	{
 		int rot = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
@@ -69,12 +77,16 @@ public class BlockEnderFurnace extends BlockContainer
 
 		if (stack.hasDisplayName())
 		{
-			// FIXME add custom TileEntity
-			((TileEntityEnderFurnace)world.getTileEntity(x, y, z)).func_145951_a(stack.getDisplayName());
+			TileEntity te = world.getTileEntity(x, y, z);
+			if (te != null && te instanceof TileEntityEnderFurnace)
+			{
+				((TileEntityEnderFurnace)te).setInventoryName(stack.getDisplayName());
+			}
 		}
 	}
 
 	// Called whenever the block is added into the world. Args: world, x, y, z
+	@Override
 	public void onBlockAdded(World world, int x, int y, int z)
 	{
 		super.onBlockAdded(world, x, y, z);
@@ -117,136 +129,115 @@ public class BlockEnderFurnace extends BlockContainer
 	}
 */
 	// Called upon block activation (right click on the block.)
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
 	{
-		// Do nothing on the client side
-		if (world.isRemote == true)
+		PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, x, y, z, side, world);
+		if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
 		{
-			return true;
+			return false;
 		}
-		else
-		{
-			// FIXME debug
-			//System.out.printf("x: %d y: %d z: %d hitX: %f hitY: %f hitZ: %f\n", x, y, z, hitX, hitY, hitZ);
-			TileEntityEnderFurnace te = (TileEntityEnderFurnace)world.getTileEntity(x, y, z);
 
-			if (te != null)
+		// FIXME debug
+		//System.out.printf("x: %d y: %d z: %d hitX: %f hitY: %f hitZ: %f\n", x, y, z, hitX, hitY, hitZ);
+		TileEntity te = (TileEntityEnderFurnace)world.getTileEntity(x, y, z);
+		if (te == null || te instanceof TileEntityEnderFurnace == false)
+		{
+			return false;
+		}
+
+		if (world.isRemote == false)
+		{
+			player.openGui(EnderUtilities.instance, GuiIds.GUI_ID_ENDER_FURNACE, world, x, y, z);
+		}
+
+/*
+		if (x >= 1260)
+		{
+			ItemStack stack;
+			int size = te.getSizeInventory();
+			for (int j = 0; j < size; j++)
 			{
-/*
-				if (x >= 1260)
+				System.out.printf("activated: x: %d y: %d z: %d size: %d j: %d\n", x, y, z, size, j);
+				stack = te.getStackInSlot(j);
+				if (stack != null)
 				{
-					ItemStack stack;
-					int size = te.getSizeInventory();
-					for (int j = 0; j < size; j++)
-					{
-						System.out.printf("activated: x: %d y: %d z: %d size: %d j: %d\n", x, y, z, size, j);
-						stack = te.getStackInSlot(j);
-						if (stack != null)
-						{
-							System.out.println("onBlockActivated(): stack not null: " + j);
-						}
-					}
-					World wo = te.getWorldObj();
-					if (wo != null && wo.isRemote == false)
-					{
-						System.out.println("marked");
-						wo.markBlockForUpdate(x, y, z);
-						int meta = wo.getBlockMetadata(x, y, z);
-						//wo.notifyBlockChange(x, y, z, wo.getBlock(x, y, z));
-						//wo.setBlockMetadataWithNotify(x, y, z, (++meta & 0x7), 2);
-						//wo.setBlockMetadataWithNotify(x, y, z, meta, 2);
-					}
+					System.out.println("onBlockActivated(): stack not null: " + j);
 				}
-*/
-				//TileEntity tev = world.getTileEntity(x, y, z);
-				//player.func_146101_a((TileEntityFurnace)tev);
-/*
-				this.getNextWindowId();
-		        this.playerNetServerHandler.sendPacket(new S2DPacketOpenWindow(this.currentWindowId, 2, p_146101_1_.getInventoryName(), p_146101_1_.getSizeInventory(), p_146101_1_.hasCustomInventoryName()));
-		        this.openContainer = new ContainerFurnace(this.inventory, p_146101_1_);
-		        this.openContainer.windowId = this.currentWindowId;
-		        this.openContainer.addCraftingToCrafters(this);
-*/
-		        //if (te instanceof TileEntityEnderFurnace && te.getContainer(player.inventory) != null)
-				//player.openGui(EnderUtilities.instance, 0, world, x, y, z);
 			}
-
-			return true;
+			World wo = te.getWorldObj();
+			if (wo != null && wo.isRemote == false)
+			{
+				System.out.println("marked");
+				wo.markBlockForUpdate(x, y, z);
+				int meta = wo.getBlockMetadata(x, y, z);
+				//wo.notifyBlockChange(x, y, z, wo.getBlock(x, y, z));
+				//wo.setBlockMetadataWithNotify(x, y, z, (++meta & 0x7), 2);
+				//wo.setBlockMetadataWithNotify(x, y, z, meta, 2);
+			}
 		}
-	}
-/*
-	// Update which block the furnace is using depending on whether or not it is burning
-	public static void updateFurnaceBlockState(boolean p_149931_0_, World p_149931_1_, int p_149931_2_, int p_149931_3_, int p_149931_4_)
-	{
-		int l = p_149931_1_.getBlockMetadata(p_149931_2_, p_149931_3_, p_149931_4_);
-		TileEntity tileentity = p_149931_1_.getTileEntity(p_149931_2_, p_149931_3_, p_149931_4_);
-		field_149934_M = true;
-
-		if (p_149931_0_)
-		{
-			p_149931_1_.setBlock(p_149931_2_, p_149931_3_, p_149931_4_, Blocks.lit_furnace);
-		}
-		else
-		{
-			p_149931_1_.setBlock(p_149931_2_, p_149931_3_, p_149931_4_, Blocks.furnace);
-		}
-
-		field_149934_M = false;
-		p_149931_1_.setBlockMetadataWithNotify(p_149931_2_, p_149931_3_, p_149931_4_, l, 2);
-	
-		if (tileentity != null)
-		{
-			tileentity.validate();
-			p_149931_1_.setTileEntity(p_149931_2_, p_149931_3_, p_149931_4_, tileentity);
-		}
-	}
 */
+		//TileEntity tev = world.getTileEntity(x, y, z);
+		//player.func_146101_a((TileEntityFurnace)tev);
+/*
+		this.getNextWindowId();
+        this.playerNetServerHandler.sendPacket(new S2DPacketOpenWindow(this.currentWindowId, 2, p_146101_1_.getInventoryName(), p_146101_1_.getSizeInventory(), p_146101_1_.hasCustomInventoryName()));
+        this.openContainer = new ContainerFurnace(this.inventory, p_146101_1_);
+        this.openContainer.windowId = this.currentWindowId;
+        this.openContainer.addCraftingToCrafters(this);
+*/
+        //if (te instanceof TileEntityEnderFurnace && te.getContainer(player.inventory) != null)
+		//player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+
+		return true;
+	}
+
+	@Override
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
-		if (!field_149934_M)
-		{
-			TileEntityEnderFurnace te = (TileEntityEnderFurnace)world.getTileEntity(x, y, z);
-	
-			if (te != null)
-			{
-				for (int i1 = 0; i1 < te.getSizeInventory(); ++i1)
-				{
-					ItemStack itemstack = te.getStackInSlot(i1);
-	
-					if (itemstack != null)
-					{
-						float f = this.random.nextFloat() * 0.8F + 0.1F;
-						float f1 = this.random.nextFloat() * 0.8F + 0.1F;
-						float f2 = this.random.nextFloat() * 0.8F + 0.1F;
-	
-						while (itemstack.stackSize > 0)
-						{
-							int j1 = this.random.nextInt(21) + 10;
-	
-							if (j1 > itemstack.stackSize)
-							{
-								j1 = itemstack.stackSize;
-							}
-	
-							itemstack.stackSize -= j1;
-							EntityItem entityitem = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j1, itemstack.getItemDamage()));
-	
-							if (itemstack.hasTagCompound())
-							{
-								entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-							}
+		TileEntity t = world.getTileEntity(x, y, z);
 
-							float f3 = 0.05F;
-							entityitem.motionX = (double)((float)this.random.nextGaussian() * f3);
-							entityitem.motionY = (double)((float)this.random.nextGaussian() * f3 + 0.2F);
-							entityitem.motionZ = (double)((float)this.random.nextGaussian() * f3);
-							world.spawnEntityInWorld(entityitem);
+		if (t != null && t instanceof TileEntityEnderFurnace)
+		{
+			TileEntityEnderFurnace te = (TileEntityEnderFurnace)t;
+
+			for (int i1 = 0; i1 < te.getSizeInventory(); ++i1)
+			{
+				ItemStack itemstack = te.getStackInSlot(i1);
+
+				if (itemstack != null)
+				{
+					float f = this.random.nextFloat() * 0.8F + 0.1F;
+					float f1 = this.random.nextFloat() * 0.8F + 0.1F;
+					float f2 = this.random.nextFloat() * 0.8F + 0.1F;
+
+					while (itemstack.stackSize > 0)
+					{
+						int j1 = this.random.nextInt(21) + 10;
+
+						if (j1 > itemstack.stackSize)
+						{
+							j1 = itemstack.stackSize;
 						}
+
+						itemstack.stackSize -= j1;
+						EntityItem entityitem = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j1, itemstack.getItemDamage()));
+
+						if (itemstack.hasTagCompound())
+						{
+							entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+						}
+
+						float f3 = 0.05F;
+						entityitem.motionX = (double)((float)this.random.nextGaussian() * f3);
+						entityitem.motionY = (double)((float)this.random.nextGaussian() * f3 + 0.2F);
+						entityitem.motionZ = (double)((float)this.random.nextGaussian() * f3);
+						world.spawnEntityInWorld(entityitem);
 					}
 				}
-	
-				world.func_147453_f(x, y, z, block);
 			}
+
+			world.func_147453_f(x, y, z, block);
 		}
 	
 		super.breakBlock(world, x, y, z, block, meta);
@@ -254,6 +245,7 @@ public class BlockEnderFurnace extends BlockContainer
 
 	// If this returns true, then comparators facing away from this block will use the value from
 	// getComparatorInputOverride instead of the actual redstone signal strength.
+	@Override
 	public boolean hasComparatorInputOverride()
 	{
 		return true;
@@ -261,6 +253,7 @@ public class BlockEnderFurnace extends BlockContainer
 
 	// If hasComparatorInputOverride returns true, the return value from this is used instead of the redstone signal
 	// strength when this block inputs to a comparator.
+	@Override
 	public int getComparatorInputOverride(World world, int x, int y, int z, int meta)
 	{
 		return Container.calcRedstoneFromInventory((IInventory)world.getTileEntity(x, y, z));
@@ -303,6 +296,7 @@ public class BlockEnderFurnace extends BlockContainer
 	}
 */
 	// Gets an item for the block being called on. Args: world, x, y, z
+	@Override
 	@SideOnly(Side.CLIENT)
 	public Item getItem(World world, int x, int y, int z)
 	{
@@ -318,6 +312,7 @@ public class BlockEnderFurnace extends BlockContainer
 		return this.iconFront;
 	}
 */
+	@Override
 	@SideOnly(Side.CLIENT)
     public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
     {
@@ -358,6 +353,7 @@ public class BlockEnderFurnace extends BlockContainer
 		return this.iconFront;
     }
 
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
