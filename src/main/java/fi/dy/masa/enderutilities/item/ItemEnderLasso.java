@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -12,13 +11,12 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderLasso extends Item
+public class ItemEnderLasso extends ItemEU
 {
 	public ItemEnderLasso()
 	{
@@ -26,7 +24,6 @@ public class ItemEnderLasso extends Item
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_LASSO);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
-		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
 	@Override

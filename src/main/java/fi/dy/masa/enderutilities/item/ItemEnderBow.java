@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -19,7 +18,6 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Textures;
@@ -28,7 +26,7 @@ import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderBow extends ItemBow implements IKeyBound
+public class ItemEnderBow extends ItemEU implements IKeyBound
 {
 	public static final byte BOW_MODE_TP_TARGET = 0;
 	public static final byte BOW_MODE_TP_SELF = 1;
@@ -41,11 +39,10 @@ public class ItemEnderBow extends ItemBow implements IKeyBound
 	public ItemEnderBow()
 	{
 		super();
-		this.maxStackSize = 1;
+		this.setMaxStackSize(1);
 		this.setMaxDamage(384);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BOW);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
-		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
 	/**

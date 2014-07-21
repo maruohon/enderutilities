@@ -30,6 +30,21 @@ public class EntityUtils
 		return null;
 	}
 
+	public static Entity findEntityByUUID(List<Entity> list, UUID uuid)
+	{
+		if (uuid == null) { return null; }
+
+		for (Entity entity : list)
+		{
+			if (entity.getUniqueID().equals(uuid) == true)
+			{
+				return entity;
+			}
+		}
+
+		return null;
+	}
+
 	public static Entity getBottomEntity(Entity entity)
 	{
 		Entity ent;

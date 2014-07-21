@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -15,13 +14,12 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderBag extends Item
+public class ItemEnderBag extends ItemEU
 {
 	public ItemEnderBag()
 	{
@@ -29,7 +27,6 @@ public class ItemEnderBag extends Item
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BAG);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
-		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
 
 	@Override

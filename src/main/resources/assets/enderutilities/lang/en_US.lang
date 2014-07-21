@@ -12,6 +12,7 @@ item.enderbag.name=Ender Bag
 item.enderbow.name=Ender Bow
 item.enderbucket.name=Ender Bucket
 item.enderlasso.name=Ender Lasso
+item.mobharness.name=Mob Harness
 item.enderpearlreusable.name=Ender Pearl (re-usable)
 
 gui.tooltip.holdshift=Shift for more
@@ -31,3 +32,6 @@ gui.tooltip.dimension.end=The End
 gui.tooltip.mode=Mode
 gui.tooltip.tpself=TP self
 gui.tooltip.tptarget=TP target
+
+gui.tooltip.linked=Linked
+gui.tooltip.notlinked=Not linked
