@@ -13,6 +13,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -123,9 +124,17 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
 		this.setSize(0.5F, 0.5F);
 		this.setLocationAndAngles(par2EntityLivingBase.posX, par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight(), par2EntityLivingBase.posZ, par2EntityLivingBase.rotationYaw, par2EntityLivingBase.rotationPitch);
-		this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.16f);
-		this.posY -= 0.10000000149011612D;
-		this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.16f);
+		double x, y, z;
+		x = this.posX - (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.9f);
+		x -= (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.1f);
+		y = this.posY - 0.10000000149011612D;
+		z = this.posZ + (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.9f);
+		z -= (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.1f);
+		if (par1World.getBlock((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z)) == Blocks.air)
+		{
+			this.posX = x;
+			this.posZ = z;
+		}
 		this.setPosition(this.posX, this.posY, this.posZ);
 		this.yOffset = 0.0F;
 		this.motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
