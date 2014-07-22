@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -10,6 +11,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
+import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.FuelHandler;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
@@ -43,6 +45,7 @@ public abstract class CommonProxy implements IProxy
 		MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
 		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
 		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+		FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
 	}
 
 	public void registerFuelHandlers()
@@ -52,7 +55,6 @@ public abstract class CommonProxy implements IProxy
 
 	public void registerTileEntities()
 	{
-		// FIXME: create my own tile entity?
 		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
 	}
 
