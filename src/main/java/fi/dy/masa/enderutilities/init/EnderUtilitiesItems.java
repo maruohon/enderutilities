@@ -36,22 +36,23 @@ public class EnderUtilitiesItems
 		GameRegistry.registerItem(mobHarness, ReferenceItem.NAME_ITEM_MOB_HARNESS);
 
 		ItemStack arrow = new ItemStack(Items.arrow);
+		ItemStack bow = new ItemStack(Items.bow);
 		ItemStack bucket = new ItemStack(Items.bucket);
 		ItemStack diamond = new ItemStack(Items.diamond);
 		ItemStack eye = new ItemStack(Items.ender_eye);
 		ItemStack gold = new ItemStack(Items.gold_ingot);
+		ItemStack goldnugget = new ItemStack(Items.gold_nugget);
 		ItemStack leather = new ItemStack(Items.leather);
 		ItemStack pearl = new ItemStack(Items.ender_pearl);
 		ItemStack powder = new ItemStack(Items.blaze_powder);
 		ItemStack rsblock = new ItemStack(Blocks.redstone_block);
 		ItemStack string = new ItemStack(Items.string);
-		ItemStack stick = new ItemStack(Items.stick);
 
-		GameRegistry.addShapelessRecipe(new ItemStack(enderArrow), eye, arrow, gold);
+		GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "E  ", 'N', goldnugget, 'P', pearl, 'A', arrow, 'E', eye);
 		GameRegistry.addRecipe(new ItemStack(enderBag), "BLB", "LEL", "BLB", 'B', powder, 'L', leather, 'E', eye);
-		GameRegistry.addRecipe(new ItemStack(enderBow), "SE ", "S T", "SE ", 'S', string, 'T', stick, 'E', eye);
+		GameRegistry.addRecipe(new ItemStack(enderBow), "PDP", "DBD", "PDP", 'P', pearl, 'D', diamond, 'B', bow);
 		GameRegistry.addRecipe(new ItemStack(enderBucket), "EGE", "DBD", "EGE", 'E', eye, 'G', gold, 'D', diamond, 'B', bucket);
-		GameRegistry.addRecipe(new ItemStack(enderLasso), "DED", "EGE", "DSD", 'D', diamond, 'E', eye, 'G', gold, 'S', string);
+		GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
 		GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock);
 		GameRegistry.addRecipe(new ItemStack(mobHarness), "LEL", "LDL", "LEL", 'L', leather, 'E', eye, 'D', diamond);
 	}
