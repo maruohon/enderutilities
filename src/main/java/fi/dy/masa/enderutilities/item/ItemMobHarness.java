@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -22,6 +24,9 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemMobHarness extends ItemEU
 {
+	@SideOnly(Side.CLIENT)
+	private IIcon[] iconArray;
+
 	public ItemMobHarness()
 	{
 		super();
@@ -41,7 +46,8 @@ public class ItemMobHarness extends ItemEU
 		if (player.isSneaking() == true)
 		{
 			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
+			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
+					&& player.rotationPitch > 80.0f)
 			{
 				this.clearData(stack);
 			}
@@ -67,7 +73,7 @@ public class ItemMobHarness extends ItemEU
 		if (hasTarget == false)
 		{
 			// Looking up, player ridden by something and harness empty: dismount the rider
-			if (player.rotationPitch > 80.0f && player.riddenByEntity != null)
+			if (player.rotationPitch < -80.0f && player.riddenByEntity != null)
 			{
 				player.riddenByEntity.mountEntity(null);
 			}
@@ -76,7 +82,7 @@ public class ItemMobHarness extends ItemEU
 			{
 				entity.mountEntity(null);
 			}
-			// Empty harness, target not riding anything
+			// Empty harness, target not riding anything, store/link target
 			else
 			{
 				this.storeTarget(stack, entity);
@@ -95,21 +101,22 @@ public class ItemMobHarness extends ItemEU
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 
-		//if (nbt == null || nbt.hasKey("TargetUUIDLeast") == false || nbt.hasKey("TargetUUIDMost") == false)
-		if (nbt == null || nbt.hasKey("TargetType") == false)
-		{
-			return false;
-		}
-		if (nbt.getByte("TargetType") == (byte)1 && (nbt.hasKey("TargetId") == false || nbt.hasKey("TargetString") == false))
-		{
-			return false;
-		}
-		if (nbt.getByte("TargetType") == (byte)2 && (nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false))
+		if (nbt == null || nbt.hasKey("Mode") == false)
 		{
 			return false;
 		}
 
-		return true;
+		byte mode = nbt.getByte("Mode");
+
+		if (mode == (byte)1 || mode == (byte)2)
+		{
+			if (nbt.hasKey("TargetUUIDMost") == true && nbt.hasKey("TargetUUIDLeast") == true && nbt.hasKey("TargetName") == true)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public ItemStack storeTarget(ItemStack stack, Entity entity)
@@ -127,19 +134,18 @@ public class ItemMobHarness extends ItemEU
 
 		if (entity instanceof EntityPlayer)
 		{
-			EntityPlayer targetPlayer = (EntityPlayer)entity;
-			mode = 2;
-			nbt.setString("TargetPlayer", ((EntityPlayer)entity).getCommandSenderName());
-			nbt.setLong("PlayerUUIDMost", targetPlayer.getUniqueID().getMostSignificantBits());
-			nbt.setLong("PlayerUUIDLeast", targetPlayer.getUniqueID().getLeastSignificantBits());
+			mode = (byte)2;
+			nbt.setString("TargetName", ((EntityPlayer)entity).getCommandSenderName());
 		}
 		else
 		{
-			nbt.setInteger("TargetId", entity.getEntityId());
-			nbt.setString("TargetString", EntityList.getEntityString(entity));
+			nbt.setString("TargetName", EntityList.getEntityString(entity));
 		}
 
-		nbt.setByte("TargetType", mode);
+		nbt.setLong("TargetUUIDMost", entity.getUniqueID().getMostSignificantBits());
+		nbt.setLong("TargetUUIDLeast", entity.getUniqueID().getLeastSignificantBits());
+		nbt.setByte("Mode", mode);
+
 		stack.setTagCompound(nbt);
 
 		return stack;
@@ -153,46 +159,42 @@ public class ItemMobHarness extends ItemEU
 		}
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		byte mode = nbt.getByte("TargetType");
+		byte mode = nbt.getByte("Mode");
+		double radius = 4.0d;
 
-		// Mount this player to the target entity
-		if (mode == (byte)0)
+		if (this.hasTarget(stack) == false)
 		{
-			player.mountEntity(entity);
+			return false;
 		}
+
+		long most = nbt.getLong("TargetUUIDMost");
+		long least = nbt.getLong("TargetUUIDLeast");
+
 		// Mode 1: mount non-player living mobs to eachother or to the player
-		else if (mode == (byte)1)
+		if (mode == (byte)1)
 		{
-			if (nbt.hasKey("TargetId") == false || nbt.hasKey("TargetString") == false)
-			{
-				return false;
-			}
-
-			int targetId = nbt.getInteger("TargetId");
-			String targetString = nbt.getString("TargetString");
-			double radius = 4.0d;
-
 			List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(player,
 					AxisAlignedBB.getBoundingBox(player.posX - radius, player.posY - radius, player.posZ - radius,
 					player.posX + radius, player.posY + radius, player.posZ + radius));
 
 			for (Entity ent : list)
 			{
-				if (ent.getEntityId() == targetId)
+				// Matching entity found
+				if (ent.getUniqueID().getMostSignificantBits() == most && ent.getUniqueID().getLeastSignificantBits() == least)
 				{
-					// Matching entityId and string TODO: would be better to change this to UUID also
-					if (EntityList.getEntityString(ent).equals(targetString))
+					// The harness was clicked twice on the same mob, mount that mob on top of the player
+					if (entity.getUniqueID().getMostSignificantBits() == most && entity.getUniqueID().getLeastSignificantBits() == least)
 					{
-						// The harness was clicked twice on the same mob, mount that mob on top of the player
-						if (targetId == entity.getEntityId())
-						{
-							entity.mountEntity(player);
-						}
-						// The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
-						else
-						{
-							ent.mountEntity(entity);
-						}
+						EntityUtils.unmountRidden(player);
+						entity.mountEntity(player);
+						this.clearData(stack);
+					}
+					// The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
+					else
+					{
+						EntityUtils.unmountRidden(entity);
+						ent.mountEntity(entity);
+						this.clearData(stack);
 					}
 
 					break;
@@ -202,52 +204,29 @@ public class ItemMobHarness extends ItemEU
 		// Mode 2: mount a player
 		else if (mode == (byte)2)
 		{
-			if (nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false)
-			{
-				return false;
-			}
-
-			EntityPlayerMP targetPlayer = EntityUtils.findPlayerFromUUID(new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast")));
+			EntityPlayerMP targetPlayer = EntityUtils.findPlayerFromUUID(new UUID(most, least));
 			if (targetPlayer == null)
 			{
 				return false;
 			}
 
 			// The harness was clicked twice on the same player, mount that player on top of the this player
-			if (entity == targetPlayer)
+			if (entity == targetPlayer) // && entity.getDistanceToEntity(player) <= radius)
 			{
+				EntityUtils.unmountRidden(player);
 				targetPlayer.mountEntity(player);
+				this.clearData(stack);
 			}
 			// Mount the target player on top of an entity
-			else
+			else if (entity.getDistanceToEntity(player) <= radius && targetPlayer.getDistanceToEntity(player) <= radius)
 			{
+				EntityUtils.unmountRidden(entity);
 				targetPlayer.mountEntity(entity);
+				this.clearData(stack);
 			}
 		}
-
-		this.clearData(stack);
 
 		return false;
-	}
-
-	public boolean dismountEntity(EntityPlayer player, Entity entity)
-	{
-		if (entity == null)
-		{
-			if (player.riddenByEntity != null)
-			{
-				player.riddenByEntity.mountEntity(null);
-			}
-		}
-		else
-		{
-			if (entity.ridingEntity != null)
-			{
-				entity.mountEntity(null);
-			}
-		}
-
-		return true;
 	}
 
 	public boolean clearData(ItemStack stack)
@@ -271,22 +250,69 @@ public class ItemMobHarness extends ItemEU
 
 		String pre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-		String target;
-
-		byte mode = nbt.getByte("TargetType");
-		if (mode == (byte)1)
-		{
-			target = nbt.getString("TargetString");
-		}
-		else if (mode == (byte)2)
-		{
-			target = nbt.getString("TargetPlayer");
-		}
-		else
-		{
-			target = "unknown";
-		}
+		String target = nbt.getString("TargetName");
 
 		list.add(StatCollector.translateToLocal("gui.tooltip.linked") + ": " + pre + target + rst);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean requiresMultipleRenderPasses()
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getRenderPasses(int metadata)
+	{
+		return 1;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void registerIcons(IIconRegister iconRegister)
+	{
+		this.itemIcon = iconRegister.registerIcon(this.getIconString());
+		this.iconArray = new IIcon[2];
+		this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
+		this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".active");
+	}
+
+	/**
+	 * Return the correct icon for rendering based on the supplied ItemStack and render pass.
+	 *
+	 * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
+	 * @param stack to render for
+	 * @param pass the multi-render pass
+	 * @return the icon
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(ItemStack stack, int renderPass)
+	{
+		return this.getIcon(stack, renderPass, null, null, 0);
+	}
+
+    /**
+	 * Player, Render pass, and item usage sensitive version of getIconIndex.
+	 *
+	 * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
+	 * @param renderPass The pass to get the icon for, 0 is default.
+	 * @param player The player holding the item
+	 * @param usingItem The item the player is actively using. Can be null if not using anything.
+	 * @param useRemaining The ticks remaining for the active item.
+	 * @return The icon index
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+	{
+		if (this.hasTarget(stack) == true)
+		{
+			return this.iconArray[1];
+		}
+
+		return this.iconArray[0];
 	}
 }

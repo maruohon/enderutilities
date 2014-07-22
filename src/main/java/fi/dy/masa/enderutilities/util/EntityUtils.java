@@ -98,4 +98,26 @@ public class EntityUtils
 
 		return false;
 	}
+
+	public static boolean unmountRider(Entity entity)
+	{
+		if (entity != null && entity.riddenByEntity != null)
+		{
+			entity.riddenByEntity.mountEntity(null);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean unmountRidden(Entity entity)
+	{
+		if (entity != null && entity.ridingEntity != null)
+		{
+			entity.mountEntity(null);
+			return true;
+		}
+
+		return false;
+	}
 }
