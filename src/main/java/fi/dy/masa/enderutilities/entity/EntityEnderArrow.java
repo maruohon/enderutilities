@@ -125,11 +125,14 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		this.setSize(0.5F, 0.5F);
 		this.setLocationAndAngles(par2EntityLivingBase.posX, par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight(), par2EntityLivingBase.posZ, par2EntityLivingBase.rotationYaw, par2EntityLivingBase.rotationPitch);
 		double x, y, z;
-		x = this.posX - (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.9f);
-		x -= (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.1f);
-		y = this.posY - 0.10000000149011612D;
-		z = this.posZ + (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * 0.9f);
-		z -= (double)(MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * 0.1f);
+		x = this.posX - (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
+		z = this.posZ - (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
+
+		x -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.74f) * (double)(MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI));
+		x -= (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.1f);
+		y = this.posY - 0.10000000149011612d;
+		z += (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.74f) * (double)(MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI));
+		z -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.1f);
 		if (par1World.getBlock((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z)) == Blocks.air)
 		{
 			this.posX = x;
