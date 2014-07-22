@@ -31,10 +31,11 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	protected static final int[] SLOTS_TOP = new int[] {0};
 	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
 	protected static final int[] SLOTS_SIDES = new int[] {0, 1};
-	// The number of ticks that the furnace will keep burning
+
+	public byte operatingMode;
+	public byte outputMode;
 	public int furnaceBurnTime;
-	// The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for
-	public int currentItemBurnTime;
+	public int currentItemBurnTime; // Number of ticks a fresh copy of the currently-burning item would keep the furnace burning for
 	// The number of ticks that the current item has been cooking for
 	public int furnaceCookTime;
 
@@ -207,6 +208,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
 	private boolean canSmelt()
 	{
+		// FIXME disabled for release 0.1.2
+		return false;
+/*
 		if (this.itemStacks[0] == null)
 		{
 			return false;
@@ -220,6 +224,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			int result = itemStacks[2].stackSize + itemstack.stackSize;
 			return result <= getInventoryStackLimit() && result <= this.itemStacks[2].getMaxStackSize();
 		}
+*/
 	}
 
 	// Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
@@ -329,7 +334,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	/* Returns true if automation can insert the given item in the given slot from the given side. Args: slot, itemstack, side */
 	public boolean canInsertItem(int slot, ItemStack stack, int side)
 	{
-		// FIXME add side check
 		return this.isItemValidForSlot(slot, stack);
 	}
 
