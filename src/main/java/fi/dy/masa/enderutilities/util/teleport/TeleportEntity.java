@@ -55,7 +55,7 @@ public class TeleportEntity
 		return true;
 	}
 
-	public static void teleportEntityRandomly(Entity entity, double maxDist)
+	public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
 	{
 		if (entity == null || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
 		{
@@ -96,8 +96,8 @@ public class TeleportEntity
 				entity.worldObj.getBlock((int)x, (int)y + 1, (int)z) == Blocks.air)
 			//if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
 			{
-				entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 				//entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+				entity.setPositionAndUpdate(x, y, z);
 
 				// Sound and particles on the new, destination location.
 				//TODO: Since this only happens on the server side, we currently get no particles here. Maybe add custom packets for effects?

@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -16,16 +16,15 @@ public class AttackEntityEventHandler
 		{
 			return;
 		}
-		if (event.target instanceof EntityLiving)
-		{
-			ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
+		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 
-			if (stack != null)
+		if (stack != null)
+		{
+			if (stack.getItem() == EnderUtilitiesItems.enderArrow)
 			{
-				if (stack.getItem() == EnderUtilitiesItems.enderArrow)
+				if (event.target instanceof EntityLivingBase)
 				{
-					// TODO change the maxDistance into a config value
-					TeleportEntity.teleportEntityRandomly((EntityLiving)event.target, 10.0d);
+					TeleportEntity.teleportEntityRandomly((EntityLivingBase)event.target, 10.0d);
 					event.setCanceled(true);
 					return;
 				}
