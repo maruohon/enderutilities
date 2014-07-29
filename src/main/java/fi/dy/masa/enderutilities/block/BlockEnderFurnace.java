@@ -75,10 +75,15 @@ public class BlockEnderFurnace extends BlockContainer
 		if (rot == 2) { world.setBlockMetadataWithNotify(x, y, z, 3, 2); }
 		if (rot == 3) { world.setBlockMetadataWithNotify(x, y, z, 4, 2); }
 
-		if (stack.hasDisplayName())
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te != null && te instanceof TileEntityEnderFurnace)
 		{
-			TileEntity te = world.getTileEntity(x, y, z);
-			if (te != null && te instanceof TileEntityEnderFurnace)
+			if (entity instanceof EntityPlayer)
+			{
+				((TileEntityEnderFurnace)te).setOwner((EntityPlayer)entity);
+			}
+
+			if (stack.hasDisplayName())
 			{
 				((TileEntityEnderFurnace)te).setInventoryName(stack.getDisplayName());
 			}

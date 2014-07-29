@@ -1,7 +1,10 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import java.util.UUID;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -38,6 +41,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public int currentItemBurnTime; // Number of ticks a fresh copy of the currently-burning item would keep the furnace burning for
 	// The number of ticks that the current item has been cooking for
 	public int furnaceCookTime;
+	public String ownerName;
+	private UUID ownerUUID;
 
 	public TileEntityEnderFurnace()
 	{
@@ -45,6 +50,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.itemStacks = new ItemStack[3];
 		this.operatingMode = 0;
 		this.outputMode = 0;
+		this.ownerName = null;
+		this.ownerUUID = null;
 	}
 
 	/* Returns the name of the inventory */
@@ -75,19 +82,34 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.furnaceBurnTime = nbt.getShort("BurnTime");
 		this.furnaceCookTime = nbt.getShort("CookTime");
 		this.currentItemBurnTime = nbt.getShort("CurrentItemBurnTime");
+		this.operatingMode = nbt.getByte("Mode");
+		this.outputMode = nbt.getByte("OutputMode");
 
-		if (nbt.hasKey("CustomName", 8))
+		if (nbt.hasKey("CustomName", 8) == true)
 		{
 			this.customInventoryName = nbt.getString("CustomName");
 		}
+
+		if (nbt.hasKey("OwnerName", 8) == true)
+		{
+			this.ownerName = nbt.getString("OwnerName");
+		}
+
+		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
+		{
+			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
+		}
 	}
 
+	@Override
 	public void writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
 		nbt.setShort("BurnTime", (short)this.furnaceBurnTime);
 		nbt.setShort("CookTime", (short)this.furnaceCookTime);
 		nbt.setShort("CurrentItemBurnTime", (short)this.currentItemBurnTime);
+		nbt.setByte("Mode", this.operatingMode);
+		nbt.setByte("OutputMode", this.outputMode);
 
 		NBTTagList nbttaglist = new NBTTagList();
 
@@ -108,6 +130,23 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			nbt.setString("CustomName", this.customInventoryName);
 		}
+
+		if (this.ownerName != null)
+		{
+			nbt.setString("OwnerName", this.ownerName);
+		}
+
+		if (this.ownerUUID != null)
+		{
+			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
+			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
+		}
+	}
+
+	public void setOwner(EntityPlayer player)
+	{
+		this.ownerName = player.getCommandSenderName();
+		this.ownerUUID = player.getUniqueID();
 	}
 
 	// Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
