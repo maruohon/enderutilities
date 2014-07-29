@@ -190,6 +190,10 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 		return this.tileEntityName;
 	}
 
+	public void performGuiAction(int element, short action)
+	{
+	}
+
 	@Override
 	public String toString()
 	{

@@ -36,25 +36,8 @@ public class GuiButtonIcon extends GuiButton
 			GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			this.field_146123_n = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 			int state = this.getHoverState(this.field_146123_n);
-/*
-			GL11.glEnable(GL11.GL_BLEND);
-			OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + k * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + k * 20, this.width / 2, this.height);
-*/
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, this.u + state * this.width, this.v, this.width, this.height);
 			this.mouseDragged(mc, mouseX, mouseY);
 		}
-	}
-
-	public void setU(int u)
-	{
-		this.u = u;
-	}
-
-	public void setV(int v)
-	{
-		this.v = v;
 	}
 }

@@ -43,6 +43,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super(ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
 		this.itemStacks = new ItemStack[3];
+		this.operatingMode = 0;
+		this.outputMode = 0;
 	}
 
 	/* Returns the name of the inventory */
@@ -367,5 +369,30 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
 	{
 		return new GuiEnderFurnace(getContainer(inventoryPlayer), this);
+	}
+
+	@Override
+	public void performGuiAction(int element, short action)
+	{
+		// 0: Operating mode (slow/eco vs. fast)
+		if (element == 0)
+		{
+			if (++this.operatingMode > 1)
+			{
+				this.operatingMode = 0;
+			}
+			this.markDirty();
+		}
+		// 1: Output mode (output to Ender Chest OFF/ON)
+		else if (element == 1)
+		{
+			if (++this.outputMode > 1)
+			{
+				this.outputMode = 0;
+			}
+			this.markDirty();
+		}
+		// FIXME debug
+		//System.out.printf("mode: %d output: %d side: %s\n", this.operatingMode, this.outputMode, this.worldObj.isRemote);
 	}
 }

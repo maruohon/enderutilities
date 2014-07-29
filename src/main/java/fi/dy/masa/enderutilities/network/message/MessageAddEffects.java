@@ -40,9 +40,9 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
 	{
 		this.effectType = buf.readInt();
 		this.flags = buf.readInt();
-		this. x = buf.readDouble();
-		this. y = buf.readDouble();
-		this. z = buf.readDouble();
+		this.x = buf.readDouble();
+		this.y = buf.readDouble();
+		this.z = buf.readDouble();
 	}
 
 	@Override

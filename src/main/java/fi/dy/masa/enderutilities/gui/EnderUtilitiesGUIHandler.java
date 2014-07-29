@@ -12,6 +12,11 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
+		if (player == null || world == null)
+		{
+			return null;
+		}
+
 		if (ID == 0)
 		{
 			TileEntity te = world.getTileEntity(x, y, z);
@@ -29,6 +34,11 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
+		if (player == null || world == null)
+		{
+			return null;
+		}
+
 		if (ID == 0)
 		{
 			TileEntity te = world.getTileEntity(x, y, z);
