@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
 
@@ -12,23 +13,19 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
 public class GuiEnderUtilitiesInventory extends GuiContainer
 {
 	protected TileEntityEU te;
-	protected ResourceLocation background;
+	protected ResourceLocation guiTexture;
 
 	public GuiEnderUtilitiesInventory(ContainerEnderUtilitiesInventory container, TileEntityEU te)
 	{
 		super(container);
 		this.te = te;
-		this.background = Textures.getGuiTexture("gui.container." + te.getTEName());
+		this.guiTexture = Textures.getGuiTexture("gui.container." + te.getTEName());
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
+	public void initGui()
 	{
-		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		bindTexture(background);
-		int x = (width - xSize) / 2;
-		int y = (height - ySize) / 2;
-		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+		super.initGui();
 	}
 
 	@Override
@@ -37,6 +34,22 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
 		super.drawScreen(mouseX, mouseY, gameTicks);
 
 		this.drawTooltips(mouseX, mouseY);
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton btn)
+	{
+		super.actionPerformed(btn);
+	}
+
+	@Override
+	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
+	{
+		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		bindTexture(guiTexture);
+		int x = (width - xSize) / 2;
+		int y = (height - ySize) / 2;
+		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
 	}
 
 	protected void drawTooltips(int mouseX, int mouseY)
