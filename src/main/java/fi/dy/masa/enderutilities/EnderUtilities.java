@@ -7,7 +7,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import fi.dy.masa.enderutilities.client.gui.EnderUtilitiesGUIHandler;
+import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.network.PacketHandler;

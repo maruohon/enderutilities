@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.gui;
+package fi.dy.masa.enderutilities.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
