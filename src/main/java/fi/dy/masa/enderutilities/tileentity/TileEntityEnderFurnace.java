@@ -254,7 +254,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return;
 		}
 
-		boolean canSmeltLast = this.canSmelt();
+		boolean needsSync = false;
 		boolean isBurningLast = this.isBurning();
 		boolean dirty = false;
 		int cookTimeIncrement = COOKTIME_INC_SLOW;
@@ -303,6 +303,12 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		// Valid items to smelt, room in output
 		if (this.canSmelt() == true)
 		{
+			// Items just added to be smelted, sync the status to clients.
+			if (this.cookTimeFresh == 0)
+			{
+				needsSync = true;
+			}
+
 			this.cookTimeFresh = COOKTIME_DEFAULT; // TODO: per-item cook times?
 			this.cookTime += cookTimeIncrement;
 
@@ -340,7 +346,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		// Check if we need to sync some stuff to the clients
-		if (canSmeltLast != this.canSmelt() || isBurningLast != this.isBurning())
+		if (needsSync == true || isBurningLast != this.isBurning())
 		{
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
