@@ -402,6 +402,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
 		}
 		this.burnTimeRemaining += burnTime;
+		this.burnTimeFresh = burnTime;
 
 		return burnTime;
 	}

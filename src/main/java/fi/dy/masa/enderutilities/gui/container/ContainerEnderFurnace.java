@@ -11,6 +11,10 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 {
 	private TileEntityEnderFurnace teef;
+	public int burnTimeRemaining;
+	public int burnTimeFresh;
+	public int cookTime;
+	public int cookTimeFresh;
 
 	public ContainerEnderFurnace(TileEntityEnderFurnace te, InventoryPlayer inventory)
 	{
@@ -34,20 +38,31 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		for (int i = 0; i < this.crafters.size(); ++i)
 		{
 			icrafting = (ICrafting)this.crafters.get(i);
-/*
-			if (this.teef.operatingMode != this.lastOperatingMode)
+
+			if (this.teef.burnTimeRemaining != this.burnTimeRemaining)
 			{
-				icrafting.sendProgressBarUpdate(this, 0, this.teef.operatingMode);
+				icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining);
 			}
 
-			if (this.teef.outputMode != this.lastOutputMode)
+			if (this.teef.burnTimeFresh != this.burnTimeFresh)
 			{
-				icrafting.sendProgressBarUpdate(this, 1, this.teef.outputMode);
+				icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh);
 			}
 
-			this.lastOperatingMode = this.teef.operatingMode;
-			this.lastOutputMode = this.teef.outputMode;
-*/
+			if (this.teef.cookTime != this.cookTime)
+			{
+				icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime);
+			}
+
+			if (this.teef.cookTimeFresh != this.cookTimeFresh)
+			{
+				icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh);
+			}
+
+			this.burnTimeRemaining = this.teef.burnTimeRemaining;
+			this.burnTimeFresh = this.teef.burnTimeFresh;
+			this.cookTime = this.teef.cookTime;
+			this.cookTimeFresh = this.teef.cookTimeFresh;
 		}
 	}
 
@@ -55,8 +70,10 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 	public void addCraftingToCrafters(ICrafting icrafting)
 	{
 		super.addCraftingToCrafters(icrafting);
-		//icrafting.sendProgressBarUpdate(this, 0, this.teef.operatingMode);
-		//icrafting.sendProgressBarUpdate(this, 1, this.teef.outputMode);
+		icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining);
+		icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh);
+		icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime);
+		icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -65,16 +82,16 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		switch(var)
 		{
 			case 0:
-				//this.teef.operatingMode = (byte)val;
+				this.teef.burnTimeRemaining = val;
 				break;
 			case 1:
-				//this.teef.outputMode = (byte)val;
+				this.teef.burnTimeFresh = val;
 				break;
 			case 2:
+				this.teef.cookTime = val;
 				break;
 			case 3:
-				break;
-			case 4:
+				this.teef.cookTimeFresh = val;
 				break;
 			default:
 		}
