@@ -36,7 +36,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		for (int i = 0; i < this.crafters.size(); ++i)
 		{
 			icrafting = (ICrafting)this.crafters.get(i);
-
+/*
 			if (this.teef.operatingMode != this.lastOperatingMode)
 			{
 				icrafting.sendProgressBarUpdate(this, 0, this.teef.operatingMode);
@@ -49,6 +49,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 
 			this.lastOperatingMode = this.teef.operatingMode;
 			this.lastOutputMode = this.teef.outputMode;
+*/
 		}
 	}
 
@@ -56,8 +57,8 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 	public void addCraftingToCrafters(ICrafting icrafting)
 	{
 		super.addCraftingToCrafters(icrafting);
-		icrafting.sendProgressBarUpdate(this, 0, this.teef.operatingMode);
-		icrafting.sendProgressBarUpdate(this, 1, this.teef.outputMode);
+		//icrafting.sendProgressBarUpdate(this, 0, this.teef.operatingMode);
+		//icrafting.sendProgressBarUpdate(this, 1, this.teef.outputMode);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -66,10 +67,10 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		switch(var)
 		{
 			case 0:
-				this.teef.operatingMode = (byte)val;
+				//this.teef.operatingMode = (byte)val;
 				break;
 			case 1:
-				this.teef.outputMode = (byte)val;
+				//this.teef.outputMode = (byte)val;
 				break;
 			case 2:
 				break;

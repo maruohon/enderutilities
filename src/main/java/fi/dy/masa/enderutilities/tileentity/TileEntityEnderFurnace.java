@@ -17,6 +17,9 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -28,19 +31,23 @@ import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 public class TileEntityEnderFurnace extends TileEntityEU
 {
 	// How long items take to cook?
-	protected static final int COOK_TIME_REGULAR_FUEL = 60; // 3 seconds per item with regular fuel
-	protected static final int COOK_TIME_ENDER_FUEL = 30; // 1,5 seconds per item with 'ender' fuel
-	protected static final int COOK_TIME_NO_FUEL = 1200; // 60 seconds per item without fuel
+	protected static final short COOK_TIME_REGULAR_FUEL = 60; // 3 seconds per item with regular fuel
+	protected static final short COOK_TIME_ENDER_FUEL = 30; // 1,5 seconds per item with 'ender' fuel
+	protected static final short COOK_TIME_NO_FUEL = 1200; // 60 seconds per item without fuel
 	protected static final int[] SLOTS_TOP = new int[] {0};
 	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
 	protected static final int[] SLOTS_SIDES = new int[] {0, 1};
 
+	@SideOnly(Side.CLIENT)
+	public boolean isActive;
+
+	public byte rotation;
 	public byte operatingMode;
 	public byte outputMode;
-	public int furnaceBurnTime;
-	public int currentItemBurnTime; // Number of ticks a fresh copy of the currently-burning item would keep the furnace burning for
+	public short furnaceBurnTime;
+	public short currentItemBurnTime; // Number of ticks a fresh copy of the currently-burning item would keep the furnace burning for
 	// The number of ticks that the current item has been cooking for
-	public int furnaceCookTime;
+	public short furnaceCookTime;
 	public String ownerName;
 	private UUID ownerUUID;
 
@@ -65,6 +72,29 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public void readFromNBT(NBTTagCompound nbt)
 	{
 		super.readFromNBT(nbt);
+
+		this.furnaceBurnTime = nbt.getShort("BurnTime");
+		this.furnaceCookTime = nbt.getShort("CookTime");
+		this.currentItemBurnTime = nbt.getShort("CurrentItemBurnTime");
+
+		this.operatingMode = nbt.getByte("Mode");
+		this.outputMode = nbt.getByte("OutputMode");
+
+		if (nbt.hasKey("OwnerName", 8) == true)
+		{
+			this.ownerName = nbt.getString("OwnerName");
+		}
+
+		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
+		{
+			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
+		}
+
+		if (nbt.hasKey("CustomName", 8) == true)
+		{
+			this.customInventoryName = nbt.getString("CustomName");
+		}
+
 		NBTTagList nbttaglist = nbt.getTagList("Items", 10);
 		this.itemStacks = new ItemStack[this.getSizeInventory()];
 
@@ -78,38 +108,34 @@ public class TileEntityEnderFurnace extends TileEntityEU
 				this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 			}
 		}
-
-		this.furnaceBurnTime = nbt.getShort("BurnTime");
-		this.furnaceCookTime = nbt.getShort("CookTime");
-		this.currentItemBurnTime = nbt.getShort("CurrentItemBurnTime");
-		this.operatingMode = nbt.getByte("Mode");
-		this.outputMode = nbt.getByte("OutputMode");
-
-		if (nbt.hasKey("CustomName", 8) == true)
-		{
-			this.customInventoryName = nbt.getString("CustomName");
-		}
-
-		if (nbt.hasKey("OwnerName", 8) == true)
-		{
-			this.ownerName = nbt.getString("OwnerName");
-		}
-
-		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
-		{
-			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
-		}
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
+
 		nbt.setShort("BurnTime", (short)this.furnaceBurnTime);
 		nbt.setShort("CookTime", (short)this.furnaceCookTime);
 		nbt.setShort("CurrentItemBurnTime", (short)this.currentItemBurnTime);
 		nbt.setByte("Mode", this.operatingMode);
 		nbt.setByte("OutputMode", this.outputMode);
+
+		if (this.ownerName != null)
+		{
+			nbt.setString("OwnerName", this.ownerName);
+		}
+
+		if (this.ownerUUID != null)
+		{
+			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
+			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
+		}
+
+		if (this.hasCustomInventoryName())
+		{
+			nbt.setString("CustomName", this.customInventoryName);
+		}
 
 		NBTTagList nbttaglist = new NBTTagList();
 
@@ -125,28 +151,54 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		nbt.setTag("Items", nbttaglist);
+	}
 
-		if (this.hasCustomInventoryName())
+	@Override
+	public Packet getDescriptionPacket()
+	{
+		if (this.worldObj != null)
 		{
-			nbt.setString("CustomName", this.customInventoryName);
+			NBTTagCompound nbt = new NBTTagCompound();
+
+			nbt.setByte("r", this.rotation);
+			nbt.setByte("m", this.operatingMode);
+			nbt.setByte("op", this.outputMode);
+			//nbt.setBoolean("a", this.canSmelt());
+			nbt.setBoolean("a", this.isBurning());
+			if (this.ownerName != null)
+			{
+				nbt.setString("ow", this.ownerName);
+			}
+
+			return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
 		}
 
-		if (this.ownerName != null)
-		{
-			nbt.setString("OwnerName", this.ownerName);
-		}
+		return null;
+	}
 
-		if (this.ownerUUID != null)
-		{
-			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
-			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
-		}
+	@Override
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+	{
+		NBTTagCompound nbt = packet.func_148857_g();
+		this.rotation = nbt.getByte("r");
+		this.operatingMode = nbt.getByte("m");
+		this.outputMode = nbt.getByte("op");
+		this.ownerName = nbt.getString("ow");
+		this.isActive = nbt.getBoolean("a");
 	}
 
 	public void setOwner(EntityPlayer player)
 	{
-		this.ownerName = player.getCommandSenderName();
-		this.ownerUUID = player.getUniqueID();
+		if (player != null)
+		{
+			this.ownerName = player.getCommandSenderName();
+			this.ownerUUID = player.getUniqueID();
+		}
+		else
+		{
+			this.ownerName = null;
+			this.ownerUUID = null;
+		}
 	}
 
 	// Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
@@ -192,7 +244,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			if (this.furnaceBurnTime == 0 && this.canSmelt())
 			{
-				this.currentItemBurnTime = this.furnaceBurnTime = getItemBurnTime(this.itemStacks[1]);
+				this.currentItemBurnTime = this.furnaceBurnTime = (short)getItemBurnTime(this.itemStacks[1]);
 
 				if (this.furnaceBurnTime > 0)
 				{
@@ -421,6 +473,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 				this.operatingMode = 0;
 			}
 			this.markDirty();
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
 		// 1: Output mode (output to Ender Chest OFF/ON)
 		else if (element == 1)
@@ -430,6 +483,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 				this.outputMode = 0;
 			}
 			this.markDirty();
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
 		// FIXME debug
 		//System.out.printf("mode: %d output: %d side: %s\n", this.operatingMode, this.outputMode, this.worldObj.isRemote);
