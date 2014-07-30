@@ -11,8 +11,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 {
 	private TileEntityEnderFurnace teef;
-	private byte lastOperatingMode;
-	private byte lastOutputMode;
 
 	public ContainerEnderFurnace(TileEntityEnderFurnace te, InventoryPlayer inventory)
 	{

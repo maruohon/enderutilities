@@ -30,24 +30,35 @@ import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 
 public class TileEntityEnderFurnace extends TileEntityEU
 {
-	// How long items take to cook?
-	protected static final short COOK_TIME_REGULAR_FUEL = 60; // 3 seconds per item with regular fuel
-	protected static final short COOK_TIME_ENDER_FUEL = 30; // 1,5 seconds per item with 'ender' fuel
-	protected static final short COOK_TIME_NO_FUEL = 1200; // 60 seconds per item without fuel
+	// The values that define how fuels burn and items smelt
+	public static final int COOKTIME_INC_NOFUEL = 5; // No fuel mode: 60 seconds per item
+	public static final int COOKTIME_INC_SLOW = 100; // Slow/eco mode: 3 seconds per item
+	public static final int COOKTIME_INC_FAST = 300; // Fast mode: 1 second per item (3x as fast)
+	public static final int COOKTIME_DEFAULT = 6000; // Base cooktime per item: 3 seconds on slow
+
+	public static final int BURNTIME_USAGE_SLOW = 100; // Slow/eco mode base usage
+	public static final int BURNTIME_USAGE_FAST = 600; // Fast mode: use fuel 6x faster over time
+
+	public static final int OUTPUT_BUFFER_SIZE = 1000; // How many items can we store in the output buffer?
+
 	protected static final int[] SLOTS_TOP = new int[] {0};
 	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
 	protected static final int[] SLOTS_SIDES = new int[] {0, 1};
 
 	@SideOnly(Side.CLIENT)
 	public boolean isActive;
+	@SideOnly(Side.CLIENT)
+	public boolean usingFuel;
 
 	public byte rotation;
 	public byte operatingMode;
 	public byte outputMode;
-	public short furnaceBurnTime;
-	public short currentItemBurnTime; // Number of ticks a fresh copy of the currently-burning item would keep the furnace burning for
-	// The number of ticks that the current item has been cooking for
-	public short furnaceCookTime;
+
+	public int burnTimeRemaining;	// Remaining burn time from the currently burning fuel
+	public int burnTimeFresh;		// The time the currently burning fuel will burn in total
+	public int cookTime;			// The time the currently cooking item has been cooking for
+	public int cookTimeFresh;		// The total time the currently cooking item will take to finish
+
 	public String ownerName;
 	private UUID ownerUUID;
 
@@ -57,6 +68,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.itemStacks = new ItemStack[3];
 		this.operatingMode = 0;
 		this.outputMode = 0;
+		this.burnTimeRemaining = 0;
+		this.cookTime = 0;
 		this.ownerName = null;
 		this.ownerUUID = null;
 	}
@@ -73,12 +86,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super.readFromNBT(nbt);
 
-		this.furnaceBurnTime = nbt.getShort("BurnTime");
-		this.furnaceCookTime = nbt.getShort("CookTime");
-		this.currentItemBurnTime = nbt.getShort("CurrentItemBurnTime");
+		this.burnTimeRemaining	= nbt.getShort("BurnTimeRemaining");
+		this.burnTimeFresh		= nbt.getShort("BurnTimeFresh");
+		this.cookTime			= nbt.getShort("CookTime");
+		this.cookTimeFresh		= nbt.getShort("CookTimeFresh");
 
 		this.operatingMode = nbt.getByte("Mode");
-		this.outputMode = nbt.getByte("OutputMode");
+		this.outputMode = nbt.getByte("Output");
 
 		if (nbt.hasKey("OwnerName", 8) == true)
 		{
@@ -115,11 +129,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super.writeToNBT(nbt);
 
-		nbt.setShort("BurnTime", (short)this.furnaceBurnTime);
-		nbt.setShort("CookTime", (short)this.furnaceCookTime);
-		nbt.setShort("CurrentItemBurnTime", (short)this.currentItemBurnTime);
+		nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
+		nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
+		nbt.setShort("CookTime", (short)this.cookTime);
+		nbt.setShort("CookTimeFresh", (short)this.cookTimeFresh);
+
 		nbt.setByte("Mode", this.operatingMode);
-		nbt.setByte("OutputMode", this.outputMode);
+		nbt.setByte("Output", this.outputMode);
 
 		if (this.ownerName != null)
 		{
@@ -160,11 +176,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
 
+			byte flags = 0; // 0x01: is cooking something, 0x02: is burning fuel, 0x04: fast mode active, 0x08: output to ender chest enabled
+			if (canSmelt() == true) { flags |= 0x01; }
+			if (isBurning() == true) { flags |= 0x02; }
+			if (this.operatingMode == 1) { flags |= 0x04; }
+			if (this.outputMode == 1) { flags |= 0x08; }
 			nbt.setByte("r", this.rotation);
-			nbt.setByte("m", this.operatingMode);
-			nbt.setByte("op", this.outputMode);
-			//nbt.setBoolean("a", this.canSmelt());
-			nbt.setBoolean("a", this.isBurning());
+			nbt.setByte("f", flags);
 			if (this.ownerName != null)
 			{
 				nbt.setString("ow", this.ownerName);
@@ -180,11 +198,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
 	{
 		NBTTagCompound nbt = packet.func_148857_g();
+		byte flags = nbt.getByte("f");
 		this.rotation = nbt.getByte("r");
-		this.operatingMode = nbt.getByte("m");
-		this.outputMode = nbt.getByte("op");
+		this.isActive = (flags & 0x01) == 0x01;
+		this.usingFuel = (flags & 0x02) == 0x02;
+		this.operatingMode = (byte)((flags & 0x04) >> 2);
+		this.outputMode = (byte)((flags & 0x08) >> 3);
 		this.ownerName = nbt.getString("ow");
-		this.isActive = nbt.getBoolean("a");
 	}
 
 	public void setOwner(EntityPlayer player)
@@ -205,8 +225,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@SideOnly(Side.CLIENT)
 	public int getCookProgressScaled(int i)
 	{
-		// FIXME!!
-		return this.furnaceCookTime * i / COOK_TIME_REGULAR_FUEL;
+		return this.cookTime * i / this.cookTimeFresh;
 	}
 
 	// Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
@@ -214,96 +233,132 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@SideOnly(Side.CLIENT)
 	public int getBurnTimeRemainingScaled(int i)
 	{
-		if (this.currentItemBurnTime == 0)
+		if (this.burnTimeFresh == 0)
 		{
-			// FIXME!!
-			this.currentItemBurnTime = COOK_TIME_REGULAR_FUEL;
+			return 0;
 		}
 
-		return this.furnaceBurnTime * i / this.currentItemBurnTime;
+		return this.burnTimeRemaining * i / this.burnTimeFresh;
 	}
 
-	// Furnace isBurning
 	public boolean isBurning()
 	{
-		return this.furnaceBurnTime > 0;
+		// This returns if the furnace is actually burning fuel at the moment
+		return this.burnTimeRemaining > 0;
 	}
 
 	public void updateEntity()
 	{
-		boolean wasBurning = this.furnaceBurnTime > 0;
-		boolean flag = this.furnaceBurnTime > 0;
-		boolean flag1 = false;
-
-		if (this.furnaceBurnTime > 0)
+		if (this.worldObj.isRemote == true)
 		{
-			--this.furnaceBurnTime;
+			return;
 		}
 
-		if (!this.worldObj.isRemote)
+		boolean canSmeltLast = this.canSmelt();
+		boolean isBurningLast = this.isBurning();
+		boolean dirty = false;
+		int cookTimeIncrement = COOKTIME_INC_SLOW;
+		if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == false)
 		{
-			if (this.furnaceBurnTime == 0 && this.canSmelt())
+			cookTimeIncrement = COOKTIME_INC_NOFUEL;
+		}
+		else if (this.operatingMode == 1) // Fast mode
+		{
+			cookTimeIncrement = COOKTIME_INC_FAST;
+		}
+
+		// The furnace is currently burning fuel
+		if (this.burnTimeRemaining > 0)
+		{
+			int btUse = BURNTIME_USAGE_SLOW;
+			if (this.operatingMode == 1) // Fast mode
 			{
-				this.currentItemBurnTime = this.furnaceBurnTime = (short)getItemBurnTime(this.itemStacks[1]);
+				btUse = BURNTIME_USAGE_FAST;
+			}
 
-				if (this.furnaceBurnTime > 0)
+			// Not enough fuel burn time remaining for the elapsed tick
+			if (btUse > this.burnTimeRemaining)
+			{
+				if (this.hasFuelAvailable() == true && this.canSmelt() == true)
 				{
-					flag1 = true;
-
-					if (this.itemStacks[1] != null)
-					{
-						--this.itemStacks[1].stackSize;
-
-						if (this.itemStacks[1].stackSize == 0)
-						{
-							this.itemStacks[1] = itemStacks[1].getItem().getContainerItem(itemStacks[1]);
-						}
-					}
+					this.burnTimeRemaining += consumeFuelItem();
+				}
+				// Running out of fuel, scale the cook progress according to the elapsed burn time
+				else
+				{
+					cookTimeIncrement = (this.burnTimeRemaining * cookTimeIncrement) / btUse;
+					btUse = this.burnTimeRemaining;
 				}
 			}
 
-			if (this.isBurning() && this.canSmelt())
-			{
-				++this.furnaceCookTime;
-
-				if (this.furnaceCookTime >= COOK_TIME_REGULAR_FUEL)
-				{
-					this.furnaceCookTime = 0;
-					this.smeltItem();
-					flag1 = true;
-				}
-			}
-			else
-			{
-				this.furnaceCookTime = 0;
-			}
-
-			if (flag != this.furnaceBurnTime > 0)
-			{
-				flag1 = true;
-				// FIXME add the custom stuff
-				//BlockFurnace.updateFurnaceBlockState(this.furnaceBurnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
-			}
+			this.burnTimeRemaining -= btUse;
+			dirty = true;
+		}
+		else if (this.canSmelt() == true)
+		{
+			this.burnTimeRemaining = this.consumeFuelItem();
+			dirty = true;
 		}
 
-		if (flag1 || true) // FIXME debug
+		// Valid items to smelt, room in output
+		if (this.canSmelt() == true)
+		{
+			this.cookTimeFresh = COOKTIME_DEFAULT; // TODO: per-item cook times?
+			this.cookTime += cookTimeIncrement;
+
+			// One item done smelting
+			if (this.cookTime >= this.cookTimeFresh)
+			{
+				this.smeltItem();
+
+				// We can smelt the next item and we "overcooked" the last one, carry over the extra progress
+				if (this.canSmelt() == true && this.cookTime > this.cookTimeFresh)
+				{
+					this.cookTime -= this.cookTimeFresh;
+				}
+				else // No more items to smelt or didn't overcook
+				{
+					this.cookTime = 0;
+				}
+			}
+			dirty = true;
+		}
+		else
+		{
+			if (this.cookTime != 0)
+			{
+				dirty = true;
+			}
+
+			this.cookTime = 0;
+			this.cookTimeFresh = 0;
+		}
+
+		if (dirty == true)
 		{
 			this.markDirty();
 		}
 
-		// Burning status changed
-		if (wasBurning != this.furnaceBurnTime > 0)
+		// Check if we need to sync some stuff to the clients
+		if (canSmeltLast != this.canSmelt() || isBurningLast != this.isBurning())
 		{
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
 	}
 
-	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
-	private boolean canSmelt()
+	public boolean hasFuelAvailable()
 	{
-		// FIXME disabled for release 0.1.2
-		return false;
-/*
+		if (this.itemStacks[1] == null)
+		{
+			return false;
+		}
+
+		return getItemBurnTime(this.itemStacks[1]) > 0;
+	}
+
+	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+	public boolean canSmelt()
+	{
 		if (this.itemStacks[0] == null)
 		{
 			return false;
@@ -311,19 +366,50 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		else
 		{
 			ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
-			if (itemstack == null) return false;
-			if (this.itemStacks[2] == null) return true;
-			if (!this.itemStacks[2].isItemEqual(itemstack)) return false;
+			if (itemstack == null)
+			{
+				return false;
+			}
+			if (this.itemStacks[2] == null)
+			{
+				return true;
+			}
+			if (this.itemStacks[2].isItemEqual(itemstack) == false)
+			{
+				return false;
+			}
+			// FIXME add the output buffer logic
 			int result = itemStacks[2].stackSize + itemstack.stackSize;
 			return result <= getInventoryStackLimit() && result <= this.itemStacks[2].getMaxStackSize();
 		}
-*/
+	}
+
+	public int consumeFuelItem()
+	{
+		if (this.itemStacks[1] == null)
+		{
+			return 0;
+		}
+
+		int burnTime = getItemBurnTime(this.itemStacks[1]);
+		if (burnTime == 0)
+		{
+			return 0;
+		}
+
+		if (--this.itemStacks[1].stackSize <= 0)
+		{
+			this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
+		}
+		this.burnTimeRemaining += burnTime;
+
+		return burnTime;
 	}
 
 	// Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
 	public void smeltItem()
 	{
-		if (this.canSmelt())
+		if (this.canSmelt() == true)
 		{
 			ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
 
@@ -333,6 +419,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			}
 			else if (this.itemStacks[2].getItem() == itemstack.getItem())
 			{
+				// FIXME add output buffer logic
 				this.itemStacks[2].stackSize += itemstack.stackSize;
 			}
 
@@ -359,23 +446,23 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.air)
 			{
 				Block block = Block.getBlockFromItem(item);
-				if (block == Blocks.wooden_slab) { return 150; }
-				if (block.getMaterial() == Material.wood) { return 300; }
-				if (block == Blocks.coal_block) { return 16000; }
+				if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 3 / 4; }
+				if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 3 / 2; }
+				if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 80; }
 			}
 
-			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return 200;
-			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return 200;
-			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return 200;
-			if (item == Items.stick) return 100;
-			if (item == Items.coal) return 1600;
-			if (item == Items.lava_bucket) return 20000;
-			if (item == Item.getItemFromBlock(Blocks.sapling)) return 100;
-			if (item == Items.blaze_rod) return 2400;
+			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
+			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
+			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
+			if (item == Items.stick) return COOKTIME_DEFAULT / 2;
+			if (item == Items.coal) return COOKTIME_DEFAULT * 8;
+			if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 100;
+			if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT / 2;
+			if (item == Items.blaze_rod) return COOKTIME_DEFAULT * 12;
 
 			// Ender Furnace custom fuels
-			if (item == Items.ender_pearl) { return 800; }
-			if (item == Items.ender_eye) { return 1200; }
+			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 4; }
+			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 8; }
 
 			return GameRegistry.getFuelValue(stack);
 		}
