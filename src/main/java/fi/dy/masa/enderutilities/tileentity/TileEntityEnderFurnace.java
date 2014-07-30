@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemHoe;
@@ -27,6 +28,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEU
 {
@@ -40,6 +42,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public static final int BURNTIME_USAGE_FAST = 600; // Fast mode: use fuel 6x faster over time
 
 	public static final int OUTPUT_BUFFER_SIZE = 1000; // How many items can we store in the output buffer?
+
+	public static final int OUTPUT_INTERVAL = 20; // Only try outputting items every 1 seconds, to try to reduce server load
 
 	protected static final int[] SLOTS_TOP = new int[] {0};
 	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
@@ -61,6 +65,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 	public String ownerName;
 	private UUID ownerUUID;
+	private int timer;
 
 	public TileEntityEnderFurnace()
 	{
@@ -72,6 +77,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.cookTime = 0;
 		this.ownerName = null;
 		this.ownerUUID = null;
+		this.timer = 0;
 	}
 
 	/* Returns the name of the inventory */
@@ -338,6 +344,50 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 			this.cookTime = 0;
 			this.cookTimeFresh = 0;
+		}
+
+		// Output to Ender Chest enabled
+		if (this.outputMode == 1 && this.itemStacks[2] != null && this.itemStacks[2].stackSize > 0)
+		{
+			if (++this.timer >= OUTPUT_INTERVAL)
+			{
+				this.timer = 0;
+
+				EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
+				// Player is online
+				if (player != null)
+				{
+					ItemStack stack;
+					InventoryEnderChest e = player.getInventoryEnderChest();
+
+					for(int i = 0; i < e.getSizeInventory(); ++i)
+					{
+						stack = e.getStackInSlot(i);
+						int size = 0;
+						if (stack != null)
+						{
+							size = stack.stackSize;
+						}
+
+						if (stack == null || (stack.getItem() != null && stack.getItem().equals(this.itemStacks[2].getItem()) == true && e.getInventoryStackLimit() - size > 0))
+						{
+							int moved = Math.min(this.itemStacks[2].stackSize, e.getInventoryStackLimit() - size);
+							stack = this.itemStacks[2].copy();
+							stack.stackSize = size + moved;
+
+							e.setInventorySlotContents(i, stack);
+							this.itemStacks[2].stackSize -= moved;
+
+							if (this.itemStacks[2].stackSize <= 0)
+							{
+								this.itemStacks[2] = null;
+								break;
+							}
+							dirty = true;
+						}
+					}
+				}
+			}
 		}
 
 		if (dirty == true)
