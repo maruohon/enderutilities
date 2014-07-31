@@ -31,7 +31,6 @@ public class FuelHandler implements IFuelHandler
 			{
 				if (fluidStack.getFluid().getName().equals("lava"))
 				{
-					System.out.println("FuelHandler: lava");
 					return (20 * fluidStack.amount);
 				}
 			}
