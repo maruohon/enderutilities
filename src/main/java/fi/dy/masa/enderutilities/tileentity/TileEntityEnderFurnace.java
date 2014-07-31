@@ -257,9 +257,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			this.burnTimeRemaining -= btUse;
 			dirty = true;
 		}
-		else if (this.canSmelt() == true)
+		else if (this.canSmelt() == true && this.hasFuelAvailable() == true)
 		{
-			this.burnTimeRemaining = this.consumeFuelItem();
+			this.burnTimeRemaining += this.consumeFuelItem();
 			dirty = true;
 		}
 
@@ -283,6 +283,11 @@ public class TileEntityEnderFurnace extends TileEntityEU
 				{
 					this.cookTime = 0;
 				}
+			}
+			// If the current fuel ran out and we still have items to cook, consume the next fuel item
+			if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == true && this.canSmelt() == true)
+			{
+				this.burnTimeRemaining += consumeFuelItem();
 			}
 			dirty = true;
 		}
@@ -411,7 +416,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
 		}
-		this.burnTimeRemaining += burnTime;
 		this.burnTimeFresh = burnTime;
 
 		return burnTime;
