@@ -573,7 +573,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 6; }
 			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 12; }
 
-			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 300;
+			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 150;
 		}
 	}
 
