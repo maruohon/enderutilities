@@ -52,7 +52,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@SideOnly(Side.CLIENT)
 	public boolean usingFuel;
 
-	public byte rotation;
 	public byte operatingMode;
 	public byte outputMode;
 
@@ -60,6 +59,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public int burnTimeFresh;		// The time the currently burning fuel will burn in total
 	public int cookTime;			// The time the currently cooking item has been cooking for
 	public int cookTimeFresh;		// The total time the currently cooking item will take to finish
+
+	private boolean isBurningLast;
+	private boolean isCookingLast;
 
 	private int timer;
 
@@ -89,9 +91,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		super.readFromNBT(nbt);
 
 		byte flags				= nbt.getByte("Flags"); // Flags
-		this.rotation			= (byte)(flags & 0x07);
-		this.operatingMode		= (byte)((flags & 0x80) >> 7);
-		this.outputMode			= (byte)((flags & 0x40) >> 6);
+		this.operatingMode		= (byte)(flags & 0x01);
+		this.outputMode			= (byte)((flags >> 1) & 0x01);
 		this.burnTimeRemaining	= nbt.getInteger("BurnTimeRemaining"); // BurnTimeRemaining
 		this.burnTimeFresh		= nbt.getInteger("BurnTimeFresh"); // BurnTimeFresh
 		this.cookTime			= nbt.getInteger("CookTime"); // CookTime
@@ -117,9 +118,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super.writeToNBT(nbt);
 
-		byte flags = (byte)(this.rotation & 0x07);
-		flags |= ((this.operatingMode & 0x01) << 7);
-		flags |= ((this.outputMode & 0x01) << 6);
+		byte flags = 0;
+		flags |= (this.operatingMode & 0x01);
+		flags |= ((this.outputMode & 0x01) << 1);
 		nbt.setByte("Flags", flags);
 		nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
 		nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
@@ -149,7 +150,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
 
-			byte flags = (byte)(this.rotation & 0x07);
+			byte flags = (byte)(this.getRotation() & 0x07);
 			// 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
 			if (canSmelt() == true) { flags |= 0x10; }
 			if (isBurning() == true) { flags |= 0x20; }
@@ -173,7 +174,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		NBTTagCompound nbt = packet.func_148857_g();
 		byte flags = nbt.getByte("f");
-		this.rotation = (byte)(flags & 0x07);
+		this.setRotation((byte)(flags & 0x07));
 		this.isActive = (flags & 0x10) == 0x10;
 		this.usingFuel = (flags & 0x20) == 0x20;
 		this.operatingMode = (byte)((flags & 0x40) >> 6);
@@ -182,6 +183,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			this.ownerName = nbt.getString("o");
 		}
+		this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 	}
 
 	// Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
@@ -217,8 +219,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return;
 		}
 
-		boolean needsSync = false;
-		boolean isBurningLast = this.isBurning();
 		boolean dirty = false;
 		int cookTimeIncrement = COOKTIME_INC_SLOW;
 		if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == false)
@@ -266,12 +266,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		// Valid items to smelt, room in output
 		if (this.canSmelt() == true)
 		{
-			// Items just added to be smelted, sync the status to clients.
-			if (this.cookTimeFresh == 0)
-			{
-				needsSync = true;
-			}
-
 			this.cookTimeFresh = COOKTIME_DEFAULT; // TODO: per-item cook times?
 			this.cookTime += cookTimeIncrement;
 
@@ -353,10 +347,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		// Check if we need to sync some stuff to the clients
-		if (needsSync == true || isBurningLast != this.isBurning())
+		if (this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
 		{
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
+
+		this.isBurningLast = this.isBurning();
+		this.isCookingLast = this.canSmelt();
 	}
 
 	public boolean hasFuelAvailable()
@@ -488,10 +485,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		return getItemBurnTime(stack) > 0;
 	}
 
-	public void openInventory() {}
-
-	public void closeInventory() {}
-
 	/* Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot. */
 	@Override
 	public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
@@ -586,7 +579,5 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			this.markDirty();
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
-		// FIXME debug
-		//System.out.printf("mode: %d output: %d side: %s\n", this.operatingMode, this.outputMode, this.worldObj.isRemote);
 	}
 }

@@ -18,6 +18,7 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	protected String customInventoryName;
 	protected ItemStack[] itemStacks;
 	protected String tileEntityName;
+	public byte rotation;
 
 	protected String ownerName;
 	protected UUID ownerUUID;
@@ -44,6 +45,16 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	public String getInventoryName()
 	{
 		return this.hasCustomInventoryName() ? this.customInventoryName : "";
+	}
+
+	public void setRotation(byte r)
+	{
+		this.rotation = r;
+	}
+
+	public byte getRotation()
+	{
+		return this.rotation;
 	}
 
 	public void setOwner(EntityPlayer player)
@@ -75,6 +86,8 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	{
 		super.readFromNBT(nbt);
 
+		this.rotation = nbt.getByte("Rotation");
+
 		if (nbt.hasKey("OwnerName", 8) == true)
 		{
 			this.ownerName = nbt.getString("OwnerName");
@@ -95,6 +108,8 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	public void writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
+
+		nbt.setByte("Rotation", this.rotation);
 
 		if (this.ownerName != null)
 		{

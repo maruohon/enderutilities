@@ -71,7 +71,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
 				}
 				if ((message.flags & PARTICLES) == PARTICLES)
 				{
-					Particles.spawnEnderParticles(world, "portal", message.x, message.y, message.z, 32, 0.2d, 2.0d);
+					Particles.spawnParticles(world, "portal", message.x, message.y, message.z, 32, 0.2d, 2.0d);
 				}
 			}
 		}
