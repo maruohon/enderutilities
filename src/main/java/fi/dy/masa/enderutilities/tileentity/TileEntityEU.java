@@ -1,9 +1,12 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -16,9 +19,98 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	protected ItemStack[] itemStacks;
 	protected String tileEntityName;
 
+	protected String ownerName;
+	protected UUID ownerUUID;
+
 	public TileEntityEU(String name)
 	{
 		this.tileEntityName = name;
+	}
+
+	public void setInventoryName(String name)
+	{
+		this.customInventoryName = name;
+	}
+
+	/* Returns if the inventory is named */
+	@Override
+	public boolean hasCustomInventoryName()
+	{
+		return this.customInventoryName != null && this.customInventoryName.length() > 0;
+	}
+
+	/* Returns the name of the inventory */
+	@Override
+	public String getInventoryName()
+	{
+		return this.hasCustomInventoryName() ? this.customInventoryName : "";
+	}
+
+	public void setOwner(EntityPlayer player)
+	{
+		if (player != null)
+		{
+			this.ownerName = player.getCommandSenderName();
+			this.ownerUUID = player.getUniqueID();
+		}
+		else
+		{
+			this.ownerName = null;
+			this.ownerUUID = null;
+		}
+	}
+
+	public String getOwnerName()
+	{
+		return this.ownerName;
+	}
+
+	public UUID getOwnerUUID()
+	{
+		return this.ownerUUID;
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound nbt)
+	{
+		super.readFromNBT(nbt);
+
+		if (nbt.hasKey("OwnerName", 8) == true)
+		{
+			this.ownerName = nbt.getString("OwnerName");
+		}
+
+		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
+		{
+			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
+		}
+
+		if (nbt.hasKey("CustomName", 8) == true)
+		{
+			this.customInventoryName = nbt.getString("CustomName");
+		}
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound nbt)
+	{
+		super.writeToNBT(nbt);
+
+		if (this.ownerName != null)
+		{
+			nbt.setString("OwnerName", this.ownerName);
+		}
+
+		if (this.ownerUUID != null)
+		{
+			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
+			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
+		}
+
+		if (this.hasCustomInventoryName())
+		{
+			nbt.setString("CustomName", this.customInventoryName);
+		}
 	}
 
 	@Override
@@ -95,25 +187,6 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 		{
 			itemStack.stackSize = this.getInventoryStackLimit();
 		}
-	}
-
-	/* Returns the name of the inventory */
-	@Override
-	public String getInventoryName()
-	{
-		return this.hasCustomInventoryName() ? this.customInventoryName : "";
-	}
-
-	/* Returns if the inventory is named */
-	@Override
-	public boolean hasCustomInventoryName()
-	{
-		return this.customInventoryName != null && this.customInventoryName.length() > 0;
-	}
-
-	public void setInventoryName(String name)
-	{
-		this.customInventoryName = name;
 	}
 
 	/* Returns the maximum stack size for a inventory slot. */

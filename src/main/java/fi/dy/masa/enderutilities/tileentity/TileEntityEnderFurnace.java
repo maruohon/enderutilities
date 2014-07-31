@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -63,8 +61,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public int cookTime;			// The time the currently cooking item has been cooking for
 	public int cookTimeFresh;		// The total time the currently cooking item will take to finish
 
-	public String ownerName;
-	private UUID ownerUUID;
 	private int timer;
 
 	public TileEntityEnderFurnace()
@@ -92,28 +88,14 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super.readFromNBT(nbt);
 
-		this.burnTimeRemaining	= nbt.getShort("BurnTimeRemaining");
-		this.burnTimeFresh		= nbt.getShort("BurnTimeFresh");
-		this.cookTime			= nbt.getShort("CookTime");
-		this.cookTimeFresh		= nbt.getShort("CookTimeFresh");
-
-		this.operatingMode = nbt.getByte("Mode");
-		this.outputMode = nbt.getByte("Output");
-
-		if (nbt.hasKey("OwnerName", 8) == true)
-		{
-			this.ownerName = nbt.getString("OwnerName");
-		}
-
-		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
-		{
-			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
-		}
-
-		if (nbt.hasKey("CustomName", 8) == true)
-		{
-			this.customInventoryName = nbt.getString("CustomName");
-		}
+		byte flags				= nbt.getByte("Flags"); // Flags
+		this.rotation			= (byte)(flags & 0x07);
+		this.operatingMode		= (byte)((flags & 0x80) >> 7);
+		this.outputMode			= (byte)((flags & 0x40) >> 6);
+		this.burnTimeRemaining	= nbt.getInteger("BurnTimeRemaining"); // BurnTimeRemaining
+		this.burnTimeFresh		= nbt.getInteger("BurnTimeFresh"); // BurnTimeFresh
+		this.cookTime			= nbt.getInteger("CookTime"); // CookTime
+		this.cookTimeFresh		= nbt.getInteger("CookTimeFresh"); // CookTimeFresh
 
 		NBTTagList nbttaglist = nbt.getTagList("Items", 10);
 		this.itemStacks = new ItemStack[this.getSizeInventory()];
@@ -135,29 +117,14 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		super.writeToNBT(nbt);
 
+		byte flags = (byte)(this.rotation & 0x07);
+		flags |= ((this.operatingMode & 0x01) << 7);
+		flags |= ((this.outputMode & 0x01) << 6);
+		nbt.setByte("Flags", flags);
 		nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
 		nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
 		nbt.setShort("CookTime", (short)this.cookTime);
 		nbt.setShort("CookTimeFresh", (short)this.cookTimeFresh);
-
-		nbt.setByte("Mode", this.operatingMode);
-		nbt.setByte("Output", this.outputMode);
-
-		if (this.ownerName != null)
-		{
-			nbt.setString("OwnerName", this.ownerName);
-		}
-
-		if (this.ownerUUID != null)
-		{
-			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
-			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
-		}
-
-		if (this.hasCustomInventoryName())
-		{
-			nbt.setString("CustomName", this.customInventoryName);
-		}
 
 		NBTTagList nbttaglist = new NBTTagList();
 
@@ -182,16 +149,17 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
 
-			byte flags = 0; // 0x01: is cooking something, 0x02: is burning fuel, 0x04: fast mode active, 0x08: output to ender chest enabled
-			if (canSmelt() == true) { flags |= 0x01; }
-			if (isBurning() == true) { flags |= 0x02; }
-			if (this.operatingMode == 1) { flags |= 0x04; }
-			if (this.outputMode == 1) { flags |= 0x08; }
-			nbt.setByte("r", this.rotation);
+			byte flags = (byte)(this.rotation & 0x07);
+			// 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
+			if (canSmelt() == true) { flags |= 0x10; }
+			if (isBurning() == true) { flags |= 0x20; }
+			if (this.operatingMode == 1) { flags |= 0x40; }
+			if (this.outputMode == 1) { flags |= 0x80; }
 			nbt.setByte("f", flags);
+
 			if (this.ownerName != null)
 			{
-				nbt.setString("ow", this.ownerName);
+				nbt.setString("o", this.ownerName);
 			}
 
 			return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
@@ -205,25 +173,14 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	{
 		NBTTagCompound nbt = packet.func_148857_g();
 		byte flags = nbt.getByte("f");
-		this.rotation = nbt.getByte("r");
-		this.isActive = (flags & 0x01) == 0x01;
-		this.usingFuel = (flags & 0x02) == 0x02;
-		this.operatingMode = (byte)((flags & 0x04) >> 2);
-		this.outputMode = (byte)((flags & 0x08) >> 3);
-		this.ownerName = nbt.getString("ow");
-	}
-
-	public void setOwner(EntityPlayer player)
-	{
-		if (player != null)
+		this.rotation = (byte)(flags & 0x07);
+		this.isActive = (flags & 0x10) == 0x10;
+		this.usingFuel = (flags & 0x20) == 0x20;
+		this.operatingMode = (byte)((flags & 0x40) >> 6);
+		this.outputMode = (byte)((flags & 0x80) >> 7);
+		if (nbt.hasKey("o") == true)
 		{
-			this.ownerName = player.getCommandSenderName();
-			this.ownerUUID = player.getUniqueID();
-		}
-		else
-		{
-			this.ownerName = null;
-			this.ownerUUID = null;
+			this.ownerName = nbt.getString("o");
 		}
 	}
 
@@ -526,7 +483,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	}
 
 	/* Check if the given item works as a fuel source in this furnace */
-	public boolean isItemFuel(ItemStack stack)
+	public static boolean isItemFuel(ItemStack stack)
 	{
 		return getItemBurnTime(stack) > 0;
 	}
@@ -547,7 +504,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		// Only accept fuels into fuel slot
 		if (slotNum == 1)
 		{
-			return this.isItemFuel(itemStack);
+			return isItemFuel(itemStack);
 		}
 		return true;
 	}
@@ -580,7 +537,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		// Only allow pulling out items that are not fuel from the fuel slot
 		if (slot == 1)
 		{
-			return this.isItemFuel(stack) == false;
+			return isItemFuel(stack) == false;
 		}
 
 		// Allow pulling out output items from any side

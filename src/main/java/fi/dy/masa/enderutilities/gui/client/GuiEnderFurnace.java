@@ -32,11 +32,11 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 		this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 6, 0x404025);
 		this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 2, 0x404025);
 
-		if (this.teef.ownerName != null)
+		if (this.teef.getOwnerName() != null)
 		{
 			//s = I18n.format("container.owner", new Object[0]);
 			//this.fontRendererObj.drawString(s, 80, this.ySize - 96 + 2, 0x404025);
-			s = I18n.format(this.teef.ownerName, new Object[0]);
+			s = I18n.format(this.teef.getOwnerName(), new Object[0]);
 			this.fontRendererObj.drawString(s, this.xSize - this.fontRendererObj.getStringWidth(s) - 6, 20, 0x404025);
 		}
 	}

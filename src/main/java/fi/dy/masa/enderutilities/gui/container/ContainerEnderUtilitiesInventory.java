@@ -6,8 +6,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
 
 public class ContainerEnderUtilitiesInventory extends Container
@@ -61,12 +59,6 @@ public class ContainerEnderUtilitiesInventory extends Container
 		}
 	}
 
-	@Override()
-	public void detectAndSendChanges()
-	{
-		super.detectAndSendChanges();
-	}
-
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
@@ -80,32 +72,39 @@ public class ContainerEnderUtilitiesInventory extends Container
 		Slot slot = (Slot) inventorySlots.get(slotNum);
 		int invSize = this.te.getSizeInventory();
 
+		// Slot clicked on has items
 		if(slot != null && slot.getHasStack() == true)
 		{
 			ItemStack stackInSlot = slot.getStack();
 			stack = stackInSlot.copy();
 
+			// Clicked on a slot is in the "external" inventory
 			if(slotNum < invSize)
 			{
+				// Try to merge the stack into the player inventory
 				if(mergeItemStack(stackInSlot, invSize, inventorySlots.size(), true) == false)
 				{
 					return null;
 				}
 			}
+			// Clicked on slot is in the player inventory, try to merge the stack to the external inventory
 			else if(mergeItemStack(stackInSlot, 0, invSize, false) == false)
 			{
 				return null;
 			}
 
+			// All items moved, empty the slot
 			if(stackInSlot.stackSize == 0)
 			{
 				slot.putStack(null);
 			}
+			// Update the slot
 			else
 			{
 				slot.onSlotChanged();
 			}
 
+			// No items were moved
 			if(stackInSlot.stackSize == stack.stackSize)
 			{
 				return null;
@@ -208,12 +207,5 @@ public class ContainerEnderUtilitiesInventory extends Container
 		}
 
 		return successful;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void updateProgressBar(int var, int value)
-	{
-		super.updateProgressBar(var, value);
 	}
 }
