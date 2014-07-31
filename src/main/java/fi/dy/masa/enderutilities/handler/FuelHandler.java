@@ -31,7 +31,9 @@ public class FuelHandler implements IFuelHandler
 			{
 				if (fluidStack.getFluid().getName().equals("lava"))
 				{
-					return (20 * fluidStack.amount);
+					// Only use 250 mB per use
+					int value = Math.min(250, fluidStack.amount);
+					return 20 * value; // based on vanilla lava bucket energy value (20k per bucket)
 				}
 			}
 		}

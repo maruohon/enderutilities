@@ -416,6 +416,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 		{
 			return true;
 		}
+
 		return false;
 	}
 
@@ -432,6 +433,20 @@ public class ItemEnderBucket extends ItemFluidContainer
 		{
 			return null;
 		}
+
+		// We use 250 mB of lava per "use", mainly for use as a furnace fuel
+		FluidStack fluidStack = this.getFluid(itemStack);
+		if (fluidStack != null && fluidStack.getFluid() != null && fluidStack.amount > 250 && fluidStack.getFluid().getName().equals("lava") == true)
+		{
+			fluidStack.amount -= 250;
+			ItemStack newStack = new ItemStack(EnderUtilitiesItems.enderBucket, 1, 0);
+			newStack.setItemDamage(itemStack.getItemDamage());
+			NBTTagCompound nbt = itemStack.getTagCompound();
+			nbt.setTag("Fluid", fluidStack.writeToNBT(new NBTTagCompound()));
+			newStack.setTagCompound(nbt);
+			return newStack;
+		}
+
 		return new ItemStack(EnderUtilitiesItems.enderBucket, 1, 0);
 	}
 }
