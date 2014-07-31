@@ -180,6 +180,37 @@ public class BlockEnderFurnace extends BlockContainer
 				}
 			}
 
+			// Drop the items from the output buffer
+			if (te.getOutputBufferAmount() > 0 && te.getOutputBufferStack() != null)
+			{
+				int amount = te.getOutputBufferAmount();
+				ItemStack stack = te.getOutputBufferStack();
+				float f = this.random.nextFloat() * 0.8F + 0.1F;
+				float f1 = this.random.nextFloat() * 0.8F + 0.1F;
+				float f2 = this.random.nextFloat() * 0.8F + 0.1F;
+				double xd = x + f;
+				double yd = y + f1;
+				double zd = z + f2;
+				int num;
+				int max = stack.getMaxStackSize();
+
+				while (amount > 0)
+				{
+					num = Math.min(amount, max);
+					EntityItem entityitem = new EntityItem(world, xd, yd, zd, new ItemStack(stack.getItem(), num, stack.getItemDamage()));
+					if (stack.hasTagCompound() == true)
+					{
+						entityitem.getEntityItem().setTagCompound((NBTTagCompound)stack.getTagCompound().copy());
+					}
+					float f3 = 0.05F;
+					entityitem.motionX = (double)((float)this.random.nextGaussian() * f3);
+					entityitem.motionY = (double)((float)this.random.nextGaussian() * f3 + 0.2F);
+					entityitem.motionZ = (double)((float)this.random.nextGaussian() * f3);
+					world.spawnEntityInWorld(entityitem);
+					amount -= num;
+				}
+			}
+
 			world.func_147453_f(x, y, z, block);
 		}
 	

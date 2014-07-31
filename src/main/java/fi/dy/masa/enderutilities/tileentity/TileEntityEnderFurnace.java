@@ -424,6 +424,11 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		return this.outputBufferAmount;
 	}
 
+	public ItemStack getOutputBufferStack()
+	{
+		return this.outputStack;
+	}
+
 	public boolean hasFuelAvailable()
 	{
 		if (this.itemStacks[1] == null)
