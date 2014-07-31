@@ -457,25 +457,25 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.air)
 			{
 				Block block = Block.getBlockFromItem(item);
-				if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 3 / 4; }
-				if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 3 / 2; }
-				if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 80; }
+				if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 45 / 40; }
+				if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
+				if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 120; }
 			}
 
-			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
-			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
-			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT;
-			if (item == Items.stick) return COOKTIME_DEFAULT / 2;
-			if (item == Items.coal) return COOKTIME_DEFAULT * 8;
-			if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 100;
-			if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT / 2;
-			if (item == Items.blaze_rod) return COOKTIME_DEFAULT * 12;
+			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+			if (item == Items.stick) return COOKTIME_DEFAULT * 3 / 4;
+			if (item == Items.coal) return COOKTIME_DEFAULT * 12;
+			if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 150;
+			if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT * 3 / 4;
+			if (item == Items.blaze_rod) return COOKTIME_DEFAULT * 18;
 
 			// Ender Furnace custom fuels
-			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 4; }
-			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 8; }
+			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 6; }
+			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 12; }
 
-			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 200;
+			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 300;
 		}
 	}
 
