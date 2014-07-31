@@ -54,6 +54,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 	public byte operatingMode;
 	public byte outputMode;
+	private int outputBufferAmount;
+	private ItemStack outputStack;
 
 	public int burnTimeRemaining;	// Remaining burn time from the currently burning fuel
 	public int burnTimeFresh;		// The time the currently burning fuel will burn in total
@@ -76,6 +78,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.ownerName = null;
 		this.ownerUUID = null;
 		this.timer = 0;
+		this.outputBufferAmount = 0;
 	}
 
 	/* Returns the name of the inventory */
@@ -111,6 +114,12 @@ public class TileEntityEnderFurnace extends TileEntityEU
 				this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 			}
 		}
+
+		if (nbt.hasKey("OutputBufferAmount") == true && nbt.hasKey("OutputBufferStack") == true)
+		{
+			this.outputBufferAmount = nbt.getInteger("OutputBufferAmount");
+			this.outputStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
+		}
 	}
 
 	@Override
@@ -141,6 +150,12 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		nbt.setTag("Items", nbttaglist);
+
+		if (this.outputStack != null)
+		{
+			nbt.setTag("OutputBufferStack", this.outputStack.writeToNBT(new NBTTagCompound()));
+			nbt.setInteger("OutputBufferAmount", this.outputBufferAmount);
+		}
 	}
 
 	@Override
@@ -157,6 +172,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (this.operatingMode == 1) { flags |= 0x40; }
 			if (this.outputMode == 1) { flags |= 0x80; }
 			nbt.setByte("f", flags);
+			nbt.setInteger("b", this.outputBufferAmount);
 
 			if (this.ownerName != null)
 			{
@@ -179,6 +195,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.usingFuel = (flags & 0x20) == 0x20;
 		this.operatingMode = (byte)((flags & 0x40) >> 6);
 		this.outputMode = (byte)((flags & 0x80) >> 7);
+		this.outputBufferAmount = nbt.getInteger("b");
 		if (nbt.hasKey("o") == true)
 		{
 			this.ownerName = nbt.getString("o");
@@ -219,7 +236,14 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return;
 		}
 
+		boolean needsSync = false;
 		boolean dirty = false;
+
+		if (this.fillOutputSlotFromBuffer() == true)
+		{
+			needsSync = true;
+		}
+
 		int cookTimeIncrement = COOKTIME_INC_SLOW;
 		if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == false)
 		{
@@ -273,6 +297,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (this.cookTime >= this.cookTimeFresh)
 			{
 				this.smeltItem();
+				needsSync = true;
 
 				// We can smelt the next item and we "overcooked" the last one, carry over the extra progress
 				if (this.canSmelt() == true && this.cookTime > this.cookTimeFresh)
@@ -340,6 +365,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 								break;
 							}
 							dirty = true;
+							needsSync = true;
 						}
 					}
 				}
@@ -352,13 +378,50 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		// Check if we need to sync some stuff to the clients
-		if (this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
+		if (needsSync == true || this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
 		{
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
 
 		this.isBurningLast = this.isBurning();
 		this.isCookingLast = this.canSmelt();
+	}
+
+	private boolean fillOutputSlotFromBuffer()
+	{
+		if (this.outputBufferAmount == 0 || this.outputStack == null)
+		{
+			return false;
+		}
+
+		if (this.itemStacks[2] == null)
+		{
+			this.itemStacks[2] = this.outputStack.copy();
+			this.itemStacks[2].stackSize = 0;
+		}
+
+		int size = this.itemStacks[2].stackSize;
+		int max = Math.min(this.getInventoryStackLimit(), this.itemStacks[2].getMaxStackSize());
+
+		if (size == max)
+		{
+			return false;
+		}
+
+		max = Math.min(max - size, this.outputBufferAmount);
+		this.itemStacks[2].stackSize += max;
+		this.outputBufferAmount -= max;
+		if (this.outputBufferAmount <= 0)
+		{
+			this.outputStack = null;
+		}
+
+		return true;
+	}
+
+	public int getOutputBufferAmount()
+	{
+		return this.outputBufferAmount;
 	}
 
 	public boolean hasFuelAvailable()
@@ -385,17 +448,28 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			{
 				return false;
 			}
-			if (this.itemStacks[2] == null)
+			if (this.itemStacks[2] == null && this.outputBufferAmount == 0)
 			{
 				return true;
 			}
-			if (this.itemStacks[2].isItemEqual(itemstack) == false)
+			if (this.itemStacks[2] != null && this.itemStacks[2].isItemEqual(itemstack) == false)
 			{
 				return false;
 			}
-			// FIXME add the output buffer logic
-			int result = itemStacks[2].stackSize + itemstack.stackSize;
-			return result <= getInventoryStackLimit() && result <= this.itemStacks[2].getMaxStackSize();
+			if (this.outputStack != null && this.outputStack.isItemEqual(itemstack) == false)
+			{
+				return false;
+			}
+
+			int amount = 0;
+			int stackLimit = Math.min(this.getInventoryStackLimit(), itemstack.getMaxStackSize());
+			if (this.itemStacks[2] != null)
+			{
+				amount = this.itemStacks[2].stackSize;
+			}
+			amount = amount + this.outputBufferAmount + itemstack.stackSize;
+
+			return amount <= (OUTPUT_BUFFER_SIZE + stackLimit);
 		}
 	}
 
@@ -434,8 +508,23 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			}
 			else if (this.itemStacks[2].getItem() == itemstack.getItem())
 			{
-				// FIXME add output buffer logic
-				this.itemStacks[2].stackSize += itemstack.stackSize;
+				int stackLimit = Math.min(this.getInventoryStackLimit(), this.itemStacks[2].getMaxStackSize());
+				if ((this.itemStacks[2].stackSize + itemstack.stackSize) <= stackLimit)
+				{
+					this.itemStacks[2].stackSize += itemstack.stackSize;
+				}
+				else
+				{
+					int num = Math.min(stackLimit - this.itemStacks[2].stackSize, itemstack.stackSize);
+					this.itemStacks[2].stackSize += num;
+					num = itemstack.stackSize - num;
+					this.outputBufferAmount += num;
+					if (this.outputStack == null)
+					{
+						this.outputStack = itemstack.copy();
+						this.outputStack.stackSize = 1;
+					}
+				}
 			}
 
 			--this.itemStacks[0].stackSize;

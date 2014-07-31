@@ -18,6 +18,8 @@ item.enderlasso.name=Ender Lasso
 item.mobharness.name=Mob Harness
 item.enderpearlreusable.name=Ender Pearl (re-usable)
 
+gui.label.outputbuffer=Buffer
+
 gui.tooltip.holdshift=Shift for more
 gui.tooltip.owner=Owner
 gui.tooltip.slots=Slots
