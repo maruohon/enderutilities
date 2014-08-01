@@ -12,10 +12,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.ForgeChunkManager;
+import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import net.minecraftforge.common.ForgeChunkManager.Type;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
@@ -40,6 +46,10 @@ public class ItemEnderBag extends ItemEU
 			return stack;
 		}
 		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null)
+		{
+			return stack;
+		}
 
 		// Access the inventory
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
@@ -60,10 +70,34 @@ public class ItemEnderBag extends ItemEU
 			return stack;
 		}
 
-		if (chunkProvider.chunkExists((int)target.posX >> 4, (int)target.posZ >> 4) == false)
+		int chunkX = target.posX >> 4;
+		int chunkZ = target.posZ >> 4;
+
+		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
 		{
-			//chunkProvider.loadChunk((int)target.posX >> 4, (int)target.posZ >> 4);
-			return stack;
+			chunkProvider.loadChunk(chunkX, chunkZ);
+
+			ExtendedPlayer ep = ExtendedPlayer.get(player);
+			if (ep == null)
+			{
+				ExtendedPlayer.register(player);
+				ep = ExtendedPlayer.get(player);
+			}
+
+			Ticket ticket = ep.getTicket();
+			if (ticket == null)
+			{
+				ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), tgtWorld, Type.NORMAL);
+				ep.setTicket(ticket);
+			}
+
+			ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
+
+			// If it still failed, don't try to open the GUI
+			if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
+			{
+				return stack;
+			}
 		}
 
 		Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
@@ -71,6 +105,9 @@ public class ItemEnderBag extends ItemEU
 		{
 			return stack;
 		}
+
+		nbt.setBoolean("IsOpen", true);
+		stack.setTagCompound(nbt);
 
 		// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
 		block.onBlockActivated(tgtWorld, target.posX, target.posY, target.posZ, player, target.blockFace, 0.5f, 0.5f, 0.5f);
