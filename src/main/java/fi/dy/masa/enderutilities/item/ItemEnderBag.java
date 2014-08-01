@@ -4,14 +4,16 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
@@ -33,35 +35,45 @@ public class ItemEnderBag extends ItemEU
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
 		// Do nothing on the client side
-		if (world.isRemote == true)
+		if (world.isRemote == true || stack.getTagCompound() == null)
+		{
+			return stack;
+		}
+		NBTTagCompound nbt = stack.getTagCompound();
+
+		// Access the inventory
+		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+		if (target.readFromNBT(nbt) == false)
 		{
 			return stack;
 		}
 
-		NBTTagCompound nbt = stack.getTagCompound();
-
-		if (nbt != null)
+		World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+		if (tgtWorld == null)
 		{
-			// The bag must be in public mode, or the player must be the owner
-			if (nbt.getByte("Mode") == 1 || nbt.getString("Owner").equals(player.getCommandSenderName()) == true)
-			{
-				// Unbind the bag when sneak + right clicking on air TODO is there any point in this?
-				if (player.isSneaking() == true)
-				{
-					MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-					if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
-					{
-						stack.setTagCompound(null);
-					}
-				}
-				// Access the inventory
-				else
-				{
-					//player.openGui(EnderUtilities.instance, GuiReference.GUI_ID_ENDER_BAG,
-					//		player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
-				}
-			}
+			return stack;
 		}
+
+		IChunkProvider chunkProvider = tgtWorld.getChunkProvider();
+		if (chunkProvider == null)
+		{
+			return stack;
+		}
+
+		if (chunkProvider.chunkExists((int)target.posX >> 4, (int)target.posZ >> 4) == false)
+		{
+			//chunkProvider.loadChunk((int)target.posX >> 4, (int)target.posZ >> 4);
+			return stack;
+		}
+
+		Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
+		if (block == null)
+		{
+			return stack;
+		}
+
+		// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
+		block.onBlockActivated(tgtWorld, target.posX, target.posY, target.posZ, player, target.blockFace, 0.5f, 0.5f, 0.5f);
 
 		return stack;
 	}
@@ -69,8 +81,7 @@ public class ItemEnderBag extends ItemEU
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
-		// Do nothing on the client side
-		if (world.isRemote == true)
+		if (player.isSneaking() == false)
 		{
 			return false;
 		}
@@ -79,27 +90,20 @@ public class ItemEnderBag extends ItemEU
 		if (te != null && te instanceof IInventory)
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-
-			// The bag must be unbound, or in public mode, or the player must be the owner
-			if (nbt == null || nbt.getByte("Mode") == 1 || nbt.getString("Owner").equals(player.getCommandSenderName()) == true)
+			if (nbt == null)
 			{
-				if (nbt == null)
-				{
-					nbt = new NBTTagCompound();
-				}
+				nbt = new NBTTagCompound();
+			}
 
-				nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
-
-				Block block = world.getBlock(x, y, z);
-				if (block != null)
-				{
-					nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-				}
-
+			Block block = world.getBlock(x, y, z);
+			if (block != null && block != Blocks.air)
+			{
+				nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
 				nbt.setShort("Slots", (short)((IInventory) te).getSizeInventory());
-				nbt.setByte("Mode", (byte)0); // 0 = private, 1 = public, 2 = friends (N/A)
 				nbt.setString("Owner", player.getCommandSenderName());
+				nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
 				stack.setTagCompound(nbt);
+				return true;
 			}
 		}
 
@@ -125,7 +129,7 @@ public class ItemEnderBag extends ItemEU
 			return;
 		}
 
-		String locName	= StatCollector.translateToLocal(nbt.getString("BlockName"));
+		String locName	= Block.getBlockFromName(nbt.getString("BlockName")).getLocalizedName();
 		short numSlots	= nbt.getShort("Slots");
 		String owner	= nbt.getString("Owner");
 
