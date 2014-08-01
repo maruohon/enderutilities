@@ -27,7 +27,7 @@ import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderBag extends ItemEU
+public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 {
 	public ItemEnderBag()
 	{
@@ -106,7 +106,7 @@ public class ItemEnderBag extends ItemEU
 			return stack;
 		}
 
-		nbt.setBoolean("IsOpen", true);
+		nbt.setBoolean("IsActive", true);
 		stack.setTagCompound(nbt);
 
 		// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler

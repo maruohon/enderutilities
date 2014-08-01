@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
@@ -11,10 +12,12 @@ import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.IChunkLoadingItem;
 
 public class PlayerEventHandler
 {
 	private Container containerLast;
+	private int unloadDelay = 0;
 
 	@SubscribeEvent
 	public void onStartStracking(PlayerEvent.StartTracking event)
@@ -47,22 +50,31 @@ public class PlayerEventHandler
 
 					NBTTagCompound nbt = player.getCurrentEquippedItem().getTagCompound();
 					// On container closing, release the chunk loading ticket
-					if (nbt != null && nbt.hasKey("IsOpen") == true && nbt.getBoolean("IsOpen") == true &&
+					if (nbt != null && nbt.hasKey("IsActive") == true && nbt.getBoolean("IsActive") == true &&
 						player.openContainer != this.containerLast && player.openContainer == player.inventoryContainer)
 					{
-						ExtendedPlayer ep = ExtendedPlayer.get(player);
-						if (ep != null && ep.getTicket() != null)
-						{
-							// TODO: add a delay to try to minimize chunk/dimension loading/unloading?
-							ForgeChunkManager.releaseTicket(ep.getTicket());
-							ep.setTicket(null);
-						}
+						this.unloadDelay = 120 * 20; // 120 second delay before unloading
 
-						nbt.setBoolean("IsOpen", false);
+						nbt.setBoolean("IsActive", false);
 						player.getCurrentEquippedItem().setTagCompound(nbt);
 					}
 
 					this.containerLast = player.openContainer;
+				}
+			}
+
+			if (this.unloadDelay > 0)
+			{
+				if (--this.unloadDelay == 0)
+				{
+					ExtendedPlayer ep = ExtendedPlayer.get(player);
+					ItemStack stack = player.getCurrentEquippedItem();
+					if (ep != null && ep.getTicket() != null && (stack == null || stack.getItem() instanceof IChunkLoadingItem == false ||
+						stack.getTagCompound() == null || stack.getTagCompound().getBoolean("IsActive") == false))
+					{
+						ForgeChunkManager.releaseTicket(ep.getTicket());
+						ep.setTicket(null);
+					}
 				}
 			}
 		}
