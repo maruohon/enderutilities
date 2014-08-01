@@ -73,44 +73,46 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 		int chunkX = target.posX >> 4;
 		int chunkZ = target.posZ >> 4;
 
+		// Force load the chunk to be sure that it won't unload while we are accessing it
+		ExtendedPlayer ep = ExtendedPlayer.get(player);
+		if (ep == null)
+		{
+			ExtendedPlayer.register(player);
+			ep = ExtendedPlayer.get(player);
+		}
+
+		Ticket ticket = ep.getTicket();
+		if (ticket == null)
+		{
+			ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), tgtWorld, Type.NORMAL);
+			ticket.getModData().setBoolean("TemporaryTicket", true);
+			ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
+			ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
+			ep.setTicket(ticket);
+		}
+		ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
+
+		// Load the chunk if necessary
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
 		{
 			chunkProvider.loadChunk(chunkX, chunkZ);
+		}
 
-			ExtendedPlayer ep = ExtendedPlayer.get(player);
-			if (ep == null)
-			{
-				ExtendedPlayer.register(player);
-				ep = ExtendedPlayer.get(player);
-			}
-
-			Ticket ticket = ep.getTicket();
-			if (ticket == null)
-			{
-				ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), tgtWorld, Type.NORMAL);
-				ep.setTicket(ticket);
-			}
-
-			ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
-
-			// If it still failed, don't try to open the GUI
-			if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
+		// Only open the GUI if the chunk is now loaded
+		if (chunkProvider.chunkExists(chunkX, chunkZ) == true)
+		{
+			Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
+			if (block == null)
 			{
 				return stack;
 			}
+
+			nbt.setBoolean("IsActive", true);
+			stack.setTagCompound(nbt);
+
+			// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
+			block.onBlockActivated(tgtWorld, target.posX, target.posY, target.posZ, player, target.blockFace, 0.5f, 0.5f, 0.5f);
 		}
-
-		Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
-		if (block == null)
-		{
-			return stack;
-		}
-
-		nbt.setBoolean("IsActive", true);
-		stack.setTagCompound(nbt);
-
-		// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-		block.onBlockActivated(tgtWorld, target.posX, target.posY, target.posZ, player, target.blockFace, 0.5f, 0.5f, 0.5f);
 
 		return stack;
 	}

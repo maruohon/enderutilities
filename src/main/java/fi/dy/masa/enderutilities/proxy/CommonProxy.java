@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -17,6 +18,7 @@ import fi.dy.masa.enderutilities.handler.FuelHandler;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public abstract class CommonProxy implements IProxy
 {
@@ -46,6 +48,7 @@ public abstract class CommonProxy implements IProxy
 		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
 		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
 		FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
+		ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
 	}
 
 	public void registerFuelHandlers()
