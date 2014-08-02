@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -281,6 +282,22 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 	}
 
 	@Override
+	public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
+	{
+		// Ugly workaround to get the bag closing tag update to sync to the client
+		// For some reason it won't sync if set directly in the PlayerOpenContainerEvent
+		if (stack != null && stack.getTagCompound() != null)
+		{
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (nbt.hasKey("IsOpenDummy") == true)
+			{
+				nbt.removeTag("IsOpenDummy");
+				nbt.setBoolean("IsOpen", false);
+			}
+		}
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean requiresMultipleRenderPasses()
 	{
@@ -348,7 +365,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			}
 
 			// Bag currently open
-			if (nbt.getBoolean("IsOpen") == true)
+			if (nbt.hasKey("IsOpen") == true && nbt.getBoolean("IsOpen") == true)
 			{
 				index += 1;
 			}

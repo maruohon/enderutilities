@@ -47,7 +47,7 @@ public class PlayerEventHandler
 	@SubscribeEvent
 	public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
 	{
-		if (event != null && event.entityPlayer != null && event.entityPlayer.worldObj != null && event.entityPlayer.worldObj.isRemote == false)
+		if (event != null && event.entityPlayer != null)
 		{
 			EntityPlayer player = event.entityPlayer;
 			ExtendedPlayer ep = ExtendedPlayer.get(player);
@@ -74,8 +74,9 @@ public class PlayerEventHandler
 						{
 							//if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
 							nbt.removeTag("ChunkLoadingRequired");
-							nbt.setBoolean("IsOpen", false);
+							nbt.setBoolean("IsOpenDummy", true);
 							stack.setTagCompound(nbt);
+							//player.inventory.markDirty();
 						}
 
 						// If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
