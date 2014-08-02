@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -13,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
@@ -33,6 +35,9 @@ import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 {
+	@SideOnly(Side.CLIENT)
+	private IIcon iconArray[];
+
 	public ItemEnderBag()
 	{
 		super();
@@ -53,6 +58,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		// Ender Chest
 		if (nbt.hasKey("Type") == true && nbt.getByte("Type") == (byte)1)
 		{
+			nbt.setBoolean("IsOpen", true);
 			player.displayGUIChest(player.getInventoryEnderChest());
 			return stack;
 		}
@@ -272,5 +278,82 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			nbt.setByte("Mode", val);
 			stack.setTagCompound(nbt);
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean requiresMultipleRenderPasses()
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getRenderPasses(int metadata)
+	{
+		return 1;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void registerIcons(IIconRegister iconRegister)
+	{
+		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
+		this.iconArray = new IIcon[4];
+
+		this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
+		this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".regular.open");
+		this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".enderchest.closed");
+		this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".enderchest.open");
+	}
+
+	/**
+	 * Return the correct icon for rendering based on the supplied ItemStack and render pass.
+	 *
+	 * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
+	 * @param stack to render for
+	 * @param pass the multi-render pass
+	 * @return the icon
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(ItemStack stack, int renderPass)
+	{
+		return this.getIcon(stack, renderPass, null, null, 0);
+	}
+
+    /**
+	 * Player, Render pass, and item usage sensitive version of getIconIndex.
+	 *
+	 * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
+	 * @param renderPass The pass to get the icon for, 0 is default.
+	 * @param player The player holding the item
+	 * @param usingItem The item the player is actively using. Can be null if not using anything.
+	 * @param useRemaining The ticks remaining for the active item.
+	 * @return The icon index
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+	{
+		int index = 0;
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt != null)
+		{
+			// Linked to Ender Chest
+			if (nbt.getByte("Type") == (byte)1)
+			{
+				index += 2;
+			}
+
+			// Bag currently open
+			if (nbt.getBoolean("IsOpen") == true)
+			{
+				index += 1;
+			}
+		}
+
+		return this.iconArray[(index < this.iconArray.length ? index : 0)];
 	}
 }

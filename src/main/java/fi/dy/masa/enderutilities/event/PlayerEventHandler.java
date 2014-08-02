@@ -70,9 +70,9 @@ public class PlayerEventHandler
 					{
 						// Ender Bag: Player has just closed the remote container
 						if (stack.getItem() == EnderUtilitiesItems.enderBag &&
-							nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true &&
 							player.openContainer != this.containerLast && player.openContainer == player.inventoryContainer)
 						{
+							//if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
 							nbt.removeTag("ChunkLoadingRequired");
 							nbt.setBoolean("IsOpen", false);
 							stack.setTagCompound(nbt);
