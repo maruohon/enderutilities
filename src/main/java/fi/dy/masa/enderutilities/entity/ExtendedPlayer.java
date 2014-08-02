@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.entity;
 
+import java.util.HashMap;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,12 +13,12 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 {
 	public final static String PROPERTY_NAME = "ExtendedPlayer";
 	//private final EntityPlayer player;
-	private Ticket ticket;
+	private HashMap<World, Ticket> chunkloadTicketsTemporary;
 
 	public ExtendedPlayer(EntityPlayer player)
 	{
 		//this.player = player;
-		this.ticket = null;
+		this.chunkloadTicketsTemporary = new HashMap<World, Ticket>();
 	}
 
 	@Override
@@ -44,15 +46,24 @@ public class ExtendedPlayer implements IExtendedEntityProperties
 		return (ExtendedPlayer)player.getExtendedProperties(PROPERTY_NAME);
 	}
 
-	public Ticket setTicket(Ticket ticket)
+	public Ticket setTemporaryTicket(World world, Ticket ticket)
 	{
-		this.ticket = ticket;
-
-		return this.ticket;
+		this.chunkloadTicketsTemporary.put(world, ticket);
+		return ticket;
 	}
 
-	public Ticket getTicket()
+	public void removeTemporaryTicket(World world)
 	{
-		return this.ticket;
+		this.chunkloadTicketsTemporary.remove(world);
+	}
+
+	public Ticket getTemporaryTicket(World world)
+	{
+		return this.chunkloadTicketsTemporary.get(world);
+	}
+
+	public HashMap<World, Ticket> getTemporaryTickets()
+	{
+		return this.chunkloadTicketsTemporary;
 	}
 }

@@ -4,7 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.ForgeChunkManager;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
@@ -13,11 +15,12 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.IChunkLoadingItem;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 
 public class PlayerEventHandler
 {
 	private Container containerLast;
-	private int unloadDelay = 0;
 
 	@SubscribeEvent
 	public void onStartStracking(PlayerEvent.StartTracking event)
@@ -33,59 +36,64 @@ public class PlayerEventHandler
 	}
 
 	@SubscribeEvent
-	public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
-	{
-		if (event != null && event.entityPlayer != null && event.entityPlayer.worldObj != null && event.entityPlayer.worldObj.isRemote == false)
-		{
-			EntityPlayer player = event.entityPlayer;
-			if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() != null)
-			{
-				if (player.getCurrentEquippedItem().getItem() == EnderUtilitiesItems.enderBag)
-				{
-					if (player.openContainer != player.inventoryContainer)
-					{
-						// Allow access from anywhere with the Ender Bag (bypassing the distance checks)
-						event.setResult(Result.ALLOW);
-					}
-
-					NBTTagCompound nbt = player.getCurrentEquippedItem().getTagCompound();
-					// On container closing, release the chunk loading ticket
-					if (nbt != null && nbt.hasKey("IsActive") == true && nbt.getBoolean("IsActive") == true &&
-						player.openContainer != this.containerLast && player.openContainer == player.inventoryContainer)
-					{
-						this.unloadDelay = 120 * 20; // 120 second delay before unloading
-
-						nbt.setBoolean("IsActive", false);
-						player.getCurrentEquippedItem().setTagCompound(nbt);
-					}
-
-					this.containerLast = player.openContainer;
-				}
-			}
-
-			if (this.unloadDelay > 0)
-			{
-				if (--this.unloadDelay == 0)
-				{
-					ExtendedPlayer ep = ExtendedPlayer.get(player);
-					ItemStack stack = player.getCurrentEquippedItem();
-					if (ep != null && ep.getTicket() != null && (stack == null || stack.getItem() instanceof IChunkLoadingItem == false ||
-						stack.getTagCompound() == null || stack.getTagCompound().getBoolean("IsActive") == false))
-					{
-						ForgeChunkManager.releaseTicket(ep.getTicket());
-						ep.setTicket(null);
-					}
-				}
-			}
-		}
-	}
-
-	@SubscribeEvent
 	public void onEntityConstructing(EntityConstructing event)
 	{
 		if (event.entity instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer)event.entity) == null)
 		{
 			ExtendedPlayer.register((EntityPlayer)event.entity);
+		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
+	{
+		if (event != null && event.entityPlayer != null && event.entityPlayer.worldObj != null && event.entityPlayer.worldObj.isRemote == false)
+		{
+			EntityPlayer player = event.entityPlayer;
+			ExtendedPlayer ep = ExtendedPlayer.get(player);
+			ChunkLoading.getInstance().tickChunkTimeouts(ep.getTemporaryTickets());
+
+			if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() != null)
+			{
+				ItemStack stack = player.getCurrentEquippedItem();
+
+				if (stack.getItem() == EnderUtilitiesItems.enderBag && player.openContainer != player.inventoryContainer)
+				{
+					// Allow access from anywhere with the Ender Bag (bypassing the distance checks)
+					event.setResult(Result.ALLOW);
+				}
+
+				if (stack.getItem() instanceof IChunkLoadingItem)
+				{
+					NBTTagCompound nbt = stack.getTagCompound();
+					if (nbt != null)
+					{
+						// Ender Bag: Player has just closed the remote container
+						if (stack.getItem() == EnderUtilitiesItems.enderBag &&
+							nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true &&
+							player.openContainer != this.containerLast && player.openContainer == player.inventoryContainer)
+						{
+							nbt.removeTag("ChunkLoadingRequired");
+							nbt.setBoolean("IsOpen", false);
+							stack.setTagCompound(nbt);
+						}
+
+						// If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
+						if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
+						{
+							ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+							if (target.readFromNBT(nbt) == true)
+							{
+								World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+								// 60 second delay before unloading
+								ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, new ChunkCoordIntPair(target.posX >> 4, target.posZ >> 4), 20 * 20);
+							}
+						}
+					}
+
+					this.containerLast = player.openContainer;
+				}
+			}
 		}
 	}
 }

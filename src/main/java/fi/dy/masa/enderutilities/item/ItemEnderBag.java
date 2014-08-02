@@ -24,6 +24,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
@@ -40,40 +41,24 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		// Do nothing on the client side
-		if (world.isRemote == true || stack.getTagCompound() == null)
-		{
-			return stack;
-		}
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
+		if (world.isRemote == true || nbt == null)
 		{
 			return stack;
 		}
 
-		// Access the inventory
+		// Get the target information
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false)
-		{
-			return stack;
-		}
+		if (target.readFromNBT(nbt) == false) { return stack; }
 
 		World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-		if (tgtWorld == null)
-		{
-			return stack;
-		}
-
+		if (tgtWorld == null) { return stack; }
 		IChunkProvider chunkProvider = tgtWorld.getChunkProvider();
-		if (chunkProvider == null)
-		{
-			return stack;
-		}
+		if (chunkProvider == null) { return stack; }
 
 		int chunkX = target.posX >> 4;
 		int chunkZ = target.posZ >> 4;
 
-		// Force load the chunk to be sure that it won't unload while we are accessing it
 		ExtendedPlayer ep = ExtendedPlayer.get(player);
 		if (ep == null)
 		{
@@ -81,16 +66,22 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 			ep = ExtendedPlayer.get(player);
 		}
 
-		Ticket ticket = ep.getTicket();
+		// Force load the chunk to be sure that it won't unload while we are accessing it
+		Ticket ticket = ep.getTemporaryTicket(tgtWorld);
 		if (ticket == null)
 		{
 			ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), tgtWorld, Type.NORMAL);
+			if (ticket == null) { return stack; }
+
 			ticket.getModData().setBoolean("TemporaryTicket", true);
 			ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
 			ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
-			ep.setTicket(ticket);
+			ep.setTemporaryTicket(tgtWorld, ticket);
 		}
-		ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
+		ChunkCoordIntPair ccip = new ChunkCoordIntPair(chunkX, chunkZ);
+		ForgeChunkManager.forceChunk(ticket, ccip);
+		// 60 second delay before unloading
+		ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, ccip, 20 * 20);
 
 		// Load the chunk if necessary
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
@@ -102,12 +93,10 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == true)
 		{
 			Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
-			if (block == null)
-			{
-				return stack;
-			}
+			if (block == null) { return stack; }
 
-			nbt.setBoolean("IsActive", true);
+			nbt.setBoolean("ChunkLoadingRequired", true);
+			nbt.setBoolean("IsOpen", true);
 			stack.setTagCompound(nbt);
 
 			// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
