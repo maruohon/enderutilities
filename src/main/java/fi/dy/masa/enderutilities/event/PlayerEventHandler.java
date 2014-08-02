@@ -84,16 +84,17 @@ public class PlayerEventHandler
 							ItemNBTHelperTarget target = new ItemNBTHelperTarget();
 							if (target.readFromNBT(nbt) == true)
 							{
+								//System.out.println("refreshing chunk");
 								World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
 								// 60 second delay before unloading
-								ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, new ChunkCoordIntPair(target.posX >> 4, target.posZ >> 4), 20 * 20);
+								ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, new ChunkCoordIntPair(target.posX >> 4, target.posZ >> 4), 60 * 20);
 							}
 						}
 					}
-
-					this.containerLast = player.openContainer;
 				}
 			}
+
+			this.containerLast = player.openContainer;
 		}
 	}
 }

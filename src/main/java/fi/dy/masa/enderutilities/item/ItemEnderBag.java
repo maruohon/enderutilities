@@ -81,7 +81,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 		ChunkCoordIntPair ccip = new ChunkCoordIntPair(chunkX, chunkZ);
 		ForgeChunkManager.forceChunk(ticket, ccip);
 		// 60 second delay before unloading
-		ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, ccip, 20 * 20);
+		ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, ccip, 60 * 20);
 
 		// Load the chunk if necessary
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)

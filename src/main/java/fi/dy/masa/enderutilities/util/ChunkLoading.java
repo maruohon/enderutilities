@@ -24,7 +24,6 @@ public class ChunkLoading implements LoadingCallback
 	{
 		super();
 		instance = this;
-		//this.timeOuts = new HashMap<Integer, HashMap<ChunkCoordIntPair, Integer>>();
 		this.timeOuts = new HashMap<String, DimChunkCoordTimeout>();
 	}
 
@@ -43,7 +42,7 @@ public class ChunkLoading implements LoadingCallback
 
 		for (int i = 0; i < tickets.size(); ++i)
 		{
-			System.out.println("ticketsLoaded(): looping: " + i);
+			//System.out.println("ticketsLoaded(): looping: " + i);
 			Ticket ticket = tickets.get(i);
 
 			NBTTagCompound nbt = ticket.getModData();
@@ -55,10 +54,10 @@ public class ChunkLoading implements LoadingCallback
 				// Release tickets that are not used for persistent chunk loading and are not currently in use
 				else
 				{
-					System.out.println("player, not persistent");
+					//System.out.println("player, not persistent");
 					if (nbt.hasKey("PlayerUUIDMost") == true && nbt.hasKey("PlayerUUIDLeast") == true)
 					{
-						System.out.println("has UUID");
+						//System.out.println("has UUID");
 						UUID uuid = new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
 						EntityPlayer player = EntityUtils.findPlayerFromUUID(uuid);
 
@@ -67,13 +66,13 @@ public class ChunkLoading implements LoadingCallback
 							player.getCurrentEquippedItem().getTagCompound() == null ||
 							player.getCurrentEquippedItem().getTagCompound().hasKey("ChunkLoadingRequired") == false)
 						{
-							System.out.println("ticketsLoaded(): releasing (1): " + i);
+							//System.out.println("ticketsLoaded(): releasing (1): " + i);
 							ForgeChunkManager.releaseTicket(ticket);
 						}
 					}
 					else
 					{
-						System.out.println("ticketsLoaded(): releasing (no UUID): " + i);
+						//System.out.println("ticketsLoaded(): releasing (no UUID): " + i);
 						ForgeChunkManager.releaseTicket(ticket);
 					}
 				}
@@ -159,49 +158,16 @@ public class ChunkLoading implements LoadingCallback
 	public void tickChunkTimeouts(HashMap<World, Ticket> tickets)
 	{
 		DimChunkCoordTimeout dcct;
-
-		//int j = 0;
 		List<String> toRemove = new ArrayList<String>();
-/*
-		Iterator<Map.Entry<String, DimChunkCoordTimeout>> iterator = this.timeOuts.entrySet().iterator();
-		while (iterator.hasNext() == true)
-		{
-			Map.Entry<String, DimChunkCoordTimeout> entry = (Map.Entry<String, DimChunkCoordTimeout>)iterator.next();
-			dcct = entry.getValue();
 
-			//System.out.printf("tickChunkTimeouts(): j = %d timeout: %d\n", j, dcct.timeout);
-			if (dcct.tick() == 0)
-			{
-				//System.out.printf("tickChunkTimeouts(): unforcing (%d) dim: %d, %s\n", j++, dcct.dimension, dcct.chunkCoords.toString());
-				Ticket ticket = tickets.get(dcct.world);
-				if (ticket == null)
-				{
-					System.out.println("tickChunkTimeouts(): ticket == null");
-					continue;
-				}
-
-				ForgeChunkManager.unforceChunk(ticket, dcct.chunkCoords);
-
-				if (ticket.getChunkList().size() == 0)
-				{
-					ForgeChunkManager.releaseTicket(ticket);
-					tickets.remove(dcct.world);
-				}
-
-				toRemove.add(entry.getKey());
-			}
-		}
-*/
-
-		int j = 0;
 		for (Map.Entry<String, DimChunkCoordTimeout> entry : this.timeOuts.entrySet())
 		{
 			dcct = entry.getValue();
-			System.out.printf("tickChunkTimeouts(): i = %d timeout: %d\n", j, dcct.timeout);
+			//System.out.printf("tickChunkTimeouts(): loop, timeout: %d\n",  dcct.timeout);
 
 			if (dcct.tick() == 0)
 			{
-				System.out.printf("tickChunkTimeouts(): unforcing (%d) dim: %d, %s\n", j, dcct.dimension, dcct.chunkCoords.toString());
+				//System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
 				Ticket ticket = tickets.get(dcct.world);
 				if (ticket == null)
 				{
@@ -212,14 +178,13 @@ public class ChunkLoading implements LoadingCallback
 
 				if (ticket.getChunkList().size() == 0)
 				{
+					//System.out.println("tickChunkTimeouts(): releasing ticket");
 					ForgeChunkManager.releaseTicket(ticket);
 					tickets.remove(dcct.world);
 				}
 
-				//this.timeOuts.remove(entry.getKey()); // FIXME can we do this here?
 				toRemove.add(entry.getKey());
 			}
-			j++;
 		}
 
 		for (int i = 0; i < toRemove.size(); ++i)
