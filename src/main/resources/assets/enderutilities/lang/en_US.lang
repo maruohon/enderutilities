@@ -40,3 +40,8 @@ gui.tooltip.tptarget=TP target
 
 gui.tooltip.linked=Linked
 gui.tooltip.notlinked=Not linked
+
+gui.tooltip.private=Private
+gui.tooltip.public=Public
+
+chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.

@@ -10,6 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -24,11 +26,12 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
+public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 {
 	public ItemEnderBag()
 	{
@@ -47,7 +50,22 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 			return stack;
 		}
 
-		// Get the target information
+		// Ender Chest
+		if (nbt.hasKey("Type") == true && nbt.getByte("Type") == (byte)1)
+		{
+			player.displayGUIChest(player.getInventoryEnderChest());
+			return stack;
+		}
+
+		// If the bag is not set to public and the player trying to access the bag is not the owner
+		if (nbt.getByte("Mode") != (byte)1 &&
+			(nbt.getLong("OwnerUUIDMost") != player.getUniqueID().getMostSignificantBits() ||
+			nbt.getLong("OwnerUUIDLeast") != player.getUniqueID().getLeastSignificantBits()))
+		{
+			return stack;
+		}
+
+		// Instance of IInventory; Get the target information
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
 		if (target.readFromNBT(nbt) == false) { return stack; }
 
@@ -93,7 +111,23 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == true)
 		{
 			Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
-			if (block == null) { return stack; }
+			if (block == null)
+			{
+				return stack;
+			}
+
+			// The target block has changed since binding the bag, remove the bind (not for Ender Chests)
+			if (Block.blockRegistry.getNameForObject(block).equals(nbt.getString("BlockName")) == false)
+			{
+				nbt.removeTag("BlockName");
+				nbt.removeTag("Slots");
+				ItemNBTHelperTarget.writeTargetToItem(stack, null);
+				nbt.removeTag("ChunkLoadingRequired");
+				nbt.setBoolean("IsOpen", false);
+				stack.setTagCompound(nbt);
+				player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
+				return stack;
+			}
 
 			nbt.setBoolean("ChunkLoadingRequired", true);
 			nbt.setBoolean("IsOpen", true);
@@ -114,25 +148,49 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 			return false;
 		}
 
-		TileEntity te = world.getTileEntity(x, y, z);
-		if (te != null && te instanceof IInventory)
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null)
 		{
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt == null)
+			nbt = new NBTTagCompound();
+			nbt.setByte("Mode", (byte)0);
+		}
+
+		// If the player trying to set/modify the bag is not the owner
+		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true &&
+			(nbt.getLong("OwnerUUIDMost") != player.getUniqueID().getMostSignificantBits() ||
+			nbt.getLong("OwnerUUIDLeast") != player.getUniqueID().getLeastSignificantBits()))
+		{
+			return false;
+		}
+
+		Block block = world.getBlock(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (block == null || block == Blocks.air || te == null)
+		{
+			return false;
+		}
+
+		if (te instanceof TileEntityEnderChest || te instanceof IInventory)
+		{
+			nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
+			nbt.setString("Owner", player.getCommandSenderName());
+			nbt.setLong("OwnerUUIDMost", player.getUniqueID().getMostSignificantBits());
+			nbt.setLong("OwnerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
+			nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
+
+			if (te instanceof IInventory)
 			{
-				nbt = new NBTTagCompound();
+				nbt.setInteger("Slots", ((IInventory)te).getSizeInventory());
+				nbt.setByte("Type", (byte)0);
+			}
+			else
+			{
+				nbt.setInteger("Slots", player.getInventoryEnderChest().getSizeInventory());
+				nbt.setByte("Type", (byte)1);
 			}
 
-			Block block = world.getBlock(x, y, z);
-			if (block != null && block != Blocks.air)
-			{
-				nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-				nbt.setShort("Slots", (short)((IInventory) te).getSizeInventory());
-				nbt.setString("Owner", player.getCommandSenderName());
-				nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
-				stack.setTagCompound(nbt);
-				return true;
-			}
+			stack.setTagCompound(nbt);
+			return true;
 		}
 
 		return false;
@@ -158,30 +216,61 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem
 		}
 
 		String locName	= Block.getBlockFromName(nbt.getString("BlockName")).getLocalizedName();
-		short numSlots	= nbt.getShort("Slots");
+		int numSlots	= nbt.getInteger("Slots");
 		String owner	= nbt.getString("Owner");
 
-		String dimPre = "" + EnumChatFormatting.OBFUSCATED;
-		String coordPre = "" + EnumChatFormatting.OBFUSCATED;
+		String dimPre = "" + EnumChatFormatting.GREEN;
+		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-		// Only show the bound location, if the bag is set to public, or if the player is the owner
-		if (nbt.getByte("Mode") == 1 || player.getCommandSenderName().equals(owner) == true) // FIXME
-		{
-			dimPre = "" + EnumChatFormatting.GREEN;
-			coordPre = "" + EnumChatFormatting.BLUE;
-		}
 
 		list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + coordPre + locName + rst);
 		list.add(StatCollector.translateToLocal("gui.tooltip.slots") + ": " + coordPre + numSlots + rst);
-		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
-		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
-		list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
+
+		// Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
+		if (nbt.getByte("Type") == (byte)0 &&
+			nbt.getLong("OwnerUUIDMost") == player.getUniqueID().getMostSignificantBits() &&
+			nbt.getLong("OwnerUUIDLeast") == player.getUniqueID().getLeastSignificantBits())
+		{
+			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
+			list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+		}
+
+		// Only show private vs. public when bound to regular inventories, not Ender Chest
+		if (nbt.getByte("Type") == (byte)0)
+		{
+			String mode = (nbt.getByte("Mode") == (byte)1 ? StatCollector.translateToLocal("gui.tooltip.public") : StatCollector.translateToLocal("gui.tooltip.private"));
+			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
+			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
+		}
 	}
 
 	@Override
 	public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
 	{
 		return false;
+	}
+
+	@Override
+	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+	{
+		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		{
+			byte val = 0;
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (nbt != null)
+			{
+				val = nbt.getByte("Mode");
+			}
+			else
+			{
+				nbt = new NBTTagCompound();
+			}
+			if (++val > 1)
+			{
+				val = 0;
+			}
+			nbt.setByte("Mode", val);
+			stack.setTagCompound(nbt);
+		}
 	}
 }
