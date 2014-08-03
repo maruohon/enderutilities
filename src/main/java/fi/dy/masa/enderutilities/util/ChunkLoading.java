@@ -80,12 +80,12 @@ public class ChunkLoading implements LoadingCallback
 		}
 	}
 
-	public static String dimChunkpairToString(int dim, ChunkCoordIntPair cc)
+	public static String dimChunkPairToString(int dim, ChunkCoordIntPair cc)
 	{
 		return dim + "-" + cc.chunkXPos + "-" + cc.chunkZPos;
 	}
 
-	public static String dimChunkpairToString(int dim, int x, int z)
+	public static String dimChunkPairToString(int dim, int x, int z)
 	{
 		return dim + "-" + x + "-" + z;
 	}
@@ -96,9 +96,12 @@ public class ChunkLoading implements LoadingCallback
 		public World world;
 		public ChunkCoordIntPair chunkCoords;
 		public int timeout;
+		public int timeoutFresh;
+		public Ticket ticket;
 
-		public DimChunkCoordTimeout(World world, int dimension, ChunkCoordIntPair cc, int timeout)
+		public DimChunkCoordTimeout(Ticket ticket, World world, int dimension, ChunkCoordIntPair cc, int timeout)
 		{
+			this.ticket = ticket;
 			this.world = world;
 			this.dimension = dimension;
 			this.chunkCoords = cc;
@@ -108,6 +111,12 @@ public class ChunkLoading implements LoadingCallback
 		public void setTimeout(int timeout)
 		{
 			this.timeout = timeout;
+			this.timeoutFresh = timeout;
+		}
+
+		public void refreshTimeout()
+		{
+			this.timeout = this.timeoutFresh;
 		}
 
 		public int tick()
@@ -136,14 +145,14 @@ public class ChunkLoading implements LoadingCallback
 		}
 	}
 
-	public void addChunkTimeout(World world, int dimension, ChunkCoordIntPair cc, int timeout)
+	public void addChunkTimeout(Ticket ticket, World world, int dimension, int chunkX, int chunkZ, int timeout)
 	{
-		if (world == null || world.provider == null)
+		if (world == null)
 		{
 			return;
 		}
 
-		String s = dimChunkpairToString(dimension, cc);
+		String s = dimChunkPairToString(dimension, chunkX, chunkZ);
 
 		if (this.timeOuts.containsKey(s) == true)
 		{
@@ -151,11 +160,24 @@ public class ChunkLoading implements LoadingCallback
 		}
 		else
 		{
-			this.timeOuts.put(s, new DimChunkCoordTimeout(world, dimension, cc, timeout));
+			this.timeOuts.put(s, new DimChunkCoordTimeout(ticket, world, dimension, new ChunkCoordIntPair(chunkX, chunkZ), timeout));
 		}
 	}
 
-	public void tickChunkTimeouts(HashMap<World, Ticket> tickets)
+	public boolean refreshChunkTimeout(int dimension, int chunkX, int chunkZ)
+	{
+		String s = dimChunkPairToString(dimension, chunkX, chunkZ);
+
+		if (this.timeOuts.containsKey(s) == true)
+		{
+			this.timeOuts.get(s).refreshTimeout();
+			return true;
+		}
+
+		return false;
+	}
+
+	public void tickChunkTimeouts()
 	{
 		DimChunkCoordTimeout dcct;
 		List<String> toRemove = new ArrayList<String>();
@@ -168,19 +190,13 @@ public class ChunkLoading implements LoadingCallback
 			if (dcct.tick() == 0)
 			{
 				//System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
-				Ticket ticket = tickets.get(dcct.world);
-				if (ticket == null)
-				{
-					continue;
-				}
 
-				ForgeChunkManager.unforceChunk(ticket, dcct.chunkCoords);
+				ForgeChunkManager.unforceChunk(dcct.ticket, dcct.chunkCoords);
 
-				if (ticket.getChunkList().size() == 0)
+				if (dcct.ticket.getChunkList().size() == 0)
 				{
 					//System.out.println("tickChunkTimeouts(): releasing ticket");
-					ForgeChunkManager.releaseTicket(ticket);
-					tickets.remove(dcct.world);
+					ForgeChunkManager.releaseTicket(dcct.ticket); // FIXME does this cause problems? we should also remove the ticket from the player
 				}
 
 				toRemove.add(entry.getKey());

@@ -103,10 +103,11 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
 			ep.setTemporaryTicket(tgtWorld, ticket);
 		}
+
 		ChunkCoordIntPair ccip = new ChunkCoordIntPair(chunkX, chunkZ);
 		ForgeChunkManager.forceChunk(ticket, ccip);
 		// 60 second delay before unloading
-		ChunkLoading.getInstance().addChunkTimeout(tgtWorld, target.dimension, ccip, 60 * 20);
+		ChunkLoading.getInstance().addChunkTimeout(ticket, tgtWorld, target.dimension, chunkX, chunkZ, 60 * 20);
 
 		// Load the chunk if necessary
 		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
@@ -297,7 +298,28 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 	}
 
+	/**
+	 * Called when a player drops the item into the world,
+	 * returning false from this will prevent the item from
+	 * being removed from the players inventory and spawning
+	 * in the world
+	 *
+	 * @param player The player that dropped the item
+	 * @param item The item stack, before the item is removed.
+	 */
 	@Override
+	public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player)
+	{
+/*
+		if (item != null && item.getTagCompound() != null && item.getTagCompound().getBoolean("IsOpen") == true)
+		{
+			return false;
+		}
+*/
+		return true;
+	}
+
+    @Override
 	@SideOnly(Side.CLIENT)
 	public boolean requiresMultipleRenderPasses()
 	{
