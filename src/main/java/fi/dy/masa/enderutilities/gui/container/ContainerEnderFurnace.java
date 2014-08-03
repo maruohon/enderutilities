@@ -42,24 +42,26 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 		{
 			icrafting = (ICrafting)this.crafters.get(i);
 
+			// Scale all values down by 8 (max burn time atm is 150 * COOKTIME = 180 000)
+			// We need to fit it in a short, where these get truncated to in non-local SMP
 			if (this.teef.burnTimeRemaining != this.burnTimeRemaining)
 			{
-				icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining);
+				icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining >> 3);
 			}
 
 			if (this.teef.burnTimeFresh != this.burnTimeFresh)
 			{
-				icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh);
+				icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh >> 3);
 			}
 
 			if (this.teef.cookTime != this.cookTime)
 			{
-				icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime);
+				icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime >> 3);
 			}
 
 			if (this.teef.cookTimeFresh != this.cookTimeFresh)
 			{
-				icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh);
+				icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh >> 3);
 			}
 
 			this.burnTimeRemaining = this.teef.burnTimeRemaining;
@@ -73,10 +75,10 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 	public void addCraftingToCrafters(ICrafting icrafting)
 	{
 		super.addCraftingToCrafters(icrafting);
-		icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining);
-		icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh);
-		icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime);
-		icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh);
+		icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining >> 3);
+		icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh >> 3);
+		icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime >> 3);
+		icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh >> 3);
 	}
 
 	@SideOnly(Side.CLIENT)

@@ -31,13 +31,13 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 public class TileEntityEnderFurnace extends TileEntityEU
 {
 	// The values that define how fuels burn and items smelt
-	public static final int COOKTIME_INC_NOFUEL = 5; // No fuel mode: 60 seconds per item
-	public static final int COOKTIME_INC_SLOW = 100; // Slow/eco mode: 3 seconds per item
-	public static final int COOKTIME_INC_FAST = 300; // Fast mode: 1 second per item (3x as fast)
-	public static final int COOKTIME_DEFAULT = 6000; // Base cooktime per item: 3 seconds on slow
+	public static final int COOKTIME_INC_NOFUEL = 1; // No fuel mode: 60 seconds per item
+	public static final int COOKTIME_INC_SLOW = 20; // Slow/eco mode: 3 seconds per item
+	public static final int COOKTIME_INC_FAST = 60; // Fast mode: 1 second per item (3x as fast)
+	public static final int COOKTIME_DEFAULT = 1200; // Base cooktime per item: 3 seconds on slow
 
-	public static final int BURNTIME_USAGE_SLOW = 100; // Slow/eco mode base usage
-	public static final int BURNTIME_USAGE_FAST = 600; // Fast mode: use fuel 6x faster over time
+	public static final int BURNTIME_USAGE_SLOW = 20; // Slow/eco mode base usage
+	public static final int BURNTIME_USAGE_FAST = 120; // Fast mode: use fuel 6x faster over time
 
 	public static final int OUTPUT_BUFFER_SIZE = 1000; // How many items can we store in the output buffer?
 
