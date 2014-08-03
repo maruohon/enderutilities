@@ -631,13 +631,13 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return isItemFuel(stack) == false;
 		}
 
-		// Allow pulling out output items from any side
-		if (slot == 2)
+		// Allow pulling out output items from any side, but only when not outputting to Ender Chest
+		if (slot == 2 && (this.outputMode & 0x01) == 0)
 		{
 			return true;
 		}
 
-		// Don't allow pulling out items from the input slot
+		// Don't allow pulling out items from the input slot, or when outputting to Ender Chest
 		return false;
 	}
 
