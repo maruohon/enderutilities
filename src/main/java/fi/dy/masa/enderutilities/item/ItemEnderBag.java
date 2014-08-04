@@ -24,7 +24,7 @@ import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
+import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
@@ -57,30 +57,30 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			return stack;
 		}
 
+		ItemNBTHelper itemData = new ItemNBTHelper();
 		// If the bag is not set to public and the player trying to access the bag is not the owner
-		if (nbt.getByte("Mode") != (byte)1 &&
-			(nbt.getLong("OwnerUUIDMost") != player.getUniqueID().getMostSignificantBits() ||
-			nbt.getLong("OwnerUUIDLeast") != player.getUniqueID().getLeastSignificantBits()))
+		if (nbt.getByte("Mode") != (byte)1 && itemData.readPlayerTagFromNBT(nbt) != null &&
+			(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+			itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
 		{
 			return stack;
 		}
 
-		// Instance of IInventory; Get the target information
-		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false)
+		// Instance of IInventory (= not Ender Chest); Get the target information
+		if (itemData.readTargetTagFromNBT(nbt) == null)
 		{
 			return stack;
 		}
 
 		// Only open the GUI if the chunk loading succeeds. 60 second unload delay.
-		if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 60 * 20) == true)
+		if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, itemData.dimension, itemData.posX >> 4, itemData.posZ >> 4, 60 * 20) == true)
 		{
-			World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+			World tgtWorld = MinecraftServer.getServer().worldServerForDimension(itemData.dimension);
 			if (tgtWorld == null)
 			{
 				return stack;
 			}
-			Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
+			Block block = tgtWorld.getBlock(itemData.posX, itemData.posY, itemData.posZ);
 			if (block == null)
 			{
 				return stack;
@@ -91,7 +91,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			{
 				nbt.removeTag("BlockName");
 				nbt.removeTag("Slots");
-				ItemNBTHelperTarget.writeTargetToItem(stack, null);
+				nbt = ItemNBTHelper.removeTargetTagFromNBT(nbt);
 				nbt.removeTag("ChunkLoadingRequired");
 				nbt.setBoolean("IsOpen", false);
 				stack.setTagCompound(nbt);
@@ -104,7 +104,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			stack.setTagCompound(nbt);
 
 			// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-			block.onBlockActivated(tgtWorld, target.posX, target.posY, target.posZ, player, target.blockFace, 0.5f, 0.5f, 0.5f);
+			block.onBlockActivated(tgtWorld, itemData.posX, itemData.posY, itemData.posZ, player, itemData.blockFace, 0.5f, 0.5f, 0.5f);
 		}
 
 		return stack;
@@ -125,19 +125,20 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			nbt.setByte("Mode", (byte)0);
 		}
 
+		ItemNBTHelper itemData = new ItemNBTHelper();
 		// If the player trying to set/modify the bag is not the owner
-		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true &&
-			(nbt.getLong("OwnerUUIDMost") != player.getUniqueID().getMostSignificantBits() ||
-			nbt.getLong("OwnerUUIDLeast") != player.getUniqueID().getLeastSignificantBits()))
+		if (itemData.readPlayerTagFromNBT(nbt) != null &&
+			(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+			itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
 		{
-			return false;
+			return true;
 		}
 
 		Block block = world.getBlock(x, y, z);
 		TileEntity te = world.getTileEntity(x, y, z);
 		if (block == null || block == Blocks.air || te == null)
 		{
-			return false;
+			return true;
 		}
 
 		if (te instanceof TileEntityEnderChest || te instanceof IInventory)
@@ -146,7 +147,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			nbt.setString("Owner", player.getCommandSenderName());
 			nbt.setLong("OwnerUUIDMost", player.getUniqueID().getMostSignificantBits());
 			nbt.setLong("OwnerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
-			nbt = ItemNBTHelperTarget.writeToNBT(nbt, x, y, z, player.dimension, side, false);
+			nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
 
 			if (te instanceof IInventory)
 			{
@@ -160,10 +161,9 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			}
 
 			stack.setTagCompound(nbt);
-			return true;
 		}
 
-		return false;
+		return true;
 	}
 
 	@Override
@@ -178,8 +178,8 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 */
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false)
+		ItemNBTHelper target = new ItemNBTHelper();
+		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;

@@ -13,7 +13,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
+import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderLasso extends ItemEU
@@ -29,13 +29,20 @@ public class ItemEnderLasso extends ItemEU
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
+		if (stack == null)
+		{
+			return false;
+		}
+
 		if (player.isSneaking() == true)
 		{
 			// Sneaking and targeting a block: store the location
 			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
-				stack = ItemNBTHelperTarget.writeTargetToItem(stack, x, y, z, player.dimension, side, true);
+				NBTTagCompound nbt = stack.getTagCompound();
+				nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
+				stack.setTagCompound(nbt);
 
 				return true;
 			}
@@ -57,8 +64,8 @@ public class ItemEnderLasso extends ItemEU
 */
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false)
+		ItemNBTHelper target = new ItemNBTHelper();
+		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;

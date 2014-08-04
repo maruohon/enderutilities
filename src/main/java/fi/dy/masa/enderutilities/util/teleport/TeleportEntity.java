@@ -31,7 +31,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
+import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 
 public class TeleportEntity
 {
@@ -166,13 +166,13 @@ public class TeleportEntity
 
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
 	{
-		if (entity.worldObj.isRemote == true)
+		if (entity.worldObj.isRemote == true || stack == null)
 		{
 			return null;
 		}
 
-		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(stack.getTagCompound()) == true)
+		ItemNBTHelper target = new ItemNBTHelper();
+		if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
 		{
 			return TeleportEntity.teleportEntity(entity, target.posX + 0.5d, target.posY, target.posZ + 0.5d, target.dimension, true, true);
 		}

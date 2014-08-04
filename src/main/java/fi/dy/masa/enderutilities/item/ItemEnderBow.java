@@ -23,7 +23,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
-import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
+import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
 public class ItemEnderBow extends ItemEU implements IKeyBound
@@ -83,9 +83,9 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 
 			if (mode == BOW_MODE_TP_TARGET)
 			{
-				ItemNBTHelperTarget target = new ItemNBTHelperTarget();
+				ItemNBTHelper target = new ItemNBTHelper();
 				// If we want to TP the target, we must have a valid target set
-				if (target.readFromNBT(nbt) == false)
+				if (target.readTargetTagFromNBT(nbt) == null)
 				{
 					return;
 				}
@@ -186,7 +186,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			}
 
 			// Check that the bow is either not in "TP target" mode, or has a valid target set
-			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && ItemNBTHelperTarget.getTargetTag(nbt) == null)
+			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && ItemNBTHelper.hasTargetTag(nbt) == false)
 			{
 				return stack;
 			}
@@ -200,6 +200,11 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
+		if (stack == null)
+		{
+			return false;
+		}
+
 		if (player.isSneaking() == true)
 		{
 			// Sneaking and targeting a block: store the location
@@ -211,10 +216,10 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 				{
 					nbt = new NBTTagCompound();
 					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
-					stack.setTagCompound(nbt);
 				}
 
-				stack = ItemNBTHelperTarget.writeTargetToItem(stack, x, y, z, player.dimension, side, true);
+				nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
+				stack.setTagCompound(nbt);
 
 				return true;
 			}
@@ -261,8 +266,8 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 		}
 
 		// TP the target entity
-		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false)
+		ItemNBTHelper target = new ItemNBTHelper();
+		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
