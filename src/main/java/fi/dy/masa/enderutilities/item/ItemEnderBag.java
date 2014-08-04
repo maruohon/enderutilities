@@ -227,6 +227,13 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (nbt != null)
 			{
+				ItemNBTHelper itemData = new ItemNBTHelper();
+				if (itemData.readPlayerTagFromNBT(nbt) != null &&
+					(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+					itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
+				{
+					return;
+				}
 				val = nbt.getByte("Mode");
 			}
 			else
