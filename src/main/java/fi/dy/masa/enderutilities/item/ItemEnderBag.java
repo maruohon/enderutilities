@@ -145,10 +145,8 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		if (te instanceof TileEntityEnderChest || te instanceof IInventory)
 		{
 			nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-			nbt.setString("Owner", player.getCommandSenderName());
-			nbt.setLong("OwnerUUIDMost", player.getUniqueID().getMostSignificantBits());
-			nbt.setLong("OwnerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
 			nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
+			nbt = ItemNBTHelper.writePlayerTagToNBT(nbt, player);
 
 			if (te instanceof IInventory)
 			{
@@ -179,8 +177,8 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 */
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper target = new ItemNBTHelper();
-		if (target.readTargetTagFromNBT(nbt) == null)
+		ItemNBTHelper itemData = new ItemNBTHelper();
+		if (itemData.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
@@ -188,7 +186,6 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 
 		String locName	= Block.getBlockFromName(nbt.getString("BlockName")).getLocalizedName();
 		int numSlots	= nbt.getInteger("Slots");
-		String owner	= nbt.getString("Owner");
 
 		String dimPre = "" + EnumChatFormatting.GREEN;
 		String coordPre = "" + EnumChatFormatting.BLUE;
@@ -198,12 +195,12 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		list.add(StatCollector.translateToLocal("gui.tooltip.slots") + ": " + coordPre + numSlots + rst);
 
 		// Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
-		if (nbt.getByte("Type") == (byte)0 &&
-			nbt.getLong("OwnerUUIDMost") == player.getUniqueID().getMostSignificantBits() &&
-			nbt.getLong("OwnerUUIDLeast") == player.getUniqueID().getLeastSignificantBits())
+		if (nbt.getByte("Type") == (byte)0 && itemData.readPlayerTagFromNBT(nbt) != null &&
+			itemData.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
+			itemData.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
 		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
-			list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + itemData.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(itemData.dimension) + rst);
+			list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, itemData.posX, rst, coordPre, itemData.posY, rst, coordPre, itemData.posZ, rst));
 		}
 
 		// Only show private vs. public when bound to regular inventories, not Ender Chest
@@ -211,7 +208,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		{
 			String mode = (nbt.getByte("Mode") == (byte)1 ? StatCollector.translateToLocal("gui.tooltip.public") : StatCollector.translateToLocal("gui.tooltip.private"));
 			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + owner);
+			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + itemData.playerName);
 		}
 	}
 
