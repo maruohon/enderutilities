@@ -48,7 +48,7 @@ public abstract class CommonProxy implements IProxy
 		MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
 		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
 		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
-		MinecraftForge.EVENT_BUS.register(new TickHandler());
+		FMLCommonHandler.instance().bus().register(new TickHandler());
 		FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
 	}

@@ -24,9 +24,13 @@ public class EnderUtilities
 	@SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
 	public static IProxy proxy;
 
+	public static org.apache.logging.log4j.Logger logger;
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		logger = event.getModLog();
+
 		proxy.registerKeyBindings();
 
 		// Initialize network stuff

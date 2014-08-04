@@ -14,11 +14,8 @@ import fi.dy.masa.enderutilities.util.ItemNBTHelperTarget;
 
 public class TickHandler
 {
-	//private MinecraftServer mcServer;
-
 	public void Tickhandler()
 	{
-		//this.mcServer = MinecraftServer.getServer();
 	}
 
 	@SubscribeEvent
@@ -54,7 +51,6 @@ public class TickHandler
 					ItemNBTHelperTarget target = new ItemNBTHelperTarget();
 					if (target.readFromNBT(nbt) == true)
 					{
-						//System.out.println("refreshing chunk");
 						ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
 					}
 				}

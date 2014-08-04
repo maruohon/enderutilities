@@ -8,7 +8,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 
 public class PlayerEventHandler
@@ -29,10 +28,12 @@ public class PlayerEventHandler
 	@SubscribeEvent
 	public void onEntityConstructing(EntityConstructing event)
 	{
+/*
 		if (event.entity instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer)event.entity) == null)
 		{
 			ExtendedPlayer.register((EntityPlayer)event.entity);
 		}
+*/
 	}
 
 	@SubscribeEvent

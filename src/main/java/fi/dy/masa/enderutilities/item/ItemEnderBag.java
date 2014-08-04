@@ -17,16 +17,9 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
-import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.common.ForgeChunkManager.Ticket;
-import net.minecraftforge.common.ForgeChunkManager.Type;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.entity.ExtendedPlayer;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
@@ -74,50 +67,19 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 
 		// Instance of IInventory; Get the target information
 		ItemNBTHelperTarget target = new ItemNBTHelperTarget();
-		if (target.readFromNBT(nbt) == false) { return stack; }
-
-		World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-		if (tgtWorld == null) { return stack; }
-		IChunkProvider chunkProvider = tgtWorld.getChunkProvider();
-		if (chunkProvider == null) { return stack; }
-
-		int chunkX = target.posX >> 4;
-		int chunkZ = target.posZ >> 4;
-
-		ExtendedPlayer ep = ExtendedPlayer.get(player);
-		if (ep == null)
+		if (target.readFromNBT(nbt) == false)
 		{
-			ExtendedPlayer.register(player);
-			ep = ExtendedPlayer.get(player);
+			return stack;
 		}
 
-		// Force load the chunk to be sure that it won't unload while we are accessing it
-		Ticket ticket = ep.getTemporaryTicket(tgtWorld);
-		if (ticket == null)
+		// Only open the GUI if the chunk loading succeeds. 60 second unload delay.
+		if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 60 * 20) == true)
 		{
-			ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), tgtWorld, Type.NORMAL);
-			if (ticket == null) { return stack; }
-
-			ticket.getModData().setBoolean("TemporaryTicket", true);
-			ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
-			ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
-			ep.setTemporaryTicket(tgtWorld, ticket);
-		}
-
-		ChunkCoordIntPair ccip = new ChunkCoordIntPair(chunkX, chunkZ);
-		ForgeChunkManager.forceChunk(ticket, ccip);
-		// 60 second delay before unloading
-		ChunkLoading.getInstance().addChunkTimeout(ticket, tgtWorld, target.dimension, chunkX, chunkZ, 60 * 20);
-
-		// Load the chunk if necessary
-		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
-		{
-			chunkProvider.loadChunk(chunkX, chunkZ);
-		}
-
-		// Only open the GUI if the chunk is now loaded
-		if (chunkProvider.chunkExists(chunkX, chunkZ) == true)
-		{
+			World tgtWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+			if (tgtWorld == null)
+			{
+				return stack;
+			}
 			Block block = tgtWorld.getBlock(target.posX, target.posY, target.posZ);
 			if (block == null)
 			{
@@ -310,12 +272,11 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 	@Override
 	public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player)
 	{
-/*
 		if (item != null && item.getTagCompound() != null && item.getTagCompound().getBoolean("IsOpen") == true)
 		{
 			return false;
 		}
-*/
+
 		return true;
 	}
 
