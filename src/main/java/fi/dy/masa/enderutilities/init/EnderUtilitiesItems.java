@@ -44,12 +44,12 @@ public class EnderUtilitiesItems
 		ItemStack goldnugget = new ItemStack(Items.gold_nugget);
 		ItemStack leather = new ItemStack(Items.leather);
 		ItemStack pearl = new ItemStack(Items.ender_pearl);
-		ItemStack powder = new ItemStack(Items.blaze_powder);
+		//ItemStack powder = new ItemStack(Items.blaze_powder);
 		ItemStack rsblock = new ItemStack(Blocks.redstone_block);
 		ItemStack string = new ItemStack(Items.string);
 
 		GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "E  ", 'N', goldnugget, 'P', pearl, 'A', arrow, 'E', eye);
-		GameRegistry.addRecipe(new ItemStack(enderBag), "BLB", "LEL", "BLB", 'B', powder, 'L', leather, 'E', eye);
+		GameRegistry.addRecipe(new ItemStack(enderBag), "LDL", "DED", "LDL", 'L', leather, 'D', diamond, 'E', eye);
 		GameRegistry.addRecipe(new ItemStack(enderBow), "PDP", "DBD", "PDP", 'P', pearl, 'D', diamond, 'B', bow);
 		GameRegistry.addRecipe(new ItemStack(enderBucket), "EGE", "DBD", "EGE", 'E', eye, 'G', gold, 'D', diamond, 'B', bucket);
 		GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
