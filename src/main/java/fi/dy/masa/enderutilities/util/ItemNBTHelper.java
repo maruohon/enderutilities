@@ -180,10 +180,7 @@ public class ItemNBTHelper
 
 		if (tag == null)
 		{
-			if (nbt.hasKey(name, 10) == true)
-			{
-				nbt.removeTag(name);
-			}
+			nbt.removeTag(name);
 		}
 		else
 		{

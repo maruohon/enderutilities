@@ -16,6 +16,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -340,7 +341,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 		int drained = 0;
 
 		NBTTagCompound nbt = container.getTagCompound();
-		if (nbt == null || nbt.hasKey("Fluid") == false)
+		if (nbt == null || nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == false)
 		{
 			return null;
 		}

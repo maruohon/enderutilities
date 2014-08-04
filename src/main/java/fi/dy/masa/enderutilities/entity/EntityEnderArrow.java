@@ -22,6 +22,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -517,11 +518,11 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		this.inData = par1NBTTagCompound.getByte("inData") & 255;
 		this.arrowShake = par1NBTTagCompound.getByte("shake") & 255;
 		this.inGround = par1NBTTagCompound.getByte("inGround") == 1;
-		if (par1NBTTagCompound.hasKey("pickup", 99))
+		if (par1NBTTagCompound.hasKey("pickup", Constants.NBT.TAG_ANY_NUMERIC))
 		{
 			this.canBePickedUp = par1NBTTagCompound.getByte("pickup");
 		}
-		else if (par1NBTTagCompound.hasKey("player", 99))
+		else if (par1NBTTagCompound.hasKey("player", Constants.NBT.TAG_ANY_NUMERIC))
 		{
 			this.canBePickedUp = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
 		}
@@ -530,7 +531,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		this.tpTargetZ = par1NBTTagCompound.getInteger("tpTargetZ");
 		this.tpTargetDim = par1NBTTagCompound.getInteger("tpTargetDim");
 		this.tpMode = par1NBTTagCompound.getByte("tpMode");
-		if (par1NBTTagCompound.hasKey("shooterUUIDMost", 4) && par1NBTTagCompound.hasKey("shooterUUIDLeast", 4))
+		if (par1NBTTagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && par1NBTTagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
 		{
 			this.shooterUUID = new UUID(par1NBTTagCompound.getLong("shooterUUIDMost"), par1NBTTagCompound.getLong("shooterUUIDLeast"));
 		}

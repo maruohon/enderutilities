@@ -8,6 +8,7 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
@@ -88,17 +89,17 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 
 		this.rotation = nbt.getByte("Rotation");
 
-		if (nbt.hasKey("OwnerName", 8) == true)
+		if (nbt.hasKey("OwnerName", Constants.NBT.TAG_STRING) == true)
 		{
 			this.ownerName = nbt.getString("OwnerName");
 		}
 
-		if (nbt.hasKey("OwnerUUIDMost") == true && nbt.hasKey("OwnerUUIDLeast") == true)
+		if (nbt.hasKey("OwnerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("OwnerUUIDLeast", Constants.NBT.TAG_LONG) == true)
 		{
 			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
 		}
 
-		if (nbt.hasKey("CustomName", 8) == true)
+		if (nbt.hasKey("CustomName", Constants.NBT.TAG_STRING) == true)
 		{
 			this.customInventoryName = nbt.getString("CustomName");
 		}

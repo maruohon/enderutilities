@@ -19,6 +19,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -115,7 +116,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			}
 		}
 
-		if (nbt.hasKey("OutputBufferAmount") == true && nbt.hasKey("OutputBufferStack") == true)
+		if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
 		{
 			this.outputBufferAmount = nbt.getInteger("OutputBufferAmount");
 			this.outputStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
@@ -196,7 +197,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.operatingMode = (byte)((flags & 0x40) >> 6);
 		this.outputMode = (byte)((flags & 0x80) >> 7);
 		this.outputBufferAmount = nbt.getInteger("b");
-		if (nbt.hasKey("o") == true)
+		if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
 		{
 			this.ownerName = nbt.getString("o");
 		}

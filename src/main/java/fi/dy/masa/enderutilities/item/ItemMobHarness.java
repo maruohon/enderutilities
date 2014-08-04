@@ -16,6 +16,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
@@ -101,7 +102,7 @@ public class ItemMobHarness extends ItemEU
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 
-		if (nbt == null || nbt.hasKey("Mode") == false)
+		if (nbt == null || nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) == false)
 		{
 			return false;
 		}
@@ -110,7 +111,9 @@ public class ItemMobHarness extends ItemEU
 
 		if (mode == (byte)1 || mode == (byte)2)
 		{
-			if (nbt.hasKey("TargetUUIDMost") == true && nbt.hasKey("TargetUUIDLeast") == true && nbt.hasKey("TargetName") == true)
+			if (nbt.hasKey("TargetUUIDMost", Constants.NBT.TAG_LONG) == true &&
+				nbt.hasKey("TargetUUIDLeast", Constants.NBT.TAG_LONG) == true &&
+				nbt.hasKey("TargetName", Constants.NBT.TAG_STRING) == true)
 			{
 				return true;
 			}

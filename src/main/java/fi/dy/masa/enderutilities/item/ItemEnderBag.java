@@ -18,6 +18,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
@@ -50,7 +51,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 
 		// Ender Chest
-		if (nbt.hasKey("Type") == true && nbt.getByte("Type") == (byte)1)
+		if (nbt.hasKey("Type", Constants.NBT.TAG_BYTE) == true && nbt.getByte("Type") == (byte)1)
 		{
 			nbt.setBoolean("IsOpen", true);
 			player.displayGUIChest(player.getInventoryEnderChest());

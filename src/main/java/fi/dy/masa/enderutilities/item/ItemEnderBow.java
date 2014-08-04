@@ -14,6 +14,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -180,12 +181,12 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt == null || nbt.hasKey("Mode") == false)
+			if (nbt == null || nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) == false)
 			{
 				return stack;
 			}
 
-			// Check that the bow is either not in "TP target" mode, or has a valid target set
+			// If the bow is in 'TP target' mode, it has to have a valid target set
 			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && ItemNBTHelper.hasTargetTag(nbt) == false)
 			{
 				return stack;
@@ -212,7 +213,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
 				NBTTagCompound nbt = stack.getTagCompound();
-				if (nbt == null || nbt.hasKey("Mode") == false)
+				if (nbt == null || nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) == false)
 				{
 					nbt = new NBTTagCompound();
 					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
@@ -249,7 +250,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 		}
 
 		byte mode = BOW_MODE_TP_TARGET;
-		if (nbt.hasKey("Mode"))
+		if (nbt.hasKey("Mode", Constants.NBT.TAG_BYTE))
 		{
 			mode = nbt.getByte("Mode");
 		}

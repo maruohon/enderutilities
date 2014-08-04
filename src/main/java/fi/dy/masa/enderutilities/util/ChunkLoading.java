@@ -15,6 +15,7 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.IChunkLoadingItem;
 
@@ -60,7 +61,7 @@ public class ChunkLoading implements LoadingCallback
 				else
 				{
 					//System.out.println("player, not persistent");
-					if (nbt.hasKey("PlayerUUIDMost") == true && nbt.hasKey("PlayerUUIDLeast") == true)
+					if (nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
 					{
 						//System.out.println("has UUID");
 						UUID uuid = new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
@@ -125,7 +126,7 @@ public class ChunkLoading implements LoadingCallback
 	public UUID getPlayerUUIDFromTicket(Ticket ticket)
 	{
 		NBTTagCompound nbt = ticket.getModData();
-		if (nbt == null || nbt.hasKey("PlayerUUIDMost") == false || nbt.hasKey("PlayerUUIDLeast") == false)
+		if (nbt == null || nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == false || nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == false)
 		{
 			return null;
 		}
