@@ -166,6 +166,11 @@ public class TeleportEntity
 
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
 	{
+		return teleportEntityUsingItem(entity, stack, true, true);
+	}
+
+	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
+	{
 		if (entity.worldObj.isRemote == true || stack == null)
 		{
 			return null;
@@ -174,7 +179,7 @@ public class TeleportEntity
 		ItemNBTHelper target = new ItemNBTHelper();
 		if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
 		{
-			return TeleportEntity.teleportEntity(entity, target.posX + 0.5d, target.posY, target.posZ + 0.5d, target.dimension, true, true);
+			return TeleportEntity.teleportEntity(entity, target.posX + 0.5d, target.posY, target.posZ + 0.5d, target.dimension, allowMounts, allowRiders);
 		}
 
 		return null;

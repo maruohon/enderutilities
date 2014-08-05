@@ -12,6 +12,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
+import fi.dy.masa.enderutilities.item.ItemEnderPorter;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
@@ -23,11 +24,13 @@ public class EnderUtilitiesItems
 	public static final Item enderBucket = new ItemEnderBucket();
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
+	public static final ItemEU enderPorter = new ItemEnderPorter();
 	public static final ItemEU mobHarness = new ItemMobHarness();
 
 	public static void init()
 	{
 		GameRegistry.registerItem(enderPearlReusable, ReferenceItem.NAME_ITEM_ENDER_PEARL_REUSABLE);
+		GameRegistry.registerItem(enderPorter, ReferenceItem.NAME_ITEM_ENDER_PORTER);
 		GameRegistry.registerItem(enderBow, ReferenceItem.NAME_ITEM_ENDER_BOW);
 		GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
 		GameRegistry.registerItem(enderLasso, ReferenceItem.NAME_ITEM_ENDER_LASSO);
@@ -54,6 +57,7 @@ public class EnderUtilitiesItems
 		GameRegistry.addRecipe(new ItemStack(enderBucket), "EGE", "DBD", "EGE", 'E', eye, 'G', gold, 'D', diamond, 'B', bucket);
 		GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
 		GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock);
+		GameRegistry.addRecipe(new ItemStack(enderPorter), "PNP", "NRN", "PNP", 'P', pearl, 'N', goldnugget, 'R', rsblock);
 		GameRegistry.addRecipe(new ItemStack(mobHarness), "LEL", "LDL", "LEL", 'L', leather, 'E', eye, 'D', diamond);
 	}
 }
