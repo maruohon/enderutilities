@@ -80,7 +80,10 @@ public class ItemEnderPorter extends ItemEU
 		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true)
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
-			Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.2f, 1.2f);
+			if (player.worldObj.isRemote == false)
+			{
+				Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.2f, 1.2f);
+			}
 			//player.playSound("portal.travel", 0.2f, 1.2f);
 		}
 
@@ -90,27 +93,36 @@ public class ItemEnderPorter extends ItemEU
 	@Override
 	public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
 	{
+	}
+
+	@Override
+	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
+	{
+	}
+
+	@Override
+	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
+	{
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (count == 1 && nbt != null)
+		ItemNBTHelper target = new ItemNBTHelper();
+		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, false, false) != null)
 		{
-			ItemNBTHelper target = new ItemNBTHelper();
-			if (target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, false, false) != null)
+			if (player.capabilities.isCreativeMode == false && --stack.stackSize <= 0)
 			{
-				if (player.capabilities.isCreativeMode == false && --stack.stackSize <= 0)
-				{
-					player.destroyCurrentEquippedItem();
-				}
+				player.destroyCurrentEquippedItem();
 			}
 		}
+
+		return stack;
 	}
 
 	/**
 	 * How long it takes to use or consume an item
 	 */
 	@Override
-	public int getMaxItemUseDuration(ItemStack par1ItemStack)
+	public int getMaxItemUseDuration(ItemStack stack)
 	{
-		return 60;
+		return 80;
 	}
 
 	@Override
@@ -132,7 +144,7 @@ public class ItemEnderPorter extends ItemEU
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".stage.1");
-		this.iconArray = new IIcon[6];
+		this.iconArray = new IIcon[7];
 
 		for (int i = 0; i < this.iconArray.length; ++i)
 		{
