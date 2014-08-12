@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +18,6 @@ import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.IChunkLoadingItem;
 
 public class ChunkLoading implements LoadingCallback
 {
@@ -51,35 +51,36 @@ public class ChunkLoading implements LoadingCallback
 			//System.out.println("ticketsLoaded(): looping: " + i);
 			Ticket ticket = tickets.get(i);
 
-			NBTTagCompound nbt = ticket.getModData();
-			if (ticket.isPlayerTicket() == true)
+			if (ticket != null && ticket.isPlayerTicket() == true)
 			{
-				if(nbt.getBoolean("PersistentTicket") == true)
-				{
-				}
-				// Release tickets that are not used for persistent chunk loading and are not currently in use
-				else
-				{
-					//System.out.println("player, not persistent");
-					if (nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
-					{
-						//System.out.println("has UUID");
-						UUID uuid = new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
-						EntityPlayer player = EntityUtils.findPlayerFromUUID(uuid);
+				//System.out.println("ticketsLoaded(): player ticket");
+				NBTTagCompound nbt = ticket.getModData();
 
-						if (player == null || player.getCurrentEquippedItem() == null ||
-							player.getCurrentEquippedItem().getItem() instanceof IChunkLoadingItem == false ||
-							player.getCurrentEquippedItem().getTagCompound() == null ||
-							player.getCurrentEquippedItem().getTagCompound().hasKey("ChunkLoadingRequired") == false)
+				// Release tickets that are not used for persistent chunk loading and are not currently in use
+				if(nbt == null || nbt.hasKey("PersistentTicket") == false || nbt.getBoolean("PersistentTicket") == false)
+				{
+					//System.out.println("ticketsLoaded(): player ticket, not persistent");
+					Set<ChunkCoordIntPair> chunks = ticket.getChunkList();
+					//System.out.println("ticketsLoaded(): getChunkList().size(): " + chunks.size());
+
+					for (ChunkCoordIntPair chunk : chunks)
+					{
+						//System.out.println("ticketsLoaded(): chunk set loop, unForceChunk()");
+						ForgeChunkManager.unforceChunk(ticket, chunk);
+
+						if (ticket != null && ticket.world != null && ticket.world.provider != null)
 						{
-							//System.out.println("ticketsLoaded(): releasing (1): " + i);
-							ForgeChunkManager.releaseTicket(ticket);
+							//System.out.println("ticketsLoaded(): chunk set loop, this.timeOuts.remove");
+							this.timeOuts.remove(dimChunkCoordsToString(ticket.world.provider.dimensionId, chunk.chunkXPos, chunk.chunkZPos));
 						}
 					}
-					else
+
+					ForgeChunkManager.releaseTicket(ticket);
+
+					if (nbt != null && nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
 					{
-						//System.out.println("ticketsLoaded(): releasing (no UUID): " + i);
-						ForgeChunkManager.releaseTicket(ticket);
+						//System.out.println("ticketsLoaded(): removePlayerTicket(): " + i);
+						this.removePlayerTicket(ticket);
 					}
 				}
 			}
@@ -159,19 +160,28 @@ public class ChunkLoading implements LoadingCallback
 		this.removePlayerTicket(player.getUniqueID().toString(), dimension);
 	}
 
+	public void removePlayerTicket(Ticket ticket)
+	{
+		if (ticket == null || ticket.world == null || ticket.world.provider == null)
+		{
+			return;
+		}
+		this.removePlayerTicket(this.getPlayerUUIDFromTicket(ticket).toString(), ticket.world.provider.dimensionId);
+	}
+
 	public void removePlayerTicket(String uuidStr, int dimension)
 	{
 		this.playerTickets.remove(uuidStr + "-" + dimension);
 	}
 
-	public static String dimChunkPairToString(int dim, ChunkCoordIntPair cc)
+	public static String dimChunkCoordsToString(int dim, ChunkCoordIntPair cc)
 	{
-		return dim + "-" + cc.chunkXPos + "-" + cc.chunkZPos;
+		return dim + "_" + cc.chunkXPos + "_" + cc.chunkZPos;
 	}
 
-	public static String dimChunkPairToString(int dim, int x, int z)
+	public static String dimChunkCoordsToString(int dim, int x, int z)
 	{
-		return dim + "-" + x + "-" + z;
+		return dim + "_" + x + "_" + z;
 	}
 
 	public class DimChunkCoordTimeout
@@ -257,6 +267,11 @@ public class ChunkLoading implements LoadingCallback
 	public boolean loadChunkForcedWithPlayerTicket(EntityPlayer player, int dimension, int chunkX, int chunkZ, int unloadDelay)
 	{
 		Ticket ticket = this.requestPlayerTicket(player, dimension, unloadDelay != 0);
+		return this.loadChunkForcedWithPlayerTicket(ticket, dimension, chunkX, chunkZ, unloadDelay);
+	}
+
+	public boolean loadChunkForcedWithPlayerTicket(Ticket ticket, int dimension, int chunkX, int chunkZ, int unloadDelay)
+	{
 		if (ticket == null)
 		{
 			//System.out.println("loadChunkForcedWithPlayerTicket() ticket == null");
@@ -274,7 +289,7 @@ public class ChunkLoading implements LoadingCallback
 
 	public void addChunkTimeout(Ticket ticket, int dimension, int chunkX, int chunkZ, int timeout)
 	{
-		String s = dimChunkPairToString(dimension, chunkX, chunkZ);
+		String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
 		if (this.timeOuts.containsKey(s) == true)
 		{
@@ -290,7 +305,7 @@ public class ChunkLoading implements LoadingCallback
 
 	public boolean refreshChunkTimeout(int dimension, int chunkX, int chunkZ)
 	{
-		String s = dimChunkPairToString(dimension, chunkX, chunkZ);
+		String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
 		if (this.timeOuts.containsKey(s) == true)
 		{
@@ -311,6 +326,14 @@ public class ChunkLoading implements LoadingCallback
 		{
 			dcct = entry.getValue();
 			//System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
+
+			// If this chunk doesn't have a valid ticket anymore, just remove the entry
+			if (dcct != null && this.playerTickets.containsValue(dcct.ticket) == false)
+			{
+				//System.out.println("tickChunkTimeouts(): invalid ticket, removing timeout entry");
+				toRemove.add(entry.getKey());
+				continue;
+			}
 
 			if (dcct.tick() == 0)
 			{
