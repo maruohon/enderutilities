@@ -413,7 +413,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 		 */
 		FluidStack fluidStack = this.getFluid(itemStack);
 
-		if (fluidStack != null && fluidStack.getFluid() != null && fluidStack.amount > 0)
+		if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null && fluidStack.getFluid().getName().equals("lava") == true)
 		{
 			return true;
 		}
@@ -440,9 +440,9 @@ public class ItemEnderBucket extends ItemFluidContainer
 		if (fluidStack != null && fluidStack.getFluid() != null && fluidStack.amount > 250 && fluidStack.getFluid().getName().equals("lava") == true)
 		{
 			fluidStack.amount -= 250;
+			NBTTagCompound nbt = itemStack.getTagCompound();
 			ItemStack newStack = new ItemStack(EnderUtilitiesItems.enderBucket, 1, 0);
 			newStack.setItemDamage(itemStack.getItemDamage());
-			NBTTagCompound nbt = itemStack.getTagCompound();
 			nbt.setTag("Fluid", fluidStack.writeToNBT(new NBTTagCompound()));
 			newStack.setTagCompound(nbt);
 			return newStack;
