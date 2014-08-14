@@ -20,6 +20,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -437,7 +440,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return false;
 		}
 
-		return getItemBurnTime(this.itemStacks[1]) > 0;
+		return getItemBurnTime(this.itemStacks[1]) > 0 || itemContainsFluidFuel(this.itemStacks[1]);
 	}
 
 	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
@@ -487,16 +490,22 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		int burnTime = getItemBurnTime(this.itemStacks[1]);
-		if (burnTime == 0)
-		{
-			return 0;
-		}
 
-		if (--this.itemStacks[1].stackSize <= 0)
+		// Regular solid fuels
+		if (burnTime > 0)
 		{
-			this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
+			if (--this.itemStacks[1].stackSize <= 0)
+			{
+				this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
+			}
+			this.burnTimeFresh = burnTime;
 		}
-		this.burnTimeFresh = burnTime;
+		// IFluidContainerItem items with lava
+		else if (itemContainsFluidFuel(this.itemStacks[1]) == true)
+		{
+			burnTime = consumeFluidFuelDosage(this.itemStacks[1]);
+			this.burnTimeFresh = burnTime;
+		}
 
 		return burnTime;
 	}
@@ -578,10 +587,62 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 	}
 
+	public static int consumeFluidFuelDosage(ItemStack stack)
+	{
+		if (itemContainsFluidFuel(stack) == false)
+		{
+			return 0;
+		}
+
+		int burnTime = 0;
+		int amount = 0;
+
+		// All the null checks happened already in itemContainsFluidFuel()
+		FluidStack fluidStack = ((IFluidContainerItem)stack.getItem()).getFluid(stack);
+		String name = fluidStack.getFluid().getName();
+		amount = Math.min(250, fluidStack.amount); // Consume max 250 mB per use
+
+		if (name.equals("lava") == true)
+		{
+			burnTime = amount * 15 * COOKTIME_DEFAULT / 100; // 1.5 times vanilla lava fuel value (=> 37.5 items per 250 mB = 150 items per bucket)
+			((IFluidContainerItem)stack.getItem()).drain(stack, amount, true);
+		}
+
+		return burnTime;
+	}
+
 	/* Check if the given item works as a fuel source in this furnace */
 	public static boolean isItemFuel(ItemStack stack)
 	{
-		return getItemBurnTime(stack) > 0;
+		return itemContainsFluidFuel(stack) || getItemBurnTime(stack) > 0;
+	}
+
+	public static boolean itemContainsFluidFuel(ItemStack stack)
+	{
+		if (stack == null || stack.getItem() == null || stack.getItem() instanceof IFluidContainerItem == false)
+		{
+			return false;
+		}
+
+		FluidStack fluidStack = ((IFluidContainerItem)stack.getItem()).getFluid(stack);
+		if (fluidStack == null || fluidStack.amount <= 0)
+		{
+			return false;
+		}
+
+		Fluid fluid = fluidStack.getFluid();
+		if (fluid == null)
+		{
+			return false;
+		}
+
+		String name = fluid.getName();
+		if (name.equals("lava") == true)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/* Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot. */
@@ -626,7 +687,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	// Returns true if automation can extract the given item in the given slot from the given side. Args: slot, itemstack, side
 	public boolean canExtractItem(int slot, ItemStack stack, int side)
 	{
-		// Only allow pulling out items that are not fuel from the fuel slot
+		// Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
 		if (slot == 1)
 		{
 			return isItemFuel(stack) == false;
