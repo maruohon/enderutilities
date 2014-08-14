@@ -571,8 +571,8 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			if (item == Items.blaze_rod) return COOKTIME_DEFAULT * 18;
 
 			// Ender Furnace custom fuels
-			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 6; }
-			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 12; }
+			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 8; }
+			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 16; }
 
 			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 150;
 		}
