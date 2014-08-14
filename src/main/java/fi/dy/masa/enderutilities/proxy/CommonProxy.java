@@ -14,7 +14,6 @@ import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
-import fi.dy.masa.enderutilities.handler.FuelHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
 import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
 import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
@@ -55,7 +54,7 @@ public abstract class CommonProxy implements IProxy
 
 	public void registerFuelHandlers()
 	{
-		GameRegistry.registerFuelHandler(new FuelHandler());
+		//GameRegistry.registerFuelHandler(new FuelHandler());
 	}
 
 	public void registerTileEntities()

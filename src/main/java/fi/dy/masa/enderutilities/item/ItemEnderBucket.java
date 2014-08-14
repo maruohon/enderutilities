@@ -29,7 +29,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
@@ -399,55 +398,5 @@ public class ItemEnderBucket extends ItemFluidContainer
 			i = 0;
 		}
 		return this.iconParts[i];
-	}
-
-	/**
-	 * ItemStack sensitive version of hasContainerItem
-	 * @param stack The current item stack
-	 * @return True if this item has a 'container'
-	 */
-	public boolean hasContainerItem(ItemStack itemStack)
-	{
-		/**
-		 * True if this Item has a container item (a.k.a. crafting result)
-		 */
-		FluidStack fluidStack = this.getFluid(itemStack);
-
-		if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null && fluidStack.getFluid().getName().equals("lava") == true)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * ItemStack sensitive version of getContainerItem.
-	 * Returns a full ItemStack instance of the result.
-	 *
-	 * @param itemStack The current ItemStack
-	 * @return The resulting ItemStack
-	 */
-	public ItemStack getContainerItem(ItemStack itemStack)
-	{
-		if (hasContainerItem(itemStack) == false)
-		{
-			return null;
-		}
-
-		// We use 250 mB of lava per "use", mainly for use as a furnace fuel
-		FluidStack fluidStack = this.getFluid(itemStack);
-		if (fluidStack != null && fluidStack.getFluid() != null && fluidStack.amount > 250 && fluidStack.getFluid().getName().equals("lava") == true)
-		{
-			fluidStack.amount -= 250;
-			NBTTagCompound nbt = itemStack.getTagCompound();
-			ItemStack newStack = new ItemStack(EnderUtilitiesItems.enderBucket, 1, 0);
-			newStack.setItemDamage(itemStack.getItemDamage());
-			nbt.setTag("Fluid", fluidStack.writeToNBT(new NBTTagCompound()));
-			newStack.setTagCompound(nbt);
-			return newStack;
-		}
-
-		return new ItemStack(EnderUtilitiesItems.enderBucket, 1, 0);
 	}
 }
