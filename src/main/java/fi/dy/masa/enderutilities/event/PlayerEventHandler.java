@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
@@ -26,44 +25,34 @@ public class PlayerEventHandler
 	}
 
 	@SubscribeEvent
-	public void onEntityConstructing(EntityConstructing event)
-	{
-/*
-		if (event.entity instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer)event.entity) == null)
-		{
-			ExtendedPlayer.register((EntityPlayer)event.entity);
-		}
-*/
-	}
-
-	@SubscribeEvent
 	public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
 	{
-		if (event != null && event.entityPlayer != null)
+		if (event == null || event.entityPlayer == null)
 		{
-			EntityPlayer player = event.entityPlayer;
+			return;
+		}
 
-			ItemStack stack = player.getCurrentEquippedItem();
-			if (stack != null && stack.getItem() != null)
+		EntityPlayer player = event.entityPlayer;
+		ItemStack stack = player.getCurrentEquippedItem();
+		if (stack != null && stack.getItem() != null)
+		{
+			if (stack.getItem() == EnderUtilitiesItems.enderBag)
 			{
-				if (stack.getItem() == EnderUtilitiesItems.enderBag)
+				NBTTagCompound nbt = stack.getTagCompound();
+				if (nbt != null && nbt.getBoolean("IsOpen") == true)
 				{
-					NBTTagCompound nbt = stack.getTagCompound();
-					if (nbt != null && nbt.getBoolean("IsOpen") == true)
+					if (player.openContainer != player.inventoryContainer)
 					{
-						if (player.openContainer != player.inventoryContainer)
-						{
-							// Allow access from anywhere with the Ender Bag (bypassing the distance checks)
-							event.setResult(Result.ALLOW);
-						}
-						// Ender Bag: Player has just closed the remote container
-						else
-						{
-							nbt.removeTag("ChunkLoadingRequired");
-							nbt.setBoolean("IsOpenDummy", true);
-							stack.setTagCompound(nbt);
-							//player.inventory.markDirty();
-						}
+						// Allow access from anywhere with the Ender Bag (bypassing the distance checks)
+						event.setResult(Result.ALLOW);
+					}
+					// Ender Bag: Player has just closed the remote container
+					else
+					{
+						nbt.removeTag("ChunkLoadingRequired");
+						nbt.setBoolean("IsOpenDummy", true);
+						stack.setTagCompound(nbt);
+						//player.inventory.markDirty();
 					}
 				}
 			}
