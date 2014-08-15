@@ -55,14 +55,62 @@ public class ItemEnderBucket extends ItemFluidContainer
 	}
 
 	@Override
-	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player)
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		// Do nothing on the client side
 		if (world.isRemote == true)
 		{
-			return itemStack;
+			return true;
 		}
 
+		this.useBucket(stack, world, player);
+		return true;
+	}
+
+	@Override
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+	{
+		// Do nothing on the client side
+		if (world.isRemote == true)
+		{
+			return stack;
+		}
+
+		this.useBucket(stack, world, player);
+		return stack;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
+	{
+/*
+		if (EnderUtilities.proxy.isShiftKeyDown() == false)
+
+		{
+			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			return;
+		}
+*/
+
+		FluidStack fluidStack = this.getFluid(itemStack);
+		String fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
+		int amount = 0;
+		String pre = "" + EnumChatFormatting.BLUE;
+		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+
+		if (fluidStack != null && fluidStack.getFluid() != null)
+		{
+			amount = fluidStack.amount;
+			fluidName = pre + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
+		}
+
+		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
+		list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
+	}
+
+	public boolean useBucket(ItemStack itemStack, World world, EntityPlayer player)
+	{
 		// First, get the stored fluid, if any
 		FluidStack storedFluidStack = this.getFluid(itemStack);
 		int storedFluidAmount = 0;
@@ -78,25 +126,18 @@ public class ItemEnderBucket extends ItemFluidContainer
 
 		if (movingobjectposition == null || movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
 		{
-			return itemStack;
+			return false;
 		}
 
 		int x = movingobjectposition.blockX;
 		int y = movingobjectposition.blockY;
 		int z = movingobjectposition.blockZ;
 
-		Block targetBlock;
-
-		targetBlock = world.getBlock(x, y, z);
-		if (targetBlock == null || targetBlock.getMaterial() == null)
-		{
-			return itemStack;
-		}
-
+		Block targetBlock = world.getBlock(x, y, z);
 		// Spawn safe zone checks etc.
-		if (world.canMineBlock(player, x, y, x) == false)
+		if (targetBlock == null || targetBlock.getMaterial() == null || world.canMineBlock(player, x, y, x) == false)
 		{
-			return itemStack;
+			return false;
 		}
 
 		// Fluid block
@@ -133,7 +174,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 			{
 				if (player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, itemStack) == false)
 				{
-					return itemStack;
+					return false;
 				}
 
 				// Implements IFluidBlock
@@ -148,9 +189,10 @@ public class ItemEnderBucket extends ItemFluidContainer
 						{
 							fluidStack = iFluidBlock.drain(world, x, y, z, true);
 							this.fill(itemStack, fluidStack, true);
+							return true;
 						}
 					}
-					return itemStack;
+					return false;
 				}
 
 				// Does not implement IFluidBlock
@@ -166,9 +208,10 @@ public class ItemEnderBucket extends ItemFluidContainer
 					if (world.setBlockToAir(x, y, z) == true)
 					{
 						this.fill(itemStack, fluidStack, true);
+						return true;
 					}
 				}
-				return itemStack;
+				return false;
 			}
 
 			// Fluid stored, trying to place fluid
@@ -180,9 +223,10 @@ public class ItemEnderBucket extends ItemFluidContainer
 					if (this.tryPlaceContainedFluid(world, x, y, z, storedFluidStack) == true)
 					{
 						this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true);
+						return true;
 					}
 				}
-				return itemStack;
+				return false;
 			}
 		}
 		// Non-fluid block
@@ -217,9 +261,9 @@ public class ItemEnderBucket extends ItemFluidContainer
 						{
 							fluidStack = iFluidHandler.drain(fDir, space, true); // actually drain
 							this.fill(itemStack, fluidStack, true);
+							return true;
 						}
 					}
-					return itemStack;
 				}
 				// Sneaking, try to deposit fluid to the tank
 				else
@@ -235,6 +279,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 						{
 							int amount = iFluidHandler.fill(fDir, fluidStack, true);
 							this.drain(itemStack, amount, true); // actually drain fluid from the bucket (the amount that was deposited into the container)
+							return true;
 						}
 					}
 				}
@@ -251,40 +296,12 @@ public class ItemEnderBucket extends ItemFluidContainer
 				if (this.tryPlaceContainedFluid(world, x, y, z, storedFluidStack) == true)
 				{
 					this.drain(itemStack, FluidContainerRegistry.BUCKET_VOLUME, true);
+					return true;
 				}
 			}
 		}
 
-		return itemStack;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
-	{
-/*
-		if (EnderUtilities.proxy.isShiftKeyDown() == false)
-
-		{
-			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
-			return;
-		}
-*/
-
-		FluidStack fluidStack = this.getFluid(itemStack);
-		String fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
-		int amount = 0;
-		String pre = "" + EnumChatFormatting.BLUE;
-		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-		if (fluidStack != null && fluidStack.getFluid() != null)
-		{
-			amount = fluidStack.amount;
-			fluidName = pre + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
-		}
-
-		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
-		list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
+		return false;
 	}
 
 	/*
