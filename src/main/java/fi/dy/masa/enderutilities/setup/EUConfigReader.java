@@ -55,13 +55,9 @@ public class EUConfigReader
 		EUConfigs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"chest", "dispenser", "dropper", "furnace", "hopper", "trapped_chest"}).setRequiresMcRestart(true);
 		EUConfigs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
 
-		category = "EnderBow";
-		EUConfigs.enderBowBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(true);
-		EUConfigs.enderBowBlacklist.comment = "Entities the Ender Bow is not allowed to teleport.";
-
-		category = "EnderLasso";
-		EUConfigs.enderLassoBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(true);
-		EUConfigs.enderLassoBlacklist.comment = "Entities the Ender Lasso is not allowed to teleport.";
+		category = "Teleporting";
+		EUConfigs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {}).setRequiresMcRestart(true);
+		EUConfigs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
 
 		if (conf.hasChanged() == true)
 		{

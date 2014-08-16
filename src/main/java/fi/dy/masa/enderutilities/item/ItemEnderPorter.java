@@ -16,6 +16,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -77,7 +78,7 @@ public class ItemEnderPorter extends ItemEU
 		}
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true)
+		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 			if (player.worldObj.isRemote == false)
@@ -105,7 +106,7 @@ public class ItemEnderPorter extends ItemEU
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		ItemNBTHelper target = new ItemNBTHelper();
-		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, false, false) != null)
+		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
 		{
 			if (player.capabilities.isCreativeMode == false && --stack.stackSize <= 0)
 			{

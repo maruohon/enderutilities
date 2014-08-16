@@ -13,6 +13,5 @@ public class EUConfigs
 	public static Property enderBagBlacklist;
 	public static Property enderBagWhitelist;
 
-	public static Property enderBowBlacklist;
-	public static Property enderLassoBlacklist;
+	public static Property teleportBlacklist;
 }

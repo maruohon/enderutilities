@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import fi.dy.masa.enderutilities.setup.EURegistry;
 
 public class EntityUtils
 {
@@ -75,7 +76,7 @@ public class EntityUtils
 		return ent;
 	}
 
-	// Check if there are any players on this entity 'stack' (pile of mounted entities)
+	// Check if there are any players in this entity 'stack' (pile of mounted entities)
 	public static boolean doesEntityStackHavePlayers(Entity entity)
 	{
 		Entity ent;
@@ -91,6 +92,31 @@ public class EntityUtils
 		for (ent = entity.riddenByEntity; ent != null; ent = ent.riddenByEntity)
 		{
 			if (ent instanceof EntityPlayer)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// Check if there are any blacklisted entities in this entity 'stack' (pile of mounted entities)
+	public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
+	{
+		List<String> blacklist = EURegistry.getTeleportBlacklist();
+		Entity ent;
+
+		for (ent = entity; ent != null; ent = ent.ridingEntity)
+		{
+			if (blacklist.contains(ent.getClass().getSimpleName()) == true)
+			{
+				return true;
+			}
+		}
+
+		for (ent = entity.riddenByEntity; ent != null; ent = ent.riddenByEntity)
+		{
+			if (blacklist.contains(ent.getClass().getSimpleName()) == true)
 			{
 				return true;
 			}

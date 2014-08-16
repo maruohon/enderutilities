@@ -50,7 +50,10 @@ public class TeleportEntity
 
 	public static boolean canTeleportEntity(Entity entity)
 	{
-		// TODO Add a blacklist for entities
+		if (EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == true)
+		{
+			return false;
+		}
 
 		return true;
 	}
@@ -107,8 +110,13 @@ public class TeleportEntity
 		}
 	}
 
-	public static void playerTeleportSelfWithProjectile(EntityPlayer player, Entity entity, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
+	public static boolean playerTeleportSelfWithProjectile(EntityPlayer player, Entity entity, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
 	{
+		if (canTeleportEntity(player) == false)
+		{
+			return false;
+		}
+
 		double x = entity.posX;
 		double y = entity.posY;
 		double z = entity.posZ;
@@ -160,8 +168,11 @@ public class TeleportEntity
 				{
 					e.attackEntityFrom(DamageSource.fall, teleportDamage);
 				}
+				return true;
 			}
 		}
+
+		return false;
 	}
 
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
@@ -190,6 +201,7 @@ public class TeleportEntity
 		if (entity == null || entity.worldObj.isRemote == true) { return null; }
 		if (allowMounts == false && entity.ridingEntity != null) { return null; }
 		if (allowRiders == false && entity.riddenByEntity != null) { return null; }
+		if (canTeleportEntity(entity) == false) { return null; }
 
 		Entity current, ret = null;
 		boolean reCreate = EntityUtils.doesEntityStackHavePlayers(entity);
@@ -402,8 +414,8 @@ public class TeleportEntity
 		{
 			entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
 		}
-		x = (double)MathHelper.clamp_int((int)x, -29999872, 29999872);
-		z = (double)MathHelper.clamp_int((int)z, -29999872, 29999872);
+		x = MathHelper.clamp_double(x, -30000000.0d, 30000000.0d);
+		z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
 		entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
 		worldServerDst.spawnEntityInWorld(entityDst);
 		worldServerDst.updateEntityWithOptionalForce(entityDst, false);
@@ -426,8 +438,8 @@ public class TeleportEntity
 		}
 
 		int dimSrc = player.dimension;
-		x = (double)MathHelper.clamp_int((int)x, -29999872, 29999872);
-		z = (double)MathHelper.clamp_int((int)z, -29999872, 29999872);
+		x = MathHelper.clamp_double(x, -30000000.0d, 30000000.0d);
+		z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
 		player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
 
 		ServerConfigurationManager serverCM = player.mcServer.getConfigurationManager();

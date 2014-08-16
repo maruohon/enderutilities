@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
@@ -14,6 +15,7 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.EUConfigReader;
+import fi.dy.masa.enderutilities.setup.EURegistry;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
@@ -58,10 +60,10 @@ public class EnderUtilities
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
 	}
 
-/*
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
+		EURegistry.registerEnderbagLists();
+		EURegistry.registerTeleportBlacklist();
 	}
-*/
 }

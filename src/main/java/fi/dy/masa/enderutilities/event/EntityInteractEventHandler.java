@@ -31,8 +31,10 @@ public class EntityInteractEventHandler
 				{
 					if (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
 					{
-						TeleportEntity.teleportEntityUsingItem(event.target, stack);
-						event.setCanceled(true);
+						if (TeleportEntity.teleportEntityUsingItem(event.target, stack) != null)
+						{
+							event.setCanceled(true);
+						}
 					}
 				}
 			}

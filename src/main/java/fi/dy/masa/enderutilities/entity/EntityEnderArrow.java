@@ -361,9 +361,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					if (player != null)
 					{
 						EnderTeleportEvent event = new EnderTeleportEvent(player, this.tpTargetX, this.tpTargetY, this.tpTargetZ, teleportDamage);
-						if (MinecraftForge.EVENT_BUS.post(event) == false)
+						if (MinecraftForge.EVENT_BUS.post(event) == false &&
+							TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true) == true)
 						{
-							TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
 							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 						}
 					}
@@ -378,7 +378,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				{
 					this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-					if (TeleportEntity.canTeleportEntity(movingobjectposition.entityHit) == true &&
+					if (EntityUtils.doesEntityStackHaveBlacklistedEntities(movingobjectposition.entityHit) == false &&
 						(EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false
 						|| EUConfigs.enderBowAllowPlayers.getBoolean(false) == true))
 					{
