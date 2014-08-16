@@ -29,6 +29,9 @@ gui.tooltip.type=Type
 gui.tooltip.empty=empty
 gui.tooltip.fluid=Fluid
 gui.tooltip.amount=Amount
+gui.tooltip.bucket.mode.normal=Normal
+gui.tooltip.bucket.mode.pickup=Pickup
+gui.tooltip.bucket.mode.deposit=Deposit
 
 gui.tooltip.notargetset=No target set
 gui.tooltip.dimension=Dimension

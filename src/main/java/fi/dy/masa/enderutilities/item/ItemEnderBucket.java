@@ -32,9 +32,14 @@ import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 
-public class ItemEnderBucket extends ItemFluidContainer
+public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 {
+	public static final byte MODE_NORMAL = 0;
+	public static final byte MODE_PICKUP = 1;
+	public static final byte MODE_DEPOSIT = 2;
+
 	@SideOnly(Side.CLIENT)
 	public IIcon[] iconParts;
 
@@ -94,23 +99,38 @@ public class ItemEnderBucket extends ItemFluidContainer
 */
 
 		FluidStack fluidStack = this.getFluid(itemStack);
-		String fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
-		int amount = 0;
+		String fluidName;
 		String pre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+		String modeStr = "gui.tooltip.bucket.mode.normal";
+		int amount = 0;
 
 		if (fluidStack != null && fluidStack.getFluid() != null)
 		{
 			amount = fluidStack.amount;
 			fluidName = pre + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
 		}
+		else
+		{
+			fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
+		}
+
+		NBTTagCompound nbt = itemStack.getTagCompound();
+		if (nbt != null && nbt.hasKey("Mode") == true)
+		{
+			byte mode = nbt.getByte("Mode");
+			if (mode == MODE_PICKUP) { modeStr = "gui.tooltip.bucket.mode.pickup"; }
+			else if (mode == MODE_DEPOSIT) { modeStr = "gui.tooltip.bucket.mode.deposit"; }
+		}
 
 		list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
 		list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
+		list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
 	}
 
 	public boolean useBucket(ItemStack itemStack, World world, EntityPlayer player)
 	{
+		byte bucketMode = this.getBucketMode(itemStack);
 		// First, get the stored fluid, if any
 		FluidStack storedFluidStack = this.getFluid(itemStack);
 		int storedFluidAmount = 0;
@@ -169,8 +189,9 @@ public class ItemEnderBucket extends ItemFluidContainer
 			}
 
 			// Empty || (space && not sneaking && same fluid) => trying to pick up fluid
-			if (storedFluidAmount == 0 ||
-				((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME && player.isSneaking() == false && storedFluid == targetFluid))
+			if (bucketMode != MODE_DEPOSIT && (storedFluidAmount == 0 ||
+				((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME && storedFluid == targetFluid &&
+				(player.isSneaking() == false || bucketMode == MODE_PICKUP))))
 			{
 				if (player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, itemStack) == false)
 				{
@@ -215,7 +236,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 			}
 
 			// Fluid stored, trying to place fluid
-			if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
+			if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME && bucketMode != MODE_PICKUP)
 			{
 				// (fluid stored && different fluid) || (fluid stored && same fluid && sneaking) => trying to place fluid
 				if (storedFluid != targetFluid || player.isSneaking() == true)
@@ -242,7 +263,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 				ForgeDirection fDir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
 
 				// With tanks we pick up fluid when not sneaking
-				if (player.isSneaking() == false)
+				if (bucketMode == MODE_PICKUP || (player.isSneaking() == false && bucketMode != MODE_DEPOSIT))
 				{
 					int space = this.capacity - storedFluidAmount;
 
@@ -286,7 +307,7 @@ public class ItemEnderBucket extends ItemFluidContainer
 			}
 
 			// target block is not fluid and not a tank: try to place a fluid block in world against the targeted side
-			else if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME)
+			else if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME && bucketMode != MODE_PICKUP)
 			{
 				ForgeDirection dir = ForgeDirection.getOrientation(movingobjectposition.sideHit);
 				x += dir.offsetX;
@@ -302,6 +323,23 @@ public class ItemEnderBucket extends ItemFluidContainer
 		}
 
 		return false;
+	}
+
+	public byte getBucketMode(ItemStack stack)
+	{
+		if (stack != null)
+		{
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (nbt != null && nbt.hasKey("Mode") == true)
+			{
+				byte mode = nbt.getByte("Mode");
+				if (mode >= MODE_NORMAL && mode <= MODE_DEPOSIT)
+				{
+					return mode;
+				}
+			}
+		}
+		return MODE_NORMAL;
 	}
 
 	/*
@@ -415,5 +453,30 @@ public class ItemEnderBucket extends ItemFluidContainer
 			i = 0;
 		}
 		return this.iconParts[i];
+	}
+
+	@Override
+	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+	{
+		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		{
+			// 0: Normal, 1: Pickup only, 2: Deposit only
+			byte val = MODE_NORMAL;
+			NBTTagCompound nbt = stack.getTagCompound();
+			if (nbt != null)
+			{
+				val = nbt.getByte("Mode");
+			}
+			else
+			{
+				nbt = new NBTTagCompound();
+			}
+			if (++val > MODE_DEPOSIT)
+			{
+				val = MODE_NORMAL;
+			}
+			nbt.setByte("Mode", val);
+			stack.setTagCompound(nbt);
+		}
 	}
 }
