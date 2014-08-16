@@ -46,3 +46,4 @@ gui.tooltip.private=Private
 gui.tooltip.public=Public
 
 chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
+chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:

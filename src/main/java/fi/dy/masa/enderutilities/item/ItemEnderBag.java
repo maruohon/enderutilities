@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
@@ -24,6 +26,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.setup.EURegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
@@ -69,6 +73,14 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 
 		// Instance of IInventory (= not Ender Chest); Get the target information
 		if (itemData.readTargetTagFromNBT(nbt) == null)
+		{
+			return stack;
+		}
+
+		// Target block is not whitelisted, so it is known to not work unless within the client's loaded region
+		// FIXME: How should we properly check if the player is within range?
+		if (this.isTargetBlockWhitelisted(nbt.getString("BlockName")) == false &&
+			(itemData.dimension != player.dimension || player.getDistanceSq(itemData.posX, itemData.posY, itemData.posZ) >= 10000.0d))
 		{
 			return stack;
 		}
@@ -119,6 +131,11 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			return false;
 		}
 
+		if (world.isRemote == true)
+		{
+			return true;
+		}
+
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null)
 		{
@@ -144,6 +161,21 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 
 		if (te instanceof TileEntityEnderChest || te instanceof IInventory)
 		{
+			// FIXME debug
+			//System.out.println("Block.blockRegistry.getNameForObject(): " + Block.blockRegistry.getNameForObject(block));
+			//System.out.println("block.getClass().getSimpleName(): " + block.getClass().getSimpleName());
+			//System.out.println("block.getUnlocalizedName(): " + block.getUnlocalizedName());
+			//System.out.println("block.getLocalizedName(): " + block.getLocalizedName());
+			//System.out.println("te.getClass().getSimpleName(): " + te.getClass().getSimpleName());
+			//System.out.println("--------------------------------------------------");
+
+			if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block)) == false)
+			{
+				//EnderUtilities.logger.info("Ender Bag: Block '" + Block.blockRegistry.getNameForObject(block) + "' is not whitelisted, or is blacklisted.");
+				player.addChatMessage(new ChatComponentText(I18n.format("chat.message.enderbag.blocknotwhitelisted") + " '" + Block.blockRegistry.getNameForObject(block) + "'"));
+				return true;
+			}
+
 			nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
 			nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
 			nbt = ItemNBTHelper.writePlayerTagToNBT(nbt, player);
@@ -163,6 +195,33 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 
 		return true;
+	}
+
+	private boolean isTargetBlockWhitelisted(String name)
+	{
+		List<String> list;
+
+		// Black list
+		if (EUConfigs.enderBagListType.getString().equalsIgnoreCase("blacklist") == true)
+		{
+			list = EURegistry.getEnderbagBlacklist();
+			if (list.contains(name) == true)
+			{
+				return false;
+			}
+			return true;
+		}
+		// White list
+		else
+		{
+			list = EURegistry.getEnderbagWhitelist();
+			if (list.contains(name) == true)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
@@ -263,26 +322,6 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 				nbt.setBoolean("IsOpen", false);
 			}
 		}
-	}
-
-	/**
-	 * Called when a player drops the item into the world,
-	 * returning false from this will prevent the item from
-	 * being removed from the players inventory and spawning
-	 * in the world
-	 *
-	 * @param player The player that dropped the item
-	 * @param item The item stack, before the item is removed.
-	 */
-	@Override
-	public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player)
-	{
-		if (item != null && item.getTagCompound() != null && item.getTagCompound().getBoolean("IsOpen") == true)
-		{
-			return false;
-		}
-
-		return true;
 	}
 
     @Override

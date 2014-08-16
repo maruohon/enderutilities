@@ -32,7 +32,7 @@ public class EURegistry
 
 	public static List<String> getEnderbagWhitelist()
 	{
-		return enderBagBlacklist;
+		return enderBagWhitelist;
 	}
 
 	public static void registerTeleportBlacklist()

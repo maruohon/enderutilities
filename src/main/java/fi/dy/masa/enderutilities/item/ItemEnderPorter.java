@@ -80,7 +80,15 @@ public class ItemEnderPorter extends ItemEU
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
-			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+			if (player.capabilities.isCreativeMode == true)
+			{
+				// Use a shorter delay in creative mode
+				player.setItemInUse(stack, this.getMaxItemUseDuration(stack) >> 3);
+			}
+			else
+			{
+				player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+			}
 			if (player.worldObj.isRemote == false)
 			{
 				Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.2f, 1.2f);
