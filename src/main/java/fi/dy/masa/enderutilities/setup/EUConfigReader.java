@@ -56,7 +56,7 @@ public class EUConfigReader
 		EUConfigs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
 
 		category = "Teleporting";
-		EUConfigs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {}).setRequiresMcRestart(true);
+		EUConfigs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityWither"}).setRequiresMcRestart(true);
 		EUConfigs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
 
 		if (conf.hasChanged() == true)
