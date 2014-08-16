@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -172,7 +171,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block)) == false)
 			{
 				//EnderUtilities.logger.info("Ender Bag: Block '" + Block.blockRegistry.getNameForObject(block) + "' is not whitelisted, or is blacklisted.");
-				player.addChatMessage(new ChatComponentText(I18n.format("chat.message.enderbag.blocknotwhitelisted") + " '" + Block.blockRegistry.getNameForObject(block) + "'"));
+				player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("chat.message.enderbag.blocknotwhitelisted") + " '" + Block.blockRegistry.getNameForObject(block) + "'"));
 				return true;
 			}
 
