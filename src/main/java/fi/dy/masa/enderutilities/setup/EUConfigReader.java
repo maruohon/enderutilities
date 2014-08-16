@@ -52,7 +52,7 @@ public class EUConfigReader
 		EUConfigs.enderBagBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(true);
 		EUConfigs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
 
-		EUConfigs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"chest", "dispenser", "dropper", "furnace", "hopper", "trapped_chest"}).setRequiresMcRestart(true);
+		EUConfigs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(true);
 		EUConfigs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
 
 		category = "Teleporting";
