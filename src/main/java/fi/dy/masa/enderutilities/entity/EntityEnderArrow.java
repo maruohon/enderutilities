@@ -28,6 +28,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -359,8 +360,12 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 					if (player != null)
 					{
-						TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
-						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+						EnderTeleportEvent event = new EnderTeleportEvent(player, this.tpTargetX, this.tpTargetY, this.tpTargetZ, teleportDamage);
+						if (MinecraftForge.EVENT_BUS.post(event) == false)
+						{
+							TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
+							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+						}
 					}
 					this.dropAsItem(false);
 					this.setDead();
@@ -373,20 +378,16 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				{
 					this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-					if (TeleportEntity.canTeleportEntity(movingobjectposition.entityHit) == true)
+					if (TeleportEntity.canTeleportEntity(movingobjectposition.entityHit) == true &&
+						(EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false
+						|| EUConfigs.enderBowAllowPlayers.getBoolean(false) == true))
 					{
 						if (this.worldObj.isRemote == false)
 						{
-							EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
-							double x = this.shootingEntity.posX;
-							double y = this.shootingEntity.posY + 5.0d;
-							double z = this.shootingEntity.posZ;
-							x = (double)this.tpTargetX + 0.5d;
-							y = (double)this.tpTargetY;
-							z = (double)this.tpTargetZ + 0.5d;
+							double x = (double)this.tpTargetX + 0.5d;
+							double y = (double)this.tpTargetY;
+							double z = (double)this.tpTargetZ + 0.5d;
 
-							EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
-							if (MinecraftForge.EVENT_BUS.post(event) == false)
 							TeleportEntity.teleportEntity(movingobjectposition.entityHit, x, y, z, this.tpTargetDim, true, true);
 
 							this.dropAsItem(false);

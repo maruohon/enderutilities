@@ -24,6 +24,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
@@ -77,9 +78,17 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			byte mode = BOW_MODE_TP_TARGET;
 
 			NBTTagCompound nbt = bowStack.getTagCompound();
-			if (nbt != null)
+			if (nbt != null && nbt.hasKey("Mode") == true)
 			{
 				mode = nbt.getByte("Mode");
+			}
+
+			if (mode == BOW_MODE_TP_SELF)
+			{
+				if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
+				{
+					return;
+				}
 			}
 
 			if (mode == BOW_MODE_TP_TARGET)
@@ -409,6 +418,10 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			if (++val > 1)
 			{
 				val = 0;
+			}
+			if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
+			{
+				val = BOW_MODE_TP_TARGET;
 			}
 			nbt.setByte("Mode", val);
 			stack.setTagCompound(nbt);

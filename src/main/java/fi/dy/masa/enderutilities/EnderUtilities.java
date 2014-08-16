@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.setup.EUConfigReader;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
@@ -23,13 +24,16 @@ public class EnderUtilities
 
 	@SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
 	public static IProxy proxy;
-
 	public static org.apache.logging.log4j.Logger logger;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		instance = this;
+
 		logger = event.getModLog();
+
+		EUConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
 
 		proxy.registerKeyBindings();
 

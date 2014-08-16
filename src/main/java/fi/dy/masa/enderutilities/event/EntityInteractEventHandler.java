@@ -7,6 +7,8 @@ import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityInteractEventHandler
@@ -27,17 +29,20 @@ public class EntityInteractEventHandler
 			{
 				if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
 				{
-					TeleportEntity.teleportEntityUsingItem(event.target, stack);
-					event.setCanceled(true);
+					if (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
+					{
+						TeleportEntity.teleportEntityUsingItem(event.target, stack);
+						event.setCanceled(true);
+					}
 				}
 			}
 		}
 
 		if(stack.getItem() == EnderUtilitiesItems.mobHarness)
 		{
-			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
+			if (event.entity.worldObj.isRemote == false)
 			{
-				if (event.entity.worldObj.isRemote == false)
+				if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
 				{
 					((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
 					event.setCanceled(true);
