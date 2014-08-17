@@ -67,10 +67,7 @@ public class ItemMobHarness extends ItemEU
 
 		if (player.isSneaking() == false)
 		{
-			if (entity.riddenByEntity != null)
-			{
-				entity.riddenByEntity.mountEntity(null);
-			}
+			EntityUtils.unmountRider(entity);
 			player.mountEntity(entity);
 			return true;
 		}
@@ -192,14 +189,15 @@ public class ItemMobHarness extends ItemEU
 					// The harness was clicked twice on the same mob, mount that mob on top of the player
 					if (entity.getUniqueID().getMostSignificantBits() == most && entity.getUniqueID().getLeastSignificantBits() == least)
 					{
-						EntityUtils.unmountRidden(player);
+						EntityUtils.unmountRider(player);
 						entity.mountEntity(player);
 						this.clearData(stack);
 					}
 					// The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
 					else
 					{
-						EntityUtils.unmountRidden(entity);
+						EntityUtils.unmountRidden(ent);
+						EntityUtils.unmountRider(entity);
 						ent.mountEntity(entity);
 						this.clearData(stack);
 					}
