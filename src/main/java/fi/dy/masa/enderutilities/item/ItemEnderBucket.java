@@ -33,6 +33,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 {
@@ -130,6 +131,8 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 
 	public boolean useBucket(ItemStack itemStack, World world, EntityPlayer player)
 	{
+		this.setCapacity(EUConfigs.enderBucketCapacity.getInt(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT));
+
 		byte bucketMode = this.getBucketMode(itemStack);
 		// First, get the stored fluid, if any
 		FluidStack storedFluidStack = this.getFluid(itemStack);
@@ -190,7 +193,7 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 
 			// Empty || (space && not sneaking && same fluid) => trying to pick up fluid
 			if (bucketMode != MODE_DEPOSIT && (storedFluidAmount == 0 ||
-				((this.capacity - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME && storedFluid == targetFluid &&
+				((this.getCapacity(itemStack) - storedFluidAmount) >= FluidContainerRegistry.BUCKET_VOLUME && storedFluid == targetFluid &&
 				(player.isSneaking() == false || bucketMode == MODE_PICKUP))))
 			{
 				if (player.canPlayerEdit(x, y, z, movingobjectposition.sideHit, itemStack) == false)
@@ -206,7 +209,7 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 						fluidStack = iFluidBlock.drain(world, x, y, z, false); // simulate
 
 						// Check that we can store that amount and that the fluid stacks are equal (including NBT, excluding amount)
-						if (this.fill(itemStack, fluidStack, false) <= (this.capacity - storedFluidAmount))
+						if (this.fill(itemStack, fluidStack, false) <= (this.getCapacity(itemStack) - storedFluidAmount))
 						{
 							fluidStack = iFluidBlock.drain(world, x, y, z, true);
 							this.fill(itemStack, fluidStack, true);
@@ -265,7 +268,7 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 				// With tanks we pick up fluid when not sneaking
 				if (bucketMode == MODE_PICKUP || (player.isSneaking() == false && bucketMode != MODE_DEPOSIT))
 				{
-					int space = this.capacity - storedFluidAmount;
+					int space = this.getCapacity(itemStack) - storedFluidAmount;
 
 					// We can still store more fluid
 					if (space > 0)

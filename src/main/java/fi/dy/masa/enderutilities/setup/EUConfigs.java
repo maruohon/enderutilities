@@ -4,6 +4,9 @@ import net.minecraftforge.common.config.Property;
 
 public class EUConfigs
 {
+	public static Property enderBucketCapacity;
+
+	// Teleporting control
 	public static Property enderBowAllowPlayers;
 	public static Property enderBowAllowSelfTP;
 	public static Property enderLassoAllowPlayers;

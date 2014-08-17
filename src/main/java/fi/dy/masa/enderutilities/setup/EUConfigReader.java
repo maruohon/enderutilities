@@ -4,6 +4,7 @@ import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class EUConfigReader
 {
@@ -30,6 +31,9 @@ public class EUConfigReader
 		EUConfigs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(true);
 		EUConfigs.enderBowAllowSelfTP.comment = "Can the Ender Bow be used in the 'TP Self' mode";
 
+		EUConfigs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ReferenceItem.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(true);
+		EUConfigs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
+
 		EUConfigs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(true);
 		EUConfigs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
 
@@ -52,7 +56,7 @@ public class EUConfigReader
 		EUConfigs.enderBagBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(true);
 		EUConfigs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
 
-		EUConfigs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(true);
+		EUConfigs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(true);
 		EUConfigs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
 
 		category = "Teleporting";
