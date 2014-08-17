@@ -67,6 +67,10 @@ public class ItemMobHarness extends ItemEU
 
 		if (player.isSneaking() == false)
 		{
+			if (entity.riddenByEntity != null)
+			{
+				entity.riddenByEntity.mountEntity(null);
+			}
 			player.mountEntity(entity);
 			return true;
 		}

@@ -42,13 +42,10 @@ public class EntityInteractEventHandler
 
 		if(stack.getItem() == EnderUtilitiesItems.mobHarness)
 		{
-			if (event.entity.worldObj.isRemote == false)
+			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
 			{
-				if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
-				{
-					((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
-					event.setCanceled(true);
-				}
+				((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
+				event.setCanceled(true);
 			}
 		}
 	}
