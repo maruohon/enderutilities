@@ -1,0 +1,52 @@
+language.name=Korean
+language.region=KR
+language.code=ko_KR
+
+category.enderutilities=엔더 유틸리티
+key.enderutilities.togglemode=토글 모드
+
+container.enderfurnace=엔더 화로
+container.owner=주인:
+
+tile.enderfurnace.name=엔더화로
+
+item.enderarrow.name=엔더 화살
+item.enderbag.name=엔더 가방
+item.enderbow.name=엔더 활
+item.enderbucket.name=엔더 양동이
+item.enderlasso.name=엔더 올가미
+item.enderpearlreusable.name=엔더 진주 (재사용)
+item.enderporter.name=엔더 포터
+item.mobharness.name=몹 하네스
+
+gui.label.outputbuffer=버퍼
+
+gui.tooltip.holdshift=Shift클릭시 더 많은 정보
+gui.tooltip.owner=주인
+gui.tooltip.slots=슬롯
+gui.tooltip.type=타입
+
+gui.tooltip.empty=비어있음
+gui.tooltip.fluid=액체
+gui.tooltip.amount=양
+gui.tooltip.bucket.mode.normal=기본
+gui.tooltip.bucket.mode.pickup=Pickup
+gui.tooltip.bucket.mode.deposit=Deposit
+
+gui.tooltip.notargetset=타겟이 설정되지 않았습니다
+gui.tooltip.dimension=차원
+gui.tooltip.dimension.overworld=오버월드
+gui.tooltip.dimension.nether=지옥
+gui.tooltip.dimension.end=엔더월드
+gui.tooltip.mode=모드
+gui.tooltip.tpself=TP self
+gui.tooltip.tptarget=TP target
+
+gui.tooltip.linked=링크
+gui.tooltip.notlinked=링크되지 않은
+
+gui.tooltip.private=사유
+gui.tooltip.public=공동
+
+chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
+chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
