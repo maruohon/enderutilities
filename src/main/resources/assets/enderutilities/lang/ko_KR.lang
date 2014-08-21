@@ -31,7 +31,7 @@ gui.tooltip.fluid=액체
 gui.tooltip.amount=양
 gui.tooltip.bucket.mode.normal=기본
 gui.tooltip.bucket.mode.pickup=Pickup
-gui.tooltip.bucket.mode.deposit=Deposit
+gui.tooltip.bucket.mode.deposit=받아드림
 
 gui.tooltip.notargetset=타겟이 설정되지 않았습니다
 gui.tooltip.dimension=차원
@@ -39,8 +39,8 @@ gui.tooltip.dimension.overworld=오버월드
 gui.tooltip.dimension.nether=지옥
 gui.tooltip.dimension.end=엔더월드
 gui.tooltip.mode=모드
-gui.tooltip.tpself=TP self
-gui.tooltip.tptarget=TP target
+gui.tooltip.tpself=TP 셀프
+gui.tooltip.tptarget=TP 타겟
 
 gui.tooltip.linked=링크
 gui.tooltip.notlinked=링크되지 않은
