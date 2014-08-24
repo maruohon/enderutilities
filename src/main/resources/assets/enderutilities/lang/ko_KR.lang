@@ -1,3 +1,4 @@
+# author TeamMMKP(@puyo061)
 language.name=Korean
 language.region=KR
 language.code=ko_KR
@@ -49,4 +50,4 @@ gui.tooltip.private=사유
 gui.tooltip.public=공동
 
 chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
-chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
+chat.message.enderbag.blocknotwhitelisted=해당 블럭이 화이트 리스트에 등록되지 않았습니다 :
