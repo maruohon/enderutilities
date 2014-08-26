@@ -26,6 +26,8 @@ public class ItemEnderPorter extends ItemEU
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
 
+	private static final int USE_TIME = 60;
+
 	public ItemEnderPorter()
 	{
 		super();
@@ -107,13 +109,9 @@ public class ItemEnderPorter extends ItemEU
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
 	{
-	}
-
-	@Override
-	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
-	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		ItemNBTHelper target = new ItemNBTHelper();
+
 		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
 		{
 			if (player.capabilities.isCreativeMode == false && --stack.stackSize <= 0)
@@ -121,7 +119,11 @@ public class ItemEnderPorter extends ItemEU
 				player.destroyCurrentEquippedItem();
 			}
 		}
+	}
 
+	@Override
+	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
+	{
 		return stack;
 	}
 
@@ -131,7 +133,7 @@ public class ItemEnderPorter extends ItemEU
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack)
 	{
-		return 80;
+		return 72000;
 	}
 
 	@Override
@@ -167,7 +169,11 @@ public class ItemEnderPorter extends ItemEU
 	@SideOnly(Side.CLIENT)
 	public IIcon getItemIconForUseDuration(int index)
 	{
-		if (index < 0 || index >= this.iconArray.length)
+		if (index >= this.iconArray.length)
+		{
+			index = this.iconArray.length - 1;
+		}
+		if (index < 0)
 		{
 			index = 0;
 		}
@@ -206,13 +212,13 @@ public class ItemEnderPorter extends ItemEU
 	{
 		int index = 0;
 
-		if (stack != null && useRemaining > 0)
+		if (player != null && player.getItemInUse() != null && stack != null)
 		{
 			int inUse = stack.getMaxItemUseDuration() - useRemaining;
-			index += (this.iconArray.length * inUse / stack.getMaxItemUseDuration());
+			index += (this.iconArray.length * inUse / USE_TIME);
 		}
 
-		return this.iconArray[(index < this.iconArray.length ? index : 0)];
+		return this.getItemIconForUseDuration(index);
 	}
 
 	@Override
