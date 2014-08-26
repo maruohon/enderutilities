@@ -85,6 +85,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 
 			if (mode == BOW_MODE_TP_SELF)
 			{
+				// If self teleporting is disabled in the configs, do nothing
 				if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
 				{
 					return;
@@ -222,7 +223,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
 				NBTTagCompound nbt = stack.getTagCompound();
-				if (nbt == null || nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) == false)
+				if (nbt == null)
 				{
 					nbt = new NBTTagCompound();
 					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
@@ -419,6 +420,7 @@ public class ItemEnderBow extends ItemEU implements IKeyBound
 			{
 				val = 0;
 			}
+			// If self teleporting is disabled in the configs, set the mode always to TP target
 			if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
 			{
 				val = BOW_MODE_TP_TARGET;
