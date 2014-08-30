@@ -122,7 +122,8 @@ public class ItemEnderPorter extends ItemEUTeleport
 		NBTTagCompound nbt = stack.getTagCompound();
 		ItemNBTHelper target = new ItemNBTHelper();
 
-		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
+		if ((this.getMaxItemUseDuration(stack) - inUseCount) >= USE_TIME && target.readTargetTagFromNBT(nbt) != null &&
+				TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
 		{
 			// damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
 			if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)
@@ -233,7 +234,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 		if (player != null && player.getItemInUse() != null && stack != null)
 		{
 			int inUse = stack.getMaxItemUseDuration() - useRemaining;
-			index += (this.iconArray.length * inUse / USE_TIME);
+			index += (7 * inUse / USE_TIME); // 7 stages/icons
 
 			if (index > 6)
 			{
