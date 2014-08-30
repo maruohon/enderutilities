@@ -21,7 +21,7 @@ import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class ItemEnderPorter extends ItemEU
+public class ItemEnderPorter extends ItemEUTeleport
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;

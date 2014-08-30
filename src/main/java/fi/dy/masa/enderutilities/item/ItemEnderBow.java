@@ -28,7 +28,7 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderBow extends ItemEU implements IKeyBound
+public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 {
 	public static final byte BOW_MODE_TP_TARGET = 0;
 	public static final byte BOW_MODE_TP_SELF = 1;

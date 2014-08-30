@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 
-public class ItemEnderLasso extends ItemEU
+public class ItemEnderLasso extends ItemEUTeleport
 {
 	public ItemEnderLasso()
 	{

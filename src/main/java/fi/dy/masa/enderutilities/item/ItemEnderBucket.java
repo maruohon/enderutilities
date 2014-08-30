@@ -87,6 +87,19 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 	}
 
 	@Override
+	public String getItemStackDisplayName(ItemStack stack)
+	{
+		FluidStack fluidStack = this.getFluid(stack);
+
+		if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
+		{
+			return super.getItemStackDisplayName(stack) + " (" + fluidStack.getFluid().getLocalizedName(fluidStack) + ")";
+		}
+
+		return super.getItemStackDisplayName(stack);
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean par4)
 	{
