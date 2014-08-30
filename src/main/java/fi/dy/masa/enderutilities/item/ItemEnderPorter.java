@@ -3,7 +3,9 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -32,8 +34,21 @@ public class ItemEnderPorter extends ItemEUTeleport
 	{
 		super();
 		this.setMaxStackSize(1);
+		this.setHasSubtypes(true);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_PORTER);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+	}
+
+	@Override
+	public String getUnlocalizedName(ItemStack stack)
+	{
+		// damage 1: Ender Porter (Advanced)
+		if (stack.getItemDamage() == 1)
+		{
+			return super.getUnlocalizedName() + ".advanced";
+		}
+
+		return super.getUnlocalizedName();
 	}
 
 	@Override
@@ -102,11 +117,6 @@ public class ItemEnderPorter extends ItemEUTeleport
 	}
 
 	@Override
-	public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
-	{
-	}
-
-	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
@@ -114,17 +124,12 @@ public class ItemEnderPorter extends ItemEUTeleport
 
 		if (nbt != null && target.readTargetTagFromNBT(nbt) != null && TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
 		{
-			if (player.capabilities.isCreativeMode == false && --stack.stackSize <= 0)
+			// damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
+			if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)
 			{
 				player.destroyCurrentEquippedItem();
 			}
 		}
-	}
-
-	@Override
-	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
-	{
-		return stack;
 	}
 
 	/**
@@ -137,6 +142,14 @@ public class ItemEnderPorter extends ItemEUTeleport
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
+	public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+	{
+		list.add(new ItemStack(this, 1, 0));
+		list.add(new ItemStack(this, 1, 1));
+	}
+
+    @Override
 	@SideOnly(Side.CLIENT)
 	public boolean requiresMultipleRenderPasses()
 	{
@@ -155,11 +168,16 @@ public class ItemEnderPorter extends ItemEUTeleport
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".stage.1");
-		this.iconArray = new IIcon[7];
+		this.iconArray = new IIcon[14];
 
-		for (int i = 0; i < this.iconArray.length; ++i)
+		for (int i = 0; i < 7; ++i)
 		{
 			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + ".stage." + (i + 1));
+		}
+
+		for (int i = 0; i < 7; ++i)
+		{
+			this.iconArray[7 + i] = iconRegister.registerIcon(this.getIconString() + ".advanced.stage." + (i + 1));
 		}
 	}
 
@@ -216,6 +234,17 @@ public class ItemEnderPorter extends ItemEUTeleport
 		{
 			int inUse = stack.getMaxItemUseDuration() - useRemaining;
 			index += (this.iconArray.length * inUse / USE_TIME);
+
+			if (index > 6)
+			{
+				index = 6;
+			}
+		}
+
+		// damage 1: 'Ender Porter (Advanced)', offset the icon range
+		if (stack.getItemDamage() == 1)
+		{
+			index += 7;
 		}
 
 		return this.getItemIconForUseDuration(index);

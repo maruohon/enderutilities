@@ -58,6 +58,7 @@ public class EnderUtilitiesItems
 		GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
 		GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock);
 		GameRegistry.addRecipe(new ItemStack(enderPorter), "PNP", "NRN", "PNP", 'P', pearl, 'N', goldnugget, 'R', rsblock);
+		GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "GDG", "DPD", "GDG", 'G', gold, 'D', diamond, 'P', new ItemStack(enderPorter, 1, 0)); // Ender Porter (Advanced)
 		GameRegistry.addRecipe(new ItemStack(mobHarness), "LEL", "LDL", "LEL", 'L', leather, 'E', eye, 'D', diamond);
 	}
 }

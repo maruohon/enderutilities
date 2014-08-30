@@ -17,6 +17,7 @@ item.enderbucket.name=Ender Bucket
 item.enderlasso.name=Ender Lasso
 item.enderpearlreusable.name=Ender Pearl (re-usable)
 item.enderporter.name=Ender Porter
+item.enderporter.advanced.name=Ender Porter (Advanced)
 item.mobharness.name=Mob Harness
 
 gui.label.outputbuffer=Buffer
