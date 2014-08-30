@@ -97,15 +97,8 @@ public class ItemEnderPorter extends ItemEUTeleport
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
-			if (player.capabilities.isCreativeMode == true)
-			{
-				// Use a shorter delay in creative mode
-				player.setItemInUse(stack, this.getMaxItemUseDuration(stack) >> 3);
-			}
-			else
-			{
-				player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
-			}
+			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+
 			if (player.worldObj.isRemote == false)
 			{
 				Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.2f, 1.2f);
@@ -121,8 +114,15 @@ public class ItemEnderPorter extends ItemEUTeleport
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		ItemNBTHelper target = new ItemNBTHelper();
+		int useTime = USE_TIME;
 
-		if ((this.getMaxItemUseDuration(stack) - inUseCount) >= USE_TIME && target.readTargetTagFromNBT(nbt) != null &&
+		// Use a shorter delay in creative mode
+		if (player.capabilities.isCreativeMode == true)
+		{
+			useTime >>= 3;
+		}
+
+		if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime && target.readTargetTagFromNBT(nbt) != null &&
 				TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
 		{
 			// damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
@@ -234,7 +234,15 @@ public class ItemEnderPorter extends ItemEUTeleport
 		if (player != null && player.getItemInUse() != null && stack != null)
 		{
 			int inUse = stack.getMaxItemUseDuration() - useRemaining;
-			index += (7 * inUse / USE_TIME); // 7 stages/icons
+			int useTime = USE_TIME;
+
+			// Use a shorter delay in creative mode
+			if (player.capabilities.isCreativeMode == true)
+			{
+				useTime >>= 3;
+			}
+
+			index += (7 * inUse / useTime); // 7 stages/icons
 
 			if (index > 6)
 			{
