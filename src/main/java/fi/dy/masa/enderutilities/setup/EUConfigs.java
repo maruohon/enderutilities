@@ -4,6 +4,8 @@ import net.minecraftforge.common.config.Property;
 
 public class EUConfigs
 {
+	public static Property configFileVersion;
+
 	public static Property enderBucketCapacity;
 
 	// Teleporting control

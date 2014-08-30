@@ -3,17 +3,22 @@ package fi.dy.masa.enderutilities.setup;
 import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class EUConfigReader
 {
+	public static final int CURRENT_CONFIG_VERSION = 32;
+	public static int confVersion = 0;
+
 	public static void loadConfigsAll(File baseConfigDir)
 	{
 		// minecraft/config/enderutilities/something.cfg
 		File configDir = new File(baseConfigDir.getAbsolutePath().concat("/").concat(Reference.MOD_ID));
 		configDir.mkdirs();
 
+		EnderUtilities.logger.info("Loading configuration...");
 		EUConfigReader.loadConfigsGeneric(new File(configDir, Reference.MOD_ID + "_main.cfg"));
 		EUConfigReader.loadConfigsLists(new File(configDir, Reference.MOD_ID + "_lists.cfg"));
 	}
@@ -36,6 +41,15 @@ public class EUConfigReader
 
 		EUConfigs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(true);
 		EUConfigs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
+
+		category = "Version";
+		// 0.3.1 was the version where the configs were first added, use that as the default (note that the version number itself was added later in 0.3.2)
+		EUConfigs.configFileVersion = conf.get(category, "ConfigFileVersion", 31).setRequiresMcRestart(true);
+		EUConfigs.configFileVersion.comment = "Internal config file version tracking. DO NOT CHANGE!!";
+		confVersion = EUConfigs.configFileVersion.getInt();
+
+		// Update the version in the config to the current version
+		EUConfigs.configFileVersion.setValue(CURRENT_CONFIG_VERSION);
 
 		if (conf.hasChanged() == true)
 		{
@@ -60,12 +74,43 @@ public class EUConfigReader
 		EUConfigs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
 
 		category = "Teleporting";
-		EUConfigs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityWither"}).setRequiresMcRestart(true);
+		EUConfigs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(true);
 		EUConfigs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
+
+		updateConfigLists(conf);
 
 		if (conf.hasChanged() == true)
 		{
 			conf.save();
+		}
+	}
+
+	public static void updateConfigLists(Configuration conf)
+	{
+		boolean found = false;
+		int i = 0;
+
+		// 0.3.2: Add EntityEnderCrystal to teleport blacklist
+		if (confVersion < 32)
+		{
+			EnderUtilities.logger.info("Updating configuration lists to 0.3.2");
+
+			String[] strs = EUConfigs.teleportBlacklist.getStringList();
+			String[] strsNew = new String[strs.length + 1];
+			for (i = 0; i < strs.length; ++i)
+			{
+				strsNew[i] = strs[i];
+				if (strs[i].equals("EntityEnderCrystal") == true)
+				{
+					found = true;
+				}
+			}
+
+			if (found == false)
+			{
+				strsNew[i] = "EntityEnderCrystal";
+				EUConfigs.teleportBlacklist.setValues(strsNew);
+			}
 		}
 	}
 }
