@@ -20,6 +20,7 @@ public class EUConfigReader
 
 		EnderUtilities.logger.info("Loading configuration...");
 		EUConfigReader.loadConfigsGeneric(new File(configDir, Reference.MOD_ID + "_main.cfg"));
+		EUConfigReader.loadConfigsItemControl(new File(configDir, Reference.MOD_ID + "_itemcontrol.cfg"));
 		EUConfigReader.loadConfigsLists(new File(configDir, Reference.MOD_ID + "_lists.cfg"));
 	}
 
@@ -111,6 +112,45 @@ public class EUConfigReader
 				strsNew[i] = "EntityEnderCrystal";
 				EUConfigs.teleportBlacklist.setValues(strsNew);
 			}
+		}
+	}
+
+	public static void loadConfigsItemControl(File configFile)
+	{
+		String category;
+		Configuration conf = new Configuration(configFile);
+		conf.load();
+
+		category = "DisableItems";
+		conf.addCustomCategoryComment(category, "Here you can disable individual blocks, items or just their recipies");
+		// Block disable
+		EUConfigs.disableBlockEnderFurnace			= conf.get(category, "DisableBlockEnderFurnace", false).setRequiresMcRestart(true);
+
+		// Item disable
+		EUConfigs.disableItemEnderArrow				= conf.get(category, "DisableItemEnderArrow", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderBag				= conf.get(category, "DisableItemEnderBag", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderBow				= conf.get(category, "DisableItemEnderBow", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderBucket			= conf.get(category, "DisableItemEnderBucket", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderLasso				= conf.get(category, "DisableItemEnderLasso", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderPearl				= conf.get(category, "DisableItemEnderPearl", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderPorterBasic		= conf.get(category, "DisableItemEnderPorterBasic", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderPorterAdvanced	= conf.get(category, "DisableItemEnderPorterAdvanced", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemMobHarness				= conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
+
+		EUConfigs.disableRecipeEnderArrow			= conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderBag				= conf.get(category, "DisableRecipeEnderBag", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderBow				= conf.get(category, "DisableRecipeEnderBow", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderBucket			= conf.get(category, "DisableRecipeEnderBucket", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderFurnace			= conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderLasso			= conf.get(category, "DisableRecipeEnderLasso", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderPearl			= conf.get(category, "DisableRecipeEnderPearl", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderPorterBasic		= conf.get(category, "DisableRecipeEnderPorterBasic", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeEnderPorterAdvanced	= conf.get(category, "DisableRecipeEnderPorterAdvanced", false).setRequiresMcRestart(true);
+		EUConfigs.disableRecipeMobHarness			= conf.get(category, "DisableRecipeMobHarness", false).setRequiresMcRestart(true);
+
+		if (conf.hasChanged() == true)
+		{
+			conf.save();
 		}
 	}
 }

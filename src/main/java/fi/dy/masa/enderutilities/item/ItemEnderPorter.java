@@ -18,6 +18,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
@@ -146,8 +147,8 @@ public class ItemEnderPorter extends ItemEUTeleport
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(Item item, CreativeTabs creativeTab, List list)
 	{
-		list.add(new ItemStack(this, 1, 0));
-		list.add(new ItemStack(this, 1, 1));
+		if (EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false) { list.add(new ItemStack(this, 1, 0)); }
+		if (EUConfigs.disableItemEnderPorterAdvanced.getBoolean(false) == false) { list.add(new ItemStack(this, 1, 1)); }
 	}
 
     @Override
