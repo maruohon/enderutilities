@@ -31,16 +31,16 @@ public class EUConfigReader
 		conf.load();
 
 		category = "Generic";
-		EUConfigs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", false).setRequiresMcRestart(true);
+		EUConfigs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", false).setRequiresMcRestart(false);
 		EUConfigs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
-		EUConfigs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(true);
+		EUConfigs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(false);
 		EUConfigs.enderBowAllowSelfTP.comment = "Can the Ender Bow be used in the 'TP Self' mode";
 
-		EUConfigs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ReferenceItem.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(true);
+		EUConfigs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ReferenceItem.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
 		EUConfigs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
 
-		EUConfigs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(true);
+		EUConfigs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(false);
 		EUConfigs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
 
 		category = "Version";
@@ -94,7 +94,7 @@ public class EUConfigReader
 		// 0.3.2: Add EntityEnderCrystal to teleport blacklist
 		if (confVersion < 32)
 		{
-			EnderUtilities.logger.info("Updating configuration lists to 0.3.2");
+			EnderUtilities.logger.info("Updating configuration lists to 32");
 
 			String[] strs = EUConfigs.teleportBlacklist.getStringList();
 			String[] strsNew = new String[strs.length + 1];
