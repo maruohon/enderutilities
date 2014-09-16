@@ -6,10 +6,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.item.ItemEU;
+import fi.dy.masa.enderutilities.item.ItemEnderAlloy;
 import fi.dy.masa.enderutilities.item.ItemEnderArrow;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
+import fi.dy.masa.enderutilities.item.ItemEnderCore;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
@@ -19,10 +21,12 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesItems
 {
+	public static final ItemEU enderAlloy = new ItemEnderAlloy();
 	public static final ItemEU enderArrow = new ItemEnderArrow();
 	public static final ItemEU enderBag = new ItemEnderBag();
 	public static final ItemEU enderBow = new ItemEnderBow();
 	public static final Item enderBucket = new ItemEnderBucket();
+	public static final ItemEU enderCore = new ItemEnderCore();
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
 	public static final ItemEU enderPorter = new ItemEnderPorter();
@@ -30,6 +34,9 @@ public class EnderUtilitiesItems
 
 	public static void init()
 	{
+		if (EUConfigs.disableItemEnderAlloy.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderAlloy, ReferenceItem.NAME_ITEM_ENDER_ALLOY);
+		}
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
 		}
@@ -41,6 +48,9 @@ public class EnderUtilitiesItems
 		}
 		if (EUConfigs.disableItemEnderBucket.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderBucket, ReferenceItem.NAME_ITEM_ENDER_BUCKET);
+		}
+		if (EUConfigs.disableItemEnderCore.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderCore, ReferenceItem.NAME_ITEM_ENDER_CORE);
 		}
 		if (EUConfigs.disableItemEnderLasso.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderLasso, ReferenceItem.NAME_ITEM_ENDER_LASSO);

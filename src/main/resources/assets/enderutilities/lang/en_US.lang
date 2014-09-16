@@ -10,10 +10,16 @@ container.owner=Owner:
 
 tile.enderfurnace.name=Ender Furnace
 
+item.enderalloy.0.name=Ender Alloy (Basic)
+item.enderalloy.1.name=Ender Alloy (Enhanced)
+item.enderalloy.2.name=Ender Alloy (Advanced)
 item.enderarrow.name=Ender Arrow
 item.enderbag.name=Ender Bag
 item.enderbow.name=Ender Bow
 item.enderbucket.name=Ender Bucket
+item.endercore.0.name=Ender Core (Basic)
+item.endercore.1.name=Ender Core (Enhanced)
+item.endercore.2.name=Ender Core (Advanced)
 item.enderlasso.name=Ender Lasso
 item.enderpearlreusable.name=Ender Pearl (re-usable)
 item.enderpearlreusable.elite.name=Elite Ender Pearl (re-usable)

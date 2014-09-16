@@ -24,10 +24,12 @@ public class EUConfigs
 	public static Property disableBlockEnderFurnace;
 
 	// Item disable
+	public static Property disableItemEnderAlloy;
 	public static Property disableItemEnderArrow;
 	public static Property disableItemEnderBag;
 	public static Property disableItemEnderBow;
 	public static Property disableItemEnderBucket;
+	public static Property disableItemEnderCore;
 	public static Property disableItemEnderLasso;
 	public static Property disableItemEnderPearl;
 	public static Property disableItemEnderPorterBasic;

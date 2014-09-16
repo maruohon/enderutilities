@@ -127,10 +127,12 @@ public class EUConfigReader
 		EUConfigs.disableBlockEnderFurnace			= conf.get(category, "DisableBlockEnderFurnace", false).setRequiresMcRestart(true);
 
 		// Item disable
+		EUConfigs.disableItemEnderAlloy				= conf.get(category, "DisableItemEnderAlloy", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderArrow				= conf.get(category, "DisableItemEnderArrow", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderBag				= conf.get(category, "DisableItemEnderBag", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderBow				= conf.get(category, "DisableItemEnderBow", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderBucket			= conf.get(category, "DisableItemEnderBucket", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderCore				= conf.get(category, "DisableItemEnderCore", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderLasso				= conf.get(category, "DisableItemEnderLasso", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPearl				= conf.get(category, "DisableItemEnderPearl", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPorterBasic		= conf.get(category, "DisableItemEnderPorterBasic", false).setRequiresMcRestart(true);
