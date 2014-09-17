@@ -14,19 +14,20 @@ import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.item.part.ItemEnderAlloy;
-import fi.dy.masa.enderutilities.item.part.ItemEnderCore;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesItems
 {
-	public static final ItemEU enderAlloy = new ItemEnderAlloy();
+	public static final ItemEU enderPart = new ItemEnderPart();
+	public static final ItemEU enderCapacitor = new ItemEnderCapacitor();
+
 	public static final ItemEU enderArrow = new ItemEnderArrow();
 	public static final ItemEU enderBag = new ItemEnderBag();
 	public static final ItemEU enderBow = new ItemEnderBow();
 	public static final Item enderBucket = new ItemEnderBucket();
-	public static final ItemEU enderCore = new ItemEnderCore();
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
 	public static final ItemEU enderPorter = new ItemEnderPorter();
@@ -34,9 +35,13 @@ public class EnderUtilitiesItems
 
 	public static void init()
 	{
-		if (EUConfigs.disableItemEnderAlloy.getBoolean(false) == false) {
-			GameRegistry.registerItem(enderAlloy, ReferenceItem.NAME_ITEM_ENDER_ALLOY);
+		if (EUConfigs.disableItemCraftingPart.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderPart, ReferenceItem.NAME_ITEM_ENDER_PART);
 		}
+		if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDER_CAPACITOR);
+		}
+
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
 		}
@@ -48,9 +53,6 @@ public class EnderUtilitiesItems
 		}
 		if (EUConfigs.disableItemEnderBucket.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderBucket, ReferenceItem.NAME_ITEM_ENDER_BUCKET);
-		}
-		if (EUConfigs.disableItemEnderCore.getBoolean(false) == false) {
-			GameRegistry.registerItem(enderCore, ReferenceItem.NAME_ITEM_ENDER_CORE);
 		}
 		if (EUConfigs.disableItemEnderLasso.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderLasso, ReferenceItem.NAME_ITEM_ENDER_LASSO);
