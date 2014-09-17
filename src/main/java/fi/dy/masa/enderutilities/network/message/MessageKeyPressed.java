@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.network.message;
 
-import fi.dy.masa.enderutilities.item.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;

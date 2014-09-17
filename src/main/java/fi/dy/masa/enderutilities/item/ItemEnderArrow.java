@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
+import fi.dy.masa.enderutilities.item.base.ItemEU;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 

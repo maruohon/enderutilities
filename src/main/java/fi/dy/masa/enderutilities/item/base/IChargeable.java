@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.item;
+package fi.dy.masa.enderutilities.item.base;
 
 import net.minecraft.item.ItemStack;
 
