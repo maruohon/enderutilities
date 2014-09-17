@@ -28,8 +28,9 @@ import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.setup.EURegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 {
@@ -61,17 +62,18 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			return stack;
 		}
 
-		ItemNBTHelper itemData = new ItemNBTHelper();
+		NBTHelperPlayer playerData = new NBTHelperPlayer();
 		// If the bag is not set to public and the player trying to access the bag is not the owner
-		if (nbt.getByte("Mode") != (byte)1 && itemData.readPlayerTagFromNBT(nbt) != null &&
-			(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
-			itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
+		if (nbt.getByte("Mode") != (byte)1 && playerData.readPlayerTagFromNBT(nbt) != null &&
+			(playerData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+			playerData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
 		{
 			return stack;
 		}
 
+		NBTHelperTarget targetData = new NBTHelperTarget();
 		// Instance of IInventory (= not Ender Chest); Get the target information
-		if (itemData.readTargetTagFromNBT(nbt) == null)
+		if (targetData.readTargetTagFromNBT(nbt) == null)
 		{
 			return stack;
 		}
@@ -79,20 +81,20 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		// Target block is not whitelisted, so it is known to not work unless within the client's loaded region
 		// FIXME: How should we properly check if the player is within range?
 		if (this.isTargetBlockWhitelisted(nbt.getString("BlockName")) == false &&
-			(itemData.dimension != player.dimension || player.getDistanceSq(itemData.posX, itemData.posY, itemData.posZ) >= 10000.0d))
+			(targetData.dimension != player.dimension || player.getDistanceSq(targetData.posX, targetData.posY, targetData.posZ) >= 10000.0d))
 		{
 			return stack;
 		}
 
 		// Only open the GUI if the chunk loading succeeds. 60 second unload delay.
-		if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, itemData.dimension, itemData.posX >> 4, itemData.posZ >> 4, 60 * 20) == true)
+		if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60 * 20) == true)
 		{
-			World tgtWorld = MinecraftServer.getServer().worldServerForDimension(itemData.dimension);
+			World tgtWorld = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
 			if (tgtWorld == null)
 			{
 				return stack;
 			}
-			Block block = tgtWorld.getBlock(itemData.posX, itemData.posY, itemData.posZ);
+			Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
 			if (block == null)
 			{
 				return stack;
@@ -103,7 +105,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			{
 				nbt.removeTag("BlockName");
 				nbt.removeTag("Slots");
-				nbt = ItemNBTHelper.removeTargetTagFromNBT(nbt);
+				nbt = NBTHelperTarget.removeTargetTagFromNBT(nbt);
 				nbt.removeTag("ChunkLoadingRequired");
 				nbt.setBoolean("IsOpen", false);
 				stack.setTagCompound(nbt);
@@ -116,7 +118,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			stack.setTagCompound(nbt);
 
 			// Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-			block.onBlockActivated(tgtWorld, itemData.posX, itemData.posY, itemData.posZ, player, itemData.blockFace, 0.5f, 0.5f, 0.5f);
+			block.onBlockActivated(tgtWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, 0.5f, 0.5f, 0.5f);
 		}
 
 		return stack;
@@ -142,11 +144,11 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			nbt.setByte("Mode", (byte)0);
 		}
 
-		ItemNBTHelper itemData = new ItemNBTHelper();
+		NBTHelperPlayer playerData = new NBTHelperPlayer();
 		// If the player trying to set/modify the bag is not the owner
-		if (itemData.readPlayerTagFromNBT(nbt) != null &&
-			(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
-			itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
+		if (playerData.readPlayerTagFromNBT(nbt) != null &&
+			(playerData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+			playerData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
 		{
 			return true;
 		}
@@ -176,8 +178,8 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			}
 
 			nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-			nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
-			nbt = ItemNBTHelper.writePlayerTagToNBT(nbt, player);
+			nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
+			nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
 
 			if (te instanceof IInventory)
 			{
@@ -235,8 +237,8 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		}
 */
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper itemData = new ItemNBTHelper();
-		if (itemData.readTargetTagFromNBT(nbt) == null)
+		NBTHelperTarget targetData = new NBTHelperTarget();
+		if (targetData.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
 			return;
@@ -252,13 +254,14 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + coordPre + locName + rst);
 		list.add(StatCollector.translateToLocal("gui.tooltip.slots") + ": " + coordPre + numSlots + rst);
 
+		NBTHelperPlayer playerData = new NBTHelperPlayer();
 		// Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
-		if (nbt.getByte("Type") == (byte)0 && itemData.readPlayerTagFromNBT(nbt) != null &&
-			itemData.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
-			itemData.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
+		if (nbt.getByte("Type") == (byte)0 && playerData.readPlayerTagFromNBT(nbt) != null &&
+			playerData.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
+			playerData.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
 		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + itemData.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(itemData.dimension) + rst);
-			list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, itemData.posX, rst, coordPre, itemData.posY, rst, coordPre, itemData.posZ, rst));
+			list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + targetData.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(targetData.dimension) + rst);
+			list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, targetData.posX, rst, coordPre, targetData.posY, rst, coordPre, targetData.posZ, rst));
 		}
 
 		// Only show private vs. public when bound to regular inventories, not Ender Chest
@@ -266,7 +269,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		{
 			String mode = (nbt.getByte("Mode") == (byte)1 ? StatCollector.translateToLocal("gui.tooltip.public") : StatCollector.translateToLocal("gui.tooltip.private"));
 			list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + itemData.playerName);
+			list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName);
 		}
 	}
 
@@ -285,10 +288,10 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (nbt != null)
 			{
-				ItemNBTHelper itemData = new ItemNBTHelper();
-				if (itemData.readPlayerTagFromNBT(nbt) != null &&
-					(itemData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
-					itemData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
+				NBTHelperPlayer playerData = new NBTHelperPlayer();
+				if (playerData.readPlayerTagFromNBT(nbt) != null &&
+					(playerData.playerUUIDMost != player.getUniqueID().getMostSignificantBits() ||
+					playerData.playerUUIDLeast != player.getUniqueID().getLeastSignificantBits()))
 				{
 					return;
 				}

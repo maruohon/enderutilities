@@ -10,7 +10,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.item.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class TickHandler
 {
@@ -48,7 +48,7 @@ public class TickHandler
 				// If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
 				if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
 				{
-					ItemNBTHelper target = new ItemNBTHelper();
+					NBTHelperTarget target = new NBTHelperTarget();
 					if (target.readTargetTagFromNBT(nbt) != null)
 					{
 						ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);

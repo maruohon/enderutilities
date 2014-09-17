@@ -2,8 +2,8 @@ package fi.dy.masa.enderutilities.item;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemEUTeleport extends ItemEU
 {
@@ -16,7 +16,7 @@ public class ItemEUTeleport extends ItemEU
 	public String getItemStackDisplayName(ItemStack stack)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 
 		if (nbt != null && target.readTargetTagFromNBT(nbt) != null)
 		{

@@ -25,8 +25,8 @@ import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 {
@@ -94,7 +94,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 
 			if (mode == BOW_MODE_TP_TARGET)
 			{
-				ItemNBTHelper target = new ItemNBTHelper();
+				NBTHelperTarget target = new NBTHelperTarget();
 				// If we want to TP the target, we must have a valid target set
 				if (target.readTargetTagFromNBT(nbt) == null)
 				{
@@ -197,7 +197,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 			}
 
 			// If the bow is in 'TP target' mode, it has to have a valid target set
-			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && ItemNBTHelper.hasTargetTag(nbt) == false)
+			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && NBTHelperTarget.hasTargetTag(nbt) == false)
 			{
 				return stack;
 			}
@@ -229,7 +229,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
 				}
 
-				nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
+				nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
 				stack.setTagCompound(nbt);
 
 				return true;
@@ -277,7 +277,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 		}
 
 		// TP the target entity
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));

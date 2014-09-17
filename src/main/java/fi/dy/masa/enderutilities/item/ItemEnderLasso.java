@@ -13,8 +13,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemEnderLasso extends ItemEUTeleport
 {
@@ -41,7 +41,7 @@ public class ItemEnderLasso extends ItemEUTeleport
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
 				NBTTagCompound nbt = stack.getTagCompound();
-				nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
+				nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
 				stack.setTagCompound(nbt);
 
 				return true;
@@ -64,7 +64,7 @@ public class ItemEnderLasso extends ItemEUTeleport
 */
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));

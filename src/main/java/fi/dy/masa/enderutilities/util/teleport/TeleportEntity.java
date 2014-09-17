@@ -33,8 +33,8 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.PositionHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class TeleportEntity
 {
@@ -180,7 +180,7 @@ public class TeleportEntity
 			return null;
 		}
 
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 		if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
 		{
 			return TeleportEntity.teleportEntity(entity, target.posX + 0.5d, target.posY, target.posZ + 0.5d, target.dimension, allowMounts, allowRiders);

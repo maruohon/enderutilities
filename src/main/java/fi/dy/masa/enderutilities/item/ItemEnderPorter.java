@@ -20,8 +20,8 @@ import fi.dy.masa.enderutilities.reference.Textures;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.ItemNBTHelper;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class ItemEnderPorter extends ItemEUTeleport
@@ -67,7 +67,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
 			{
 				NBTTagCompound nbt = stack.getTagCompound();
-				nbt = ItemNBTHelper.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
+				nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
 				stack.setTagCompound(nbt);
 
 				return true;
@@ -96,7 +96,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 		}
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt != null && ItemNBTHelper.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
+		if (nbt != null && NBTHelperTarget.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 
@@ -114,7 +114,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 		int useTime = USE_TIME;
 
 		// Use a shorter delay in creative mode
@@ -273,7 +273,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 */
 
 		NBTTagCompound nbt = stack.getTagCompound();
-		ItemNBTHelper target = new ItemNBTHelper();
+		NBTHelperTarget target = new NBTHelperTarget();
 		if (target.readTargetTagFromNBT(nbt) == null)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
