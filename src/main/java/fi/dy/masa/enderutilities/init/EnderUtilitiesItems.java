@@ -36,10 +36,10 @@ public class EnderUtilitiesItems
 	public static void init()
 	{
 		if (EUConfigs.disableItemCraftingPart.getBoolean(false) == false) {
-			GameRegistry.registerItem(enderPart, ReferenceItem.NAME_ITEM_ENDER_PART);
+			GameRegistry.registerItem(enderPart, ReferenceItem.NAME_ITEM_ENDERPART);
 		}
 		if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
-			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDER_CAPACITOR);
+			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
 		}
 
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {

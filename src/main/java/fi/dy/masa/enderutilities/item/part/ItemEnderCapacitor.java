@@ -29,7 +29,7 @@ public class ItemEnderCapacitor extends ItemEU implements IChargeable
 		this.setMaxStackSize(64);
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_CAPACITOR);
+		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 	}
 

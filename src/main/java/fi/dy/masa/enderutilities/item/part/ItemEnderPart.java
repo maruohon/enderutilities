@@ -27,7 +27,7 @@ public class ItemEnderPart extends ItemEU
 		this.setMaxStackSize(64);
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_PART);
+		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART);
 		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
 	}
 
@@ -39,7 +39,7 @@ public class ItemEnderPart extends ItemEU
 		// Damage 2: Ender Alloy (Advanced)
 		if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_ALLOY + "." + stack.getItemDamage();
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + "." + stack.getItemDamage();
 		}
 
 		// Damage 10: Ender Core (Basic)
@@ -47,7 +47,13 @@ public class ItemEnderPart extends ItemEU
 		// Damage 12: Ender Core (Advanced)
 		if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_CORE + "." + (stack.getItemDamage() - 10);
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 10);
+		}
+
+		// Damage 20: Ender Stick
+		if (stack.getItemDamage() == 20)
+		{
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK;
 		}
 
 		return super.getUnlocalizedName();
@@ -59,15 +65,19 @@ public class ItemEnderPart extends ItemEU
 	{
 		if (EUConfigs.disableItemCraftingPart.getBoolean(false) == false)
 		{
+			// Ender Alloys
 			for (int i = 0; i <= 2; i++)
 			{
 				list.add(new ItemStack(this, 1, i));
 			}
 
+			// Ender Cores
 			for (int i = 10; i <= 12; i++)
 			{
 				list.add(new ItemStack(this, 1, i));
 			}
+
+			list.add(new ItemStack(this, 1, 20)); // Ender Stick
 		}
 	}
 
@@ -86,6 +96,12 @@ public class ItemEnderPart extends ItemEU
 			return this.iconArray[damage - 7];
 		}
 
+		// Ender Stick
+		if (damage == 20)
+		{
+			return this.iconArray[6];
+		}
+
 		return this.itemIcon;
 	}
 
@@ -93,20 +109,22 @@ public class ItemEnderPart extends ItemEU
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_ALLOY + ".0");
-		this.iconArray = new IIcon[6];
+		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
+		this.iconArray = new IIcon[7];
 
 		int i = 0, j;
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_ALLOY + "." + j);
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
 		}
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_CORE + "." + j);
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j);
 		}
+
+		this.iconArray[6] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK);
 	}
 
 	@SideOnly(Side.CLIENT)
