@@ -43,9 +43,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public static final int BURNTIME_USAGE_SLOW = 20; // Slow/eco mode base usage
 	public static final int BURNTIME_USAGE_FAST = 120; // Fast mode: use fuel 6x faster over time
 
-	public static final int OUTPUT_BUFFER_SIZE = 1000; // How many items can we store in the output buffer?
+	public static final int OUTPUT_BUFFER_SIZE = 1024; // How many items can we store in the output buffer?
 
-	public static final int OUTPUT_INTERVAL = 20; // Only try outputting items every 1 seconds, to try to reduce server load
+	public static final int OUTPUT_INTERVAL = 20; // Only try outputting items to an Ender Chest once every 1 seconds, to try to reduce server load
 
 	protected static final int[] SLOTS_TOP = new int[] {0};
 	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
@@ -59,7 +59,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	public byte operatingMode;
 	public byte outputMode;
 	private int outputBufferAmount;
-	private ItemStack outputStack;
+	private ItemStack outputBufferStack;
 
 	public int burnTimeRemaining;	// Remaining burn time from the currently burning fuel
 	public int burnTimeFresh;		// The time the currently burning fuel will burn in total
@@ -122,7 +122,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
 		{
 			this.outputBufferAmount = nbt.getInteger("OutputBufferAmount");
-			this.outputStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
+			this.outputBufferStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
 		}
 	}
 
@@ -155,9 +155,9 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 		nbt.setTag("Items", nbttaglist);
 
-		if (this.outputStack != null)
+		if (this.outputBufferStack != null)
 		{
-			nbt.setTag("OutputBufferStack", this.outputStack.writeToNBT(new NBTTagCompound()));
+			nbt.setTag("OutputBufferStack", this.outputBufferStack.writeToNBT(new NBTTagCompound()));
 			nbt.setInteger("OutputBufferAmount", this.outputBufferAmount);
 		}
 	}
@@ -338,40 +338,10 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			{
 				this.timer = 0;
 
-				EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
-				// Player is online
-				if (player != null)
+				if (this.moveItemsToEnderChest() == true)
 				{
-					ItemStack stack;
-					InventoryEnderChest e = player.getInventoryEnderChest();
-
-					for(int i = 0; i < e.getSizeInventory(); ++i)
-					{
-						stack = e.getStackInSlot(i);
-						int size = 0;
-						if (stack != null)
-						{
-							size = stack.stackSize;
-						}
-
-						if (stack == null || (stack.getItem() != null && stack.getItem().equals(this.itemStacks[2].getItem()) == true && e.getInventoryStackLimit() - size > 0))
-						{
-							int moved = Math.min(this.itemStacks[2].stackSize, e.getInventoryStackLimit() - size);
-							stack = this.itemStacks[2].copy();
-							stack.stackSize = size + moved;
-
-							e.setInventorySlotContents(i, stack);
-							this.itemStacks[2].stackSize -= moved;
-
-							if (this.itemStacks[2].stackSize <= 0)
-							{
-								this.itemStacks[2] = null;
-								break;
-							}
-							dirty = true;
-							needsSync = true;
-						}
-					}
+					dirty = true;
+					needsSync = true;
 				}
 			}
 		}
@@ -393,14 +363,14 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 	private boolean fillOutputSlotFromBuffer()
 	{
-		if (this.outputBufferAmount == 0 || this.outputStack == null)
+		if (this.outputBufferAmount == 0 || this.outputBufferStack == null)
 		{
 			return false;
 		}
 
 		if (this.itemStacks[2] == null)
 		{
-			this.itemStacks[2] = this.outputStack.copy();
+			this.itemStacks[2] = this.outputBufferStack.copy();
 			this.itemStacks[2].stackSize = 0;
 		}
 
@@ -417,10 +387,63 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.outputBufferAmount -= max;
 		if (this.outputBufferAmount <= 0)
 		{
-			this.outputStack = null;
+			this.outputBufferStack = null;
 		}
 
 		return true;
+	}
+
+	private boolean moveItemsToEnderChest()
+	{
+		EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
+		boolean movedSomething = false;
+
+		// Player is online
+		if (player != null)
+		{
+			ItemStack enderChestStack;
+			InventoryEnderChest invEnderChest = player.getInventoryEnderChest();
+
+			int size = 0;
+			for(int i = 0; i < invEnderChest.getSizeInventory(); ++i)
+			{
+				size = 0;
+				enderChestStack = invEnderChest.getStackInSlot(i);
+
+				if (enderChestStack != null)
+				{
+					size = enderChestStack.stackSize;
+				}
+
+				// Check that the target stack either is empty, or has the same item, same damage and same NBT
+				if (enderChestStack == null ||
+						((invEnderChest.getInventoryStackLimit() - size) > 0 &&
+						this.itemStacks[2].isItemEqual(enderChestStack) &&
+						ItemStack.areItemStackTagsEqual(this.itemStacks[2], enderChestStack)))
+				{
+					if (enderChestStack == null)
+					{
+						enderChestStack = this.itemStacks[2].copy();
+					}
+
+					int moved = Math.min(this.itemStacks[2].stackSize, invEnderChest.getInventoryStackLimit() - size);
+					enderChestStack.stackSize = size + moved;
+
+					invEnderChest.setInventorySlotContents(i, enderChestStack);
+					this.itemStacks[2].stackSize -= moved;
+
+					if (this.itemStacks[2].stackSize <= 0)
+					{
+						this.itemStacks[2] = null;
+						break;
+					}
+
+					movedSomething = true;
+				}
+			}
+		}
+
+		return movedSomething;
 	}
 
 	public int getOutputBufferAmount()
@@ -430,7 +453,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 	public ItemStack getOutputBufferStack()
 	{
-		return this.outputStack;
+		return this.outputBufferStack;
 	}
 
 	public boolean hasFuelAvailable()
@@ -440,46 +463,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return false;
 		}
 
-		return getItemBurnTime(this.itemStacks[1]) > 0 || itemContainsFluidFuel(this.itemStacks[1]);
-	}
-
-	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
-	public boolean canSmelt()
-	{
-		if (this.itemStacks[0] == null)
-		{
-			return false;
-		}
-		else
-		{
-			ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
-			if (itemstack == null)
-			{
-				return false;
-			}
-			if (this.itemStacks[2] == null && this.outputBufferAmount == 0)
-			{
-				return true;
-			}
-			if (this.itemStacks[2] != null && this.itemStacks[2].isItemEqual(itemstack) == false)
-			{
-				return false;
-			}
-			if (this.outputStack != null && this.outputStack.isItemEqual(itemstack) == false)
-			{
-				return false;
-			}
-
-			int amount = 0;
-			int stackLimit = Math.min(this.getInventoryStackLimit(), itemstack.getMaxStackSize());
-			if (this.itemStacks[2] != null)
-			{
-				amount = this.itemStacks[2].stackSize;
-			}
-			amount = amount + this.outputBufferAmount + itemstack.stackSize;
-
-			return amount <= (OUTPUT_BUFFER_SIZE + stackLimit);
-		}
+		return (getItemBurnTime(this.itemStacks[1]) > 0 || itemContainsFluidFuel(this.itemStacks[1]));
 	}
 
 	public int consumeFuelItem()
@@ -510,41 +494,81 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		return burnTime;
 	}
 
+	// Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+	public boolean canSmelt()
+	{
+		if (this.itemStacks[0] == null)
+		{
+			return false;
+		}
+		else
+		{
+			ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
+			if (resultStack == null)
+			{
+				return false;
+			}
+			if (this.itemStacks[2] == null && this.outputBufferAmount == 0)
+			{
+				return true;
+			}
+			if (this.itemStacks[2] != null &&
+				(this.itemStacks[2].isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.itemStacks[2], resultStack) == false))
+			{
+				return false;
+			}
+			if (this.outputBufferStack != null &&
+				(this.outputBufferStack.isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.outputBufferStack, resultStack) == false))
+			{
+				return false;
+			}
+
+			int amount = 0;
+			int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
+			if (this.itemStacks[2] != null)
+			{
+				amount = this.itemStacks[2].stackSize;
+			}
+			amount = amount + this.outputBufferAmount + resultStack.stackSize;
+
+			return amount <= (OUTPUT_BUFFER_SIZE + stackLimit);
+		}
+	}
+
 	// Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
 	public void smeltItem()
 	{
 		if (this.canSmelt() == true)
 		{
-			ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
+			ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
+			int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
 
 			if (this.itemStacks[2] == null)
 			{
-				this.itemStacks[2] = itemstack.copy();
+				this.itemStacks[2] = resultStack.copy();
+				this.itemStacks[2].stackSize = 0;
 			}
-			else if (this.itemStacks[2].getItem() == itemstack.getItem())
+
+			int resultAmount = resultStack.stackSize;
+
+			if ((this.itemStacks[2].stackSize + resultAmount) <= stackLimit)
 			{
-				int stackLimit = Math.min(this.getInventoryStackLimit(), this.itemStacks[2].getMaxStackSize());
-				if ((this.itemStacks[2].stackSize + itemstack.stackSize) <= stackLimit)
+				this.itemStacks[2].stackSize += resultAmount;
+			}
+			else
+			{
+				int max = stackLimit - this.itemStacks[2].stackSize;
+				this.itemStacks[2].stackSize += max;
+				this.outputBufferAmount += (resultAmount - max);
+
+				if (this.outputBufferStack == null)
 				{
-					this.itemStacks[2].stackSize += itemstack.stackSize;
-				}
-				else
-				{
-					int num = Math.min(stackLimit - this.itemStacks[2].stackSize, itemstack.stackSize);
-					this.itemStacks[2].stackSize += num;
-					num = itemstack.stackSize - num;
-					this.outputBufferAmount += num;
-					if (this.outputStack == null)
-					{
-						this.outputStack = itemstack.copy();
-						this.outputStack.stackSize = 1;
-					}
+					this.outputBufferStack = resultStack.copy();
+					this.outputBufferStack.stackSize = 1;
 				}
 			}
 
-			--this.itemStacks[0].stackSize;
-
-			if (this.itemStacks[0].stackSize <= 0)
+			if (--this.itemStacks[0].stackSize <= 0)
 			{
 				this.itemStacks[0] = null;
 			}
@@ -595,16 +619,16 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		}
 
 		int burnTime = 0;
-		int amount = 0;
 
 		// All the null checks happened already in itemContainsFluidFuel()
 		FluidStack fluidStack = ((IFluidContainerItem)stack.getItem()).getFluid(stack);
-		String name = fluidStack.getFluid().getName();
-		amount = Math.min(250, fluidStack.amount); // Consume max 250 mB per use
 
-		if (name.equals("lava") == true)
+		if (fluidStack.getFluid().getName().equals("lava") == true)
 		{
-			burnTime = amount * 15 * COOKTIME_DEFAULT / 100; // 1.5 times vanilla lava fuel value (=> 37.5 items per 250 mB = 150 items per bucket)
+			// Consume max 250 mB per use.
+			int amount = Math.min(250, fluidStack.amount);
+			// 1.5 times vanilla lava fuel value (150 items per bucket => 37.5 items per 250 mB)
+			burnTime = amount * 15 * COOKTIME_DEFAULT / 100;
 			((IFluidContainerItem)stack.getItem()).drain(stack, amount, true);
 		}
 
@@ -636,8 +660,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return false;
 		}
 
-		String name = fluid.getName();
-		if (name.equals("lava") == true)
+		if (fluid.getName().equals("lava") == true)
 		{
 			return true;
 		}
@@ -649,17 +672,19 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@Override
 	public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
 	{
-		// Don't allow inserting to output slot
+		// Don't allow inserting anything to the output slot
 		if (slotNum == 2)
 		{
 			return false;
 		}
-		// Only accept fuels into fuel slot
+
+		// Only accept fuels into the fuel slot
 		if (slotNum == 1)
 		{
 			return isItemFuel(itemStack);
 		}
-		return true;
+
+		return FurnaceRecipes.smelting().getSmeltingResult(itemStack) != null;
 	}
 
 	/* Returns an array containing the indices of the slots that can be accessed by automation on the given side of this block. */
@@ -670,6 +695,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			return SLOTS_BOTTOM;
 		}
+
 		if (side == 1)
 		{
 			return SLOTS_TOP;
@@ -699,7 +725,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 			return true;
 		}
 
-		// Don't allow pulling out items from the input slot, or when outputting to Ender Chest
+		// Don't allow pulling out items from the input slot, or from the output slot when outputting to an Ender Chest
 		return false;
 	}
 
