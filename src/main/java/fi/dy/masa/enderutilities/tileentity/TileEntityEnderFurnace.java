@@ -582,33 +582,36 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		{
 			return 0;
 		}
+
+		Item item = stack.getItem();
+
+		if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.air)
+		{
+			Block block = Block.getBlockFromItem(item);
+			if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
+			if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 120; }
+			if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 45 / 40; }
+		}
 		else
 		{
-			Item item = stack.getItem();
-
-			if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.air)
-			{
-				Block block = Block.getBlockFromItem(item);
-				if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 45 / 40; }
-				if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
-				if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 120; }
-			}
-
-			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
-			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
-			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
-			if (item == Items.stick) return COOKTIME_DEFAULT * 3 / 4;
 			if (item == Items.coal) return COOKTIME_DEFAULT * 12;
-			if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 150;
-			if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT * 3 / 4;
 			if (item == Items.blaze_rod) return COOKTIME_DEFAULT * 18;
 
 			// Ender Furnace custom fuels
+			if (item == Items.blaze_powder) return COOKTIME_DEFAULT * 9;
 			if (item == Items.ender_pearl) { return COOKTIME_DEFAULT * 8; }
-			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 16; }
+			if (item == Items.ender_eye) { return COOKTIME_DEFAULT * 17; }
 
-			return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT / 150;
+			if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 150;
+			if (item == Items.stick) return COOKTIME_DEFAULT * 3 / 4;
+			if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT * 3 / 4;
+			if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+			if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+			if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+
 		}
+
+		return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT * 3 / 400;
 	}
 
 	public static int consumeFluidFuelDosage(ItemStack stack)
