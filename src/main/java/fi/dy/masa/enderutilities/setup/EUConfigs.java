@@ -35,6 +35,7 @@ public class EUConfigs
 	public static Property disableItemEnderPearl;
 	public static Property disableItemEnderPorterBasic;
 	public static Property disableItemEnderPorterAdvanced;
+	public static Property disableItemEnderTool;
 	public static Property disableItemMobHarness;
 
 	// Recipe disable

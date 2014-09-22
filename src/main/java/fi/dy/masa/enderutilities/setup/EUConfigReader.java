@@ -9,7 +9,7 @@ import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 
 public class EUConfigReader
 {
-	public static final int CURRENT_CONFIG_VERSION = 32;
+	public static final int CURRENT_CONFIG_VERSION = 40;
 	public static int confVersion = 0;
 
 	public static void loadConfigsAll(File baseConfigDir)
@@ -138,6 +138,7 @@ public class EUConfigReader
 		EUConfigs.disableItemEnderPearl				= conf.get(category, "DisableItemEnderPearl", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPorterBasic		= conf.get(category, "DisableItemEnderPorterBasic", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPorterAdvanced	= conf.get(category, "DisableItemEnderPorterAdvanced", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderTool				= conf.get(category, "DisableItemEnderTool", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemMobHarness				= conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
 
 		EUConfigs.disableRecipeEnderArrow			= conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);

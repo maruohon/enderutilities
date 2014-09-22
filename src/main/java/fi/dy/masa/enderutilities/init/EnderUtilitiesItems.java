@@ -12,6 +12,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
+import fi.dy.masa.enderutilities.item.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
@@ -31,6 +32,7 @@ public class EnderUtilitiesItems
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
 	public static final ItemEU enderPorter = new ItemEnderPorter();
+	public static final ItemEU enderTool = new ItemEnderTool();
 	public static final ItemEU mobHarness = new ItemMobHarness();
 
 	public static void init()
@@ -40,6 +42,9 @@ public class EnderUtilitiesItems
 		}
 		if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
+		}
+		if (EUConfigs.disableItemEnderTool.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderTool, ReferenceItem.NAME_ITEM_ENDERTOOL);
 		}
 
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {

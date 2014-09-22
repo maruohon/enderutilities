@@ -30,6 +30,11 @@ item.enderpearlreusable.name=Ender Pearl (re-usable)
 item.enderpearlreusable.elite.name=Elite Ender Pearl (re-usable)
 item.enderporter.name=Ender Porter (Basic)
 item.enderporter.advanced.name=Ender Porter (Advanced)
+item.endertool.pickaxe.name=Ender Pickaxe
+item.endertool.axe.name=Ender Axe
+item.endertool.shovel.name=Ender Shovel
+item.endertool.hoe.name=Ender Hoe
+item.endertool.sword.name=Ender Sword
 item.mobharness.name=Mob Harness
 
 gui.label.outputbuffer=Buffer
