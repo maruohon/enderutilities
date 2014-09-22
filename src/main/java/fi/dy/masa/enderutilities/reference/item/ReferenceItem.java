@@ -7,6 +7,7 @@ public class ReferenceItem
 	public static final String NAME_ITEM_ENDERPART_ENDERCAPACITOR	= "endercapacitor";
 	public static final String NAME_ITEM_ENDERPART_ENDERCORE		= "endercore";
 	public static final String NAME_ITEM_ENDERPART_ENDERSTICK		= "enderstick";
+	public static final String NAME_ITEM_ENDERPART_ENDERROPE		= "enderrope";
 
 	public static final String NAME_ITEM_ENDER_ARROW			= "enderarrow";
 	public static final String NAME_ITEM_ENDER_BAG				= "enderbag";

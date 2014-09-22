@@ -56,6 +56,12 @@ public class ItemEnderPart extends ItemEU
 			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK;
 		}
 
+		// Damage 21: Ender Rope
+		if (stack.getItemDamage() == 21)
+		{
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE;
+		}
+
 		return super.getUnlocalizedName();
 	}
 
@@ -78,6 +84,7 @@ public class ItemEnderPart extends ItemEU
 			}
 
 			list.add(new ItemStack(this, 1, 20)); // Ender Stick
+			list.add(new ItemStack(this, 1, 21)); // Ender Rope
 		}
 	}
 
@@ -86,21 +93,16 @@ public class ItemEnderPart extends ItemEU
 	public IIcon getIconFromDamage(int damage)
 	{
 		// Ender Alloy
-		if (damage >= 0 && damage <= 2)
-		{
-			return this.iconArray[damage];
-		}
+		if (damage >= 0 && damage <= 2) { return this.iconArray[damage]; }
+
 		// Ender Core
-		if (damage >= 10 && damage <= 12)
-		{
-			return this.iconArray[damage - 7];
-		}
+		if (damage >= 10 && damage <= 12) { return this.iconArray[damage - 7]; }
 
 		// Ender Stick
-		if (damage == 20)
-		{
-			return this.iconArray[6];
-		}
+		if (damage == 20) { return this.iconArray[6]; }
+
+		// Ender Rope
+		if (damage == 21) { return this.iconArray[7]; }
 
 		return this.itemIcon;
 	}
@@ -110,7 +112,7 @@ public class ItemEnderPart extends ItemEU
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-		this.iconArray = new IIcon[7];
+		this.iconArray = new IIcon[8];
 
 		int i = 0, j;
 
@@ -125,6 +127,7 @@ public class ItemEnderPart extends ItemEU
 		}
 
 		this.iconArray[6] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK);
+		this.iconArray[7] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE);
 	}
 
 	@SideOnly(Side.CLIENT)
