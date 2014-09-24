@@ -10,11 +10,11 @@ public class ReferenceItem
 	public static final String NAME_ITEM_ENDERPART_ENDERROPE		= "enderrope";
 
 	public static final String NAME_ITEM_ENDERTOOL				= "endertool";
-	public static final String NAME_ITEM_ENDER_PICKAXE			= "pickaxe";
-	public static final String NAME_ITEM_ENDER_AXE				= "axe";
-	public static final String NAME_ITEM_ENDER_SHOVEL			= "shovel";
-	public static final String NAME_ITEM_ENDER_HOE				= "hoe";
-	public static final String NAME_ITEM_ENDER_SWORD			= "sword";
+	public static final String NAME_ITEM_ENDER_PICKAXE			= "enderpickaxe";
+	public static final String NAME_ITEM_ENDER_AXE				= "enderaxe";
+	public static final String NAME_ITEM_ENDER_SHOVEL			= "endershovel";
+	public static final String NAME_ITEM_ENDER_HOE				= "enderhoe";
+	public static final String NAME_ITEM_ENDER_SWORD			= "endersword";
 
 	public static final String NAME_ITEM_ENDER_ARROW			= "enderarrow";
 	public static final String NAME_ITEM_ENDER_BAG				= "enderbag";

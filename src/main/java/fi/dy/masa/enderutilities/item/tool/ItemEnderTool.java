@@ -27,12 +27,13 @@ import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound
 {
-	private static final Set<Block> pickaxeBlocksEffectiveAgainst = Sets.newHashSet(new Block[]{
+	private static final Set<Block> blocksEffectiveAgainstWithPickaxe = Sets.newHashSet(new Block[]{
 			Blocks.stone, Blocks.cobblestone, Blocks.mossy_cobblestone,
 			Blocks.stone_slab, Blocks.double_stone_slab,
 			Blocks.sandstone, Blocks.ice,
@@ -45,7 +46,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 			Blocks.redstone_block, Blocks.redstone_ore, Blocks.lit_redstone_ore,
 			Blocks.rail, Blocks.detector_rail, Blocks.golden_rail, Blocks.activator_rail
 		});
-	public float efficiencyOnProperMaterial = 9.0f;
+	public float efficiencyOnProperMaterial = 5.0f;
 
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
@@ -55,15 +56,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	String[] tools = new String[] {	ReferenceItem.NAME_ITEM_ENDER_PICKAXE,
 									ReferenceItem.NAME_ITEM_ENDER_AXE,
 									ReferenceItem.NAME_ITEM_ENDER_SHOVEL,
-									ReferenceItem.NAME_ITEM_ENDER_HOE,
-									ReferenceItem.NAME_ITEM_ENDER_SWORD};
+									ReferenceItem.NAME_ITEM_ENDER_HOE};
 	@SideOnly(Side.CLIENT)
-	String[] parts = new String[] {".rod", ".head.1", ".head.2", ".core.1", ".core.2", ".core.3",
-									".capacitor.1", ".capacitor.2", ".capacitor.3", ".linkcrystal"};
+	String[] parts = new String[] {"rod", "head.1", "head.2", "core.1", "core.2", "core.3",
+									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
 
 	public ItemEnderTool()
 	{
-		super(2.0f, Item.ToolMaterial.EMERALD, pickaxeBlocksEffectiveAgainst);
+		super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, blocksEffectiveAgainstWithPickaxe);
 		this.setMaxStackSize(1);
 		this.setMaxDamage(2048);
 		this.setNoRepair();
@@ -79,7 +79,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		if (this.getToolType(stack) == 1) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_AXE; }
 		if (this.getToolType(stack) == 2) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_SHOVEL; }
 		if (this.getToolType(stack) == 3) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_HOE; }
-		if (this.getToolType(stack) == 4) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_SWORD; }
 
 		return super.getUnlocalizedName();
 	}
@@ -90,7 +89,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	{
 		if (EUConfigs.disableItemEnderTool.getBoolean(false) == false)
 		{
-			for (int i = 0; i <= 4; i++)
+			for (int i = 0; i <= 3; i++)
 			{
 				list.add(new ItemStack(this, 1, i));
 			}
@@ -104,7 +103,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	}
 
 	@Override
-	public boolean isRepairable ()
+	public boolean isRepairable()
 	{
 		return false;
 	}
@@ -126,7 +125,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 			if (this.getToolType(stack) == 1) { return "axe"; }
 			if (this.getToolType(stack) == 2) { return "shovel"; }
 			if (this.getToolType(stack) == 3) { return "hoe"; }
-			if (this.getToolType(stack) == 4) { return "sword"; }
 		}
 		return null;
 	}
@@ -151,7 +149,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		/**
 		 * Returns the maximum damage an item can take.
 		 */
-		return 2048;
+		return this.func_150913_i().getMaxUses();
 	}
 
 	/**
@@ -166,11 +164,57 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		{
 			return false;
 		}
-		if (stack.getTagCompound().getInteger("Damage") > 0)
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt != null)
 		{
-			return true;
+			NBTTagCompound tag = nbt.getCompoundTag("Durability");
+			if (tag.getInteger("Damage") > 0)
+			{
+				return true;
+			}
 		}
 		return false;
+	}
+
+	public boolean addDamage(ItemStack stack, int amount)
+	{
+		if (stack == null) { return false; }
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null) { nbt = new NBTTagCompound(); }
+
+		NBTTagCompound tag = nbt.getCompoundTag("Durability");
+		if (tag == null) { tag = new NBTTagCompound(); }
+
+		int damage = tag.getInteger("Damage") + amount;
+		if (damage > this.getMaxDamage(stack))
+		{
+			damage = this.getMaxDamage(stack);
+		}
+		if (damage >= this.getMaxDamage(stack))
+		{
+			tag.setBoolean("Broken", true);
+		}
+
+		tag.setInteger("Damage", damage);
+		nbt.setTag("Durability", tag);
+		stack.setTagCompound(nbt);
+
+		return true;
+	}
+
+	public int getToolDamage(ItemStack stack)
+	{
+		if (stack == null) { return 0; }
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null) { return 0; }
+
+		NBTTagCompound tag = nbt.getCompoundTag("Durability");
+		if (tag != null)
+		{
+			return tag.getInteger("Damage");
+		}
+
+		return 0;
 	}
 
 	/**
@@ -222,7 +266,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		}
 		if (this.getToolType(stack) != 4) // Not an Ender Sword, so some of the tools
 		{
-			stack.damageItem(2, living2);
+			this.addDamage(stack, 2);
 		}
 		return false;
 	}
@@ -231,6 +275,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
 	{
 		System.out.println("onBlockDestroyed()");
+		this.addDamage(stack, 1);
 		return false;
 	}
 
@@ -238,63 +283,21 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	public boolean func_150897_b(Block block)
 	{
 		System.out.println("func_150897_b()");
-		int harvestLevel = 3;
-
-		if (block == Blocks.obsidian)
-		{
-			return harvestLevel >= 3;
-		}
-
-		if (block == Blocks.diamond_block || block == Blocks.diamond_ore ||
-			block == Blocks.emerald_block || block == Blocks.emerald_ore ||
-			block == Blocks.gold_block || block == Blocks.gold_ore ||
-			block == Blocks.redstone_ore || block == Blocks.lit_redstone_ore)
-		{
-			return harvestLevel >= 2;
-		}
-
-		if (block == Blocks.iron_block || block == Blocks.iron_ore ||
-			block == Blocks.lapis_block || block == Blocks.lapis_ore ||
-			block.getMaterial() == net.minecraft.block.material.Material.rock ||
-			block.getMaterial() == net.minecraft.block.material.Material.iron ||
-			block.getMaterial() == net.minecraft.block.material.Material.anvil)
-		{
-			return harvestLevel >= 1;
-		}
-
-		// Shovel
-		if (block == Blocks.snow_layer || block == Blocks.snow)
-		{
-			return true;
-		}
-
-		return harvestLevel >= 1;
+		return false;
 	}
 
 	@Override
 	public float func_150893_a(ItemStack stack, Block block)
 	{
-		System.out.println("func_150893_a()");
-		if (this.getToolType(stack) == 0) // Ender Pickaxe
+		if (this.canHarvestBlock(block, stack) == true)
 		{
-			if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
-				block.getMaterial() == net.minecraft.block.material.Material.iron ||
-				block.getMaterial() == net.minecraft.block.material.Material.anvil)
-			{
-				return this.efficiencyOnProperMaterial;
-			}
-		}
-		else if (this.getToolType(stack) == 1) // Ender Axe
-		{
-			if (block.getMaterial() == net.minecraft.block.material.Material.wood ||
-				block.getMaterial() == net.minecraft.block.material.Material.plants ||
-				block.getMaterial() == net.minecraft.block.material.Material.vine)
-			{
-				return this.efficiencyOnProperMaterial;
-			}
+			System.out.println("func_150893_a(): true");
+			return this.efficiencyOnProperMaterial;
 		}
 
-		return super.func_150893_a(stack, block);
+		System.out.println("func_150893_a(): false");
+		//return super.func_150893_a(stack, block);
+		return 1.0f;
 	}
 
     /**
@@ -306,9 +309,43 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public boolean canHarvestBlock(Block block, ItemStack stack)
 	{
-		System.out.println("canHarvestBlock()");
+		if (this.getToolType(stack) == 0) // Ender Pickaxe
+		{
+			if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
+				block.getMaterial() == net.minecraft.block.material.Material.iron ||
+				block.getMaterial() == net.minecraft.block.material.Material.anvil)
+			{
+				System.out.println("canHarvestBlock(): true; Pickaxe");
+				return true;
+			}
+		}
+		else if (this.getToolType(stack) == 1) // Ender Axe
+		{
+			if (block.getMaterial() == net.minecraft.block.material.Material.wood ||
+				block.getMaterial() == net.minecraft.block.material.Material.plants ||
+				block.getMaterial() == net.minecraft.block.material.Material.vine)
+			{
+				System.out.println("canHarvestBlock(): true; Axe");
+				return true;
+			}
+		}
+		else if (this.getToolType(stack) == 2) // Ender Shovel
+		{
+			if (block.getMaterial() == net.minecraft.block.material.Material.ground ||
+				block.getMaterial() == net.minecraft.block.material.Material.grass ||
+				block.getMaterial() == net.minecraft.block.material.Material.sand ||
+				block.getMaterial() == net.minecraft.block.material.Material.snow ||
+				block.getMaterial() == net.minecraft.block.material.Material.craftedSnow ||
+				block.getMaterial() == net.minecraft.block.material.Material.clay)
+			{
+				System.out.println("canHarvestBlock(): true; Shovel");
+				return true;
+			}
+		}
+
+		System.out.println("canHarvestBlock(): false");
 		//return func_150897_b(block);
-		return true;
+		return false;
 	}
 
 	/**
@@ -350,7 +387,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		if (toolClass.equals(this.getToolClass(stack)) == true)
 		{
 			System.out.println("getHarvestLevel(): 3");
-			return 3; // Diamond tool harvest level for valid blocks
+			return this.func_150913_i().getHarvestLevel();
 		}
 		System.out.println("getHarvestLevel(): -1");
 		return -1;
@@ -365,7 +402,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public int getItemEnchantability(ItemStack stack)
 	{
-		return 12;
+		return super.getItemEnchantability(stack);
 	}
 
 	/**
@@ -383,19 +420,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_PICKAXE + ".rod");
-		this.iconArray = new IIcon[51];
+		this.iconArray = new IIcon[40];
 		String prefix = this.getIconString() + ".";
 
 		for (int i = 0; i < 10; i++)
 		{
-			for (int j = 0; j < 5; j++)
+			for (int j = 0; j < 4; j++)
 			{
-				this.iconArray[(i * 5) + j] = iconRegister.registerIcon(prefix + this.tools[j] + this.parts[i]);
+				this.iconArray[(i * 4) + j] = iconRegister.registerIcon(prefix + this.tools[j] + "." + this.parts[i]);
 			}
 		}
-
-		// Sword has three head textures
-		this.iconArray[50] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_SWORD + ".head.3");
 	}
 
 	@Override
@@ -453,21 +487,15 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 			// 0: Rod
 			case 1: // 1: Head
 				// TODO: Select the right part based on NBT
-				byte mode = this.getToolMode(stack);
-				if (mode == 2){ i = 50; } // Ender Sword in the third operation mode
-				else if (mode == 1) { i += 10; }
-				else { i += 5; }
+				i += (getToolMode(stack) << 2) + 4;
 				break;
 			case 2: // 2: Core
 				// TODO: Select the right part based on NBT
-				//i += 15;
 				break;
 			case 3: // 3: Capacitor
 				// TODO: Select the right part based on NBT
-				//i += 30;
 				break;
 			case 4: // 4: Link Crystal
-				//i += 45;
 				break;
 			default:
 		}
@@ -506,7 +534,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		{
 			return 1.0d;
 		}
-		return ((double)this.getMaxDamage(stack) - (double)stack.getTagCompound().getInteger("Damage")) / (double)this.getMaxDamage(stack);
+		return (double)this.getToolDamage(stack) / (double)this.getMaxDamage(stack);
 	}
 
     @SideOnly(Side.CLIENT)
@@ -516,36 +544,22 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		//list.add(StatCollector.translateToLocal("gui.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
 	}
 
-	private byte getToolMode(ItemStack stack)
+	public static byte getToolMode(ItemStack stack)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
-		{
-			nbt = new NBTTagCompound();
-		}
+		if (nbt == null) { nbt = new NBTTagCompound(); }
 
 		return nbt.getByte("ToolMode");
 	}
 
-	private void toggleToolMode(ItemStack stack)
+	public void toggleToolMode(ItemStack stack)
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
-		{
-			nbt = new NBTTagCompound();
-		}
+		if (nbt == null) { nbt = new NBTTagCompound(); }
 
-		byte mode = this.getToolMode(stack);
-
-		// 4: Ender Sword; it has 3 modes instead of 2 like the other tools
-		if (this.getToolType(stack) == 4 && ++mode > 2)
-		{
-			mode = 0;
-		}
-		else if (this.getToolType(stack) != 4 && ++mode > 1)
-		{
-			mode = 0;
-		}
+		byte mode = getToolMode(stack);
+		// Two modes: Normal (= insert to player inventory) and Send (= send to bound inventory)
+		if (++mode > 1) { mode = 0; }
 
 		nbt.setByte("ToolMode", mode);
 		stack.setTagCompound(nbt);
@@ -554,10 +568,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
 	{
-		if (stack == null)
-		{
-			return;
-		}
+		if (stack == null) { return; }
 
 		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
 		{

@@ -16,8 +16,10 @@ import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesItems
@@ -32,6 +34,7 @@ public class EnderUtilitiesItems
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
 	public static final ItemEU enderPorter = new ItemEnderPorter();
+	public static final Item enderSword = new ItemEnderSword(ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED);
 	public static final Item enderTool = new ItemEnderTool();
 	public static final ItemEU mobHarness = new ItemMobHarness();
 
@@ -43,10 +46,6 @@ public class EnderUtilitiesItems
 		if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
 		}
-		if (EUConfigs.disableItemEnderTool.getBoolean(false) == false) {
-			GameRegistry.registerItem(enderTool, ReferenceItem.NAME_ITEM_ENDERTOOL);
-		}
-
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
 		}
@@ -68,6 +67,12 @@ public class EnderUtilitiesItems
 		if (EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false ||
 			EUConfigs.disableItemEnderPorterAdvanced.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderPorter, ReferenceItem.NAME_ITEM_ENDER_PORTER);
+		}
+		if (EUConfigs.disableItemEnderSword.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderSword, ReferenceItem.NAME_ITEM_ENDER_SWORD);
+		}
+		if (EUConfigs.disableItemEnderTool.getBoolean(false) == false) {
+			GameRegistry.registerItem(enderTool, ReferenceItem.NAME_ITEM_ENDERTOOL);
 		}
 		if (EUConfigs.disableItemMobHarness.getBoolean(false) == false) {
 			GameRegistry.registerItem(mobHarness, ReferenceItem.NAME_ITEM_MOB_HARNESS);

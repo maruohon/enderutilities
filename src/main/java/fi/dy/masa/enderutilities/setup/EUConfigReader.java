@@ -138,6 +138,7 @@ public class EUConfigReader
 		EUConfigs.disableItemEnderPearl				= conf.get(category, "DisableItemEnderPearl", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPorterBasic		= conf.get(category, "DisableItemEnderPorterBasic", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderPorterAdvanced	= conf.get(category, "DisableItemEnderPorterAdvanced", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemEnderSword				= conf.get(category, "DisableItemEnderSword", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderTool				= conf.get(category, "DisableItemEnderTool", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemMobHarness				= conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
 
