@@ -12,11 +12,11 @@ import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
-import fi.dy.masa.enderutilities.item.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 

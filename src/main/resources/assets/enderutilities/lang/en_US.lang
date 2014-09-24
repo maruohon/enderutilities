@@ -49,6 +49,7 @@ gui.tooltip.dimension=Dimension
 gui.tooltip.dimension.overworld=Overworld
 gui.tooltip.dimension.nether=Nether
 gui.tooltip.dimension.end=The End
+gui.tooltip.durability=Durability
 gui.tooltip.empty=empty
 gui.tooltip.fluid=Fluid
 gui.tooltip.holdshift=Hold Shift for more
