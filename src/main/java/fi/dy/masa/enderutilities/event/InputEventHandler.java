@@ -11,7 +11,7 @@ import fi.dy.masa.enderutilities.client.settings.Keybindings;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 
 public class InputEventHandler
 {

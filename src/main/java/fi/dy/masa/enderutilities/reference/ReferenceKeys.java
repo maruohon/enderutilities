@@ -1,8 +1,6 @@
-package fi.dy.masa.enderutilities.reference.key;
+package fi.dy.masa.enderutilities.reference;
 
 import org.lwjgl.input.Keyboard;
-
-import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ReferenceKeys
 {

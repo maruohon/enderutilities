@@ -7,7 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.reference.Textures;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
 
 public class GuiEnderUtilitiesInventory extends GuiContainer
@@ -19,7 +19,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
 	{
 		super(container);
 		this.te = te;
-		this.guiTexture = Textures.getGuiTexture("gui.container." + te.getTEName());
+		this.guiTexture = ReferenceTextures.getGuiTexture("gui.container." + te.getTEName());
 	}
 
 	@Override

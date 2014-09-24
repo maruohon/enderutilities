@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.reference.tileentity;
+package fi.dy.masa.enderutilities.reference;
 
 public class ReferenceTileEntity
 {

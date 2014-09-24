@@ -12,8 +12,8 @@ import org.lwjgl.opengl.GL12;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceEntities;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 @SideOnly(Side.CLIENT)
 public class RenderEnderArrow extends Render
@@ -90,7 +90,7 @@ public class RenderEnderArrow extends Render
 	 */
 	protected ResourceLocation getEntityTexture(EntityEnderArrow par1EntityArrow)
 	{
-		return new ResourceLocation(Textures.getEntityTextureName(ReferenceEntity.NAME_ENTITY_ENDER_ARROW));
+		return new ResourceLocation(ReferenceTextures.getEntityTextureName(ReferenceEntities.NAME_ENTITY_ENDER_ARROW));
 	}
 
 	/**

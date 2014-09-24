@@ -25,9 +25,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.setup.EURegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -45,7 +45,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BAG);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
 	@Override

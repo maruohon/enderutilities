@@ -31,9 +31,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
@@ -56,7 +56,7 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 		super(itemID);
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BUCKET);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()) + ".32");
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32");
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 		this.setCapacity(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT);
 	}
@@ -457,9 +457,9 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString());
 		this.iconParts = new IIcon[3];
-		this.iconParts[0] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.main");
-		this.iconParts[1] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.windowbg");
-		this.iconParts[2] = iconRegister.registerIcon(Textures.getTextureName(this.getUnlocalizedName()) + ".32.inside");
+		this.iconParts[0] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.main");
+		this.iconParts[1] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.windowbg");
+		this.iconParts[2] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.inside");
 	}
 
 	@SideOnly(Side.CLIENT)

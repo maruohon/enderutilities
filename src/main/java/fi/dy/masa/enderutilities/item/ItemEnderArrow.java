@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.item;
 
 import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderArrow extends ItemEU
 {
@@ -11,6 +11,6 @@ public class ItemEnderArrow extends ItemEU
 		super();
 		this.setMaxStackSize(64);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_ARROW);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 }

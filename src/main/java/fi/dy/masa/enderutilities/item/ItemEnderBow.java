@@ -23,9 +23,9 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEUTeleport;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -46,7 +46,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 		this.setMaxStackSize(1);
 		this.setMaxDamage(384);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BOW);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
 	/**

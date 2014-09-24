@@ -14,8 +14,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperEnderCharge;
 
 public class ItemEnderCapacitor extends ItemEU implements IChargeable
@@ -30,7 +30,7 @@ public class ItemEnderCapacitor extends ItemEU implements IChargeable
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
 	@Override

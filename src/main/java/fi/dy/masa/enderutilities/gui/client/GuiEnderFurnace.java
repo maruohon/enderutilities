@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
-import fi.dy.masa.enderutilities.reference.gui.GuiIds;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
@@ -147,6 +147,6 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 	{
 		super.actionPerformed(btn);
 		PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
-				GuiIds.GUI_ID_ENDER_FURNACE, btn.id, (short)0));
+				ReferenceGuiIds.GUI_ID_ENDER_FURNACE, btn.id, (short)0));
 	}
 }

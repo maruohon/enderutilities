@@ -20,8 +20,8 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemMobHarness extends ItemEU
@@ -34,7 +34,7 @@ public class ItemMobHarness extends ItemEU
 		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_MOB_HARNESS);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
 	@Override

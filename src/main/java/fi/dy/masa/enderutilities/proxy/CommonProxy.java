@@ -15,8 +15,8 @@ import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
-import fi.dy.masa.enderutilities.reference.entity.ReferenceEntity;
-import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceEntities;
+import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -38,8 +38,8 @@ public abstract class CommonProxy implements IProxy
 	public void registerEntities()
 	{
 		int id = 0;
-		EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntity.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
-		EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntity.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
+		EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntities.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
+		EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntities.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
 	}
 
 	public void registerEventHandlers()

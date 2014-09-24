@@ -5,7 +5,7 @@ import java.io.File;
 import net.minecraftforge.common.config.Configuration;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
 
 public class EUConfigReader
 {

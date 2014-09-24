@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL12;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemRendererEnderBucket implements IItemRenderer

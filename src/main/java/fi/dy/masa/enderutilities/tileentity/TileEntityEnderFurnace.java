@@ -29,7 +29,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderFurnace;
-import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEU

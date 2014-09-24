@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.reference.item;
+package fi.dy.masa.enderutilities.reference;
 
 public class ReferenceItem
 {

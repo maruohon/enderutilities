@@ -6,7 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
-import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesBlocks

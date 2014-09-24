@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
@@ -18,19 +19,20 @@ import net.minecraftforge.common.ForgeHooks;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
-public class ItemEnderTool extends ItemEU implements IKeyBound
+public class ItemEnderTool extends ItemTool implements IKeyBound
 {
-	/*private static final Set pickaxeBlocksEffectiveAgainst = Sets.newHashSet(new Block[]{
+	private static final Set<Block> pickaxeBlocksEffectiveAgainst = Sets.newHashSet(new Block[]{
 			Blocks.stone, Blocks.cobblestone, Blocks.mossy_cobblestone,
 			Blocks.stone_slab, Blocks.double_stone_slab,
 			Blocks.sandstone, Blocks.ice,
@@ -42,7 +44,7 @@ public class ItemEnderTool extends ItemEU implements IKeyBound
 			Blocks.lapis_ore, Blocks.lapis_block,
 			Blocks.redstone_block, Blocks.redstone_ore, Blocks.lit_redstone_ore,
 			Blocks.rail, Blocks.detector_rail, Blocks.golden_rail, Blocks.activator_rail
-		});*/
+		});
 	public float efficiencyOnProperMaterial = 9.0f;
 
 	@SideOnly(Side.CLIENT)
@@ -61,13 +63,13 @@ public class ItemEnderTool extends ItemEU implements IKeyBound
 
 	public ItemEnderTool()
 	{
-		super();
+		super(2.0f, Item.ToolMaterial.EMERALD, pickaxeBlocksEffectiveAgainst);
 		this.setMaxStackSize(1);
-		this.setHasSubtypes(true);
-		this.setMaxDamage(0);
+		this.setMaxDamage(2048);
 		this.setNoRepair();
+		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERTOOL);
-		this.setTextureName(Textures.getTextureName(this.getUnlocalizedName()));
+		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
 	@Override

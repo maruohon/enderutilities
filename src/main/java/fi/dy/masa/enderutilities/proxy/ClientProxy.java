@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.reference.key.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 
 public class ClientProxy extends CommonProxy
 {

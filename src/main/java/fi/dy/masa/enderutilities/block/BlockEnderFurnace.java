@@ -29,10 +29,10 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.reference.Textures;
-import fi.dy.masa.enderutilities.reference.gui.GuiIds;
-import fi.dy.masa.enderutilities.reference.item.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.tileentity.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class BlockEnderFurnace extends BlockContainer
@@ -135,7 +135,7 @@ public class BlockEnderFurnace extends BlockContainer
 
 		if (world.isRemote == false)
 		{
-			player.openGui(EnderUtilities.instance, GuiIds.GUI_ID_ENDER_FURNACE, world, x, y, z);
+			player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_ENDER_FURNACE, world, x, y, z);
 		}
 
 		return true;
@@ -317,11 +317,11 @@ public class BlockEnderFurnace extends BlockContainer
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		this.blockIcon = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
-		this.iconTop = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
-		this.iconFrontOff = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
-		this.iconFrontOnSlow = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
-		this.iconFrontOnFast = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
-		this.iconFrontOnNofuel = iconRegister.registerIcon(Textures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
+		this.blockIcon = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
+		this.iconTop = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
+		this.iconFrontOff = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
+		this.iconFrontOnSlow = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
+		this.iconFrontOnFast = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
+		this.iconFrontOnNofuel = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
 	}
 }

@@ -3,7 +3,7 @@ package fi.dy.masa.enderutilities.reference;
 import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.enderutilities.util.ResourceLocationHelper;
 
-public class Textures
+public class ReferenceTextures
 {
 	public static final String RESOURCE_PREFIX = Reference.MOD_ID.toLowerCase() + ":";
 	public static final String GUI_SHEET_LOCATION = "textures/gui/";
