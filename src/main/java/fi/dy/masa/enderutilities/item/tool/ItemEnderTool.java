@@ -33,19 +33,7 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound
 {
-	private static final Set<Block> blocksEffectiveAgainstWithPickaxe = Sets.newHashSet(new Block[]{
-			Blocks.stone, Blocks.cobblestone, Blocks.mossy_cobblestone,
-			Blocks.stone_slab, Blocks.double_stone_slab,
-			Blocks.sandstone, Blocks.ice,
-			Blocks.iron_ore, Blocks.iron_block,
-			Blocks.coal_block, Blocks.coal_ore,
-			Blocks.gold_block, Blocks.gold_ore,
-			Blocks.diamond_ore, Blocks.diamond_block,
-			Blocks.netherrack, Blocks.nether_brick,
-			Blocks.lapis_ore, Blocks.lapis_block,
-			Blocks.redstone_block, Blocks.redstone_ore, Blocks.lit_redstone_ore,
-			Blocks.rail, Blocks.detector_rail, Blocks.golden_rail, Blocks.activator_rail
-		});
+	private static final Set<Block> blocksEffectiveAgainst = Sets.newHashSet(new Block[]{Blocks.torch}); // Not actually used for anything!
 	public float efficiencyOnProperMaterial = 5.0f;
 
 	@SideOnly(Side.CLIENT)
@@ -63,7 +51,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 
 	public ItemEnderTool()
 	{
-		super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, blocksEffectiveAgainstWithPickaxe);
+		super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, blocksEffectiveAgainst);
 		this.setMaxStackSize(1);
 		this.setMaxDamage(2048);
 		this.setNoRepair();
@@ -87,11 +75,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public void getSubItems(Item item, CreativeTabs creativeTab, List list)
 	{
+		ItemStack stack;
 		if (EUConfigs.disableItemEnderTool.getBoolean(false) == false)
 		{
 			for (int i = 0; i <= 3; i++)
 			{
-				list.add(new ItemStack(this, 1, i));
+				stack = new ItemStack(this, 1, 0);
+				this.setToolType(stack, i);
+				list.add(stack);
 			}
 		}
 	}
@@ -110,11 +101,31 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 
 	public int getToolType(ItemStack stack)
 	{
-		if (stack != null)
+		if (stack == null) { return -1; }
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt != null)
 		{
-			return stack.getItemDamage() & 0x0F;
+			return nbt.getByte("ToolType");
 		}
+
 		return -1;
+	}
+
+	public boolean setToolType(ItemStack stack, int type)
+	{
+		if (stack == null) { return false; }
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null)
+		{
+			nbt = new NBTTagCompound();
+		}
+
+		nbt.setByte("ToolType", (byte)type);
+		stack.setTagCompound(nbt);
+
+		return true;
 	}
 
 	public String getToolClass(ItemStack stack)
@@ -152,110 +163,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		return this.func_150913_i().getMaxUses();
 	}
 
-	/**
-	 * Return if this itemstack is damaged. Note only called if {@link #isDamageable()} is true.
-	 * @param stack the stack
-	 * @return if the stack is damaged
-	 */
-	@Override
-	public boolean isDamaged(ItemStack stack)
-	{
-		if (stack == null || stack.getTagCompound() == null)
-		{
-			return false;
-		}
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt != null)
-		{
-			NBTTagCompound tag = nbt.getCompoundTag("Durability");
-			if (tag.getInteger("Damage") > 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean addDamage(ItemStack stack, int amount)
-	{
-		if (stack == null) { return false; }
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null) { nbt = new NBTTagCompound(); }
-
-		NBTTagCompound tag = nbt.getCompoundTag("Durability");
-		if (tag == null) { tag = new NBTTagCompound(); }
-
-		int damage = tag.getInteger("Damage") + amount;
-		if (damage > this.getMaxDamage(stack))
-		{
-			damage = this.getMaxDamage(stack);
-		}
-		if (damage >= this.getMaxDamage(stack))
-		{
-			tag.setBoolean("Broken", true);
-		}
-
-		tag.setInteger("Damage", damage);
-		nbt.setTag("Durability", tag);
-		stack.setTagCompound(nbt);
-
-		return true;
-	}
-
-	public int getToolDamage(ItemStack stack)
-	{
-		if (stack == null) { return 0; }
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null) { return 0; }
-
-		NBTTagCompound tag = nbt.getCompoundTag("Durability");
-		if (tag != null)
-		{
-			return tag.getInteger("Damage");
-		}
-
-		return 0;
-	}
-
-	/**
-	 * Set the damage for this itemstack. Note, this method is responsible for zero checking.
-	 * @param stack the stack
-	 * @param damage the new damage value
-	 */
-/*
-	@Override
-	public void setDamage(ItemStack stack, int damage)
-	{
-		if (stack == null)
-		{
-			return;
-		}
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
-		{
-			nbt = new NBTTagCompound();
-		}
-		nbt.setInteger("Damage", damage);
-		stack.setTagCompound(nbt);
-	}
-*/
-    /**
-	 * Return the itemDamage represented by this ItemStack. Defaults to the itemDamage field on ItemStack, but can be overridden here for other sources such as NBT.
-	 *
-	 * @param stack The itemstack that is damaged
-	 * @return the damage value
-	 */
-/*
-	@Override
-	public int getDamage(ItemStack stack)
-	{
-		if (stack == null || stack.getTagCompound() == null)
-		{
-			return 0;
-		}
-		return stack.getTagCompound().getInteger("Damage");
-	}
-*/
 	@Override
 	public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
 	{
@@ -264,10 +171,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		{
 			return false;
 		}
-		if (this.getToolType(stack) != 4) // Not an Ender Sword, so some of the tools
-		{
-			this.addDamage(stack, 2);
-		}
+
+		stack.damageItem(2, living1);
+
 		return false;
 	}
 
@@ -275,7 +181,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
 	{
 		System.out.println("onBlockDestroyed()");
-		this.addDamage(stack, 1);
+		stack.damageItem(1, living);
+
 		return false;
 	}
 
@@ -411,7 +318,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public Multimap getAttributeModifiers(ItemStack stack)
 	{
-		System.out.println("getAttributeModifiers()");
+		//System.out.println("getAttributeModifiers()");
 		return super.getAttributeModifiers(stack);
 	}
 
@@ -432,7 +339,18 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		}
 	}
 
+	/**
+	 * Render Pass sensitive version of hasEffect()
+	 */
 	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean hasEffect(ItemStack par1ItemStack, int pass)
+	{
+		//return hasEffect(par1ItemStack) && (pass == 0 || this != Items.potionitem);
+		return false;
+	}
+
+    @Override
 	@SideOnly(Side.CLIENT)
 	public boolean requiresMultipleRenderPasses()
 	{
@@ -506,35 +424,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		}
 
 		return this.iconArray[i];
-	}
-
-	/**
-	 * Determines if the durability bar should be rendered for this item.
-	 * Defaults to vanilla stack.isDamaged behavior.
-	 * But modders can use this for any data they wish.
-	 * 
-	 * @param stack The current Item Stack
-	 * @return True if it should render the 'durability' bar.
-	 */
-	public boolean showDurabilityBar(ItemStack stack)
-	{
-		return this.isDamaged(stack);
-	}
-
-    /**
-	 * Queries the percentage of the 'Durability' bar that should be drawn.
-	 * 
-	 * @param stack The current ItemStack
-	 * @return 1.0 for 100% 0 for 0%
-	 */
-	@Override
-	public double getDurabilityForDisplay(ItemStack stack)
-	{
-		if (stack == null || stack.getTagCompound() == null)
-		{
-			return 1.0d;
-		}
-		return (double)this.getToolDamage(stack) / (double)this.getMaxDamage(stack);
 	}
 
     @SideOnly(Side.CLIENT)
