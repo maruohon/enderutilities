@@ -9,6 +9,7 @@ public class ReferenceMaterial
 
 	public static final class Tool
 	{
-		public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED = EnumHelper.addToolMaterial(NAME_MATERIAL_ENDERALLOY_ADVANCED, 3, 2048, 15f, 6f, 13);
+		// name, harvestLevel, maxUses, efficiency, damage, enchantability
+		public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED = EnumHelper.addToolMaterial(NAME_MATERIAL_ENDERALLOY_ADVANCED, 3, 2048, 10f, 4f, 13);
 	}
 }

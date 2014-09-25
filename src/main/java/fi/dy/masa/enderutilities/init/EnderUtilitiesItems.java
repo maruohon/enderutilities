@@ -19,7 +19,6 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
-import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesItems
@@ -34,7 +33,7 @@ public class EnderUtilitiesItems
 	public static final ItemEU enderLasso = new ItemEnderLasso();
 	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
 	public static final ItemEU enderPorter = new ItemEnderPorter();
-	public static final Item enderSword = new ItemEnderSword(ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED);
+	public static final Item enderSword = new ItemEnderSword();
 	public static final Item enderTool = new ItemEnderTool();
 	public static final ItemEU mobHarness = new ItemMobHarness();
 

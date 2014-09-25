@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import cpw.mods.fml.relauncher.Side;
@@ -26,6 +27,7 @@ import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderSword extends ItemSword implements IKeyBound
@@ -40,14 +42,14 @@ public class ItemEnderSword extends ItemSword implements IKeyBound
 	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "core.1", "core.2", "core.3",
 									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
 
-	public ItemEnderSword(Item.ToolMaterial material)
+	public ItemEnderSword()
 	{
-		super(material);
+		super(ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED);
+		this.material = ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED;
 		this.setMaxStackSize(1);
-		this.setMaxDamage(material.getMaxUses());
+		this.setMaxDamage(this.material.getMaxUses());
 		this.setNoRepair();
-		this.material = material;
-		this.damageVsEntity = 4.0f + material.getDamageVsEntity();
+		this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_SWORD);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
@@ -57,7 +59,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound
 	public float func_150931_i()
 	{
 		// TODO no way to check if the item is broken without ItemStack and NBT data
-		return this.material.getDamageVsEntity();
+		return this.damageVsEntity;
 	}
 
     /**
@@ -168,22 +170,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound
 	}
 
 	/**
-	 * Return the enchantability factor of the item, most of the time is based on material.
-	 */
-	public int getItemEnchantability()
-	{
-		return this.material.getEnchantability();
-	}
-
-	/**
-	 * Return the name for this tool's material.
-	 */
-	public String getToolMaterialName()
-	{
-		return this.material.toString();
-	}
-
-	/**
 	 * Return whether this item is repairable in an anvil.
 	 */
 	public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
@@ -194,9 +180,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound
 	/**
 	 * Gets a map of item attribute modifiers, used by ItemSword to increase hit damage.
 	 */
-	public Multimap getItemAttributeModifiers()
+	public Multimap getAttributeModifiers(ItemStack stack)
 	{
-		Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers();
+		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
 		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", (double)this.damageVsEntity, 0));
 		return multimap;
 	}

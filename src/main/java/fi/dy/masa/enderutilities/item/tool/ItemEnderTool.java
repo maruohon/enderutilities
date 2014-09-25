@@ -7,6 +7,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -17,6 +19,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -33,8 +36,9 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound
 {
-	private static final Set<Block> blocksEffectiveAgainst = Sets.newHashSet(new Block[]{Blocks.torch}); // Not actually used for anything!
-	public float efficiencyOnProperMaterial = 5.0f;
+	public float efficiencyOnProperMaterial;
+	public float damageVsEntity;
+	private final Item.ToolMaterial material;
 
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
@@ -51,10 +55,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 
 	public ItemEnderTool()
 	{
-		super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, blocksEffectiveAgainst);
+		// The Set is not actually used for anything!
+		super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, Sets.newHashSet(new Block[]{Blocks.torch}));
+		this.material = ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED;
 		this.setMaxStackSize(1);
-		this.setMaxDamage(2048);
+		this.setMaxDamage(this.material.getMaxUses());
 		this.setNoRepair();
+		this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
+		this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERTOOL);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
@@ -63,10 +71,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public String getUnlocalizedName(ItemStack stack)
 	{
-		if (this.getToolType(stack) == 0) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_PICKAXE; }
-		if (this.getToolType(stack) == 1) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_AXE; }
-		if (this.getToolType(stack) == 2) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_SHOVEL; }
-		if (this.getToolType(stack) == 3) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_HOE; }
+		int toolType = this.getToolType(stack);
+		if (toolType == 0) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_PICKAXE; }
+		if (toolType == 1) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_AXE; }
+		if (toolType == 2) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_SHOVEL; }
+		if (toolType == 3) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_HOE; }
 
 		return super.getUnlocalizedName();
 	}
@@ -101,7 +110,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 
 	public int getToolType(ItemStack stack)
 	{
-		if (stack == null) { return -1; }
+		if (stack == null) { return 0; }
 
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt != null)
@@ -109,7 +118,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 			return nbt.getByte("ToolType");
 		}
 
-		return -1;
+		return 0;
 	}
 
 	public boolean setToolType(ItemStack stack, int type)
@@ -166,7 +175,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
 	{
-		System.out.println("hitEntity()");
 		if (stack == null)
 		{
 			return false;
@@ -180,7 +188,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
 	{
-		System.out.println("onBlockDestroyed()");
+		//System.out.println("onBlockDestroyed()");
 		stack.damageItem(1, living);
 
 		return false;
@@ -189,7 +197,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public boolean func_150897_b(Block block)
 	{
-		System.out.println("func_150897_b()");
 		return false;
 	}
 
@@ -198,12 +205,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	{
 		if (this.canHarvestBlock(block, stack) == true)
 		{
-			System.out.println("func_150893_a(): true");
 			return this.efficiencyOnProperMaterial;
 		}
 
-		System.out.println("func_150893_a(): false");
-		//return super.func_150893_a(stack, block);
 		return 1.0f;
 	}
 
@@ -222,7 +226,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 				block.getMaterial() == net.minecraft.block.material.Material.iron ||
 				block.getMaterial() == net.minecraft.block.material.Material.anvil)
 			{
-				System.out.println("canHarvestBlock(): true; Pickaxe");
+				//System.out.println("canHarvestBlock(): true; Pickaxe");
 				return true;
 			}
 		}
@@ -232,7 +236,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 				block.getMaterial() == net.minecraft.block.material.Material.plants ||
 				block.getMaterial() == net.minecraft.block.material.Material.vine)
 			{
-				System.out.println("canHarvestBlock(): true; Axe");
+				//System.out.println("canHarvestBlock(): true; Axe");
 				return true;
 			}
 		}
@@ -245,12 +249,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 				block.getMaterial() == net.minecraft.block.material.Material.craftedSnow ||
 				block.getMaterial() == net.minecraft.block.material.Material.clay)
 			{
-				System.out.println("canHarvestBlock(): true; Shovel");
+				//System.out.println("canHarvestBlock(): true; Shovel");
 				return true;
 			}
 		}
 
-		System.out.println("canHarvestBlock(): false");
+		//System.out.println("canHarvestBlock(): false");
 		//return func_150897_b(block);
 		return false;
 	}
@@ -265,13 +269,20 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public float getDigSpeed(ItemStack stack, Block block, int meta)
 	{
-		//if (ForgeHooks.isToolEffective(stack, block, meta) || block == Blocks.obsidian || block == Blocks.redstone_ore || block == Blocks.lit_redstone_ore)
+		// TODO Add a mode and NBT tag for "fast mode", which uses double durability but allows instant mining @ Efficiency V
+		this.efficiencyOnProperMaterial = 34.0f; // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste)
+
 		if (ForgeHooks.isToolEffective(stack, block, meta))
 		{
-			System.out.println("getDigSpeed(); is effective");
+			//System.out.println("getDigSpeed(); isToolEffective() true: " + this.efficiencyOnProperMaterial);
 			return this.efficiencyOnProperMaterial;
 		}
-		System.out.println("getDigSpeed(); not effective");
+		if (this.canHarvestBlock(block, stack))
+		{
+			//System.out.println("getDigSpeed(); canHarvestBlock() true: " + this.efficiencyOnProperMaterial);
+			return this.efficiencyOnProperMaterial;
+		}
+		//System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
 		return super.getDigSpeed(stack, block, meta);
 	}
 
@@ -288,15 +299,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	{
 		if (stack == null)
 		{
-			System.out.println("getHarvestLevel(): stack == null");
 			return -1;
 		}
 		if (toolClass.equals(this.getToolClass(stack)) == true)
 		{
-			System.out.println("getHarvestLevel(): 3");
 			return this.func_150913_i().getHarvestLevel();
 		}
-		System.out.println("getHarvestLevel(): -1");
+
 		return -1;
 	}
 
@@ -318,8 +327,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@Override
 	public Multimap getAttributeModifiers(ItemStack stack)
 	{
-		//System.out.println("getAttributeModifiers()");
-		return super.getAttributeModifiers(stack);
+		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
+		double dmg = (double)this.damageVsEntity;
+
+		int toolType = this.getToolType(stack);
+		if (toolType == 0) { dmg += 2.0d; }	// Pickaxe
+		else if (toolType == 1) { dmg += 3.0d; }	// Axe
+		else if (toolType == 2) { dmg += 1.0d; }	// Shovel
+
+		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Tool modifier", dmg, 0));
+		return multimap;
 	}
 
     @SideOnly(Side.CLIENT)
@@ -346,7 +363,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	@SideOnly(Side.CLIENT)
 	public boolean hasEffect(ItemStack par1ItemStack, int pass)
 	{
-		//return hasEffect(par1ItemStack) && (pass == 0 || this != Items.potionitem);
 		return false;
 	}
 
