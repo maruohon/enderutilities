@@ -162,7 +162,11 @@ public class TeleportEntity
 			{
 				if (victim == 1)
 				{
-					EntityUtils.getBottomEntity(e).attackEntityFrom(DamageSource.fall, teleportDamage);
+					Entity b = EntityUtils.getBottomEntity(e);
+					if (b instanceof EntityLivingBase)
+					{
+						b.attackEntityFrom(DamageSource.fall, teleportDamage);
+					}
 				}
 				else
 				{
