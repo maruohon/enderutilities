@@ -42,12 +42,20 @@ public class ItemEnderPart extends ItemEU
 			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + "." + stack.getItemDamage();
 		}
 
-		// Damage 10: Ender Core (Basic)
-		// Damage 11: Ender Core (Enhanced)
-		// Damage 12: Ender Core (Advanced)
+		// Damage 10: Inactive Ender Core (Basic)
+		// Damage 11: Inactive Ender Core (Enhanced)
+		// Damage 12: Inactive Ender Core (Advanced)
 		if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 10);
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 10) + ".inactive";
+		}
+
+		// Damage 15: Ender Core (Basic)
+		// Damage 16: Ender Core (Enhanced)
+		// Damage 17: Ender Core (Advanced)
+		if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+		{
+			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 15) + ".active";
 		}
 
 		// Damage 20: Ender Stick
@@ -77,8 +85,14 @@ public class ItemEnderPart extends ItemEU
 				list.add(new ItemStack(this, 1, i));
 			}
 
-			// Ender Cores
+			// Inactive Ender Cores
 			for (int i = 10; i <= 12; i++)
+			{
+				list.add(new ItemStack(this, 1, i));
+			}
+
+			// (Active) Ender Cores
+			for (int i = 15; i <= 17; i++)
 			{
 				list.add(new ItemStack(this, 1, i));
 			}
@@ -95,14 +109,17 @@ public class ItemEnderPart extends ItemEU
 		// Ender Alloy
 		if (damage >= 0 && damage <= 2) { return this.iconArray[damage]; }
 
-		// Ender Core
+		// Inactive Ender Core
 		if (damage >= 10 && damage <= 12) { return this.iconArray[damage - 7]; }
 
+		// Ender Core (active)
+		if (damage >= 15 && damage <= 17) { return this.iconArray[damage - 9]; }
+
 		// Ender Stick
-		if (damage == 20) { return this.iconArray[6]; }
+		if (damage == 20) { return this.iconArray[9]; }
 
 		// Ender Rope
-		if (damage == 21) { return this.iconArray[7]; }
+		if (damage == 21) { return this.iconArray[10]; }
 
 		return this.itemIcon;
 	}
@@ -112,7 +129,7 @@ public class ItemEnderPart extends ItemEU
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-		this.iconArray = new IIcon[8];
+		this.iconArray = new IIcon[11];
 
 		int i = 0, j;
 
@@ -123,11 +140,16 @@ public class ItemEnderPart extends ItemEU
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j);
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
 		}
 
-		this.iconArray[6] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK);
-		this.iconArray[7] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE);
+		for (j = 0; j < 3; ++i, ++j)
+		{
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
+		}
+
+		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK);
+		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -135,5 +157,19 @@ public class ItemEnderPart extends ItemEU
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
 		list.add(StatCollector.translateToLocal("gui.tooltip.craftingingredient"));
+
+		// Damage 10: Inactive Ender Core (Basic)
+		// Damage 11: Inactive Ender Core (Enhanced)
+		// Damage 12: Inactive Ender Core (Advanced)
+		// Damage 15: Ender Core (Basic)
+		// Damage 16: Ender Core (Enhanced)
+		// Damage 17: Ender Core (Advanced)
+		if ((stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12) ||
+			(stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17))	
+		{
+			list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.1"));
+			list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.2"));
+			list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.3"));
+		}
 	}
 }
