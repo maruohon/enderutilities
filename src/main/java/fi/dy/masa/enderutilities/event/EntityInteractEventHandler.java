@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -23,7 +25,9 @@ public class EntityInteractEventHandler
 			return;
 		}
 
-		if(stack.getItem() == EnderUtilitiesItems.enderLasso)
+		Item item = stack.getItem();
+
+		if(item == EnderUtilitiesItems.enderLasso)
 		{
 			if (event.entity.worldObj.isRemote == false)
 			{
@@ -39,13 +43,25 @@ public class EntityInteractEventHandler
 				}
 			}
 		}
-
-		if(stack.getItem() == EnderUtilitiesItems.mobHarness)
+		else if(item == EnderUtilitiesItems.mobHarness)
 		{
 			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
 			{
 				((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
 				event.setCanceled(true);
+			}
+		}
+		else if (item == EnderUtilitiesItems.enderPart)
+		{
+			if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+			{
+				int dmg = stack.getItemDamage();
+
+				// Inactive Ender Core: Change the stack to an active Ender Core
+				if (dmg >= 10 && dmg <= 12)
+				{
+					stack.setItemDamage(dmg + 5);
+				}
 			}
 		}
 	}
