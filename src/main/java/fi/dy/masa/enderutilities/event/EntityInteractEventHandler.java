@@ -9,6 +9,7 @@ import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -62,6 +63,14 @@ public class EntityInteractEventHandler
 				{
 					stack.setItemDamage(dmg + 5);
 				}
+			}
+		}
+		else if (item instanceof IChargeable)
+		{
+			if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+			{
+				IChargeable cItem = (IChargeable)item;
+				cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, false);
 			}
 		}
 	}

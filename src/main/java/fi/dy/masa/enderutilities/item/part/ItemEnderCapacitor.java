@@ -7,7 +7,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
@@ -26,7 +25,7 @@ public class ItemEnderCapacitor extends ItemEU implements IChargeable
 	public ItemEnderCapacitor()
 	{
 		super();
-		this.setMaxStackSize(64);
+		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
@@ -87,8 +86,7 @@ public class ItemEnderCapacitor extends ItemEU implements IChargeable
 
 		if (simulate == false)
 		{
-			NBTTagCompound nbt = NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), capacity, charge + amount);
-			stack.setTagCompound(nbt);
+			stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), capacity, charge + amount));
 		}
 
 		return amount;
@@ -105,8 +103,7 @@ public class ItemEnderCapacitor extends ItemEU implements IChargeable
 
 		if (simulate == false)
 		{
-			NBTTagCompound nbt = NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), this.getCapacity(stack), charge - amount);
-			stack.setTagCompound(nbt);
+			stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), this.getCapacity(stack), charge - amount));
 		}
 
 		return amount;
