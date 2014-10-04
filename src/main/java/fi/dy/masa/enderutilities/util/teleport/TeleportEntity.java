@@ -27,6 +27,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -130,9 +131,6 @@ public class TeleportEntity
 		// Hit a block
 		else if (mop.hitVec != null)
 		{
-			//x = mop.blockX;
-			//y = mop.blockY;
-			//z = mop.blockZ;
 			x = mop.hitVec.xCoord;
 			y = mop.hitVec.yCoord;
 			z = mop.hitVec.zCoord;
@@ -146,34 +144,30 @@ public class TeleportEntity
 			}
 		}
 
-		EnderTeleportEvent event = new EnderTeleportEvent(player, x, y, z, teleportDamage);
-		if (MinecraftForge.EVENT_BUS.post(event) == false)
+		int victim = 0;
+		// Player is riding something, inflict fall damage to the bottom most entity
+		if (player.ridingEntity != null)
 		{
-			int victim = 0;
-			// Player is riding something, inflict fall damage to the bottom most entity
-			if (player.ridingEntity != null)
-			{
-				victim = 1;
-			}
+			victim = 1;
+		}
 
-			Entity e = TeleportEntity.teleportEntity(player, x, y, z, entity.dimension, allowMounts, allowRiders);
+		Entity e = TeleportEntity.teleportEntity(player, x, y, z, entity.dimension, allowMounts, allowRiders);
 
-			if (e != null)
+		if (e != null)
+		{
+			if (victim == 1)
 			{
-				if (victim == 1)
+				Entity b = EntityUtils.getBottomEntity(e);
+				if (b instanceof EntityLivingBase)
 				{
-					Entity b = EntityUtils.getBottomEntity(e);
-					if (b instanceof EntityLivingBase)
-					{
-						b.attackEntityFrom(DamageSource.fall, teleportDamage);
-					}
+					b.attackEntityFrom(DamageSource.fall, teleportDamage);
 				}
-				else
-				{
-					e.attackEntityFrom(DamageSource.fall, teleportDamage);
-				}
-				return true;
 			}
+			else
+			{
+				e.attackEntityFrom(DamageSource.fall, teleportDamage);
+			}
+			return true;
 		}
 
 		return false;
@@ -256,6 +250,16 @@ public class TeleportEntity
 		if (entity == null || entity.isDead == true || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
 		{
 			return null;
+		}
+
+		// Post the event and check if the teleport should be allowed
+		if (entity instanceof EntityLivingBase)
+		{
+			EnderTeleportEvent etpEvent = new EnderTeleportEvent((EntityLivingBase)entity, x, y, z, 0.0f);
+			if (MinecraftForge.EVENT_BUS.post(etpEvent) == true)
+			{
+				return null;
+			}
 		}
 
 		// Sound and particles on the original location
@@ -437,6 +441,13 @@ public class TeleportEntity
 	public static EntityPlayerMP transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
 	{
 		if (player == null || player.isDead == true || player.dimension == dimDst || player.worldObj.isRemote == true)
+		{
+			return null;
+		}
+
+		// Post the event and check if the teleport should be allowed
+		PlayerChangedDimensionEvent pcdEvent = new PlayerChangedDimensionEvent(player, player.dimension, dimDst);
+		if (FMLCommonHandler.instance().bus().post(pcdEvent) == true)
 		{
 			return null;
 		}

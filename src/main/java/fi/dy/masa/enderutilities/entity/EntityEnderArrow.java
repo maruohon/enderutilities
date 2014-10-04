@@ -21,9 +21,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
@@ -360,12 +358,8 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
 					if (player != null)
 					{
-						EnderTeleportEvent event = new EnderTeleportEvent(player, this.tpTargetX, this.tpTargetY, this.tpTargetZ, teleportDamage);
-						if (MinecraftForge.EVENT_BUS.post(event) == false &&
-							TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true) == true)
-						{
-							this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-						}
+						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+						TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
 					}
 					this.dropAsItem(false);
 					this.setDead();
