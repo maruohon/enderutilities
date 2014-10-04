@@ -102,7 +102,7 @@ public class ItemEnderPorter extends ItemEUTeleport
 
 			if (player.worldObj.isRemote == false)
 			{
-				Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.2f, 1.2f);
+				Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.08f, 1.2f);
 			}
 			//player.playSound("portal.travel", 0.2f, 1.2f);
 		}
