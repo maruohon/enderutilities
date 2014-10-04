@@ -58,11 +58,17 @@ public class BlockEnderFurnace extends BlockContainer
 		this.setBlockName(ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
 	}
-
+/*
 	@Override
-	public Item getItemDropped(int p1, Random r, int p3)
+	public Item getItemDropped(int meta, Random rand, int fortune)
 	{
 		return Item.getItemFromBlock(EnderUtilitiesBlocks.enderFurnace);
+	}
+*/
+	@Override
+	public int damageDropped(int meta)
+	{
+		return meta;
 	}
 
 	// Returns a new instance of a block's tile entity class. Called on placing the block.
@@ -211,7 +217,7 @@ public class BlockEnderFurnace extends BlockContainer
 				}
 			}
 
-			world.func_147453_f(x, y, z, block);
+			//world.func_147453_f(x, y, z, block); // this gets called in World.removeTileEntity(), via super.breakBlock() below
 		}
 	
 		super.breakBlock(world, x, y, z, block, meta);
