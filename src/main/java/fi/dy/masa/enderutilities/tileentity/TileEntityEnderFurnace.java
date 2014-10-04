@@ -47,9 +47,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 
 	public static final int OUTPUT_INTERVAL = 20; // Only try outputting items to an Ender Chest once every 1 seconds, to try to reduce server load
 
-	protected static final int[] SLOTS_TOP = new int[] {0};
-	protected static final int[] SLOTS_BOTTOM = new int[] {2, 1};
-	protected static final int[] SLOTS_SIDES = new int[] {0, 1};
+	protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
 
 	@SideOnly(Side.CLIENT)
 	public boolean isActive;
@@ -694,16 +692,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side)
 	{
-		if (side == 0)
-		{
-			return SLOTS_BOTTOM;
-		}
-
-		if (side == 1)
-		{
-			return SLOTS_TOP;
-		}
-
+		// v0.3.4+: Allow access to all slots from all sides
 		return SLOTS_SIDES;
 	}
 
