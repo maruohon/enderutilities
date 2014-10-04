@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.entity;
 
-import java.util.Random;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -77,15 +75,19 @@ public class EntityEnderPearlReusable extends EntityThrowable
 
 			if (this.canPickUp == true)
 			{
-				EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
+				// First try to add the pearl straight back to the player's inventory
+				if (entityplayermp.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0)) == false)
+				{
+					// If the item couldn't be added to the player's inventory, then spawn it in the world
+					EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
 							new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
 
-				Random r = new Random();
-				entityitem.motionX = 0.05d * r.nextGaussian();
-				entityitem.motionY = 0.05d * r.nextGaussian() + 0.2d;
-				entityitem.motionZ = 0.05d * r.nextGaussian();
-				entityitem.delayBeforeCanPickup = 20;
-				this.worldObj.spawnEntityInWorld(entityitem);
+					entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
+					entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
+					entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
+					entityitem.delayBeforeCanPickup = 0;
+					this.worldObj.spawnEntityInWorld(entityitem);
+				}
 			}
 
 			this.setDead();
