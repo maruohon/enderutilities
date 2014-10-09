@@ -61,6 +61,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	{
 		if (this.worldObj.isRemote == false && this.getThrower() != null && this.getThrower() instanceof EntityPlayerMP)
 		{
+			boolean success = false;
 			EntityPlayerMP entityplayermp = (EntityPlayerMP)this.getThrower();
 
 			if (entityplayermp.playerNetServerHandler.func_147362_b().isChannelOpen() && entityplayermp.worldObj == this.worldObj)
@@ -70,22 +71,29 @@ public class EntityEnderPearlReusable extends EntityThrowable
 					movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
 				}
 
-				TeleportEntity.playerTeleportSelfWithProjectile(entityplayermp, this, movingObjectPosition, this.teleportDamage, true, true);
+				success = TeleportEntity.playerTeleportSelfWithProjectile(entityplayermp, this, movingObjectPosition, this.teleportDamage, true, true);
 			}
 
 			if (this.canPickUp == true)
 			{
-				// First try to add the pearl straight back to the player's inventory
-				if (entityplayermp.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0)) == false)
+				// If the teleport was successful, try to add the pearl straight to the player's inventory
+				if (success == true)
 				{
-					// If the item couldn't be added to the player's inventory, then spawn it in the world
-					EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ,
-							new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+					success = entityplayermp.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+				}
+
+				// Failed to teleport, or failed to add the pearl straight back to the player's inventory: spawn it in the world
+				if (success == false)
+				{
+					//PositionHelper pos = new PositionHelper(movingObjectPosition, this);
+					//EntityItem entityitem = new EntityItem(this.worldObj, pos.posX, pos.posY, pos.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+					EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
 
 					entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
 					entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
 					entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
 					entityitem.delayBeforeCanPickup = 0;
+
 					this.worldObj.spawnEntityInWorld(entityitem);
 				}
 			}

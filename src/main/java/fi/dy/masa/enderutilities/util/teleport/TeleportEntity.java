@@ -33,6 +33,7 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.ItemNBTHelper;
+import fi.dy.masa.enderutilities.util.PositionHelper;
 
 public class TeleportEntity
 {
@@ -111,62 +112,39 @@ public class TeleportEntity
 		}
 	}
 
-	public static boolean playerTeleportSelfWithProjectile(EntityPlayer player, Entity entity, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
+	public static boolean playerTeleportSelfWithProjectile(EntityPlayer player, Entity projectile, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
 	{
 		if (canTeleportEntity(player) == false)
 		{
 			return false;
 		}
 
-		double x = entity.posX;
-		double y = entity.posY;
-		double z = entity.posZ;
-		// Hit an entity
-		if (mop.entityHit != null)
-		{
-			x = mop.entityHit.posX;
-			y = mop.entityHit.posY;
-			z = mop.entityHit.posZ;
-		}
-		// Hit a block
-		else if (mop.hitVec != null)
-		{
-			x = mop.hitVec.xCoord;
-			y = mop.hitVec.yCoord;
-			z = mop.hitVec.zCoord;
+		PositionHelper pos = new PositionHelper(mop, projectile);
 
+		// Hit a block, offset the position to not collide with the block
+		if (mop.entityHit == null && mop.hitVec != null)
+		{
 			ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-			x += (dir.offsetX * 0.5d);
-			z += (dir.offsetZ * 0.5d);
+			pos.posX += (dir.offsetX * 0.5d);
+			pos.posZ += (dir.offsetZ * 0.5d);
+
 			if (dir.offsetY < 0)
 			{
-				y -= (0.5d + player.getDefaultEyeHeight());
+				pos.posY -= 0.5d + player.getDefaultEyeHeight();
 			}
 		}
 
-		int victim = 0;
-		// Player is riding something, inflict fall damage to the bottom most entity
-		if (player.ridingEntity != null)
-		{
-			victim = 1;
-		}
+		Entity entNew = TeleportEntity.teleportEntity(player, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
 
-		Entity e = TeleportEntity.teleportEntity(player, x, y, z, entity.dimension, allowMounts, allowRiders);
-
-		if (e != null)
+		if (entNew != null)
 		{
-			if (victim == 1)
+			// Inflict fall damage to the bottom most entity
+			Entity bottom = EntityUtils.getBottomEntity(entNew);
+			if (bottom instanceof EntityLivingBase)
 			{
-				Entity b = EntityUtils.getBottomEntity(e);
-				if (b instanceof EntityLivingBase)
-				{
-					b.attackEntityFrom(DamageSource.fall, teleportDamage);
-				}
+				bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
 			}
-			else
-			{
-				e.attackEntityFrom(DamageSource.fall, teleportDamage);
-			}
+
 			return true;
 		}
 
