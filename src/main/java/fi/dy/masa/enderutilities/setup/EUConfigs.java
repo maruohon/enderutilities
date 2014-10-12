@@ -26,6 +26,7 @@ public class EUConfigs
 	// Item disable
 	public static Property disableItemCraftingPart;
 	public static Property disableItemEnderCapacitor;
+	public static Property disableItemLinkCrystal;
 
 	public static Property disableItemEnderArrow;
 	public static Property disableItemEnderBag;

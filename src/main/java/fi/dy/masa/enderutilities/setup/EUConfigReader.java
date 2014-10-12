@@ -129,6 +129,7 @@ public class EUConfigReader
 		// Item disable
 		EUConfigs.disableItemCraftingPart			= conf.get(category, "DisableItemCraftingPart", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderCapacitor			= conf.get(category, "DisableItemEnderCapacitor", false).setRequiresMcRestart(true);
+		EUConfigs.disableItemLinkCrystal			= conf.get(category, "DisableItemLinkCrystal", false).setRequiresMcRestart(true);
 
 		EUConfigs.disableItemEnderArrow				= conf.get(category, "DisableItemEnderArrow", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemEnderBag				= conf.get(category, "DisableItemEnderBag", false).setRequiresMcRestart(true);
@@ -142,6 +143,7 @@ public class EUConfigReader
 		EUConfigs.disableItemEnderTool				= conf.get(category, "DisableItemEnderTool", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemMobHarness				= conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
 
+		// Recipe disable
 		EUConfigs.disableRecipeEnderArrow			= conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderBag				= conf.get(category, "DisableRecipeEnderBag", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderBow				= conf.get(category, "DisableRecipeEnderBow", false).setRequiresMcRestart(true);

@@ -8,6 +8,7 @@ public class ReferenceItem
 	public static final String NAME_ITEM_ENDERPART_ENDERCORE		= "endercore";
 	public static final String NAME_ITEM_ENDERPART_ENDERSTICK		= "enderstick";
 	public static final String NAME_ITEM_ENDERPART_ENDERROPE		= "enderrope";
+	public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL		= "linkcrystal";
 
 	public static final String NAME_ITEM_ENDERTOOL				= "endertool";
 	public static final String NAME_ITEM_ENDER_PICKAXE			= "enderpickaxe";

@@ -38,6 +38,9 @@ item.endertool.enderaxe.name=Ender Axe
 item.endertool.endershovel.name=Ender Shovel
 item.endertool.enderhoe.name=Ender Hoe
 item.endersword.name=Ender Sword
+item.linkcrystal.0.name=Link Crystal (In-World)
+item.linkcrystal.1.name=Link Crystal (Inventory)
+item.linkcrystal.2.name=Link Crystal (Portal)
 item.mobharness.name=Mob Harness
 
 gui.label.outputbuffer=Buffer

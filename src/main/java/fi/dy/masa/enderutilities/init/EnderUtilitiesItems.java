@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEU;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
@@ -25,6 +26,7 @@ public class EnderUtilitiesItems
 {
 	public static final ItemEU enderPart = new ItemEnderPart();
 	public static final ItemEU enderCapacitor = new ItemEnderCapacitor();
+	public static final ItemEU linkCrystal = new ItemLinkCrystal();
 
 	public static final ItemEU enderArrow = new ItemEnderArrow();
 	public static final ItemEU enderBag = new ItemEnderBag();
@@ -44,6 +46,9 @@ public class EnderUtilitiesItems
 		}
 		if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderCapacitor, ReferenceItem.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
+		}
+		if (EUConfigs.disableItemLinkCrystal.getBoolean(false) == false) {
+			GameRegistry.registerItem(linkCrystal, ReferenceItem.NAME_ITEM_ENDERPART_LINKCRYSTAL);
 		}
 		if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
 			GameRegistry.registerItem(enderArrow, ReferenceItem.NAME_ITEM_ENDER_ARROW);
