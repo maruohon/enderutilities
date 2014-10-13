@@ -6,6 +6,8 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -223,6 +225,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 		if (this.getToolType(stack) == 0) // Ender Pickaxe
 		{
 			if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
+				block.getMaterial() == net.minecraft.block.material.Material.glass ||
+				block.getMaterial() == net.minecraft.block.material.Material.ice ||
+				block.getMaterial() == net.minecraft.block.material.Material.packedIce ||
 				block.getMaterial() == net.minecraft.block.material.Material.iron ||
 				block.getMaterial() == net.minecraft.block.material.Material.anvil)
 			{
@@ -270,7 +275,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound
 	public float getDigSpeed(ItemStack stack, Block block, int meta)
 	{
 		// TODO Add a mode and NBT tag for "fast mode", which uses double durability but allows instant mining @ Efficiency V
-		this.efficiencyOnProperMaterial = 34.0f; // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste)
+		// 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble
+		// 1474 on obsidian. So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
+		if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
+		{
+			this.efficiencyOnProperMaterial = 160.0f;
+		}
+		else
+		{
+			this.efficiencyOnProperMaterial = 5.0f;
+		}
 
 		if (ForgeHooks.isToolEffective(stack, block, meta))
 		{
