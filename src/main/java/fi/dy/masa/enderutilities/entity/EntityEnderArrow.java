@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEnderArrow extends EntityArrow implements IProjectile
@@ -43,11 +44,8 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 	public Entity shootingEntity;
 	public int ticksInGround;
 	public int ticksInAir;
-	// "TP target" mode target coordinates:
-	public int tpTargetX;
-	public int tpTargetY;
-	public int tpTargetZ;
-	public int tpTargetDim;
+	// "TP target" mode target location
+	public NBTHelperTarget tpTarget;
 	public byte tpMode;
 	public UUID shooterUUID;
 	public float teleportDamage = 2.0f;
@@ -156,12 +154,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		this.tpMode = mode;
 	}
 
-	public void setTpTarget(int x, int y, int z, int dim)
+	public void setTpTarget(NBTHelperTarget target)
 	{
-		this.tpTargetX = x;
-		this.tpTargetY = y;
-		this.tpTargetZ = z;
-		this.tpTargetDim = dim;
+		this.tpTarget = target;
 	}
 
 	/**
@@ -356,10 +351,9 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 				if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP && this.worldObj.isRemote == false)
 				{
 					EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
-					if (player != null)
+					if (player != null && TeleportEntity.entityTeleportWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true) == true)
 					{
 						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-						TeleportEntity.entityTeleportWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
 					}
 					this.dropAsItem(false);
 					this.setDead();
@@ -378,12 +372,11 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					{
 						if (this.worldObj.isRemote == false)
 						{
-							double x = (double)this.tpTargetX + 0.5d;
-							double y = (double)this.tpTargetY;
-							double z = (double)this.tpTargetZ + 0.5d;
-
-							TeleportEntity.teleportEntity(movingobjectposition.entityHit, x, y, z, this.tpTargetDim, true, true);
-
+							this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, movingobjectposition.entityHit);
+							if (this.tpTarget != null)
+							{
+								TeleportEntity.teleportEntity(movingobjectposition.entityHit, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
+							}
 							this.dropAsItem(false);
 							this.setDead();
 						}
@@ -491,13 +484,13 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		par1NBTTagCompound.setByte("shake", (byte)this.arrowShake);
 		par1NBTTagCompound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
 		par1NBTTagCompound.setByte("pickup", (byte)this.canBePickedUp);
-		par1NBTTagCompound.setInteger("tpTargetX", this.tpTargetX);
-		par1NBTTagCompound.setInteger("tpTargetY", this.tpTargetY);
-		par1NBTTagCompound.setInteger("tpTargetZ", this.tpTargetZ);
-		par1NBTTagCompound.setInteger("tpTargetDim", this.tpTargetDim);
-		par1NBTTagCompound.setByte("tpMode", this.tpMode);
 		par1NBTTagCompound.setLong("shooterUUIDMost", this.shooterUUID.getMostSignificantBits());
 		par1NBTTagCompound.setLong("shooterUUIDLeast", this.shooterUUID.getLeastSignificantBits());
+		if (this.tpTarget != null)
+		{
+			this.tpTarget.writeToNBT(par1NBTTagCompound);
+		}
+		par1NBTTagCompound.setByte("tpMode", this.tpMode);
 	}
 
 	/**
@@ -521,15 +514,13 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 		{
 			this.canBePickedUp = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
 		}
-		this.tpTargetX = par1NBTTagCompound.getInteger("tpTargetX");
-		this.tpTargetY = par1NBTTagCompound.getInteger("tpTargetY");
-		this.tpTargetZ = par1NBTTagCompound.getInteger("tpTargetZ");
-		this.tpTargetDim = par1NBTTagCompound.getInteger("tpTargetDim");
-		this.tpMode = par1NBTTagCompound.getByte("tpMode");
 		if (par1NBTTagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && par1NBTTagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
 		{
 			this.shooterUUID = new UUID(par1NBTTagCompound.getLong("shooterUUIDMost"), par1NBTTagCompound.getLong("shooterUUIDLeast"));
 		}
+		this.tpTarget = new NBTHelperTarget();
+		this.tpTarget.readTargetTagFromNBT(par1NBTTagCompound);
+		this.tpMode = par1NBTTagCompound.getByte("tpMode");
 	}
 
 	/**

@@ -12,13 +12,13 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class ItemEnderPearlReusable extends ItemEU
+public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon eliteIcon;

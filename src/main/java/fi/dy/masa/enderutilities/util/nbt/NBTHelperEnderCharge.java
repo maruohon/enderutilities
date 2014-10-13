@@ -61,4 +61,9 @@ public class NBTHelperEnderCharge
 
 		return nbt;
 	}
+
+	public static NBTTagCompound removeChargeTagFromNBT(NBTTagCompound nbt)
+	{
+		return NBTHelper.writeTagToNBT(nbt, "EnderCharge", null);
+	}
 }

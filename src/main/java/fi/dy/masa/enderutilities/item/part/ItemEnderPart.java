@@ -11,12 +11,12 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
-public class ItemEnderPart extends ItemEU
+public class ItemEnderPart extends ItemEnderUtilities
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;

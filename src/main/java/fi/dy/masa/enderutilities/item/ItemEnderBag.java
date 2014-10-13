@@ -24,7 +24,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -35,7 +35,7 @@ import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
+public class ItemEnderBag extends ItemEnderUtilities implements IChunkLoadingItem, IKeyBound
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon iconArray[];
@@ -181,7 +181,7 @@ public class ItemEnderBag extends ItemEU implements IChunkLoadingItem, IKeyBound
 			}
 
 			nbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-			nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, false);
+			nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
 			nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
 
 			if (te instanceof IInventory)

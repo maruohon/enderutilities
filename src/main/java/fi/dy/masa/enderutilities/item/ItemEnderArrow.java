@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.item;
 
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-public class ItemEnderArrow extends ItemEU
+public class ItemEnderArrow extends ItemEnderUtilities
 {
 	public ItemEnderArrow()
 	{

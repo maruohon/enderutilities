@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -24,20 +24,20 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesItems
 {
-	public static final ItemEU enderPart = new ItemEnderPart();
-	public static final ItemEU enderCapacitor = new ItemEnderCapacitor();
-	public static final ItemEU linkCrystal = new ItemLinkCrystal();
+	public static final ItemEnderUtilities enderPart = new ItemEnderPart();
+	public static final ItemEnderUtilities enderCapacitor = new ItemEnderCapacitor();
+	public static final ItemEnderUtilities linkCrystal = new ItemLinkCrystal();
 
-	public static final ItemEU enderArrow = new ItemEnderArrow();
-	public static final ItemEU enderBag = new ItemEnderBag();
-	public static final ItemEU enderBow = new ItemEnderBow();
+	public static final ItemEnderUtilities enderArrow = new ItemEnderArrow();
+	public static final ItemEnderUtilities enderBag = new ItemEnderBag();
+	public static final ItemEnderUtilities enderBow = new ItemEnderBow();
 	public static final Item enderBucket = new ItemEnderBucket();
-	public static final ItemEU enderLasso = new ItemEnderLasso();
-	public static final ItemEU enderPearlReusable = new ItemEnderPearlReusable();
-	public static final ItemEU enderPorter = new ItemEnderPorter();
+	public static final ItemEnderUtilities enderLasso = new ItemEnderLasso();
+	public static final ItemEnderUtilities enderPearlReusable = new ItemEnderPearlReusable();
+	public static final ItemEnderUtilities enderPorter = new ItemEnderPorter();
 	public static final Item enderSword = new ItemEnderSword();
 	public static final Item enderTool = new ItemEnderTool();
-	public static final ItemEU mobHarness = new ItemMobHarness();
+	public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
 
 	public static void init()
 	{

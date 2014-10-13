@@ -2,13 +2,15 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class NBTHelperTarget
 {
 	public int posX;
 	public int posY;
 	public int posZ;
+	public double dPosX;
+	public double dPosY;
+	public double dPosZ;
 	public int dimension;
 	/* Face of the target block */
 	public int blockFace;
@@ -18,6 +20,9 @@ public class NBTHelperTarget
 		this.posX = 0;
 		this.posY = 0;
 		this.posZ = 0;
+		this.dPosX = 0.0d;
+		this.dPosY = 0.0d;
+		this.dPosZ = 0.0d;
 		this.dimension = 0;
 		this.blockFace = -1;
 	}
@@ -56,30 +61,62 @@ public class NBTHelperTarget
 		this.dimension = tag.getInteger("Dim");
 		this.blockFace = tag.getInteger("BlockFace");
 
+		this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
+		this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.posY;
+		this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.posZ + 0.5d;
+
 		return tag;
 	}
 
-	public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int face, boolean calculateOffset)
+	public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int pX, int pY, int pZ, int dim, int face, double hitX, double hitY, double hitZ, boolean doHitOffset)
 	{
 		if (nbt == null)
 		{
 			nbt = new NBTTagCompound();
 		}
 
-		if (calculateOffset == true && face >= 0)
+		double x = pX;
+		double y = pY;
+		double z = pZ;
+
+		if (doHitOffset == true)
 		{
-			ForgeDirection dir = ForgeDirection.getOrientation(face);
-			x += dir.offsetX;
-			y += dir.offsetY;
-			z += dir.offsetZ;
+			x += hitX;
+			y += hitY;
+			z += hitZ;
 		}
 
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("posX", x);
-		tag.setInteger("posY", y);
-		tag.setInteger("posZ", z);
+		tag.setInteger("posX", (int)x);
+		tag.setInteger("posY", (int)y);
+		tag.setInteger("posZ", (int)z);
 		tag.setInteger("Dim", dim);
 		tag.setInteger("BlockFace", face);
+		tag.setDouble("dPosX", x);
+		tag.setDouble("dPosY", y);
+		tag.setDouble("dPosZ", z);
+
+		nbt.setTag("Target", tag);
+
+		return nbt;
+	}
+
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	{
+		if (nbt == null)
+		{
+			nbt = new NBTTagCompound();
+		}
+
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("posX", this.posX);
+		tag.setInteger("posY", this.posY);
+		tag.setInteger("posZ", this.posZ);
+		tag.setInteger("Dim", this.dimension);
+		tag.setInteger("BlockFace", this.blockFace);
+		tag.setDouble("dPosX", this.dPosX);
+		tag.setDouble("dPosY", this.dPosY);
+		tag.setDouble("dPosZ", this.dPosZ);
 
 		nbt.setTag("Target", tag);
 
@@ -88,8 +125,6 @@ public class NBTHelperTarget
 
 	public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
 	{
-		NBTHelper.writeTagToNBT(nbt, "Target", null);
-
-		return nbt;
+		return NBTHelper.writeTagToNBT(nbt, "Target", null);
 	}
 }

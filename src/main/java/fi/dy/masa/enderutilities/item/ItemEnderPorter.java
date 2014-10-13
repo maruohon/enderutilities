@@ -8,24 +8,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
-import fi.dy.masa.enderutilities.item.base.ItemEUTeleport;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class ItemEnderPorter extends ItemEUTeleport
+public class ItemEnderPorter extends ItemLocationBound
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
@@ -51,31 +48,6 @@ public class ItemEnderPorter extends ItemEUTeleport
 		}
 
 		return super.getUnlocalizedName();
-	}
-
-	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	{
-		if (stack == null)
-		{
-			return false;
-		}
-
-		if (player.isSneaking() == true)
-		{
-			// Sneaking and targeting a block: store the location
-			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
-			{
-				NBTTagCompound nbt = stack.getTagCompound();
-				nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
-				stack.setTagCompound(nbt);
-
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -259,33 +231,5 @@ public class ItemEnderPorter extends ItemEUTeleport
 		}
 
 		return this.getItemIconForUseDuration(index);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
-	{
-/*
-		if (EnderUtilities.proxy.isShiftKeyDown() == false)
-		{
-			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
-			return;
-		}
-*/
-
-		NBTTagCompound nbt = stack.getTagCompound();
-		NBTHelperTarget target = new NBTHelperTarget();
-		if (target.readTargetTagFromNBT(nbt) == null)
-		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
-			return;
-		}
-
-		String dimPre = "" + EnumChatFormatting.GREEN;
-		String coordPre = "" + EnumChatFormatting.BLUE;
-		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
-		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
 	}
 }

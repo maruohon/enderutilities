@@ -7,16 +7,17 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
-public class ItemLinkCrystal extends ItemEU
+public class ItemLinkCrystal extends ItemLocationBound
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
@@ -86,6 +87,12 @@ public class ItemLinkCrystal extends ItemEU
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
-		list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null)
+		{
+			list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
+			return;
+		}
+		super.addInformation(stack, player, list, par4);
 	}
 }

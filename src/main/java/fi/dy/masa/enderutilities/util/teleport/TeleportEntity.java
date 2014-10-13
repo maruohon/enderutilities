@@ -168,6 +168,43 @@ public class TeleportEntity
 		return false;
 	}
 
+	public static NBTHelperTarget adjustTargetPosition(NBTHelperTarget target, Entity entity)
+	{
+		if (target == null)
+		{
+			return null;
+		}
+
+		if (target.blockFace >= 0)
+		{
+			ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
+			if (entity != null && entity.boundingBox != null)
+			{
+				target.dPosX += dir.offsetX * (entity.width / 2);
+				target.dPosZ += dir.offsetZ * (entity.width / 2);
+
+				// Targeting the bottom face of a block, adjust the position lower
+				if (dir.offsetY < 0)
+				{
+					target.dPosY -= entity.height;
+				}
+			}
+			else
+			{
+				target.dPosX += dir.offsetX * 0.5d;
+				target.dPosZ += dir.offsetZ * 0.5d;
+
+				// Targeting the bottom face of a block, adjust the position lower
+				if (dir.offsetY < 0)
+				{
+					target.dPosY -= 1.0d;
+				}
+			}
+		}
+
+		return target;
+	}
+
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
 	{
 		return teleportEntityUsingItem(entity, stack, true, true);
@@ -183,7 +220,8 @@ public class TeleportEntity
 		NBTHelperTarget target = new NBTHelperTarget();
 		if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
 		{
-			return TeleportEntity.teleportEntity(entity, target.posX + 0.5d, target.posY, target.posZ + 0.5d, target.dimension, allowMounts, allowRiders);
+			TeleportEntity.adjustTargetPosition(target, entity);
+			return TeleportEntity.teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
 		}
 
 		return null;

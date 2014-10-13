@@ -12,12 +12,12 @@ import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
-import fi.dy.masa.enderutilities.item.base.ItemEU;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperEnderCharge;
 
-public class ItemEnderCapacitor extends ItemEU implements IChargeable
+public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;

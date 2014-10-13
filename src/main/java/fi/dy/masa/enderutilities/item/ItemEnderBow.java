@@ -22,15 +22,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ItemEUTeleport;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
+public class ItemEnderBow extends ItemLocationBound implements IKeyBound
 {
 	public static final byte BOW_MODE_TP_TARGET = 0;
 	public static final byte BOW_MODE_TP_SELF = 1;
@@ -73,10 +72,6 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
-			int x = (int)player.posX;
-			int y = (int)player.posY;
-			int z = (int)player.posZ;
-			int dim = player.dimension;
 			byte mode = BOW_MODE_TP_TARGET;
 
 			NBTTagCompound nbt = bowStack.getTagCompound();
@@ -85,14 +80,19 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 				mode = nbt.getByte("Mode");
 			}
 
-			if (mode == BOW_MODE_TP_SELF)
+			// If self teleporting is disabled in the configs, do nothing
+			if (mode == BOW_MODE_TP_SELF && EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
 			{
-				// If self teleporting is disabled in the configs, do nothing
-				if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
-				{
-					return;
-				}
+				return;
 			}
+
+			float f = (float)j / 20.0f;
+			f = (f * f + f * 2.0f) / 3.0f;
+			if (f < 0.1f) { return; }
+			if (f > 1.0f) { f = 1.0f; }
+
+			EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0f);
+			entityenderarrow.setTpMode(mode);
 
 			if (mode == BOW_MODE_TP_TARGET)
 			{
@@ -103,28 +103,8 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 					return;
 				}
 
-				x = target.posX;
-				y = target.posY;
-				z = target.posZ;
-				dim = target.dimension;
+				entityenderarrow.setTpTarget(target);
 			}
-
-			float f = (float)j / 20.0F;
-			f = (f * f + f * 2.0F) / 3.0F;
-
-			if ((double)f < 0.1D)
-			{
-				return;
-			}
-
-			if (f > 1.0F)
-			{
-				f = 1.0F;
-			}
-
-			EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0F);
-			entityenderarrow.setTpTarget(x, y, z, dim);
-			entityenderarrow.setTpMode(mode);
 
 			if (f == 1.0F)
 			{
@@ -193,7 +173,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 		if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
 		{
 			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt == null || nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) == false)
+			if (nbt == null)
 			{
 				return stack;
 			}
@@ -211,37 +191,6 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	{
-		if (stack == null)
-		{
-			return false;
-		}
-
-		if (player.isSneaking() == true)
-		{
-			// Sneaking and targeting a block: store the location
-			MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-			if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
-			{
-				NBTTagCompound nbt = stack.getTagCompound();
-				if (nbt == null)
-				{
-					nbt = new NBTTagCompound();
-					nbt.setByte("Mode", BOW_MODE_TP_TARGET);
-				}
-
-				nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, true);
-				stack.setTagCompound(nbt);
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
@@ -255,20 +204,12 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 
 		NBTTagCompound nbt = stack.getTagCompound();
 
-		if (nbt == null)
-		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
-			return;
-		}
-
 		byte mode = BOW_MODE_TP_TARGET;
-		if (nbt.hasKey("Mode", Constants.NBT.TAG_BYTE))
+		if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE))
 		{
 			mode = nbt.getByte("Mode");
 		}
 
-		String dimPre = "" + EnumChatFormatting.GREEN;
-		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
 		// TP self to impact point
@@ -279,16 +220,10 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 		}
 
 		// TP the target entity
-		NBTHelperTarget target = new NBTHelperTarget();
-		if (target.readTargetTagFromNBT(nbt) == null)
-		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
-			return;
-		}
-
+		String coordPre = "" + EnumChatFormatting.BLUE;
 		list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
-		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
-		list.add(String.format("x: %s%d%s, y: %s%d%s, z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+
+		super.addInformation(stack, player, list, par4);
 	}
 
 	/**
@@ -408,7 +343,7 @@ public class ItemEnderBow extends ItemEUTeleport implements IKeyBound
 	{
 		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
 		{
-			byte val = 0;
+			byte val = BOW_MODE_TP_TARGET;
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (nbt != null)
 			{
