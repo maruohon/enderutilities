@@ -344,6 +344,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		return ItemModular.getModuleCount(stack, moduleType);
 	}
 
+	/* Returns the maximum number of modules that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack)
+	{
+		return 3;
+	}
+
 	/* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
 	@Override
 	public int getInstalledModulesMask(ItemStack stack)

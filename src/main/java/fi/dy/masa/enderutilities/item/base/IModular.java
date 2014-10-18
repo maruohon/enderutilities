@@ -18,6 +18,9 @@ public interface IModular
 	/* Returns the number of installed modules of the given type. */
 	public int getModuleCount(ItemStack stack, int moduleType);
 
+	/* Returns the maximum number of modules that can be installed on this item. */
+	public int getMaxModules(ItemStack stack);
+
 	/* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
 	public int getInstalledModulesMask(ItemStack stack);
 

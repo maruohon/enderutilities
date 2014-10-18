@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
-import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
@@ -22,7 +22,7 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class ItemEnderPorter extends ItemLocationBound
+public class ItemEnderPorter extends ItemLocationBoundModular
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
@@ -105,6 +105,13 @@ public class ItemEnderPorter extends ItemLocationBound
 				player.destroyCurrentEquippedItem();
 			}
 		}
+	}
+
+	/* Returns the maximum number of modules that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack)
+	{
+		return 4;
 	}
 
 	/**

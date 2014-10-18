@@ -24,7 +24,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -35,7 +35,7 @@ import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemEnderBag extends ItemEnderUtilities implements IChunkLoadingItem, IKeyBound
+public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon iconArray[];
@@ -199,6 +199,13 @@ public class ItemEnderBag extends ItemEnderUtilities implements IChunkLoadingIte
 		}
 
 		return true;
+	}
+
+	/* Returns the maximum number of modules that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack)
+	{
+		return 4;
 	}
 
 	private boolean isTargetBlockWhitelisted(String name)

@@ -22,14 +22,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemEnderBow extends ItemLocationBound implements IKeyBound
+public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
 	public static final byte BOW_MODE_TP_TARGET = 0;
 	public static final byte BOW_MODE_TP_SELF = 1;
@@ -188,6 +188,13 @@ public class ItemEnderBow extends ItemLocationBound implements IKeyBound
 		}
 
 		return stack;
+	}
+
+	/* Returns the maximum number of modules that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack)
+	{
+		return 4;
 	}
 
 	@Override
