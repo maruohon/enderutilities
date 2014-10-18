@@ -8,14 +8,14 @@ import org.lwjgl.opengl.GL11;
 
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class GuiEnderUtilitiesInventory extends GuiContainer
 {
-	protected TileEntityEU te;
+	protected TileEntityEnderUtilitiesInventory te;
 	protected ResourceLocation guiTexture;
 
-	public GuiEnderUtilitiesInventory(ContainerEnderUtilitiesInventory container, TileEntityEU te)
+	public GuiEnderUtilitiesInventory(ContainerEnderUtilitiesInventory container, TileEntityEnderUtilitiesInventory te)
 	{
 		super(container);
 		this.te = te;
@@ -46,7 +46,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
 	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
 	{
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		bindTexture(guiTexture);
+		bindTexture(this.guiTexture);
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);

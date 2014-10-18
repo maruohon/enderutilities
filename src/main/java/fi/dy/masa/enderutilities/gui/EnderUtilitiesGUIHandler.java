@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class EnderUtilitiesGUIHandler implements IGuiHandler
 {
@@ -22,9 +22,9 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 			TileEntity te = world.getTileEntity(x, y, z);
 			if (te != null )
 			{
-				if (te instanceof TileEntityEU)
+				if (te instanceof TileEntityEnderUtilitiesInventory)
 				{
-					return ((TileEntityEU)te).getContainer(player.inventory);
+					return ((TileEntityEnderUtilitiesInventory)te).getContainer(player.inventory);
 				}
 			}
 		}
@@ -44,9 +44,9 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 			TileEntity te = world.getTileEntity(x, y, z);
 			if (te != null )
 			{
-				if (te instanceof TileEntityEU)
+				if (te instanceof TileEntityEnderUtilitiesInventory)
 				{
-					return ((TileEntityEU)te).getGui(player.inventory);
+					return ((TileEntityEnderUtilitiesInventory)te).getGui(player.inventory);
 				}
 			}
 		}

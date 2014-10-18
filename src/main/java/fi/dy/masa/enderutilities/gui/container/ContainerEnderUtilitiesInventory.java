@@ -6,14 +6,14 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class ContainerEnderUtilitiesInventory extends Container
 {
-	protected TileEntityEU te;
+	protected TileEntityEnderUtilitiesInventory te;
 	protected InventoryPlayer inventoryPlayer;
 
-	public ContainerEnderUtilitiesInventory(TileEntityEU te, InventoryPlayer inventory)
+	public ContainerEnderUtilitiesInventory(TileEntityEnderUtilitiesInventory te, InventoryPlayer inventory)
 	{
 		this.te = te;
 		this.inventoryPlayer = inventory;

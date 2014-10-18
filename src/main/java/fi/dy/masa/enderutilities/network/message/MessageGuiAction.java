@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.network.message;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEU;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesSided;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -75,9 +75,9 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
 			{
 				case ReferenceGuiIds.GUI_ID_ENDER_FURNACE:
 					te = world.getTileEntity(message.posX, message.posY, message.posZ);
-					if (te != null && te instanceof TileEntityEU)
+					if (te != null && te instanceof TileEntityEnderUtilitiesSided)
 					{
-						((TileEntityEU)te).performGuiAction(message.elementId, message.action);
+						((TileEntityEnderUtilitiesSided)te).performGuiAction(message.elementId, message.action);
 					}
 					break;
 				default:

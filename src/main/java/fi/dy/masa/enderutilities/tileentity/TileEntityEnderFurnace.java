@@ -32,7 +32,7 @@ import fi.dy.masa.enderutilities.gui.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class TileEntityEnderFurnace extends TileEntityEU
+public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 {
 	// The values that define how fuels burn and items smelt
 	public static final int COOKTIME_INC_NOFUEL = 1; // No fuel mode: 60 seconds per item
@@ -77,8 +77,6 @@ public class TileEntityEnderFurnace extends TileEntityEU
 		this.outputMode = 0;
 		this.burnTimeRemaining = 0;
 		this.cookTime = 0;
-		this.ownerName = null;
-		this.ownerUUID = null;
 		this.timer = 0;
 		this.outputBufferAmount = 0;
 	}
@@ -87,7 +85,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@Override
 	public String getInventoryName()
 	{
-		return this.hasCustomInventoryName() ? this.customInventoryName : ReferenceTileEntity.NAME_CONTAINER_ENDER_FURNACE;
+		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + ReferenceTileEntity.NAME_TILE_ENDER_FURNACE;
 	}
 
 	@Override
@@ -731,7 +729,7 @@ public class TileEntityEnderFurnace extends TileEntityEU
 	@SideOnly(Side.CLIENT)
 	public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
 	{
-		return new GuiEnderFurnace(getContainer(inventoryPlayer), this);
+		return new GuiEnderFurnace(this.getContainer(inventoryPlayer), this);
 	}
 
 	@Override

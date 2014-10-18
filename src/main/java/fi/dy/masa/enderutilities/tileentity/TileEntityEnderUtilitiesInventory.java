@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -14,7 +14,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
 
-public class TileEntityEU extends TileEntity implements ISidedInventory
+public class TileEntityEnderUtilitiesInventory extends TileEntity implements IInventory
 {
 	protected String customInventoryName;
 	protected ItemStack[] itemStacks;
@@ -24,8 +24,11 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 	protected String ownerName;
 	protected UUID ownerUUID;
 
-	public TileEntityEU(String name)
+	public TileEntityEnderUtilitiesInventory(String name)
 	{
+		this.rotation = 0;
+		this.ownerName = null;
+		this.ownerUUID = null;
 		this.tileEntityName = name;
 	}
 
@@ -48,9 +51,9 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 		return this.hasCustomInventoryName() ? this.customInventoryName : "";
 	}
 
-	public void setRotation(byte r)
+	public void setRotation(byte rot)
 	{
-		this.rotation = r;
+		this.rotation = rot;
 	}
 
 	public byte getRotation()
@@ -241,24 +244,6 @@ public class TileEntityEU extends TileEntity implements ISidedInventory
 
 	@Override
 	public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
-	{
-		return true;
-	}
-
-	@Override
-	public int[] getAccessibleSlotsFromSide(int side)
-	{
-		return null;
-	}
-
-	@Override
-	public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
-	{
-		return true;
-	}
-
-	@Override
-	public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
 	{
 		return true;
 	}
