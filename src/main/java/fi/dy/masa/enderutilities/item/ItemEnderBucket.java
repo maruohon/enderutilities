@@ -7,7 +7,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -23,37 +22,32 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
-import net.minecraftforge.fluids.ItemFluidContainer;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.reference.ReferenceItem;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
-public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
+public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidContainerItem
 {
 	public static final byte MODE_NORMAL = 0;
 	public static final byte MODE_PICKUP = 1;
 	public static final byte MODE_DEPOSIT = 2;
+
+	protected int capacity;
 
 	@SideOnly(Side.CLIENT)
 	public IIcon[] iconParts;
 
 	public ItemEnderBucket()
 	{
-		// the id is actually unused though...
-		this(Item.getIdFromItem(GameRegistry.findItem(Reference.MOD_ID, ReferenceItem.NAME_ITEM_ENDER_BUCKET)));
-	}
-
-	public ItemEnderBucket(int itemID)
-	{
-		super(itemID);
+		super();
 		this.setMaxStackSize(1);
 		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BUCKET);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32");
@@ -406,6 +400,30 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 		return true;
 	}
 
+	public ItemEnderBucket setCapacity(int capacity)
+	{
+		this.capacity = capacity;
+		return this;
+	}
+
+	@Override
+	public int getCapacity(ItemStack stack)
+	{
+		// TODO add a storage upgrade and store the capacity in NBT
+		return this.capacity;
+	}
+
+	@Override
+	public FluidStack getFluid(ItemStack stack)
+	{
+		if (stack.stackTagCompound == null || stack.stackTagCompound.hasKey("Fluid") == false)
+		{
+			return null;
+		}
+
+		return FluidStack.loadFluidStackFromNBT(stack.stackTagCompound.getCompoundTag("Fluid"));
+	}
+
 	@Override
 	public FluidStack drain(ItemStack container, int maxDrain, boolean doDrain)
 	{
@@ -452,6 +470,80 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 	}
 
 	@Override
+	public int fill(ItemStack itemStack, FluidStack fluidStackIn, boolean doFill)
+	{
+		if (fluidStackIn == null) { return 0; }
+
+		int capacity = this.getCapacity(itemStack);
+		NBTTagCompound nbt = itemStack.getTagCompound();
+
+		if (doFill == false)
+		{
+			if (nbt == null || nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == false)
+			{
+				return Math.min(capacity, fluidStackIn.amount);
+			}
+
+			FluidStack storedFluidStack = FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("Fluid"));
+
+			if (storedFluidStack == null)
+			{
+				return Math.min(capacity, fluidStackIn.amount);
+			}
+
+			if (storedFluidStack.isFluidEqual(fluidStackIn) == false)
+			{
+				return 0;
+			}
+
+			return Math.min(capacity - storedFluidStack.amount, fluidStackIn.amount);
+		}
+
+		if (nbt == null)
+		{
+			nbt = new NBTTagCompound();
+			itemStack.setTagCompound(nbt);
+		}
+
+		if (nbt.hasKey("Fluid") == false)
+		{
+			NBTTagCompound fluidTag = fluidStackIn.writeToNBT(new NBTTagCompound());
+
+			if (capacity < fluidStackIn.amount)
+			{
+				fluidTag.setInteger("Amount", capacity);
+				nbt.setTag("Fluid", fluidTag);
+				return capacity;
+			}
+
+			nbt.setTag("Fluid", fluidTag);
+			return fluidStackIn.amount;
+		}
+
+		NBTTagCompound fluidTag = nbt.getCompoundTag("Fluid");
+		FluidStack storedFluidStack = FluidStack.loadFluidStackFromNBT(fluidTag);
+
+		if (storedFluidStack.isFluidEqual(fluidStackIn) == false)
+		{
+			return 0;
+		}
+
+		int filled = capacity - storedFluidStack.amount;
+		if (fluidStackIn.amount < filled)
+		{
+			storedFluidStack.amount += fluidStackIn.amount;
+			filled = fluidStackIn.amount;
+		}
+		else
+		{
+			storedFluidStack.amount = capacity;
+		}
+
+		nbt.setTag("Fluid", storedFluidStack.writeToNBT(fluidTag));
+		return filled;
+	}
+
+    @Override
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister iconRegister)
 	{
@@ -470,6 +562,13 @@ public class ItemEnderBucket extends ItemFluidContainer implements IKeyBound
 			i = 0;
 		}
 		return this.iconParts[i];
+	}
+
+	/* Returns the maximum number of modules that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack)
+	{
+		return 4;
 	}
 
 	@Override

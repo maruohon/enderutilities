@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperItemModular;
 
-public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular
+public abstract class ItemModular extends ItemEnderUtilities implements IModular
 {
 	/* Return whether the given module type has been installed. */
 	@Override

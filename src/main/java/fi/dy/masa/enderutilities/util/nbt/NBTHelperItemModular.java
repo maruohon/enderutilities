@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class ItemModular
+public class NBTHelperItemModular
 {
 	/* Return whether the given module type has been installed. */
 	public static boolean hasModule(ItemStack stack, int moduleType)
