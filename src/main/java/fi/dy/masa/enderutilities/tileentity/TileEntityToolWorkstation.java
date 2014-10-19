@@ -24,6 +24,12 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 	}
 
 	@Override
+	public boolean canUpdate()
+	{
+		return false;
+	}
+
+	@Override
 	public ContainerToolWorkstation getContainer(InventoryPlayer inventory)
 	{
 		return new ContainerToolWorkstation(this, inventory);
