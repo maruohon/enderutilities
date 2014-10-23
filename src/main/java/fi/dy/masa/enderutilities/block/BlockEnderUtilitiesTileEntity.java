@@ -64,6 +64,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 		else
 		{
 			int rot = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+			/*
 			if (livingBase.rotationPitch > 45.0f)
 			{
 				rot = (rot << 4) | 1;
@@ -74,6 +75,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 			}
 			else
 			{
+			*/
 				// {DOWN, UP, NORTH, SOUTH, WEST, EAST}
 				switch(rot)
 				{
@@ -83,7 +85,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 					case 3: rot = 4; break;
 					default:
 				}
-			}
+			//}
 
 			teeu.setRotation((byte)rot);
 
