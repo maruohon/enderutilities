@@ -1,35 +1,25 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
 
-public class TileEntityEnderUtilitiesInventory extends TileEntity implements IInventory
+public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
 {
 	protected String customInventoryName;
 	protected ItemStack[] itemStacks;
-	protected String tileEntityName;
-	public byte rotation;
 
-	protected String ownerName;
-	protected UUID ownerUUID;
 
 	public TileEntityEnderUtilitiesInventory(String name)
 	{
-		this.rotation = 0;
-		this.ownerName = null;
-		this.ownerUUID = null;
-		this.tileEntityName = name;
+		super(name);
 	}
 
 	public void setInventoryName(String name)
@@ -51,56 +41,21 @@ public class TileEntityEnderUtilitiesInventory extends TileEntity implements IIn
 		return this.hasCustomInventoryName() ? this.customInventoryName : "";
 	}
 
-	public void setRotation(byte rot)
+	@Override
+	public int getSizeInventory()
 	{
-		this.rotation = rot;
-	}
-
-	public byte getRotation()
-	{
-		return this.rotation;
-	}
-
-	public void setOwner(EntityPlayer player)
-	{
-		if (player != null)
+		if (this.itemStacks != null)
 		{
-			this.ownerName = player.getCommandSenderName();
-			this.ownerUUID = player.getUniqueID();
+			return this.itemStacks.length;
 		}
-		else
-		{
-			this.ownerName = null;
-			this.ownerUUID = null;
-		}
-	}
 
-	public String getOwnerName()
-	{
-		return this.ownerName;
-	}
-
-	public UUID getOwnerUUID()
-	{
-		return this.ownerUUID;
+		return 0;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
 		super.readFromNBT(nbt);
-
-		this.rotation = nbt.getByte("Rotation");
-
-		if (nbt.hasKey("OwnerName", Constants.NBT.TAG_STRING) == true)
-		{
-			this.ownerName = nbt.getString("OwnerName");
-		}
-
-		if (nbt.hasKey("OwnerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("OwnerUUIDLeast", Constants.NBT.TAG_LONG) == true)
-		{
-			this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
-		}
 
 		if (nbt.hasKey("CustomName", Constants.NBT.TAG_STRING) == true)
 		{
@@ -113,34 +68,10 @@ public class TileEntityEnderUtilitiesInventory extends TileEntity implements IIn
 	{
 		super.writeToNBT(nbt);
 
-		nbt.setByte("Rotation", this.rotation);
-
-		if (this.ownerName != null)
-		{
-			nbt.setString("OwnerName", this.ownerName);
-		}
-
-		if (this.ownerUUID != null)
-		{
-			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
-			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
-		}
-
 		if (this.hasCustomInventoryName())
 		{
 			nbt.setString("CustomName", this.customInventoryName);
 		}
-	}
-
-	@Override
-	public int getSizeInventory()
-	{
-		if (this.itemStacks != null)
-		{
-			return this.itemStacks.length;
-		}
-
-		return 0;
 	}
 
 	@Override
@@ -259,18 +190,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntity implements IIn
 		return null;
 	}
 
-	public String getTEName()
-	{
-		return this.tileEntityName;
-	}
-
 	public void performGuiAction(int element, short action)
 	{
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.getClass().getSimpleName() + "(x=" + xCoord + ", y=" + yCoord + ", z=" + zCoord + ")@" + System.identityHashCode(this);
 	}
 }

@@ -21,7 +21,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class BlockEnderFurnace extends BlockEnderUtilitiesTE
+public class BlockEnderFurnace extends BlockEnderUtilitiesTileEntity
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon iconTop;
