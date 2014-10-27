@@ -14,39 +14,38 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
-	public BlockEnderUtilitiesTileEntity(float hardness)
+	public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
 	{
-		super(hardness);
+		super(index, name, hardness);
 	}
 
-	public BlockEnderUtilitiesTileEntity(float hardness, Material material)
+	public BlockEnderUtilitiesTileEntity(int index, String name, float hardness, Material material)
 	{
-		super(hardness, material);
+		super(index, name, hardness, material);
 	}
 
 	// Returns a new instance of a block's tile entity class. Called on placing the block.
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
-		return null;
-	}
-
-	/*
-	@Override
-	public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player)
-	{
+		return Machine.getMachine(this.blockIndex, meta).createNewTileEntity();
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
+		// This is for handling custom storage stuff like buffers, which are not regular
+		// ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
+		Machine.getMachine(this.blockIndex, meta).breakBlock(world, x, y, z, block, meta);
+
+		super.breakBlock(world, x, y, z, block, meta);
 	}
-*/
 
 	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
@@ -102,23 +101,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 		}
 	}
 
-	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
-	{
-		super.onNeighborBlockChange(world, x, y, z, block);
-		/*
-		if (world.isRemote == true)
-		{
-			return;
-		}
-
-		TileEntity te = world.getTileEntity(x, y, z);
-		if (te != null && te instanceof TileEntityEnderUtilities)
-		{
-		}
-		*/
-	}
-
 	// Called upon block activation (right click on the block.)
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
@@ -135,6 +117,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 			return false;
 		}
 
+		// TODO: This should probably be moved into the Machine class
 		if (world.isRemote == false)
 		{
 			player.openGui(EnderUtilities.instance, 0, world, x, y, z);

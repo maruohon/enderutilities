@@ -13,14 +13,14 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
 {
-	public BlockEnderUtilitiesInventory(float hardness)
+	public BlockEnderUtilitiesInventory(int index, String name, float hardness)
 	{
-		super(hardness);
+		super(index, name, hardness);
 	}
 
-	public BlockEnderUtilitiesInventory(float hardness, Material material)
+	public BlockEnderUtilitiesInventory(int index, String name, float hardness, Material material)
 	{
-		super(hardness, material);
+		super(index, name, hardness, material);
 	}
 
 	@Override
