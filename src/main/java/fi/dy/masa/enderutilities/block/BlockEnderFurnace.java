@@ -21,12 +21,12 @@ import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class BlockEnderFurnace extends BlockEnderUtilitiesTileEntity
+public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 {
 	@SideOnly(Side.CLIENT)
 	private IIcon iconTop;
 	@SideOnly(Side.CLIENT)
-	private IIcon iconFrontOff;
+	private IIcon iconFront;
 	@SideOnly(Side.CLIENT)
 	private IIcon iconFrontOnSlow;
 	@SideOnly(Side.CLIENT)
@@ -127,7 +127,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesTileEntity
 		}
 		if (side == 3)
 		{
-			return this.iconFrontOff;
+			return this.iconFront;
 		}
 
 		return this.blockIcon;
@@ -147,7 +147,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesTileEntity
 		{
 			if (((TileEntityEnderFurnace)te).isActive == false)
 			{
-				return this.iconFrontOff;
+				return this.iconFront;
 			}
 
 			if (((TileEntityEnderFurnace)te).usingFuel == true)
@@ -170,7 +170,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesTileEntity
 	{
 		this.blockIcon = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
 		this.iconTop = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
-		this.iconFrontOff = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
+		this.iconFront = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
 		this.iconFrontOnSlow = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
 		this.iconFrontOnFast = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
 		this.iconFrontOnNofuel = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");

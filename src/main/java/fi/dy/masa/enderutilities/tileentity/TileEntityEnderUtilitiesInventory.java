@@ -5,6 +5,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -61,6 +62,21 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 		{
 			this.customInventoryName = nbt.getString("CustomName");
 		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", 10);
+		//this.itemStacks = new ItemStack[this.getSizeInventory()]; // Done in the sub class constructor for each TE
+		int numSlots = nbtTagList.tagCount();
+
+		for (int i = 0; i < numSlots; ++i)
+		{
+			NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
+			byte slotNum = nbtTagCompound.getByte("Slot");
+
+			if (slotNum >= 0 && slotNum < this.itemStacks.length)
+			{
+				this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+			}
+		}
 	}
 
 	@Override
@@ -72,6 +88,22 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 		{
 			nbt.setString("CustomName", this.customInventoryName);
 		}
+
+		NBTTagList nbtTagList = new NBTTagList();
+		int numSlots = (this.itemStacks != null ? this.itemStacks.length : 0);
+
+		for (int i = 0; i < numSlots; ++i)
+		{
+			if (this.itemStacks[i] != null)
+			{
+				NBTTagCompound nbtTagCompound = new NBTTagCompound();
+				nbtTagCompound.setByte("Slot", (byte)i);
+				this.itemStacks[i].writeToNBT(nbtTagCompound);
+				nbtTagList.appendTag(nbtTagCompound);
+			}
+		}
+
+		nbt.setTag("Items", nbtTagList);
 	}
 
 	@Override

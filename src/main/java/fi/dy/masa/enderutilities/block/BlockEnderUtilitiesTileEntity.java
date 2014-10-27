@@ -15,6 +15,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
@@ -94,9 +95,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 				teeu.setOwner((EntityPlayer)livingBase);
 			}
 
-			if (stack.hasDisplayName())
+			if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
 			{
-				//teeu.setInventoryName(stack.getDisplayName());
+				((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
 			}
 		}
 	}

@@ -15,7 +15,6 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -96,24 +95,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 		byte flags				= nbt.getByte("Flags"); // Flags
 		this.operatingMode		= (byte)(flags & 0x01);
 		this.outputMode			= (byte)((flags >> 1) & 0x01);
-		this.burnTimeRemaining	= nbt.getInteger("BurnTimeRemaining"); // BurnTimeRemaining
-		this.burnTimeFresh		= nbt.getInteger("BurnTimeFresh"); // BurnTimeFresh
-		this.cookTime			= nbt.getInteger("CookTime"); // CookTime
-		this.cookTimeFresh		= nbt.getInteger("CookTimeFresh"); // CookTimeFresh
-
-		NBTTagList nbttaglist = nbt.getTagList("Items", 10);
-		this.itemStacks = new ItemStack[this.getSizeInventory()];
-
-		for (int i = 0; i < nbttaglist.tagCount(); ++i)
-		{
-			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-			byte slotNum = nbttagcompound.getByte("Slot");
-
-			if (slotNum >= 0 && slotNum < this.itemStacks.length)
-			{
-				this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbttagcompound);
-			}
-		}
+		this.burnTimeRemaining	= nbt.getInteger("BurnTimeRemaining");
+		this.burnTimeFresh		= nbt.getInteger("BurnTimeFresh");
+		this.cookTime			= nbt.getInteger("CookTime");
+		this.cookTimeFresh		= nbt.getInteger("CookTimeFresh");
 
 		if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
 		{
@@ -135,21 +120,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 		nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
 		nbt.setShort("CookTime", (short)this.cookTime);
 		nbt.setShort("CookTimeFresh", (short)this.cookTimeFresh);
-
-		NBTTagList nbttaglist = new NBTTagList();
-
-		for (int i = 0; i < this.itemStacks.length; ++i)
-		{
-			if (this.itemStacks[i] != null)
-			{
-				NBTTagCompound nbttagcompound = new NBTTagCompound();
-				nbttagcompound.setByte("Slot", (byte)i);
-				this.itemStacks[i].writeToNBT(nbttagcompound);
-				nbttaglist.appendTag(nbttagcompound);
-			}
-		}
-
-		nbt.setTag("Items", nbttaglist);
 
 		if (this.outputBufferStack != null)
 		{
@@ -229,6 +199,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 		return this.burnTimeRemaining > 0;
 	}
 
+	@Override
 	public void updateEntity()
 	{
 		if (this.worldObj.isRemote == true)
@@ -695,12 +666,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 	}
 
 	/* Returns true if automation can insert the given item in the given slot from the given side. Args: slot, itemstack, side */
+	@Override
 	public boolean canInsertItem(int slot, ItemStack stack, int side)
 	{
 		return this.isItemValidForSlot(slot, stack);
 	}
 
 	// Returns true if automation can extract the given item in the given slot from the given side. Args: slot, itemstack, side
+	@Override
 	public boolean canExtractItem(int slot, ItemStack stack, int side)
 	{
 		// Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
