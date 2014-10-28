@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL12;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemRendererEnderBucket implements IItemRenderer
@@ -122,7 +122,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 		this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
 		iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(1); // 1: Bucket window background (empty part of gauge)
-		float scale = 1.0f - (((float)amount) / (float)EUConfigs.enderBucketCapacity.getInt(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT));
+		float scale = 1.0f - (((float)amount) / (float)EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT));
 		this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
 
 		iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(2); // 2: Bucket top part inside

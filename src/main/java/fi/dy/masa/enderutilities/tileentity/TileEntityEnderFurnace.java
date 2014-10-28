@@ -28,7 +28,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.container.ContainerEnderFurnace;
-import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
@@ -70,7 +70,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
 	public TileEntityEnderFurnace()
 	{
-		super(ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
+		super(ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
 		this.itemStacks = new ItemStack[3];
 		this.operatingMode = 0;
 		this.outputMode = 0;
@@ -84,7 +84,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 	@Override
 	public String getInventoryName()
 	{
-		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + ReferenceTileEntity.NAME_TILE_ENDER_FURNACE;
+		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE;
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.io.File;
 import net.minecraftforge.common.config.Configuration;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 
 public class EUConfigReader
 {
@@ -37,7 +37,7 @@ public class EUConfigReader
 		EUConfigs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(false);
 		EUConfigs.enderBowAllowSelfTP.comment = "Can the Ender Bow be used in the 'TP Self' mode";
 
-		EUConfigs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ReferenceItem.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
+		EUConfigs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
 		EUConfigs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
 
 		EUConfigs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(false);
@@ -121,10 +121,14 @@ public class EUConfigReader
 		Configuration conf = new Configuration(configFile);
 		conf.load();
 
-		category = "DisableItems";
-		conf.addCustomCategoryComment(category, "Here you can disable individual blocks, items or just their recipies");
+		category = "DisableBlocks";
+		conf.addCustomCategoryComment(category, "Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
+
 		// Block disable
-		EUConfigs.disableBlockEnderFurnace			= conf.get(category, "DisableBlockEnderFurnace", false).setRequiresMcRestart(true);
+		EUConfigs.disableBlockMachine_0				= conf.get(category, "DisableBlockMachine_0", false).setRequiresMcRestart(true);
+
+		category = "DisableItems";
+		conf.addCustomCategoryComment(category, "Note that some items are grouped together using the damage value to identify them. You can't completely disable a specific damage value (so that existing items would vanish).");
 
 		// Item disable
 		EUConfigs.disableItemCraftingPart			= conf.get(category, "DisableItemCraftingPart", false).setRequiresMcRestart(true);
@@ -143,12 +147,16 @@ public class EUConfigReader
 		EUConfigs.disableItemEnderTool				= conf.get(category, "DisableItemEnderTool", false).setRequiresMcRestart(true);
 		EUConfigs.disableItemMobHarness				= conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
 
+		category = "DisableRecipies";
 		// Recipe disable
+		// Blocks
+		EUConfigs.disableRecipeEnderFurnace			= conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
+
+		// Items
 		EUConfigs.disableRecipeEnderArrow			= conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderBag				= conf.get(category, "DisableRecipeEnderBag", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderBow				= conf.get(category, "DisableRecipeEnderBow", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderBucket			= conf.get(category, "DisableRecipeEnderBucket", false).setRequiresMcRestart(true);
-		EUConfigs.disableRecipeEnderFurnace			= conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderLasso			= conf.get(category, "DisableRecipeEnderLasso", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderPearl			= conf.get(category, "DisableRecipeEnderPearl", false).setRequiresMcRestart(true);
 		EUConfigs.disableRecipeEnderPorterBasic		= conf.get(category, "DisableRecipeEnderPorterBasic", false).setRequiresMcRestart(true);

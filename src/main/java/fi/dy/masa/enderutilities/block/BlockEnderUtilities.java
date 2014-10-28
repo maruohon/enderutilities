@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.block;
 
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
@@ -22,8 +24,8 @@ public class BlockEnderUtilities extends Block
 
 	public BlockEnderUtilities(int index, String name, float hardness)
 	{
-		this(index, name, hardness, Material.iron);
-		this.setStepSound(soundTypeMetal);
+		this(index, name, hardness, Material.rock);
+		this.setStepSound(soundTypeStone);
 	}
 
 	public BlockEnderUtilities(int index, String name, float hardness, Material material)
@@ -31,9 +33,10 @@ public class BlockEnderUtilities extends Block
 		super(material);
 		this.setHardness(hardness);
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-		this.setHarvestLevel("pickaxe", 1); // Requires a Stone Pickaxe or better
 		this.setBlockName(name);
 		this.blockIndex = index;
+		Machine.setBlockHardness(this, this.blockIndex);
+		Machine.setBlockHarvestLevels(this, this.blockIndex);
 	}
 
 	@Override
@@ -62,6 +65,12 @@ public class BlockEnderUtilities extends Block
 	public int getBlockIndex()
 	{
 		return this.blockIndex;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void getSubBlocks(Item item, CreativeTabs tab, List list)
+	{
+		Machine.getSubBlocks(this.blockIndex, this, item, tab, list);
 	}
 
 	// A randomly called display update to be able to add particles or other items for display

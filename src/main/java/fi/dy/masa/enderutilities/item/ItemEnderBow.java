@@ -23,7 +23,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
@@ -44,7 +44,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 		super();
 		this.setMaxStackSize(1);
 		this.setMaxDamage(384);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BOW);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_BOW);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 

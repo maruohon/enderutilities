@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants;
 
@@ -96,6 +99,40 @@ public class TileEntityEnderUtilities extends TileEntity
 			nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
 			nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
 		}
+	}
+
+	@Override
+	public Packet getDescriptionPacket()
+	{
+		if (this.worldObj != null)
+		{
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setByte("f", (byte)(this.getRotation() & 0x07));
+
+			if (this.ownerName != null)
+			{
+				nbt.setString("o", this.ownerName);
+			}
+
+			return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
+		}
+
+		return null;
+	}
+
+	@Override
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+	{
+		NBTTagCompound nbt = packet.func_148857_g();
+		byte flags = nbt.getByte("f");
+		this.setRotation((byte)(flags & 0x07));
+
+		if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
+		{
+			this.ownerName = nbt.getString("o");
+		}
+
+		this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 	}
 
 	@Override

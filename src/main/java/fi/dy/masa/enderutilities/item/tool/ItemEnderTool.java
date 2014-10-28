@@ -31,7 +31,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -49,10 +49,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
 	@SideOnly(Side.CLIENT)
 	// Note: Sword "has to be" last, because it has one extra texture compared to the others
-	String[] tools = new String[] {	ReferenceItem.NAME_ITEM_ENDER_PICKAXE,
-									ReferenceItem.NAME_ITEM_ENDER_AXE,
-									ReferenceItem.NAME_ITEM_ENDER_SHOVEL,
-									ReferenceItem.NAME_ITEM_ENDER_HOE};
+	String[] tools = new String[] {	ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_AXE,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_SHOVEL,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_HOE};
 	@SideOnly(Side.CLIENT)
 	String[] parts = new String[] {"rod", "head.1", "head.2", "core.1", "core.2", "core.3",
 									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
@@ -68,7 +68,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
 		this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERTOOL);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERTOOL);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
@@ -76,10 +76,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	public String getUnlocalizedName(ItemStack stack)
 	{
 		int toolType = this.getToolType(stack);
-		if (toolType == 0) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_PICKAXE; }
-		if (toolType == 1) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_AXE; }
-		if (toolType == 2) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_SHOVEL; }
-		if (toolType == 3) { return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDER_HOE; }
+		if (toolType == 0) { return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE; }
+		if (toolType == 1) { return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_AXE; }
+		if (toolType == 2) { return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_SHOVEL; }
+		if (toolType == 3) { return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_HOE; }
 
 		return super.getUnlocalizedName();
 	}
@@ -359,7 +359,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDER_PICKAXE + ".rod");
+		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE + ".rod");
 		this.iconArray = new IIcon[40];
 		String prefix = this.getIconString() + ".";
 

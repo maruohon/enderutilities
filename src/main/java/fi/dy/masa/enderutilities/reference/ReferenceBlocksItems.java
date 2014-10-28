@@ -1,7 +1,12 @@
 package fi.dy.masa.enderutilities.reference;
 
-public class ReferenceItem
+public class ReferenceBlocksItems
 {
+	public static final String NAME_TILE_MACHINE_0				= "enderfurnace"; // Legacy weight name... :p
+
+	public static final String NAME_TILEENTITY_ENDER_FURNACE		= "enderfurnace";
+	public static final String NAME_TILEENTITY_TOOL_WORKSTATION		= "toolworkstation";
+
 	public static final String NAME_ITEM_ENDERPART					= "enderpart";
 	public static final String NAME_ITEM_ENDERPART_ENDERALLOY		= "enderalloy";
 	public static final String NAME_ITEM_ENDERPART_ENDERCAPACITOR	= "endercapacitor";

@@ -26,7 +26,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -53,7 +53,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		this.setNoRepair();
 		this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_SWORD);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_SWORD);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 

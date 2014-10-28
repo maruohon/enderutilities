@@ -21,7 +21,7 @@ public class EUConfigs
 	public static Property teleportBlacklist;
 
 	// Block disable
-	public static Property disableBlockEnderFurnace;
+	public static Property disableBlockMachine_0;
 
 	// Item disable
 	public static Property disableItemCraftingPart;
@@ -41,7 +41,9 @@ public class EUConfigs
 	public static Property disableItemMobHarness;
 
 	// Recipe disable
+	// Blocks
 	public static Property disableRecipeEnderFurnace;
+	// Items
 	public static Property disableRecipeEnderArrow;
 	public static Property disableRecipeEnderBag;
 	public static Property disableRecipeEnderBow;

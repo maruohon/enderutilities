@@ -6,9 +6,11 @@ category.enderutilities=Ender Utilities
 key.enderutilities.togglemode=Toggle Mode
 
 container.enderfurnace=Ender Furnace
+container.toolworkstation=Tool Workstation
 container.owner=Owner:
 
 tile.enderfurnace.name=Ender Furnace
+tile.toolworkstation.name=Tool Workstation
 
 item.enderarrow.name=Ender Arrow
 item.enderbag.name=Ender Bag

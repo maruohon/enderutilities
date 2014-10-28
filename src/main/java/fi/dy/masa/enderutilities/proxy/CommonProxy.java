@@ -15,9 +15,10 @@ import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceEntities;
-import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public abstract class CommonProxy implements IProxy
@@ -30,7 +31,7 @@ public abstract class CommonProxy implements IProxy
 			case SERVER:
 				return ctx.getServerHandler().playerEntity;
 			default:
-				System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
+				EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext()");
 				return null;
 		}
 	}
@@ -59,7 +60,8 @@ public abstract class CommonProxy implements IProxy
 
 	public void registerTileEntities()
 	{
-		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceTileEntity.NAME_TILE_ENDER_FURNACE);
+		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
+		GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
 	}
 
 	public boolean isShiftKeyDown()

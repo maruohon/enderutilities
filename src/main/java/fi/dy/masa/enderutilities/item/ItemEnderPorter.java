@@ -15,7 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -34,7 +34,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 		super();
 		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_PORTER);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_PORTER);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 

@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -33,9 +33,9 @@ public class MachineEnderFurnace extends Machine
 	@SideOnly(Side.CLIENT)
 	private IIcon iconFrontOnNofuel;
 
-	public MachineEnderFurnace(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass)
+	public MachineEnderFurnace(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
 	{
-		super(index, meta, name, TEClass);
+		super(index, meta, name, TEClass, tool, harvestLevel, hardness);
 	}
 
 	@Override
@@ -80,20 +80,6 @@ public class MachineEnderFurnace extends Machine
 		}
 	
 		super.breakBlock(world, x, y, z, block, meta);
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
-	{
-		TileEntity te = world.getTileEntity(x, y, z);
-		if (te != null && te instanceof TileEntityEnderFurnace)
-		{
-			if (((TileEntityEnderFurnace)te).isActive == true)
-			{
-				Particles.spawnParticlesAround(world, "portal", x, y, z, 2, rand);
-			}
-		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -147,11 +133,25 @@ public class MachineEnderFurnace extends Machine
 	@Override
 	protected void registerIcons(IIconRegister iconRegister)
 	{
-		this.iconSide			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".side");
-		this.iconTop			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".top");
-		this.iconFront			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.off");
-		this.iconFrontOnSlow	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
-		this.iconFrontOnFast	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
-		this.iconFrontOnNofuel	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceItem.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
+		this.iconSide			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".side");
+		this.iconTop			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".top");
+		this.iconFront			= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.off");
+		this.iconFrontOnSlow	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
+		this.iconFrontOnFast	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
+		this.iconFrontOnNofuel	= iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+	{
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te != null && te instanceof TileEntityEnderFurnace)
+		{
+			if (((TileEntityEnderFurnace)te).isActive == true)
+			{
+				Particles.spawnParticlesAround(world, "portal", x, y, z, 2, rand);
+			}
+		}
 	}
 }

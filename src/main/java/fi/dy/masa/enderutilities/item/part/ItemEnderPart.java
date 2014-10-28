@@ -12,7 +12,7 @@ import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
@@ -27,7 +27,7 @@ public class ItemEnderPart extends ItemEnderUtilities
 		this.setMaxStackSize(64);
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
@@ -39,7 +39,7 @@ public class ItemEnderPart extends ItemEnderUtilities
 		// Damage 2: Ender Alloy (Advanced)
 		if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + "." + stack.getItemDamage();
+			return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERALLOY + "." + stack.getItemDamage();
 		}
 
 		// Damage 10: Inactive Ender Core (Basic)
@@ -47,7 +47,7 @@ public class ItemEnderPart extends ItemEnderUtilities
 		// Damage 12: Inactive Ender Core (Advanced)
 		if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 10) + ".inactive";
+			return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 10) + ".inactive";
 		}
 
 		// Damage 15: Ender Core (Basic)
@@ -55,19 +55,19 @@ public class ItemEnderPart extends ItemEnderUtilities
 		// Damage 17: Ender Core (Advanced)
 		if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 15) + ".active";
+			return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCORE + "." + (stack.getItemDamage() - 15) + ".active";
 		}
 
 		// Damage 20: Ender Stick
 		if (stack.getItemDamage() == 20)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK;
+			return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERSTICK;
 		}
 
 		// Damage 21: Ender Rope
 		if (stack.getItemDamage() == 21)
 		{
-			return super.getUnlocalizedName() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE;
+			return super.getUnlocalizedName() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERROPE;
 		}
 
 		return super.getUnlocalizedName();
@@ -128,28 +128,28 @@ public class ItemEnderPart extends ItemEnderUtilities
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
+		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
 		this.iconArray = new IIcon[11];
 
 		int i = 0, j;
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
 		}
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
 		}
 
 		for (j = 0; j < 3; ++i, ++j)
 		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
+			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
 		}
 
-		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERSTICK);
-		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceItem.NAME_ITEM_ENDERPART_ENDERROPE);
+		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERSTICK);
+		this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERROPE);
 	}
 
 	@SideOnly(Side.CLIENT)

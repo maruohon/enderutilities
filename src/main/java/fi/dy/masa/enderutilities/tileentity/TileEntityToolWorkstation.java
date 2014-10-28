@@ -6,21 +6,21 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.gui.container.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.reference.ReferenceTileEntity;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 {
 
 	public TileEntityToolWorkstation()
 	{
-		super(ReferenceTileEntity.NAME_TILE_TOOL_WORKSTATION);
+		super(ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
 	}
 
 	/* Returns the name of the inventory */
 	@Override
 	public String getInventoryName()
 	{
-		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + ReferenceTileEntity.NAME_TILE_TOOL_WORKSTATION;
+		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION;
 	}
 
 	@Override

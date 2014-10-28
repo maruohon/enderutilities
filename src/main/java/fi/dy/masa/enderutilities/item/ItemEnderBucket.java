@@ -29,7 +29,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
@@ -49,10 +49,10 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 	{
 		super();
 		this.setMaxStackSize(1);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDER_BUCKET);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_BUCKET);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32");
 		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-		this.setCapacity(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT);
+		this.setCapacity(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 
 	public boolean useBucket(ItemStack itemStack, World world, EntityPlayer player)
 	{
-		this.setCapacity(EUConfigs.enderBucketCapacity.getInt(ReferenceItem.ENDER_BUCKET_MAX_AMOUNT));
+		this.setCapacity(EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT));
 
 		byte bucketMode = this.getBucketMode(itemStack);
 		// First, get the stored fluid, if any

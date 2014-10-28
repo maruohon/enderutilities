@@ -13,7 +13,7 @@ import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
-import fi.dy.masa.enderutilities.reference.ReferenceItem;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 
@@ -28,7 +28,7 @@ public class ItemLinkCrystal extends ItemLocationBound
 		this.setMaxStackSize(64);
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceItem.NAME_ITEM_ENDERPART_LINKCRYSTAL);
+		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_LINKCRYSTAL);
 		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
 	}
 
