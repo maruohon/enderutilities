@@ -55,6 +55,9 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 		this.setCapacity(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT);
 	}
 
+	// Note to future self: onItemUseFirst() just messes stuff up. Seems that I can't prevent onItemRightClick() from being called after it.
+	// Thus the use logic just breaks when trying to use it. (ExU Drums work, but in-world fluids don't. Or something...)
+
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
@@ -63,7 +66,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 		{
 			return true;
 		}
-
+		//System.out.println("onItemUse()");
 		this.useBucket(stack, world, player);
 		return true;
 	}
@@ -76,7 +79,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 		{
 			return stack;
 		}
-
+		//System.out.println("onItemRightClick()");
 		this.useBucket(stack, world, player);
 		return stack;
 	}
