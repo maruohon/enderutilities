@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
 {
@@ -39,7 +39,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 	@Override
 	public String getInventoryName()
 	{
-		return this.hasCustomInventoryName() ? this.customInventoryName : "";
+		return this.hasCustomInventoryName() ? this.customInventoryName : "container." + this.tileEntityName;
 	}
 
 	@Override

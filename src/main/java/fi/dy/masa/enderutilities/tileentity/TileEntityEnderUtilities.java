@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.Constants;
 public class TileEntityEnderUtilities extends TileEntity
 {
 	protected String tileEntityName;
-	public byte rotation;
+	protected byte rotation;
 	protected String ownerName;
 	protected UUID ownerUUID;
 

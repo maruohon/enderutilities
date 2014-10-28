@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import fi.dy.masa.enderutilities.gui.container.ContainerEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 

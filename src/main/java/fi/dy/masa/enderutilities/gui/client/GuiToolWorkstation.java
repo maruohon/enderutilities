@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import fi.dy.masa.enderutilities.gui.container.ContainerToolWorkstation;
+import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
