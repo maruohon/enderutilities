@@ -9,8 +9,9 @@ import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 
-public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
+public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 {
+	private static final int[] SLOTS = new int[0];
 
 	public TileEntityToolWorkstation()
 	{
@@ -20,6 +21,24 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
 	@Override
 	public boolean canUpdate()
+	{
+		return false;
+	}
+
+	@Override
+	public int[] getAccessibleSlotsFromSide(int side)
+	{
+		return SLOTS;
+	}
+
+	@Override
+	public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
 	{
 		return false;
 	}
