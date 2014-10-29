@@ -1,7 +1,10 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
@@ -28,6 +31,40 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
 	{
 		super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
+
+		int x = (this.width - this.xSize) / 2;
+		int y = (this.height - this.ySize) / 2;
+		int maxModules = 0;
+		ItemStack toolStack = this.inventorySlots.getSlot(0).getStack();
+		if (toolStack != null)
+		{
+			Item item = toolStack.getItem();
+			if (item instanceof IModular)
+			{
+				maxModules = ((IModular)item).getMaxModules(toolStack);
+			}
+		}
+
+		// Module slots
+		for (int i = 0, dx = 79, dy = 19; i < 15; dx += 18)
+		{
+			if (this.inventorySlots.getSlot(0).getHasStack() == false || i >= maxModules)
+			{
+				this.drawTexturedModalRect(x + dx, y + dy, 176, 32, 18, 18);
+			}
+
+			++i;
+			if (i == 5)
+			{
+				dy += 18;
+				dx -= 5 * 18;
+			}
+			else if (i == 10)
+			{
+				dy += 23;
+				dx -= 5 * 18;
+			}
+		}
 	}
 
 	@Override

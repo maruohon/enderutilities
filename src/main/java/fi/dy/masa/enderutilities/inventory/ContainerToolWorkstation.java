@@ -8,12 +8,9 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 {
-	private TileEntityToolWorkstation tetw;
-
 	public ContainerToolWorkstation(TileEntityToolWorkstation te, InventoryPlayer inventory)
 	{
 		super(te, inventory);
-		this.tetw = te;
 	}
 
 	protected void addSlots()
@@ -24,7 +21,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		// Module slots
 		for (int i = 0, x = 80, y = 20; i < 15; x += 18)
 		{
-			this.addSlotToContainer(new Slot(this.te, i + 1, x, y));
+			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 1, x, y));
 			++i;
 			if (i == 5)
 			{

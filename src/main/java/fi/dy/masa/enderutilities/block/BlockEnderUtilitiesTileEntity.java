@@ -59,6 +59,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 		TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
 		if (stack.getTagCompound() != null)
 		{
+			// FIXME We don't want to read the old coordinates from NBT!!
 			te.readFromNBT(stack.getTagCompound());
 		}
 		else
