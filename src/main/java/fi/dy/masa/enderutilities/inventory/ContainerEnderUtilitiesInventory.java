@@ -73,28 +73,28 @@ public class ContainerEnderUtilitiesInventory extends Container
 		int invSize = this.te.getSizeInventory();
 
 		// Slot clicked on has items
-		if(slot != null && slot.getHasStack() == true)
+		if (slot != null && slot.getHasStack() == true)
 		{
 			ItemStack stackInSlot = slot.getStack();
 			stack = stackInSlot.copy();
 
 			// Clicked on a slot is in the "external" inventory
-			if(slotNum < invSize)
+			if (slotNum < invSize)
 			{
 				// Try to merge the stack into the player inventory
-				if(mergeItemStack(stackInSlot, invSize, inventorySlots.size(), true) == false)
+				if (mergeItemStack(stackInSlot, invSize, inventorySlots.size(), true) == false)
 				{
 					return null;
 				}
 			}
 			// Clicked on slot is in the player inventory, try to merge the stack to the external inventory
-			else if(mergeItemStack(stackInSlot, 0, invSize, false) == false)
+			else if (mergeItemStack(stackInSlot, 0, invSize, false) == false)
 			{
 				return null;
 			}
 
 			// All items moved, empty the slot
-			if(stackInSlot.stackSize == 0)
+			if (stackInSlot.stackSize == 0)
 			{
 				slot.putStack(null);
 			}
@@ -105,7 +105,7 @@ public class ContainerEnderUtilitiesInventory extends Container
 			}
 
 			// No items were moved
-			if(stackInSlot.stackSize == stack.stackSize)
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
 				return null;
 			}
@@ -123,7 +123,7 @@ public class ContainerEnderUtilitiesInventory extends Container
 		int slotIndex = slotStart;
 		int maxStack = Math.min(stack.getMaxStackSize(), this.te.getInventoryStackLimit());
 
-		if(reverse)
+		if (reverse)
 		{
 			slotIndex = slotRange - 1;
 		}
@@ -131,19 +131,20 @@ public class ContainerEnderUtilitiesInventory extends Container
 		Slot slot;
 		ItemStack existingStack;
 
-		if(stack.isStackable() == true)
+		if (stack.isStackable() == true)
 		{
-			while(stack.stackSize > 0 && (reverse == false && slotIndex < slotRange || reverse == true && slotIndex >= slotStart))
+			while (stack.stackSize > 0 && (reverse == false && slotIndex < slotRange || reverse == true && slotIndex >= slotStart))
 			{
 				slot = (Slot)this.inventorySlots.get(slotIndex);
+				maxStack = Math.min(slot.getSlotStackLimit(), Math.min(stack.getMaxStackSize(), this.te.getInventoryStackLimit()));
 				existingStack = slot.getStack();
 
-				if(slot.isItemValid(stack) == true && existingStack != null && existingStack.getItem().equals(stack.getItem())
+				if (slot.isItemValid(stack) == true && existingStack != null && existingStack.getItem().equals(stack.getItem())
 					&& (stack.getHasSubtypes() == false || stack.getItemDamage() == existingStack.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack, existingStack))
 				{
 					int existingSize = existingStack.stackSize + stack.stackSize;
 
-					if(existingSize <= maxStack)
+					if (existingSize <= maxStack)
 					{
 						stack.stackSize = 0;
 						existingStack.stackSize = existingSize;
@@ -159,7 +160,7 @@ public class ContainerEnderUtilitiesInventory extends Container
 					}
 				}
 
-				if(reverse == true)
+				if (reverse == true)
 				{
 					--slotIndex;
 				}
@@ -170,9 +171,9 @@ public class ContainerEnderUtilitiesInventory extends Container
 			}
 		}
 
-		if(stack.stackSize > 0)
+		if (stack.stackSize > 0)
 		{
-			if(reverse == true)
+			if (reverse == true)
 			{
 				slotIndex = slotRange - 1;
 			}
@@ -181,21 +182,32 @@ public class ContainerEnderUtilitiesInventory extends Container
 				slotIndex = slotStart;
 			}
 
-			while(reverse == false && slotIndex < slotRange || reverse == true && slotIndex >= slotStart)
+			while (reverse == false && slotIndex < slotRange || reverse == true && slotIndex >= slotStart)
 			{
 				slot = (Slot)this.inventorySlots.get(slotIndex);
+				maxStack = Math.min(slot.getSlotStackLimit(), Math.min(stack.getMaxStackSize(), this.te.getInventoryStackLimit()));
 				existingStack = slot.getStack();
 
-				if(slot.isItemValid(stack) == true && existingStack == null)
+				if (slot.isItemValid(stack) == true && existingStack == null)
 				{
-					slot.putStack(stack.copy());
+					if (stack.stackSize > maxStack)
+					{
+						ItemStack newStack = stack.copy();
+						newStack.stackSize = maxStack;
+						stack.stackSize -= maxStack;
+						slot.putStack(newStack);
+					}
+					else
+					{
+						slot.putStack(stack.copy());
+						stack.stackSize = 0;
+					}
 					slot.onSlotChanged();
-					stack.stackSize = 0;
 					successful = true;
 					break;
 				}
 
-				if(reverse == true)
+				if (reverse == true)
 				{
 					--slotIndex;
 				}
