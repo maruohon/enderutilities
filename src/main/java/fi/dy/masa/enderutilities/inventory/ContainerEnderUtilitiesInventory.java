@@ -148,6 +148,8 @@ public class ContainerEnderUtilitiesInventory extends Container
 					{
 						stack.stackSize = 0;
 						existingStack.stackSize = existingSize;
+						System.out.println("plop 1");
+						slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
 						slot.onSlotChanged();
 						successful = true;
 					}
@@ -155,6 +157,8 @@ public class ContainerEnderUtilitiesInventory extends Container
 					{
 						stack.stackSize -= maxStack - existingStack.stackSize;
 						existingStack.stackSize = maxStack;
+						System.out.println("plop 2");
+						slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
 						slot.onSlotChanged();
 						successful = true;
 					}
@@ -196,11 +200,13 @@ public class ContainerEnderUtilitiesInventory extends Container
 						newStack.stackSize = maxStack;
 						stack.stackSize -= maxStack;
 						slot.putStack(newStack);
+						System.out.println("plop 3");
 					}
 					else
 					{
 						slot.putStack(stack.copy());
 						stack.stackSize = 0;
+						System.out.println("plop 4: slotIndex: " + slot.getSlotIndex());
 					}
 					slot.onSlotChanged();
 					successful = true;

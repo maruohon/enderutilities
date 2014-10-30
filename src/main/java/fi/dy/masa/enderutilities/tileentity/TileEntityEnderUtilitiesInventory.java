@@ -63,7 +63,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 			this.customInventoryName = nbt.getString("CustomName");
 		}
 
-		NBTTagList nbtTagList = nbt.getTagList("Items", 10);
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
 		//this.itemStacks = new ItemStack[this.getSizeInventory()]; // Done in the sub class constructor for each TE
 		int numSlots = nbtTagList.tagCount();
 

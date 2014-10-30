@@ -46,7 +46,94 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 	{
 		return 94;
 	}
+/*
+	private void writeModulesToItem(int toolSlotNum, int slotStart, int numModuleSlots)
+	{
+		if (toolSlotNum >= this.inventorySlots.size() || this.getSlot(toolSlotNum).getHasStack() == false)
+		{
+			return;
+		}
 
+		if (this.getSlot(toolSlotNum).getStack().getItem() instanceof IModular)
+		{
+			NBTTagList nbtTagList = new NBTTagList();
+
+			// Write all the modules into a TAG_List
+			int numSlots = this.inventorySlots.size();
+			for (int slotNum = slotStart; slotNum < numSlots && slotNum < (slotStart + numModuleSlots); ++slotNum)
+			{
+				if (this.getSlot(slotNum).getHasStack() == true)
+				{
+					NBTTagCompound nbtTagCompound = new NBTTagCompound();
+					nbtTagCompound.setByte("Slot", (byte)slotNum);
+					this.getSlot(slotNum).getStack().writeToNBT(nbtTagCompound);
+					nbtTagList.appendTag(nbtTagCompound);
+				}
+				this.getSlot(slotNum).putStack(null);
+			}
+
+			// Write the module list to the tool
+			NBTTagCompound nbt = this.getSlot(toolSlotNum).getStack().getTagCompound();
+			if (nbt == null) { nbt = new NBTTagCompound(); }
+
+			System.out.println("writing; list tag count: " + nbtTagList.tagCount());
+			nbt.setTag("Items", nbtTagList);
+			this.getSlot(toolSlotNum).getStack().setTagCompound(nbt);
+		}
+	}
+
+	private void readModulesFromItem(int toolSlotNum, int slotStart, int numModuleSlots)
+	{
+		if (toolSlotNum >= this.inventorySlots.size() || this.getSlot(toolSlotNum).getHasStack() == false)
+		{
+			return;
+		}
+
+		if (this.getSlot(toolSlotNum).getStack().getItem() instanceof IModular)
+		{
+			NBTTagCompound nbt = this.getSlot(toolSlotNum).getStack().getTagCompound();
+			if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+			{
+				return;
+			}
+			NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+
+			// First clear the module slots, just in case
+			int numSlots = this.inventorySlots.size();
+			for (int i = slotStart; i < numSlots && i < (slotStart + numModuleSlots); ++i)
+			{
+				this.getSlot(i).putStack(null);
+			}
+
+			// Read all the module ItemStacks from the tool, and write them to the workstation's module ItemStacks
+			int listNumStacks = nbtTagList.tagCount();
+			for (int i = 0; i < listNumStacks; ++i)
+			{
+				NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
+				byte slotNum = nbtTagCompound.getByte("Slot");
+
+				if (slotNum < numSlots && slotNum >= slotStart && slotNum < (slotStart + numModuleSlots))
+				{
+					this.getSlot(slotNum).putStack(ItemStack.loadItemStackFromNBT(nbtTagCompound));
+				}
+			}
+		}
+	}
+
+	@Override
+	public ItemStack slotClick(int slotNum, int p2, int p3, EntityPlayer player)
+	{
+		// Taking out the tool from the tool slot, we want to write the modules to the tool's NBT data, and then clear the module slots
+		if (slotNum == 0 && player != null && player.inventory != null &&
+			(player.inventory.getItemStack() == null || player.inventory.getItemStack().getItem() instanceof IModular))
+		{
+			this.writeModulesToItem(0, 1, 10);
+		}
+
+		System.out.println("slotClick(), remote?: " + this.te.getWorldObj().isRemote);
+		return super.slotClick(slotNum, p2, p3, player);
+	}
+*/
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
 	{
