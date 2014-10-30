@@ -12,27 +12,39 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		super(te, inventory);
 	}
 
+	@Override
 	protected void addSlots()
 	{
 		// Item slot
-		this.addSlotToContainer(new SlotItemModular(this.te, 0, 30, 24));
+		this.addSlotToContainer(new SlotItemModular(this.te, 0, 8, 19));
 
 		// Module slots
-		for (int i = 0, x = 80, y = 20; i < 15; x += 18)
+		int x = 80, y = 19;
+		for (int i = 0; i < 10; x += 18)
 		{
-			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 1, x, y));
-			++i;
-			if (i == 5)
+			// TODO add item types for slots (last parameter)
+			// We should check how many cores ae allowed, add that number of those slots, same for capacitors and link crystals
+			// Then add the rest of the slots as generic
+			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 1, x, y, -1));
+			if (++i == 5)
 			{
 				y += 18;
 				x -= 5 * 18;
 			}
-			else if (i == 10)
-			{
-				y += 23;
-				x -= 5 * 18;
-			}
 		}
+
+		// Module storage inventory slots
+		x = 8; y = 66;
+		for (int i = 0; i < 9; x += 18, ++i)
+		{
+			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 11, x, y, -1));
+		}
+	}
+
+	@Override
+	protected int getPlayerInventoryVerticalOffset()
+	{
+		return 94;
 	}
 
 	@Override

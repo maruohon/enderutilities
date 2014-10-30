@@ -4,17 +4,16 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
+import fi.dy.masa.enderutilities.inventory.SlotUpgradeItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 {
-	private TileEntityToolWorkstation tetw;
-
 	public GuiToolWorkstation(ContainerToolWorkstation container, TileEntityToolWorkstation te)
 	{
 		super(container, te);
-		this.tetw = te;
+		this.ySize = 176;
 	}
 
 	@Override
@@ -24,7 +23,8 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 
 		String s = this.te.hasCustomInventoryName() ? this.te.getInventoryName() : I18n.format(this.te.getInventoryName(), new Object[0]);
 		this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
-		this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 4, 0x404025);
+		this.fontRendererObj.drawString(I18n.format("gui.label.modulestorage", new Object[0]), 8, 56, 0x404025);
+		this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 84, 0x404025);
 	}
 
 	@Override
@@ -44,24 +44,36 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 				maxModules = ((IModular)item).getMaxModules(toolStack);
 			}
 		}
-
-		// Module slots
-		for (int i = 0, dx = 79, dy = 19; i < 15; dx += 18)
+		// No tool in the tool slot, draw the background
+		else
 		{
+			this.drawTexturedModalRect(x + 7, y + 18, 176, 18, 18, 18);
+		}
+
+		SlotUpgradeItem slot;
+		int itemType = 0;
+		// Module slots
+		for (int i = 0, dx = 79, dy = 18; i < 10; dx += 18)
+		{
+			// Draw a darker background over the disabled slots
 			if (this.inventorySlots.getSlot(0).getHasStack() == false || i >= maxModules)
 			{
-				this.drawTexturedModalRect(x + dx, y + dy, 176, 32, 18, 18);
+				this.drawTexturedModalRect(x + dx, y + dy, 176, 0, 18, 18);
+			}
+			else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeItem)
+			{
+				slot = (SlotUpgradeItem)this.inventorySlots.getSlot(i + 1);
+				itemType = slot.getItemType();
+				// Only one type of module is allowed in this slot
+				if (itemType >= 0 && itemType <= 3) // 0..3: core, capacitor, link crystal, mob persistance
+				{
+					this.drawTexturedModalRect(x + dx, y + dy, 176, 36 + itemType * 18, 18, 18);
+				}
 			}
 
-			++i;
-			if (i == 5)
+			if (++i == 5)
 			{
 				dy += 18;
-				dx -= 5 * 18;
-			}
-			else if (i == 10)
-			{
-				dy += 23;
 				dx -= 5 * 18;
 			}
 		}

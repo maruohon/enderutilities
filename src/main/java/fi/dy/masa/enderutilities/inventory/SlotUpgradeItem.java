@@ -4,14 +4,22 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperItemModular;
 
 public class SlotUpgradeItem extends Slot
 {
-	public SlotUpgradeItem(IInventory inventory, int slot, int posX, int posY)
+	private int itemType;
+
+	public SlotUpgradeItem(IInventory inventory, int slot, int posX, int posY, int itemType)
 	{
 		super(inventory, slot, posX, posY);
+		this.itemType = itemType;
+	}
+
+	public int getItemType()
+	{
+		return this.itemType;
 	}
 
 	@Override
@@ -33,15 +41,15 @@ public class SlotUpgradeItem extends Slot
 			}
 		}
 
-		if (toolStack == null || this.slotNumber > maxModules)
+		if (this.slotNumber >= 1 && this.slotNumber <= 10 && this.slotNumber > maxModules)
 		{
 			return false;
 		}
 
 		// TODO: Check the max number of particular upgrades
-		if (stack.getItem() == EnderUtilitiesItems.enderCapacitor ||
-			stack.getItem() == EnderUtilitiesItems.linkCrystal ||
-			(stack.getItem() == EnderUtilitiesItems.enderPart && stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)) // Active Ender Core
+		// If itemType is -1, then any type of module is allowed
+		int type = NBTHelperItemModular.getModuleType(stack);
+		if (type != -1 && (type == this.itemType || this.itemType == -1))
 		{
 			return true;
 		}
@@ -52,6 +60,10 @@ public class SlotUpgradeItem extends Slot
 	@Override
 	public int getSlotStackLimit()
 	{
-		return 1;
+		if (this.slotNumber <= 10)
+		{
+			return 1;
+		}
+		return 64;
 	}
 }

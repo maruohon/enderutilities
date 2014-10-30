@@ -2,11 +2,18 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
 
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class NBTHelperItemModular
 {
+	// Note, the value of these modules is also used when rendering the slot backgrounds from the GUI texture!
+	public static final int TYPE_ENDERCORE = 0;
+	public static final int TYPE_ENDERCAPACITOR = 1;
+	public static final int TYPE_LINKCRYSTAL = 2;
+	public static final int TYPE_MOBPERSISTANCE = 3;
+
 	/* Return whether the given module type has been installed. */
 	public static boolean hasModule(ItemStack stack, int moduleType)
 	{
@@ -61,5 +68,27 @@ public class NBTHelperItemModular
 	{
 		if (stack == null) { return null; }
 		return stack;
+	}
+
+	/* Returns the type of module the input stack contains. -1 if it's not a valid upgrade module. */
+	public static int getModuleType(ItemStack moduleStack)
+	{
+		// Active Ender Core
+		if (moduleStack.getItem() == EnderUtilitiesItems.enderPart && moduleStack.getItemDamage() >= 15 && moduleStack.getItemDamage() <= 17)
+		{
+			return TYPE_ENDERCORE;
+		}
+
+		if (moduleStack.getItem() == EnderUtilitiesItems.enderCapacitor)
+		{
+			return TYPE_ENDERCAPACITOR;
+		}
+
+		if (moduleStack.getItem() == EnderUtilitiesItems.linkCrystal)
+		{
+			return TYPE_LINKCRYSTAL;
+		}
+
+		return -1;
 	}
 }

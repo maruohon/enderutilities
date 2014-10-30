@@ -46,6 +46,7 @@ item.linkcrystal.2.name=Link Crystal (Portal)
 item.mobharness.name=Mob Harness
 
 gui.label.outputbuffer=Buffer
+gui.label.modulestorage=Module storage
 
 gui.tooltip.amount=Amount
 gui.tooltip.bucket.mode.normal=Normal

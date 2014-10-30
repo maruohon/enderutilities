@@ -16,7 +16,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 	public TileEntityToolWorkstation()
 	{
 		super(ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
-		this.itemStacks = new ItemStack[16];
+		this.itemStacks = new ItemStack[20];
 	}
 
 	@Override
