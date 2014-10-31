@@ -68,7 +68,6 @@ public class ContainerEnderUtilitiesInventory extends Container
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
 	{
-		System.out.println("transferStackInSlot(); remote?: " + this.te.getWorldObj().isRemote);
 		ItemStack stack = null;
 		Slot slot = (Slot)this.inventorySlots.get(slotNum);
 		int invSize = this.te.getSizeInventory();
@@ -149,18 +148,14 @@ public class ContainerEnderUtilitiesInventory extends Container
 					{
 						stack.stackSize = 0;
 						existingStack.stackSize = existingSize;
-						System.out.println("plop 1; remote?: " + this.te.getWorldObj().isRemote);
 						slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
-						slot.onSlotChanged();
 						successful = true;
 					}
 					else if (existingStack.stackSize < maxStack)
 					{
 						stack.stackSize -= maxStack - existingStack.stackSize;
 						existingStack.stackSize = maxStack;
-						System.out.println("plop 2; remote?: " + this.te.getWorldObj().isRemote);
 						slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
-						slot.onSlotChanged();
 						successful = true;
 					}
 				}
@@ -201,15 +196,12 @@ public class ContainerEnderUtilitiesInventory extends Container
 						newStack.stackSize = maxStack;
 						stack.stackSize -= maxStack;
 						slot.putStack(newStack);
-						System.out.println("plop 3; remote?: " + this.te.getWorldObj().isRemote);
 					}
 					else
 					{
 						slot.putStack(stack.copy());
 						stack.stackSize = 0;
-						System.out.println("plop 4: slotIndex: " + slot.getSlotIndex() + " remote?: " + this.te.getWorldObj().isRemote);
 					}
-					slot.onSlotChanged();
 					successful = true;
 					break;
 				}

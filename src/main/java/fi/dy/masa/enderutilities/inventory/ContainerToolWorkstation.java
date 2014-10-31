@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
@@ -23,8 +21,8 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		for (int i = 0; i < 10; x += 18)
 		{
 			// TODO add item types for slots (last parameter)
-			// We should check how many cores ae allowed, add that number of those slots, same for capacitors and link crystals
-			// Then add the rest of the slots as generic
+			// We should check how many cores are allowed, add that number of those slots, same for capacitors and link crystals etc.
+			// Then add the rest of the slots as generic.
 			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 1, x, y, -1));
 			if (++i == 5)
 			{
@@ -45,17 +43,5 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 	protected int getPlayerInventoryVerticalOffset()
 	{
 		return 94;
-	}
-
-	@Override
-	public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
-	{
-		return super.transferStackInSlot(player, slotNum);
-	}
-
-	@Override
-	protected boolean mergeItemStack(ItemStack stack, int slotStart, int slotRange, boolean reverse)
-	{
-		return super.mergeItemStack(stack, slotStart, slotRange, reverse);
 	}
 }

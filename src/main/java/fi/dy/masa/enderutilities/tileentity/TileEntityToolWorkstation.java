@@ -33,9 +33,8 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 		if (this.itemStacks[toolSlotNum] != null && this.itemStacks[toolSlotNum].getItem() instanceof IModular)
 		{
 			NBTTagList nbtTagList = new NBTTagList();
-
-			// Write all the modules into a TAG_List
 			int invSlots = this.getSizeInventory();
+			// Write all the modules into a TAG_List
 			for (int slotNum = slotStart; slotNum < invSlots && slotNum < (slotStart + numModuleSlots); ++slotNum)
 			{
 				if (this.itemStacks[slotNum] != null)
@@ -51,7 +50,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 			NBTTagCompound nbt = this.itemStacks[toolSlotNum].getTagCompound();
 			if (nbt == null) { nbt = new NBTTagCompound(); }
 
-			//System.out.println("writing; list tag count: " + nbtTagList.tagCount() + " remote?: " + this.worldObj.isRemote);
 			nbt.setTag("Items", nbtTagList);
 			this.itemStacks[toolSlotNum].setTagCompound(nbt);
 		}
@@ -59,7 +57,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
 	private void clearModuleSlots(int slotStart, int numModuleSlots)
 	{
-		System.out.println("clearing module slots; remote?: " + this.worldObj.isRemote);
 		// Clear all the module slots from the work station
 		int invSlots = this.getSizeInventory();
 		for (int slotNum = slotStart; slotNum < invSlots && slotNum < (slotStart + numModuleSlots); ++slotNum)
@@ -82,11 +79,10 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 			{
 				return;
 			}
-			NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
 
-			// Read all the module ItemStacks from the tool, and write them to the workstation's module ItemStacks
+			NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
 			int listNumStacks = nbtTagList.tagCount();
-			System.out.println("reading modules, count: " + listNumStacks + " remote?: " + this.worldObj.isRemote);
+			// Read all the module ItemStacks from the tool, and write them to the workstation's module ItemStacks
 			for (int i = 0; i < listNumStacks; ++i)
 			{
 				NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
@@ -103,27 +99,12 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 	@Override
 	public void setInventorySlotContents(int slotNum, ItemStack itemStack)
 	{
-		//if (this.worldObj.isRemote == false)
-		//if (slotNum == 0)
-			//System.out.println("setInventorySlotContents(); remote?: " + this.worldObj.isRemote);
-
 		// Changing the item in the tool slot, write the current modules to the tool first
 		if (slotNum == 0 && this.itemStacks[0] != null)
 		{
-			//if (this.worldObj.isRemote == false)
-				//System.out.println("TO item; remote?: " + this.worldObj.isRemote);
 			this.writeModulesToItem(0, 1, 10);
 			this.clearModuleSlots(1, 10);
 		}
-
-		// Write the modules to the tool every time they are changed in the work station inventory
-		/*if (slotNum >= 1 && slotNum <= 10)
-		{
-			//if (this.worldObj.isRemote == false)
-				System.out.println("TO item; remote?: " + this.worldObj.isRemote);
-			this.writeModulesToItem(0, 1, 10);
-			this.readModulesFromItem(0, 1, 10);
-		}*/
 
 		super.setInventorySlotContents(slotNum, itemStack);
 
@@ -132,8 +113,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 		{
 			// First clear the module slots, just in case
 			this.clearModuleSlots(1, 10);
-			//if (this.worldObj.isRemote == false)
-				//System.out.println("FROM item; remote?: " + this.worldObj.isRemote);
 			this.readModulesFromItem(0, 1, 10);
 		}
 	}
@@ -144,20 +123,15 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 		// Write the current modules to the tool every time the tool slot is accessed and has a tool
 		if (slotNum == 0 && this.itemStacks[0] != null && this.worldObj.isRemote == false)
 		{
-			//if (this.worldObj.isRemote == false)
-				//System.out.println("TO item; remote?: " + this.worldObj.isRemote);
 			this.writeModulesToItem(0, 1, 10);
 		}
 
-		//if (slotNum == 0 && this.worldObj.isRemote == false)
-			//System.out.println("getStackInSlot(" + slotNum + "); remote?: " + this.worldObj.isRemote);
 		return super.getStackInSlot(slotNum);
 	}
 
 	@Override
 	public ItemStack decrStackSize(int slotNum, int maxAmount)
 	{
-		System.out.println("decrStackSize(); remote?: " + this.worldObj.isRemote);
 		if (this.itemStacks[slotNum] != null)
 		{
 			ItemStack itemstack;
@@ -190,7 +164,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 	@Override
 	public ItemStack getStackInSlotOnClosing(int slotNum)
 	{
-		System.out.println("getStackInSlotOnClosing(); remote?: " + this.worldObj.isRemote);
 		if (this.itemStacks[slotNum] != null)
 		{
 			ItemStack itemstack = this.getStackInSlot(slotNum);
@@ -200,20 +173,10 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
 		return null;
 	}
-/*
-	@Override
-	public void setInventorySlotContents(int slotNum, ItemStack itemStack)
-	{
-		//if (this.worldObj.isRemote == false)
-			System.out.println("setInventorySlotContents(" + slotNum + ", " + (itemStack != null ? itemStack.toString() : null) + "); remote?: " + this.worldObj.isRemote);
 
-		super.setInventorySlotContents(slotNum, itemStack);
-	}
-*/
 	@Override
 	public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
 	{
-		System.out.println("isItemValidForSlot(); remote?: " + this.worldObj.isRemote);
 		return super.isItemValidForSlot(slotNum, itemStack);
 	}
 

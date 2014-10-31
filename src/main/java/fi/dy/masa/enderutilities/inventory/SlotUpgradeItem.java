@@ -64,6 +64,7 @@ public class SlotUpgradeItem extends Slot
 		{
 			return 1;
 		}
+
 		return 64;
 	}
 }
