@@ -54,8 +54,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 									ReferenceBlocksItems.NAME_ITEM_ENDER_SHOVEL,
 									ReferenceBlocksItems.NAME_ITEM_ENDER_HOE};
 	@SideOnly(Side.CLIENT)
-	String[] parts = new String[] {"rod", "head.1", "head.2", "core.1", "core.2", "core.3",
-									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
+	String[] parts = new String[] {"rod", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
+									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
 	public ItemEnderTool()
 	{
@@ -173,27 +173,58 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		/**
 		 * Returns the maximum damage an item can take.
 		 */
-		return this.func_150913_i().getMaxUses();
+		//return this.func_150913_i().getMaxUses();
+		return 5;
+	}
+
+	public boolean isToolBroken(ItemStack stack)
+	{
+		if (stack == null || stack.getItemDamage() >= this.getMaxDamage(stack))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
 	public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
 	{
-		if (stack == null)
+		System.out.println("living1: " + living1 + " living2: " + living2);
+		if (stack == null || this.isToolBroken(stack) == true)
 		{
 			return false;
 		}
 
-		stack.damageItem(2, living1);
+		int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+		stack.damageItem(amount, living2);
 
-		return false;
+		// Tool just broke
+		if (this.isToolBroken(stack) == true)
+		{
+			living1.renderBrokenItemStack(stack);
+		}
+
+		return true;
 	}
 
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
 	{
 		//System.out.println("onBlockDestroyed()");
-		stack.damageItem(1, living);
+		System.out.println("living: " + living);
+		if (this.isToolBroken(stack) == false)
+		{
+			stack.damageItem(1, living);
+
+			// Tool just broke
+			if (this.isToolBroken(stack) == true)
+			{
+				living.renderBrokenItemStack(stack);
+			}
+
+			return true;
+		}
 
 		return false;
 	}
@@ -201,12 +232,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public boolean func_150897_b(Block block)
 	{
+		//System.out.println("func_150897_b()");
 		return false;
 	}
 
 	@Override
 	public float func_150893_a(ItemStack stack, Block block)
 	{
+		//System.out.println("func_150893_a()");
+		if (this.isToolBroken(stack) == true)
+		{
+			return 0.2f;
+		}
+
 		if (this.canHarvestBlock(block, stack) == true)
 		{
 			return this.efficiencyOnProperMaterial;
@@ -224,6 +262,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public boolean canHarvestBlock(Block block, ItemStack stack)
 	{
+		if (this.isToolBroken(stack) == true)
+		{
+			return false;
+		}
+
 		if (this.getToolType(stack) == 0) // Ender Pickaxe
 		{
 			if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
@@ -276,27 +319,29 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public float getDigSpeed(ItemStack stack, Block block, int meta)
 	{
+		if (this.isToolBroken(stack) == true)
+		{
+			return 0.4f;
+		}
+
+		float eff = this.efficiencyOnProperMaterial;
 		// TODO Add a mode and NBT tag for "fast mode", which uses double durability but allows instant mining @ Efficiency V
 		// 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble
 		// 1474 on obsidian. So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
 		if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
 		{
-			this.efficiencyOnProperMaterial = 160.0f;
-		}
-		else
-		{
-			this.efficiencyOnProperMaterial = 5.0f;
+			eff = 160.0f;
 		}
 
 		if (ForgeHooks.isToolEffective(stack, block, meta))
 		{
-			//System.out.println("getDigSpeed(); isToolEffective() true: " + this.efficiencyOnProperMaterial);
-			return this.efficiencyOnProperMaterial;
+			//System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
+			return eff;
 		}
 		if (this.canHarvestBlock(block, stack))
 		{
-			//System.out.println("getDigSpeed(); canHarvestBlock() true: " + this.efficiencyOnProperMaterial);
-			return this.efficiencyOnProperMaterial;
+			//System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
+			return eff;
 		}
 		//System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
 		return super.getDigSpeed(stack, block, meta);
@@ -317,6 +362,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		{
 			return -1;
 		}
+
+		if (this.isToolBroken(stack) == true)
+		{
+			return -1;
+		}
+
 		if (toolClass.equals(this.getToolClass(stack)) == true)
 		{
 			return this.func_150913_i().getHarvestLevel();
@@ -343,14 +394,22 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public Multimap getAttributeModifiers(ItemStack stack)
 	{
-		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
 		double dmg = (double)this.damageVsEntity;
 
-		int toolType = this.getToolType(stack);
-		if (toolType == 0) { dmg += 2.0d; }	// Pickaxe
-		else if (toolType == 1) { dmg += 3.0d; }	// Axe
-		else if (toolType == 2) { dmg += 1.0d; }	// Shovel
+		// Broken tool
+		if (this.isToolBroken(stack) == true)
+		{
+			dmg = 1.0d;
+		}
+		else
+		{
+			int toolType = this.getToolType(stack);
+			if (toolType == 0) { dmg += 2.0d; }	// Pickaxe
+			else if (toolType == 1) { dmg += 3.0d; }	// Axe
+			else if (toolType == 2) { dmg += 1.0d; }	// Shovel
+		}
 
+		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
 		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Tool modifier", dmg, 0));
 		return multimap;
 	}
@@ -359,15 +418,15 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE + ".rod");
-		this.iconArray = new IIcon[40];
+		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE + ".head.1");
+		this.iconArray = new IIcon[52];
 		String prefix = this.getIconString() + ".";
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < this.tools.length; i++)
 		{
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < this.parts.length; j++)
 			{
-				this.iconArray[(i * 4) + j] = iconRegister.registerIcon(prefix + this.tools[j] + "." + this.parts[i]);
+				this.iconArray[(i * this.parts.length) + j] = iconRegister.registerIcon(prefix + this.tools[i] + "." + this.parts[j]);
 			}
 		}
 	}
@@ -430,14 +489,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 			return this.itemIcon;
 		}
 
-		int i = this.getToolType(stack);
+		int i = this.getToolType(stack) * this.parts.length;
 
 		switch(renderPass)
 		{
 			// 0: Rod
 			case 1: // 1: Head
-				// TODO: Select the right part based on NBT
-				i += (getToolMode(stack) << 2) + 4;
+				i += getToolMode(stack) + 1; // +1: Rod is the first icon
+
+				// Broken tool
+				if (this.isToolBroken(stack) == true)
+				{
+					i += 2;
+				}
 				break;
 			case 2: // 2: Core
 				// TODO: Select the right part based on NBT

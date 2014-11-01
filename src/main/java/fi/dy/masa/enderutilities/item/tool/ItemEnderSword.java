@@ -41,8 +41,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	private IIcon[] iconArray;
 
 	@SideOnly(Side.CLIENT)
-	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "core.1", "core.2", "core.3",
-									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
+	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
+									"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
 
 	public ItemEnderSword()
 	{
@@ -77,11 +77,27 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		/**
 		 * Returns the maximum damage an item can take.
 		 */
-		return this.material.getMaxUses();
+		//return this.material.getMaxUses();
+		return 5;
+	}
+
+	public boolean isToolBroken(ItemStack stack)
+	{
+		if (stack == null || stack.getItemDamage() >= this.getMaxDamage(stack))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	public float func_150893_a(ItemStack stack, Block block)
 	{
+		if (this.isToolBroken(stack) == true)
+		{
+			return 0.2f;
+		}
+
 		if (block == Blocks.web)
 		{
 			return 15.0f;
@@ -106,18 +122,39 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	 */
 	public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
 	{
-		stack.damageItem(1, living2);
-		return true;
+		if (this.isToolBroken(stack) == false)
+		{
+			stack.damageItem(1, living1);
+
+			// Tool just broke
+			if (this.isToolBroken(stack) == true)
+			{
+				living1.renderBrokenItemStack(stack);
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase livingbase)
 	{
-		if (block.getBlockHardness(world, x, y, z) != 0.0f)
+		if (block.getBlockHardness(world, x, y, z) != 0.0f && this.isToolBroken(stack) == false)
 		{
-			stack.damageItem(2, livingbase);
+			int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+			stack.damageItem(amount, livingbase);
+
+			// Tool just broke
+			if (this.isToolBroken(stack) == true)
+			{
+				livingbase.renderBrokenItemStack(stack);
+			}
+
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override
@@ -184,8 +221,14 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	 */
 	public Multimap getAttributeModifiers(ItemStack stack)
 	{
+		double dmg = (double)this.damageVsEntity;
+		if (this.isToolBroken(stack) == true)
+		{
+			dmg = 1.0d;
+		}
+
 		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", (double)this.damageVsEntity, 0));
+		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", dmg, 0));
 		return multimap;
 	}
 
@@ -246,7 +289,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-		this.iconArray = new IIcon[11];
+		this.iconArray = new IIcon[14];
 		String prefix = this.getIconString() + ".";
 
 		for (int i = 0; i < 11; i++)
@@ -310,6 +353,12 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 			// 0: Rod
 			case 1: // 1: Head
 				i += getToolMode(stack) + 1;
+
+				// Broken tool
+				if (this.isToolBroken(stack) == true)
+				{
+					i += 3;
+				}
 				break;
 			case 2: // 2: Core
 				// TODO: Select the right part based on NBT
