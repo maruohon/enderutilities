@@ -8,19 +8,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular
 {
-	@Override
-	/* Returns whether the given module type is supported in this item. */
-	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) == true ||
-			moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR) == true)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	/* Return whether the given module type has been installed. */
 	@Override
 	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
@@ -39,11 +26,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 	@Override
 	public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
 	{
-		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE))
-		{
-			return 1;
-		}
-
 		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
 		{
 			return 1;
@@ -51,7 +33,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
 		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
 		{
-			return 10;
+			return 9;
 		}
 
 		return 0;

@@ -330,20 +330,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		return this.iconArray[i];
 	}
 
-	@Override
-	/* Returns whether the given module type is supported in this item. */
-	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) == true ||
-			moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR) == true ||
-			moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE) == true)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	/* Return whether the given module type has been installed. */
 	@Override
 	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType)

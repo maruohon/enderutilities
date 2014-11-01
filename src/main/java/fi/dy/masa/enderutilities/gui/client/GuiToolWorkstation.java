@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.item.Item;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.SlotUpgradeModule;
@@ -38,10 +38,9 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 		ItemStack toolStack = this.inventorySlots.getSlot(0).getStack();
 		if (toolStack != null)
 		{
-			Item item = toolStack.getItem();
-			if (item instanceof IModular)
+			if (toolStack.getItem() instanceof IModular)
 			{
-				maxModules = ((IModular)item).getMaxModules(toolStack);
+				maxModules = ((IModular)toolStack.getItem()).getMaxModules(toolStack);
 			}
 		}
 		// No tool in the tool slot, draw the background
@@ -50,8 +49,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 			this.drawTexturedModalRect(x + 7, y + 18, 176, 18, 18, 18);
 		}
 
-		SlotUpgradeModule slot;
-		int itemType = 0;
+		int moduleType = 0;
 		// Module slots
 		for (int i = 0, dx = 79, dy = 18; i < 10; dx += 18)
 		{
@@ -60,14 +58,14 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 			{
 				this.drawTexturedModalRect(x + dx, y + dy, 176, 0, 18, 18);
 			}
-			else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeModule)
+			// Draw the module type background to empty, enabled module slots
+			else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeModule && ((Slot)this.inventorySlots.getSlot(i + 1)).getHasStack() == false)
 			{
-				slot = (SlotUpgradeModule)this.inventorySlots.getSlot(i + 1);
-				itemType = slot.getModuleType().getOrdinal();
+				moduleType = ((SlotUpgradeModule)this.inventorySlots.getSlot(i + 1)).getModuleType().getOrdinal();
 				// Only one type of module is allowed in this slot
-				if (itemType >= 0 && itemType <= 3) // 0..3: core, capacitor, link crystal, mob persistance
+				if (moduleType >= 0 && moduleType <= 3) // 0..3: core, capacitor, link crystal, mob persistance
 				{
-					this.drawTexturedModalRect(x + dx, y + dy, 176, 36 + itemType * 18, 18, 18);
+					this.drawTexturedModalRect(x + dx, y + dy, 176, 36 + moduleType * 18, 18, 18);
 				}
 			}
 

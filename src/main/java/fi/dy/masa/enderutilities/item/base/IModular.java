@@ -8,9 +8,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public interface IModular
 {
-	/* Returns whether the given module type is supported in this item. */
-	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType);
-
 	/* Returns whether the given module type has been installed. */
 	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType);
 

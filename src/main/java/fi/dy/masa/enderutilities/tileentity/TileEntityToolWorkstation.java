@@ -175,12 +175,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
-	{
-		return super.isItemValidForSlot(slotNum, itemStack);
-	}
-
-	@Override
 	public boolean canUpdate()
 	{
 		return false;

@@ -1,6 +1,10 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -37,11 +41,66 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		{
 			this.addSlotToContainer(new SlotUpgradeModule(this.te, i + 11, x, y, UtilItemModular.ModuleType.TYPE_ANY));
 		}
+
+		this.setUpgradeSlotTypes();
 	}
 
 	@Override
 	protected int getPlayerInventoryVerticalOffset()
 	{
 		return 94;
+	}
+
+	private void setUpgradeSlotTypes()
+	{
+		Slot slot = (Slot)this.inventorySlots.get(0);
+		if (slot != null && slot.getHasStack() == true && slot.getStack().getItem() instanceof IModular)
+		{
+			ItemStack toolStack = slot.getStack();
+			IModular imodular = (IModular)toolStack.getItem();
+			int i = 1;
+			int j = 0;
+			int max = 0;
+			int slots = this.inventorySlots.size();
+			// Set the upgrade slot types according to how many of each type of upgrade the current tool supports.
+			for (UtilItemModular.ModuleType mt : UtilItemModular.ModuleType.values())
+			{
+				max = imodular.getMaxModules(toolStack, mt);
+				for (j = 0; j < max && i < 10 && i < slots; ++j, ++i)
+				{
+					if (i >= 10 || mt.getOrdinal() < -1) // < -1: Don't add TYPE_INVALID slots...
+					{
+						return;
+					}
+
+					slot = (Slot)this.inventorySlots.get(i);
+					if (slot instanceof SlotUpgradeModule)
+					{
+						((SlotUpgradeModule)slot).setModuleType(mt);
+					}
+				}
+			}
+		}
+		// No tool, reset all slot types
+		/*else
+		{
+			int slots = this.inventorySlots.size();
+			for (int i = 0; i < 10 && i < slots; ++i)
+			{
+				slot = (Slot)this.inventorySlots.get(i + 1);
+				if (slot instanceof SlotUpgradeModule)
+				{
+					((SlotUpgradeModule)slot).setModuleType(UtilItemModular.ModuleType.TYPE_ANY);
+				}
+			}
+		}*/
+	}
+
+	@Override
+	public ItemStack slotClick(int slotNum, int p_75144_2_, int p_75144_3_, EntityPlayer player)
+	{
+		ItemStack stack = super.slotClick(slotNum, p_75144_2_, p_75144_3_, player);
+		this.setUpgradeSlotTypes();
+		return stack;
 	}
 }

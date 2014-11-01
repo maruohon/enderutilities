@@ -22,6 +22,11 @@ public class SlotUpgradeModule extends Slot
 		return this.moduleType;
 	}
 
+	public void setModuleType(UtilItemModular.ModuleType type)
+	{
+		this.moduleType = type;
+	}
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
@@ -49,7 +54,6 @@ public class SlotUpgradeModule extends Slot
 			return false;
 		}
 
-		// TODO: Check the max number of particular upgrades
 		UtilItemModular.ModuleType type = UtilItemModular.getModuleType(stack);
 		if (type.equals(UtilItemModular.ModuleType.TYPE_INVALID) == false &&
 			(this.moduleType.equals(type) == true || this.moduleType.equals(UtilItemModular.ModuleType.TYPE_ANY) == true))

@@ -586,23 +586,10 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 
 		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
 		{
-			return 10;
+			return 3;
 		}
 
 		return 0;
-	}
-
-	@Override
-	/* Returns whether the given module type is supported in this item. */
-	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) == true ||
-			moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR) == true)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	@Override

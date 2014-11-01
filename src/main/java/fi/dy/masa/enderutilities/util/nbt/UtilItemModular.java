@@ -10,7 +10,8 @@ public class UtilItemModular
 {
 	public enum ModuleType
 	{
-		// Note, the value of these modules is also used as the offset when rendering the slot backgrounds from the GUI texture!
+		// Note, the ordinal value of these modules is also used as the texture offset
+		// when rendering the slot backgrounds from the GUI texture!! (checked to be in the range 0..n)
 		TYPE_ENDERCORE_ACTIVE	(0, 0x01),
 		TYPE_ENDERCAPACITOR		(1, 0x02),
 		TYPE_LINKCRYSTAL		(2, 0x04),
