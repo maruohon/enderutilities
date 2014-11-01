@@ -190,7 +190,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	@Override
 	public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
 	{
-		System.out.println("living1: " + living1 + " living2: " + living2);
+		//System.out.println("living1: " + living1 + " living2: " + living2);
 		if (stack == null || this.isToolBroken(stack) == true)
 		{
 			return false;
@@ -212,7 +212,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
 	{
 		//System.out.println("onBlockDestroyed()");
-		System.out.println("living: " + living);
 		if (this.isToolBroken(stack) == false)
 		{
 			stack.damageItem(1, living);
@@ -321,7 +320,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	{
 		if (this.isToolBroken(stack) == true)
 		{
-			return 0.4f;
+			return 0.2f;
 		}
 
 		float eff = this.efficiencyOnProperMaterial;
@@ -490,6 +489,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		}
 
 		int i = this.getToolType(stack) * this.parts.length;
+		int tier = 0;
 
 		switch(renderPass)
 		{
@@ -504,12 +504,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 				}
 				break;
 			case 2: // 2: Core
-				// TODO: Select the right part based on NBT
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE);
+				if (tier > 0) { i += tier + 4; }
 				break;
 			case 3: // 3: Capacitor
-				// TODO: Select the right part based on NBT
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+				if (tier > 0) { i += tier + 7; }
 				break;
 			case 4: // 4: Link Crystal
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+				if (tier > 0) { i += tier + 10; }
 				break;
 			default:
 		}

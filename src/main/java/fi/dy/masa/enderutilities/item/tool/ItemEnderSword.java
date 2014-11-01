@@ -42,7 +42,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
 	@SideOnly(Side.CLIENT)
 	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
-									"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal"};
+									"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
 	public ItemEnderSword()
 	{
@@ -289,10 +289,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-		this.iconArray = new IIcon[14];
+		this.iconArray = new IIcon[this.parts.length];
 		String prefix = this.getIconString() + ".";
 
-		for (int i = 0; i < 11; i++)
+		for (int i = 0; i < this.parts.length; i++)
 		{
 			this.iconArray[i] = iconRegister.registerIcon(prefix + this.parts[i]);
 		}
@@ -347,6 +347,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		}
 
 		int i = 0;
+		int tier = 0;
 
 		switch(renderPass)
 		{
@@ -361,12 +362,16 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 				}
 				break;
 			case 2: // 2: Core
-				// TODO: Select the right part based on NBT
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE);
+				if (tier > 0) { i += tier + 7; }
 				break;
 			case 3: // 3: Capacitor
-				// TODO: Select the right part based on NBT
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+				if (tier > 0) { i += tier + 10; }
 				break;
 			case 4: // 4: Link Crystal
+				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+				if (tier > 0) { i += tier + 13; }
 				break;
 			default:
 		}
