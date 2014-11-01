@@ -4,31 +4,33 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public interface IModular
 {
-	public static final int MODULE_ENDERCORE = 0x01;
-	public static final int MODULE_ENDECAPACITOR = 0x02;
-	public static final int MODULE_LINKCRYSTAL = 0x04;
-	public static final int MODULE_PERSISTANCE = 0x08;
+	/* Returns whether the given module type is supported in this item. */
+	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
-	/* Return whether the given module type has been installed. */
-	public boolean hasModule(ItemStack stack, int moduleType);
+	/* Returns whether the given module type has been installed. */
+	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
 	/* Returns the number of installed modules of the given type. */
-	public int getModuleCount(ItemStack stack, int moduleType);
+	public int getModuleCount(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
 	/* Returns the maximum number of modules that can be installed on this item. */
 	public int getMaxModules(ItemStack stack);
+
+	/* Returns the maximum number of modules of the given type that can be installed on this item. */
+	public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
 	/* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
 	public int getInstalledModulesMask(ItemStack stack);
 
 	/* Returns the (max, if multiple) tier of the installed module. */
-	public int getModuleTier(ItemStack stack, int moduleType);
+	public int getModuleTier(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
 	/* Returns the ItemStack of the (selected, if multiple) given module type. */
-	public ItemStack getSelectedModuleStack(ItemStack stack, int moduleType);
+	public ItemStack getSelectedModuleStack(ItemStack stack, UtilItemModular.ModuleType moduleType);
 
 	/* Returns a list of all the installed modules. */
 	public List<NBTTagCompound> getAllModules(ItemStack stack);

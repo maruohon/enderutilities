@@ -5,21 +5,21 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperItemModular;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class SlotUpgradeItem extends Slot
+public class SlotUpgradeModule extends Slot
 {
-	private int itemType;
+	private UtilItemModular.ModuleType moduleType;
 
-	public SlotUpgradeItem(IInventory inventory, int slot, int posX, int posY, int itemType)
+	public SlotUpgradeModule(IInventory inventory, int slot, int posX, int posY, UtilItemModular.ModuleType moduleType)
 	{
 		super(inventory, slot, posX, posY);
-		this.itemType = itemType;
+		this.moduleType = moduleType;
 	}
 
-	public int getItemType()
+	public UtilItemModular.ModuleType getModuleType()
 	{
-		return this.itemType;
+		return this.moduleType;
 	}
 
 	@Override
@@ -31,6 +31,7 @@ public class SlotUpgradeItem extends Slot
 		}
 
 		int maxModules = 0;
+		// Check if the tool workstation has a modular tool inserted, and then get the max number of modules allowed in the tool
 		ItemStack toolStack = this.inventory.getStackInSlot(0);
 		if (toolStack != null)
 		{
@@ -41,15 +42,17 @@ public class SlotUpgradeItem extends Slot
 			}
 		}
 
+		// If this slot is part of the tool's module slots range, and the slot number is larger
+		// than the max amount of modules allowed.
 		if (this.slotNumber >= 1 && this.slotNumber <= 10 && this.slotNumber > maxModules)
 		{
 			return false;
 		}
 
 		// TODO: Check the max number of particular upgrades
-		// If itemType is -1, then any type of module is allowed
-		int type = NBTHelperItemModular.getModuleType(stack);
-		if (type != -1 && (type == this.itemType || this.itemType == -1))
+		UtilItemModular.ModuleType type = UtilItemModular.getModuleType(stack);
+		if (type.equals(UtilItemModular.ModuleType.TYPE_INVALID) == false &&
+			(this.moduleType.equals(type) == true || this.moduleType.equals(UtilItemModular.ModuleType.TYPE_ANY) == true))
 		{
 			return true;
 		}

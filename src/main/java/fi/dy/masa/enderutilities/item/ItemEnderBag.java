@@ -336,7 +336,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 		}
 	}
 
-    @Override
+	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean requiresMultipleRenderPasses()
 	{

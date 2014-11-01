@@ -2,27 +2,61 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
 
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 
-public class NBTHelperItemModular
+public class UtilItemModular
 {
-	// Note, the value of these modules is also used when rendering the slot backgrounds from the GUI texture!
-	public static final int TYPE_ENDERCORE = 0;
-	public static final int TYPE_ENDERCAPACITOR = 1;
-	public static final int TYPE_LINKCRYSTAL = 2;
-	public static final int TYPE_MOBPERSISTANCE = 3;
+	public enum ModuleType
+	{
+		// Note, the value of these modules is also used as the offset when rendering the slot backgrounds from the GUI texture!
+		TYPE_ENDERCORE_ACTIVE	(0, 0x01),
+		TYPE_ENDERCAPACITOR		(1, 0x02),
+		TYPE_LINKCRYSTAL		(2, 0x04),
+		TYPE_MOBPERSISTANCE		(3, 0x08),
+		TYPE_ANY				(-1, 0x00),
+		TYPE_INVALID			(-10, 0x00);
+
+		private int index;
+		private int bitmask;
+
+		ModuleType(int index, int bitmask)
+		{
+			this.index = index;
+			this.bitmask = bitmask;
+		}
+
+		public int getOrdinal()
+		{
+			return this.index;
+		}
+
+		public int getModuleBitmask()
+		{
+			return this.bitmask;
+		}
+
+		public boolean equals(ModuleType val)
+		{
+			return val.getOrdinal() == this.index;
+		}
+
+		public boolean equals(int val)
+		{
+			return val == this.index;
+		}
+	}
 
 	/* Return whether the given module type has been installed. */
-	public static boolean hasModule(ItemStack stack, int moduleType)
+	public static boolean hasModule(ItemStack stack, ModuleType moduleType)
 	{
 		if (stack == null) { return false; }
 		return false;
 	}
 
 	/* Returns the number of installed modules of the given type. */
-	public static int getModuleCount(ItemStack stack, int moduleType)
+	public static int getModuleCount(ItemStack stack, ModuleType moduleType)
 	{
 		if (stack == null) { return 0; }
 		return 0;
@@ -36,14 +70,14 @@ public class NBTHelperItemModular
 	}
 
 	/* Returns the (max, if multiple) tier of the installed module. */
-	public static int getModuleTier(ItemStack stack, int moduleType)
+	public static int getModuleTier(ItemStack stack, ModuleType moduleType)
 	{
 		if (stack == null) { return 0; }
 		return 0;
 	}
 
 	/* Returns the ItemStack of the (selected, if multiple) given module type. */
-	public static ItemStack getSelectedModuleStack(ItemStack stack, int moduleType)
+	public static ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
 	{
 		if (stack == null) { return null; }
 		return null;
@@ -70,25 +104,25 @@ public class NBTHelperItemModular
 		return stack;
 	}
 
-	/* Returns the type of module the input stack contains. -1 if it's not a valid upgrade module. */
-	public static int getModuleType(ItemStack moduleStack)
+	/* Returns the type of module the input stack contains. */
+	public static ModuleType getModuleType(ItemStack moduleStack)
 	{
 		// Active Ender Core
 		if (moduleStack.getItem() == EnderUtilitiesItems.enderPart && moduleStack.getItemDamage() >= 15 && moduleStack.getItemDamage() <= 17)
 		{
-			return TYPE_ENDERCORE;
+			return UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE;
 		}
 
 		if (moduleStack.getItem() == EnderUtilitiesItems.enderCapacitor)
 		{
-			return TYPE_ENDERCAPACITOR;
+			return UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR;
 		}
 
 		if (moduleStack.getItem() == EnderUtilitiesItems.linkCrystal)
 		{
-			return TYPE_LINKCRYSTAL;
+			return UtilItemModular.ModuleType.TYPE_LINKCRYSTAL;
 		}
 
-		return -1;
+		return UtilItemModular.ModuleType.TYPE_INVALID;
 	}
 }

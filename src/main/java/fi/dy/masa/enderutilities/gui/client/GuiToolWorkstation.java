@@ -4,7 +4,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.SlotUpgradeItem;
+import fi.dy.masa.enderutilities.inventory.SlotUpgradeModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
@@ -50,7 +50,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 			this.drawTexturedModalRect(x + 7, y + 18, 176, 18, 18, 18);
 		}
 
-		SlotUpgradeItem slot;
+		SlotUpgradeModule slot;
 		int itemType = 0;
 		// Module slots
 		for (int i = 0, dx = 79, dy = 18; i < 10; dx += 18)
@@ -60,10 +60,10 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 			{
 				this.drawTexturedModalRect(x + dx, y + dy, 176, 0, 18, 18);
 			}
-			else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeItem)
+			else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeModule)
 			{
-				slot = (SlotUpgradeItem)this.inventorySlots.getSlot(i + 1);
-				itemType = slot.getItemType();
+				slot = (SlotUpgradeModule)this.inventorySlots.getSlot(i + 1);
+				itemType = slot.getModuleType().getOrdinal();
 				// Only one type of module is allowed in this slot
 				if (itemType >= 0 && itemType <= 3) // 0..3: core, capacitor, link crystal, mob persistance
 				{

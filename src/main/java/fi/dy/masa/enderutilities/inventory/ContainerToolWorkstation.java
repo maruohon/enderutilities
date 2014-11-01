@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 {
@@ -20,10 +21,9 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		int x = 80, y = 19;
 		for (int i = 0; i < 10; x += 18)
 		{
-			// TODO add item types for slots (last parameter)
-			// We should check how many cores are allowed, add that number of those slots, same for capacitors and link crystals etc.
-			// Then add the rest of the slots as generic.
-			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 1, x, y, -1));
+			// We initially add all the slots as generic. When the player inserts a tool into the tool slot,
+			// we will then re-assign the slot types based on the tool.
+			this.addSlotToContainer(new SlotUpgradeModule(this.te, i + 1, x, y, UtilItemModular.ModuleType.TYPE_ANY));
 			if (++i == 5)
 			{
 				y += 18;
@@ -35,7 +35,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		x = 8; y = 66;
 		for (int i = 0; i < 9; x += 18, ++i)
 		{
-			this.addSlotToContainer(new SlotUpgradeItem(this.te, i + 11, x, y, -1));
+			this.addSlotToContainer(new SlotUpgradeModule(this.te, i + 11, x, y, UtilItemModular.ModuleType.TYPE_ANY));
 		}
 	}
 

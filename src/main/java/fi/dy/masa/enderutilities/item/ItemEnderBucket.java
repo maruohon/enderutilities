@@ -33,6 +33,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidContainerItem
 {
@@ -572,6 +573,36 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 	public int getMaxModules(ItemStack stack)
 	{
 		return 4;
+	}
+
+	/* Returns the maximum number of modules of the given type that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+	{
+		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			return 10;
+		}
+
+		return 0;
+	}
+
+	@Override
+	/* Returns whether the given module type is supported in this item. */
+	public boolean canHaveModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
+	{
+		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) == true ||
+			moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR) == true)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
