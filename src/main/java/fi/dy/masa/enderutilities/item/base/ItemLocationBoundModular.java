@@ -8,13 +8,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular
 {
-	/* Return whether the given module type has been installed. */
-	@Override
-	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		return UtilItemModular.hasModule(stack, moduleType);
-	}
-
 	/* Returns the number of installed modules of the given type. */
 	@Override
 	public int getModuleCount(ItemStack stack, UtilItemModular.ModuleType moduleType)

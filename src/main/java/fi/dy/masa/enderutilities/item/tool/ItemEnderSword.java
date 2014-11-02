@@ -41,6 +41,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	private IIcon[] iconArray;
 
 	@SideOnly(Side.CLIENT)
+	private IIcon iconEmpty;
+
+	@SideOnly(Side.CLIENT)
 	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
 									"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
@@ -289,6 +292,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
+		this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
 		this.iconArray = new IIcon[this.parts.length];
 		String prefix = this.getIconString() + ".";
 
@@ -351,7 +355,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
 		switch(renderPass)
 		{
-			// 0: Rod
+			case 0: // 0: Rod
+				break;
 			case 1: // 1: Head
 				i += getToolMode(stack) + 1;
 
@@ -363,17 +368,21 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 				break;
 			case 2: // 2: Core
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE);
-				if (tier > 0) { i += tier + 7; }
+				if (tier > 0) { i += tier + 6; }
+				else { return this.iconEmpty; }
 				break;
 			case 3: // 3: Capacitor
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
-				if (tier > 0) { i += tier + 10; }
+				if (tier > 0) { i += tier + 9; }
+				else { return this.iconEmpty; }
 				break;
 			case 4: // 4: Link Crystal
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-				if (tier > 0) { i += tier + 13; }
+				if (tier > 0) { i += tier + 12; }
+				else { return this.iconEmpty; }
 				break;
 			default:
+				return this.iconEmpty;
 		}
 
 		if (i < 0 || i >= this.iconArray.length)
@@ -382,13 +391,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		}
 
 		return this.iconArray[i];
-	}
-
-	/* Return whether the given module type has been installed. */
-	@Override
-	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		return UtilItemModular.hasModule(stack, moduleType);
 	}
 
 	/* Returns the number of installed modules of the given type. */

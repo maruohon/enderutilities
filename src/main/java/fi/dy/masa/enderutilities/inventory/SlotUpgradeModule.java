@@ -58,7 +58,12 @@ public class SlotUpgradeModule extends Slot
 		if (type.equals(UtilItemModular.ModuleType.TYPE_INVALID) == false &&
 			(this.moduleType.equals(type) == true || this.moduleType.equals(UtilItemModular.ModuleType.TYPE_ANY) == true))
 		{
-			return true;
+			// Portal Link Crystals are not valid for items/tools
+			if (type.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) == false || stack.getItemDamage() < 2)
+			{
+				return true;
+			}
+
 		}
 
 		return false;

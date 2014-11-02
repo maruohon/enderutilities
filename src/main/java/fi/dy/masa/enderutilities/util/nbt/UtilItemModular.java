@@ -4,7 +4,10 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.base.IModular;
 
 public class UtilItemModular
 {
@@ -49,32 +52,99 @@ public class UtilItemModular
 		}
 	}
 
-	/* Return whether the given module type has been installed. */
-	public static boolean hasModule(ItemStack stack, ModuleType moduleType)
-	{
-		if (stack == null) { return false; }
-		return false;
-	}
-
 	/* Returns the number of installed modules of the given type. */
 	public static int getModuleCount(ItemStack stack, ModuleType moduleType)
 	{
-		if (stack == null) { return 0; }
-		return 0;
+		if (stack == null || (stack.getItem() instanceof IModular) == false) { return 0; }
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return 0;
+		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+		int count = 0;
+		int listNumStacks = nbtTagList.tagCount();
+
+		// Read all the module ItemStacks from the tool
+		for (int i = 0; i < listNumStacks; ++i)
+		{
+			if (UtilItemModular.getModuleType(ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i))).equals(moduleType) == true)
+			{
+				count++;
+			}
+		}
+
+		return count;
 	}
 
 	/* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
 	public static int getInstalledModulesMask(ItemStack stack)
 	{
 		if (stack == null) { return 0; }
-		return 0;
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return 0;
+		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+		int mask = 0;
+		int listNumStacks = nbtTagList.tagCount();
+
+		// Read all the module ItemStacks from the tool
+		for (int i = 0; i < listNumStacks; ++i)
+		{
+			mask |= UtilItemModular.getModuleType(ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i))).getModuleBitmask();
+		}
+
+		return mask;
 	}
 
-	/* Returns the (max, if multiple) tier of the installed module. */
+	/* Returns the offset of the lowest tier module of the given type.
+	 * This is to get all the module tiers to be in the range of 1..n, regardless of
+	 * how the underlying item stack's damage values are allocated.
+	 */
+	public static int getTierOffset(ModuleType moduleType)
+	{
+		if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE) == true)
+		{
+			return -14;
+		}
+
+		return 1;
+	}
+
+	/* Returns the (max, if multiple) tier of the installed module.
+	 * NOTE: This is based on the item damage, and assumes that higher damage is higher tier. */
 	public static int getModuleTier(ItemStack stack, ModuleType moduleType)
 	{
-		if (stack == null) { return 0; }
-		return 0;
+		if (stack == null) { return -1; }
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return -1;
+		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+		int tier = -1;
+		int listNumStacks = nbtTagList.tagCount();
+		ItemStack moduleStack;
+
+		// Read all the module ItemStacks from the tool
+		for (int i = 0; i < listNumStacks; ++i)
+		{
+			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
+			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true && moduleStack.getItemDamage() > tier)
+			{
+				tier = moduleStack.getItemDamage();
+			}
+		}
+
+		return tier + UtilItemModular.getTierOffset(moduleType);
 	}
 
 	/* Returns the ItemStack of the (selected, if multiple) given module type. */

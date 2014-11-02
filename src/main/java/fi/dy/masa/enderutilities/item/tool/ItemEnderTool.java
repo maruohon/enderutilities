@@ -48,6 +48,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	private IIcon[] iconArray;
 
 	@SideOnly(Side.CLIENT)
+	private IIcon iconEmpty;
+
+	@SideOnly(Side.CLIENT)
 	// Note: Sword "has to be" last, because it has one extra texture compared to the others
 	String[] tools = new String[] {	ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE,
 									ReferenceBlocksItems.NAME_ITEM_ENDER_AXE,
@@ -418,6 +421,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	public void registerIcons(IIconRegister iconRegister)
 	{
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE + ".head.1");
+		this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
 		this.iconArray = new IIcon[52];
 		String prefix = this.getIconString() + ".";
 
@@ -493,7 +497,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
 		switch(renderPass)
 		{
-			// 0: Rod
+			case 0: // 0: Rod
+				break;
 			case 1: // 1: Head
 				i += getToolMode(stack) + 1; // +1: Rod is the first icon
 
@@ -506,16 +511,20 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 			case 2: // 2: Core
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE);
 				if (tier > 0) { i += tier + 4; }
+				else { return this.iconEmpty; }
 				break;
 			case 3: // 3: Capacitor
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
 				if (tier > 0) { i += tier + 7; }
+				else { return this.iconEmpty; }
 				break;
 			case 4: // 4: Link Crystal
 				tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
 				if (tier > 0) { i += tier + 10; }
+				else { return this.iconEmpty; }
 				break;
 			default:
+				return this.iconEmpty;
 		}
 
 		if (i < 0 || i >= this.iconArray.length)
@@ -563,13 +572,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		{
 			this.toggleToolMode(stack);
 		}
-	}
-
-	/* Return whether the given module type has been installed. */
-	@Override
-	public boolean hasModule(ItemStack stack, UtilItemModular.ModuleType moduleType)
-	{
-		return UtilItemModular.hasModule(stack, moduleType);
 	}
 
 	/* Returns the number of installed modules of the given type. */
