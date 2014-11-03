@@ -15,6 +15,8 @@ public class UtilItemModular
 	{
 		// Note, the ordinal value of these modules is also used as the texture offset
 		// when rendering the slot backgrounds from the GUI texture!! (checked to be in the range 0..n)
+		// It is also used to store the selected module to the tool's NBT.
+		// So don't go changing them after the first release to the public!
 		TYPE_ENDERCORE_ACTIVE	(0, 0x01),
 		TYPE_ENDERCAPACITOR		(1, 0x02),
 		TYPE_LINKCRYSTAL		(2, 0x04),
@@ -151,7 +153,95 @@ public class UtilItemModular
 	public static ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
 	{
 		if (stack == null) { return null; }
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return null;
+		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+		int listNumStacks = nbtTagList.tagCount();
+		int selected = 0;
+		if (nbt.hasKey("Selected_" + moduleType.getOrdinal(), Constants.NBT.TAG_BYTE) == true)
+		{
+			selected = nbt.getByte("Selected_" + moduleType.getOrdinal());
+			if (selected >= UtilItemModular.getModuleCount(stack, moduleType))
+			{
+				selected = 0;
+			}
+		}
+		ItemStack moduleStack;
+
+		// Get the selected-th module stack of the given type
+		int num = -1;
+		for (int i = 0; i < listNumStacks && num < selected; ++i)
+		{
+			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
+			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			{
+				num++;
+			}
+		}
+
+		if (num >= 0)
+		{
+			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(num));
+			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			{
+				return moduleStack;
+			}
+		}
+
 		return null;
+	}
+
+	/* Sets the selected modules' ItemStack of the given module type to the one provided. */
+	public static ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack newModuleStack)
+	{
+		if (toolStack == null) { return null; }
+
+		NBTTagCompound nbt = toolStack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return null;
+		}
+
+		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+		int listNumStacks = nbtTagList.tagCount();
+		int selected = 0;
+		if (nbt.hasKey("Selected_" + moduleType.getOrdinal(), Constants.NBT.TAG_BYTE) == true)
+		{
+			selected = nbt.getByte("Selected_" + moduleType.getOrdinal());
+			if (selected >= UtilItemModular.getModuleCount(toolStack, moduleType))
+			{
+				selected = 0;
+			}
+		}
+		ItemStack moduleStack;
+
+		// Get the selected-th module stack of the given type
+		int num = -1;
+		for (int i = 0; i < listNumStacks && num < selected; ++i)
+		{
+			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
+			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			{
+				num++;
+			}
+		}
+
+		if (num >= 0)
+		{
+			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(num));
+			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			{
+				// Write/replace the compound tag at position num with a tag created from the new module ItemStack
+				nbtTagList.func_150304_a(num, newModuleStack.writeToNBT(new NBTTagCompound()));
+			}
+		}
+
+		return toolStack;
 	}
 
 	/* Returns a list of all the installed modules. */
@@ -195,5 +285,45 @@ public class UtilItemModular
 		}
 
 		return UtilItemModular.ModuleType.TYPE_INVALID;
+	}
+
+	/* Change the selected module to the next one, if any. */
+	public static ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
+	{
+		if (stack == null)
+		{
+			return stack;
+		}
+
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+		{
+			return stack;
+		}
+
+		int moduleCount = UtilItemModular.getModuleCount(stack, moduleType);
+		if (moduleCount == 0)
+		{
+			return stack;
+		}
+
+		int selected = nbt.getByte("Selected_" + moduleType.getOrdinal());
+		if (reverse == true)
+		{
+			if (--selected < 0)
+			{
+				selected = moduleCount - 1;
+			}
+		}
+		else
+		{
+			if (++selected >= moduleCount)
+			{
+				selected = 0;
+			}
+		}
+		nbt.setByte("Selected_" + moduleType.getOrdinal(), (byte)selected);
+
+		return stack;
 	}
 }

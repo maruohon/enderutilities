@@ -53,6 +53,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 		return UtilItemModular.getSelectedModuleStack(stack, moduleType);
 	}
 
+	/* Sets the selected modules' ItemStack of the given module type to the one provided. */
+	public ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack moduleStack)
+	{
+		return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+	}
+
 	/* Returns a list of all the installed modules. */
 	@Override
 	public List<NBTTagCompound> getAllModules(ItemStack stack)
