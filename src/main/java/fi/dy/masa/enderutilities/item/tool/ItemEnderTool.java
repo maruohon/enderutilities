@@ -46,19 +46,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
-
 	@SideOnly(Side.CLIENT)
 	private IIcon iconEmpty;
-
 	@SideOnly(Side.CLIENT)
-	// Note: Sword "has to be" last, because it has one extra texture compared to the others
-	String[] tools = new String[] {	ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE,
-									ReferenceBlocksItems.NAME_ITEM_ENDER_AXE,
-									ReferenceBlocksItems.NAME_ITEM_ENDER_SHOVEL,
-									ReferenceBlocksItems.NAME_ITEM_ENDER_HOE};
+	String[] tools;
 	@SideOnly(Side.CLIENT)
-	String[] parts = new String[] {"rod", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
-									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
+	String[] parts;
 
 	public ItemEnderTool()
 	{
@@ -415,10 +408,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		return multimap;
 	}
 
-    @SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
+		this.tools = new String[] {	ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_AXE,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_SHOVEL,
+									ReferenceBlocksItems.NAME_ITEM_ENDER_HOE};
+		this.parts = new String[] {"rod", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
+									"capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceBlocksItems.NAME_ITEM_ENDER_PICKAXE + ".head.1");
 		this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
 		this.iconArray = new IIcon[52];

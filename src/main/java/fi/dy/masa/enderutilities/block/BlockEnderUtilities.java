@@ -78,14 +78,23 @@ public class BlockEnderUtilities extends Block
 	@Override
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
 	{
-		Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z)).randomDisplayTick(world, x, y, z, rand);
+		Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+		if (machine != null)
+		{
+			machine.randomDisplayTick(world, x, y, z, rand);
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
     public IIcon getIcon(int side, int meta)
     {
-		return Machine.getMachine(this.blockIndex, meta).getIcon(side);
+		Machine machine = Machine.getMachine(this.blockIndex, meta);
+		if (machine != null)
+		{
+			return machine.getIcon(side);
+		}
+		return this.blockIcon;
     }
 
 	@SideOnly(Side.CLIENT)
@@ -95,7 +104,11 @@ public class BlockEnderUtilities extends Block
 		TileEntity te = blockAccess.getTileEntity(x, y, z);
 		if (te != null && te instanceof TileEntityEnderUtilities)
 		{
-			return Machine.getMachine(this.blockIndex, blockAccess.getBlockMetadata(x, y, z)).getIcon((TileEntityEnderUtilities)te, side);
+			Machine machine = Machine.getMachine(this.blockIndex, blockAccess.getBlockMetadata(x, y, z));
+			if (machine != null)
+			{
+				return machine.getIcon((TileEntityEnderUtilities)te, side);
+			}
 		}
 
 		return this.getIcon(side, blockAccess.getBlockMetadata(x, y, z));

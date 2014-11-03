@@ -34,7 +34,12 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
-		return Machine.getMachine(this.blockIndex, meta).createNewTileEntity();
+		Machine machine = Machine.getMachine(this.blockIndex, meta);
+		if (machine != null)
+		{
+			return machine.createNewTileEntity();
+		}
+		return null;
 	}
 
 	@Override
@@ -42,7 +47,11 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 	{
 		// This is for handling custom storage stuff like buffers, which are not regular
 		// ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-		Machine.getMachine(this.blockIndex, meta).breakBlock(world, x, y, z, block, meta);
+		Machine machine = Machine.getMachine(this.blockIndex, meta);
+		if (machine != null)
+		{
+			machine.breakBlock(world, x, y, z, block, meta);
+		}
 
 		super.breakBlock(world, x, y, z, block, meta);
 	}

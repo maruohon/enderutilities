@@ -39,13 +39,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
 	@SideOnly(Side.CLIENT)
 	private IIcon[] iconArray;
-
 	@SideOnly(Side.CLIENT)
 	private IIcon iconEmpty;
-
 	@SideOnly(Side.CLIENT)
-	String[] parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
-									"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
+	String[] parts;
 
 	public ItemEnderSword()
 	{
@@ -291,17 +288,19 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 		}
 	}
 
-    @SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
 		//list.add(StatCollector.translateToLocal("gui.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
 	}
 
-    @SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IIconRegister iconRegister)
 	{
+		this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
+				"core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
 		this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
 		this.iconArray = new IIcon[this.parts.length];
