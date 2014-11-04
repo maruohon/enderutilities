@@ -595,8 +595,14 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 	@Override
 	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
 	{
-		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
 		{
+			if (player != null && player.isSneaking() == true)
+			{
+				this.changeSelectedModule(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+				return;
+			}
+
 			// 0: Normal, 1: Pickup only, 2: Deposit only
 			byte val = MODE_NORMAL;
 			NBTTagCompound nbt = stack.getTagCompound();

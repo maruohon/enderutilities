@@ -11,5 +11,23 @@ public class ReferenceKeys
 	public static final int KEYBIND_DEFAULT_TOGGLE_MODE = Keyboard.KEY_F;
 
 	// These are used to identify the pressed key on the server side. They have nothing to do with actual key codes.
-	public static final int KEYBIND_ID_TOGGLE_MODE = 0;
+	public static final int KEYBIND_ID_TOGGLE_MODE = 0x0001;
+
+	public static final int KEYBIND_MODIFIER_SHIFT		= 0x00010000;
+	public static final int KEYBIND_MODIFIER_CONTROL	= 0x00020000;
+
+	public static int getBaseKey(int key)
+	{
+		return (key & 0xFFFF);
+	}
+
+	public static boolean keypressContainsShift(int key)
+	{
+		return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_SHIFT) != 0;
+	}
+
+	public static boolean keypressContainsControl(int key)
+	{
+		return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_CONTROL) != 0;
+	}
 }

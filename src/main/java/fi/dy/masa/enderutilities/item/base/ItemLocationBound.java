@@ -22,8 +22,39 @@ public class ItemLocationBound extends ItemEnderUtilities
 	}
 
 	@Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	{
+		if (stack == null)
+		{
+			return false;
+		}
+
+		if (player.isSneaking() == true)
+		{
+			boolean adjustPosHit = true;
+
+			// Don't adjust the target position for uses that are targeting the block, not the in-world location
+			if (stack.getItem() == EnderUtilitiesItems.linkCrystal && stack.getItemDamage() != 0)
+			{
+				adjustPosHit = false;
+			}
+
+			stack.setTagCompound(NBTHelperTarget.writeTargetTagToNBT(stack.getTagCompound(), x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit));
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public String getItemStackDisplayName(ItemStack stack)
 	{
+		if (stack.getItem() instanceof ItemLocationBoundModular)
+		{
+			return super.getItemStackDisplayName(stack);
+		}
+
 		NBTTagCompound nbt = stack.getTagCompound();
 		NBTHelperTarget target = new NBTHelperTarget();
 
@@ -40,34 +71,6 @@ public class ItemLocationBound extends ItemEnderUtilities
 		}
 
 		return super.getItemStackDisplayName(stack);
-	}
-
-	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	{
-		if (stack == null)
-		{
-			return false;
-		}
-
-		boolean adjustPosHit = true;
-
-		// Don't adjust the target position for uses that are targeting the block, not the in-world location
-		if (stack.getItem() == EnderUtilitiesItems.linkCrystal && stack.getItemDamage() != 0)
-		{
-			adjustPosHit = false;
-		}
-
-		if (player.isSneaking() == true)
-		{
-			NBTTagCompound nbt = stack.getTagCompound();
-			nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
-			stack.setTagCompound(nbt);
-
-			return true;
-		}
-
-		return false;
 	}
 
 	@SideOnly(Side.CLIENT)

@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
 
 public interface IModular
 {
@@ -28,6 +29,9 @@ public interface IModular
 
 	/* Sets the selected modules' ItemStack of the given module type to the one provided. */
 	public ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack moduleStack);
+
+	/* Change the selected module to the next one, if any. */
+	public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse);
 
 	/* Returns a list of all the installed modules. */
 	public List<NBTTagCompound> getAllModules(ItemStack stack);

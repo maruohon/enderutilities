@@ -42,7 +42,7 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
 
 		if (player != null && stack != null && stack.getItem() instanceof IKeyBound)
 		{
-			if (message.keyPressed == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+			if ((message.keyPressed & ReferenceKeys.KEYBIND_ID_TOGGLE_MODE) != 0)
 			{
 				((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
 			}

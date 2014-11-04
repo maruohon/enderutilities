@@ -70,4 +70,10 @@ public class ClientProxy extends CommonProxy
 	{
 		return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
 	}
+
+	@Override
+	public boolean isControlKeyDown()
+	{
+		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+	}
 }

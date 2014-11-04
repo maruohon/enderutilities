@@ -37,6 +37,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
@@ -566,7 +567,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	{
 		if (stack == null) { return; }
 
-		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
 		{
 			this.toggleToolMode(stack);
 		}
@@ -633,6 +634,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 	public ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack moduleStack)
 	{
 		return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+	}
+
+	/* Change the selected module to the next one, if any. */
+	@Override
+	public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
+	{
+		return stack;
 	}
 
 	/* Returns a list of all the installed modules. */

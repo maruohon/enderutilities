@@ -68,4 +68,9 @@ public abstract class CommonProxy implements IProxy
 	{
 		return false;
 	}
+
+	public boolean isControlKeyDown()
+	{
+		return false;
+	}
 }

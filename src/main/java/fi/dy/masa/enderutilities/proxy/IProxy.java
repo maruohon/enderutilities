@@ -20,4 +20,6 @@ public interface IProxy
 	public abstract void registerTileEntities();
 
 	public abstract boolean isShiftKeyDown();
+
+	public abstract boolean isControlKeyDown();
 }
