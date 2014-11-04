@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.settings.Keybindings;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -28,20 +28,20 @@ public class InputEventHandler
 		{
 			if (Keybindings.keyToggleMode.isPressed() == true)
 			{
-				if (FMLClientHandler.instance().getClientPlayerEntity() != null)
+				EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+				if (player != null && player.worldObj.isRemote == true &&
+					player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
 				{
-					EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-					if (player.getCurrentEquippedItem() != null)
+					int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
+					if (EnderUtilities.proxy.isShiftKeyDown() == true)
 					{
-						ItemStack stack = player.getCurrentEquippedItem();
-						if (stack.getItem() instanceof IKeyBound)
-						{
-							if (player.worldObj.isRemote == true)
-							{
-								PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(ReferenceKeys.KEYBIND_ID_TOGGLE_MODE));
-							}
-						}
+						key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
 					}
+					if (EnderUtilities.proxy.isControlKeyDown() == true)
+					{
+						key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+					}
+					PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
 				}
 			}
 		}

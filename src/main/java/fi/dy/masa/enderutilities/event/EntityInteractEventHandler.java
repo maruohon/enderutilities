@@ -28,19 +28,14 @@ public class EntityInteractEventHandler
 
 		Item item = stack.getItem();
 
-		if(item == EnderUtilitiesItems.enderLasso)
+		if(item == EnderUtilitiesItems.enderLasso && event.entity.worldObj.isRemote == false)
 		{
-			if (event.entity.worldObj.isRemote == false)
+			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
+				(EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
 			{
-				if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
+				if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
 				{
-					if (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
-					{
-						if (TeleportEntity.teleportEntityUsingItem(event.target, stack) != null)
-						{
-							event.setCanceled(true);
-						}
-					}
+					event.setCanceled(true);
 				}
 			}
 		}

@@ -149,12 +149,13 @@ public class UtilItemModular
 		return tier + UtilItemModular.getTierOffset(moduleType);
 	}
 
-	/* Returns the ItemStack of the (selected, if multiple) given module type. */
-	public static ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
+	/* Returns the TAG_Compound containing the (selected, if multiple) given module type.
+	 * The tag contains the Slot and the ItemStack data. */
+	public static NBTTagCompound getSelectedModuleTagCompound(ItemStack toolStack, ModuleType moduleType)
 	{
-		if (stack == null) { return null; }
+		if (toolStack == null) { return null; }
 
-		NBTTagCompound nbt = stack.getTagCompound();
+		NBTTagCompound nbt = toolStack.getTagCompound();
 		if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
 		{
 			return null;
@@ -166,31 +167,37 @@ public class UtilItemModular
 		if (nbt.hasKey("Selected_" + moduleType.getOrdinal(), Constants.NBT.TAG_BYTE) == true)
 		{
 			selected = nbt.getByte("Selected_" + moduleType.getOrdinal());
-			if (selected >= UtilItemModular.getModuleCount(stack, moduleType))
+			if (selected >= UtilItemModular.getModuleCount(toolStack, moduleType))
 			{
 				selected = 0;
 			}
 		}
-		ItemStack moduleStack;
 
-		// Get the selected-th module stack of the given type
-		int num = -1;
-		for (int i = 0; i < listNumStacks && num < selected; ++i)
+		// Get the selected-th TAG_Compound of the given module type
+		NBTTagCompound moduleTag;
+		int count = -1;
+		for (int i = 0; i < listNumStacks && count < selected; ++i)
 		{
-			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
-			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			moduleTag = nbtTagList.getCompoundTagAt(i);
+			if (UtilItemModular.getModuleType(ItemStack.loadItemStackFromNBT(moduleTag)).equals(moduleType) == true)
 			{
-				num++;
+				if (++count >= selected)
+				{
+					return moduleTag;
+				}
 			}
 		}
 
-		if (num >= 0)
+		return null;
+	}
+
+	/* Returns the ItemStack of the (selected, if multiple) given module type. */
+	public static ItemStack getSelectedModuleStack(ItemStack toolStack, ModuleType moduleType)
+	{
+		NBTTagCompound tag = UtilItemModular.getSelectedModuleTagCompound(toolStack, moduleType);
+		if (tag != null)
 		{
-			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(num));
-			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
-			{
-				return moduleStack;
-			}
+			return ItemStack.loadItemStackFromNBT(tag);
 		}
 
 		return null;
@@ -218,26 +225,22 @@ public class UtilItemModular
 				selected = 0;
 			}
 		}
-		ItemStack moduleStack;
 
-		// Get the selected-th module stack of the given type
-		int num = -1;
-		for (int i = 0; i < listNumStacks && num < selected; ++i)
+		// Get the selected-th TAG_Compound of the given module type
+		NBTTagCompound moduleTag;
+		int count = -1;
+		for (int i = 0; i < listNumStacks && count < selected; ++i)
 		{
-			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
-			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
+			moduleTag = nbtTagList.getCompoundTagAt(i);
+			if (UtilItemModular.getModuleType(ItemStack.loadItemStackFromNBT(moduleTag)).equals(moduleType) == true)
 			{
-				num++;
-			}
-		}
-
-		if (num >= 0)
-		{
-			moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(num));
-			if (UtilItemModular.getModuleType(moduleStack).equals(moduleType) == true)
-			{
-				// Write/replace the compound tag at position num with a tag created from the new module ItemStack
-				nbtTagList.func_150304_a(num, newModuleStack.writeToNBT(new NBTTagCompound()));
+				if (++count >= selected)
+				{
+					// Write the new module ItemStack to the compound tag of the old one, so that we
+					// preserve the Slot tag and any other non-ItemStack tags of the old one.
+					nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
+					return toolStack;
+				}
 			}
 		}
 

@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
@@ -54,8 +55,18 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 		if (moduleStack != null && moduleStack.getItem() != null)
 		{
 			NBTTagCompound nbt = moduleStack.getTagCompound();
-			NBTHelperTarget target = new NBTHelperTarget();
+			// If the currently selected module has been renamed, show that name
+			if (nbt != null && nbt.hasKey("display", Constants.NBT.TAG_COMPOUND) == true)
+			{
+				NBTTagCompound tagDisplay = nbt.getCompoundTag("display");
+				if (tagDisplay.hasKey("Name", Constants.NBT.TAG_STRING) == true)
+				{
+					//return super.getItemStackDisplayName(toolStack) + ": " + tagDisplay.getString("Name");
+					return tagDisplay.getString("Name");
+				}
+			}
 
+			NBTHelperTarget target = new NBTHelperTarget();
 			if (nbt != null && target.readTargetTagFromNBT(nbt) != null)
 			{
 				String desc = TooltipHelper.getLocalizedDimensionName(target.dimension);
@@ -111,12 +122,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 	@Override
 	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
 	{
-		if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE || player == null || player.isSneaking() == false)
+		if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && player != null && player.isSneaking() == true)
 		{
-			return;
+			this.changeSelectedModule(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
 		}
-
-		this.changeSelectedModule(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
 	}
 
 	/* Returns the number of installed modules of the given type. */

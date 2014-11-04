@@ -7,7 +7,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -20,6 +19,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class ItemEnderPorter extends ItemLocationBoundModular
@@ -68,8 +68,10 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 			}
 		}
 
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt != null && NBTHelperTarget.hasTargetTag(nbt) == true && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
+		ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+		if (moduleStack != null && moduleStack.getTagCompound() != null &&
+			NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
+			EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 
@@ -86,8 +88,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
 	{
-		NBTTagCompound nbt = stack.getTagCompound();
-		NBTHelperTarget target = new NBTHelperTarget();
 		int useTime = USE_TIME;
 
 		// Use a shorter delay in creative mode
@@ -96,8 +96,8 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 			useTime >>= 3;
 		}
 
-		if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime && target.readTargetTagFromNBT(nbt) != null &&
-				TeleportEntity.teleportEntityUsingItem(player, stack, true, true) != null)
+		if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime &&
+			TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true) != null)
 		{
 			// damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
 			if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)

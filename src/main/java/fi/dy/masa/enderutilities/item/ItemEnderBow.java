@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
@@ -96,9 +97,10 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
 			if (mode == BOW_MODE_TP_TARGET)
 			{
+				ItemStack moduleStack = this.getSelectedModuleStack(bowStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
 				NBTHelperTarget target = new NBTHelperTarget();
 				// If we want to TP the target, we must have a valid target set
-				if (target.readTargetTagFromNBT(nbt) == null)
+				if (moduleStack == null || target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
 				{
 					return;
 				}
@@ -179,9 +181,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 			}
 
 			// If the bow is in 'TP target' mode, it has to have a valid target set
-			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET && NBTHelperTarget.hasTargetTag(nbt) == false)
+			if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET)
 			{
-				return stack;
+				ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+				if (moduleStack == null || NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == false)
+				{
+					return stack;
+				}
 			}
 
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
@@ -348,7 +354,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 	@Override
 	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
 	{
-		if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+		// Change the selected link crystal
+		if (ReferenceKeys.keypressContainsShift(key) == true)
+		{
+			super.doKeyBindingAction(player, stack, key);
+			return;
+		}
+
+		if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
 		{
 			byte val = BOW_MODE_TP_TARGET;
 			NBTTagCompound nbt = stack.getTagCompound();

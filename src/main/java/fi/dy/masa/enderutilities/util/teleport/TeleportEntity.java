@@ -30,11 +30,13 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
 {
@@ -205,9 +207,24 @@ public class TeleportEntity
 		return target;
 	}
 
+	public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack)
+	{
+		return TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
+	}
+
+	public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
+	{
+		if (stack == null || (stack.getItem() instanceof IModular) == false)
+		{
+			return null;
+		}
+
+		return TeleportEntity.teleportEntityUsingItem(entity, ((IModular)stack.getItem()).getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
+	}
+
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
 	{
-		return teleportEntityUsingItem(entity, stack, true, true);
+		return TeleportEntity.teleportEntityUsingItem(entity, stack, true, true);
 	}
 
 	public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
