@@ -39,7 +39,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		x = 8; y = 66;
 		for (int i = 0; i < 9; x += 18, ++i)
 		{
-			this.addSlotToContainer(new SlotUpgradeModule(this.te, i + 11, x, y, UtilItemModular.ModuleType.TYPE_ANY));
+			this.addSlotToContainer(new SlotUpgradeModuleStorage(this.te, i + 11, x, y));
 		}
 
 		this.setUpgradeSlotTypes();
@@ -57,15 +57,14 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 		if (slot != null && slot.getHasStack() == true && slot.getStack().getItem() instanceof IModular)
 		{
 			ItemStack toolStack = slot.getStack();
-			IModular imodular = (IModular)toolStack.getItem();
-			int i = 1;
-			int j = 0;
-			int max = 0;
+			int i = 1, j = 0, max = 0;
 			int slots = this.inventorySlots.size();
+
 			// Set the upgrade slot types according to how many of each type of upgrade the current tool supports.
 			for (UtilItemModular.ModuleType mt : UtilItemModular.ModuleType.values())
 			{
-				max = imodular.getMaxModules(toolStack, mt);
+				max = ((IModular)toolStack.getItem()).getMaxModules(toolStack, mt);
+				// 10: The Tool Workstation supports a maximum of 10 upgrade modules for any tools atm
 				for (j = 0; j < max && i < 10 && i < slots; ++j, ++i)
 				{
 					if (i >= 10 || mt.getOrdinal() < -1) // < -1: Don't add TYPE_INVALID slots...

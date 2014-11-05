@@ -609,6 +609,33 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 		return 0;
 	}
 
+	/* Returns the maximum number of the given module that can be installed on this item.
+	 * This is for exact module checking, instead of the general module type. */
+	@Override
+	public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+	{
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE))
+		{
+			return 1;
+		}
+
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			// Allow the in-world and inventory type Link Crystals
+			if (moduleStack.getItemDamage() == 0 || moduleStack.getItemDamage() == 1)
+			{
+				return 1;
+			}
+		}
+
+		return 0;
+	}
+
 	/* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
 	@Override
 	public int getInstalledModulesMask(ItemStack stack)

@@ -69,8 +69,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 		}
 
 		ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-		if (moduleStack != null && moduleStack.getTagCompound() != null &&
-			NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
+		if (moduleStack != null && NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
 			EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
 		{
 			player.setItemInUse(stack, this.getMaxItemUseDuration(stack));

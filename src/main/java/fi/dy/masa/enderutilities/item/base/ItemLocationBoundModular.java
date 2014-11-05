@@ -146,7 +146,29 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
 		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
 		{
-			return 9;
+			return 3;
+		}
+
+		return 0;
+	}
+
+	/* Returns the maximum number of the given module that can be installed on this item.
+	 * This is for exact module checking, instead of the general module type. */
+	@Override
+	public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+	{
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			// Only allow the in-world type Link Crystals by default
+			if (moduleStack.getItemDamage() == 0)
+			{
+				return 3;
+			}
 		}
 
 		return 0;

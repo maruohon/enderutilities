@@ -34,6 +34,7 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
@@ -206,6 +207,45 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 	public int getMaxModules(ItemStack stack)
 	{
 		return 4;
+	}
+
+	/* Returns the maximum number of modules of the given type that can be installed on this item. */
+	@Override
+	public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+	{
+		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			return 3;
+		}
+
+		return 0;
+	}
+
+	/* Returns the maximum number of the given module that can be installed on this item.
+	 * This is for exact module checking, instead of the general module type. */
+	@Override
+	public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+	{
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			// Only allow the inventory type Link Crystals
+			if (moduleStack.getItemDamage() == 1)
+			{
+				return 3;
+			}
+		}
+
+		return 0;
 	}
 
 	private boolean isTargetBlockWhitelisted(String name)

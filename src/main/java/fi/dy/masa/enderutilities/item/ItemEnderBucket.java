@@ -592,6 +592,28 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
 		return 0;
 	}
 
+	/* Returns the maximum number of the given module that can be installed on this item.
+	 * This is for exact module checking, instead of the general module type. */
+	@Override
+	public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+	{
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+		{
+			return 1;
+		}
+
+		if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+		{
+			// Only allow the inventory type Link Crystals
+			if (moduleStack.getItemDamage() == 1)
+			{
+				return 3;
+			}
+		}
+
+		return 0;
+	}
+
 	@Override
 	public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
 	{
