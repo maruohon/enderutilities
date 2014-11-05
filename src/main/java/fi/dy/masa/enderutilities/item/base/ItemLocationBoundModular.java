@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
@@ -87,13 +88,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 	@Override
 	public void addInformation(ItemStack toolStack, EntityPlayer player, List list, boolean par4)
 	{
-/*
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
 		{
-			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
 			return;
 		}
-*/
+
 		ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
 		if (moduleStack == null || moduleStack.getItem() == null)
 		{
@@ -112,6 +112,14 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 		String dimPre = "" + EnumChatFormatting.GREEN;
 		String coordPre = "" + EnumChatFormatting.BLUE;
 		String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+
+		int max = UtilItemModular.getModuleCount(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+		if (max > 1)
+		{
+			int sel = UtilItemModular.getClampedModuleSelection(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+			list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d%s", coordPre, sel, rst));
+			//list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
+		}
 
 		list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
 		list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", coordPre, target.dPosX, rst, coordPre, target.dPosY, rst, coordPre, target.dPosZ, rst));

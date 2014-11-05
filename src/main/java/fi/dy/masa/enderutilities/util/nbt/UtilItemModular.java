@@ -149,6 +149,21 @@ public class UtilItemModular
 		return tier + UtilItemModular.getTierOffset(moduleType);
 	}
 
+	public static int getClampedModuleSelection(ItemStack toolStack, ModuleType moduleType)
+	{
+		if (toolStack == null || toolStack.getTagCompound() == null) { return 0; }
+
+		int selected = toolStack.getTagCompound().getByte("Selected_" + moduleType.getOrdinal());
+		int num = UtilItemModular.getModuleCount(toolStack, moduleType);
+		if (selected >= num)
+		{
+			// If the selected module number is larger than the current number of selected modules, then select the last one
+			selected = (num > 0 ? num - 1 : 0);
+		}
+
+		return selected;
+	}
+
 	/* Returns the TAG_Compound containing the (selected, if multiple) given module type.
 	 * The tag contains the Slot and the ItemStack data. */
 	public static NBTTagCompound getSelectedModuleTagCompound(ItemStack toolStack, ModuleType moduleType)
@@ -163,15 +178,7 @@ public class UtilItemModular
 
 		NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
 		int listNumStacks = nbtTagList.tagCount();
-		int selected = 0;
-		if (nbt.hasKey("Selected_" + moduleType.getOrdinal(), Constants.NBT.TAG_BYTE) == true)
-		{
-			selected = nbt.getByte("Selected_" + moduleType.getOrdinal());
-			if (selected >= UtilItemModular.getModuleCount(toolStack, moduleType))
-			{
-				selected = 0;
-			}
-		}
+		int selected = UtilItemModular.getClampedModuleSelection(toolStack, moduleType);
 
 		// Get the selected-th TAG_Compound of the given module type
 		NBTTagCompound moduleTag;

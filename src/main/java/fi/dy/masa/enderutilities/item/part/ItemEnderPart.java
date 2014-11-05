@@ -161,11 +161,7 @@ public class ItemEnderPart extends ItemEnderUtilities
 		// Damage 10: Inactive Ender Core (Basic)
 		// Damage 11: Inactive Ender Core (Enhanced)
 		// Damage 12: Inactive Ender Core (Advanced)
-		// Damage 15: Ender Core (Basic)
-		// Damage 16: Ender Core (Enhanced)
-		// Damage 17: Ender Core (Advanced)
-		if ((stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12) ||
-			(stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17))	
+		if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
 		{
 			list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.1"));
 			list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.2"));

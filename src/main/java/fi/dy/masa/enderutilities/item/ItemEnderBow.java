@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -207,13 +208,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
 	{
-/*
 		if (EnderUtilities.proxy.isShiftKeyDown() == false)
 		{
-			list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
+			list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
 			return;
 		}
-*/
 
 		NBTTagCompound nbt = stack.getTagCompound();
 
