@@ -26,8 +26,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 	{
 		if (itemStack != null && itemStack.getItem() instanceof ItemEnderBucket)
 		{
-			ItemEnderBucket item = (ItemEnderBucket)itemStack.getItem();
-			FluidStack fluidStack = item.getFluid(itemStack);
+			FluidStack fluidStack = ((ItemEnderBucket)itemStack.getItem()).getFluid(itemStack);
 			if (fluidStack != null && fluidStack.amount > 0)
 			{
 				return true;
@@ -39,9 +38,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 	@Override
 	public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
 	{
-		//return false;
-		return helper == ItemRendererHelper.ENTITY_BOBBING
-				|| helper == ItemRendererHelper.ENTITY_ROTATION;
+		return helper == ItemRendererHelper.ENTITY_BOBBING || helper == ItemRendererHelper.ENTITY_ROTATION;
 	}
 
 	@Override
@@ -54,8 +51,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 		IIcon iicon = null;
 		int amount = 0;
 
-		ItemEnderBucket item = (ItemEnderBucket)itemStack.getItem();
-		FluidStack fluidStack = item.getFluid(itemStack);
+		FluidStack fluidStack = ((ItemEnderBucket)itemStack.getItem()).getFluid(itemStack);
 		if (fluidStack == null || fluidStack.amount == 0 || fluidStack.getFluid() == null)
 		{
 			return;
