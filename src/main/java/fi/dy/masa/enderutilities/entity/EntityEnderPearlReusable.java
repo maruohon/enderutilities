@@ -9,16 +9,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEnderPearlReusable extends EntityThrowable
 {
 	public float teleportDamage = 2.0f;
 	public boolean canPickUp = true;
+	public boolean letMeFly = false;
 
 	public EntityEnderPearlReusable(World world)
 	{
@@ -44,7 +47,21 @@ public class EntityEnderPearlReusable extends EntityThrowable
 		double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
 		double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
 		double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.func_70183_g()) / 180.0f * (float)Math.PI) * f);
-		this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 1.0f);
+		this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 0.2f);
+	}
+
+	public EntityEnderPearlReusable(World world, EntityLivingBase entity, boolean elite)
+	{
+		this(world, entity);
+		this.teleportDamage = 1.0f;
+		this.motionX *= 1.3d;
+		this.motionY *= 1.3d;
+		this.motionZ *= 1.3d;
+	}
+
+	public void setLetMeFly(boolean value)
+	{
+		this.letMeFly = value;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -61,25 +78,58 @@ public class EntityEnderPearlReusable extends EntityThrowable
 	{
 		if (this.worldObj.isRemote == false && this.getThrower() != null && this.getThrower() instanceof EntityPlayerMP)
 		{
+			// Don't collide with self, needed for Elite version of pearl, which the thrower is riding
+			if (this.letMeFly == true && movingObjectPosition.typeOfHit == MovingObjectType.ENTITY
+				&& this.getThrower() == movingObjectPosition.entityHit)
+			{
+				return;
+			}
+
 			boolean success = false;
 			EntityPlayerMP entityplayermp = (EntityPlayerMP)this.getThrower();
 
-			if (entityplayermp.playerNetServerHandler.func_147362_b().isChannelOpen() && entityplayermp.worldObj == this.worldObj)
+			//if (entityplayermp.playerNetServerHandler.func_147362_b().isChannelOpen() && entityplayermp.worldObj == this.worldObj)
 			{
 				if (movingObjectPosition.entityHit != null)
 				{
 					movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
 				}
 
-				success = TeleportEntity.playerTeleportSelfWithProjectile(entityplayermp, this, movingObjectPosition, this.teleportDamage, true, true);
+				// If the player is "riding" an Elite Ender Pearl
+				if (EntityUtils.getBottomEntity(entityplayermp) instanceof EntityEnderPearlReusable
+					&& EntityUtils.getBottomEntity(entityplayermp).riddenByEntity != null)
+				{
+					// Dismount the Elite Pearl if a regular pearl hits something, or when the actual ridden pearl hits something.
+					// This allows throwing multiple Elite Pearls whil mid air, without the first ones dismounting the player when they land.
+					if (this.letMeFly == false || EntityUtils.getBottomEntity(entityplayermp) == this)
+					{
+						EntityUtils.getBottomEntity(entityplayermp).riddenByEntity.mountEntity(null);
+					}
+				}
+
+				// Only teleport when using the regular version
+				if (this.letMeFly == false)
+				{
+					success = TeleportEntity.playerTeleportSelfWithProjectile(entityplayermp, this, movingObjectPosition, this.teleportDamage, true, true);
+				}
+				else
+				{
+					success = true;
+				}
 			}
 
 			if (this.canPickUp == true)
 			{
+				int damage = 0;
+				if (this.letMeFly == true)
+				{
+					damage = 1;
+				}
+
 				// If the teleport was successful, try to add the pearl straight to the player's inventory
 				if (success == true)
 				{
-					success = entityplayermp.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+					success = entityplayermp.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
 				}
 
 				// Failed to teleport, or failed to add the pearl straight back to the player's inventory: spawn it in the world
@@ -87,7 +137,8 @@ public class EntityEnderPearlReusable extends EntityThrowable
 				{
 					//PositionHelper pos = new PositionHelper(movingObjectPosition, this);
 					//EntityItem entityitem = new EntityItem(this.worldObj, pos.posX, pos.posY, pos.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
-					EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 0));
+
+					EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
 
 					entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
 					entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;

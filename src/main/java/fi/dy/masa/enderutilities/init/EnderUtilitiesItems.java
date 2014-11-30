@@ -85,7 +85,8 @@ public class EnderUtilitiesItems
 			GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
 		}
 		if (EUConfigs.disableRecipeEnderPearl.getBoolean(false) == false && EUConfigs.disableItemEnderPearl.getBoolean(false) == false) {
-			GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock);
+			GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock); // regular pearl
+			GameRegistry.addRecipe(new ItemStack(enderPearlReusable, 1, 1), " D ", "DPD", " D ", 'D', diamond, 'P', new ItemStack(enderPearlReusable, 1, 0)); // Elite pearl
 		}
 		if (EUConfigs.disableRecipeEnderPorterBasic.getBoolean(false) == false &&
 			(EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false ||

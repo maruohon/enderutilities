@@ -11,14 +11,15 @@ public class CreativeTab
 {
 	public static final CreativeTabs ENDER_UTILITIES_TAB = new CreativeTabs(Reference.MOD_ID)
 	{
+		@SideOnly(Side.CLIENT)
 		@Override
 		public Item getTabIconItem()
 		{
 			return EnderUtilitiesItems.enderPearlReusable;
 		}
 
-		@Override
 		@SideOnly(Side.CLIENT)
+		@Override
 		public String getTranslatedTabLabel()
 		{
 			return Reference.MOD_NAME;

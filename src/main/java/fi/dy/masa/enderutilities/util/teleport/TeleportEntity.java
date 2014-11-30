@@ -130,7 +130,14 @@ public class TeleportEntity
 
 			if (dir.offsetY < 0)
 			{
-				pos.posY -= 0.5d + player.getDefaultEyeHeight();
+				pos.posY -= 0.5d + player.height;
+			}
+			else
+			{
+				if (player.worldObj.getBlock((int)pos.posX, (int)pos.posY, (int)pos.posZ) != Blocks.air)
+				{
+					pos.posY += 1.0d;
+				}
 			}
 		}
 
