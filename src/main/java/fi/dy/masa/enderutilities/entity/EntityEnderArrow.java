@@ -359,7 +359,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 					if (player != null)
 					{
 						this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-						TeleportEntity.playerTeleportSelfWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
+						TeleportEntity.entityTeleportWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true);
 					}
 					this.dropAsItem(false);
 					this.setDead();

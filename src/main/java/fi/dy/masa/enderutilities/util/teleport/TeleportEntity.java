@@ -19,6 +19,7 @@ import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
@@ -112,9 +113,9 @@ public class TeleportEntity
 		}
 	}
 
-	public static boolean playerTeleportSelfWithProjectile(EntityPlayer player, Entity projectile, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
+	public static boolean entityTeleportWithProjectile(Entity entity, Entity projectile, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
 	{
-		if (canTeleportEntity(player) == false)
+		if (canTeleportEntity(entity) == false)
 		{
 			return false;
 		}
@@ -122,26 +123,35 @@ public class TeleportEntity
 		PositionHelper pos = new PositionHelper(mop, projectile);
 
 		// Hit a block, offset the position to not collide with the block
-		if (mop.entityHit == null && mop.hitVec != null)
+		if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
 		{
+			//System.out.println("sideHit: " + mop.sideHit);
 			ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-			pos.posX += (dir.offsetX * 0.5d);
-			pos.posZ += (dir.offsetZ * 0.5d);
+			pos.posX += (dir.offsetX * 0.5d * entity.width);
+			pos.posZ += (dir.offsetZ * 0.5d * entity.width);
 
-			if (dir.offsetY < 0)
+			// Bottom side
+			if (mop.sideHit == 0)
 			{
-				pos.posY -= 0.5d + player.height;
+				pos.posY -= entity.height;
 			}
-			else
+			// FIXME the MovingObjectPosition ray tracing is messed up. It goes inside blocks
+			// if the projectile is moving too fast. At least the Elite Ender Pearl goes inside blocks
+			// when moving too fast down or something. That's why I'm doing the moving out of blocks for
+			// all types of hits atm.
+			//else
 			{
-				if (player.worldObj.getBlock((int)pos.posX, (int)pos.posY, (int)pos.posZ) != Blocks.air)
+				int y = (int)pos.posY;
+				while (y < 254 && (entity.worldObj.getBlock((int)pos.posX, y, (int)pos.posZ).getMaterial().isOpaque() == true
+						|| entity.worldObj.getBlock((int)pos.posX, y + 1, (int)pos.posZ).getMaterial().isOpaque() == true))
 				{
 					pos.posY += 1.0d;
+					++y;
 				}
 			}
 		}
 
-		Entity entNew = TeleportEntity.teleportEntity(player, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
+		Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
 
 		if (entNew != null)
 		{
