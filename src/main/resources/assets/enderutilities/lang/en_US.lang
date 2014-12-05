@@ -61,6 +61,7 @@ gui.tooltip.fluid=Fluid
 gui.tooltip.holdshift=Hold §a§oShift§7 for details
 gui.tooltip.linked=Linked
 gui.tooltip.mode=Mode
+gui.tooltip.nolinkcrystals=No Link Crystals installed
 gui.tooltip.notargetset=No target set
 gui.tooltip.notlinked=Not linked
 gui.tooltip.owner=Owner

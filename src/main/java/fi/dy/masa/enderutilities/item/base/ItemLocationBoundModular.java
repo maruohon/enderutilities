@@ -89,15 +89,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null || moduleStack.getItem() == null)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
-            return;
-        }
-
-        NBTTagCompound nbt = moduleStack.getTagCompound();
-        NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(nbt) == null)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+            list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
             return;
         }
 
@@ -106,11 +98,19 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
         int max = UtilItemModular.getModuleCount(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (max > 1)
+        if (max >= 1)
         {
             int sel = UtilItemModular.getClampedModuleSelection(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d%s", coordPre, sel, rst));
+            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", coordPre, sel, max, rst));
             //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
+        }
+
+        NBTTagCompound nbt = moduleStack.getTagCompound();
+        NBTHelperTarget target = new NBTHelperTarget();
+        if (target.readTargetTagFromNBT(nbt) == null)
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+            return;
         }
 
         list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + rst

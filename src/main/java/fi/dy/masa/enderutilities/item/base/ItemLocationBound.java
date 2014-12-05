@@ -65,13 +65,11 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-/*
-        if (EnderUtilities.proxy.isShiftKeyDown() == false)
+        /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
         {
             list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
             return;
-        }
-*/
+        }*/
 
         NBTTagCompound nbt = stack.getTagCompound();
         NBTHelperTarget target = new NBTHelperTarget();
