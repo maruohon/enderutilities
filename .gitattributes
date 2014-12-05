@@ -12,6 +12,8 @@ gradlew text eol=lf
 gradlew.bat text eol=lf
 gradle/wrapper/gradle-wrapper.properties text eol=lf
 .gitattributes text eol=lf
+COPYING.txt text eol=lf
+COPYING.LESSER.txt text eol=lf
 
 #binary
 *.dat binary

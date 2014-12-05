@@ -6,5 +6,7 @@ eclipse/
 .classpath
 .project
 *.txt
+!COPYING.txt
+!COPYING.LESSER.txt
 !mod_specs.txt
 !mod_specs_todo_list.txt
