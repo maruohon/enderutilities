@@ -1,18 +1,34 @@
 package fi.dy.masa.enderutilities.util;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
 
 public class TooltipHelper
 {
-    public static String getLocalizedDimensionName(int dim)
+    public static String getDimensionName(int dim, String name, boolean useFallback)
     {
-        WorldServer worldServer = MinecraftServer.getServer().worldServerForDimension(dim);
-        if (worldServer != null && worldServer.provider != null)
+        if (name == null || name.length() == 0)
         {
-            return worldServer.provider.getDimensionName();
+            if (dim == 0)
+            {
+                return "Overworld";
+            }
+            else if (dim == -1)
+            {
+                return "Nether";
+            }
+            else if (dim == 1)
+            {
+                return "The End";
+            }
+            else if (useFallback == true)
+            {
+                return "DIM: " + dim;
+            }
+            else
+            {
+                return "";
+            }
         }
 
-        return "";
+        return name;
     }
 }

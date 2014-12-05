@@ -287,8 +287,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTTagCompound nbt = stack.getTagCompound();
-        NBTHelperTarget targetData = new NBTHelperTarget();
-        if (targetData.readTargetTagFromNBT(nbt) == null)
+        NBTHelperTarget target = new NBTHelperTarget();
+        if (target.readTargetTagFromNBT(nbt) == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
             return;
@@ -310,8 +310,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             playerData.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
             playerData.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + targetData.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(targetData.dimension) + rst);
-            list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, targetData.posX, rst, coordPre, targetData.posY, rst, coordPre, targetData.posZ, rst));
+            list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + rst
+                    + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
+            list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
         }
 
         // Only show private vs. public when bound to regular inventories, not Ender Chest

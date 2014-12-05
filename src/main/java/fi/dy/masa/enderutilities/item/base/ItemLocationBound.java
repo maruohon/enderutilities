@@ -50,24 +50,12 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.getItem() instanceof ItemLocationBoundModular)
-        {
-            return super.getItemStackDisplayName(stack);
-        }
-
-        NBTTagCompound nbt = stack.getTagCompound();
         NBTHelperTarget target = new NBTHelperTarget();
 
-        if (nbt != null && target.readTargetTagFromNBT(nbt) != null)
+        if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
         {
-            String desc = TooltipHelper.getLocalizedDimensionName(target.dimension);
-
-            if (desc == null || desc.length() == 0)
-            {
-                return super.getItemStackDisplayName(stack) + " (DIM: " + target.dimension + ")";
-            }
-
-            return super.getItemStackDisplayName(stack) + " (" + desc + ")";
+            String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
+            return super.getItemStackDisplayName(stack) + " (" + dimName + ")";
         }
 
         return super.getItemStackDisplayName(stack);
@@ -93,11 +81,12 @@ public class ItemLocationBound extends ItemEnderUtilities
             return;
         }
 
-        String dimPre = "" + EnumChatFormatting.GREEN;
+        String dimPre = "" + EnumChatFormatting.DARK_GREEN;
         String coordPre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + " " + dimPre + TooltipHelper.getLocalizedDimensionName(target.dimension) + rst);
+        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + rst
+                + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
         list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", coordPre, target.dPosX, rst, coordPre, target.dPosY, rst, coordPre, target.dPosZ, rst));
         // For debug:
         //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));

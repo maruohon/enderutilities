@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.util.Constants;
 
 public class NBTHelperTarget
@@ -12,6 +13,7 @@ public class NBTHelperTarget
     public double dPosY;
     public double dPosZ;
     public int dimension;
+    public String dimensionName;
     /* Face of the target block */
     public int blockFace;
 
@@ -24,6 +26,7 @@ public class NBTHelperTarget
         this.dPosY = 0.0d;
         this.dPosZ = 0.0d;
         this.dimension = 0;
+        this.dimensionName = "";
         this.blockFace = -1;
     }
 
@@ -59,6 +62,7 @@ public class NBTHelperTarget
         this.posY = tag.getInteger("posY");
         this.posZ = tag.getInteger("posZ");
         this.dimension = tag.getInteger("Dim");
+        this.dimensionName = tag.getString("DimName");
         this.blockFace = tag.getInteger("BlockFace");
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
@@ -86,11 +90,21 @@ public class NBTHelperTarget
             z += hitZ;
         }
 
+        String dName = "";
+        if (MinecraftServer.getServer() != null && MinecraftServer.getServer().worldServerForDimension(dim) != null)
+        {
+            if (MinecraftServer.getServer().worldServerForDimension(dim).provider != null)
+            {
+                dName = MinecraftServer.getServer().worldServerForDimension(dim).provider.getDimensionName();
+            }
+        }
+
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("posX", (int)x);
         tag.setInteger("posY", (int)y);
         tag.setInteger("posZ", (int)z);
         tag.setInteger("Dim", dim);
+        tag.setString("DimName", dName);
         tag.setInteger("BlockFace", face);
         tag.setDouble("dPosX", x);
         tag.setDouble("dPosY", y);
@@ -113,6 +127,7 @@ public class NBTHelperTarget
         tag.setInteger("posY", this.posY);
         tag.setInteger("posZ", this.posZ);
         tag.setInteger("Dim", this.dimension);
+        tag.setString("DimName", this.dimensionName);
         tag.setInteger("BlockFace", this.blockFace);
         tag.setDouble("dPosX", this.dPosX);
         tag.setDouble("dPosY", this.dPosY);
