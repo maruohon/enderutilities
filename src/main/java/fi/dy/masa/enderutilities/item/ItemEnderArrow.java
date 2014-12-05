@@ -6,11 +6,11 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderArrow extends ItemEnderUtilities
 {
-	public ItemEnderArrow()
-	{
-		super();
-		this.setMaxStackSize(64);
-		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_ARROW);
-		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
-	}
+    public ItemEnderArrow()
+    {
+        super();
+        this.setMaxStackSize(64);
+        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_ARROW);
+        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
+    }
 }

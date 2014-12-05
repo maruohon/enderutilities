@@ -19,134 +19,134 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperEnderCharge;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable
 {
-	@SideOnly(Side.CLIENT)
-	private IIcon[] iconArray;
+    @SideOnly(Side.CLIENT)
+    private IIcon[] iconArray;
 
-	public ItemEnderCapacitor()
-	{
-		super();
-		this.setMaxStackSize(1);
-		this.setHasSubtypes(true);
-		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
-		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
-	}
+    public ItemEnderCapacitor()
+    {
+        super();
+        this.setMaxStackSize(1);
+        this.setHasSubtypes(true);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
+        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
+    }
 
-	@Override
-	public String getUnlocalizedName(ItemStack stack)
-	{
-		// Damage 0: Ender Capacitor (Basic)
-		// Damage 1: Ender Capacitor (Enhanced)
-		// Damage 2: Ender Capacitor (Advanced)
-		if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
-		{
-			return super.getUnlocalizedName() + "." + stack.getItemDamage();
-		}
+    @Override
+    public String getUnlocalizedName(ItemStack stack)
+    {
+        // Damage 0: Ender Capacitor (Basic)
+        // Damage 1: Ender Capacitor (Enhanced)
+        // Damage 2: Ender Capacitor (Advanced)
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return super.getUnlocalizedName() + "." + stack.getItemDamage();
+        }
 
-		return super.getUnlocalizedName();
-	}
+        return super.getUnlocalizedName();
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-	{
-		for (int i = 0; i <= 2; i++)
-		{
-			list.add(new ItemStack(this, 1, i));
-		}
-	}
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        for (int i = 0; i <= 2; i++)
+        {
+            list.add(new ItemStack(this, 1, i));
+        }
+    }
 
-	public int getCapacity(ItemStack stack)
-	{
-		if (stack.getItemDamage() == 1) { return 1024; } // Enhanced
-		if (stack.getItemDamage() == 2) { return 4096; } // Advanced
-		return 256; // Basic
-	}
+    public int getCapacity(ItemStack stack)
+    {
+        if (stack.getItemDamage() == 1) { return 1024; } // Enhanced
+        if (stack.getItemDamage() == 2) { return 4096; } // Advanced
+        return 256; // Basic
+    }
 
-	public int getCharge(ItemStack stack)
-	{
-		NBTHelperEnderCharge charge = new NBTHelperEnderCharge();
-		if (charge.readChargeTagFromNBT(stack.getTagCompound()) == null)
-		{
-			return 0;
-		}
+    public int getCharge(ItemStack stack)
+    {
+        NBTHelperEnderCharge charge = new NBTHelperEnderCharge();
+        if (charge.readChargeTagFromNBT(stack.getTagCompound()) == null)
+        {
+            return 0;
+        }
 
-		return charge.enderChargeAmount;
-	}
+        return charge.enderChargeAmount;
+    }
 
-	public int addCharge(ItemStack stack, int amount, boolean simulate)
-	{
-		int charge = this.getCharge(stack);
-		int capacity = this.getCapacity(stack);
+    public int addCharge(ItemStack stack, int amount, boolean simulate)
+    {
+        int charge = this.getCharge(stack);
+        int capacity = this.getCapacity(stack);
 
-		if ((capacity - charge) < amount)
-		{
-			amount = (capacity - charge);
-		}
+        if ((capacity - charge) < amount)
+        {
+            amount = (capacity - charge);
+        }
 
-		if (simulate == false)
-		{
-			stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), capacity, charge + amount));
-		}
+        if (simulate == false)
+        {
+            stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), capacity, charge + amount));
+        }
 
-		return amount;
-	}
+        return amount;
+    }
 
-	public int useCharge(ItemStack stack, int amount, boolean simulate)
-	{
-		int charge = this.getCharge(stack);
+    public int useCharge(ItemStack stack, int amount, boolean simulate)
+    {
+        int charge = this.getCharge(stack);
 
-		if (charge < amount)
-		{
-			return 0;
-		}
+        if (charge < amount)
+        {
+            return 0;
+        }
 
-		if (simulate == false)
-		{
-			stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), this.getCapacity(stack), charge - amount));
-		}
+        if (simulate == false)
+        {
+            stack.setTagCompound(NBTHelperEnderCharge.writeChargeTagToNBT(stack.getTagCompound(), this.getCapacity(stack), charge - amount));
+        }
 
-		return amount;
-	}
+        return amount;
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public IIcon getIconFromDamage(int damage)
-	{
-		if (damage >= 0 && damage <= 2)
-		{
-			return this.iconArray[damage];
-		}
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconFromDamage(int damage)
+    {
+        if (damage >= 0 && damage <= 2)
+        {
+            return this.iconArray[damage];
+        }
 
-		return this.itemIcon;
-	}
+        return this.itemIcon;
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void registerIcons(IIconRegister iconRegister)
-	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".0");
-		this.iconArray = new IIcon[3];
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".0");
+        this.iconArray = new IIcon[3];
 
-		for (int i = 0; i < 3; ++i)
-		{
-			this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + i);
-		}
-	}
+        for (int i = 0; i < 3; ++i)
+        {
+            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + i);
+        }
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
-	{
-		int charge = 0;
-		int capacity = this.getCapacity(stack);
-		NBTHelperEnderCharge chargeData = new NBTHelperEnderCharge();
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    {
+        int charge = 0;
+        int capacity = this.getCapacity(stack);
+        NBTHelperEnderCharge chargeData = new NBTHelperEnderCharge();
 
-		if (chargeData.readChargeTagFromNBT(stack.getTagCompound()) != null)
-		{
-			charge = chargeData.enderChargeAmount;
-		}
+        if (chargeData.readChargeTagFromNBT(stack.getTagCompound()) != null)
+        {
+            charge = chargeData.enderChargeAmount;
+        }
 
-		list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + charge + " / " + capacity);
-	}
+        list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + charge + " / " + capacity);
+    }
 }

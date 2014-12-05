@@ -19,80 +19,80 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemLinkCrystal extends ItemLocationBound
 {
-	@SideOnly(Side.CLIENT)
-	private IIcon[] iconArray;
+    @SideOnly(Side.CLIENT)
+    private IIcon[] iconArray;
 
-	public ItemLinkCrystal()
-	{
-		super();
-		this.setMaxStackSize(64);
-		this.setHasSubtypes(true);
-		this.setMaxDamage(0);
-		this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_LINKCRYSTAL);
-		this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
-	}
+    public ItemLinkCrystal()
+    {
+        super();
+        this.setMaxStackSize(64);
+        this.setHasSubtypes(true);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_LINKCRYSTAL);
+        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
+    }
 
-	@Override
-	public String getUnlocalizedName(ItemStack stack)
-	{
-		// Damage 0: Link Crystal (In-World)
-		// Damage 1: Link Crystal (Inventory)
-		// Damage 2: Link Crystal (Portal)
-		if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
-		{
-			return super.getUnlocalizedName() + "." + stack.getItemDamage();
-		}
+    @Override
+    public String getUnlocalizedName(ItemStack stack)
+    {
+        // Damage 0: Link Crystal (In-World)
+        // Damage 1: Link Crystal (Inventory)
+        // Damage 2: Link Crystal (Portal)
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return super.getUnlocalizedName() + "." + stack.getItemDamage();
+        }
 
-		return super.getUnlocalizedName();
-	}
+        return super.getUnlocalizedName();
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-	{
-		if (EUConfigs.disableItemLinkCrystal.getBoolean(false) == false)
-		{
-			for (int i = 0; i <= 2; i++)
-			{
-				list.add(new ItemStack(this, 1, i));
-			}
-		}
-	}
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        if (EUConfigs.disableItemLinkCrystal.getBoolean(false) == false)
+        {
+            for (int i = 0; i <= 2; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+        }
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public IIcon getIconFromDamage(int damage)
-	{
-		if (damage >= 0 && damage <= 2)
-		{
-			return this.iconArray[damage];
-		}
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconFromDamage(int damage)
+    {
+        if (damage >= 0 && damage <= 2)
+        {
+            return this.iconArray[damage];
+        }
 
-		return this.itemIcon;
-	}
+        return this.itemIcon;
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void registerIcons(IIconRegister iconRegister)
-	{
-		this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".inventory");
-		this.iconArray = new IIcon[3];
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".inventory");
+        this.iconArray = new IIcon[3];
 
-		this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".world");
-		this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".inventory");
-		this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
-	}
+        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".world");
+        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".inventory");
+        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
-	{
-		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt == null)
-		{
-			list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
-			return;
-		}
-		super.addInformation(stack, player, list, par4);
-	}
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
+            return;
+        }
+        super.addInformation(stack, player, list, par4);
+    }
 }

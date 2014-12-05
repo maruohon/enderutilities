@@ -5,9 +5,9 @@ import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 
 public class ItemEnderUtilities extends Item
 {
-	public ItemEnderUtilities()
-	{
-		super();
-		this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-	}
+    public ItemEnderUtilities()
+    {
+        super();
+        this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
+    }
 }
