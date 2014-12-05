@@ -208,12 +208,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        if (EnderUtilities.proxy.isShiftKeyDown() == false)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-            return;
-        }
-
         NBTTagCompound nbt = stack.getTagCompound();
 
         byte mode = BOW_MODE_TP_TARGET;
@@ -234,6 +228,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // TP the target entity
         String coordPre = "" + EnumChatFormatting.BLUE;
         list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
+
+        if (EnderUtilities.proxy.isShiftKeyDown() == false)
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+            return;
+        }
 
         super.addInformation(stack, player, list, par4);
     }
