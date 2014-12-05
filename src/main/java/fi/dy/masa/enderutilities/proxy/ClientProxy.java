@@ -24,56 +24,56 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 
 public class ClientProxy extends CommonProxy
 {
-	@Override
-	public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
-	{
-		switch (ctx.side)
-		{
-			case CLIENT:
-				return FMLClientHandler.instance().getClientPlayerEntity();
-			case SERVER:
-				return ctx.getServerHandler().playerEntity;
-			default:
-				System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
-				return null;
-		}
-	}
+    @Override
+    public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
+    {
+        switch (ctx.side)
+        {
+            case CLIENT:
+                return FMLClientHandler.instance().getClientPlayerEntity();
+            case SERVER:
+                return ctx.getServerHandler().playerEntity;
+            default:
+                System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
+                return null;
+        }
+    }
 
-	@Override
-	public void registerEventHandlers()
-	{
-		super.registerEventHandlers();
-		FMLCommonHandler.instance().bus().register(new InputEventHandler());
-	}
+    @Override
+    public void registerEventHandlers()
+    {
+        super.registerEventHandlers();
+        FMLCommonHandler.instance().bus().register(new InputEventHandler());
+    }
 
-	@Override
-	public void registerKeyBindings()
-	{
-		Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_TOGGLE_MODE, ReferenceKeys.KEYBIND_DEFAULT_TOGGLE_MODE, ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
+    @Override
+    public void registerKeyBindings()
+    {
+        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_TOGGLE_MODE, ReferenceKeys.KEYBIND_DEFAULT_TOGGLE_MODE, ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
 
-		ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
-	}
+        ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
+    }
 
-	@Override
-	public void registerRenderers()
-	{
-		// FIXME
-		RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow());
-		RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderSnowball(EnderUtilitiesItems.enderPearlReusable));
+    @Override
+    public void registerRenderers()
+    {
+        // FIXME
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow());
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderSnowball(EnderUtilitiesItems.enderPearlReusable));
 
-		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
-		MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
-	}
+        MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
+        MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
+    }
 
-	@Override
-	public boolean isShiftKeyDown()
-	{
-		return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
-	}
+    @Override
+    public boolean isShiftKeyDown()
+    {
+        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+    }
 
-	@Override
-	public boolean isControlKeyDown()
-	{
-		return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
-	}
+    @Override
+    public boolean isControlKeyDown()
+    {
+        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+    }
 }

@@ -21,340 +21,340 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 
 public class ChunkLoading implements LoadingCallback
 {
-	private static ChunkLoading instance;
-	private HashMap<String, DimChunkCoordTimeout> timeOuts;
-	private HashMap<String, Ticket> playerTickets;
+    private static ChunkLoading instance;
+    private HashMap<String, DimChunkCoordTimeout> timeOuts;
+    private HashMap<String, Ticket> playerTickets;
 
-	public ChunkLoading()
-	{
-		super();
-		instance = this;
-		this.timeOuts = new HashMap<String, DimChunkCoordTimeout>();
-		this.playerTickets = new HashMap<String, Ticket>();
-	}
+    public ChunkLoading()
+    {
+        super();
+        instance = this;
+        this.timeOuts = new HashMap<String, DimChunkCoordTimeout>();
+        this.playerTickets = new HashMap<String, Ticket>();
+    }
 
-	public static ChunkLoading getInstance()
-	{
-		return instance;
-	}
+    public static ChunkLoading getInstance()
+    {
+        return instance;
+    }
 
-	@Override
-	public void ticketsLoaded(List<Ticket> tickets, World world)
-	{
-		if (world.isRemote == true)
-		{
-			return;
-		}
+    @Override
+    public void ticketsLoaded(List<Ticket> tickets, World world)
+    {
+        if (world.isRemote == true)
+        {
+            return;
+        }
 
-		for (int i = 0; i < tickets.size(); ++i)
-		{
-			//System.out.println("ticketsLoaded(): looping: " + i);
-			Ticket ticket = tickets.get(i);
+        for (int i = 0; i < tickets.size(); ++i)
+        {
+            //System.out.println("ticketsLoaded(): looping: " + i);
+            Ticket ticket = tickets.get(i);
 
-			if (ticket != null && ticket.isPlayerTicket() == true)
-			{
-				//System.out.println("ticketsLoaded(): player ticket");
-				NBTTagCompound nbt = ticket.getModData();
+            if (ticket != null && ticket.isPlayerTicket() == true)
+            {
+                //System.out.println("ticketsLoaded(): player ticket");
+                NBTTagCompound nbt = ticket.getModData();
 
-				// Release tickets that are not used for persistent chunk loading and are not currently in use
-				if(nbt == null || nbt.hasKey("PersistentTicket") == false || nbt.getBoolean("PersistentTicket") == false)
-				{
-					//System.out.println("ticketsLoaded(): player ticket, not persistent");
-					Set<ChunkCoordIntPair> chunks = ticket.getChunkList();
-					//System.out.println("ticketsLoaded(): getChunkList().size(): " + chunks.size());
+                // Release tickets that are not used for persistent chunk loading and are not currently in use
+                if(nbt == null || nbt.hasKey("PersistentTicket") == false || nbt.getBoolean("PersistentTicket") == false)
+                {
+                    //System.out.println("ticketsLoaded(): player ticket, not persistent");
+                    Set<ChunkCoordIntPair> chunks = ticket.getChunkList();
+                    //System.out.println("ticketsLoaded(): getChunkList().size(): " + chunks.size());
 
-					for (ChunkCoordIntPair chunk : chunks)
-					{
-						//System.out.println("ticketsLoaded(): chunk set loop, unForceChunk()");
-						ForgeChunkManager.unforceChunk(ticket, chunk);
+                    for (ChunkCoordIntPair chunk : chunks)
+                    {
+                        //System.out.println("ticketsLoaded(): chunk set loop, unForceChunk()");
+                        ForgeChunkManager.unforceChunk(ticket, chunk);
 
-						if (ticket != null && ticket.world != null && ticket.world.provider != null)
-						{
-							//System.out.println("ticketsLoaded(): chunk set loop, this.timeOuts.remove");
-							this.timeOuts.remove(dimChunkCoordsToString(ticket.world.provider.dimensionId, chunk.chunkXPos, chunk.chunkZPos));
-						}
-					}
+                        if (ticket != null && ticket.world != null && ticket.world.provider != null)
+                        {
+                            //System.out.println("ticketsLoaded(): chunk set loop, this.timeOuts.remove");
+                            this.timeOuts.remove(dimChunkCoordsToString(ticket.world.provider.dimensionId, chunk.chunkXPos, chunk.chunkZPos));
+                        }
+                    }
 
-					ForgeChunkManager.releaseTicket(ticket);
+                    ForgeChunkManager.releaseTicket(ticket);
 
-					if (nbt != null && nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
-					{
-						//System.out.println("ticketsLoaded(): removePlayerTicket(): " + i);
-						this.removePlayerTicket(ticket);
-					}
-				}
-			}
-		}
-	}
+                    if (nbt != null && nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
+                    {
+                        //System.out.println("ticketsLoaded(): removePlayerTicket(): " + i);
+                        this.removePlayerTicket(ticket);
+                    }
+                }
+            }
+        }
+    }
 
-	public Ticket requestPlayerTicket(EntityPlayer player, int dimension, boolean isTemporary)
-	{
-		Ticket ticket = this.getPlayerTicket(player, dimension);
-		if (ticket != null)
-		{
-			//System.out.println("requestPlayerTicket() found an existing ticket");
-			return ticket;
-		}
+    public Ticket requestPlayerTicket(EntityPlayer player, int dimension, boolean isTemporary)
+    {
+        Ticket ticket = this.getPlayerTicket(player, dimension);
+        if (ticket != null)
+        {
+            //System.out.println("requestPlayerTicket() found an existing ticket");
+            return ticket;
+        }
 
-		World world = MinecraftServer.getServer().worldServerForDimension(dimension);
-		if (world == null)
-		{
-			EnderUtilities.logger.warn("requestTemporaryPlayerTicket(): Couldn't get world for dimension (" + dimension + ")");
-			return null;
-		}
+        World world = MinecraftServer.getServer().worldServerForDimension(dimension);
+        if (world == null)
+        {
+            EnderUtilities.logger.warn("requestTemporaryPlayerTicket(): Couldn't get world for dimension (" + dimension + ")");
+            return null;
+        }
 
-		ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), world, ForgeChunkManager.Type.NORMAL);
-		if (ticket == null)
-		{
-			EnderUtilities.logger.warn("requestTemporaryPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getCommandSenderName() + "'");
-			return null;
-		}
-		//System.out.println("requestPlayerTicket() succeeded");
-		ticket.getModData().setString("PlayerName", player.getCommandSenderName());
-		ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
-		ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
+        ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), world, ForgeChunkManager.Type.NORMAL);
+        if (ticket == null)
+        {
+            EnderUtilities.logger.warn("requestTemporaryPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getCommandSenderName() + "'");
+            return null;
+        }
+        //System.out.println("requestPlayerTicket() succeeded");
+        ticket.getModData().setString("PlayerName", player.getCommandSenderName());
+        ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
+        ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
 
-		if (isTemporary == true)
-		{
-			ticket.getModData().setBoolean("TemporaryPlayerTicket", true);
-		}
+        if (isTemporary == true)
+        {
+            ticket.getModData().setBoolean("TemporaryPlayerTicket", true);
+        }
 
-		this.addPlayerTicket(player, dimension, ticket);
+        this.addPlayerTicket(player, dimension, ticket);
 
-		return ticket;
-	}
+        return ticket;
+    }
 
-	public UUID getPlayerUUIDFromTicket(Ticket ticket)
-	{
-		NBTTagCompound nbt = ticket.getModData();
-		if (nbt == null || nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == false || nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == false)
-		{
-			return null;
-		}
+    public UUID getPlayerUUIDFromTicket(Ticket ticket)
+    {
+        NBTTagCompound nbt = ticket.getModData();
+        if (nbt == null || nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == false || nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == false)
+        {
+            return null;
+        }
 
-		return new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
-	}
+        return new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
+    }
 
-	public void addPlayerTicket(EntityPlayer player, int dimension, Ticket ticket)
-	{
-		this.addPlayerTicket(player.getUniqueID().toString(), dimension, ticket);
-	}
+    public void addPlayerTicket(EntityPlayer player, int dimension, Ticket ticket)
+    {
+        this.addPlayerTicket(player.getUniqueID().toString(), dimension, ticket);
+    }
 
-	public void addPlayerTicket(String uuidStr, int dimension, Ticket ticket)
-	{
-		this.playerTickets.put(uuidStr + "-" + dimension, ticket);
-	}
+    public void addPlayerTicket(String uuidStr, int dimension, Ticket ticket)
+    {
+        this.playerTickets.put(uuidStr + "-" + dimension, ticket);
+    }
 
-	public Ticket getPlayerTicket(EntityPlayer player, int dimension)
-	{
-		return this.getPlayerTicket(player.getUniqueID().toString(), dimension);
-	}
+    public Ticket getPlayerTicket(EntityPlayer player, int dimension)
+    {
+        return this.getPlayerTicket(player.getUniqueID().toString(), dimension);
+    }
 
-	public Ticket getPlayerTicket(String uuidStr, int dimension)
-	{
-		return this.playerTickets.get(uuidStr + "-" + dimension);
-	}
+    public Ticket getPlayerTicket(String uuidStr, int dimension)
+    {
+        return this.playerTickets.get(uuidStr + "-" + dimension);
+    }
 
-	public void removePlayerTicket(EntityPlayer player, int dimension)
-	{
-		this.removePlayerTicket(player.getUniqueID().toString(), dimension);
-	}
+    public void removePlayerTicket(EntityPlayer player, int dimension)
+    {
+        this.removePlayerTicket(player.getUniqueID().toString(), dimension);
+    }
 
-	public void removePlayerTicket(Ticket ticket)
-	{
-		if (ticket == null || ticket.world == null || ticket.world.provider == null)
-		{
-			return;
-		}
-		this.removePlayerTicket(this.getPlayerUUIDFromTicket(ticket).toString(), ticket.world.provider.dimensionId);
-	}
+    public void removePlayerTicket(Ticket ticket)
+    {
+        if (ticket == null || ticket.world == null || ticket.world.provider == null)
+        {
+            return;
+        }
+        this.removePlayerTicket(this.getPlayerUUIDFromTicket(ticket).toString(), ticket.world.provider.dimensionId);
+    }
 
-	public void removePlayerTicket(String uuidStr, int dimension)
-	{
-		this.playerTickets.remove(uuidStr + "-" + dimension);
-	}
+    public void removePlayerTicket(String uuidStr, int dimension)
+    {
+        this.playerTickets.remove(uuidStr + "-" + dimension);
+    }
 
-	public static String dimChunkCoordsToString(int dim, ChunkCoordIntPair cc)
-	{
-		return dim + "_" + cc.chunkXPos + "_" + cc.chunkZPos;
-	}
+    public static String dimChunkCoordsToString(int dim, ChunkCoordIntPair cc)
+    {
+        return dim + "_" + cc.chunkXPos + "_" + cc.chunkZPos;
+    }
 
-	public static String dimChunkCoordsToString(int dim, int x, int z)
-	{
-		return dim + "_" + x + "_" + z;
-	}
+    public static String dimChunkCoordsToString(int dim, int x, int z)
+    {
+        return dim + "_" + x + "_" + z;
+    }
 
-	public class DimChunkCoordTimeout
-	{
-		public int dimension;
-		public ChunkCoordIntPair chunkCoords;
-		public int timeout;
-		public int timeoutFresh;
-		public Ticket ticket;
+    public class DimChunkCoordTimeout
+    {
+        public int dimension;
+        public ChunkCoordIntPair chunkCoords;
+        public int timeout;
+        public int timeoutFresh;
+        public Ticket ticket;
 
-		public DimChunkCoordTimeout(Ticket ticket, int dimension, ChunkCoordIntPair cc, int timeout)
-		{
-			this.ticket = ticket;
-			this.dimension = dimension;
-			this.chunkCoords = cc;
-			this.timeout = timeout;
-			this.timeoutFresh = timeout;
-		}
+        public DimChunkCoordTimeout(Ticket ticket, int dimension, ChunkCoordIntPair cc, int timeout)
+        {
+            this.ticket = ticket;
+            this.dimension = dimension;
+            this.chunkCoords = cc;
+            this.timeout = timeout;
+            this.timeoutFresh = timeout;
+        }
 
-		public void setTimeout(int timeout)
-		{
-			this.timeout = timeout;
-			this.timeoutFresh = timeout;
-		}
+        public void setTimeout(int timeout)
+        {
+            this.timeout = timeout;
+            this.timeoutFresh = timeout;
+        }
 
-		public void refreshTimeout()
-		{
-			this.timeout = this.timeoutFresh;
-		}
+        public void refreshTimeout()
+        {
+            this.timeout = this.timeoutFresh;
+        }
 
-		public int tick()
-		{
-			if (this.timeout > 0)
-			{
-				--this.timeout;
-			}
+        public int tick()
+        {
+            if (this.timeout > 0)
+            {
+                --this.timeout;
+            }
 
-			return this.timeout;
-		}
+            return this.timeout;
+        }
 
-		public String toString()
-		{
-			return this.dimension + "-" + this.chunkCoords.chunkXPos + "-" + this.chunkCoords.chunkZPos;
-		}
+        public String toString()
+        {
+            return this.dimension + "-" + this.chunkCoords.chunkXPos + "-" + this.chunkCoords.chunkZPos;
+        }
 
-		public boolean equals(DimChunkCoordTimeout d)
-		{
-			return this.dimension == d.dimension && this.chunkCoords.equals(d.chunkCoords);
-		}
+        public boolean equals(DimChunkCoordTimeout d)
+        {
+            return this.dimension == d.dimension && this.chunkCoords.equals(d.chunkCoords);
+        }
 
-		public boolean equals(int dim, ChunkCoordIntPair cc)
-		{
-			return this.dimension == dim && this.chunkCoords.equals(cc);
-		}
-	}
+        public boolean equals(int dim, ChunkCoordIntPair cc)
+        {
+            return this.dimension == dim && this.chunkCoords.equals(cc);
+        }
+    }
 
-	public boolean loadChunkWithoutForce(int dimension, int chunkX, int chunkZ)
-	{
-		return this.loadChunkWithoutForce(MinecraftServer.getServer().worldServerForDimension(dimension), chunkX, chunkZ);
-	}
+    public boolean loadChunkWithoutForce(int dimension, int chunkX, int chunkZ)
+    {
+        return this.loadChunkWithoutForce(MinecraftServer.getServer().worldServerForDimension(dimension), chunkX, chunkZ);
+    }
 
-	public boolean loadChunkWithoutForce(World world, int chunkX, int chunkZ)
-	{
-		//System.out.println("loadChunkWithoutForce() start");
-		if (world == null)
-		{
-			return false;
-		}
-		IChunkProvider chunkProvider = world.getChunkProvider();
-		if (chunkProvider == null)
-		{
-			return false;
-		}
-		if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
-		{
-			//System.out.println("loadChunkWithoutForce() loading chunk");
-			chunkProvider.loadChunk(chunkX, chunkZ);
-		}
-		//System.out.println("loadChunkWithoutForce() end");
-		return true;
-	}
+    public boolean loadChunkWithoutForce(World world, int chunkX, int chunkZ)
+    {
+        //System.out.println("loadChunkWithoutForce() start");
+        if (world == null)
+        {
+            return false;
+        }
+        IChunkProvider chunkProvider = world.getChunkProvider();
+        if (chunkProvider == null)
+        {
+            return false;
+        }
+        if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
+        {
+            //System.out.println("loadChunkWithoutForce() loading chunk");
+            chunkProvider.loadChunk(chunkX, chunkZ);
+        }
+        //System.out.println("loadChunkWithoutForce() end");
+        return true;
+    }
 
-	public boolean loadChunkForcedWithPlayerTicket(EntityPlayer player, int dimension, int chunkX, int chunkZ, int unloadDelay)
-	{
-		Ticket ticket = this.requestPlayerTicket(player, dimension, unloadDelay != 0);
-		return this.loadChunkForcedWithPlayerTicket(ticket, dimension, chunkX, chunkZ, unloadDelay);
-	}
+    public boolean loadChunkForcedWithPlayerTicket(EntityPlayer player, int dimension, int chunkX, int chunkZ, int unloadDelay)
+    {
+        Ticket ticket = this.requestPlayerTicket(player, dimension, unloadDelay != 0);
+        return this.loadChunkForcedWithPlayerTicket(ticket, dimension, chunkX, chunkZ, unloadDelay);
+    }
 
-	public boolean loadChunkForcedWithPlayerTicket(Ticket ticket, int dimension, int chunkX, int chunkZ, int unloadDelay)
-	{
-		if (ticket == null)
-		{
-			//System.out.println("loadChunkForcedWithPlayerTicket() ticket == null");
-			return false;
-		}
-		ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
-		if (unloadDelay > 0)
-		{
-			//System.out.println("loadChunkForcedWithPlayerTicket() adding timeout: " + unloadDelay);
-			this.addChunkTimeout(ticket, dimension, chunkX, chunkZ, unloadDelay);
-		}
+    public boolean loadChunkForcedWithPlayerTicket(Ticket ticket, int dimension, int chunkX, int chunkZ, int unloadDelay)
+    {
+        if (ticket == null)
+        {
+            //System.out.println("loadChunkForcedWithPlayerTicket() ticket == null");
+            return false;
+        }
+        ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
+        if (unloadDelay > 0)
+        {
+            //System.out.println("loadChunkForcedWithPlayerTicket() adding timeout: " + unloadDelay);
+            this.addChunkTimeout(ticket, dimension, chunkX, chunkZ, unloadDelay);
+        }
 
-		return this.loadChunkWithoutForce(dimension, chunkX, chunkZ);
-	}
+        return this.loadChunkWithoutForce(dimension, chunkX, chunkZ);
+    }
 
-	public void addChunkTimeout(Ticket ticket, int dimension, int chunkX, int chunkZ, int timeout)
-	{
-		String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
+    public void addChunkTimeout(Ticket ticket, int dimension, int chunkX, int chunkZ, int timeout)
+    {
+        String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
-		if (this.timeOuts.containsKey(s) == true)
-		{
-			//System.out.println("addChunkTimeout(): re-setting");
-			this.timeOuts.get(s).setTimeout(timeout);
-		}
-		else
-		{
-			//System.out.println("addChunkTimeout(): adding");
-			this.timeOuts.put(s, new DimChunkCoordTimeout(ticket, dimension, new ChunkCoordIntPair(chunkX, chunkZ), timeout));
-		}
-	}
+        if (this.timeOuts.containsKey(s) == true)
+        {
+            //System.out.println("addChunkTimeout(): re-setting");
+            this.timeOuts.get(s).setTimeout(timeout);
+        }
+        else
+        {
+            //System.out.println("addChunkTimeout(): adding");
+            this.timeOuts.put(s, new DimChunkCoordTimeout(ticket, dimension, new ChunkCoordIntPair(chunkX, chunkZ), timeout));
+        }
+    }
 
-	public boolean refreshChunkTimeout(int dimension, int chunkX, int chunkZ)
-	{
-		String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
+    public boolean refreshChunkTimeout(int dimension, int chunkX, int chunkZ)
+    {
+        String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
-		if (this.timeOuts.containsKey(s) == true)
-		{
-			this.timeOuts.get(s).refreshTimeout();
-			return true;
-		}
+        if (this.timeOuts.containsKey(s) == true)
+        {
+            this.timeOuts.get(s).refreshTimeout();
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public void tickChunkTimeouts()
-	{
-		DimChunkCoordTimeout dcct;
-		List<String> toRemove = new ArrayList<String>();
+    public void tickChunkTimeouts()
+    {
+        DimChunkCoordTimeout dcct;
+        List<String> toRemove = new ArrayList<String>();
 
-		//int j = 0; // FIXME debug
-		for (Map.Entry<String, DimChunkCoordTimeout> entry : this.timeOuts.entrySet())
-		{
-			dcct = entry.getValue();
-			//System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
+        //int j = 0; // FIXME debug
+        for (Map.Entry<String, DimChunkCoordTimeout> entry : this.timeOuts.entrySet())
+        {
+            dcct = entry.getValue();
+            //System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
 
-			// If this chunk doesn't have a valid ticket anymore, just remove the entry
-			if (dcct != null && this.playerTickets.containsValue(dcct.ticket) == false)
-			{
-				//System.out.println("tickChunkTimeouts(): invalid ticket, removing timeout entry");
-				toRemove.add(entry.getKey());
-				continue;
-			}
+            // If this chunk doesn't have a valid ticket anymore, just remove the entry
+            if (dcct != null && this.playerTickets.containsValue(dcct.ticket) == false)
+            {
+                //System.out.println("tickChunkTimeouts(): invalid ticket, removing timeout entry");
+                toRemove.add(entry.getKey());
+                continue;
+            }
 
-			if (dcct.tick() == 0)
-			{
-				//System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
-				ForgeChunkManager.unforceChunk(dcct.ticket, dcct.chunkCoords);
+            if (dcct.tick() == 0)
+            {
+                //System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
+                ForgeChunkManager.unforceChunk(dcct.ticket, dcct.chunkCoords);
 
-				if (dcct.ticket.getChunkList().size() == 0)
-				{
-					//System.out.println("tickChunkTimeouts(): releasing ticket");
-					this.removePlayerTicket(this.getPlayerUUIDFromTicket(dcct.ticket).toString(), dcct.dimension);
-					ForgeChunkManager.releaseTicket(dcct.ticket);
-				}
+                if (dcct.ticket.getChunkList().size() == 0)
+                {
+                    //System.out.println("tickChunkTimeouts(): releasing ticket");
+                    this.removePlayerTicket(this.getPlayerUUIDFromTicket(dcct.ticket).toString(), dcct.dimension);
+                    ForgeChunkManager.releaseTicket(dcct.ticket);
+                }
 
-				toRemove.add(entry.getKey());
-			}
-		}
+                toRemove.add(entry.getKey());
+            }
+        }
 
-		for (int i = 0; i < toRemove.size(); ++i)
-		{
-			//System.out.println("tickChunkTimeouts() remove loop: " + i);
-			this.timeOuts.remove(toRemove.get(i));
-		}
-	}
+        for (int i = 0; i < toRemove.size(); ++i)
+        {
+            //System.out.println("tickChunkTimeouts() remove loop: " + i);
+            this.timeOuts.remove(toRemove.get(i));
+        }
+    }
 }

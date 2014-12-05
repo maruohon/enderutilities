@@ -5,42 +5,42 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class NBTHelper
 {
-	public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTTagCompound tag)
-	{
-		if (name == null)
-		{
-			return nbt;
-		}
+    public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTTagCompound tag)
+    {
+        if (name == null)
+        {
+            return nbt;
+        }
 
-		if (nbt == null)
-		{
-			if (tag == null)
-			{
-				return nbt;
-			}
+        if (nbt == null)
+        {
+            if (tag == null)
+            {
+                return nbt;
+            }
 
-			nbt = new NBTTagCompound();
-		}
+            nbt = new NBTTagCompound();
+        }
 
-		if (tag == null)
-		{
-			nbt.removeTag(name);
-		}
-		else
-		{
-			nbt.setTag(name, tag);
-		}
+        if (tag == null)
+        {
+            nbt.removeTag(name);
+        }
+        else
+        {
+            nbt.setTag(name, tag);
+        }
 
-		return nbt;
-	}
+        return nbt;
+    }
 
-	public static ItemStack writeNBTToItem(ItemStack stack, NBTTagCompound nbt)
-	{
-		if (stack != null)
-		{
-			stack.setTagCompound(nbt);
-		}
+    public static ItemStack writeNBTToItem(ItemStack stack, NBTTagCompound nbt)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(nbt);
+        }
 
-		return stack;
-	}
+        return stack;
+    }
 }

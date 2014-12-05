@@ -16,57 +16,57 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityInteractEventHandler
 {
-	@SubscribeEvent
-	public void onEntityInteractEvent(EntityInteractEvent event)
-	{
-		ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
+    @SubscribeEvent
+    public void onEntityInteractEvent(EntityInteractEvent event)
+    {
+        ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 
-		if (stack == null)
-		{
-			return;
-		}
+        if (stack == null)
+        {
+            return;
+        }
 
-		Item item = stack.getItem();
+        Item item = stack.getItem();
 
-		if(item == EnderUtilitiesItems.enderLasso && event.entity.worldObj.isRemote == false)
-		{
-			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
-				(EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
-			{
-				if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
-				{
-					event.setCanceled(true);
-				}
-			}
-		}
-		else if(item == EnderUtilitiesItems.mobHarness)
-		{
-			if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
-			{
-				((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
-				event.setCanceled(true);
-			}
-		}
-		else if (item == EnderUtilitiesItems.enderPart)
-		{
-			if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
-			{
-				int dmg = stack.getItemDamage();
+        if(item == EnderUtilitiesItems.enderLasso && event.entity.worldObj.isRemote == false)
+        {
+            if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
+                (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
+            {
+                if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
+                {
+                    event.setCanceled(true);
+                }
+            }
+        }
+        else if(item == EnderUtilitiesItems.mobHarness)
+        {
+            if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
+            {
+                ((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
+                event.setCanceled(true);
+            }
+        }
+        else if (item == EnderUtilitiesItems.enderPart)
+        {
+            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+            {
+                int dmg = stack.getItemDamage();
 
-				// Inactive Ender Core: Change the stack to an active Ender Core
-				if (dmg >= 10 && dmg <= 12)
-				{
-					stack.setItemDamage(dmg + 5);
-				}
-			}
-		}
-		else if (item instanceof IChargeable)
-		{
-			if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
-			{
-				IChargeable cItem = (IChargeable)item;
-				cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, false);
-			}
-		}
-	}
+                // Inactive Ender Core: Change the stack to an active Ender Core
+                if (dmg >= 10 && dmg <= 12)
+                {
+                    stack.setItemDamage(dmg + 5);
+                }
+            }
+        }
+        else if (item instanceof IChargeable)
+        {
+            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+            {
+                IChargeable cItem = (IChargeable)item;
+                cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, false);
+            }
+        }
+    }
 }

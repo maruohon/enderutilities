@@ -9,20 +9,20 @@ import fi.dy.masa.enderutilities.reference.Reference;
 
 public class CreativeTab
 {
-	public static final CreativeTabs ENDER_UTILITIES_TAB = new CreativeTabs(Reference.MOD_ID)
-	{
-		@SideOnly(Side.CLIENT)
-		@Override
-		public Item getTabIconItem()
-		{
-			return EnderUtilitiesItems.enderPearlReusable;
-		}
+    public static final CreativeTabs ENDER_UTILITIES_TAB = new CreativeTabs(Reference.MOD_ID)
+    {
+        @SideOnly(Side.CLIENT)
+        @Override
+        public Item getTabIconItem()
+        {
+            return EnderUtilitiesItems.enderPearlReusable;
+        }
 
-		@SideOnly(Side.CLIENT)
-		@Override
-		public String getTranslatedTabLabel()
-		{
-			return Reference.MOD_NAME;
-		}
-	};
+        @SideOnly(Side.CLIENT)
+        @Override
+        public String getTranslatedTabLabel()
+        {
+            return Reference.MOD_NAME;
+        }
+    };
 }

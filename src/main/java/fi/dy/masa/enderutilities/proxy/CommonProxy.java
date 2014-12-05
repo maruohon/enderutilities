@@ -23,54 +23,54 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public abstract class CommonProxy implements IProxy
 {
-	@Override
-	public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
-	{
-		switch (ctx.side)
-		{
-			case SERVER:
-				return ctx.getServerHandler().playerEntity;
-			default:
-				EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext()");
-				return null;
-		}
-	}
+    @Override
+    public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
+    {
+        switch (ctx.side)
+        {
+            case SERVER:
+                return ctx.getServerHandler().playerEntity;
+            default:
+                EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext()");
+                return null;
+        }
+    }
 
-	public void registerEntities()
-	{
-		int id = 0;
-		EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntities.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
-		EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntities.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
-	}
+    public void registerEntities()
+    {
+        int id = 0;
+        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntities.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntities.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
+    }
 
-	public void registerEventHandlers()
-	{
-		MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
-		MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
-		MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
-		FMLCommonHandler.instance().bus().register(new TickHandler());
-		FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
-		ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
-	}
+    public void registerEventHandlers()
+    {
+        MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
+        MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
+        MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+        FMLCommonHandler.instance().bus().register(new TickHandler());
+        FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
+        ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
+    }
 
-	public void registerFuelHandlers()
-	{
-		//GameRegistry.registerFuelHandler(new FuelHandler());
-	}
+    public void registerFuelHandlers()
+    {
+        //GameRegistry.registerFuelHandler(new FuelHandler());
+    }
 
-	public void registerTileEntities()
-	{
-		GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
-		GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
-	}
+    public void registerTileEntities()
+    {
+        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
+        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
+    }
 
-	public boolean isShiftKeyDown()
-	{
-		return false;
-	}
+    public boolean isShiftKeyDown()
+    {
+        return false;
+    }
 
-	public boolean isControlKeyDown()
-	{
-		return false;
-	}
+    public boolean isControlKeyDown()
+    {
+        return false;
+    }
 }

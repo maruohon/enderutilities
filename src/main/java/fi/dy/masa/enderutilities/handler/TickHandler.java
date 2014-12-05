@@ -14,47 +14,47 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class TickHandler
 {
-	public void Tickhandler()
-	{
-	}
+    public void Tickhandler()
+    {
+    }
 
-	@SubscribeEvent
-	public void onServerTick(ServerTickEvent event)
-	{
-		if (event.phase == TickEvent.Phase.END)
-		{
-			return;
-		}
+    @SubscribeEvent
+    public void onServerTick(ServerTickEvent event)
+    {
+        if (event.phase == TickEvent.Phase.END)
+        {
+            return;
+        }
 
-		ChunkLoading.getInstance().tickChunkTimeouts();
-	}
+        ChunkLoading.getInstance().tickChunkTimeouts();
+    }
 
-	@SubscribeEvent
-	public void onPlayerTick(PlayerTickEvent event)
-	{
-		if (event.side == Side.CLIENT || event.phase == TickEvent.Phase.END || event.player == null)
-		{
-			return;
-		}
+    @SubscribeEvent
+    public void onPlayerTick(PlayerTickEvent event)
+    {
+        if (event.side == Side.CLIENT || event.phase == TickEvent.Phase.END || event.player == null)
+        {
+            return;
+        }
 
-		EntityPlayer player = event.player;
-		ItemStack stack = player.getCurrentEquippedItem();
+        EntityPlayer player = event.player;
+        ItemStack stack = player.getCurrentEquippedItem();
 
-		if (stack != null && stack.getItem() instanceof IChunkLoadingItem)
-		{
-			NBTTagCompound nbt = stack.getTagCompound();
-			if (nbt != null)
-			{
-				// If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
-				if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
-				{
-					NBTHelperTarget target = new NBTHelperTarget();
-					if (target.readTargetTagFromNBT(nbt) != null)
-					{
-						ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
-					}
-				}
-			}
-		}
-	}
+        if (stack != null && stack.getItem() instanceof IChunkLoadingItem)
+        {
+            NBTTagCompound nbt = stack.getTagCompound();
+            if (nbt != null)
+            {
+                // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
+                if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
+                {
+                    NBTHelperTarget target = new NBTHelperTarget();
+                    if (target.readTargetTagFromNBT(nbt) != null)
+                    {
+                        ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
+                    }
+                }
+            }
+        }
+    }
 }

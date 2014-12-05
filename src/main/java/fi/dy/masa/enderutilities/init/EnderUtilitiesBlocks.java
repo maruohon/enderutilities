@@ -12,19 +12,19 @@ import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class EnderUtilitiesBlocks
 {
-	public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceBlocksItems.NAME_TILE_MACHINE_0, 1.0f);
+    public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceBlocksItems.NAME_TILE_MACHINE_0, 1.0f);
 
-	public static void init()
-	{
-		// Register blocks
-		if (EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
-			GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceBlocksItems.NAME_TILE_MACHINE_0);
-		}
+    public static void init()
+    {
+        // Register blocks
+        if (EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
+            GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceBlocksItems.NAME_TILE_MACHINE_0);
+        }
 
-		// Register block recipes
-		if (EUConfigs.disableRecipeEnderFurnace.getBoolean(false) == false && EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
-			GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "PDP", "DFD", "EDE",
-				'E', new ItemStack(Items.ender_eye), 'D', new ItemStack(Items.diamond), 'F', new ItemStack(Blocks.furnace), 'P', new ItemStack(Items.ender_pearl));
-		}
-	}
+        // Register block recipes
+        if (EUConfigs.disableRecipeEnderFurnace.getBoolean(false) == false && EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "PDP", "DFD", "EDE",
+                'E', new ItemStack(Items.ender_eye), 'D', new ItemStack(Items.diamond), 'F', new ItemStack(Blocks.furnace), 'P', new ItemStack(Items.ender_pearl));
+        }
+    }
 }

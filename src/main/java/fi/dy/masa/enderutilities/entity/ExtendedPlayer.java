@@ -11,59 +11,59 @@ import net.minecraftforge.common.IExtendedEntityProperties;
 
 public class ExtendedPlayer implements IExtendedEntityProperties
 {
-	public final static String PROPERTY_NAME = "ExtendedPlayer";
-	//private final EntityPlayer player;
-	private HashMap<World, Ticket> chunkloadTicketsTemporary;
+    public final static String PROPERTY_NAME = "ExtendedPlayer";
+    //private final EntityPlayer player;
+    private HashMap<World, Ticket> chunkloadTicketsTemporary;
 
-	public ExtendedPlayer(EntityPlayer player)
-	{
-		//this.player = player;
-		this.chunkloadTicketsTemporary = new HashMap<World, Ticket>();
-	}
+    public ExtendedPlayer(EntityPlayer player)
+    {
+        //this.player = player;
+        this.chunkloadTicketsTemporary = new HashMap<World, Ticket>();
+    }
 
-	@Override
-	public void saveNBTData(NBTTagCompound compound)
-	{
-	}
+    @Override
+    public void saveNBTData(NBTTagCompound compound)
+    {
+    }
 
-	@Override
-	public void loadNBTData(NBTTagCompound compound)
-	{
-	}
+    @Override
+    public void loadNBTData(NBTTagCompound compound)
+    {
+    }
 
-	@Override
-	public void init(Entity entity, World world)
-	{
-	}
+    @Override
+    public void init(Entity entity, World world)
+    {
+    }
 
-	public static final void register(EntityPlayer player)
-	{
-		player.registerExtendedProperties(ExtendedPlayer.PROPERTY_NAME, new ExtendedPlayer(player));
-	}
+    public static final void register(EntityPlayer player)
+    {
+        player.registerExtendedProperties(ExtendedPlayer.PROPERTY_NAME, new ExtendedPlayer(player));
+    }
 
-	public static final ExtendedPlayer get(EntityPlayer player)
-	{
-		return (ExtendedPlayer)player.getExtendedProperties(PROPERTY_NAME);
-	}
+    public static final ExtendedPlayer get(EntityPlayer player)
+    {
+        return (ExtendedPlayer)player.getExtendedProperties(PROPERTY_NAME);
+    }
 
-	public Ticket setTemporaryTicket(World world, Ticket ticket)
-	{
-		this.chunkloadTicketsTemporary.put(world, ticket);
-		return ticket;
-	}
+    public Ticket setTemporaryTicket(World world, Ticket ticket)
+    {
+        this.chunkloadTicketsTemporary.put(world, ticket);
+        return ticket;
+    }
 
-	public void removeTemporaryTicket(World world)
-	{
-		this.chunkloadTicketsTemporary.remove(world);
-	}
+    public void removeTemporaryTicket(World world)
+    {
+        this.chunkloadTicketsTemporary.remove(world);
+    }
 
-	public Ticket getTemporaryTicket(World world)
-	{
-		return this.chunkloadTicketsTemporary.get(world);
-	}
+    public Ticket getTemporaryTicket(World world)
+    {
+        return this.chunkloadTicketsTemporary.get(world);
+    }
 
-	public HashMap<World, Ticket> getTemporaryTickets()
-	{
-		return this.chunkloadTicketsTemporary;
-	}
+    public HashMap<World, Ticket> getTemporaryTickets()
+    {
+        return this.chunkloadTicketsTemporary;
+    }
 }

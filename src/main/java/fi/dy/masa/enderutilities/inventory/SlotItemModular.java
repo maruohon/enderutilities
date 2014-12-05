@@ -7,14 +7,14 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 
 public class SlotItemModular extends Slot
 {
-	public SlotItemModular(IInventory inventory, int slot, int posX, int posY)
-	{
-		super(inventory, slot, posX, posY);
-	}
+    public SlotItemModular(IInventory inventory, int slot, int posX, int posY)
+    {
+        super(inventory, slot, posX, posY);
+    }
 
-	@Override
-	public boolean isItemValid(ItemStack stack)
-	{
-		return stack != null && stack.getItem() instanceof IModular;
-	}
+    @Override
+    public boolean isItemValid(ItemStack stack)
+    {
+        return stack != null && stack.getItem() instanceof IModular;
+    }
 }

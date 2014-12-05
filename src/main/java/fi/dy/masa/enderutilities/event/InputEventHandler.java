@@ -15,35 +15,35 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 
 public class InputEventHandler
 {
-	public InputEventHandler()
-	{
-	}
+    public InputEventHandler()
+    {
+    }
 
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onInput(InputEvent event)
-	{
-		// In-game (no GUI open)
-		if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
-		{
-			if (Keybindings.keyToggleMode.isPressed() == true)
-			{
-				EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-				if (player != null && player.worldObj.isRemote == true &&
-					player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
-				{
-					int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
-					if (EnderUtilities.proxy.isShiftKeyDown() == true)
-					{
-						key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
-					}
-					if (EnderUtilities.proxy.isControlKeyDown() == true)
-					{
-						key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
-					}
-					PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
-				}
-			}
-		}
-	}
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void onInput(InputEvent event)
+    {
+        // In-game (no GUI open)
+        if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
+        {
+            if (Keybindings.keyToggleMode.isPressed() == true)
+            {
+                EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+                if (player != null && player.worldObj.isRemote == true &&
+                    player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
+                {
+                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
+                    if (EnderUtilities.proxy.isShiftKeyDown() == true)
+                    {
+                        key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
+                    }
+                    if (EnderUtilities.proxy.isControlKeyDown() == true)
+                    {
+                        key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+                    }
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                }
+            }
+        }
+    }
 }

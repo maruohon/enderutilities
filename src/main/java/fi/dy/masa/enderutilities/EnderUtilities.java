@@ -21,49 +21,49 @@ import fi.dy.masa.enderutilities.setup.EURegistry;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
 public class EnderUtilities
 {
-	@Instance(Reference.MOD_ID)
-	public static EnderUtilities instance;
+    @Instance(Reference.MOD_ID)
+    public static EnderUtilities instance;
 
-	@SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
-	public static IProxy proxy;
-	public static org.apache.logging.log4j.Logger logger;
+    @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
+    public static IProxy proxy;
+    public static org.apache.logging.log4j.Logger logger;
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event)
-	{
-		instance = this;
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event)
+    {
+        instance = this;
 
-		logger = event.getModLog();
+        logger = event.getModLog();
 
-		EUConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
+        EUConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
 
-		proxy.registerKeyBindings();
+        proxy.registerKeyBindings();
 
-		// Initialize network stuff
-		PacketHandler.init();
+        // Initialize network stuff
+        PacketHandler.init();
 
-		// Initialize mod items
-		EnderUtilitiesItems.init();
+        // Initialize mod items
+        EnderUtilitiesItems.init();
 
-		// Initialize mod blocks
-		EnderUtilitiesBlocks.init();
-	}
+        // Initialize mod blocks
+        EnderUtilitiesBlocks.init();
+    }
 
-	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
-		proxy.registerEntities();
-		proxy.registerEventHandlers();
-		proxy.registerFuelHandlers();
-		proxy.registerRenderers();
-		proxy.registerTileEntities();
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
-	}
+    @EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        proxy.registerEntities();
+        proxy.registerEventHandlers();
+        proxy.registerFuelHandlers();
+        proxy.registerRenderers();
+        proxy.registerTileEntities();
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
+    }
 
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event)
-	{
-		EURegistry.registerEnderbagLists();
-		EURegistry.registerTeleportBlacklist();
-	}
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+        EURegistry.registerEnderbagLists();
+        EURegistry.registerTeleportBlacklist();
+    }
 }

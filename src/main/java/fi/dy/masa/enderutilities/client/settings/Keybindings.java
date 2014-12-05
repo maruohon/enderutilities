@@ -4,5 +4,5 @@ import net.minecraft.client.settings.KeyBinding;
 
 public class Keybindings
 {
-	public static KeyBinding keyToggleMode;
+    public static KeyBinding keyToggleMode;
 }

@@ -5,26 +5,26 @@ import net.minecraft.item.ItemStack;
 
 public class TileEntityEnderUtilitiesSided extends TileEntityEnderUtilitiesInventory implements ISidedInventory
 {
-	public TileEntityEnderUtilitiesSided(String name)
-	{
-		super(name);
-	}
+    public TileEntityEnderUtilitiesSided(String name)
+    {
+        super(name);
+    }
 
-	@Override
-	public int[] getAccessibleSlotsFromSide(int side)
-	{
-		return null;
-	}
+    @Override
+    public int[] getAccessibleSlotsFromSide(int side)
+    {
+        return null;
+    }
 
-	@Override
-	public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
-	{
-		return true;
-	}
+    @Override
+    public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
+    {
+        return true;
+    }
 
-	@Override
-	public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
-	{
-		return true;
-	}
+    @Override
+    public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
+    {
+        return true;
+    }
 }
