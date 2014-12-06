@@ -78,3 +78,4 @@ gui.tooltip.type=Type
 
 chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
 chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
+chat.message.enderbag.outofrange=The target is out of the client's range

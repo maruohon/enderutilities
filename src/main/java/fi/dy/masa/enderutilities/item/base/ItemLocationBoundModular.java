@@ -78,7 +78,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack toolStack, EntityPlayer player, List list, boolean par4)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
         /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
         {
@@ -86,7 +86,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             return;
         }*/
 
-        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null || moduleStack.getItem() == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
@@ -94,28 +94,27 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
 
         String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-        String coordPre = "" + EnumChatFormatting.BLUE;
+        String numPre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-        int max = UtilItemModular.getModuleCount(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        int max = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (max >= 1)
         {
-            int sel = UtilItemModular.getClampedModuleSelection(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", coordPre, sel, max, rst));
+            int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, max, rst));
             //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
         }
 
-        NBTTagCompound nbt = moduleStack.getTagCompound();
         NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(nbt) == null)
+        if (target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
             return;
         }
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + rst
+        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
                 + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-        list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", coordPre, target.dPosX, rst, coordPre, target.dPosY, rst, coordPre, target.dPosZ, rst));
+        list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
         // For debug:
         //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
     }

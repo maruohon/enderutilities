@@ -73,4 +73,20 @@ public class NBTHelperPlayer
 
         return nbt;
     }
+
+    public boolean isOwner(EntityPlayer player)
+    {
+        if (player == null)
+        {
+            return false;
+        }
+
+        if (this.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
+            this.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

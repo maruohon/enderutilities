@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -71,21 +70,20 @@ public class ItemLocationBound extends ItemEnderUtilities
             return;
         }*/
 
-        NBTTagCompound nbt = stack.getTagCompound();
         NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(nbt) == null)
+        if (target.readTargetTagFromNBT(stack.getTagCompound()) == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
             return;
         }
 
         String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-        String coordPre = "" + EnumChatFormatting.BLUE;
+        String numPre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + coordPre + target.dimension + rst
+        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
                 + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-        list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", coordPre, target.dPosX, rst, coordPre, target.dPosY, rst, coordPre, target.dPosZ, rst));
+        list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
         // For debug:
         //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
     }
