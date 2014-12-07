@@ -4,13 +4,12 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -44,37 +43,9 @@ public class MachineEnderFurnace extends Machine
 
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
-            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-
             // Drop the items from the output buffer
-            if (teef.getOutputBufferAmount() > 0 && teef.getOutputBufferStack() != null)
-            {
-                int amount = teef.getOutputBufferAmount();
-                ItemStack stack = teef.getOutputBufferStack();
-
-                double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
-                double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
-                double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
-
-                int num = 0;
-                int max = stack.getMaxStackSize();
-
-                while (amount > 0)
-                {
-                    num = Math.min(amount, max);
-                    ItemStack dropStack = stack.copy();
-                    dropStack.stackSize = num;
-                    amount -= num;
-                    EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
-
-                    double motionScale = 0.04d;
-                    entityItem.motionX = world.rand.nextGaussian() * motionScale;
-                    entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
-                    entityItem.motionZ = world.rand.nextGaussian() * motionScale;
-
-                    world.spawnEntityInWorld(entityItem);
-                }
-            }
+            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
+            BlockEnderUtilitiesInventory.dropItemStacks(world, x, y, z, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
         }
     
         super.breakBlock(world, x, y, z, block, meta);

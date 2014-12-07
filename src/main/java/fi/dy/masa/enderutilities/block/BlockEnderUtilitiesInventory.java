@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
@@ -33,42 +34,60 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
 
             for (int i = 0; i < teeui.getSizeInventory(); ++i)
             {
-                ItemStack stack = teeui.getStackInSlot(i);
-
-                if (stack != null)
-                {
-                    double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
-                    double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
-                    double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
-
-                    while (stack.stackSize > 0)
-                    {
-                        int num = world.rand.nextInt(21) + 10;
-                        if (num > stack.stackSize)
-                        {
-                            num = stack.stackSize;
-                        }
-
-                        ItemStack dropStack = stack.copy();
-                        dropStack.stackSize = num;
-                        stack.stackSize -= num;
-                        EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
-
-                        double motionScale = 0.04d;
-                        entityItem.motionX = world.rand.nextGaussian() * motionScale;
-                        entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
-                        entityItem.motionZ = world.rand.nextGaussian() * motionScale;
-
-                        world.spawnEntityInWorld(entityItem);
-                    }
-                }
+                dropItemStacks(world, x, y, z, teeui.getStackInSlot(i), -1, false);
             }
-
             //world.func_147453_f(x, y, z, block); // this gets called in World.removeTileEntity()
         }
     
         super.breakBlock(world, x, y, z, block, meta);
         //world.removeTileEntity(x, y, z);
+    }
+
+    public static void dropItemStacks(World world, int x, int y, int z, ItemStack stack, int amount, boolean dropFullStacks)
+    {
+        if (stack == null)
+        {
+            return;
+        }
+
+        double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
+        double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
+        double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
+        double motionScale = 0.04d;
+
+        if (amount < 0)
+        {
+            amount = stack.stackSize;
+        }
+
+        int max = stack.getMaxStackSize();
+        if (max <= 0)
+        {
+            EnderUtilities.logger.error("BlockEnderUtilitiesInventory.dropItemStack(): Max size of ItemStack to drop was <= 0");
+            return;
+        }
+
+        int num = max;
+
+        while (amount > 0)
+        {
+            if (dropFullStacks == false)
+            {
+                num = Math.min(world.rand.nextInt(23) + 10, max);
+            }
+
+            num = Math.min(num, amount);
+            ItemStack dropStack = stack.copy();
+            dropStack.stackSize = num;
+            amount -= num;
+
+            EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
+            entityItem.motionX = world.rand.nextGaussian() * motionScale;
+            entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
+            entityItem.motionZ = world.rand.nextGaussian() * motionScale;
+
+            world.spawnEntityInWorld(entityItem);
+        }
     }
 
     // If this returns true, then comparators facing away from this block will use the value from
