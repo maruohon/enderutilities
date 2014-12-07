@@ -54,9 +54,9 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
+    public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        super.readFromNBT(nbt);
+        super.readFromNBTCustom(nbt);
 
         if (nbt.hasKey("CustomName", Constants.NBT.TAG_STRING) == true)
         {
@@ -77,6 +77,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
                 this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbtTagCompound);
             }
         }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
     }
 
     @Override

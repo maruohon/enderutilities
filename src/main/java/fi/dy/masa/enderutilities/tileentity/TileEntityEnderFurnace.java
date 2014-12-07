@@ -81,9 +81,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
+    public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        super.readFromNBT(nbt);
+        super.readFromNBTCustom(nbt);
 
         byte flags              = nbt.getByte("Flags"); // Flags
         this.operatingMode      = (byte)(flags & 0x01);
@@ -98,6 +98,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             this.outputBufferAmount = nbt.getInteger("OutputBufferAmount");
             this.outputBufferStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
         }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
     }
 
     @Override

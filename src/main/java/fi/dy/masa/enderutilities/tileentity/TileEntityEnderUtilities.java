@@ -64,11 +64,8 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerUUID;
     }
 
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
+    public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        super.readFromNBT(nbt);
-
         this.rotation = nbt.getByte("Rotation");
 
         if (nbt.hasKey("OwnerName", Constants.NBT.TAG_STRING) == true)
@@ -80,6 +77,13 @@ public class TileEntityEnderUtilities extends TileEntity
         {
             this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
         }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        this.readFromNBTCustom(nbt); // This call needs to be at the super-most custom TE class
     }
 
     @Override

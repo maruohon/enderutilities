@@ -6,10 +6,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import cpw.mods.fml.common.eventhandler.Event.Result;
@@ -20,6 +22,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
+    public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
     {
         super(index, name, hardness);
@@ -65,15 +69,24 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             return;
         }
 
+        int yaw = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
+
         TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
-        if (stack.getTagCompound() != null)
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
+        if (nbt != null && nbt.hasKey("TEData", Constants.NBT.TAG_COMPOUND) == true)
         {
-            // FIXME We don't want to read the old coordinates from NBT!!
-            te.readFromNBT(stack.getTagCompound());
+            teeu.readFromNBTCustom(nbt.getCompoundTag("TEData"));
+
+            // Update the rotation
+            if (yaw < YAW_TO_DIRECTION.length)
+            {
+                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
+            }
         }
         else
         {
-            int rot = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
             /*
             if (livingBase.rotationPitch > 45.0f)
             {
@@ -87,17 +100,20 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             {
             */
                 // {DOWN, UP, NORTH, SOUTH, WEST, EAST}
-                switch(rot)
+                /*switch (yaw)
                 {
-                    case 0: rot = 2; break;
-                    case 1: rot = 5; break;
-                    case 2: rot = 3; break;
-                    case 3: rot = 4; break;
+                    case 0: yaw = 2; break;
+                    case 1: yaw = 5; break;
+                    case 2: yaw = 3; break;
+                    case 3: yaw = 4; break;
                     default:
-                }
+                }*/
             //}
 
-            teeu.setRotation((byte)rot);
+            if (yaw < YAW_TO_DIRECTION.length)
+            {
+                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
+            }
 
             if (livingBase instanceof EntityPlayer)
             {
