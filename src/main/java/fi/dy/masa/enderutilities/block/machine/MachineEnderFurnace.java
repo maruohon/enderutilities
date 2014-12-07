@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
@@ -52,29 +51,28 @@ public class MachineEnderFurnace extends Machine
             {
                 int amount = teef.getOutputBufferAmount();
                 ItemStack stack = teef.getOutputBufferStack();
-                float f = world.rand.nextFloat() * 0.8F + 0.1F;
-                float f1 = world.rand.nextFloat() * 0.8F + 0.1F;
-                float f2 = world.rand.nextFloat() * 0.8F + 0.1F;
-                double xd = x + f;
-                double yd = y + f1;
-                double zd = z + f2;
-                int num;
+
+                double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
+                double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
+                double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
+
+                int num = 0;
                 int max = stack.getMaxStackSize();
 
                 while (amount > 0)
                 {
                     num = Math.min(amount, max);
-                    EntityItem entityitem = new EntityItem(world, xd, yd, zd, new ItemStack(stack.getItem(), num, stack.getItemDamage()));
-                    if (stack.hasTagCompound() == true)
-                    {
-                        entityitem.getEntityItem().setTagCompound((NBTTagCompound)stack.getTagCompound().copy());
-                    }
-                    float f3 = 0.05F;
-                    entityitem.motionX = (double)((float)world.rand.nextGaussian() * f3);
-                    entityitem.motionY = (double)((float)world.rand.nextGaussian() * f3 + 0.2F);
-                    entityitem.motionZ = (double)((float)world.rand.nextGaussian() * f3);
-                    world.spawnEntityInWorld(entityitem);
+                    ItemStack dropStack = stack.copy();
+                    dropStack.stackSize = num;
                     amount -= num;
+                    EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
+
+                    double motionScale = 0.04d;
+                    entityItem.motionX = world.rand.nextGaussian() * motionScale;
+                    entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
+                    entityItem.motionZ = world.rand.nextGaussian() * motionScale;
+
+                    world.spawnEntityInWorld(entityItem);
                 }
             }
         }

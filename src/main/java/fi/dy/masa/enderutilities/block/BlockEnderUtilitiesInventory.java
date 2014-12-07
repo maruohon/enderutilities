@@ -6,7 +6,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -32,38 +31,35 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
         {
             TileEntityEnderUtilitiesInventory teeui = (TileEntityEnderUtilitiesInventory)te;
 
-            for (int i1 = 0; i1 < teeui.getSizeInventory(); ++i1)
+            for (int i = 0; i < teeui.getSizeInventory(); ++i)
             {
-                ItemStack itemstack = teeui.getStackInSlot(i1);
+                ItemStack stack = teeui.getStackInSlot(i);
 
-                if (itemstack != null)
+                if (stack != null)
                 {
-                    float f = world.rand.nextFloat() * 0.8F + 0.1F;
-                    float f1 = world.rand.nextFloat() * 0.8F + 0.1F;
-                    float f2 = world.rand.nextFloat() * 0.8F + 0.1F;
+                    double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
+                    double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
+                    double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
 
-                    while (itemstack.stackSize > 0)
+                    while (stack.stackSize > 0)
                     {
-                        int j1 = world.rand.nextInt(21) + 10;
-
-                        if (j1 > itemstack.stackSize)
+                        int num = world.rand.nextInt(21) + 10;
+                        if (num > stack.stackSize)
                         {
-                            j1 = itemstack.stackSize;
+                            num = stack.stackSize;
                         }
 
-                        itemstack.stackSize -= j1;
-                        EntityItem entityitem = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j1, itemstack.getItemDamage()));
+                        ItemStack dropStack = stack.copy();
+                        dropStack.stackSize = num;
+                        stack.stackSize -= num;
+                        EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
 
-                        if (itemstack.hasTagCompound())
-                        {
-                            entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-                        }
+                        double motionScale = 0.04d;
+                        entityItem.motionX = world.rand.nextGaussian() * motionScale;
+                        entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
+                        entityItem.motionZ = world.rand.nextGaussian() * motionScale;
 
-                        float f3 = 0.05F;
-                        entityitem.motionX = (double)((float)world.rand.nextGaussian() * f3);
-                        entityitem.motionY = (double)((float)world.rand.nextGaussian() * f3 + 0.2F);
-                        entityitem.motionZ = (double)((float)world.rand.nextGaussian() * f3);
-                        world.spawnEntityInWorld(entityitem);
+                        world.spawnEntityInWorld(entityItem);
                     }
                 }
             }
