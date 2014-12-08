@@ -49,13 +49,13 @@ public class ContainerEnderUtilitiesInventory extends Container
         {
             for (int j = 0; j < 9; j++)
             {
-                addSlotToContainer(new Slot(inventory, j + i * 9 + 9, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new Slot(inventory, j + i * 9 + 9, xOff + j * 18, yOff + i * 18));
             }
         }
 
         for (int i = 0; i < 9; i++)
         {
-            addSlotToContainer(new Slot(inventory, i, xOff + i * 18, yOff + 58));
+            this.addSlotToContainer(new Slot(inventory, i, xOff + i * 18, yOff + 58));
         }
     }
 
@@ -139,15 +139,15 @@ public class ContainerEnderUtilitiesInventory extends Container
                 maxStack = Math.min(slot.getSlotStackLimit(), Math.min(stack.getMaxStackSize(), this.te.getInventoryStackLimit()));
                 existingStack = slot.getStack();
 
-                if (slot.isItemValid(stack) == true && existingStack != null && existingStack.getItem().equals(stack.getItem())
-                    && (stack.getHasSubtypes() == false || stack.getItemDamage() == existingStack.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack, existingStack))
+                if (slot.isItemValid(stack) == true && existingStack != null
+                    && existingStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stack, existingStack))
                 {
-                    int existingSize = existingStack.stackSize + stack.stackSize;
+                    int combinedSize = existingStack.stackSize + stack.stackSize;
 
-                    if (existingSize <= maxStack)
+                    if (combinedSize <= maxStack)
                     {
                         stack.stackSize = 0;
-                        existingStack.stackSize = existingSize;
+                        existingStack.stackSize = combinedSize;
                         slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
                         successful = true;
                     }

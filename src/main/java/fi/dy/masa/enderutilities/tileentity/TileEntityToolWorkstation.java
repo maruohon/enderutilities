@@ -15,6 +15,11 @@ import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 {
+    public static final int SLOT_TOOL = 0;
+    public static final int SLOT_MODULES_START = 1;
+    public static final int SLOT_MODULE_STORAGE_START = 11;
+    public static final int NUM_MODULE_SLOTS = 10;
+    public static final int NUM_STORAGE_SLOTS = 9;
     private static final int[] SLOTS = new int[0];
 
     public TileEntityToolWorkstation()
@@ -23,74 +28,87 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
         this.itemStacks = new ItemStack[20];
     }
 
-    private void writeModulesToItem(int toolSlotNum, int slotStart, int numModuleSlots)
+    public void writeModulesToItem()
     {
-        if (toolSlotNum >= this.itemStacks.length)
-        {
-            return;
-        }
-
-        if (this.itemStacks[toolSlotNum] != null && this.itemStacks[toolSlotNum].getItem() instanceof IModular)
+        if (this.itemStacks[SLOT_TOOL] != null && this.itemStacks[SLOT_TOOL].getItem() instanceof IModular)
         {
             NBTTagList nbtTagList = new NBTTagList();
             int invSlots = this.getSizeInventory();
             // Write all the modules into a TAG_List
-            for (int slotNum = slotStart; slotNum < invSlots && slotNum < (slotStart + numModuleSlots); ++slotNum)
+            for (int slotNum = SLOT_MODULES_START; slotNum < invSlots && slotNum < (SLOT_MODULES_START + NUM_MODULE_SLOTS); ++slotNum)
             {
                 if (this.itemStacks[slotNum] != null)
                 {
-                    NBTTagCompound nbtTagCompound = new NBTTagCompound();
-                    nbtTagCompound.setByte("Slot", (byte)slotNum);
-                    this.itemStacks[slotNum].writeToNBT(nbtTagCompound);
-                    nbtTagList.appendTag(nbtTagCompound);
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setByte("Slot", (byte)slotNum);
+                    this.itemStacks[slotNum].writeToNBT(tag);
+                    nbtTagList.appendTag(tag);
                 }
             }
 
             // Write the module list to the tool
-            NBTTagCompound nbt = this.itemStacks[toolSlotNum].getTagCompound();
-            if (nbt == null) { nbt = new NBTTagCompound(); }
+            NBTTagCompound nbt = this.itemStacks[SLOT_TOOL].getTagCompound();
+            if (nbt == null)
+            {
+                nbt = new NBTTagCompound();
+            }
 
-            nbt.setTag("Items", nbtTagList);
-            this.itemStacks[toolSlotNum].setTagCompound(nbt);
+            if (nbtTagList.tagCount() > 0)
+            {
+                nbt.setTag("Items", nbtTagList);
+            }
+            else
+            {
+                nbt.removeTag("Items");
+            }
+
+            this.itemStacks[SLOT_TOOL].setTagCompound(nbt);
         }
     }
 
-    private void clearModuleSlots(int slotStart, int numModuleSlots)
+    public void clearModuleSlots()
     {
         // Clear all the module slots from the work station
         int invSlots = this.getSizeInventory();
-        for (int slotNum = slotStart; slotNum < invSlots && slotNum < (slotStart + numModuleSlots); ++slotNum)
+        for (int slotNum = SLOT_MODULES_START; slotNum < invSlots && slotNum < (SLOT_MODULES_START + NUM_MODULE_SLOTS); ++slotNum)
         {
             this.itemStacks[slotNum] = null;
         }
     }
 
-    private void readModulesFromItem(int toolSlotNum, int slotStart, int numModuleSlots)
+    public void clearModulesFromItem()
     {
-        if (toolSlotNum >= this.itemStacks.length)
+        NBTTagCompound nbt = this.itemStacks[SLOT_TOOL].getTagCompound();
+        if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
         {
             return;
         }
 
-        if (this.itemStacks[toolSlotNum] != null && this.itemStacks[toolSlotNum].getItem() instanceof IModular)
+        nbt.removeTag("Items");
+        this.itemStacks[SLOT_TOOL].setTagCompound(nbt);
+    }
+
+    public void readModulesFromItem()
+    {
+        if (this.itemStacks[SLOT_TOOL] != null && this.itemStacks[SLOT_TOOL].getItem() instanceof IModular)
         {
-            NBTTagCompound nbt = this.itemStacks[toolSlotNum].getTagCompound();
+            NBTTagCompound nbt = this.itemStacks[SLOT_TOOL].getTagCompound();
             if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
             {
                 return;
             }
 
             NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-            int listNumStacks = nbtTagList.tagCount();
+            int num = nbtTagList.tagCount();
             // Read all the module ItemStacks from the tool, and write them to the workstation's module ItemStacks
-            for (int i = 0; i < listNumStacks; ++i)
+            for (int i = 0; i < num; ++i)
             {
-                NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
-                byte slotNum = nbtTagCompound.getByte("Slot");
+                NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+                byte slotNum = tag.getByte("Slot");
 
-                if (slotNum < this.itemStacks.length && slotNum >= slotStart && slotNum < (slotStart + numModuleSlots))
+                if (slotNum < this.itemStacks.length && slotNum >= SLOT_MODULES_START && slotNum < (SLOT_MODULES_START + NUM_MODULE_SLOTS))
                 {
-                    this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+                    this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(tag);
                 }
             }
         }
@@ -99,21 +117,23 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack itemStack)
     {
+        //if (this.worldObj.isRemote == false) System.out.println("setInventorySlotContents(" + slotNum + ", " + itemStack + ")" + " " + (this.worldObj.isRemote ? "client" : "server"));
+
         // Changing the item in the tool slot, write the current modules to the tool first
-        if (slotNum == 0 && this.itemStacks[0] != null)
+        if (slotNum == SLOT_TOOL && this.itemStacks[SLOT_TOOL] != null)
         {
-            this.writeModulesToItem(0, 1, 10);
-            this.clearModuleSlots(1, 10);
+            this.writeModulesToItem();
+            this.clearModuleSlots();
         }
 
         super.setInventorySlotContents(slotNum, itemStack);
 
-        // Changing the item in the tool slot, read the modules from the new tool
-        if (slotNum == 0 && this.itemStacks[0] != null)
+        // After changing the item in the tool slot, read the modules from the new tool
+        if (slotNum == SLOT_TOOL && this.itemStacks[SLOT_TOOL] != null)
         {
-            // First clear the module slots, just in case
-            this.clearModuleSlots(1, 10);
-            this.readModulesFromItem(0, 1, 10);
+            // First clear the module slots
+            this.clearModuleSlots();
+            this.readModulesFromItem();
         }
     }
 
@@ -121,9 +141,10 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     public ItemStack getStackInSlot(int slotNum)
     {
         // Write the current modules to the tool every time the tool slot is accessed and has a tool
-        if (slotNum == 0 && this.itemStacks[0] != null && this.worldObj.isRemote == false)
+        if (this.worldObj.isRemote == false && slotNum == SLOT_TOOL && this.itemStacks[SLOT_TOOL] != null)
         {
-            this.writeModulesToItem(0, 1, 10);
+            //System.out.println("getStackInSlot(0); not null, server");
+            this.writeModulesToItem();
         }
 
         return super.getStackInSlot(slotNum);
@@ -132,43 +153,29 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
+        //System.out.println("decrStackSize(int slotNum, int maxAmount): (" + slotNum + ", " + maxAmount + ")");
         if (this.itemStacks[slotNum] != null)
         {
-            ItemStack itemstack;
+            ItemStack stack;
 
-            if (this.itemStacks[slotNum].stackSize <= maxAmount)
-            {
-                itemstack = this.getStackInSlot(slotNum);
-                this.setInventorySlotContents(slotNum, null);
-
-                return itemstack;
-            }
-            else
+            if (this.itemStacks[slotNum].stackSize >= maxAmount)
             {
                 ItemStack newStack = this.getStackInSlot(slotNum).copy();
-                itemstack = newStack.splitStack(maxAmount);
+                stack = newStack.splitStack(maxAmount);
                 this.setInventorySlotContents(slotNum, newStack);
 
-                if (this.itemStacks[slotNum].stackSize == 0)
+                if (this.itemStacks[slotNum].stackSize <= 0)
                 {
                     this.setInventorySlotContents(slotNum, null);
                 }
-
-                return itemstack;
             }
-        }
+            else
+            {
+                stack = this.getStackInSlot(slotNum);
+                this.setInventorySlotContents(slotNum, null);
+            }
 
-        return null;
-    }
-
-    @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
-    {
-        if (this.itemStacks[slotNum] != null)
-        {
-            ItemStack itemstack = this.getStackInSlot(slotNum);
-            this.setInventorySlotContents(slotNum, null);
-            return itemstack;
+            return stack;
         }
 
         return null;

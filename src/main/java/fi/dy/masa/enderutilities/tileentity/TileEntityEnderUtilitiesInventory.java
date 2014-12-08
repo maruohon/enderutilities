@@ -80,12 +80,6 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-        super.readFromNBT(nbt);
-    }
-
-    @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
@@ -124,26 +118,24 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     {
         if (this.itemStacks[slotNum] != null)
         {
-            ItemStack itemstack;
+            ItemStack stack;
 
-            if (this.itemStacks[slotNum].stackSize <= maxAmount)
+            if (this.itemStacks[slotNum].stackSize >= maxAmount)
             {
-                itemstack = this.itemStacks[slotNum];
-                this.itemStacks[slotNum] = null;
+                stack = this.itemStacks[slotNum].splitStack(maxAmount);
 
-                return itemstack;
-            }
-            else
-            {
-                itemstack = this.itemStacks[slotNum].splitStack(maxAmount);
-
-                if (this.itemStacks[slotNum].stackSize == 0)
+                if (this.itemStacks[slotNum].stackSize <= 0)
                 {
                     this.itemStacks[slotNum] = null;
                 }
-
-                return itemstack;
             }
+            else
+            {
+                stack = this.itemStacks[slotNum];
+                this.itemStacks[slotNum] = null;
+            }
+
+            return stack;
         }
 
         return null;
@@ -155,26 +147,21 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        if (this.itemStacks[slotNum] != null)
-        {
-            ItemStack itemstack = this.itemStacks[slotNum];
-            this.itemStacks[slotNum] = null;
-            return itemstack;
-        }
-
-        return null;
+        ItemStack stack = this.itemStacks[slotNum];
+        this.setInventorySlotContents(slotNum, null);
+        return stack;
     }
 
     /* Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections). */
     @Override
-    public void setInventorySlotContents(int slotNum, ItemStack itemStack)
+    public void setInventorySlotContents(int slotNum, ItemStack stack)
     {
-        this.itemStacks[slotNum] = itemStack;
-
-        if (itemStack != null && itemStack.stackSize > this.getInventoryStackLimit())
+        if (stack != null && stack.stackSize > this.getInventoryStackLimit())
         {
-            itemStack.stackSize = this.getInventoryStackLimit();
+            stack.stackSize = this.getInventoryStackLimit();
         }
+
+        this.itemStacks[slotNum] = stack;
     }
 
     /* Returns the maximum stack size for a inventory slot. */

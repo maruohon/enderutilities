@@ -37,7 +37,7 @@ public class MachineEnderFurnace extends Machine
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
         TileEntity te = world.getTileEntity(x, y, z);
 
@@ -48,7 +48,8 @@ public class MachineEnderFurnace extends Machine
             BlockEnderUtilitiesInventory.dropItemStacks(world, x, y, z, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
         }
     
-        super.breakBlock(world, x, y, z, block, meta);
+        // We want the default BlockEnderUtilitiesInventory.breakBlock() to deal with the generic inventory
+        return false;
     }
 
     @SideOnly(Side.CLIENT)

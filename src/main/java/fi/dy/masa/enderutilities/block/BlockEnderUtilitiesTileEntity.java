@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -43,21 +42,8 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         {
             return machine.createNewTileEntity();
         }
+
         return null;
-    }
-
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
-    {
-        // This is for handling custom storage stuff like buffers, which are not regular
-        // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
-        if (machine != null)
-        {
-            machine.breakBlock(world, x, y, z, block, meta);
-        }
-
-        super.breakBlock(world, x, y, z, block, meta);
     }
 
     @Override

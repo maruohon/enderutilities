@@ -1,5 +1,13 @@
 package fi.dy.masa.enderutilities.block.machine;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.util.List;
 import java.util.Random;
 
@@ -8,17 +16,11 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 /*
  * Machine specific data, such as icons.
@@ -29,7 +31,7 @@ public class Machine
     protected static TIntObjectHashMap<Machine> machines = new TIntObjectHashMap<Machine>();
 
     public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
-    public static Machine toolWorkstation = new Machine(0, 1, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
+    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
 
     protected int blockIndex;
     protected int blockMeta;
@@ -64,12 +66,11 @@ public class Machine
         return machines.get((blockIndex << 4) | (meta & 0x0F));
     }
 
-    public TileEntityEnderUtilities createNewTileEntity()
+    public TileEntity createNewTileEntity()
     {
         try
         {
-            TileEntityEnderUtilities te = this.tileEntityClass.newInstance();
-            return te;
+            return this.tileEntityClass.newInstance();
         }
         catch (IllegalAccessException e)
         {
@@ -86,10 +87,10 @@ public class Machine
     public static String[] getNames(int blockIndex)
     {
         String[] names = new String[16];
-        Machine m;
+
         for (int meta = 0; meta < 16; ++meta)
         {
-            m = getMachine(blockIndex, meta);
+            Machine m = getMachine(blockIndex, meta);
             if (m != null)
             {
                 names[meta] = m.blockName;
@@ -101,42 +102,42 @@ public class Machine
 
     public static Block setBlockHardness(Block block, int blockIndex)
     {
-        Machine m;
         for (int meta = 0; meta < 16; ++meta)
         {
-            if (machines.containsKey(blockIndex << 4 | meta) == true)
+            Machine m = getMachine(blockIndex, meta);
+            if (m != null)
             {
-                m = machines.get((blockIndex << 4) | (meta & 0x0F));
-                if (m != null)
-                {
-                    block.setHardness(m.blockHardness);
-                    break; // Since hardness is not meta sensitive, we set the hardness to the first one found for this block id
-                }
+                block.setHardness(m.blockHardness);
+                break; // Since hardness is not meta sensitive, we set the hardness to the first one found for this block id
             }
         }
+
         return block;
     }
 
     public static Block setBlockHarvestLevels(Block block, int blockIndex)
     {
         // Wood: 0; Gold: 0; Stone: 1; Iron: 2; Diamond: 3
-        Machine m;
         for (int meta = 0; meta < 16; ++meta)
         {
-            if (machines.containsKey(blockIndex << 4 | meta) == true)
+            Machine m = getMachine(blockIndex, meta);
+            if (m != null)
             {
-                m = machines.get((blockIndex << 4) | (meta & 0x0F));
-                if (m != null)
-                {
-                    block.setHarvestLevel(m.toolClass, m.harvestLevel, meta);
-                }
+                block.setHarvestLevel(m.toolClass, m.harvestLevel, meta);
             }
         }
+
         return block;
     }
 
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    /*
+     * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
+     * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
+     * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)
+     */
+    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
+        return false;
     }
 
     @SideOnly(Side.CLIENT)
@@ -144,7 +145,7 @@ public class Machine
     {
         for (int meta = 0; meta < 16; ++meta)
         {
-            if (machines.containsKey(blockIndex << 4 | meta) == true && machines.get(blockIndex << 4 | meta) != null)
+            if (getMachine(blockIndex, meta) != null)
             {
                 list.add(new ItemStack(block, 1, meta));
             }
@@ -200,16 +201,12 @@ public class Machine
     @SideOnly(Side.CLIENT)
     public static void registerIcons(int blockIndex, IIconRegister iconRegister)
     {
-        Machine m;
         for (int meta = 0; meta < 16; ++meta)
         {
-            if (machines.containsKey(blockIndex << 4 | meta) == true)
+            Machine m = getMachine(blockIndex, meta);
+            if (m != null)
             {
-                m = machines.get(blockIndex << 4 | meta);
-                if (m != null)
-                {
-                    m.registerIcons(iconRegister);
-                }
+                m.registerIcons(iconRegister);
             }
         }
     }

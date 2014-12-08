@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
@@ -26,6 +27,22 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
+        boolean done = false;
+
+        // This is for handling custom storage stuff like buffers, which are not regular
+        // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        if (machine != null)
+        {
+            done = machine.breakBlock(world, x, y, z, block, meta);
+        }
+
+        if (done == true)
+        {
+            world.removeTileEntity(x, y, z);
+            return;
+        }
+
         TileEntity te = world.getTileEntity(x, y, z);
 
         if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
@@ -36,11 +53,9 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
             {
                 dropItemStacks(world, x, y, z, teeui.getStackInSlot(i), -1, false);
             }
-            //world.func_147453_f(x, y, z, block); // this gets called in World.removeTileEntity()
         }
-    
-        super.breakBlock(world, x, y, z, block, meta);
-        //world.removeTileEntity(x, y, z);
+
+        world.removeTileEntity(x, y, z);
     }
 
     public static void dropItemStacks(World world, int x, int y, int z, ItemStack stack, int amount, boolean dropFullStacks)

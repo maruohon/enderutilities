@@ -54,6 +54,20 @@ public class BlockEnderUtilities extends Block
         this.onNeighborBlockChange(world, x, y, z, this);
     }
 
+    @Override
+    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    {
+        // This is for handling custom storage stuff like buffers, which are not regular
+        // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        if (machine != null)
+        {
+            machine.breakBlock(world, x, y, z, block, meta);
+        }
+
+        super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
+    }
+
     // Gets an item for the block being called on. Args: world, x, y, z
     @SideOnly(Side.CLIENT)
     @Override
@@ -94,6 +108,7 @@ public class BlockEnderUtilities extends Block
         {
             return machine.getIcon(side);
         }
+
         return this.blockIcon;
     }
 

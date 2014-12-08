@@ -10,6 +10,9 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 {
+    public static final int NUM_MODULE_SLOTS = 10;
+    public static final int NUM_STORAGE_SLOTS = 9;
+
     public ContainerToolWorkstation(TileEntityToolWorkstation te, InventoryPlayer inventory)
     {
         super(te, inventory);
@@ -23,7 +26,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 
         // Module slots
         int x = 80, y = 19;
-        for (int i = 0; i < 10; x += 18)
+        for (int i = 0; i < NUM_MODULE_SLOTS; x += 18)
         {
             // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
@@ -37,7 +40,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 
         // Module storage inventory slots
         x = 8; y = 66;
-        for (int i = 0; i < 9; x += 18, ++i)
+        for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
         {
             this.addSlotToContainer(new SlotUpgradeModuleStorage(this.te, i + 11, x, y));
         }
@@ -49,6 +52,20 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
     protected int getPlayerInventoryVerticalOffset()
     {
         return 94;
+    }
+
+    @Override
+    public void putStackInSlot(int slotNum, ItemStack stack)
+    {
+        super.putStackInSlot(slotNum, stack);
+
+        if (slotNum == 0)
+        {
+            // This is to get rid of the minor annoyance of the slot types/backgrounds not updating when you
+            // open the workstation for the first time after loading a world, if there is a tool in there.
+            // So it updates the slot types when the server syncs the stacks to the client.
+            this.setUpgradeSlotTypes();
+        }
     }
 
     private void setUpgradeSlotTypes()
@@ -65,9 +82,9 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
             {
                 max = ((IModular)toolStack.getItem()).getMaxModules(toolStack, mt);
                 // 10: The Tool Workstation supports a maximum of 10 upgrade modules for any tools atm
-                for (j = 0; j < max && i < 10 && i < slots; ++j, ++i)
+                for (j = 0; j < max && i < NUM_MODULE_SLOTS && i < slots; ++j, ++i)
                 {
-                    if (i >= 10 || mt.getOrdinal() < -1) // < -1: Don't add TYPE_INVALID slots...
+                    if (i >= NUM_MODULE_SLOTS || mt.getOrdinal() < -1) // < -1: Don't add TYPE_INVALID slots...
                     {
                         return;
                     }
@@ -96,10 +113,19 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int p_75144_2_, int p_75144_3_, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
     {
-        ItemStack stack = super.slotClick(slotNum, p_75144_2_, p_75144_3_, player);
+        //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", " + player + ")");
+        if (this.te instanceof TileEntityToolWorkstation)
+        {
+            // This is to force the modules to be written to the tool before the transferStackInSlot/mergeItemStack
+            // methods get a hold of the tool stack.
+            ((TileEntityToolWorkstation)this.te).writeModulesToItem();
+        }
+
+        ItemStack stack = super.slotClick(slotNum, i1, i2, player);
         this.setUpgradeSlotTypes();
+
         return stack;
     }
 }
