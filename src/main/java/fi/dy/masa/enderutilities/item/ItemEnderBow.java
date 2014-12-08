@@ -225,7 +225,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         // TP the target entity
-        String coordPre = "" + EnumChatFormatting.BLUE;
+        String coordPre = "" + EnumChatFormatting.DARK_AQUA;
         list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
 
         /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
