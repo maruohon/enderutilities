@@ -19,7 +19,6 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -229,11 +228,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         String coordPre = "" + EnumChatFormatting.BLUE;
         list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
 
-        if (EnderUtilities.proxy.isShiftKeyDown() == false)
+        /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
             return;
-        }
+        }*/
 
         super.addInformation(stack, player, list, par4);
     }
