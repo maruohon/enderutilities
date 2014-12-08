@@ -68,8 +68,10 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
         {
             return true;
         }
+
         //System.out.println("onItemUse()");
         this.useBucket(stack, world, player);
+
         return true;
     }
 
@@ -81,8 +83,10 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
         {
             return stack;
         }
+
         //System.out.println("onItemRightClick()");
         this.useBucket(stack, world, player);
+
         return stack;
     }
 
@@ -352,6 +356,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
                 }
             }
         }
+
         return MODE_NORMAL;
     }
 
@@ -405,6 +410,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
     public ItemEnderBucket setCapacity(int capacity)
     {
         this.capacity = capacity;
+
         return this;
     }
 
@@ -418,12 +424,12 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
     @Override
     public FluidStack getFluid(ItemStack stack)
     {
-        if (stack.stackTagCompound == null || stack.stackTagCompound.hasKey("Fluid") == false)
+        if (stack.getTagCompound() == null || stack.getTagCompound().hasKey("Fluid") == false)
         {
             return null;
         }
 
-        return FluidStack.loadFluidStackFromNBT(stack.stackTagCompound.getCompoundTag("Fluid"));
+        return FluidStack.loadFluidStackFromNBT(stack.getTagCompound().getCompoundTag("Fluid"));
     }
 
     @Override
@@ -626,6 +632,7 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
             // 0: Normal, 1: Pickup only, 2: Deposit only
             byte val = MODE_NORMAL;
             NBTTagCompound nbt = stack.getTagCompound();
+
             if (nbt != null)
             {
                 val = nbt.getByte("Mode");
@@ -634,10 +641,12 @@ public class ItemEnderBucket extends ItemModular implements IKeyBound, IFluidCon
             {
                 nbt = new NBTTagCompound();
             }
+
             if (++val > MODE_DEPOSIT)
             {
                 val = MODE_NORMAL;
             }
+
             nbt.setByte("Mode", val);
             stack.setTagCompound(nbt);
         }
