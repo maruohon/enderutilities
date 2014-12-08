@@ -137,7 +137,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
         }
     }
 
-    @Override
+    /*@Override
     public ItemStack getStackInSlot(int slotNum)
     {
         // Write the current modules to the tool every time the tool slot is accessed and has a tool
@@ -148,7 +148,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
         }
 
         return super.getStackInSlot(slotNum);
-    }
+    }*/
 
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)

@@ -115,7 +115,8 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
     @Override
     public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
     {
-        //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", " + player + ")");
+        //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", ); isRemote: " + this.te.getWorldObj().isRemote);
+
         if (this.te instanceof TileEntityToolWorkstation)
         {
             // This is to force the modules to be written to the tool before the transferStackInSlot/mergeItemStack
@@ -124,6 +125,14 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         }
 
         ItemStack stack = super.slotClick(slotNum, i1, i2, player);
+
+        if (this.te instanceof TileEntityToolWorkstation)
+        {
+            // This is to write the changes to the tool if the player manually clicks an item into the module slots
+            // (the above write call in that case happened nefore the item was added to the slot).
+            ((TileEntityToolWorkstation)this.te).writeModulesToItem();
+        }
+
         this.setUpgradeSlotTypes();
 
         return stack;
