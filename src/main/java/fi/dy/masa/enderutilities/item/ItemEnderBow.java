@@ -371,15 +371,18 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             {
                 nbt = new NBTTagCompound();
             }
+
             if (++val > 1)
             {
                 val = 0;
             }
+
             // If self teleporting is disabled in the configs, set the mode always to TP target
             if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
             {
                 val = BOW_MODE_TP_TARGET;
             }
+
             nbt.setByte("Mode", val);
             stack.setTagCompound(nbt);
         }

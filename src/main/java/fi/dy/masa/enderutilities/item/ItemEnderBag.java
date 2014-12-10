@@ -399,42 +399,43 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
+        // Change the selected link crystal
+        if (ReferenceKeys.keypressContainsShift(key) == true)
+        {
+            super.doKeyBindingAction(player, stack, key);
+            return;
+        }
+
         if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && player != null)
         {
-            if (player.isSneaking() == true)
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            if (moduleStack == null)
             {
-                this.changeSelectedModule(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+                return;
             }
-            else
+
+            byte val = 0;
+            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+            if (moduleNbt != null)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-                if (moduleStack == null)
+                NBTHelperPlayer playerData = new NBTHelperPlayer();
+                if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
                 {
                     return;
                 }
-
-                byte val = 0;
-                NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-                if (moduleNbt != null)
-                {
-                    NBTHelperPlayer playerData = new NBTHelperPlayer();
-                    if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
-                    {
-                        return;
-                    }
-                    val = moduleNbt.getByte("Mode");
-                }
-                else
-                {
-                    moduleNbt = new NBTTagCompound();
-                }
-                if (++val > MODE_PUBLIC)
-                {
-                    val = MODE_PRIVATE;
-                }
-                moduleNbt.setByte("Mode", val);
-                moduleStack.setTagCompound(moduleNbt);
+                val = moduleNbt.getByte("Mode");
             }
+            else
+            {
+                moduleNbt = new NBTTagCompound();
+            }
+            if (++val > MODE_PUBLIC)
+            {
+                val = MODE_PRIVATE;
+            }
+
+            moduleNbt.setByte("Mode", val);
+            moduleStack.setTagCompound(moduleNbt);
         }
     }
 
