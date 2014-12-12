@@ -22,6 +22,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
@@ -138,6 +139,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         String pre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
         int amount = 0;
+        int capacity = this.getCapacity(stack);
 
         if (fluidStack != null && fluidStack.getFluid() != null)
         {
@@ -159,7 +161,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
-            list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + String.format(": %d mB", amount));
+            list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + String.format(": %d mB / %d mB", amount, capacity));
             list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
 
             if (EnderUtilities.proxy.isShiftKeyDown() == false)
@@ -173,7 +175,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         else
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
-            list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB", amount));
+            list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB / %d mB", amount, capacity));
             list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
         }
     }
@@ -530,6 +532,19 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public int getCapacity(ItemStack stack)
     {
         // TODO add a storage upgrade and store the capacity in NBT
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        {
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            if (moduleStack != null)
+            {
+                NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+                if (moduleNbt != null && moduleNbt.hasKey("CapacityCached", Constants.NBT.TAG_INT) == true)
+                {
+                    return moduleNbt.getInteger("CapacityCached");
+                }
+            }
+        }
+
         return this.capacity;
     }
 
@@ -627,6 +642,41 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             moduleStack.setTagCompound(moduleNbt);
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+        }
+
+        this.cacheCapacity(stack);
+    }
+
+    public void cacheCapacity(ItemStack stack)
+    {
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        {
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            if (moduleStack != null)
+            {
+                NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+                if (moduleNbt == null)
+                {
+                    return;
+                }
+
+                IFluidHandler tank = this.getLinkedTank(stack);
+                if (tank != null)
+                {
+                    FluidTankInfo[] info = tank.getTankInfo(ForgeDirection.getOrientation(this.getLinkedTankTargetData(stack).blockFace));
+                    if (info != null && info[0] != null)
+                    {
+                        moduleNbt.setInteger("CapacityCached", info[0].capacity);
+                    }
+                }
+                else
+                {
+                    moduleNbt.removeTag("CapacityCached");
+                }
+
+                moduleStack.setTagCompound(moduleNbt);
+                this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            }
         }
     }
 

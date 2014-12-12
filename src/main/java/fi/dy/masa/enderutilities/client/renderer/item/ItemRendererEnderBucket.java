@@ -132,13 +132,19 @@ public class ItemRendererEnderBucket implements IItemRenderer
         this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
         iicon = itemBucket.getIconPart(offset + 5); // 1: Bucket window background (empty part of gauge)
-        float capacity = itemBucket.getCapacity(stack);
+        float capacity = (float)itemBucket.getCapacity(stack);
+        if (capacity == 0.0f)
+        {
+            capacity = 1.0f;
+        }
         //(float)EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT))
         float scale = 1.0f - (((float)amount) / capacity);
-        this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
+        //this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
+        this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.0d);
 
         iicon = itemBucket.getIconPart(offset + 4); // 2: Bucket top part inside
-        this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
+        //this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
+        this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.0d);
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_LIGHTING);
