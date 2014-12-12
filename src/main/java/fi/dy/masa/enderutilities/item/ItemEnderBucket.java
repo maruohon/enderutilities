@@ -552,7 +552,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     // Simulate filling as much as possible, and return the amount that the tank reports would have been filled
                     return tank.fill(ForgeDirection.getOrientation(targetData.blockFace), fluidStack, false);
                 }
-                else
+                else if (fluidStackIn != null)
                 {
                     FluidStack fs = fluidStackIn.copy();
                     fs.amount = Integer.MAX_VALUE;
