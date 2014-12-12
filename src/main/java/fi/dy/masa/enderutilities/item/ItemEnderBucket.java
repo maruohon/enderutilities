@@ -864,9 +864,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString());
         this.iconParts = new IIcon[3];
-        this.iconParts[0] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.main");
-        this.iconParts[1] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.windowbg");
-        this.iconParts[2] = iconRegister.registerIcon(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32.inside");
+        this.iconParts[0] = iconRegister.registerIcon(this.getIconString() + ".main");
+        this.iconParts[1] = iconRegister.registerIcon(this.getIconString() + ".windowbg");
+        this.iconParts[2] = iconRegister.registerIcon(this.getIconString() + ".inside");
     }
 
     @SideOnly(Side.CLIENT)
