@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 
 public class NBTHelperTarget
@@ -14,6 +16,8 @@ public class NBTHelperTarget
     public double dPosZ;
     public int dimension;
     public String dimensionName;
+    public String blockName;
+    public int blockMeta;
     /* Face of the target block */
     public int blockFace;
 
@@ -27,6 +31,8 @@ public class NBTHelperTarget
         this.dPosZ = 0.0d;
         this.dimension = 0;
         this.dimensionName = "";
+        this.blockName = "";
+        this.blockMeta = 0;
         this.blockFace = -1;
     }
 
@@ -63,6 +69,8 @@ public class NBTHelperTarget
         this.posZ = tag.getInteger("posZ");
         this.dimension = tag.getInteger("Dim");
         this.dimensionName = tag.getString("DimName");
+        this.blockName = tag.getString("BlockName");
+        this.blockMeta = tag.getInteger("BlockMeta");
         this.blockFace = tag.getInteger("BlockFace");
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
@@ -91,11 +99,17 @@ public class NBTHelperTarget
         }
 
         String dName = "";
-        if (MinecraftServer.getServer() != null && MinecraftServer.getServer().worldServerForDimension(dim) != null)
+        String blockName = "";
+        int meta = 0;
+
+        if (MinecraftServer.getServer() != null)
         {
-            if (MinecraftServer.getServer().worldServerForDimension(dim).provider != null)
+            WorldServer world = MinecraftServer.getServer().worldServerForDimension(dim);
+            if (world != null && world.provider != null)
             {
-                dName = MinecraftServer.getServer().worldServerForDimension(dim).provider.getDimensionName();
+                dName = world.provider.getDimensionName();
+                blockName = Block.blockRegistry.getNameForObject(world.getBlock(pX, pY, pZ));
+                meta = world.getBlockMetadata(pX, pY, pZ);
             }
         }
 
@@ -105,6 +119,8 @@ public class NBTHelperTarget
         tag.setInteger("posZ", (int)z);
         tag.setInteger("Dim", dim);
         tag.setString("DimName", dName);
+        tag.setString("BlockName", blockName);
+        tag.setByte("BlockMeta", (byte)meta);
         tag.setInteger("BlockFace", face);
         tag.setDouble("dPosX", x);
         tag.setDouble("dPosY", y);
@@ -128,6 +144,8 @@ public class NBTHelperTarget
         tag.setInteger("posZ", this.posZ);
         tag.setInteger("Dim", this.dimension);
         tag.setString("DimName", this.dimensionName);
+        tag.setString("BlockName", this.blockName);
+        tag.setByte("BlockMeta", (byte)this.blockMeta);
         tag.setInteger("BlockFace", this.blockFace);
         tag.setDouble("dPosX", this.dPosX);
         tag.setDouble("dPosY", this.dPosY);

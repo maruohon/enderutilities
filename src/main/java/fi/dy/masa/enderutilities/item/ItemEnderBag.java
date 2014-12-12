@@ -99,7 +99,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded region
         // FIXME: How should we properly check if the player is within range?
-        if (this.isTargetBlockWhitelisted(moduleNbt.getString("BlockName"), moduleNbt.getByte("BlockMeta")) == false &&
+        if (this.isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false &&
             (targetData.dimension != player.dimension || player.getDistanceSq(targetData.posX, targetData.posY, targetData.posZ) >= 10000.0d))
         {
             player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("chat.message.enderbag.outofrange")));
@@ -121,11 +121,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
 
             // The target block has changed since binding the bag, remove the bind (not for Ender Chests)
-            if (Block.blockRegistry.getNameForObject(block).equals(moduleNbt.getString("BlockName")) == false
-                || moduleNbt.getByte("BlockMeta") != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
+            if (Block.blockRegistry.getNameForObject(block).equals(targetData.blockName) == false
+                || targetData.blockMeta != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
             {
-                moduleNbt.removeTag("BlockName");
-                moduleNbt.removeTag("BlockMeta");
                 moduleNbt.removeTag("Slots");
                 moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
                 //moduleStack.setTagCompound(moduleNbt);
@@ -189,10 +187,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return true;
         }
 
-        Block block = world.getBlock(x, y, z);
-        int meta = world.getBlockMetadata(x, y, z);
         TileEntity te = world.getTileEntity(x, y, z);
-        if (block == null || block.isAir(world, x, y, z) == true || te == null)
+        if (te == null)
         {
             return true;
         }
@@ -206,8 +202,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return true;
             }*/
 
-            moduleNbt.setString("BlockName", Block.blockRegistry.getNameForObject(block));
-            moduleNbt.setByte("BlockMeta", (byte)meta);
             moduleNbt = NBTHelperTarget.writeTargetTagToNBT(moduleNbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
 
             if (te instanceof IInventory)
@@ -344,14 +338,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             {
                 int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
                 list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
-                //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
             }
 
             return;
         }
 
         NBTHelperPlayer playerData = new NBTHelperPlayer();
-        String locName = new ItemStack(Block.getBlockFromName(moduleNbt.getString("BlockName")), 1, moduleNbt.getByte("BlockMeta") & 0xF).getDisplayName();
+        String locName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
 
         if ((playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == true)
             || moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
@@ -386,7 +379,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
             list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
-            //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
         }
     }
 

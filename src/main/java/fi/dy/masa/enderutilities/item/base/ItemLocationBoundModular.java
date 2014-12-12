@@ -23,7 +23,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean onItemUse(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (player == null || player.isSneaking() == false || toolStack == null || toolStack.getItem() == null)
+        if (world.isRemote == true || player == null || player.isSneaking() == false || toolStack == null || toolStack.getItem() == null)
         {
             return false;
         }
