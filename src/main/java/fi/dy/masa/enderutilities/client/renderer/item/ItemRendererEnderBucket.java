@@ -1,63 +1,66 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.client.FMLClientHandler;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
 
 public class ItemRendererEnderBucket implements IItemRenderer
 {
+    public Minecraft mc;
+
     public ItemRendererEnderBucket()
     {
+        this.mc = Minecraft.getMinecraft();
     }
 
     @Override
-    public boolean handleRenderType(ItemStack itemStack, ItemRenderType type)
+    public boolean handleRenderType(ItemStack stack, ItemRenderType type)
     {
-        if (itemStack != null && itemStack.getItem() instanceof ItemEnderBucket)
+        if (stack != null && stack.getItem() instanceof ItemEnderBucket)
         {
-            FluidStack fluidStack = ((ItemEnderBucket)itemStack.getItem()).getFluid(itemStack);
-            if (fluidStack != null && fluidStack.amount > 0)
-            {
-                return true;
-            }
+            return true;
         }
+
         return false;
     }
 
     @Override
-    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
+    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack stack, ItemRendererHelper helper)
     {
         return helper == ItemRendererHelper.ENTITY_BOBBING || helper == ItemRendererHelper.ENTITY_ROTATION;
     }
 
     @Override
-    public void renderItem(ItemRenderType type, ItemStack itemStack, Object... data)
+    public void renderItem(ItemRenderType type, ItemStack stack, Object... data)
     {
-        if (itemStack == null)
+        if (stack == null || stack.getItem() == null || (stack.getItem() instanceof ItemEnderBucket) == false)
         {
             return;
         }
+
+        ItemEnderBucket itemBucket = (ItemEnderBucket)stack.getItem();
         IIcon iicon = null;
         int amount = 0;
 
-        FluidStack fluidStack = ((ItemEnderBucket)itemStack.getItem()).getFluid(itemStack);
-        if (fluidStack == null || fluidStack.amount == 0 || fluidStack.getFluid() == null)
+        FluidStack fluidStack = itemBucket.getFluid(stack);
+        Fluid fluid = null;
+
+        if (fluidStack != null)
         {
-            return;
+            amount = fluidStack.amount;
+            fluid = fluidStack.getFluid();
+            iicon = fluid.getStillIcon();
         }
-        amount = fluidStack.amount;
-        iicon = fluidStack.getFluid().getStillIcon();
 
         GL11.glPushMatrix();
 
@@ -73,7 +76,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
         GL11.glDisable(GL11.GL_BLEND);
 
         // Render the bucket upside down if the fluid is a gas
-        if (fluidStack.getFluid().isGaseous() == true)
+        if (fluid != null && fluid.isGaseous() == true)
         {
             switch(type)
             {
@@ -100,7 +103,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
 
         if (iicon != null)
         {
-            FMLClientHandler.instance().getClient().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+            this.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
             // Center part of fluid
             this.renderQuad(type, t, iicon, 0.375f, 0.1875f, 0.25f, 0.625f, -0.000025d, -0.000025d, 0.0001d);
@@ -110,18 +113,31 @@ public class ItemRendererEnderBucket implements IItemRenderer
             this.renderQuad(type, t, iicon, 0.625f, 0.25f, 0.125f, 0.125f, -0.000025d, -0.000025d, 0.0001d);
         }
 
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+        this.mc.renderEngine.bindTexture(TextureMap.locationItemsTexture);
 
         GL11.glEnable(GL11.GL_BLEND);
 
-        iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(0); // 0: Bucket main part
+        int offset = 0;
+        int mainPartIndex = itemBucket.getBucketMode(stack);
+        if (itemBucket.getBucketLinkMode(stack) == ItemEnderBucket.LINK_MODE_ENABLED)
+        {
+            offset += 6;
+        }
+        if (mainPartIndex < 0 || mainPartIndex > 3)
+        {
+            mainPartIndex = 0;
+        }
+
+        iicon = itemBucket.getIconPart(offset + mainPartIndex); // 0: Bucket main part
         this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
-        iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(1); // 1: Bucket window background (empty part of gauge)
-        float scale = 1.0f - (((float)amount) / (float)EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT));
+        iicon = itemBucket.getIconPart(offset + 5); // 1: Bucket window background (empty part of gauge)
+        float capacity = itemBucket.getCapacity(stack);
+        //(float)EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT))
+        float scale = 1.0f - (((float)amount) / capacity);
         this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
 
-        iicon = ((ItemEnderBucket)itemStack.getItem()).getIconPart(2); // 2: Bucket top part inside
+        iicon = itemBucket.getIconPart(offset + 4); // 2: Bucket top part inside
         this.renderQuad(type, t, iicon, 0.25f, 0.1875f, 0.5f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
 
         GL11.glDisable(GL11.GL_BLEND);
