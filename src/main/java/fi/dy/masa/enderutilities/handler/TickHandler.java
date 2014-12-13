@@ -38,7 +38,7 @@ public class TickHandler
         {
             this.serverTickCounter = 0;
 
-            ChunkLoading.getInstance().tickChunkTimeouts();
+            ChunkLoading.getInstance().tickPlayerLoadedChunkTimeouts();
         }
     }
 

@@ -16,8 +16,8 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
-import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 
 public class ChunkLoading implements LoadingCallback
 {
@@ -57,7 +57,7 @@ public class ChunkLoading implements LoadingCallback
                 NBTTagCompound nbt = ticket.getModData();
 
                 // Release tickets that are not used for persistent chunk loading and are not currently in use
-                if(nbt == null || nbt.hasKey("PersistentTicket") == false || nbt.getBoolean("PersistentTicket") == false)
+                if (nbt == null || nbt.hasKey("PersistentTicket") == false || nbt.getBoolean("PersistentTicket") == false)
                 {
                     //System.out.println("ticketsLoaded(): player ticket, not persistent");
                     Set<ChunkCoordIntPair> chunks = ticket.getChunkList();
@@ -75,13 +75,11 @@ public class ChunkLoading implements LoadingCallback
                         }
                     }
 
+                    //System.out.println("ticketsLoaded(): ForgeChunkManager.releaseTicket(): " + i);
                     ForgeChunkManager.releaseTicket(ticket);
 
-                    if (nbt != null && nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true)
-                    {
-                        //System.out.println("ticketsLoaded(): removePlayerTicket(): " + i);
-                        this.removePlayerTicket(ticket);
-                    }
+                    //System.out.println("ticketsLoaded(): removePlayerTicket(): " + i);
+                    this.removePlayerTicket(ticket);
                 }
             }
         }
@@ -109,14 +107,14 @@ public class ChunkLoading implements LoadingCallback
             EnderUtilities.logger.warn("requestTemporaryPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getCommandSenderName() + "'");
             return null;
         }
+
         //System.out.println("requestPlayerTicket() succeeded");
-        ticket.getModData().setString("PlayerName", player.getCommandSenderName());
-        ticket.getModData().setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
-        ticket.getModData().setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
+        NBTTagCompound nbt = ticket.getModData();
+        NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
 
         if (isTemporary == true)
         {
-            ticket.getModData().setBoolean("TemporaryPlayerTicket", true);
+            nbt.setBoolean("TemporaryPlayerTicket", true);
         }
 
         this.addPlayerTicket(player, dimension, ticket);
@@ -126,13 +124,19 @@ public class ChunkLoading implements LoadingCallback
 
     public UUID getPlayerUUIDFromTicket(Ticket ticket)
     {
-        NBTTagCompound nbt = ticket.getModData();
-        if (nbt == null || nbt.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == false || nbt.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == false)
+        if (ticket == null)
         {
             return null;
         }
 
-        return new UUID(nbt.getLong("PlayerUUIDMost"), nbt.getLong("PlayerUUIDLeast"));
+        NBTTagCompound nbt = ticket.getModData();
+        NBTHelperPlayer playerData = new NBTHelperPlayer();
+        if (playerData.readPlayerTagFromNBT(nbt) == null)
+        {
+            return null;
+        }
+
+        return playerData.playerUUID;
     }
 
     public void addPlayerTicket(EntityPlayer player, int dimension, Ticket ticket)
@@ -166,7 +170,12 @@ public class ChunkLoading implements LoadingCallback
         {
             return;
         }
-        this.removePlayerTicket(this.getPlayerUUIDFromTicket(ticket).toString(), ticket.world.provider.dimensionId);
+
+        UUID uuid = this.getPlayerUUIDFromTicket(ticket);
+        if (uuid != null)
+        {
+            this.removePlayerTicket(uuid.toString(), ticket.world.provider.dimensionId);
+        }
     }
 
     public void removePlayerTicket(String uuidStr, int dimension)
@@ -240,6 +249,11 @@ public class ChunkLoading implements LoadingCallback
 
     public boolean loadChunkWithoutForce(int dimension, int chunkX, int chunkZ)
     {
+        if (MinecraftServer.getServer() == null)
+        {
+            return false;
+        }
+
         return this.loadChunkWithoutForce(MinecraftServer.getServer().worldServerForDimension(dimension), chunkX, chunkZ);
     }
 
@@ -250,16 +264,19 @@ public class ChunkLoading implements LoadingCallback
         {
             return false;
         }
+
         IChunkProvider chunkProvider = world.getChunkProvider();
         if (chunkProvider == null)
         {
             return false;
         }
+
         if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
         {
             //System.out.println("loadChunkWithoutForce() loading chunk");
             chunkProvider.loadChunk(chunkX, chunkZ);
         }
+
         //System.out.println("loadChunkWithoutForce() end");
         return true;
     }
@@ -267,6 +284,7 @@ public class ChunkLoading implements LoadingCallback
     public boolean loadChunkForcedWithPlayerTicket(EntityPlayer player, int dimension, int chunkX, int chunkZ, int unloadDelay)
     {
         Ticket ticket = this.requestPlayerTicket(player, dimension, unloadDelay != 0);
+
         return this.loadChunkForcedWithPlayerTicket(ticket, dimension, chunkX, chunkZ, unloadDelay);
     }
 
@@ -277,6 +295,7 @@ public class ChunkLoading implements LoadingCallback
             //System.out.println("loadChunkForcedWithPlayerTicket() ticket == null");
             return false;
         }
+
         ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
         if (unloadDelay > 0)
         {
@@ -291,10 +310,11 @@ public class ChunkLoading implements LoadingCallback
     {
         String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
-        if (this.timeOuts.containsKey(s) == true)
+        DimChunkCoordTimeout dcct = this.timeOuts.get(s);
+        if (dcct != null)
         {
             //System.out.println("addChunkTimeout(): re-setting");
-            this.timeOuts.get(s).setTimeout(timeout);
+            dcct.setTimeout(timeout);
         }
         else
         {
@@ -307,16 +327,17 @@ public class ChunkLoading implements LoadingCallback
     {
         String s = dimChunkCoordsToString(dimension, chunkX, chunkZ);
 
-        if (this.timeOuts.containsKey(s) == true)
+        DimChunkCoordTimeout dcct = this.timeOuts.get(s);
+        if (dcct != null)
         {
-            this.timeOuts.get(s).refreshTimeout();
+            dcct.refreshTimeout();
             return true;
         }
 
         return false;
     }
 
-    public void tickChunkTimeouts()
+    public void tickPlayerLoadedChunkTimeouts()
     {
         DimChunkCoordTimeout dcct;
         List<String> toRemove = new ArrayList<String>();

@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
@@ -9,6 +11,7 @@ public class NBTHelperPlayer
     public long playerUUIDMost;
     public long playerUUIDLeast;
     public String playerName;
+    public UUID playerUUID;
 
     public NBTHelperPlayer()
     {
@@ -47,6 +50,7 @@ public class NBTHelperPlayer
         this.playerUUIDMost = tag.getLong("PlayerUUIDMost");
         this.playerUUIDLeast = tag.getLong("PlayerUUIDLeast");
         this.playerName = tag.getString("PlayerName");
+        this.playerUUID = new UUID(this.playerUUIDMost, this.playerUUIDLeast);
 
         return tag;
     }
@@ -55,7 +59,7 @@ public class NBTHelperPlayer
     {
         if (nbt == null)
         {
-            return nbt;
+            return null;
         }
 
         if (player == null)
