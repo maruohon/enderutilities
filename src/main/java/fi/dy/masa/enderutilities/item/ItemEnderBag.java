@@ -107,7 +107,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
-        if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60 * 20) == true)
+        if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60) == true)
         {
             World tgtWorld = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
             if (tgtWorld == null)

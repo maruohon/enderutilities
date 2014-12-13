@@ -10,7 +10,7 @@ container.toolworkstation=Tool Workstation
 container.owner=Owner:
 
 tile.enderfurnace.name=Ender Furnace
-tile.toolworkstation.name=Tool Workstation
+tile.toolworkstation.name=Ender Tool Workstation
 
 item.enderarrow.name=Ender Arrow
 item.enderbag.name=Ender Bag
