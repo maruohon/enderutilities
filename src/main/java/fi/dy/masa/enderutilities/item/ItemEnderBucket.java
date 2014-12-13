@@ -177,6 +177,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
             list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB / %d mB", amount, capacity));
             list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
+
+            if (stack.getTagCompound() == null)
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
+                return;
+            }
         }
     }
 

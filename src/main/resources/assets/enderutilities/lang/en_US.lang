@@ -78,6 +78,7 @@ gui.tooltip.slots=Slots
 gui.tooltip.tpself=TP self
 gui.tooltip.tptarget=TP target
 gui.tooltip.type=Type
+gui.tooltip.use.toolworkstation=Use the Tool Workstation to add or remove modules
 
 chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
 chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:

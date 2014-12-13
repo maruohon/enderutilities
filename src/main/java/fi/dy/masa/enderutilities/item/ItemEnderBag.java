@@ -316,6 +316,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
+        if (stack.getTagCompound() == null)
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
+            return;
+        }
+
         ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null || moduleStack.getItem() == null)
         {
