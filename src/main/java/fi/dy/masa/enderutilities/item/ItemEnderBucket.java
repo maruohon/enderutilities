@@ -120,7 +120,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        FluidStack fluidStack = this.getFluid(stack);
+        FluidStack fluidStack = this.getFluidCached(stack);
 
         if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
         {
@@ -134,12 +134,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        FluidStack fluidStack = this.getFluid(stack);
+        FluidStack fluidStack = this.getFluidCached(stack);
         String fluidName;
         String pre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
         int amount = 0;
-        int capacity = this.getCapacity(stack);
+        int capacity = this.getCapacityCached(stack);
 
         if (fluidStack != null && fluidStack.getFluid() != null)
         {
@@ -255,7 +255,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             ForgeDirection fDir = ForgeDirection.getOrientation(side);
 
             // Get the stored fluid, if any
-            FluidStack storedFluidStack = this.getStoredOrLinkedFluid(stack, true);
+            FluidStack storedFluidStack = this.getFluid(stack);
             int storedFluidAmount = 0;
 
             if (storedFluidStack != null)
@@ -325,7 +325,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         this.setCapacity(EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT));
 
         // Get the stored fluid, if any
-        FluidStack storedFluidStack = this.getStoredOrLinkedFluid(stack, true);
+        FluidStack storedFluidStack = this.getFluid(stack);
         int storedFluidAmount = 0;
 
         if (storedFluidStack != null)
@@ -393,7 +393,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }*/
 
         // Get the stored fluid, if any
-        FluidStack storedFluidStack = this.getStoredOrLinkedFluid(stack, true);
+        FluidStack storedFluidStack = this.getFluid(stack);
         FluidStack targetFluidStack = null;
         IFluidBlock iFluidBlock = null;
         int storedFluidAmount = 0;
@@ -534,10 +534,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return this;
     }
 
-    @Override
-    public int getCapacity(ItemStack stack)
+    public int getCapacityCached(ItemStack stack)
     {
-        // TODO add a storage upgrade and store the capacity in NBT
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
@@ -551,7 +549,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
         }
 
-        return this.capacity;
+        return this.getCapacity(stack);
     }
 
     public int getCapacityAvailable(ItemStack stack, FluidStack fluidStackIn)
@@ -566,20 +564,63 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), FluidContainerRegistry.BUCKET_VOLUME, false);
+                ForgeDirection fd = ForgeDirection.getOrientation(targetData.blockFace);
+                FluidTankInfo[] info = tank.getTankInfo(fd);
+                fluidStack = tank.drain(fd, Integer.MAX_VALUE, false);
 
+                // Tank has fluid
                 if (fluidStack != null)
                 {
-                    fluidStack.amount = Integer.MAX_VALUE;
+                    FluidStack fs;
 
-                    // Simulate filling as much as possible, and return the amount that the tank reports would have been filled
-                    return tank.fill(ForgeDirection.getOrientation(targetData.blockFace), fluidStack, false);
-                }
-                else if (fluidStackIn != null)
-                {
-                    FluidStack fs = fluidStackIn.copy();
+                    if (fluidStackIn != null)
+                    {
+                        if (fluidStack.isFluidEqual(fluidStackIn) == false)
+                        {
+                            return 0;
+                        }
+
+                        fs = fluidStackIn.copy();
+                    }
+                    else
+                    {
+                        fs = fluidStack.copy();
+                    }
+
+                    if (info != null && info[0] != null)
+                    {
+                        return info[0].capacity - fluidStack.amount;
+                    }
+
                     fs.amount = Integer.MAX_VALUE;
-                    return tank.fill(ForgeDirection.getOrientation(targetData.blockFace), fs, false);
+                    return tank.fill(fd, fs, false);
+                }
+                // Tank has no fluid
+                else
+                {
+                    if (info != null && info[0] != null)
+                    {
+                        return info[0].capacity;
+                    }
+
+                    if (fluidStackIn != null)
+                    {
+                        FluidStack fs = fluidStackIn.copy();
+                        fs.amount = Integer.MAX_VALUE;
+
+                        return tank.fill(fd, fs, false);
+                    }
+
+                    // Since we have no fluid stored, get the capacity via simulating filling water into the tank
+                    Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.water);
+                    if (fluid != null)
+                    {
+                        fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);
+                        if (fluidStack != null)
+                        {
+                            return tank.fill(fd, fluidStack, false);
+                        }
+                    }
                 }
             }
 
@@ -594,36 +635,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         return this.getCapacity(stack);
-    }
-
-    @Override
-    public FluidStack getFluid(ItemStack stack)
-    {
-        if (stack.getTagCompound() == null)
-        {
-            return null;
-        }
-
-        // The Bucket has been linked to a tank
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
-        {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            if (moduleStack != null && moduleStack.getTagCompound() != null
-                && moduleStack.getTagCompound().hasKey("FluidCached", Constants.NBT.TAG_COMPOUND) == true)
-            {
-                return FluidStack.loadFluidStackFromNBT(moduleStack.getTagCompound().getCompoundTag("FluidCached"));
-            }
-
-            return null;
-        }
-
-        // Accessing the bucket's own storage
-        if (stack.getTagCompound().hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == true)
-        {
-            return FluidStack.loadFluidStackFromNBT(stack.getTagCompound().getCompoundTag("Fluid"));
-        }
-
-        return null;
     }
 
     public void cacheFluid(ItemStack stack, FluidStack fluidStack)
@@ -674,6 +685,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     {
                         moduleNbt.setInteger("CapacityCached", info[0].capacity);
                     }
+                    else
+                    {
+                        moduleNbt.setInteger("CapacityCached", 0);
+                    }
                 }
                 else
                 {
@@ -684,33 +699,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
             }
         }
-    }
-
-    public FluidStack getStoredOrLinkedFluid(ItemStack stack, boolean doCache)
-    {
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
-        {
-            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
-            IFluidHandler tank = this.getLinkedTank(stack);
-
-            if (targetData != null && tank != null)
-            {
-                FluidStack fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false);
-
-                // Cache the fluid stack into the link crystal's NBT for easier/faster access for tooltip and rendering stuffs
-                if (doCache == true)
-                {
-                    this.cacheFluid(stack, fluidStack);
-                }
-
-                return fluidStack;
-            }
-
-            return null;
-        }
-
-        // Not linked to a tank at the moment, get the internal FluidStack
-        return this.getFluid(stack);
     }
 
     public NBTHelperTarget getLinkedTankTargetData(ItemStack stack)
@@ -757,6 +745,131 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         return (IFluidHandler)te;
+    }
+
+    public FluidStack getFluidCached(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            return null;
+        }
+
+        // The Bucket has been linked to a tank
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        {
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            if (moduleStack != null && moduleStack.getTagCompound() != null)
+            {
+                if (moduleStack.getTagCompound().hasKey("FluidCached", Constants.NBT.TAG_COMPOUND) == true)
+                {
+                    return FluidStack.loadFluidStackFromNBT(moduleStack.getTagCompound().getCompoundTag("FluidCached"));
+                }
+            }
+
+            return null;
+        }
+
+        // Not linked to a tank, get the internal FluidStack
+        if (nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == true)
+        {
+            return FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("Fluid"));
+        }
+
+        return null;
+    }
+
+    @Override
+    public int getCapacity(ItemStack stack)
+    {
+        // Linked to a tank
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        {
+            FluidStack fluidStack;
+            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            IFluidHandler tank = this.getLinkedTank(stack);
+
+            if (targetData != null && tank != null)
+            {
+                ForgeDirection fd = ForgeDirection.getOrientation(targetData.blockFace);
+                FluidTankInfo[] info = tank.getTankInfo(fd);
+
+                // If we have tank info, it is the easiest and simplest way to get the tank capacity
+                if (info != null && info[0] != null)
+                {
+                    return info[0].capacity;
+                }
+
+                // No tank info available, get the capacity via simulating filling
+
+                fluidStack = tank.drain(fd, Integer.MAX_VALUE, false);
+
+                // Tank has fluid
+                if (fluidStack != null)
+                {
+                    FluidStack fs = fluidStack.copy();
+                    fs.amount = Integer.MAX_VALUE;
+                    int space = tank.fill(fd, fs, false);
+
+                    return space + fluidStack.amount;
+                }
+                // Tank has no fluid
+                else
+                {
+                    // Since we have no fluid stored, get the capacity via simulating filling water into the tank
+                    Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.water);
+                    if (fluid != null)
+                    {
+                        fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);
+                        if (fluidStack != null)
+                        {
+                            return tank.fill(fd, fluidStack, false);
+                        }
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        return this.capacity;
+    }
+
+    @Override
+    public FluidStack getFluid(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            return null;
+        }
+
+        // The Bucket has been linked to a tank
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        {
+            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            IFluidHandler tank = this.getLinkedTank(stack);
+
+            if (targetData != null && tank != null)
+            {
+                FluidStack fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false);
+
+                // Cache the fluid stack into the link crystal's NBT for easier/faster access for tooltip and rendering stuffs
+                this.cacheFluid(stack, fluidStack);
+
+                return fluidStack;
+            }
+
+            return null;
+        }
+
+        // Not linked to a tank, get the internal FluidStack
+        if (nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == true)
+        {
+            return FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("Fluid"));
+        }
+
+        return null;
     }
 
     @Override

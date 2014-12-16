@@ -52,7 +52,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
         IIcon iicon = null;
         int amount = 0;
 
-        FluidStack fluidStack = itemBucket.getFluid(stack);
+        FluidStack fluidStack = itemBucket.getFluidCached(stack);
         Fluid fluid = null;
 
         if (fluidStack != null)
@@ -132,7 +132,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
         this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
         iicon = itemBucket.getIconPart(offset + 5); // 1: Bucket window background (empty part of gauge)
-        float capacity = (float)itemBucket.getCapacity(stack);
+        float capacity = (float)itemBucket.getCapacityCached(stack);
         if (capacity == 0.0f)
         {
             capacity = 1.0f;
