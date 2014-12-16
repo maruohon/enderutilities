@@ -7,6 +7,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
@@ -16,6 +17,7 @@ import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.EUConfigReader;
 import fi.dy.masa.enderutilities.setup.EURegistry;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
@@ -32,21 +34,12 @@ public class EnderUtilities
     public void preInit(FMLPreInitializationEvent event)
     {
         instance = this;
-
         logger = event.getModLog();
-
         EUConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
-
         proxy.registerKeyBindings();
-
-        // Initialize network stuff
-        PacketHandler.init();
-
-        // Initialize mod items
-        EnderUtilitiesItems.init();
-
-        // Initialize mod blocks
-        EnderUtilitiesBlocks.init();
+        PacketHandler.init(); // Initialize network stuff
+        EnderUtilitiesItems.init(); // Initialize mod items
+        EnderUtilitiesBlocks.init(); // Initialize mod blocks
     }
 
     @EventHandler
@@ -65,5 +58,12 @@ public class EnderUtilities
     {
         EURegistry.registerEnderbagLists();
         EURegistry.registerTeleportBlacklist();
+    }
+
+    @EventHandler
+    public void onServerStartingEvent(FMLServerStartingEvent event)
+    {
+        EnderUtilities.logger.info("Clearing chunk loading timeouts");
+        ChunkLoading.getInstance().clear();
     }
 }
