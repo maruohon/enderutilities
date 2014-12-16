@@ -36,6 +36,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -734,6 +735,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         World world = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
         if (world == null)
+        {
+            return null;
+        }
+
+        // Force load the target chunk where the tank is located and for a 30 grace period after use
+        if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 30) == false)
         {
             return null;
         }

@@ -511,7 +511,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             //System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
 
             // If this chunk doesn't have a valid ticket anymore, just remove the entry
-            if (dcct != null && this.playerTickets.containsValue(dcct.ticket) == false)
+            if (dcct == null || (this.playerTickets.containsValue(dcct.ticket) == false && this.modTickets.containsValue(dcct.ticket) == false))
             {
                 //System.out.println("tickChunkTimeouts(): invalid ticket, removing timeout entry");
                 toRemove.add(entry.getKey());
