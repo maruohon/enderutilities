@@ -60,28 +60,27 @@ public class TickHandler
 
             if (stack != null && stack.getItem() instanceof IChunkLoadingItem)
             {
-                if (stack.getTagCompound() != null)
+                NBTTagCompound nbt = stack.getTagCompound();
+
+                // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
+                if (nbt != null && nbt.getBoolean("ChunkLoadingRequired") == true)
                 {
-                    NBTTagCompound nbt = stack.getTagCompound();
-
-                    // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
-                    if (nbt.hasKey("ChunkLoadingRequired") == true && nbt.getBoolean("ChunkLoadingRequired") == true)
+                    // In case of modular items, we get the target info from the selected module (= Link Crystal)
+                    if (stack.getItem() instanceof IModular)
                     {
-                        // In case of modular items, we get the target info from the selected module (= Link Crystal)
-                        if (stack.getItem() instanceof IModular)
+                        ItemStack moduleStack = ((IModular)stack.getItem()).getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                        if (moduleStack == null)
                         {
-                            ItemStack moduleStack = ((IModular)stack.getItem()).getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-                            if (moduleStack != null)
-                            {
-                                nbt = moduleStack.getTagCompound();
-                            }
+                            return;
                         }
 
-                        NBTHelperTarget target = new NBTHelperTarget();
-                        if (target.readTargetTagFromNBT(nbt) != null)
-                        {
-                            ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
-                        }
+                        nbt = moduleStack.getTagCompound();
+                    }
+
+                    NBTHelperTarget target = new NBTHelperTarget();
+                    if (target.readTargetTagFromNBT(nbt) != null)
+                    {
+                        ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
                     }
                 }
             }
