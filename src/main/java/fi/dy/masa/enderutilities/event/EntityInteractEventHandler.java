@@ -65,7 +65,7 @@ public class EntityInteractEventHandler
             if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
             {
                 IChargeable cItem = (IChargeable)item;
-                cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, false);
+                cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, true);
             }
         }
     }
