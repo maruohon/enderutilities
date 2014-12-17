@@ -76,6 +76,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return false;
         }
 
+        if (this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack)) == true)
+        {
+            return true;
+        }
+
         TileEntity te = world.getTileEntity(x, y, z);
         if (te != null && te instanceof IFluidHandler)
         {
@@ -98,6 +103,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
+        {
+            return true;
+        }
+
+        if (this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack)) == true)
         {
             return true;
         }
@@ -369,6 +379,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         int x = mop.blockX;
         int y = mop.blockY;
         int z = mop.blockZ;
+
+        Block block = world.getBlock(x, y, z);
+        if (block != null && block.getMaterial() != null && block.getMaterial().isLiquid() == false)
+        {
+            return false;
+        }
 
         return this.useBucketOnFluidBlock(stack, world, player, x, y, z, mop.sideHit, bucketMode);
     }
