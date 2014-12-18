@@ -12,6 +12,7 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -96,33 +97,41 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (moduleStack == null || moduleStack.getItem() == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
-            return;
-        }
-
-        String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-        String numPre = "" + EnumChatFormatting.BLUE;
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-        NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
         }
         else
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
-                    + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-            list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
-            // For debug:
-            //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+            String dimPre = "" + EnumChatFormatting.DARK_GREEN;
+            String numPre = "" + EnumChatFormatting.BLUE;
+            String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+    
+            NBTHelperTarget target = new NBTHelperTarget();
+            if (target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+            }
+            else
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
+                        + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
+                list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+                // For debug:
+                //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+            }
+
+            int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            if (num > 0)
+            {
+                int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+                list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
+                //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
+            }
         }
 
-        int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (num > 0)
+        moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack != null && moduleStack.getItem() instanceof ItemEnderCapacitor)
         {
-            int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
-            //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
+            ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
+            cap.addInformation(moduleStack, player, list, par4);
         }
     }
 

@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -39,6 +40,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
+    public static final int ENDER_CHARGE_COST = 200;
     public static final byte BIND_TYPE_REGULAR = 0;
     public static final byte BIND_TYPE_ENDER = 1;
     public static final byte MODE_PRIVATE = 0;
@@ -78,6 +80,11 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Ender Chest
         if (moduleNbt.hasKey("Type", Constants.NBT.TAG_BYTE) == true && moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
         {
+            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+            {
+                return stack;
+            }
+
             bagNbt.setBoolean("IsOpen", true);
             player.displayGUIChest(player.getInventoryEnderChest());
             return stack;
@@ -106,40 +113,53 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
+        World tgtWorld = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
+        if (tgtWorld == null)
+        {
+            return stack;
+        }
+        Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
+        if (block == null)
+        {
+            return stack;
+        }
+
+        // The target block has changed since binding the bag, remove the bind (not for Ender Chests)
+        if (Block.blockRegistry.getNameForObject(block).equals(targetData.blockName) == false
+            || targetData.blockMeta != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
+        {
+            moduleNbt.removeTag("Slots");
+            moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
+            //moduleStack.setTagCompound(moduleNbt);
+            bagNbt.removeTag("ChunkLoadingRequired");
+            bagNbt.setBoolean("IsOpen", false);
+            //stack.setTagCompound(bagNbt);
+            player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
+
+            return stack;
+        }
+
+        bagNbt.setBoolean("ChunkLoadingRequired", true);
+        bagNbt.setBoolean("IsOpen", true);
+        //stack.setTagCompound(bagNbt);
+
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60) == true)
         {
-            World tgtWorld = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
-            if (tgtWorld == null)
+            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
-                return stack;
-            }
-            Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
-            if (block == null)
-            {
+                // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
+                //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);
+
                 return stack;
             }
 
-            // The target block has changed since binding the bag, remove the bind (not for Ender Chests)
-            if (Block.blockRegistry.getNameForObject(block).equals(targetData.blockName) == false
-                || targetData.blockMeta != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
-            {
-                moduleNbt.removeTag("Slots");
-                moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
-                //moduleStack.setTagCompound(moduleNbt);
-                bagNbt.removeTag("ChunkLoadingRequired");
-                bagNbt.setBoolean("IsOpen", false);
-                //stack.setTagCompound(bagNbt);
-                player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
-                return stack;
-            }
-
-            bagNbt.setBoolean("ChunkLoadingRequired", true);
-            bagNbt.setBoolean("IsOpen", true);
-            //stack.setTagCompound(bagNbt);
+            float hx = (float)targetData.dPosX - targetData.posX;
+            float hy = (float)targetData.dPosY - targetData.posY;
+            float hz = (float)targetData.dPosZ - targetData.posZ;
 
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-            block.onBlockActivated(tgtWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, 0.5f, 0.5f, 0.5f);
+            block.onBlockActivated(tgtWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
         }
 
         return stack;
@@ -326,18 +346,58 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (moduleStack == null || moduleStack.getItem() == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
-            return;
         }
-
-        String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-        String numPre = "" + EnumChatFormatting.BLUE;
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(moduleNbt) == null)
+        else
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+            String dimPre = "" + EnumChatFormatting.DARK_GREEN;
+            String numPre = "" + EnumChatFormatting.BLUE;
+            String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+
+            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+            NBTHelperTarget target = new NBTHelperTarget();
+            if (target.readTargetTagFromNBT(moduleNbt) == null)
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+
+                int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                if (num >= 1)
+                {
+                    int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+                    list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
+                }
+            }
+
+            NBTHelperPlayer playerData = new NBTHelperPlayer();
+            String locName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
+
+            if ((playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == true)
+                || moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + numPre + locName + rst);
+            }
+
+            // Only show private vs. public when bound to regular inventories, not Ender Chest
+            if (moduleNbt.getByte("Type") == BIND_TYPE_REGULAR)
+            {
+                if (EnderUtilities.proxy.isShiftKeyDown() == false)
+                {
+                    list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+                }
+                else
+                {
+                    // Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
+                    if (playerData != null && playerData.isOwner(player) == true)
+                    {
+                        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
+                                + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
+                        list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", numPre, target.posX, rst, numPre, target.posY, rst, numPre, target.posZ, rst));
+                    }
+
+                    String mode = StatCollector.translateToLocal((moduleNbt.getByte("Mode") == MODE_PUBLIC ? "gui.tooltip.public" : "gui.tooltip.private"));
+                    list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
+                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName);
+                }
+            }
 
             int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
             if (num >= 1)
@@ -345,46 +405,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
                 list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
             }
-
-            return;
         }
 
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        String locName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
-
-        if ((playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == true)
-            || moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
+        moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack != null && moduleStack.getItem() instanceof ItemEnderCapacitor)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + numPre + locName + rst);
-        }
-
-        // Only show private vs. public when bound to regular inventories, not Ender Chest
-        if (moduleNbt.getByte("Type") == BIND_TYPE_REGULAR)
-        {
-            if (EnderUtilities.proxy.isShiftKeyDown() == false)
-            {
-                list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-                return;
-            }
-
-            // Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
-            if (playerData != null && playerData.isOwner(player) == true)
-            {
-                list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
-                        + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-                list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", numPre, target.posX, rst, numPre, target.posY, rst, numPre, target.posZ, rst));
-            }
-
-            String mode = StatCollector.translateToLocal((moduleNbt.getByte("Mode") == MODE_PUBLIC ? "gui.tooltip.public" : "gui.tooltip.private"));
-            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-            list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName);
-        }
-
-        int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (num >= 1)
-        {
-            int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
+            ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
+            cap.addInformation(moduleStack, player, list, par4);
         }
     }
 

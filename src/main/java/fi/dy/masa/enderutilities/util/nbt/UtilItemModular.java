@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 
 public class UtilItemModular
 {
@@ -335,5 +336,41 @@ public class UtilItemModular
         nbt.setByte("Selected_" + moduleType.getOrdinal(), (byte)selected);
 
         return stack;
+    }
+
+    /* If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
+     * the the given amount of charge will be drained from it, and true will be returned.
+     * In case of any errors, no charge will be drained and false will be returned.
+     */
+    public static boolean useEnderCharge(ItemStack stack, int amount, boolean doUse)
+    {
+        if ((stack.getItem() instanceof IModular) == false)
+        {
+            return false;
+        }
+        ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack == null || (moduleStack.getItem() instanceof ItemEnderCapacitor) == false)
+        {
+            return false;
+        }
+        NBTTagCompound nbt = moduleStack.getTagCompound();
+        if (nbt == null)
+        {
+            return false;
+        }
+
+        ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
+        if (cap.useCharge(moduleStack, amount, false) < amount)
+        {
+            return false;
+        }
+
+        if (doUse == true)
+        {
+            cap.useCharge(moduleStack, amount, true);
+            setSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
+        }
+
+        return true;
     }
 }

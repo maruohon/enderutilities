@@ -8,10 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityInteractEventHandler
@@ -33,6 +35,11 @@ public class EntityInteractEventHandler
             if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
                 (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
             {
+                if (((EntityPlayer)event.entity).capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
+                {
+                    return;
+                }
+
                 if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
                 {
                     event.setCanceled(true);

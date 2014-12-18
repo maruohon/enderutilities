@@ -27,6 +27,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
+    public static final int ENDER_CHARGE_COST = 5000;
     private static final int USE_TIME = 60;
 
     public ItemEnderPorter()
@@ -72,6 +73,11 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         if (moduleStack != null && NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
             EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
         {
+            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+            {
+                return stack;
+            }
+
             player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 
             if (player.worldObj.isRemote == false)
@@ -95,13 +101,20 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             useTime >>= 3;
         }
 
-        if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime &&
-            TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true) != null)
+        if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime)
         {
-            // damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
-            if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)
+            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
-                player.destroyCurrentEquippedItem();
+                return;
+            }
+
+            if (TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true) != null)
+            {
+                // damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
+                if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)
+                {
+                    player.destroyCurrentEquippedItem();
+                }
             }
         }
     }

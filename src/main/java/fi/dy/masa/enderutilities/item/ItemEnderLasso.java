@@ -7,6 +7,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderLasso extends ItemLocationBoundModular
 {
+    public static final int ENDER_CHARGE_COST = 500;
+
     public ItemEnderLasso()
     {
         super();

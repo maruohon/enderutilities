@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
+    public static final int ENDER_CHARGE_COST = 400;
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
@@ -53,7 +54,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
      * called when the player releases the use item button. Args: itemstack, world, entityplayer, itemInUseCount
      */
     @Override
-    public void onPlayerStoppedUsing(ItemStack bowStack, World world, EntityPlayer player, int itemInUseCount)
+    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
     {
         // Do nothing on the client side
         if (world.isRemote == true)
@@ -61,21 +62,22 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        int j = this.getMaxItemUseDuration(bowStack) - itemInUseCount;
+        int j = this.getMaxItemUseDuration(stack) - itemInUseCount;
 
-        ArrowLooseEvent event = new ArrowLooseEvent(player, bowStack, j);
+        ArrowLooseEvent event = new ArrowLooseEvent(player, stack, j);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled())
         {
             return;
         }
+
         j = event.charge;
 
         if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
         {
             byte mode = BOW_MODE_TP_TARGET;
 
-            NBTTagCompound nbt = bowStack.getTagCompound();
+            NBTTagCompound nbt = stack.getTagCompound();
             if (nbt != null && nbt.hasKey("Mode") == true)
             {
                 mode = nbt.getByte("Mode");
@@ -97,7 +99,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (mode == BOW_MODE_TP_TARGET)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(bowStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
                 NBTHelperTarget target = new NBTHelperTarget();
                 // If we want to TP the target, we must have a valid target set
                 if (moduleStack == null || target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
@@ -115,8 +117,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (player.capabilities.isCreativeMode == false)
             {
+                if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+                {
+                    return;
+                }
+
                 player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
-                bowStack.damageItem(1, player);
+                stack.damageItem(1, player);
             }
 
             world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
@@ -125,16 +132,16 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     }
 
     @Override
-    public ItemStack onEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
+    public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
     {
-        return par1ItemStack;
+        return stack;
     }
 
     /**
      * How long it takes to use or consume an item
      */
     @Override
-    public int getMaxItemUseDuration(ItemStack par1ItemStack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 72000;
     }
@@ -143,7 +150,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
      * returns the action that specifies what animation to play when the items is being used
      */
     @Override
-    public EnumAction getItemUseAction(ItemStack par1ItemStack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.bow;
     }
@@ -154,6 +161,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
+        if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+        {
+            return stack;
+        }
+
         // This needs to also happen on the client, otherwise the bow won't be set to in use
         ArrowNockEvent event = new ArrowNockEvent(player, stack);
         MinecraftForge.EVENT_BUS.post(event);

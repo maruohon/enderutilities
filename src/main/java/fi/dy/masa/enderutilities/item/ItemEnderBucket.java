@@ -42,6 +42,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
+    public static final double ENDER_CHARGE_COST = 0.2d; // charge cost per 1 mB of fluid transferred to/from a linked tank
     public static final byte OPERATION_MODE_NORMAL = 0;
     public static final byte OPERATION_MODE_FILL_BUCKET = 1;
     public static final byte OPERATION_MODE_DRAIN_BUCKET = 2;
@@ -178,10 +179,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             if (EnderUtilities.proxy.isShiftKeyDown() == false)
             {
                 list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-                return;
             }
-
-            super.addInformation(stack, player, list, par4);
+            else
+            {
+                super.addInformation(stack, player, list, par4);
+            }
         }
         else
         {
@@ -192,7 +194,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             if (stack.getTagCompound() == null)
             {
                 list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
-                return;
             }
         }
     }
@@ -905,6 +906,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
+                if (doDrain == true && UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * maxDrain), true) == false)
+                {
+                    return null;
+                }
+
                 FluidStack fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), maxDrain, doDrain);
                 this.cacheFluid(stack, tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false));
 
@@ -971,6 +977,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
+                if (doFill == true && fluidStackIn != null && UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * fluidStackIn.amount), true) == false)
+                {
+                    return 0;
+                }
+
                 int amount = tank.fill(ForgeDirection.getOrientation(targetData.blockFace), fluidStackIn, doFill);
                 this.cacheFluid(stack, tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false));
 

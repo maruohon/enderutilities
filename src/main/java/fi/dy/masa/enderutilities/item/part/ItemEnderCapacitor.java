@@ -13,10 +13,12 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable
 {
@@ -59,9 +61,9 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     public int getCapacityFromItemType(ItemStack stack)
     {
-        if (stack.getItemDamage() == 1) { return 1024; } // Enhanced
-        if (stack.getItemDamage() == 2) { return 4096; } // Advanced
-        return 256; // Basic
+        if (stack.getItemDamage() == 1) { return 50000; } // Enhanced
+        if (stack.getItemDamage() == 2) { return 250000; } // Advanced
+        return 10000; // Basic
     }
 
     @Override
@@ -213,6 +215,13 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + charge + " / " + capacity);
+        if (EnderUtilities.proxy.isShiftKeyDown() == true)
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + charge + " / " + capacity);
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
+        }
     }
 }
