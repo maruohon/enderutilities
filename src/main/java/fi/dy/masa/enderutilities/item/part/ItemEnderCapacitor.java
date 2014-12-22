@@ -13,7 +13,6 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
@@ -215,6 +214,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);
 
+        list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
+        /*
         if (EnderUtilities.proxy.isShiftKeyDown() == true)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + charge + " / " + capacity);
@@ -223,5 +224,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
         }
+        */
     }
 }

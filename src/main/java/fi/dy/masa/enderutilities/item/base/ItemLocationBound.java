@@ -7,8 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -60,16 +58,9 @@ public class ItemLocationBound extends ItemEnderUtilities
         return super.getItemStackDisplayName(stack);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
     {
-        /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
-        {
-            list.add("<" + StatCollector.translateToLocal("gui.tooltip.holdshift") + ">");
-            return;
-        }*/
-
         NBTHelperTarget target = new NBTHelperTarget();
         if (target.readTargetTagFromNBT(stack.getTagCompound()) == null)
         {
@@ -77,13 +68,45 @@ public class ItemLocationBound extends ItemEnderUtilities
             return;
         }
 
-        String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-        String numPre = "" + EnumChatFormatting.BLUE;
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+        String dimPre = EnumChatFormatting.DARK_GREEN.toString();
+        String numPre = EnumChatFormatting.BLUE.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false);
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
-                + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-        list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+        // Compact tooltip
+        if (selection == 0)
+        {
+            String s;
+            if (dimName != null && dimName.length() > 0)
+            {
+                s = dimPre + dimName + rst;
+            }
+            else
+            {
+                s = StatCollector.translateToLocal("gui.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
+            }
+
+            list.add(String.format("%s - %s%.2f%s %s%.2f%s %s%.2f%s", s, numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+            return;
+        }
+
+        if ((selection & 0x1) == 0x1)
+        {
+            String s = StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst;
+
+            if (dimName != null && dimName.length() > 0)
+            {
+                s = s + " - " + dimPre + dimName + rst;
+            }
+
+            list.add(s);
+        }
+
+        if ((selection & 0x2) == 0x2)
+        {
+            list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+        }
+
         // For debug:
         //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
     }

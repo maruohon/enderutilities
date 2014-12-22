@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -216,37 +217,26 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
     {
         NBTTagCompound nbt = stack.getTagCompound();
-
-        byte mode = BOW_MODE_TP_TARGET;
-        if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE))
-        {
-            mode = nbt.getByte("Mode");
-        }
-
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
         // TP self to impact point
-        if (mode == BOW_MODE_TP_SELF)
+        if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("gui.tooltip.tpself") + rst);
-            return;
         }
-
         // TP the target entity
-        String coordPre = "" + EnumChatFormatting.DARK_AQUA;
-        list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + coordPre + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
-
-        /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
+        else
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-            return;
-        }*/
+            if (EnderUtilities.proxy.isShiftKeyDown() == true)
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
+            }
 
-        super.addInformation(stack, player, list, par4);
+            super.addInformationSelective(stack, player, list, advancedTooltips, selection);
+        }
     }
 
     /**

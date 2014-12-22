@@ -143,8 +143,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
     {
         FluidStack fluidStack = this.getFluidCached(stack);
         String fluidName;
@@ -160,7 +159,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         else
         {
-            fluidName = "<" + StatCollector.translateToLocal("gui.tooltip.empty") + ">";
+            fluidName = StatCollector.translateToLocal("gui.tooltip.empty");
         }
 
         byte mode = this.getBucketMode(stack);
@@ -174,7 +173,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
             list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + String.format(": %d mB / %d mB", amount, capacity));
-            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
 
             if (EnderUtilities.proxy.isShiftKeyDown() == false)
             {
@@ -182,7 +180,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
             else
             {
-                super.addInformation(stack, player, list, par4);
+                list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
+                super.addInformationSelective(stack, player, list, advancedTooltips, selection);
             }
         }
         else
@@ -1213,7 +1212,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return;
         }
 
-        // Just Toggle mode key: Change operation mode between normal, pickup-only, deposit-only
+        // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
         if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             // 0: Normal, 1: Pickup only, 2: Deposit only

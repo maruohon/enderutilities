@@ -45,9 +45,9 @@ public class NBTHelperTarget
 
         NBTTagCompound tag = nbt.getCompoundTag("Target");
         if (tag != null &&
-            tag.hasKey("posX", Constants.NBT.TAG_ANY_NUMERIC) == true &&
-            tag.hasKey("posY", Constants.NBT.TAG_ANY_NUMERIC) == true &&
-            tag.hasKey("posZ", Constants.NBT.TAG_ANY_NUMERIC) == true &&
+            tag.hasKey("posX", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
             tag.hasKey("Dim", Constants.NBT.TAG_INT) == true)
         {
             return true;

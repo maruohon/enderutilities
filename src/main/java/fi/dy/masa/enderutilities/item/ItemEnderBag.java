@@ -316,29 +316,28 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public String getItemStackDisplayName(ItemStack toolStack)
+    public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null)
         {
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
             if (moduleNbt != null && moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
             {
                 String ender = StatCollector.translateToLocal(new ItemStack(Blocks.ender_chest, 1, 0).getUnlocalizedName() + ".name");
-                return ("" + StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(toolStack) + ".name")).trim() + " (" + ender + ")";
+                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " (" + ender + ")";
             }
         }
 
-        return super.getItemStackDisplayName(toolStack);
+        return ("" + StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
+            super.addInformationSelective(stack, player, list, advancedTooltips, selection);
             return;
         }
 
@@ -411,7 +410,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (moduleStack != null && moduleStack.getItem() instanceof ItemEnderCapacitor)
         {
             ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
-            cap.addInformation(moduleStack, player, list, par4);
+            cap.addInformationSelective(moduleStack, player, list, advancedTooltips, selection);
         }
     }
 

@@ -9,11 +9,11 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -50,19 +50,29 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public String getItemStackDisplayName(ItemStack toolStack)
+    public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && moduleStack.getItem() != null)
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        if (moduleStack != null)
         {
+            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
             NBTTagCompound nbt = moduleStack.getTagCompound();
+
             // If the currently selected module has been renamed, show that name
             if (nbt != null && nbt.hasKey("display", Constants.NBT.TAG_COMPOUND) == true)
             {
                 NBTTagCompound tagDisplay = nbt.getCompoundTag("display");
                 if (tagDisplay.hasKey("Name", Constants.NBT.TAG_STRING) == true)
                 {
-                    return tagDisplay.getString("Name");
+                    String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+
+                    if (itemName.length() >= 12)
+                    {
+                        return EUStringUtils.getInitialsWithDots(itemName) + " " + dNamePre + tagDisplay.getString("Name") + rst;
+                    }
+
+                    return itemName + ": " + dNamePre + tagDisplay.getString("Name") + rst;
                 }
             }
 
@@ -70,68 +80,88 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             if (target.readTargetTagFromNBT(nbt) != null)
             {
                 String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-                return ("" + StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(toolStack) + ".name")).trim() + " (" + dimName + ")";
+
+                if (itemName.length() >= 12)
+                {
+                    return EUStringUtils.getInitialsWithDots(itemName) + " (" + dimName + ")";
+                }
+
+                return itemName + " (" + dimName + ")";
             }
         }
 
-        return super.getItemStackDisplayName(toolStack);
+        return super.getItemStackDisplayName(stack);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
     {
-        /*if (EnderUtilities.proxy.isShiftKeyDown() == false)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-            return;
-        }*/
-
         if (stack.getTagCompound() == null)
         {
             list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
             return;
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null || moduleStack.getItem() == null)
+        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
+        boolean hasLinkCrystals = false;
+        boolean hasTarget = false;
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack capacitorStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+        NBTHelperTarget target = new NBTHelperTarget();
+
+        String numPre = EnumChatFormatting.BLUE.toString();
+        String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+
+        // Link Crystals installed
+        if (linkCrystalStack != null)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
-        }
-        else
-        {
-            String dimPre = "" + EnumChatFormatting.DARK_GREEN;
-            String numPre = "" + EnumChatFormatting.BLUE;
-            String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-    
-            NBTHelperTarget target = new NBTHelperTarget();
-            if (target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
+            hasLinkCrystals = true;
+
+            // Valid target set in the currently selected Link Crystal
+            if (target.readTargetTagFromNBT(linkCrystalStack.getTagCompound()) != null)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+                hasTarget = true;
+
+                if (verbose == true)
+                {
+                    super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, -1);
+                }
+                else // Compact location info
+                {
+                    super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, 0);
+                }
             }
             else
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
-                        + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-                list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
-                // For debug:
-                //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
-            }
-
-            int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            if (num > 0)
-            {
-                int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-                list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
-                //list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %d / %d", sel, max));
+                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
             }
         }
-
-        moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
-        if (moduleStack != null && moduleStack.getItem() instanceof ItemEnderCapacitor)
+        else
         {
-            ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
-            cap.addInformation(moduleStack, player, list, par4);
+            list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
+        }
+
+        if (hasLinkCrystals == true && (verbose == true || (hasTarget == false && capacitorStack == null)))
+        {
+            int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+            String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
+            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
+        }
+
+        // hasTarget implies LC line and two location info lines when verbose,
+        // hasLinkCrystals && hasCapacitor implies either two location info lines or "no target" AND LC line AND charge line
+        if (verbose == false && (hasTarget == true || (hasLinkCrystals == true && capacitorStack != null)))
+        {
+            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+            return;
+        }
+
+        // Ender Capacitor charge, if one has been installed
+        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        {
+            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
         }
     }
 

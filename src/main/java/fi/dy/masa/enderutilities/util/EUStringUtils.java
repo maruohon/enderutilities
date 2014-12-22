@@ -22,4 +22,17 @@ public class EUStringUtils
 
         return "" + value; // never reached
     }
+
+    public static String getInitialsWithDots(String str)
+    {
+        StringBuilder sb = new StringBuilder(64);
+        String[] split = str.split(" ");
+
+        for (String s : split)
+        {
+            sb.append(s.substring(0,  1)).append(".");
+        }
+
+        return sb.toString();
+    }
 }
