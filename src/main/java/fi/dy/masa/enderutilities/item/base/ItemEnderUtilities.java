@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.item.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -23,7 +25,7 @@ public class ItemEnderUtilities extends Item
      * Value '0' will return a compact version of the tooltip.
      * Value '-1' will return the full tooltip.
      */
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
 
@@ -31,12 +33,24 @@ public class ItemEnderUtilities extends Item
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
     {
-        if (EnderUtilities.proxy.isShiftKeyDown() == false)
-        {
-            this.addInformationSelective(stack, player, list, advancedTooltips, 0);
-            return;
-        }
+        ArrayList<String> tmpList = new ArrayList<String>();
+        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
-        this.addInformationSelective(stack, player, list, advancedTooltips, -1);
+        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        //list.add("Size: " + tmpList.size()); // FIXME debug
+        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
+        // plus the "Hold Shift for more" tooltip.
+        if (verbose == false && tmpList.size() > 2)
+        {
+            tmpList.clear();
+            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            list.add(tmpList.get(0));
+            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+        }
+        else
+        {
+            list.addAll(tmpList);
+        }
     }
 }

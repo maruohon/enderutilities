@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,18 +21,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.setup.EURegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -318,99 +314,61 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null)
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        if (linkCrystalStack != null)
         {
-            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-            if (moduleNbt != null && moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
+            NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
+            NBTHelperTarget target = new NBTHelperTarget();
+            if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
             {
-                String ender = StatCollector.translateToLocal(new ItemStack(Blocks.ender_chest, 1, 0).getUnlocalizedName() + ".name");
-                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " (" + ender + ")";
+                String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
+                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + ": " + targetName;
             }
         }
 
-        return ("" + StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
+        return StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name").trim();
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        if (stack.getTagCompound() == null)
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        if (linkCrystalStack != null)
         {
-            super.addInformationSelective(stack, player, list, advancedTooltips, selection);
-            return;
-        }
-
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null || moduleStack.getItem() == null)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
-        }
-        else
-        {
-            String dimPre = "" + EnumChatFormatting.DARK_GREEN;
             String numPre = "" + EnumChatFormatting.BLUE;
             String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
 
-            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+            NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
             NBTHelperTarget target = new NBTHelperTarget();
-            if (target.readTargetTagFromNBT(moduleNbt) == null)
+            if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+                NBTHelperPlayer playerData = new NBTHelperPlayer();
+                String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
 
-                int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-                if (num >= 1)
+                if (linkCrystalNbt.getByte("Type") == BIND_TYPE_ENDER)
                 {
-                    int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-                    list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
+                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + numPre + targetName + rst);
                 }
-            }
-
-            NBTHelperPlayer playerData = new NBTHelperPlayer();
-            String locName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
-
-            if ((playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == true)
-                || moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
-            {
-                list.add(StatCollector.translateToLocal("gui.tooltip.type") + ": " + numPre + locName + rst);
-            }
-
-            // Only show private vs. public when bound to regular inventories, not Ender Chest
-            if (moduleNbt.getByte("Type") == BIND_TYPE_REGULAR)
-            {
-                if (EnderUtilities.proxy.isShiftKeyDown() == false)
+                else if (playerData.readPlayerTagFromNBT(linkCrystalNbt) != null && playerData.isOwner(player) == true)
                 {
-                    list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
-                }
-                else
-                {
-                    // Only show the location info if the bag is not bound to an ender chest, and if the player is the owner
-                    if (playerData != null && playerData.isOwner(player) == true)
-                    {
-                        list.add(StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst
-                                + " " + dimPre + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false) + rst);
-                        list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", numPre, target.posX, rst, numPre, target.posY, rst, numPre, target.posZ, rst));
-                    }
+                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + numPre + targetName + rst);
 
-                    String mode = StatCollector.translateToLocal((moduleNbt.getByte("Mode") == MODE_PUBLIC ? "gui.tooltip.public" : "gui.tooltip.private"));
+                    super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
+
+                    String mode = StatCollector.translateToLocal((linkCrystalNbt.getByte("Mode") == MODE_PUBLIC ? "gui.tooltip.public" : "gui.tooltip.private"));
                     list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName);
+                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName); // FIXME we should get the player name from the UUID
                 }
             }
-
-            int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            if (num >= 1)
+            else
             {
-                int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
-                list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal") + String.format(" %s%d / %d%s", numPre, sel, num, rst));
+                //list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+                super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
             }
         }
-
-        moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
-        if (moduleStack != null && moduleStack.getItem() instanceof ItemEnderCapacitor)
+        else
         {
-            ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
-            cap.addInformationSelective(moduleStack, player, list, advancedTooltips, selection);
+            super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
         }
     }
 

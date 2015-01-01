@@ -28,7 +28,6 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -37,6 +36,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EUConfigs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -136,26 +136,29 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
         {
-            return super.getItemStackDisplayName(stack) + " (" + fluidStack.getFluid().getLocalizedName(fluidStack) + ")";
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+            String fluidName = EnumChatFormatting.DARK_GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
+            return super.getItemStackDisplayName(stack) + ": " + fluidName;
         }
 
         return super.getItemStackDisplayName(stack);
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         FluidStack fluidStack = this.getFluidCached(stack);
         String fluidName;
-        String pre = "" + EnumChatFormatting.BLUE;
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+        String preNr = EnumChatFormatting.BLUE.toString();
+        String preTxt = EnumChatFormatting.DARK_GREEN.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
         int amount = 0;
         int capacity = this.getCapacityCached(stack);
 
         if (fluidStack != null && fluidStack.getFluid() != null)
         {
             amount = fluidStack.amount;
-            fluidName = pre + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
+            fluidName = preTxt + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
         }
         else
         {
@@ -163,37 +166,55 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         byte mode = this.getBucketMode(stack);
+        byte linkMode = this.getBucketLinkMode(stack);
 
+        String amountStr = String.format("%s%s%s mB / %s%s%s mB", preNr, EUStringUtils.formatNumberWithKSeparators(amount), rst, preNr, EUStringUtils.formatNumberWithKSeparators(capacity), rst);
         String modeStr = "gui.tooltip.bucket.mode.normal";
         if (mode == OPERATION_MODE_FILL_BUCKET) { modeStr = "gui.tooltip.bucket.mode.fill"; }
         else if (mode == OPERATION_MODE_DRAIN_BUCKET) { modeStr = "gui.tooltip.bucket.mode.drain"; }
         else if (mode == OPERATION_MODE_BINDING) { modeStr = "gui.tooltip.bucket.mode.bind"; }
 
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (verbose == true)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
-            list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + String.format(": %d mB / %d mB", amount, capacity));
-
-            if (EnderUtilities.proxy.isShiftKeyDown() == false)
+            if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+                list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
+                list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + ": " + amountStr);
+
+                ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                if (linkCrystalStack != null)
+                {
+                    NBTHelperTarget target = new NBTHelperTarget();
+                    if (target.readTargetTagFromNBT(linkCrystalStack.getTagCompound()) != null)
+                    {
+                        String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
+                        list.add(StatCollector.translateToLocal("gui.tooltip.linkedto") + ": " + preTxt + targetName + rst);
+                    }
+                }
             }
             else
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
-                super.addInformationSelective(stack, player, list, advancedTooltips, selection);
+                list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
+                list.add(StatCollector.translateToLocal("gui.tooltip.amount") + ": " + amountStr);
             }
         }
         else
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
-            list.add(StatCollector.translateToLocal("gui.tooltip.amount") + String.format(": %d mB / %d mB", amount, capacity));
-            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
-
-            if (stack.getTagCompound() == null)
+            if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
+                list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
             }
+            else
+            {
+                list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName + " - " + amountStr);
+            }
+        }
+
+        list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
+
+        if (linkMode == LINK_MODE_ENABLED)
+        {
+            super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
         }
     }
 

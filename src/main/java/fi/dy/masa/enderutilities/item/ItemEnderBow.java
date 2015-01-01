@@ -19,7 +19,6 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -217,7 +216,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         NBTTagCompound nbt = stack.getTagCompound();
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
@@ -230,12 +229,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // TP the target entity
         else
         {
-            if (EnderUtilities.proxy.isShiftKeyDown() == true)
-            {
-                list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
-            }
-
-            super.addInformationSelective(stack, player, list, advancedTooltips, selection);
+            super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
+            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
         }
     }
 

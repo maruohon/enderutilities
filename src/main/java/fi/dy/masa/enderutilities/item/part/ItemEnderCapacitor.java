@@ -214,7 +214,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
+        list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloorWithPostfix(charge) + " / " + EUStringUtils.formatNumberFloorWithPostfix(capacity));
         /*
         if (EnderUtilities.proxy.isShiftKeyDown() == true)
         {

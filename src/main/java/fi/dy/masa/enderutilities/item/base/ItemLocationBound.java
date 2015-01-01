@@ -4,11 +4,13 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemLocationBound extends ItemEnderUtilities
@@ -36,7 +38,10 @@ public class ItemLocationBound extends ItemEnderUtilities
                 adjustPosHit = false;
             }
 
-            stack.setTagCompound(NBTHelperTarget.writeTargetTagToNBT(stack.getTagCompound(), x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit));
+            NBTTagCompound nbt = stack.getTagCompound();
+            nbt = NBTHelperTarget.writeTargetTagToNBT(stack.getTagCompound(), x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
+            nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
+            stack.setTagCompound(nbt);
 
             return true;
         }
@@ -59,7 +64,7 @@ public class ItemLocationBound extends ItemEnderUtilities
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, int selection)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         NBTHelperTarget target = new NBTHelperTarget();
         if (target.readTargetTagFromNBT(stack.getTagCompound()) == null)
@@ -73,41 +78,33 @@ public class ItemLocationBound extends ItemEnderUtilities
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
         String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false);
 
-        // Compact tooltip
-        if (selection == 0)
-        {
-            String s;
-            if (dimName != null && dimName.length() > 0)
-            {
-                s = dimPre + dimName + rst;
-            }
-            else
-            {
-                s = StatCollector.translateToLocal("gui.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
-            }
-
-            list.add(String.format("%s - %s%.2f%s %s%.2f%s %s%.2f%s", s, numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
-            return;
-        }
-
-        if ((selection & 0x1) == 0x1)
+        // Full tooltip
+        if (verbose == true)
         {
             String s = StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst;
-
-            if (dimName != null && dimName.length() > 0)
+            if (dimName.length() > 0)
             {
                 s = s + " - " + dimPre + dimName + rst;
             }
 
             list.add(s);
-        }
-
-        if ((selection & 0x2) == 0x2)
-        {
             list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+
+            // For debug:
+            //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+        }
+        // Compact/short tooltip
+        else
+        {
+            String s = dimPre + dimName + rst;
+            if (dimName.length() == 0)
+            {
+                s = StatCollector.translateToLocal("gui.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
+            }
+
+            list.add(String.format("%s - %s%.2f%s %s%.2f%s %s%.2f%s", s, numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
         }
 
-        // For debug:
-        //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+
     }
 }

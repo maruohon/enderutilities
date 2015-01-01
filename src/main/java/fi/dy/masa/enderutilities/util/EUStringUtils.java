@@ -3,16 +3,11 @@ package fi.dy.masa.enderutilities.util;
 
 public class EUStringUtils
 {
-    public static String formatNumberFloor(int value)
+    public static String formatNumberFloorWithPostfix(int value)
     {
-        if (value <= 1000)
+        if (value >= 1000000)
         {
-            return String.format("%d", value);
-        }
-
-        if (value > 1000 && value < 10000)
-        {
-            return String.format("%.1fk", ((float)value) / 1000);
+            return String.format("%dM", value / 1000000);
         }
 
         if (value >= 10000)
@@ -20,7 +15,43 @@ public class EUStringUtils
             return String.format("%dk", value / 1000);
         }
 
-        return "" + value; // never reached
+        if (value > 1000)
+        {
+            return String.format("%.1fk", ((float)value) / 1000);
+        }
+
+        return String.valueOf(value);
+    }
+
+    public static String formatNumberWithKSeparators(int value)
+    {
+        StringBuilder sb = new StringBuilder(16);
+
+        if (value >= 1000000000)
+        {
+            sb.append(String.valueOf(value / 1000000000) + ",");
+        }
+
+        if (value >= 1000000)
+        {
+            sb.append(String.valueOf((value / 1000000) % 1000) + ",");
+        }
+
+        if (value >= 1000)
+        {
+            sb.append(String.valueOf((value / 1000) % 1000) + ",");
+        }
+
+        if (value != 0)
+        {
+            sb.append(String.format("%03d", value % 1000));
+        }
+        else
+        {
+            sb.append(String.valueOf(value));
+        }
+
+        return sb.toString();
     }
 
     public static String getInitialsWithDots(String str)
