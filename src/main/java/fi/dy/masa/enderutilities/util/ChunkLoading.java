@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -502,52 +502,38 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     public void tickChunkTimeouts()
     {
         DimChunkCoordTimeout dcct;
-        List<String> toRemove = new ArrayList<String>();
+        Iterator<Map.Entry<String, DimChunkCoordTimeout>> iterator = this.timeOuts.entrySet().iterator();
 
         //int j = 0; // FIXME debug
-        for (Map.Entry<String, DimChunkCoordTimeout> entry : this.timeOuts.entrySet())
+        while (iterator.hasNext())
         {
-            dcct = entry.getValue();
+            dcct = iterator.next().getValue();
             //System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
 
+            if (dcct != null && (this.playerTickets.containsValue(dcct.ticket) == true || this.modTickets.containsValue(dcct.ticket) == true))
+            {
+                if (dcct.tick() == 0)
+                {
+                    //System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
+                    ForgeChunkManager.unforceChunk(dcct.ticket, dcct.chunkCoords);
+
+                    if (dcct.ticket != null && dcct.ticket.getChunkList().size() == 0)
+                    {
+                        //if (dcct.ticket.isPlayerTicket()) { System.out.println("tickChunkTimeouts(): releasing player ticket"); }
+                        //else { System.out.println("tickChunkTimeouts(): releasing mod ticket"); }
+                        this.removeTicket(dcct.ticket);
+                        ForgeChunkManager.releaseTicket(dcct.ticket);
+                    }
+
+                    iterator.remove();
+                }
+            }
             // If this chunk doesn't have a valid ticket anymore, just remove the entry
-            if (dcct == null || (this.playerTickets.containsValue(dcct.ticket) == false && this.modTickets.containsValue(dcct.ticket) == false))
+            else
             {
                 //System.out.println("tickChunkTimeouts(): invalid ticket, removing timeout entry");
-                toRemove.add(entry.getKey());
-                continue;
+                iterator.remove();
             }
-
-            if (dcct.tick() == 0)
-            {
-                //System.out.printf("tickChunkTimeouts(): unforcing, dim: %d, %s\n", dcct.dimension, dcct.chunkCoords.toString());
-                ForgeChunkManager.unforceChunk(dcct.ticket, dcct.chunkCoords);
-
-                if (dcct.ticket != null && dcct.ticket.getChunkList().size() == 0)
-                {
-                    /*
-                    if (dcct.ticket.isPlayerTicket())
-                    {
-                        System.out.println("tickChunkTimeouts(): releasing player ticket");
-                    }
-                    else
-                    {
-                        System.out.println("tickChunkTimeouts(): releasing mod ticket");
-                    }
-                    */
-
-                    this.removeTicket(dcct.ticket);
-                    ForgeChunkManager.releaseTicket(dcct.ticket);
-                }
-
-                toRemove.add(entry.getKey());
-            }
-        }
-
-        for (int i = 0; i < toRemove.size(); ++i)
-        {
-            //System.out.println("tickChunkTimeouts() remove loop: " + i);
-            this.timeOuts.remove(toRemove.get(i));
         }
     }
 }
