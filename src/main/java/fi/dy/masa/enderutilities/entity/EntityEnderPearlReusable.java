@@ -4,7 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
@@ -79,8 +78,10 @@ public class EntityEnderPearlReusable extends EntityThrowable
     {
         if (this.worldObj.isRemote == false && this.getThrower() != null)
         {
+            Entity thrower = this.getThrower();
+
             // Don't collide with self, needed for Elite version of pearl, which the thrower is riding
-            if (this.letMeFly == true && mop.typeOfHit == MovingObjectType.ENTITY && this.getThrower() == mop.entityHit)
+            if (this.letMeFly == true && mop.typeOfHit == MovingObjectType.ENTITY && thrower == mop.entityHit)
             {
                 return;
             }
@@ -100,11 +101,9 @@ public class EntityEnderPearlReusable extends EntityThrowable
                 System.out.printf("hitInfo: %s\n", mop.hitInfo.toString());
             }*/
 
-            Entity thrower = (EntityPlayerMP)this.getThrower();
-
             if (mop.entityHit != null)
             {
-                mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0.0f);
+                mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
             }
 
             Entity bottom = EntityUtils.getBottomEntity(thrower);

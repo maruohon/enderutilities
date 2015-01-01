@@ -155,7 +155,7 @@ public class TeleportEntity
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
 
-        if (entNew != null)
+        if (entNew != null && teleportDamage != 0.0f)
         {
             // Inflict fall damage to the bottom most entity
             Entity bottom = EntityUtils.getBottomEntity(entNew);
