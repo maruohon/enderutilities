@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class NBTHelperTarget
 {
@@ -20,6 +21,7 @@ public class NBTHelperTarget
     public int blockMeta;
     /* Face of the target block */
     public int blockFace;
+    public ForgeDirection forgeDir;
 
     public NBTHelperTarget()
     {
@@ -34,6 +36,7 @@ public class NBTHelperTarget
         this.blockName = "";
         this.blockMeta = 0;
         this.blockFace = -1;
+        this.forgeDir = ForgeDirection.DOWN;
     }
 
     public static boolean hasTargetTag(NBTTagCompound nbt)
@@ -72,6 +75,7 @@ public class NBTHelperTarget
         this.blockName = tag.getString("BlockName");
         this.blockMeta = tag.getInteger("BlockMeta");
         this.blockFace = tag.getInteger("BlockFace");
+        this.forgeDir = ForgeDirection.getOrientation(this.blockFace);
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
         this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.posY;

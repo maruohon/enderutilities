@@ -284,7 +284,17 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             IFluidHandler iFluidHandler = (IFluidHandler)te;
             FluidStack fluidStack;
-            ForgeDirection fDir = ForgeDirection.getOrientation(side);
+            ForgeDirection forgeDir = ForgeDirection.getOrientation(side);
+            Block block = world.getBlock(x, y, z);
+            String blockName = Block.blockRegistry.getNameForObject(block);
+
+            // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
+            // work if we target a blue (=input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
+            // but the top side should ever only be blue aka. input.
+            if (blockName != null && blockName.equals("ThermalExpansion:Tank"))
+            {
+                forgeDir = ForgeDirection.UP;
+            }
 
             // Get the stored fluid, if any
             FluidStack storedFluidStack = this.getFluid(stack);
@@ -298,7 +308,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             // With tanks we pick up fluid when not sneaking
             if (bucketMode == OPERATION_MODE_FILL_BUCKET || (bucketMode == OPERATION_MODE_NORMAL && player.isSneaking() == false))
             {
-                fluidStack = iFluidHandler.drain(fDir, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
+                fluidStack = iFluidHandler.drain(forgeDir, FluidContainerRegistry.BUCKET_VOLUME, false); // simulate
                 int amount = this.getCapacityAvailable(stack, fluidStack);
 
                 // We can still store more fluid
@@ -312,10 +322,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     // If the bucket is currently empty, or the tank's fluid is the same we currently have
                     if (fluidStack != null && (storedFluidAmount == 0 || fluidStack.isFluidEqual(storedFluidStack) == true))
                     {
-                        fluidStack = iFluidHandler.drain(fDir, amount, false);
+                        fluidStack = iFluidHandler.drain(forgeDir, amount, false);
                         if (fluidStack != null && this.fill(stack, fluidStack, false) == fluidStack.amount)
                         {
-                            fluidStack = iFluidHandler.drain(fDir, amount, true); // actually drain
+                            fluidStack = iFluidHandler.drain(forgeDir, amount, true); // actually drain
                             this.fill(stack, fluidStack, true);
                             return true;
                         }
@@ -332,9 +342,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     fluidStack = this.drain(stack, FluidContainerRegistry.BUCKET_VOLUME, false);
 
                     // Check if we can deposit (at least some) the fluid we have stored
-                    if (fluidStack != null && iFluidHandler.fill(fDir, fluidStack, false) > 0) // simulate
+                    if (fluidStack != null && iFluidHandler.fill(forgeDir, fluidStack, false) > 0) // simulate
                     {
-                        int amount = iFluidHandler.fill(fDir, fluidStack, true);
+                        int amount = iFluidHandler.fill(forgeDir, fluidStack, true);
                         this.drain(stack, amount, true); // actually drain fluid from the bucket (the amount that was filled into the tank)
                         return true;
                     }
@@ -608,9 +618,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                ForgeDirection fd = ForgeDirection.getOrientation(targetData.blockFace);
-                FluidTankInfo[] info = tank.getTankInfo(fd);
-                fluidStack = tank.drain(fd, Integer.MAX_VALUE, false);
+                FluidTankInfo[] info = tank.getTankInfo(targetData.forgeDir);
+                fluidStack = tank.drain(targetData.forgeDir, Integer.MAX_VALUE, false);
 
                 // Tank has fluid
                 if (fluidStack != null)
@@ -637,7 +646,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     }
 
                     fs.amount = Integer.MAX_VALUE;
-                    return tank.fill(fd, fs, false);
+                    return tank.fill(targetData.forgeDir, fs, false);
                 }
                 // Tank has no fluid
                 else
@@ -652,7 +661,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         FluidStack fs = fluidStackIn.copy();
                         fs.amount = Integer.MAX_VALUE;
 
-                        return tank.fill(fd, fs, false);
+                        return tank.fill(targetData.forgeDir, fs, false);
                     }
 
                     // Since we have no fluid stored, get the capacity via simulating filling water into the tank
@@ -662,7 +671,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);
                         if (fluidStack != null)
                         {
-                            return tank.fill(fd, fluidStack, false);
+                            return tank.fill(targetData.forgeDir, fluidStack, false);
                         }
                     }
                 }
@@ -722,9 +731,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 }
 
                 IFluidHandler tank = this.getLinkedTank(stack);
-                if (tank != null)
+                NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+                if (tank != null && targetData != null)
                 {
-                    FluidTankInfo[] info = tank.getTankInfo(ForgeDirection.getOrientation(this.getLinkedTankTargetData(stack).blockFace));
+                    FluidTankInfo[] info = tank.getTankInfo(targetData.forgeDir);
                     if (info != null && info[0] != null)
                     {
                         moduleNbt.setInteger("CapacityCached", info[0].capacity);
@@ -753,16 +763,18 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return null;
         }
 
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        if (moduleNbt == null)
+        NBTHelperTarget targetData = new NBTHelperTarget();
+        if (targetData.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
         {
             return null;
         }
 
-        NBTHelperTarget targetData = new NBTHelperTarget();
-        if (targetData.readTargetTagFromNBT(moduleNbt) == null)
+        // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
+        // work if we target a blue (=input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
+        // but the top side should ever only be blue aka. input.
+        if (targetData.blockName != null && targetData.blockName.equals("ThermalExpansion:Tank"))
         {
-            return null;
+            targetData.forgeDir = ForgeDirection.UP;
         }
 
         return targetData;
@@ -841,8 +853,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                ForgeDirection fd = ForgeDirection.getOrientation(targetData.blockFace);
-                FluidTankInfo[] info = tank.getTankInfo(fd);
+                FluidTankInfo[] info = tank.getTankInfo(targetData.forgeDir);
 
                 // If we have tank info, it is the easiest and simplest way to get the tank capacity
                 if (info != null && info[0] != null)
@@ -852,14 +863,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
                 // No tank info available, get the capacity via simulating filling
 
-                fluidStack = tank.drain(fd, Integer.MAX_VALUE, false);
+                fluidStack = tank.drain(targetData.forgeDir, Integer.MAX_VALUE, false);
 
                 // Tank has fluid
                 if (fluidStack != null)
                 {
                     FluidStack fs = fluidStack.copy();
                     fs.amount = Integer.MAX_VALUE;
-                    int space = tank.fill(fd, fs, false);
+                    int space = tank.fill(targetData.forgeDir, fs, false);
 
                     return space + fluidStack.amount;
                 }
@@ -873,7 +884,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);
                         if (fluidStack != null)
                         {
-                            return tank.fill(fd, fluidStack, false);
+                            return tank.fill(targetData.forgeDir, fluidStack, false);
                         }
                     }
                 }
@@ -902,7 +913,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                FluidStack fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false);
+                FluidStack fluidStack = tank.drain(targetData.forgeDir, Integer.MAX_VALUE, false);
 
                 // Cache the fluid stack into the link crystal's NBT for easier/faster access for tooltip and rendering stuffs
                 this.cacheFluid(stack, fluidStack);
@@ -937,8 +948,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     return null;
                 }
 
-                FluidStack fluidStack = tank.drain(ForgeDirection.getOrientation(targetData.blockFace), maxDrain, doDrain);
-                this.cacheFluid(stack, tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false));
+                FluidStack fluidStack = tank.drain(targetData.forgeDir, maxDrain, doDrain);
+                this.cacheFluid(stack, tank.drain(targetData.forgeDir, Integer.MAX_VALUE, false));
 
                 return fluidStack;
             }
@@ -1008,8 +1019,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     return 0;
                 }
 
-                int amount = tank.fill(ForgeDirection.getOrientation(targetData.blockFace), fluidStackIn, doFill);
-                this.cacheFluid(stack, tank.drain(ForgeDirection.getOrientation(targetData.blockFace), Integer.MAX_VALUE, false));
+                int amount = tank.fill(targetData.forgeDir, fluidStackIn, doFill);
+                this.cacheFluid(stack, tank.drain(targetData.forgeDir, Integer.MAX_VALUE, false));
 
                 return amount;
             }
