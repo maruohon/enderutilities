@@ -601,6 +601,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     return moduleNbt.getInteger("CapacityCached");
                 }
             }
+
+            return 0; // without this the client side code would try to read the tank info, and then crash
         }
 
         return this.getCapacity(stack);
