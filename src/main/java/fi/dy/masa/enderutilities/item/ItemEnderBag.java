@@ -321,8 +321,11 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             NBTHelperTarget target = new NBTHelperTarget();
             if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
             {
+                String pre = EnumChatFormatting.GREEN.toString();
+                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
                 String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
-                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + ": " + targetName;
+                //return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " (" + targetName + ")";
+                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetName + rst;
             }
         }
 
@@ -335,8 +338,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (linkCrystalStack != null)
         {
-            String numPre = "" + EnumChatFormatting.BLUE;
-            String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+            String textPre = EnumChatFormatting.DARK_GREEN.toString();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
             NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
             NBTHelperTarget target = new NBTHelperTarget();
@@ -347,11 +350,11 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                 if (linkCrystalNbt.getByte("Type") == BIND_TYPE_ENDER)
                 {
-                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + numPre + targetName + rst);
+                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
                 }
                 else if (playerData.readPlayerTagFromNBT(linkCrystalNbt) != null && playerData.isOwner(player) == true)
                 {
-                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + numPre + targetName + rst);
+                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
 
                     super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
 

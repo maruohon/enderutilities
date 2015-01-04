@@ -136,9 +136,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
         {
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-            String fluidName = EnumChatFormatting.DARK_GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
-            return super.getItemStackDisplayName(stack) + ": " + fluidName;
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+            String fluidName = EnumChatFormatting.GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
+            return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + fluidName;
         }
 
         return super.getItemStackDisplayName(stack);

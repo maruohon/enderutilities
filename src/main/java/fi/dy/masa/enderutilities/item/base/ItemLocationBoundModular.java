@@ -13,7 +13,6 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
@@ -64,18 +63,18 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 if (tagDisplay.hasKey("Name", Constants.NBT.TAG_STRING) == true)
                 {
                     String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
                     if (itemName.length() >= 14)
                     {
                         return EUStringUtils.getInitialsWithDots(itemName) + " " + dNamePre + tagDisplay.getString("Name") + rst;
                     }
 
-                    return itemName + ": " + dNamePre + tagDisplay.getString("Name") + rst;
+                    return itemName + " " + dNamePre + tagDisplay.getString("Name") + rst;
                 }
             }
 
-            NBTHelperTarget target = new NBTHelperTarget();
+            /*NBTHelperTarget target = new NBTHelperTarget();
             if (target.readTargetTagFromNBT(nbt) != null)
             {
                 String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
@@ -86,7 +85,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 }
 
                 return itemName + " (" + dimName + ")";
-            }
+            }*/
         }
 
         return super.getItemStackDisplayName(stack);
