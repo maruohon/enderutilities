@@ -321,11 +321,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             NBTHelperTarget target = new NBTHelperTarget();
             if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
             {
-                String pre = EnumChatFormatting.GREEN.toString();
-                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
-                String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
-                //return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " (" + targetName + ")";
-                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetName + rst;
+                ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+
+                if (targetStack != null && targetStack.getItem() != null)
+                {
+                    String pre = EnumChatFormatting.GREEN.toString();
+                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+                    return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetStack.getDisplayName() + rst;
+                }
             }
         }
 
@@ -346,7 +349,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
             {
                 NBTHelperPlayer playerData = new NBTHelperPlayer();
-                String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
+                ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+                String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
                 if (linkCrystalNbt.getByte("Type") == BIND_TYPE_ENDER)
                 {

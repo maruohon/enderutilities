@@ -187,7 +187,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     NBTHelperTarget target = new NBTHelperTarget();
                     if (target.readTargetTagFromNBT(linkCrystalStack.getTagCompound()) != null)
                     {
-                        String targetName = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF).getDisplayName();
+                        ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+                        String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
                         list.add(StatCollector.translateToLocal("gui.tooltip.linkedto") + ": " + preTxt + targetName + rst);
                     }
                 }
