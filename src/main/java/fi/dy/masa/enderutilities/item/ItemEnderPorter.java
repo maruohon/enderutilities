@@ -35,6 +35,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         super();
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
+        this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_PORTER);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }

@@ -26,6 +26,8 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
     public ItemEnderPearlReusable()
     {
         this.setMaxStackSize(4);
+        this.setHasSubtypes(true);
+        this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_PEARL_REUSABLE);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
