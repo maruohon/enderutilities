@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities;
 
+import org.apache.logging.log4j.Logger;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -15,8 +17,8 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.setup.EUConfigReader;
-import fi.dy.masa.enderutilities.setup.EURegistry;
+import fi.dy.masa.enderutilities.setup.ConfigReader;
+import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 
@@ -28,18 +30,18 @@ public class EnderUtilities
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
     public static IProxy proxy;
-    public static org.apache.logging.log4j.Logger logger;
+    public static Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         instance = this;
         logger = event.getModLog();
-        EUConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
+        ConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
         proxy.registerKeyBindings();
         PacketHandler.init(); // Initialize network stuff
-        EnderUtilitiesItems.init(); // Initialize mod items
-        EnderUtilitiesBlocks.init(); // Initialize mod blocks
+        EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
+        EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
     }
 
     @EventHandler
@@ -47,7 +49,6 @@ public class EnderUtilities
     {
         proxy.registerEntities();
         proxy.registerEventHandlers();
-        proxy.registerFuelHandlers();
         proxy.registerRenderers();
         proxy.registerTileEntities();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
@@ -56,14 +57,14 @@ public class EnderUtilities
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-        EURegistry.registerEnderbagLists();
-        EURegistry.registerTeleportBlacklist();
+        Registry.registerEnderbagLists();
+        Registry.registerTeleportBlacklist();
     }
 
     @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
         EnderUtilities.logger.info("Clearing chunk loading timeouts");
-        ChunkLoading.getInstance().clear();
+        ChunkLoading.getInstance().init();
     }
 }

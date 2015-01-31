@@ -26,9 +26,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
@@ -54,14 +54,14 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.setNoRepair();
         this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_SWORD);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_SWORD);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     // This is used for determining which weapon is better when mobs pick up items
     public float func_150931_i()
     {
-        // TODO no way to check if the item is broken without ItemStack and NBT data
+        // FIXME no way to check if the item is broken without ItemStack and NBT data
         return this.damageVsEntity;
     }
 
@@ -233,7 +233,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
      */
     public Multimap getAttributeModifiers(ItemStack stack)
     {
-        double dmg = (double)this.damageVsEntity;
+        double dmg = this.damageVsEntity;
         if (this.isToolBroken(stack) == true)
         {
             dmg = 1.0d;

@@ -16,8 +16,8 @@ public class AttackEntityEventHandler
         {
             return;
         }
-        ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 
+        ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
         if (stack != null)
         {
             if (stack.getItem() == EnderUtilitiesItems.enderArrow)
@@ -26,8 +26,9 @@ public class AttackEntityEventHandler
                 {
                     TeleportEntity.teleportEntityRandomly((EntityLivingBase)event.target, 10.0d);
                     event.setCanceled(true);
-                    return;
                 }
+
+                return;
             }
         }
     }

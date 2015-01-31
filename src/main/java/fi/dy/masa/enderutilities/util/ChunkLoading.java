@@ -40,7 +40,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     public ChunkLoading()
     {
         instance = this;
-        this.clear();
+        this.init();
     }
 
     public static ChunkLoading getInstance()
@@ -48,7 +48,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         return instance;
     }
 
-    public void clear()
+    public void init()
     {
         this.timeOuts = new HashMap<String, DimChunkCoordTimeout>();
         this.playerTickets = HashMultimap.create();
@@ -76,6 +76,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     public List<Ticket> ticketsLoaded(List<Ticket> tickets, World world, int maxTicketCount)
     {
         Set<Ticket> persistentTickets = new HashSet<Ticket>();
+        LinkedList<Ticket> claimedTickets = new LinkedList<Ticket>();
 
         //int i = 0;
         for (Ticket ticket : tickets)
@@ -106,7 +107,6 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             }
         }
 
-        LinkedList<Ticket> claimedTickets = new LinkedList<Ticket>();
         claimedTickets.addAll(persistentTickets);
 
         return claimedTickets;
@@ -124,30 +124,20 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             //System.out.println("playerTicketsLoaded(): looping outer start: " + i);
             for (Ticket ticket : tickets.get(player))
             {
-                if (ticket == null)
+                if (ticket != null)
                 {
-                    continue;
-                }
+                    /*if (ticket.world != null && ticket.world.provider != null) { System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.dimensionId); }
+                    else { System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world); }
+                    ++i;*/
 
-                /*
-                if (ticket.world != null && ticket.world.provider != null)
-                {
-                    System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.dimensionId);
-                }
-                else
-                {
-                    System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world);
-                }
-                ++i;
-                */
+                    NBTTagCompound nbt = ticket.getModData();
 
-                NBTTagCompound nbt = ticket.getModData();
-
-                // Only claim tickets that are used for persistent chunk loading
-                if (nbt != null && nbt.getBoolean("Persistent") == true)
-                {
-                    //System.out.println("playerTicketsLoaded(): found persistent ticket");
-                    persistentPlayerTickets.put(player, ticket);
+                    // Only claim tickets that are used for persistent chunk loading
+                    if (nbt != null && nbt.getBoolean("Persistent") == true)
+                    {
+                        //System.out.println("playerTicketsLoaded(): found persistent ticket");
+                        persistentPlayerTickets.put(player, ticket);
+                    }
                 }
             }
         }
@@ -162,20 +152,26 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         for (Ticket ticket : this.playerTickets.get(player.getUniqueID().toString() + "-" + dimension))
         {
             // If this ticket can still load more chunks
-            if (ticket != null && ticket.getChunkList().size() < ticket.getChunkListDepth())
+            if (ticket != null && ticket.getChunkList() != null && ticket.getChunkList().size() < ticket.getChunkListDepth())
             {
                 //System.out.println("requestPlayerTicket(): found an existing ticket with capacity; used: " + ticket.getChunkList().size() + " / " + ticket.getChunkListDepth());
                 return ticket;
             }
-            /*
-            else
+            // FIXME for debugging:
+            if (ticket != null && ticket.getChunkList() == null)
             {
-                System.out.println("requestPlayerTicket(): Found an existing ticket without capacity");
+                EnderUtilities.logger.warn("requestPlayerTicket(): ticket.getChunkList() == null");
             }
-            */
         }
 
-        World world = MinecraftServer.getServer().worldServerForDimension(dimension);
+        MinecraftServer srv = MinecraftServer.getServer();
+        if (srv == null)
+        {
+            EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get the MinecraftServer instance");
+            return null;
+        }
+
+        World world = srv.worldServerForDimension(dimension);
         if (world == null)
         {
             EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get world for dimension (" + dimension + ")");
@@ -189,7 +185,6 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        //System.out.println("requestPlayerTicket() succeeded");
         NBTTagCompound nbt = ticket.getModData();
         NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
 
@@ -208,6 +203,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         MinecraftServer srv = MinecraftServer.getServer();
         if (srv == null)
         {
+            EnderUtilities.logger.warn("requestModTicket(): Couldn't get the MinecraftServer instance");
             return null;
         }
 
@@ -221,17 +217,16 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         for (Ticket ticket : this.modTickets.get(srv.worldServerForDimension(dimension)))
         {
             // If this ticket can still load more chunks
-            if (ticket != null && ticket.getChunkList().size() < ticket.getChunkListDepth())
+            if (ticket != null && ticket.getChunkList() != null && ticket.getChunkList().size() < ticket.getChunkListDepth())
             {
                 //System.out.println("requestModTicket(): found an existing ticket with capacity; used: " + ticket.getChunkList().size() + " / " + ticket.getChunkListDepth());
                 return ticket;
             }
-            /*
-            else
+            // FIXME for debugging
+            if (ticket != null && ticket.getChunkList() == null)
             {
-                System.out.println("requestModTicket(): Found an existing ticket without capacity");
+                EnderUtilities.logger.warn("requestModTicket(): ticket.getChunkList() == null");
             }
-            */
         }
 
         Ticket ticket = ForgeChunkManager.requestTicket(EnderUtilities.instance, world, ForgeChunkManager.Type.NORMAL);
@@ -341,14 +336,14 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return this.dimension + "-" + this.chunkCoords.chunkXPos + "-" + this.chunkCoords.chunkZPos;
         }
 
-        public boolean equals(DimChunkCoordTimeout d)
+        public boolean equals(DimChunkCoordTimeout dcct)
         {
-            return this.dimension == d.dimension && this.chunkCoords.equals(d.chunkCoords);
+            return this.dimension == dcct.dimension && this.chunkCoords.equals(dcct.chunkCoords);
         }
 
-        public boolean equals(int dim, ChunkCoordIntPair cc)
+        public boolean equals(int dim, ChunkCoordIntPair ccip)
         {
-            return this.dimension == dim && this.chunkCoords.equals(cc);
+            return this.dimension == dim && this.chunkCoords.equals(ccip);
         }
     }
 
@@ -519,8 +514,6 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
 
                     if (dcct.ticket != null && dcct.ticket.getChunkList().size() == 0)
                     {
-                        //if (dcct.ticket.isPlayerTicket()) { System.out.println("tickChunkTimeouts(): releasing player ticket"); }
-                        //else { System.out.println("tickChunkTimeouts(): releasing mod ticket"); }
                         this.removeTicket(dcct.ticket);
                         ForgeChunkManager.releaseTicket(dcct.ticket);
                     }

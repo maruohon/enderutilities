@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.reference;
 
-public class ReferenceBlocksItems
+public class ReferenceNames
 {
     public static final String NAME_TILE_MACHINE_0              = "enderfurnace"; // Legacy weight name... :p
 
@@ -31,6 +31,4 @@ public class ReferenceBlocksItems
     public static final String NAME_ITEM_ENDER_PEARL_REUSABLE   = "enderpearlreusable";
     public static final String NAME_ITEM_ENDER_PORTER           = "enderporter";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
-
-    public static final short ENDER_BUCKET_MAX_AMOUNT = 16000; // Can contain 16 buckets
 }

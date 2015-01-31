@@ -50,13 +50,18 @@ public class EntityEnderPearlReusable extends EntityThrowable
         this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 0.2f);
     }
 
-    public EntityEnderPearlReusable(World world, EntityLivingBase entity, boolean elite)
+    public EntityEnderPearlReusable(World world, EntityLivingBase entity, boolean isElitePearl)
     {
         this(world, entity);
-        this.teleportDamage = 1.0f;
-        this.motionX *= 1.3d;
-        this.motionY *= 1.3d;
-        this.motionZ *= 1.3d;
+
+        if (isElitePearl == true)
+        {
+            this.teleportDamage = 1.0f;
+            this.motionX *= 1.3d;
+            this.motionY *= 1.3d;
+            this.motionZ *= 1.3d;
+            this.letMeFly = true;
+        }
     }
 
     public void setLetMeFly(boolean value)

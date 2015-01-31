@@ -19,19 +19,19 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.Configs;
 
 public class EnderUtilitiesItems
 {
-    public static final ItemEnderUtilities enderPart = new ItemEnderPart();
     public static final ItemEnderUtilities enderCapacitor = new ItemEnderCapacitor();
+    public static final ItemEnderUtilities enderPart = new ItemEnderPart();
     public static final ItemEnderUtilities linkCrystal = new ItemLinkCrystal();
 
     public static final ItemEnderUtilities enderArrow = new ItemEnderArrow();
     public static final ItemEnderUtilities enderBag = new ItemEnderBag();
     public static final ItemEnderUtilities enderBow = new ItemEnderBow();
-    public static final Item enderBucket = new ItemEnderBucket();
+    public static final ItemEnderUtilities enderBucket = new ItemEnderBucket();
     public static final ItemEnderUtilities enderLasso = new ItemEnderLasso();
     public static final ItemEnderUtilities enderPearlReusable = new ItemEnderPearlReusable();
     public static final ItemEnderUtilities enderPorter = new ItemEnderPorter();
@@ -41,45 +41,58 @@ public class EnderUtilitiesItems
 
     public static void init()
     {
-        if (EUConfigs.disableItemCraftingPart.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderPart, ReferenceBlocksItems.NAME_ITEM_ENDERPART);
+        if (Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderPart, ReferenceNames.NAME_ITEM_ENDERPART);
         }
-        if (EUConfigs.disableItemEnderCapacitor.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderCapacitor, ReferenceBlocksItems.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
+        if (Configs.disableItemEnderCapacitor.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderCapacitor, ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
         }
-        if (EUConfigs.disableItemLinkCrystal.getBoolean(false) == false) {
-            GameRegistry.registerItem(linkCrystal, ReferenceBlocksItems.NAME_ITEM_ENDERPART_LINKCRYSTAL);
+        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(linkCrystal, ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL);
         }
-        if (EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderArrow, ReferenceBlocksItems.NAME_ITEM_ENDER_ARROW);
+        if (Configs.disableItemEnderArrow.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderArrow, ReferenceNames.NAME_ITEM_ENDER_ARROW);
         }
-        if (EUConfigs.disableItemEnderBag.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderBag, ReferenceBlocksItems.NAME_ITEM_ENDER_BAG);
+        if (Configs.disableItemEnderBag.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderBag, ReferenceNames.NAME_ITEM_ENDER_BAG);
         }
-        if (EUConfigs.disableItemEnderBow.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderBow, ReferenceBlocksItems.NAME_ITEM_ENDER_BOW);
+        if (Configs.disableItemEnderBow.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderBow, ReferenceNames.NAME_ITEM_ENDER_BOW);
         }
-        if (EUConfigs.disableItemEnderBucket.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderBucket, ReferenceBlocksItems.NAME_ITEM_ENDER_BUCKET);
+        if (Configs.disableItemEnderBucket.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderBucket, ReferenceNames.NAME_ITEM_ENDER_BUCKET);
         }
-        if (EUConfigs.disableItemEnderLasso.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderLasso, ReferenceBlocksItems.NAME_ITEM_ENDER_LASSO);
+        if (Configs.disableItemEnderLasso.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderLasso, ReferenceNames.NAME_ITEM_ENDER_LASSO);
         }
-        if (EUConfigs.disableItemEnderPearl.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderPearlReusable, ReferenceBlocksItems.NAME_ITEM_ENDER_PEARL_REUSABLE);
+        if (Configs.disableItemEnderPearl.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderPearlReusable, ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE);
         }
-        if (EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false ||
-            EUConfigs.disableItemEnderPorterAdvanced.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderPorter, ReferenceBlocksItems.NAME_ITEM_ENDER_PORTER);
+        if (Configs.disableItemEnderPorterBasic.getBoolean(false) == false ||
+            Configs.disableItemEnderPorterAdvanced.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderPorter, ReferenceNames.NAME_ITEM_ENDER_PORTER);
         }
-        if (EUConfigs.disableItemEnderSword.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderSword, ReferenceBlocksItems.NAME_ITEM_ENDER_SWORD);
+        if (Configs.disableItemEnderSword.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD);
         }
-        if (EUConfigs.disableItemEnderTool.getBoolean(false) == false) {
-            GameRegistry.registerItem(enderTool, ReferenceBlocksItems.NAME_ITEM_ENDERTOOL);
+        if (Configs.disableItemEnderTool.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL);
         }
-        if (EUConfigs.disableItemMobHarness.getBoolean(false) == false) {
-            GameRegistry.registerItem(mobHarness, ReferenceBlocksItems.NAME_ITEM_MOB_HARNESS);
+        if (Configs.disableItemMobHarness.getBoolean(false) == false)
+        {
+            GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS);
         }
 
         ItemStack arrow = new ItemStack(Items.arrow);
@@ -95,36 +108,45 @@ public class EnderUtilitiesItems
         ItemStack rsblock = new ItemStack(Blocks.redstone_block);
         ItemStack string = new ItemStack(Items.string);
 
-        if (EUConfigs.disableRecipeEnderArrow.getBoolean(false) == false && EUConfigs.disableItemEnderArrow.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderArrow.getBoolean(false) == false && Configs.disableItemEnderArrow.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "E  ", 'N', goldnugget, 'P', pearl, 'A', arrow, 'E', eye);
         }
-        if (EUConfigs.disableRecipeEnderBag.getBoolean(false) == false && EUConfigs.disableItemEnderBag.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderBag.getBoolean(false) == false && Configs.disableItemEnderBag.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderBag), "LDL", "DED", "LDL", 'L', leather, 'D', diamond, 'E', eye);
         }
-        if (EUConfigs.disableRecipeEnderBow.getBoolean(false) == false && EUConfigs.disableItemEnderBow.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderBow.getBoolean(false) == false && Configs.disableItemEnderBow.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderBow), "PDP", "DBD", "PDP", 'P', pearl, 'D', diamond, 'B', bow);
         }
-        if (EUConfigs.disableRecipeEnderBucket.getBoolean(false) == false && EUConfigs.disableItemEnderBucket.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderBucket.getBoolean(false) == false && Configs.disableItemEnderBucket.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderBucket), "EGE", "DBD", "EGE", 'E', eye, 'G', gold, 'D', diamond, 'B', bucket);
         }
-        if (EUConfigs.disableRecipeEnderLasso.getBoolean(false) == false && EUConfigs.disableItemEnderLasso.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderLasso.getBoolean(false) == false && Configs.disableItemEnderLasso.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderLasso), "DGD", "GPG", "DSD", 'D', diamond, 'G', gold, 'E', eye, 'P', pearl, 'S', string);
         }
-        if (EUConfigs.disableRecipeEnderPearl.getBoolean(false) == false && EUConfigs.disableItemEnderPearl.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderPearl.getBoolean(false) == false && Configs.disableItemEnderPearl.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "PEP", "ERE", "PEP", 'P', pearl, 'E', eye, 'R', rsblock); // regular pearl
             GameRegistry.addRecipe(new ItemStack(enderPearlReusable, 1, 1), " D ", "DPD", " D ", 'D', diamond, 'P', new ItemStack(enderPearlReusable, 1, 0)); // Elite pearl
         }
-        if (EUConfigs.disableRecipeEnderPorterBasic.getBoolean(false) == false &&
-            (EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false ||
-            EUConfigs.disableItemEnderPorterAdvanced.getBoolean(false) == false)) {
+        if (Configs.disableRecipeEnderPorterBasic.getBoolean(false) == false &&
+            (Configs.disableItemEnderPorterBasic.getBoolean(false) == false ||
+            Configs.disableItemEnderPorterAdvanced.getBoolean(false) == false))
+        {
             GameRegistry.addRecipe(new ItemStack(enderPorter), "PNP", "NRN", "PNP", 'P', pearl, 'N', goldnugget, 'R', rsblock);
         }
-        if (EUConfigs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false &&
-                (EUConfigs.disableItemEnderPorterBasic.getBoolean(false) == false ||
-                EUConfigs.disableItemEnderPorterAdvanced.getBoolean(false) == false)) {
+        if (Configs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false &&
+                (Configs.disableItemEnderPorterBasic.getBoolean(false) == false ||
+                Configs.disableItemEnderPorterAdvanced.getBoolean(false) == false))
+        {
             GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "GDG", "DPD", "GDG", 'G', gold, 'D', diamond, 'P', new ItemStack(enderPorter, 1, 0)); // Ender Porter (Advanced)
         }
-        if (EUConfigs.disableRecipeMobHarness.getBoolean(false) == false && EUConfigs.disableItemMobHarness.getBoolean(false) == false) {
+        if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
+        {
             GameRegistry.addRecipe(new ItemStack(mobHarness), "LEL", "LDL", "LEL", 'L', leather, 'E', eye, 'D', diamond);
         }
     }

@@ -28,7 +28,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
@@ -70,7 +70,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     public TileEntityEnderFurnace()
     {
-        super(ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
+        super(ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE);
         this.itemStacks = new ItemStack[3];
         this.operatingMode = 0;
         this.outputMode = 0;
@@ -140,13 +140,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             if (isBurning() == true) { flags |= 0x20; }
             if (this.operatingMode == 1) { flags |= 0x40; }
             if (this.outputMode == 1) { flags |= 0x80; }
-            nbt.setByte("f", flags);
-            nbt.setInteger("b", this.outputBufferAmount);
-
-            if (this.ownerName != null)
-            {
-                nbt.setString("o", this.ownerName);
-            }
+            nbt.setByte("flags", flags);
+            nbt.setInteger("buffer", this.outputBufferAmount);
 
             return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
         }
@@ -158,17 +153,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        byte flags = nbt.getByte("f");
+        byte flags = nbt.getByte("flags");
         this.setRotation((byte)(flags & 0x07));
         this.isActive = (flags & 0x10) == 0x10;
         this.usingFuel = (flags & 0x20) == 0x20;
         this.operatingMode = (byte)((flags & 0x40) >> 6);
         this.outputMode = (byte)((flags & 0x80) >> 7);
-        this.outputBufferAmount = nbt.getInteger("b");
-        if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
-        {
-            this.ownerName = nbt.getString("o");
-        }
+        this.outputBufferAmount = nbt.getInteger("buffer");
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
@@ -343,14 +334,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         int size = this.itemStacks[2].stackSize;
         int max = Math.min(this.getInventoryStackLimit(), this.itemStacks[2].getMaxStackSize());
 
-        if (size == max)
+        if (size >= max)
         {
             return false;
         }
 
-        max = Math.min(max - size, this.outputBufferAmount);
-        this.itemStacks[2].stackSize += max;
-        this.outputBufferAmount -= max;
+        int amount = Math.min(max - size, this.outputBufferAmount);
+        this.itemStacks[2].stackSize += amount;
+        this.outputBufferAmount -= amount;
         if (this.outputBufferAmount <= 0)
         {
             this.outputBufferStack = null;
@@ -361,6 +352,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     private boolean moveItemsToEnderChest()
     {
+        if (this.itemStacks[2] == null)
+        {
+            return false;
+        }
+
         EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
         boolean movedSomething = false;
 
@@ -370,14 +366,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             ItemStack enderChestStack;
             InventoryEnderChest invEnderChest = player.getInventoryEnderChest();
 
-            int size = 0;
-            for(int i = 0; i < invEnderChest.getSizeInventory(); ++i)
+            for (int i = 0, size = 0; i < invEnderChest.getSizeInventory(); ++i)
             {
                 size = 0;
                 enderChestStack = invEnderChest.getStackInSlot(i);
 
                 if (enderChestStack != null)
                 {
+                    enderChestStack = enderChestStack.copy();
                     size = enderChestStack.stackSize;
                 }
 
@@ -397,14 +393,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
                     invEnderChest.setInventorySlotContents(i, enderChestStack);
                     this.itemStacks[2].stackSize -= moved;
+                    movedSomething = true;
 
                     if (this.itemStacks[2].stackSize <= 0)
                     {
                         this.itemStacks[2] = null;
                         break;
                     }
-
-                    movedSomething = true;
                 }
             }
         }
@@ -474,15 +469,18 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             {
                 return false;
             }
+
             if (this.itemStacks[2] == null && this.outputBufferAmount == 0)
             {
                 return true;
             }
+
             if (this.itemStacks[2] != null &&
                 (this.itemStacks[2].isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.itemStacks[2], resultStack) == false))
             {
                 return false;
             }
+
             if (this.outputBufferStack != null &&
                 (this.outputBufferStack.isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.outputBufferStack, resultStack) == false))
             {
@@ -587,21 +585,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return 0;
         }
 
-        int burnTime = 0;
-
         // All the null checks happened already in itemContainsFluidFuel()
         FluidStack fluidStack = ((IFluidContainerItem)stack.getItem()).getFluid(stack);
 
-        if (fluidStack.getFluid().getName().equals("lava") == true)
-        {
-            // Consume max 250 mB per use.
-            int amount = Math.min(250, fluidStack.amount);
-            // 1.5 times vanilla lava fuel value (150 items per bucket => 37.5 items per 250 mB)
-            burnTime = amount * 15 * COOKTIME_DEFAULT / 100;
-            ((IFluidContainerItem)stack.getItem()).drain(stack, amount, true);
-        }
+        // Consume max 250 mB per use.
+        int amount = Math.min(250, fluidStack.amount);
+        ((IFluidContainerItem)stack.getItem()).drain(stack, amount, true);
 
-        return burnTime;
+        // 1.5 times vanilla lava fuel value (150 items per bucket => 37.5 items per 250 mB)
+        return (amount * 15 * COOKTIME_DEFAULT / 100);
     }
 
     /* Check if the given item works as a fuel source in this furnace */
@@ -612,7 +604,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     public static boolean itemContainsFluidFuel(ItemStack stack)
     {
-        if (stack == null || stack.getItem() == null || stack.getItem() instanceof IFluidContainerItem == false)
+        if (stack == null || stack.getItem() == null || (stack.getItem() instanceof IFluidContainerItem) == false)
         {
             return false;
         }
@@ -624,12 +616,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         Fluid fluid = fluidStack.getFluid();
-        if (fluid == null)
-        {
-            return false;
-        }
-
-        if (fluid.getName().equals("lava") == true)
+        if (fluid != null && fluid.getName() != null && fluid.getName().equals("lava") == true)
         {
             return true;
         }
@@ -660,7 +647,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     @Override
     public int[] getAccessibleSlotsFromSide(int side)
     {
-        // v0.3.4+: Allow access to all slots from all sides
+        // Allow access to all slots from all sides
         return SLOTS_SIDES;
     }
 

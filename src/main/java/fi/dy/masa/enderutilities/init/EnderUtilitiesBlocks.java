@@ -7,22 +7,25 @@ import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.ItemBlockMachine;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.Configs;
 
 public class EnderUtilitiesBlocks
 {
-    public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceBlocksItems.NAME_TILE_MACHINE_0, 1.0f);
+    public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceNames.NAME_TILE_MACHINE_0, 1.0f);
 
     public static void init()
     {
         // Register blocks
-        if (EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
-            GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceBlocksItems.NAME_TILE_MACHINE_0);
+        if (Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0);
         }
 
         // Register block recipes
-        if (EUConfigs.disableRecipeEnderFurnace.getBoolean(false) == false && EUConfigs.disableBlockMachine_0.getBoolean(false) == false) {
+        if (Configs.disableRecipeEnderFurnace.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            // Ender Furnace
             GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "PDP", "DFD", "EDE",
                 'E', new ItemStack(Items.ender_eye), 'D', new ItemStack(Items.diamond), 'F', new ItemStack(Blocks.furnace), 'P', new ItemStack(Items.ender_pearl));
         }

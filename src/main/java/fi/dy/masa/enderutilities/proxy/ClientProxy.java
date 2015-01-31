@@ -13,6 +13,7 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
@@ -35,7 +36,7 @@ public class ClientProxy extends CommonProxy
             case SERVER:
                 return ctx.getServerHandler().playerEntity;
             default:
-                System.out.println("[Ender Utilities] Invalid side in getPlayerFromMessageContext()");
+                EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext()");
                 return null;
         }
     }
@@ -50,7 +51,7 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerKeyBindings()
     {
-        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_TOGGLE_MODE, ReferenceKeys.KEYBIND_DEFAULT_TOGGLE_MODE, ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
+        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_NAME_TOGGLE_MODE, ReferenceKeys.DEFAULT_KEYBIND_TOGGLE_MODE, ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
 
         ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
     }
@@ -58,7 +59,6 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerRenderers()
     {
-        // FIXME
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow());
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderSnowball(EnderUtilitiesItems.enderPearlReusable));
 

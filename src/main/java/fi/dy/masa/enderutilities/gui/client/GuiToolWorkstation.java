@@ -35,13 +35,11 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
         int maxModules = 0;
+
         ItemStack toolStack = this.inventorySlots.getSlot(0).getStack();
-        if (toolStack != null)
+        if (toolStack != null && toolStack.getItem() instanceof IModular)
         {
-            if (toolStack.getItem() instanceof IModular)
-            {
-                maxModules = ((IModular)toolStack.getItem()).getMaxModules(toolStack);
-            }
+            maxModules = ((IModular)toolStack.getItem()).getMaxModules(toolStack);
         }
         // No tool in the tool slot, draw the background
         else
@@ -51,25 +49,26 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 
         int moduleType = 0;
         // Module slots
-        for (int i = 0, dx = 79, dy = 18; i < 10; dx += 18)
+        for (int i = 1, dx = 79, dy = 18; i <= 10; dx += 18, i++)
         {
             // Draw a darker background over the disabled slots
-            if (this.inventorySlots.getSlot(0).getHasStack() == false || i >= maxModules)
+            if (this.inventorySlots.getSlot(0).getHasStack() == false || i > maxModules)
             {
                 this.drawTexturedModalRect(x + dx, y + dy, 176, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
-            else if (this.inventorySlots.getSlot(i + 1) instanceof SlotUpgradeModule && ((Slot)this.inventorySlots.getSlot(i + 1)).getHasStack() == false)
+            else if (this.inventorySlots.getSlot(i) instanceof SlotUpgradeModule && ((Slot)this.inventorySlots.getSlot(i)).getHasStack() == false)
             {
-                moduleType = ((SlotUpgradeModule)this.inventorySlots.getSlot(i + 1)).getModuleType().getOrdinal();
+                moduleType = ((SlotUpgradeModule)this.inventorySlots.getSlot(i)).getModuleType().getOrdinal();
                 // Only one type of module is allowed in this slot
-                if (moduleType >= 0 && moduleType <= 3) // 0..3: core, capacitor, link crystal, mob persistance
+                if (moduleType >= 0 && moduleType <= 3) // 0..3: core, capacitor, link crystal, mob persistence
                 {
                     this.drawTexturedModalRect(x + dx, y + dy, 176, 36 + moduleType * 18, 18, 18);
                 }
             }
 
-            if (++i == 5)
+            // First row done
+            if (i == 5)
             {
                 dy += 18;
                 dx -= 5 * 18;

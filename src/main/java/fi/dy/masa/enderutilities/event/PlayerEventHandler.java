@@ -51,7 +51,6 @@ public class PlayerEventHandler
                     {
                         nbt.removeTag("ChunkLoadingRequired");
                         nbt.setBoolean("IsOpenDummy", true);
-                        stack.setTagCompound(nbt);
                         //player.inventory.markDirty();
                     }
                 }

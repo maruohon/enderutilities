@@ -58,7 +58,10 @@ public class UtilItemModular
     /* Returns the number of installed modules of the given type. */
     public static int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
-        if (stack == null || (stack.getItem() instanceof IModular) == false) { return 0; }
+        if (stack == null || (stack.getItem() instanceof IModular) == false)
+        {
+            return 0;
+        }
 
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
@@ -85,7 +88,10 @@ public class UtilItemModular
     /* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
     public static int getInstalledModulesMask(ItemStack stack)
     {
-        if (stack == null) { return 0; }
+        if (stack == null)
+        {
+            return 0;
+        }
 
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
@@ -124,7 +130,10 @@ public class UtilItemModular
      * NOTE: This is based on the item damage, and assumes that higher damage is higher tier. */
     public static int getModuleTier(ItemStack stack, ModuleType moduleType)
     {
-        if (stack == null) { return -1; }
+        if (stack == null)
+        {
+            return -1;
+        }
 
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
@@ -152,13 +161,16 @@ public class UtilItemModular
 
     public static int getClampedModuleSelection(ItemStack toolStack, ModuleType moduleType)
     {
-        if (toolStack == null || toolStack.getTagCompound() == null) { return 0; }
+        if (toolStack == null || toolStack.getTagCompound() == null)
+        {
+            return 0;
+        }
 
         int selected = toolStack.getTagCompound().getByte("Selected_" + moduleType.getOrdinal());
         int num = UtilItemModular.getModuleCount(toolStack, moduleType);
         if (selected >= num)
         {
-            // If the selected module number is larger than the current number of selected modules, then select the last one
+            // If the selected module number is larger than the current number of installed modules of that type, then select the last one
             selected = (num > 0 ? num - 1 : 0);
         }
 
@@ -169,7 +181,10 @@ public class UtilItemModular
      * The tag contains the Slot and the ItemStack data. */
     public static NBTTagCompound getSelectedModuleTagCompound(ItemStack toolStack, ModuleType moduleType)
     {
-        if (toolStack == null) { return null; }
+        if (toolStack == null)
+        {
+            return null;
+        }
 
         NBTTagCompound nbt = toolStack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
@@ -214,7 +229,10 @@ public class UtilItemModular
     /* Sets the selected modules' ItemStack of the given module type to the one provided. */
     public static ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack newModuleStack)
     {
-        if (toolStack == null) { return null; }
+        if (toolStack == null)
+        {
+            return null;
+        }
 
         NBTTagCompound nbt = toolStack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
@@ -234,12 +252,11 @@ public class UtilItemModular
             }
         }
 
-        // Get the selected-th TAG_Compound of the given module type
-        NBTTagCompound moduleTag;
+        // Replace the module ItemStack of the selected-th TAG_Compound of the given module type
         int count = -1;
         for (int i = 0; i < listNumStacks && count < selected; ++i)
         {
-            moduleTag = nbtTagList.getCompoundTagAt(i);
+            NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
             if (UtilItemModular.getModuleType(ItemStack.loadItemStackFromNBT(moduleTag)).equals(moduleType) == true)
             {
                 if (++count >= selected)
@@ -258,21 +275,39 @@ public class UtilItemModular
     /* Returns a list of all the installed modules. */
     public static List<NBTTagCompound> getAllModules(ItemStack stack)
     {
-        if (stack == null) { return null; }
+        if (stack == null)
+        {
+            return null;
+        }
+
+        // TODO
+
         return null;
     }
 
     /* Sets the modules to the ones provided in the list. */
     public static ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
     {
-        if (stack == null) { return null; }
+        if (stack == null)
+        {
+            return null;
+        }
+
+        // TODO
+
         return stack;
     }
 
     /* Sets the module indicated by the position to the one provided in the compound tag. */
     public static ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {
-        if (stack == null) { return null; }
+        if (stack == null)
+        {
+            return null;
+        }
+
+        // TODO
+
         return stack;
     }
 
@@ -333,14 +368,15 @@ public class UtilItemModular
                 selected = 0;
             }
         }
+
         nbt.setByte("Selected_" + moduleType.getOrdinal(), (byte)selected);
 
         return stack;
     }
 
     /* If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
-     * the the given amount of charge will be drained from it, and true will be returned.
-     * In case of any errors, no charge will be drained and false will be returned.
+     * then the given amount of charge will be drained from it, and true is returned.
+     * In case of any errors, no charge will be drained and false is returned.
      */
     public static boolean useEnderCharge(ItemStack stack, int amount, boolean doUse)
     {
@@ -348,18 +384,14 @@ public class UtilItemModular
         {
             return false;
         }
+
         ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
         if (moduleStack == null || (moduleStack.getItem() instanceof ItemEnderCapacitor) == false)
         {
             return false;
         }
-        NBTTagCompound nbt = moduleStack.getTagCompound();
-        if (nbt == null)
-        {
-            return false;
-        }
 
-        ItemEnderCapacitor cap = (ItemEnderCapacitor)moduleStack.getItem();
+        ItemEnderCapacitor cap = (ItemEnderCapacitor) moduleStack.getItem();
         if (cap.useCharge(moduleStack, amount, false) < amount)
         {
             return false;

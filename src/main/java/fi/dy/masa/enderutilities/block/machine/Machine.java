@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.block.machine;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -30,8 +30,8 @@ public class Machine
 {
     protected static TIntObjectHashMap<Machine> machines = new TIntObjectHashMap<Machine>();
 
-    public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
-    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
+    public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
+    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILEENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
 
     protected int blockIndex;
     protected int blockMeta;
@@ -94,6 +94,10 @@ public class Machine
             if (m != null)
             {
                 names[meta] = m.blockName;
+            }
+            else
+            {
+                names[meta] = "null";
             }
         }
 

@@ -11,7 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -103,12 +103,12 @@ public class MachineEnderFurnace extends Machine
     @Override
     protected void registerIcons(IIconRegister iconRegister)
     {
-        this.iconSide           = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".side");
-        this.iconTop            = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".top");
-        this.iconFront          = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.off");
-        this.iconFrontOnSlow    = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
-        this.iconFrontOnFast    = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
-        this.iconFrontOnNofuel  = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceBlocksItems.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
+        this.iconSide           = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".side");
+        this.iconTop            = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".top");
+        this.iconFront          = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".front.off");
+        this.iconFrontOnSlow    = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".front.on.slow");
+        this.iconFrontOnFast    = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".front.on.fast");
+        this.iconFrontOnNofuel  = iconRegister.registerIcon(ReferenceTextures.getTileName(ReferenceNames.NAME_ITEM_ENDER_FURNACE) + ".front.on.nofuel");
     }
 
     @SideOnly(Side.CLIENT)

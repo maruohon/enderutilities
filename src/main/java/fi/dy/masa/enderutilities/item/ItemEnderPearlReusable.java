@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,9 +14,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
@@ -28,7 +29,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         this.setMaxStackSize(4);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_PEARL_REUSABLE);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
@@ -55,26 +56,21 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             return stack;
         }
 
-        EntityEnderPearlReusable pearl;
+        // Damage 1: "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
 
-        // "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
+        EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getItemDamage() == 1);
+
         if (stack.getItemDamage() == 1)
         {
-            pearl = new EntityEnderPearlReusable(world, player, true);
-            pearl.setLetMeFly(true);
+            Entity bottomEntity = EntityUtils.getBottomEntity(player);
 
             // Dismount the previous pearl if we are already riding one
-            if (EntityUtils.getBottomEntity(player) instanceof EntityEnderPearlReusable
-                && EntityUtils.getBottomEntity(player).riddenByEntity != null)
+            if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.riddenByEntity != null)
             {
-                EntityUtils.getBottomEntity(player).riddenByEntity.mountEntity(null);
+                bottomEntity.riddenByEntity.mountEntity(null);
             }
 
-            EntityUtils.getBottomEntity(player).mountEntity(pearl);
-        }
-        else
-        {
-            pearl = new EntityEnderPearlReusable(world, player);
+            bottomEntity.mountEntity(pearl);
         }
 
         --stack.stackSize;
@@ -88,10 +84,10 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
-        if (EUConfigs.disableItemEnderPearl.getBoolean(false) == false)
+        if (Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
-            list.add(new ItemStack(this, 1, 0));
-            list.add(new ItemStack(this, 1, 1));
+            list.add(new ItemStack(this, 1, 0)); // Regular
+            list.add(new ItemStack(this, 1, 1)); // Elite
         }
     }
 

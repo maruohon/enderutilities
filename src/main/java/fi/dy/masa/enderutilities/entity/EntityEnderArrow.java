@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -22,16 +21,14 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class EntityEnderArrow extends EntityArrow implements IProjectile
+public class EntityEnderArrow extends EntityArrow
 {
     public int blockX = -1;
     public int blockY = -1;
@@ -144,11 +141,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
         this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, par3 * 1.8F, 1.0F);
     }
 
-    protected void entityInit()
-    {
-        this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
-    }
-
     public void setTpMode(byte mode)
     {
         this.tpMode = mode;
@@ -159,62 +151,6 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
         this.tpTarget = target;
     }
 
-    /**
-     * Similar to setArrowHeading, it's point the throwable entity to a x, y, z direction.
-     */
-    public void setThrowableHeading(double par1, double par3, double par5, float par7, float par8)
-    {
-        float f2 = MathHelper.sqrt_double(par1 * par1 + par3 * par3 + par5 * par5);
-        par1 /= (double)f2;
-        par3 /= (double)f2;
-        par5 /= (double)f2;
-        par1 += this.rand.nextGaussian() * (double)(this.rand.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)par8;
-        par3 += this.rand.nextGaussian() * (double)(this.rand.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)par8;
-        par5 += this.rand.nextGaussian() * (double)(this.rand.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)par8;
-        par1 *= (double)par7;
-        par3 *= (double)par7;
-        par5 *= (double)par7;
-        this.motionX = par1;
-        this.motionY = par3;
-        this.motionZ = par5;
-        float f3 = MathHelper.sqrt_double(par1 * par1 + par5 * par5);
-        this.prevRotationYaw = this.rotationYaw = (float)(Math.atan2(par1, par5) * 180.0D / Math.PI);
-        this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(par3, (double)f3) * 180.0D / Math.PI);
-        this.ticksInGround = 0;
-    }
-
-    /**
-     * Sets the position and rotation. Only difference from the other one is no bounding on the rotation. Args: posX,
-     * posY, posZ, yaw, pitch
-     */
-    @SideOnly(Side.CLIENT)
-    public void setPositionAndRotation2(double par1, double par3, double par5, float par7, float par8, int par9)
-    {
-        this.setPosition(par1, par3, par5);
-        this.setRotation(par7, par8);
-    }
-
-    /**
-     * Sets the velocity to the args. Args: x, y, z
-     */
-    @SideOnly(Side.CLIENT)
-    public void setVelocity(double par1, double par3, double par5)
-    {
-        this.motionX = par1;
-        this.motionY = par3;
-        this.motionZ = par5;
-
-        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F)
-        {
-            float f = MathHelper.sqrt_double(par1 * par1 + par5 * par5);
-            this.prevRotationYaw = this.rotationYaw = (float)(Math.atan2(par1, par5) * 180.0D / Math.PI);
-            this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(par3, (double)f) * 180.0D / Math.PI);
-            this.prevRotationPitch = this.rotationPitch;
-            this.prevRotationYaw = this.rotationYaw;
-            this.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
-            this.ticksInGround = 0;
-        }
-    }
 
     public void dropAsItem(boolean doDrop)
     {
@@ -350,7 +286,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
                 // Valid shooter
                 if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP && this.worldObj.isRemote == false)
                 {
-                    EntityPlayerMP player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
+                    EntityPlayer player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
                     if (player != null && TeleportEntity.entityTeleportWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true) == true)
                     {
                         this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
@@ -368,7 +304,7 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(movingobjectposition.entityHit) == false &&
                         (EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false
-                        || EUConfigs.enderBowAllowPlayers.getBoolean(false) == true))
+                        || Configs.enderBowAllowPlayers.getBoolean(false) == true))
                     {
                         if (this.worldObj.isRemote == false)
                         {
@@ -473,54 +409,54 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
+    public void writeEntityToNBT(NBTTagCompound tagCompound)
     {
-        par1NBTTagCompound.setShort("xTile", (short)this.blockX);
-        par1NBTTagCompound.setShort("yTile", (short)this.blockY);
-        par1NBTTagCompound.setShort("zTile", (short)this.blockZ);
-        par1NBTTagCompound.setShort("life", (short)this.ticksInGround);
-        par1NBTTagCompound.setByte("inTile", (byte)Block.getIdFromBlock(this.inBlock));
-        par1NBTTagCompound.setByte("inData", (byte)this.inData);
-        par1NBTTagCompound.setByte("shake", (byte)this.arrowShake);
-        par1NBTTagCompound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
-        par1NBTTagCompound.setByte("pickup", (byte)this.canBePickedUp);
-        par1NBTTagCompound.setLong("shooterUUIDMost", this.shooterUUID.getMostSignificantBits());
-        par1NBTTagCompound.setLong("shooterUUIDLeast", this.shooterUUID.getLeastSignificantBits());
+        tagCompound.setInteger("xTile", (short)this.blockX);
+        tagCompound.setInteger("yTile", (short)this.blockY);
+        tagCompound.setInteger("zTile", (short)this.blockZ);
+        tagCompound.setInteger("inTile", Block.getIdFromBlock(this.inBlock));
+        tagCompound.setByte("inData", (byte)this.inData);
+        tagCompound.setShort("life", (short)this.ticksInGround);
+        tagCompound.setByte("shake", (byte)this.arrowShake);
+        tagCompound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
+        tagCompound.setByte("pickup", (byte)this.canBePickedUp);;
+        tagCompound.setLong("shooterUUIDMost", this.shooterUUID.getMostSignificantBits());
+        tagCompound.setLong("shooterUUIDLeast", this.shooterUUID.getLeastSignificantBits());
         if (this.tpTarget != null)
         {
-            this.tpTarget.writeToNBT(par1NBTTagCompound);
+            this.tpTarget.writeToNBT(tagCompound);
         }
-        par1NBTTagCompound.setByte("tpMode", this.tpMode);
+        tagCompound.setByte("tpMode", this.tpMode);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
+    public void readEntityFromNBT(NBTTagCompound tagCompound)
     {
-        this.blockX = par1NBTTagCompound.getShort("xTile");
-        this.blockY = par1NBTTagCompound.getShort("yTile");
-        this.blockZ = par1NBTTagCompound.getShort("zTile");
-        this.ticksInGround = par1NBTTagCompound.getShort("life");
-        this.inBlock = Block.getBlockById(par1NBTTagCompound.getByte("inTile") & 255);
-        this.inData = par1NBTTagCompound.getByte("inData") & 255;
-        this.arrowShake = par1NBTTagCompound.getByte("shake") & 255;
-        this.inGround = par1NBTTagCompound.getByte("inGround") == 1;
-        if (par1NBTTagCompound.hasKey("pickup", Constants.NBT.TAG_ANY_NUMERIC))
+        this.blockX = tagCompound.getInteger("xTile");
+        this.blockY = tagCompound.getInteger("yTile");
+        this.blockZ = tagCompound.getInteger("zTile");
+        this.inBlock = Block.getBlockById(tagCompound.getInteger("inTile"));
+        this.inData = tagCompound.getByte("inData") & 0xF;
+        this.ticksInGround = tagCompound.getShort("life");
+        this.arrowShake = tagCompound.getByte("shake") & 255;
+        this.inGround = tagCompound.getByte("inGround") == 1;
+        if (tagCompound.hasKey("pickup", Constants.NBT.TAG_ANY_NUMERIC))
         {
-            this.canBePickedUp = par1NBTTagCompound.getByte("pickup");
+            this.canBePickedUp = tagCompound.getByte("pickup");
         }
-        else if (par1NBTTagCompound.hasKey("player", Constants.NBT.TAG_ANY_NUMERIC))
+        else if (tagCompound.hasKey("player", Constants.NBT.TAG_ANY_NUMERIC))
         {
-            this.canBePickedUp = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
+            this.canBePickedUp = tagCompound.getBoolean("player") ? 1 : 0;
         }
-        if (par1NBTTagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && par1NBTTagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
+        if (tagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && tagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
         {
-            this.shooterUUID = new UUID(par1NBTTagCompound.getLong("shooterUUIDMost"), par1NBTTagCompound.getLong("shooterUUIDLeast"));
+            this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
         }
         this.tpTarget = new NBTHelperTarget();
-        this.tpTarget.readTargetTagFromNBT(par1NBTTagCompound);
-        this.tpMode = par1NBTTagCompound.getByte("tpMode");
+        this.tpTarget.readTargetTagFromNBT(tagCompound);
+        this.tpMode = tagCompound.getByte("tpMode");
     }
 
     /**
@@ -547,54 +483,5 @@ public class EntityEnderArrow extends EntityArrow implements IProjectile
                 this.setDead();
             }
         }
-    }
-
-    /**
-     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
-     * prevent them from trampling crops
-     */
-    protected boolean canTriggerWalking()
-    {
-        return false;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public float getShadowSize()
-    {
-        return 0.0F;
-    }
-
-    /**
-     * If returns false, the item will not inflict any damage against entities.
-     */
-    public boolean canAttackWithItem()
-    {
-        return false;
-    }
-
-    /**
-     * Whether the arrow has a stream of critical hit particles flying behind it.
-     */
-    public void setIsCritical(boolean par1)
-    {
-        byte b0 = this.dataWatcher.getWatchableObjectByte(16);
-
-        if (par1)
-        {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 | 1)));
-        }
-        else
-        {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 & -2)));
-        }
-    }
-
-    /**
-     * Whether the arrow has a stream of critical hit particles flying behind it.
-     */
-    public boolean getIsCritical()
-    {
-        byte b0 = this.dataWatcher.getWatchableObjectByte(16);
-        return (b0 & 1) != 0;
     }
 }

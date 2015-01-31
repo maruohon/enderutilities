@@ -11,7 +11,8 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -23,17 +24,17 @@ public class EntityInteractEventHandler
     {
         ItemStack stack = event.entityPlayer.inventory.getCurrentItem();
 
-        if (stack == null)
+        if (stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
         {
             return;
         }
 
         Item item = stack.getItem();
 
-        if(item == EnderUtilitiesItems.enderLasso && event.entity.worldObj.isRemote == false)
+        if (item == EnderUtilitiesItems.enderLasso && event.entity.worldObj.isRemote == false)
         {
             if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
-                (EUConfigs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
+                (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
             {
                 if (((EntityPlayer)event.entity).capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
                 {
@@ -45,16 +46,20 @@ public class EntityInteractEventHandler
                     event.setCanceled(true);
                 }
             }
+            return;
         }
-        else if(item == EnderUtilitiesItems.mobHarness)
+
+        if (item == EnderUtilitiesItems.mobHarness)
         {
             if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer)
             {
                 ((ItemMobHarness)stack.getItem()).handleInteraction(stack, (EntityPlayer)event.entity, event.target);
                 event.setCanceled(true);
             }
+            return;
         }
-        else if (item == EnderUtilitiesItems.enderPart)
+
+        if (item == EnderUtilitiesItems.enderPart)
         {
             if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
             {
@@ -66,14 +71,17 @@ public class EntityInteractEventHandler
                     stack.setItemDamage(dmg + 5);
                 }
             }
+            return;
         }
-        else if (item instanceof IChargeable)
+
+        if (item instanceof IChargeable)
         {
             if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
             {
-                IChargeable cItem = (IChargeable)item;
-                cItem.addCharge(stack, cItem.getCapacity(stack) >> 2, true);
+                IChargeable chargeable = (IChargeable)item;
+                chargeable.addCharge(stack, chargeable.getCapacity(stack) >> 2, true);
             }
+            return;
         }
     }
 }

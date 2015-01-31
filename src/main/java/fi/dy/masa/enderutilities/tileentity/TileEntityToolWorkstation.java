@@ -11,7 +11,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 {
@@ -24,7 +24,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
     public TileEntityToolWorkstation()
     {
-        super(ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
+        super(ReferenceNames.NAME_TILEENTITY_TOOL_WORKSTATION);
         this.itemStacks = new ItemStack[20];
     }
 
@@ -85,7 +85,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
         }
 
         nbt.removeTag("Items");
-        this.itemStacks[SLOT_TOOL].setTagCompound(nbt);
     }
 
     public void readModulesFromItem()
@@ -106,7 +105,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
                 NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
                 byte slotNum = tag.getByte("Slot");
 
-                if (slotNum < this.itemStacks.length && slotNum >= SLOT_MODULES_START && slotNum < (SLOT_MODULES_START + NUM_MODULE_SLOTS))
+                if (slotNum >= 0 && slotNum < this.itemStacks.length && slotNum >= SLOT_MODULES_START && slotNum < (SLOT_MODULES_START + NUM_MODULE_SLOTS))
                 {
                     this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(tag);
                 }

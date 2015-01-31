@@ -6,6 +6,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
 public class NBTHelperTarget
 {
@@ -36,7 +38,7 @@ public class NBTHelperTarget
         this.blockName = "";
         this.blockMeta = 0;
         this.blockFace = -1;
-        this.forgeDir = ForgeDirection.DOWN;
+        this.forgeDir = ForgeDirection.UP;
     }
 
     public static boolean hasTargetTag(NBTTagCompound nbt)
@@ -51,7 +53,10 @@ public class NBTHelperTarget
             tag.hasKey("posX", Constants.NBT.TAG_INT) == true &&
             tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
             tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("Dim", Constants.NBT.TAG_INT) == true)
+            tag.hasKey("Dim", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
+            tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
+            tag.hasKey("BlockFace", Constants.NBT.TAG_BYTE) == true)
         {
             return true;
         }
@@ -73,8 +78,8 @@ public class NBTHelperTarget
         this.dimension = tag.getInteger("Dim");
         this.dimensionName = tag.getString("DimName");
         this.blockName = tag.getString("BlockName");
-        this.blockMeta = tag.getInteger("BlockMeta");
-        this.blockFace = tag.getInteger("BlockFace");
+        this.blockMeta = tag.getByte("BlockMeta");
+        this.blockFace = tag.getByte("BlockFace");
         this.forgeDir = ForgeDirection.getOrientation(this.blockFace);
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
@@ -84,25 +89,50 @@ public class NBTHelperTarget
         return tag;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int pX, int pY, int pZ, int dim, int face, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    public static NBTTagCompound writeToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace)
     {
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
         }
 
-        double x = pX;
-        double y = pY;
-        double z = pZ;
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setInteger("posX", x);
+        tag.setInteger("posY", y);
+        tag.setInteger("posZ", z);
+        tag.setDouble("dPosX", dx);
+        tag.setDouble("dPosY", dy);
+        tag.setDouble("dPosZ", dz);
+        tag.setInteger("Dim", dim);
+        tag.setString("DimName", dimName);
+        tag.setString("BlockName", blockName);
+        tag.setByte("BlockMeta", (byte)meta);
+        tag.setByte("BlockFace", (byte)blockFace);
+
+        nbt.setTag("Target", tag);
+
+        return nbt;
+    }
+
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        double dPosX = x;
+        double dPosY = y;
+        double dPosZ = z;
 
         if (doHitOffset == true)
         {
-            x += hitX;
-            y += hitY;
-            z += hitZ;
+            dPosX += hitX;
+            dPosY += hitY;
+            dPosZ += hitZ;
         }
 
-        String dName = "";
+        String dimName = "";
         String blockName = "";
         int meta = 0;
 
@@ -111,53 +141,29 @@ public class NBTHelperTarget
             WorldServer world = MinecraftServer.getServer().worldServerForDimension(dim);
             if (world != null && world.provider != null)
             {
-                dName = world.provider.getDimensionName();
-                blockName = Block.blockRegistry.getNameForObject(world.getBlock(pX, pY, pZ));
-                meta = world.getBlockMetadata(pX, pY, pZ);
+                dimName = world.provider.getDimensionName();
+
+                UniqueIdentifier ui = GameRegistry.findUniqueIdentifierFor(world.getBlock(x, y, z));
+                if (ui != null)
+                {
+                    blockName = ui.toString();
+                }
+                else
+                {
+                    blockName = Block.blockRegistry.getNameForObject(world.getBlock(x, y, z));
+                }
+
+                meta = world.getBlockMetadata(x, y, z);
             }
         }
 
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("posX", (int)x);
-        tag.setInteger("posY", (int)y);
-        tag.setInteger("posZ", (int)z);
-        tag.setInteger("Dim", dim);
-        tag.setString("DimName", dName);
-        tag.setString("BlockName", blockName);
-        tag.setByte("BlockMeta", (byte)meta);
-        tag.setInteger("BlockFace", face);
-        tag.setDouble("dPosX", x);
-        tag.setDouble("dPosY", y);
-        tag.setDouble("dPosZ", z);
-
-        nbt.setTag("Target", tag);
-
-        return nbt;
+        return writeToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("posX", this.posX);
-        tag.setInteger("posY", this.posY);
-        tag.setInteger("posZ", this.posZ);
-        tag.setInteger("Dim", this.dimension);
-        tag.setString("DimName", this.dimensionName);
-        tag.setString("BlockName", this.blockName);
-        tag.setByte("BlockMeta", (byte)this.blockMeta);
-        tag.setInteger("BlockFace", this.blockFace);
-        tag.setDouble("dPosX", this.dPosX);
-        tag.setDouble("dPosY", this.dPosY);
-        tag.setDouble("dPosZ", this.dPosZ);
-
-        nbt.setTag("Target", tag);
-
-        return nbt;
+        return writeToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
+            this.dimensionName, this.blockName, this.blockMeta, this.blockFace);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)

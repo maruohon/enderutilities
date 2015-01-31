@@ -15,7 +15,7 @@ import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceEntities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
@@ -60,8 +60,8 @@ public abstract class CommonProxy implements IProxy
 
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceBlocksItems.NAME_TILEENTITY_ENDER_FURNACE);
-        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceBlocksItems.NAME_TILEENTITY_TOOL_WORKSTATION);
+        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE);
+        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.NAME_TILEENTITY_TOOL_WORKSTATION);
     }
 
     public boolean isShiftKeyDown()

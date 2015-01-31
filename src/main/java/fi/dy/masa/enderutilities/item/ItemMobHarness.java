@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -20,7 +19,7 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -33,7 +32,8 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         super();
         this.setMaxStackSize(1);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_MOB_HARNESS);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_MOB_HARNESS);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
@@ -49,7 +49,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         {
             MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
             if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
-                    && player.rotationPitch > 80.0f)
+                && player.rotationPitch > 80.0f)
             {
                 this.clearData(stack);
             }
@@ -64,6 +64,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         {
             return false;
         }
+
         boolean hasTarget = this.hasTarget(stack);
 
         if (player.isSneaking() == false)
@@ -156,9 +157,9 @@ public class ItemMobHarness extends ItemEnderUtilities
         return stack;
     }
 
-    public boolean mountTarget(ItemStack stack, World world, EntityPlayer player, Entity entity)
+    public boolean mountTarget(ItemStack stack, World world, EntityPlayer player, Entity targetEntity)
     {
-        if (stack == null || player == null || entity == null || stack.getTagCompound() == null)
+        if (stack == null || world == null || player == null || targetEntity == null || stack.getTagCompound() == null || this.hasTarget(stack) == false)
         {
             return false;
         }
@@ -166,11 +167,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         NBTTagCompound nbt = stack.getTagCompound();
         byte mode = nbt.getByte("Mode");
         double radius = 4.0d;
-
-        if (this.hasTarget(stack) == false)
-        {
-            return false;
-        }
 
         long most = nbt.getLong("TargetUUIDMost");
         long least = nbt.getLong("TargetUUIDLeast");
@@ -180,26 +176,26 @@ public class ItemMobHarness extends ItemEnderUtilities
         {
             List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(player,
                     AxisAlignedBB.getBoundingBox(player.posX - radius, player.posY - radius, player.posZ - radius,
-                    player.posX + radius, player.posY + radius, player.posZ + radius));
+                        player.posX + radius, player.posY + radius, player.posZ + radius));
 
-            for (Entity ent : list)
+            for (Entity entity : list)
             {
                 // Matching entity found
-                if (ent.getUniqueID().getMostSignificantBits() == most && ent.getUniqueID().getLeastSignificantBits() == least)
+                if (entity.getUniqueID().getMostSignificantBits() == most && entity.getUniqueID().getLeastSignificantBits() == least)
                 {
                     // The harness was clicked twice on the same mob, mount that mob on top of the player
-                    if (entity.getUniqueID().getMostSignificantBits() == most && entity.getUniqueID().getLeastSignificantBits() == least)
+                    if (targetEntity.getUniqueID().getMostSignificantBits() == most && targetEntity.getUniqueID().getLeastSignificantBits() == least)
                     {
                         EntityUtils.unmountRider(player);
-                        entity.mountEntity(player);
+                        targetEntity.mountEntity(player);
                         this.clearData(stack);
                     }
                     // The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
                     else
                     {
-                        EntityUtils.unmountRidden(ent);
-                        EntityUtils.unmountRider(entity);
-                        ent.mountEntity(entity);
+                        EntityUtils.unmountRidden(entity);
+                        EntityUtils.unmountRider(targetEntity);
+                        entity.mountEntity(targetEntity);
                         this.clearData(stack);
                     }
 
@@ -210,24 +206,24 @@ public class ItemMobHarness extends ItemEnderUtilities
         // Mode 2: mount a player
         else if (mode == (byte)2)
         {
-            EntityPlayerMP targetPlayer = EntityUtils.findPlayerFromUUID(new UUID(most, least));
+            EntityPlayer targetPlayer = EntityUtils.findPlayerFromUUID(new UUID(most, least));
             if (targetPlayer == null)
             {
                 return false;
             }
 
             // The harness was clicked twice on the same player, mount that player on top of the this player
-            if (entity == targetPlayer) // && entity.getDistanceToEntity(player) <= radius)
+            if (targetEntity == targetPlayer) // && entity.getDistanceToEntity(player) <= radius)
             {
                 EntityUtils.unmountRidden(player);
                 targetPlayer.mountEntity(player);
                 this.clearData(stack);
             }
             // Mount the target player on top of an entity
-            else if (entity.getDistanceToEntity(player) <= radius && targetPlayer.getDistanceToEntity(player) <= radius)
+            else if (targetEntity.getDistanceToEntity(player) <= radius && targetPlayer.getDistanceToEntity(player) <= radius)
             {
-                EntityUtils.unmountRidden(entity);
-                targetPlayer.mountEntity(entity);
+                EntityUtils.unmountRidden(targetEntity);
+                targetPlayer.mountEntity(targetEntity);
                 this.clearData(stack);
             }
         }

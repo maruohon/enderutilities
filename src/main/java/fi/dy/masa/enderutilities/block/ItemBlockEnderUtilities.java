@@ -33,6 +33,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
         {
             return "tile." + this.blockNames[stack.getItemDamage()];
         }
+
         return super.getUnlocalizedName(stack);
     }
 }

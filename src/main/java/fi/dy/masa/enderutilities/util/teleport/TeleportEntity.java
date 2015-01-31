@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S1DPacketEntityEffect;
@@ -27,9 +26,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -100,15 +99,14 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.worldObj.getBlock((int)x, (int)y, (int)z) == Blocks.air &&
-                entity.worldObj.getBlock((int)x, (int)y + 1, (int)z) == Blocks.air)
-            //if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
+            //if (entity.worldObj.isAirBlock((int)x, (int)y, (int)z) == true &&
+            //    entity.worldObj.isAirBlock((int)x, (int)y + 1, (int)z) == true)
+            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
             {
                 //entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
                 entity.setPositionAndUpdate(x, y, z);
 
                 // Sound and particles on the new, destination location.
-                //TODO: Since this only happens on the server side, we currently get no particles here. Maybe add custom packets for effects?
                 TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
                 return;
             }
@@ -172,35 +170,32 @@ public class TeleportEntity
 
     public static NBTHelperTarget adjustTargetPosition(NBTHelperTarget target, Entity entity)
     {
-        if (target == null)
+        if (target == null || target.blockFace < 0)
         {
-            return null;
+            return target;
         }
 
-        if (target.blockFace >= 0)
+        ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
+        if (entity != null && entity.boundingBox != null)
         {
-            ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
-            if (entity != null && entity.boundingBox != null)
-            {
-                target.dPosX += dir.offsetX * (entity.width / 2);
-                target.dPosZ += dir.offsetZ * (entity.width / 2);
+            target.dPosX += dir.offsetX * (entity.width / 2);
+            target.dPosZ += dir.offsetZ * (entity.width / 2);
 
-                // Targeting the bottom face of a block, adjust the position lower
-                if (dir.offsetY < 0)
-                {
-                    target.dPosY -= entity.height;
-                }
+            // Targeting the bottom face of a block, adjust the position lower
+            if (dir.offsetY < 0)
+            {
+                target.dPosY -= entity.height;
             }
-            else
-            {
-                target.dPosX += dir.offsetX * 0.5d;
-                target.dPosZ += dir.offsetZ * 0.5d;
+        }
+        else
+        {
+            target.dPosX += dir.offsetX * 0.5d;
+            target.dPosZ += dir.offsetZ * 0.5d;
 
-                // Targeting the bottom face of a block, adjust the position lower
-                if (dir.offsetY < 0)
-                {
-                    target.dPosY -= 1.0d;
-                }
+            // Targeting the bottom face of a block, adjust the position lower
+            if (dir.offsetY < 0)
+            {
+                target.dPosY -= 1.0d;
             }
         }
 
@@ -321,7 +316,7 @@ public class TeleportEntity
             WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
             if (worldServerDst == null)
             {
-                FMLLog.warning("[Ender Utilities] teleportEntity(): worldServerDst == null");
+                EnderUtilities.logger.warn("teleportEntity(): worldServerDst == null");
                 return null;
             }
 
@@ -400,7 +395,7 @@ public class TeleportEntity
 
         if (worldServerDst == null)
         {
-            FMLLog.warning("[Ender Utilities] reCreateEntity(): worldServerDst == null");
+            EnderUtilities.logger.warn("reCreateEntity(): worldServerDst == null");
             return null;
         }
 
@@ -445,7 +440,7 @@ public class TeleportEntity
 
         if (worldServerSrc == null || worldServerDst == null)
         {
-            FMLLog.warning("[Ender Utilities] transferEntityToDimension(): worldServer[Src|Dst] == null");
+            EnderUtilities.logger.warn("transferEntityToDimension(): worldServer[Src|Dst] == null");
             return null;
         }
 
@@ -513,7 +508,7 @@ public class TeleportEntity
 
         if (worldServerSrc == null || worldServerDst == null)
         {
-            FMLLog.warning("[Ender Utilities] transferPlayerToDimension(): worldServer[Src|Dst] == null");
+            EnderUtilities.logger.warn("transferPlayerToDimension(): worldServer[Src|Dst] == null");
             return null;
         }
 

@@ -24,11 +24,12 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
-import fi.dy.masa.enderutilities.setup.EURegistry;
+import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -49,24 +50,26 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         super();
         this.setMaxStackSize(1);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_BAG);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BAG);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-        if (world.isRemote == true)
+        if (stack == null || stack.getTagCompound() == null || world.isRemote == true)
         {
             return stack;
         }
 
+        NBTTagCompound bagNbt = stack.getTagCompound();
         ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
             return stack;
         }
-        NBTTagCompound bagNbt = stack.getTagCompound(); // Can't be null if moduleStack isn't null at this point
+
         NBTTagCompound moduleNbt = moduleStack.getTagCompound();
         if (moduleNbt == null)
         {
@@ -94,7 +97,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTHelperTarget targetData = new NBTHelperTarget();
-        // Instance of IInventory (= not Ender Chest); Get the target information
+        // Instance of IInventory (= not Ender Chest, see above); Get the target information
         if (targetData.readTargetTagFromNBT(moduleNbt) == null)
         {
             return stack;
@@ -114,6 +117,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             return stack;
         }
+
         Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
         if (block == null)
         {
@@ -126,29 +130,35 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             moduleNbt.removeTag("Slots");
             moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
-            //moduleStack.setTagCompound(moduleNbt);
+            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.setBoolean("IsOpen", false);
-            //stack.setTagCompound(bagNbt);
+
             player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
 
             return stack;
         }
 
-        bagNbt.setBoolean("ChunkLoadingRequired", true);
-        bagNbt.setBoolean("IsOpen", true);
-        //stack.setTagCompound(bagNbt);
+        // Check that we have sufficient charge left to use the bag.
+        if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+        {
+            return stack;
+        }
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60) == true)
         {
+            // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
             if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
                 // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
                 //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);
-
                 return stack;
             }
+
+            bagNbt.setBoolean("ChunkLoadingRequired", true);
+            bagNbt.setBoolean("IsOpen", true);
 
             float hx = (float)targetData.dPosX - targetData.posX;
             float hy = (float)targetData.dPosY - targetData.posY;
@@ -196,20 +206,19 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             playerData.readPlayerTagFromNBT(moduleNbt);
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
-
         // If the player trying to set/modify the bag is not the owner
-        if (playerData.isOwner(player) == false)
+        else if (playerData.isOwner(player) == false)
         {
-            return true;
+            return false;
         }
 
         TileEntity te = world.getTileEntity(x, y, z);
         if (te == null)
         {
-            return true;
+            return false;
         }
 
-        if (te instanceof IInventory || te instanceof TileEntityEnderChest)
+        if (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
         {
             /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
             {
@@ -274,7 +283,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
         {
             // Only allow the inventory type Link Crystals
-            if (moduleStack.getItemDamage() == 1)
+            if (moduleStack.getItemDamage() == ItemLinkCrystal.LINK_CRYSTAL_TYPE_BLOCK)
             {
                 return 3;
             }
@@ -287,21 +296,22 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         List<String> list;
 
-        // FIXME add the metadata handling
+        // FIXME add metadata handling
         // Black list
-        if (EUConfigs.enderBagListType.getString().equalsIgnoreCase("blacklist") == true)
+        if (Configs.enderBagListType.getString().equalsIgnoreCase("blacklist") == true)
         {
-            list = EURegistry.getEnderbagBlacklist();
+            list = Registry.getEnderbagBlacklist();
             if (list.contains(name) == true)
             {
                 return false;
             }
+
             return true;
         }
         // White list
         else
         {
-            list = EURegistry.getEnderbagWhitelist();
+            list = Registry.getEnderbagWhitelist();
             if (list.contains(name) == true)
             {
                 return true;
@@ -385,6 +395,42 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         return false;
     }
 
+    public void toggleBagMode(EntityPlayer player, ItemStack stack)
+    {
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        if (moduleStack == null)
+        {
+            return;
+        }
+
+        byte val = 0;
+
+        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+        if (moduleNbt != null)
+        {
+            NBTHelperPlayer playerData = new NBTHelperPlayer();
+            if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
+            {
+                return;
+            }
+
+            val = moduleNbt.getByte("Mode");
+        }
+        else
+        {
+            moduleNbt = new NBTTagCompound();
+        }
+
+        if (++val > MODE_PUBLIC)
+        {
+            val = MODE_PRIVATE;
+        }
+
+        moduleNbt.setByte("Mode", val);
+        moduleStack.setTagCompound(moduleNbt);
+        this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -395,36 +441,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return;
         }
 
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && player != null)
+        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            if (moduleStack == null)
-            {
-                return;
-            }
-
-            byte val = 0;
-            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-            if (moduleNbt != null)
-            {
-                NBTHelperPlayer playerData = new NBTHelperPlayer();
-                if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
-                {
-                    return;
-                }
-                val = moduleNbt.getByte("Mode");
-            }
-            else
-            {
-                moduleNbt = new NBTTagCompound();
-            }
-            if (++val > MODE_PUBLIC)
-            {
-                val = MODE_PRIVATE;
-            }
-
-            moduleNbt.setByte("Mode", val);
-            moduleStack.setTagCompound(moduleNbt);
+            this.toggleBagMode(player, stack);
         }
     }
 

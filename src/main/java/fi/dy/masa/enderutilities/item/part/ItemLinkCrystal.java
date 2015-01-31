@@ -4,21 +4,22 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.setup.Configs;
 
 public class ItemLinkCrystal extends ItemLocationBound
 {
+    public static final int LINK_CRYSTAL_TYPE_LOCATION = 0;
+    public static final int LINK_CRYSTAL_TYPE_BLOCK = 1;
+    public static final int LINK_CRYSTAL_TYPE_PORTAL = 2;
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
@@ -28,7 +29,7 @@ public class ItemLinkCrystal extends ItemLocationBound
         this.setMaxStackSize(64);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDERPART_LINKCRYSTAL);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
@@ -50,7 +51,7 @@ public class ItemLinkCrystal extends ItemLocationBound
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
-        if (EUConfigs.disableItemLinkCrystal.getBoolean(false) == false)
+        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
             for (int i = 0; i <= 2; i++)
             {
@@ -81,18 +82,5 @@ public class ItemLinkCrystal extends ItemLocationBound
         this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".world");
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".inventory");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
-            return;
-        }
-        super.addInformation(stack, player, list, par4);
     }
 }

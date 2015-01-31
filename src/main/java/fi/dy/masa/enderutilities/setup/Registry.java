@@ -3,7 +3,7 @@ package fi.dy.masa.enderutilities.setup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EURegistry
+public class Registry
 {
     private static List<String> enderBagBlacklist = new ArrayList<String>();
     private static List<String> enderBagWhitelist = new ArrayList<String>();
@@ -12,13 +12,13 @@ public class EURegistry
 
     public static void registerEnderbagLists()
     {
-        String[] items = EUConfigs.enderBagBlacklist.getStringList();
+        String[] items = Configs.enderBagBlacklist.getStringList();
         for (String entry : items)
         {
             enderBagBlacklist.add(entry);
         }
 
-        items = EUConfigs.enderBagWhitelist.getStringList();
+        items = Configs.enderBagWhitelist.getStringList();
         for (String entry : items)
         {
             enderBagWhitelist.add(entry);
@@ -37,7 +37,7 @@ public class EURegistry
 
     public static void registerTeleportBlacklist()
     {
-        String[] items = EUConfigs.teleportBlacklist.getStringList();
+        String[] items = Configs.teleportBlacklist.getStringList();
         for (String entry : items)
         {
             teleportBlacklist.add(entry);

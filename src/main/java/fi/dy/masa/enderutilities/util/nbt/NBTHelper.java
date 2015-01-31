@@ -1,11 +1,12 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class NBTHelper
 {
-    public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTTagCompound tag)
+    public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTBase tag)
     {
         if (name == null)
         {

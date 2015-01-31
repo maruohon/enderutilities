@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderLasso extends ItemLocationBoundModular
@@ -13,7 +13,8 @@ public class ItemEnderLasso extends ItemLocationBoundModular
     {
         super();
         this.setMaxStackSize(1);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_LASSO);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_LASSO);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 

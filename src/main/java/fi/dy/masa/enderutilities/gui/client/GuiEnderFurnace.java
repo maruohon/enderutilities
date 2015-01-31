@@ -75,10 +75,12 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         {
             int vOffset = 0;
             int w = 0;
+
             if (this.teef.cookTimeFresh != 0)
             {
                 w = this.teef.cookTime * 24 / this.teef.cookTimeFresh;
             }
+
             if (this.teef.usingFuel == true)
             {
                 vOffset = 16;
@@ -103,6 +105,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         {
             modeOffset = 16;
         }
+
         if (this.teef.outputMode == 1)
         {
             outputOffset = 16;
@@ -131,7 +134,6 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         super.drawScreen(mouseX, mouseY, gameTicks);
-
         this.drawTooltips(mouseX, mouseY);
     }
 
@@ -146,6 +148,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     protected void actionPerformed(GuiButton btn)
     {
         super.actionPerformed(btn);
+
         PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
                 ReferenceGuiIds.GUI_ID_ENDER_FURNACE, btn.id, (short)0));
     }

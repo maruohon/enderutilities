@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
 
@@ -64,17 +65,21 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         }
 
         NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        //this.itemStacks = new ItemStack[this.getSizeInventory()]; // Done in the sub class constructor for each TE
         int numSlots = nbtTagList.tagCount();
+        this.itemStacks = new ItemStack[this.getSizeInventory()];
 
         for (int i = 0; i < numSlots; ++i)
         {
-            NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
-            byte slotNum = nbtTagCompound.getByte("Slot");
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            byte slotNum = tag.getByte("Slot");
 
             if (slotNum >= 0 && slotNum < this.itemStacks.length)
             {
-                this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+                this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(tag);
+            }
+            else
+            {
+                EnderUtilities.logger.warn("Invalid slot number when reading inventory from NBT: " + slotNum + " (max: " + (this.itemStacks.length - 1) + ")");
             }
         }
     }
@@ -96,10 +101,10 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         {
             if (this.itemStacks[i] != null)
             {
-                NBTTagCompound nbtTagCompound = new NBTTagCompound();
-                nbtTagCompound.setByte("Slot", (byte)i);
-                this.itemStacks[i].writeToNBT(nbtTagCompound);
-                nbtTagList.appendTag(nbtTagCompound);
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte("Slot", (byte)i);
+                this.itemStacks[i].writeToNBT(tag);
+                nbtTagList.appendTag(tag);
             }
         }
 

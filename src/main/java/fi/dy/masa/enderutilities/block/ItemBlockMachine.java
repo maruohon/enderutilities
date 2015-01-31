@@ -10,6 +10,7 @@ public class ItemBlockMachine extends ItemBlockEnderUtilities
     public ItemBlockMachine(Block block)
     {
         super(block);
+
         if (block instanceof BlockEnderUtilities)
         {
             this.setNames(Machine.getNames(((BlockEnderUtilities)block).getBlockIndex()));

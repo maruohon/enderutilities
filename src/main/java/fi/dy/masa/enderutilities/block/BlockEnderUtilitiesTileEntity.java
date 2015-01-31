@@ -50,7 +50,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
     {
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te == null || te instanceof TileEntityEnderUtilities == false)
+        if (te == null || (te instanceof TileEntityEnderUtilities) == false)
         {
             return;
         }
@@ -60,10 +60,11 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
 
         NBTTagCompound nbt = stack.getTagCompound();
+
         // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
-        if (nbt != null && nbt.hasKey("TEData", Constants.NBT.TAG_COMPOUND) == true)
+        if (nbt != null && nbt.hasKey("TileEntityData", Constants.NBT.TAG_COMPOUND) == true)
         {
-            teeu.readFromNBTCustom(nbt.getCompoundTag("TEData"));
+            teeu.readFromNBTCustom(nbt.getCompoundTag("TileEntityData"));
 
             // Update the rotation
             if (yaw < YAW_TO_DIRECTION.length)
@@ -129,7 +130,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             return false;
         }
 
-        // TODO: This should probably be moved into the Machine class
+        // TODO: Maybe this should be moved into the Machine class?
         if (world.isRemote == false)
         {
             player.openGui(EnderUtilities.instance, 0, world, x, y, z);

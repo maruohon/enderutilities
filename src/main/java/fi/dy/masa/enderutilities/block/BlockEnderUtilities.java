@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockEnderUtilities extends Block
 {
-    protected int blockIndex;
+    public int blockIndex;
 
     public BlockEnderUtilities(int index, String name, float hardness)
     {
@@ -66,14 +66,6 @@ public class BlockEnderUtilities extends Block
         }
 
         super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
-    }
-
-    // Gets an item for the block being called on. Args: world, x, y, z
-    @SideOnly(Side.CLIENT)
-    @Override
-    public Item getItem(World world, int x, int y, int z)
-    {
-        return Item.getItemFromBlock(this);
     }
 
     public int getBlockIndex()

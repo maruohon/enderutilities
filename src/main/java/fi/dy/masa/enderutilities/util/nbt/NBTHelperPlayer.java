@@ -59,7 +59,7 @@ public class NBTHelperPlayer
     {
         if (nbt == null)
         {
-            return null;
+            nbt = new NBTTagCompound();
         }
 
         if (player == null)
@@ -85,6 +85,7 @@ public class NBTHelperPlayer
             return false;
         }
 
+        // FIXME verify that this would work: if (this.playerUUID != null && this.playerUUID.equals(player.getUniqueID()) == true)
         if (this.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
             this.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
         {

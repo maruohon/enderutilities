@@ -67,14 +67,13 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
         EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
         //World world = player.worldObj;
         World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
-        TileEntity te;
 
         if (player != null && world != null)
         {
             switch(message.guiId)
             {
                 case ReferenceGuiIds.GUI_ID_ENDER_FURNACE:
-                    te = world.getTileEntity(message.posX, message.posY, message.posZ);
+                    TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
                     if (te != null && te instanceof TileEntityEnderUtilitiesSided)
                     {
                         ((TileEntityEnderUtilitiesSided)te).performGuiAction(message.elementId, message.action);

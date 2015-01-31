@@ -28,7 +28,7 @@ public class MachineToolWorkstation extends Machine
             BlockEnderUtilitiesInventory.dropItemStacks(world, x, y, z, teeui.getStackInSlot(0), -1, false);
 
             // Note, we don't drop the module ItemStacks (the ones storing the modules stored in the tools),
-            // because they are always stored in the tool, and dropping them would dupe them.
+            // because they are always stored in the tool, and dropping the modules would duplicate them.
 
             // The module storage ItemStacks
             for (int i = TileEntityToolWorkstation.SLOT_MODULE_STORAGE_START; i < teeui.getSizeInventory(); ++i)

@@ -55,7 +55,7 @@ public class ContainerEnderUtilitiesInventory extends Container
 
         for (int i = 0; i < 9; i++)
         {
-            this.addSlotToContainer(new Slot(inventory, i, xOff + i * 18, yOff + 58));
+            this.addSlotToContainer(new Slot(inventory, 27 + i, xOff + i * 18, yOff + 58));
         }
     }
 

@@ -5,22 +5,27 @@ import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import fi.dy.masa.enderutilities.setup.EURegistry;
+import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
-    public static EntityPlayerMP findPlayerFromUUID(UUID uuid)
+    public static EntityPlayer findPlayerFromUUID(UUID uuid)
     {
-        if (uuid == null) { return null; }
+        if (uuid == null)
+        {
+            return null;
+        }
 
         MinecraftServer mcs = MinecraftServer.getServer();
-        if (mcs == null) { return null; }
+        if (mcs == null)
+        {
+            return null;
+        }
 
-        List<EntityPlayerMP> playerList = mcs.getConfigurationManager().playerEntityList;
+        List<EntityPlayer> playerList = mcs.getConfigurationManager().playerEntityList;
 
-        for (EntityPlayerMP player : playerList)
+        for (EntityPlayer player : playerList)
         {
             if (player.getUniqueID().equals(uuid) == true)
             {
@@ -33,7 +38,10 @@ public class EntityUtils
 
     public static Entity findEntityByUUID(List<Entity> list, UUID uuid)
     {
-        if (uuid == null) { return null; }
+        if (uuid == null)
+        {
+            return null;
+        }
 
         for (Entity entity : list)
         {
@@ -103,7 +111,7 @@ public class EntityUtils
     // Check if there are any blacklisted entities in this entity 'stack' (pile of mounted entities)
     public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
     {
-        List<String> blacklist = EURegistry.getTeleportBlacklist();
+        List<String> blacklist = Registry.getTeleportBlacklist();
         Entity ent;
 
         for (ent = entity; ent != null; ent = ent.ridingEntity)

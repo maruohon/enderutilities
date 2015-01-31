@@ -32,14 +32,14 @@ public class ItemLocationBound extends ItemEnderUtilities
         {
             boolean adjustPosHit = true;
 
-            // Don't adjust the target position for uses that are targeting the block, not the in-world location
+            // Don't adjust the target position for uses that are targeting the block, not the actual exact location.
             if (stack.getItem() == EnderUtilitiesItems.linkCrystal && stack.getItemDamage() != 0)
             {
                 adjustPosHit = false;
             }
 
             NBTTagCompound nbt = stack.getTagCompound();
-            nbt = NBTHelperTarget.writeTargetTagToNBT(stack.getTagCompound(), x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
+            nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
             stack.setTagCompound(nbt);
 

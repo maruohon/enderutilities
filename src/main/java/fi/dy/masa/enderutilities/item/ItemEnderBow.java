@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,10 +22,10 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
-import fi.dy.masa.enderutilities.reference.ReferenceBlocksItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EUConfigs;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -46,7 +45,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         super();
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
-        this.setUnlocalizedName(ReferenceBlocksItems.NAME_ITEM_ENDER_BOW);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
         this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
@@ -65,8 +64,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         int j = this.getMaxItemUseDuration(stack) - itemInUseCount;
 
         ArrowLooseEvent event = new ArrowLooseEvent(player, stack, j);
-        MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled())
+        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
         {
             return;
         }
@@ -84,7 +82,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             }
 
             // If self teleporting is disabled in the configs, do nothing
-            if (mode == BOW_MODE_TP_SELF && EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
+            if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP.getBoolean(true) == false)
             {
                 return;
             }
@@ -131,12 +129,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
     }
 
-    @Override
-    public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player)
-    {
-        return stack;
-    }
-
     /**
      * How long it takes to use or consume an item
      */
@@ -161,6 +153,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
+        // This method needs to also be executed on the client, otherwise the bow won't be set to in use
+
         if (player.capabilities.isCreativeMode == false
             && stack.getTagCompound() != null && stack.getTagCompound().getByte("Mode") == BOW_MODE_TP_TARGET
             && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
@@ -168,10 +162,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return stack;
         }
 
-        // This needs to also happen on the client, otherwise the bow won't be set to in use
         ArrowNockEvent event = new ArrowNockEvent(player, stack);
-        MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled())
+        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
         {
             return event.result;
         }
@@ -236,25 +228,16 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
     }
 
-    /**
-     * Return the enchantability factor of the item, most of the time is based on material.
-     */
-    @Override
-    public int getItemEnchantability()
-    {
-        return 0;
-    }
-
     @Override
     public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
     {
-        if (stack1 != null && stack1.getItem() == EnderUtilitiesItems.enderBow)
+        // TODO: Add a method to get the alloy types/tiers
+        if (stack1 != null && stack1.getItem() == EnderUtilitiesItems.enderBow
+            && stack2 != null && stack2.getItem() == EnderUtilitiesItems.enderPart && stack2.getItemDamage() == 1)
         {
-            if (stack2 != null && stack2.getItem() == Items.diamond)
-            {
-                return true;
-            }
+            return true;
         }
+
         return false;
     }
 
@@ -348,6 +331,39 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return this.getItemIconForUseDuration(index);
     }
 
+    public void toggleBowMode(EntityPlayer player, ItemStack stack)
+    {
+        if (stack == null)
+        {
+            return;
+        }
+
+        byte val = BOW_MODE_TP_TARGET;
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt != null)
+        {
+            val = nbt.getByte("Mode");
+        }
+        else
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        if (++val > 1)
+        {
+            val = 0;
+        }
+
+        // If self teleporting is disabled in the configs, always set the mode to TP target
+        if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        {
+            val = BOW_MODE_TP_TARGET;
+        }
+
+        nbt.setByte("Mode", val);
+        stack.setTagCompound(nbt);
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -360,30 +376,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            byte val = BOW_MODE_TP_TARGET;
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null)
-            {
-                val = nbt.getByte("Mode");
-            }
-            else
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            if (++val > 1)
-            {
-                val = 0;
-            }
-
-            // If self teleporting is disabled in the configs, set the mode always to TP target
-            if (EUConfigs.enderBowAllowSelfTP.getBoolean(true) == false)
-            {
-                val = BOW_MODE_TP_TARGET;
-            }
-
-            nbt.setByte("Mode", val);
-            stack.setTagCompound(nbt);
+            this.toggleBowMode(player, stack);
         }
     }
 }

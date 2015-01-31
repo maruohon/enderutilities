@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.setup;
 
 import net.minecraftforge.common.config.Property;
 
-public class EUConfigs
+public class Configs
 {
     public static Property configFileVersion;
 

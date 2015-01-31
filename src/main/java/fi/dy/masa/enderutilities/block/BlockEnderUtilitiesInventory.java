@@ -27,24 +27,19 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
-        boolean done = false;
-
         // This is for handling custom storage stuff like buffers, which are not regular
         // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            done = machine.breakBlock(world, x, y, z, block, meta);
-        }
-
-        if (done == true)
-        {
-            world.removeTileEntity(x, y, z);
-            return;
+            if (machine.breakBlock(world, x, y, z, block, meta) == true)
+            {
+                world.removeTileEntity(x, y, z);
+                return;
+            }
         }
 
         TileEntity te = world.getTileEntity(x, y, z);
-
         if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
         {
             TileEntityEnderUtilitiesInventory teeui = (TileEntityEnderUtilitiesInventory)te;
@@ -119,7 +114,7 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     public int getComparatorInputOverride(World world, int x, int y, int z, int meta)
     {
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te instanceof IInventory == false)
+        if ((te instanceof IInventory) == false)
         {
             return 0;
         }

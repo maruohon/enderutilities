@@ -19,30 +19,30 @@ public class InputEventHandler
     {
     }
 
-    @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public void onInput(InputEvent event)
+    @SubscribeEvent
+    public void onInput(InputEvent.KeyInputEvent event)
     {
         // In-game (no GUI open)
-        if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
+        if (FMLClientHandler.instance().getClient().inGameHasFocus == true
+            && Keybindings.keyToggleMode.isPressed() == true) // or this? Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode()
         {
-            if (Keybindings.keyToggleMode.isPressed() == true)
+            EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+            if (player != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
             {
-                EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-                if (player != null && player.worldObj.isRemote == true &&
-                    player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
+                int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
+
+                if (EnderUtilities.proxy.isShiftKeyDown() == true)
                 {
-                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
-                    if (EnderUtilities.proxy.isShiftKeyDown() == true)
-                    {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
-                    }
-                    if (EnderUtilities.proxy.isControlKeyDown() == true)
-                    {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
-                    }
-                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                    key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
                 }
+
+                if (EnderUtilities.proxy.isControlKeyDown() == true)
+                {
+                    key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+                }
+
+                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
             }
         }
     }

@@ -14,12 +14,7 @@ public class SlotUpgradeModuleStorage extends SlotUpgradeModule
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        if (stack == null)
-        {
-            return false;
-        }
-
-        if (UtilItemModular.getModuleType(stack).equals(UtilItemModular.ModuleType.TYPE_INVALID) == false)
+        if (stack != null && UtilItemModular.getModuleType(stack).equals(UtilItemModular.ModuleType.TYPE_INVALID) == false)
         {
             return true;
         }

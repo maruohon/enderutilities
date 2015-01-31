@@ -111,11 +111,11 @@ public class TileEntityEnderUtilities extends TileEntity
         if (this.worldObj != null)
         {
             NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setByte("f", (byte)(this.getRotation() & 0x07));
+            nbt.setByte("rot", (byte)(this.getRotation() & 0x07));
 
             if (this.ownerName != null)
             {
-                nbt.setString("o", this.ownerName);
+                nbt.setString("owner", this.ownerName);
             }
 
             return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
@@ -128,12 +128,12 @@ public class TileEntityEnderUtilities extends TileEntity
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        byte flags = nbt.getByte("f");
+        byte flags = nbt.getByte("rot");
         this.setRotation((byte)(flags & 0x07));
 
-        if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
+        if (nbt.hasKey("owner", Constants.NBT.TAG_STRING) == true)
         {
-            this.ownerName = nbt.getString("o");
+            this.ownerName = nbt.getString("owner");
         }
 
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
@@ -142,6 +142,6 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public String toString()
     {
-        return this.getClass().getSimpleName() + "(x=" + xCoord + ", y=" + yCoord + ", z=" + zCoord + ")@" + System.identityHashCode(this);
+        return this.getClass().getSimpleName() + "(x=" + xCoord + ",y=" + yCoord + ",z=" + zCoord + ")@" + System.identityHashCode(this);
     }
 }
