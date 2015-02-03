@@ -124,7 +124,24 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack stack)
     {
-        return 4;
+        return 5;
+    }
+
+    /* Returns the maximum number of modules of the given type that can be installed on this item. */
+    @Override
+    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    {
+        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        {
+            return 4;
+        }
+
+        return 0;
     }
 
     /**

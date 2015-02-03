@@ -164,6 +164,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
 
+    /* Returns the maximum number of modules that can be installed on this item. */
+    @Override
+    public int getMaxModules(ItemStack stack)
+    {
+        return 4;
+    }
+
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
