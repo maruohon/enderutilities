@@ -45,17 +45,19 @@ public class ContainerEnderUtilitiesInventory extends Container
         int yOff = getPlayerInventoryVerticalOffset();
         int xOff = getPlayerInventoryHorizontalOffset();
 
+        // Player inventory
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new Slot(inventory, j + i * 9 + 9, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new Slot(inventory, i * 9 + j + 9, xOff + j * 18, yOff + i * 18));
             }
         }
 
+        // Player inventory hotbar
         for (int i = 0; i < 9; i++)
         {
-            this.addSlotToContainer(new Slot(inventory, 27 + i, xOff + i * 18, yOff + 58));
+            this.addSlotToContainer(new Slot(inventory, i, xOff + i * 18, yOff + 58));
         }
     }
 
