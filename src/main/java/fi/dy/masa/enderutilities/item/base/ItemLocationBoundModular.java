@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
@@ -38,7 +39,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 adjustPosHit = false;
             }
 
-            moduleStack.setTagCompound(NBTHelperTarget.writeTargetTagToNBT(moduleStack.getTagCompound(), x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit));
+            NBTTagCompound nbt = moduleStack.getTagCompound();
+            nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
+            nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
+            moduleStack.setTagCompound(nbt);
             this.setSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
 
             return true;

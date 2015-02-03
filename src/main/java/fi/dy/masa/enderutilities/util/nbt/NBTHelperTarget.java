@@ -54,8 +54,8 @@ public class NBTHelperTarget
             tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
             tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
             tag.hasKey("Dim", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
-            tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
+            //tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
+            //tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
             tag.hasKey("BlockFace", Constants.NBT.TAG_BYTE) == true)
         {
             return true;
