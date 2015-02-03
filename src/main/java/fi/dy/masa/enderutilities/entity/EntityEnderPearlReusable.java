@@ -106,7 +106,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
                 System.out.printf("hitInfo: %s\n", mop.hitInfo.toString());
             }*/
 
-            if (mop.entityHit != null)
+            if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase)
             {
                 mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
             }
@@ -117,7 +117,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
             if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null && (this.letMeFly == false || bottom == this))
             {
                 // Dismount the Ender Pearl ridden, if a regular pearl hits something, or when the actual ridden pearl hits something.
-                // This allows throwing multiple Elite Pearls whil mid air, without the first ones dismounting the player when they land.
+                // This allows throwing multiple Elite Pearls while mid air, without the previous Elite Pearls dismounting the player when they land.
                 bottom.riddenByEntity.mountEntity(null);
 
                 // Elite pearl teleport needs to check that we are riding the pearl in question, to not dismount while a previous pearl impacts
