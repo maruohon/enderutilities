@@ -259,7 +259,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
 
         NBTTagCompound nbt = ticket.getModData();
         NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readPlayerTagFromNBT(nbt) == null)
+        if (playerData.readFromNBT(nbt) == null)
         {
             return null;
         }

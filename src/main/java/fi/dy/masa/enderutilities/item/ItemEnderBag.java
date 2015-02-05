@@ -78,7 +78,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readPlayerTagFromNBT(moduleNbt) == null)
+        if (playerData.readFromNBT(moduleNbt) == null)
         {
             return stack;
         }
@@ -97,7 +97,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Access is only allowed if the target is set to public, or if the player is the owner
-        if (moduleNbt.getBoolean("Public") == false && playerData.isOwner(player) == false)
+        if (playerData.canAccess(player) == false)
         {
             return stack;
         }
@@ -188,20 +188,17 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (moduleNbt == null)
         {
             moduleNbt = new NBTTagCompound();
-            moduleNbt.setBoolean("Public", false);
-            moduleStack.setTagCompound(moduleNbt);
-            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
 
         NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readPlayerTagFromNBT(moduleNbt) == null)
+        if (playerData.readFromNBT(moduleNbt) == null)
         {
             moduleNbt = NBTHelperPlayer.writePlayerTagToNBT(moduleNbt, player);
-            playerData.readPlayerTagFromNBT(moduleNbt);
+            playerData.readFromNBT(moduleNbt);
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
-        // If the player trying to set/modify the bag is not the owner
-        else if (playerData.isOwner(player) == false)
+        // If the player trying to set/modify the bag is not the owner and the bag is not set to be public
+        else if (playerData.canAccess(player) == false)
         {
             return false;
         }
@@ -357,15 +354,15 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 {
                     list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
                 }
-                else if (playerData.readPlayerTagFromNBT(linkCrystalNbt) != null && playerData.isOwner(player) == true)
+                else if (playerData.readFromNBT(linkCrystalNbt) != null && playerData.canAccess(player) == true)
                 {
                     list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
 
                     super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
 
-                    String mode = StatCollector.translateToLocal((linkCrystalNbt.getBoolean("Public") == true ? "gui.tooltip.public" : "gui.tooltip.private"));
+                    String mode = StatCollector.translateToLocal((playerData.isPublic == true ? "gui.tooltip.public" : "gui.tooltip.private"));
                     list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName); // FIXME we should get the player name from the UUID
+                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.getPlayerName());
                 }
             }
             else
@@ -400,12 +397,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
+        if (playerData.readFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
         {
             return;
         }
 
-        moduleNbt.setBoolean("Public", ! moduleNbt.getBoolean("Public"));
+        playerData.isPublic = ! playerData.isPublic;
+        playerData.writeToNBT(moduleNbt);
         this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
     }
 

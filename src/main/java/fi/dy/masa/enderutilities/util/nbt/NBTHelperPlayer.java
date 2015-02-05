@@ -11,6 +11,7 @@ public class NBTHelperPlayer
     public long playerUUIDMost;
     public long playerUUIDLeast;
     public String playerName;
+    public boolean isPublic;
     public UUID playerUUID;
 
     public NBTHelperPlayer()
@@ -18,6 +19,7 @@ public class NBTHelperPlayer
         this.playerUUIDMost = 0;
         this.playerUUIDLeast = 0;
         this.playerName = "";
+        this.isPublic = false;
     }
 
     public static boolean hasPlayerTag(NBTTagCompound nbt)
@@ -29,9 +31,9 @@ public class NBTHelperPlayer
 
         NBTTagCompound tag = nbt.getCompoundTag("Player");
         if (tag != null &&
-            tag.hasKey("PlayerUUIDMost", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("PlayerUUIDLeast", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("PlayerName", Constants.NBT.TAG_STRING) == true)
+            tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) == true &&
+            tag.hasKey("UUIDL", Constants.NBT.TAG_LONG) == true &&
+            tag.hasKey("Name", Constants.NBT.TAG_STRING) == true)
         {
             return true;
         }
@@ -39,7 +41,7 @@ public class NBTHelperPlayer
         return false;
     }
 
-    public NBTTagCompound readPlayerTagFromNBT(NBTTagCompound nbt)
+    public NBTTagCompound readFromNBT(NBTTagCompound nbt)
     {
         if (hasPlayerTag(nbt) == false)
         {
@@ -47,15 +49,33 @@ public class NBTHelperPlayer
         }
 
         NBTTagCompound tag = nbt.getCompoundTag("Player");
-        this.playerUUIDMost = tag.getLong("PlayerUUIDMost");
-        this.playerUUIDLeast = tag.getLong("PlayerUUIDLeast");
-        this.playerName = tag.getString("PlayerName");
+        this.playerUUIDMost = tag.getLong("UUIDM");
+        this.playerUUIDLeast = tag.getLong("UUIDL");
+        this.playerName = tag.getString("Name");
+        this.isPublic = tag.getBoolean("Public");
         this.playerUUID = new UUID(this.playerUUIDMost, this.playerUUIDLeast);
 
         return tag;
     }
 
-    public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, EntityPlayer player)
+    public static NBTTagCompound writeToNBT(NBTTagCompound nbt, long most, long least, String name, boolean isPublic)
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setLong("UUIDM", most);
+        tag.setLong("UUIDL", least);
+        tag.setString("Name", name);
+        tag.setBoolean("Public", isPublic);
+        nbt.setTag("Player", tag);
+
+        return nbt;
+    }
+
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        return writeToNBT(nbt, this.playerUUIDMost, this.playerUUIDLeast, this.playerName, this.isPublic);
+    }
+
+    public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, EntityPlayer player, boolean isPublic)
     {
         if (nbt == null)
         {
@@ -68,14 +88,12 @@ public class NBTHelperPlayer
             return nbt;
         }
 
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setLong("PlayerUUIDMost", player.getUniqueID().getMostSignificantBits());
-        tag.setLong("PlayerUUIDLeast", player.getUniqueID().getLeastSignificantBits());
-        tag.setString("PlayerName", player.getCommandSenderName());
+        return writeToNBT(nbt, player.getUniqueID().getMostSignificantBits(), player.getUniqueID().getLeastSignificantBits(), player.getCommandSenderName(), isPublic);
+    }
 
-        nbt.setTag("Player", tag);
-
-        return nbt;
+    public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, EntityPlayer player)
+    {
+        return writePlayerTagToNBT(nbt, player, true);
     }
 
     public boolean isOwner(EntityPlayer player)
@@ -93,5 +111,21 @@ public class NBTHelperPlayer
         }
 
         return false;
+    }
+
+    public boolean canAccess(EntityPlayer player)
+    {
+        return (this.isPublic || this.isOwner(player));
+    }
+
+    public String getPlayerName()
+    {
+        if (this.playerName == null)
+        {
+            this.playerName = "";
+        }
+
+        // FIXME we should get the player name from the UUID
+        return this.playerName;
     }
 }
