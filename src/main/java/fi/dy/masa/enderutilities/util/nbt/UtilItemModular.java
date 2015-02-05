@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -404,5 +405,21 @@ public class UtilItemModular
         }
 
         return true;
+    }
+
+    /* If the player is in creative mode, then no charge will be required or drained.
+     * Normally:
+     * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
+     * then the given amount of charge will be drained from it, and true is returned.
+     * In case of any errors, no charge will be drained and false is returned.
+     */
+    public static boolean useEnderCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
+    {
+        if (player.capabilities.isCreativeMode == true)
+        {
+            return true;
+        }
+
+        return useEnderCharge(stack, amount, doUse);
     }
 }

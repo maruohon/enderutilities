@@ -74,7 +74,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         if (moduleStack != null && NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
             EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
         {
-            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
             {
                 return stack;
             }
@@ -104,7 +104,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime)
         {
-            if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
             {
                 return;
             }

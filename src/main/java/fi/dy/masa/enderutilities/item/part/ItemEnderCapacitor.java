@@ -153,6 +153,18 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return amount;
     }
 
+    @Override
+    public int useCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
+    {
+        // Don't use or require charge in creative mode
+        if (player.capabilities.isCreativeMode == true)
+        {
+            return amount;
+        }
+
+        return this.useCharge(stack, amount, doUse);
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public boolean requiresMultipleRenderPasses()

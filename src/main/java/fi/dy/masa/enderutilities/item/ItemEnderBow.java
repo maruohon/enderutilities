@@ -115,7 +115,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (player.capabilities.isCreativeMode == false)
             {
-                if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+                if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
                 {
                     return;
                 }
@@ -157,7 +157,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (player.capabilities.isCreativeMode == false
             && stack.getTagCompound() != null && stack.getTagCompound().getByte("Mode") == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+            && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
         {
             return stack;
         }

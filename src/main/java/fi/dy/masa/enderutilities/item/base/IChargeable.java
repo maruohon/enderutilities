@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public interface IChargeable
@@ -13,4 +14,6 @@ public interface IChargeable
     public int addCharge(ItemStack stack, int amount, boolean simulate);
 
     public int useCharge(ItemStack stack, int amount, boolean simulate);
+
+    public int useCharge(ItemStack stack, EntityPlayer player, int amount, boolean simulate);
 }

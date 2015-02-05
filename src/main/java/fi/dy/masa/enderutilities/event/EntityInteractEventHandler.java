@@ -36,7 +36,7 @@ public class EntityInteractEventHandler
             if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
                 (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
             {
-                if (((EntityPlayer)event.entity).capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
+                if (UtilItemModular.useEnderCharge(stack, (EntityPlayer)event.entity, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
                 {
                     return;
                 }
