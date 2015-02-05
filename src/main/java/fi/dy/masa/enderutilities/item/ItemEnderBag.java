@@ -18,7 +18,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
@@ -38,10 +37,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
     public static final int ENDER_CHARGE_COST = 200;
-    public static final byte BIND_TYPE_REGULAR = 0;
-    public static final byte BIND_TYPE_ENDER = 1;
-    public static final byte MODE_PRIVATE = 0;
-    public static final byte MODE_PUBLIC = 1;
 
     @SideOnly(Side.CLIENT)
     private IIcon iconArray[];
@@ -76,8 +71,20 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
-        // Ender Chest
-        if (moduleNbt.hasKey("Type", Constants.NBT.TAG_BYTE) == true && moduleNbt.getByte("Type") == BIND_TYPE_ENDER)
+        NBTHelperTarget targetData = new NBTHelperTarget();
+        if (targetData.readTargetTagFromNBT(moduleNbt) == null || targetData.blockName == null)
+        {
+            return stack;
+        }
+
+        NBTHelperPlayer playerData = new NBTHelperPlayer();
+        if (playerData.readPlayerTagFromNBT(moduleNbt) == null)
+        {
+            return stack;
+        }
+
+        // Access is allowed for everyone to a vanilla Ender Chest
+        if (targetData.blockName.equals("minecraft:ender_chest") == true)
         {
             if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
@@ -89,21 +96,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        // If the bag is not set to public and the player trying to access the bag is not the owner
-        if (moduleNbt.getByte("Mode") != MODE_PUBLIC && playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
+        // Access is only allowed if the target is set to public, or if the player is the owner
+        if (moduleNbt.getBoolean("Public") == false && playerData.isOwner(player) == false)
         {
             return stack;
         }
 
-        NBTHelperTarget targetData = new NBTHelperTarget();
-        // Instance of IInventory (= not Ender Chest, see above); Get the target information
-        if (targetData.readTargetTagFromNBT(moduleNbt) == null)
-        {
-            return stack;
-        }
-
-        // Target block is not whitelisted, so it is known to not work unless within the client's loaded region
+        // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
         // FIXME: How should we properly check if the player is within range?
         if (this.isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false &&
             (targetData.dimension != player.dimension || player.getDistanceSq(targetData.posX, targetData.posY, targetData.posZ) >= 10000.0d))
@@ -119,12 +118,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
-        if (block == null)
-        {
-            return stack;
-        }
-
-        // The target block has changed since binding the bag, remove the bind (not for Ender Chests)
+        // The target block has changed since binding the bag, remove the bind (not for vanilla Ender Chests)
         if (Block.blockRegistry.getNameForObject(block).equals(targetData.blockName) == false
             || targetData.blockMeta != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
         {
@@ -133,7 +127,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
 
             bagNbt.removeTag("ChunkLoadingRequired");
-            bagNbt.setBoolean("IsOpen", false);
+            bagNbt.removeTag("IsOpen");
 
             player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
 
@@ -194,7 +188,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (moduleNbt == null)
         {
             moduleNbt = new NBTTagCompound();
-            moduleNbt.setByte("Mode", MODE_PRIVATE);
+            moduleNbt.setBoolean("Public", false);
             moduleStack.setTagCompound(moduleNbt);
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
@@ -227,19 +221,16 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return true;
             }*/
 
-            moduleNbt = NBTHelperTarget.writeTargetTagToNBT(moduleNbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
-
             if (te instanceof IInventory)
             {
                 moduleNbt.setInteger("Slots", ((IInventory)te).getSizeInventory());
-                moduleNbt.setByte("Type", BIND_TYPE_REGULAR);
             }
             else
             {
                 moduleNbt.setInteger("Slots", player.getInventoryEnderChest().getSizeInventory());
-                moduleNbt.setByte("Type", BIND_TYPE_ENDER);
             }
 
+            moduleNbt = NBTHelperTarget.writeTargetTagToNBT(moduleNbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
             this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
 
@@ -362,7 +353,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                 String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
-                if (linkCrystalNbt.getByte("Type") == BIND_TYPE_ENDER)
+                if (target.blockName != null && target.blockName.equals("minecraft:ender_chest"))
                 {
                     list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
                 }
@@ -372,14 +363,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                     super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
 
-                    String mode = StatCollector.translateToLocal((linkCrystalNbt.getByte("Mode") == MODE_PUBLIC ? "gui.tooltip.public" : "gui.tooltip.private"));
+                    String mode = StatCollector.translateToLocal((linkCrystalNbt.getBoolean("Public") == true ? "gui.tooltip.public" : "gui.tooltip.private"));
                     list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
                     list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.playerName); // FIXME we should get the player name from the UUID
                 }
             }
             else
             {
-                //list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
                 super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
             }
         }
@@ -403,31 +393,19 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return;
         }
 
-        byte val = 0;
-
         NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        if (moduleNbt != null)
+        if (moduleNbt == null)
         {
-            NBTHelperPlayer playerData = new NBTHelperPlayer();
-            if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
-            {
-                return;
-            }
-
-            val = moduleNbt.getByte("Mode");
-        }
-        else
-        {
-            moduleNbt = new NBTTagCompound();
+            return;
         }
 
-        if (++val > MODE_PUBLIC)
+        NBTHelperPlayer playerData = new NBTHelperPlayer();
+        if (playerData.readPlayerTagFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
         {
-            val = MODE_PRIVATE;
+            return;
         }
 
-        moduleNbt.setByte("Mode", val);
-        moduleStack.setTagCompound(moduleNbt);
+        moduleNbt.setBoolean("Public", ! moduleNbt.getBoolean("Public"));
         this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
     }
 
@@ -521,24 +499,27 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         int index = 0;
 
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null)
+        NBTTagCompound bagNbt = stack.getTagCompound();
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        if (bagNbt == null || moduleStack == null)
         {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            if (moduleStack != null && moduleStack.getTagCompound() != null)
-            {
-                // Linked to Ender Chest
-                if (moduleStack.getTagCompound().getByte("Type") == BIND_TYPE_ENDER)
-                {
-                    index += 2;
-                }
-            }
+            return this.iconArray[0];
+        }
 
-            // Bag currently open
-            if (nbt.hasKey("IsOpen") == true && nbt.getBoolean("IsOpen") == true)
-            {
-                index += 1;
-            }
+        // Bag currently open
+        if (bagNbt.getBoolean("IsOpen") == true)
+        {
+            index += 1;
+        }
+
+        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+        NBTHelperTarget targetData = new NBTHelperTarget();
+
+        // Currently linked to a vanilla Ender Chest
+        if (moduleNbt != null && targetData.readTargetTagFromNBT(moduleNbt) != null && targetData.blockName != null
+            && targetData.blockName.equals("minecraft:ender_chest") == true)
+        {
+            index += 2;
         }
 
         return this.iconArray[(index < this.iconArray.length ? index : 0)];
