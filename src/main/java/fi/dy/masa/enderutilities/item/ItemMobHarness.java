@@ -166,7 +166,7 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         NBTTagCompound nbt = stack.getTagCompound();
         byte mode = nbt.getByte("Mode");
-        double radius = 4.0d;
+        double radius = 32.0d;
 
         long most = nbt.getLong("TargetUUIDMost");
         long least = nbt.getLong("TargetUUIDLeast");
