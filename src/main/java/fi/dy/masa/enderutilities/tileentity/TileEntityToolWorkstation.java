@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
@@ -60,6 +61,18 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
             else
             {
                 nbt.removeTag("Items");
+
+                // Remove all module selection tags when no modules are installed
+                for (ModuleType mt : ModuleType.values())
+                {
+                    nbt.removeTag("Selected_" + mt.getName());
+                }
+            }
+
+            // Strip empty compound tags
+            if (nbt.hasNoTags() == true)
+            {
+                nbt = null;
             }
 
             this.itemStacks[SLOT_TOOL].setTagCompound(nbt);
