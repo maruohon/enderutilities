@@ -85,8 +85,10 @@ public class EntityEnderPearlReusable extends EntityThrowable
         {
             Entity thrower = this.getThrower();
 
-            // Don't collide with self, needed for Elite version of pearl, which the thrower is riding
-            if (this.letMeFly == true && mop.typeOfHit == MovingObjectType.ENTITY && thrower == mop.entityHit)
+            // Don't collide with self or the entities in the 'stack' with self,
+            // this check is needed for Elite pearl, which the thrower is riding
+            if (this.letMeFly == true && mop.typeOfHit == MovingObjectType.ENTITY
+                && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
             {
                 return;
             }

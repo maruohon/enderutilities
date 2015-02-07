@@ -108,6 +108,30 @@ public class EntityUtils
         return false;
     }
 
+    // Check if the given entity is contained in the 'stack' that the second argument is part of
+    public static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack)
+    {
+        Entity ent;
+
+        for (ent = entityInStack; ent != null; ent = ent.ridingEntity)
+        {
+            if (ent == entity)
+            {
+                return true;
+            }
+        }
+
+        for (ent = entityInStack.riddenByEntity; ent != null; ent = ent.riddenByEntity)
+        {
+            if (ent == entity)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Check if there are any blacklisted entities in this entity 'stack' (pile of mounted entities)
     public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
     {
