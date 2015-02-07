@@ -10,9 +10,9 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TickHandler
 {
@@ -68,7 +68,7 @@ public class TickHandler
                     // In case of modular items, we get the target info from the selected module (= Link Crystal)
                     if (stack.getItem() instanceof IModular)
                     {
-                        ItemStack moduleStack = ((IModular)stack.getItem()).getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                        ItemStack moduleStack = ((IModular)stack.getItem()).getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
                         if (moduleStack == null)
                         {
                             return;

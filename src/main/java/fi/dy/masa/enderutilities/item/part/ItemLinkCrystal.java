@@ -9,16 +9,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 
-public class ItemLinkCrystal extends ItemLocationBound
+public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
-    public static final int LINK_CRYSTAL_TYPE_LOCATION = 0;
-    public static final int LINK_CRYSTAL_TYPE_BLOCK = 1;
-    public static final int LINK_CRYSTAL_TYPE_PORTAL = 2;
+    public static final int TYPE_LOCATION = 0;
+    public static final int TYPE_BLOCK = 1;
+    public static final int TYPE_PORTAL = 2;
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -82,5 +84,27 @@ public class ItemLinkCrystal extends ItemLocationBound
         this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".world");
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".inventory");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
+    }
+
+    @Override
+    public ModuleType getModuleType(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return ModuleType.TYPE_LINKCRYSTAL;
+        }
+
+        return ModuleType.TYPE_INVALID;
+    }
+
+    @Override
+    public int getModuleTier(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return stack.getItemDamage();
+        }
+
+        return 0;
     }
 }

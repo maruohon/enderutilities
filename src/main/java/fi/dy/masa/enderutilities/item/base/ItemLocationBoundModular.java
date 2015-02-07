@@ -10,13 +10,14 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
@@ -28,7 +29,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             return false;
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null && moduleStack.getItem() != null)
         {
             boolean adjustPosHit = true;
@@ -43,7 +44,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
             moduleStack.setTagCompound(nbt);
-            this.setSelectedModuleStack(toolStack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
 
             return true;
         }
@@ -54,7 +55,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null)
         {
             String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
@@ -104,7 +105,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             return;
         }
 
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         NBTHelperTarget target = new NBTHelperTarget();
 
         String numPre = EnumChatFormatting.BLUE.toString();
@@ -131,8 +132,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
         if (verbose == true && linkCrystalStack != null)
         {
-            int num = UtilItemModular.getModuleCount(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
-            int sel = UtilItemModular.getClampedModuleSelection(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL) + 1;
+            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
             list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
         }
@@ -140,7 +141,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         // Ender Capacitor charge, if one has been installed
         if (verbose == true)
         {
-            ItemStack capacitorStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+            ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
             if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {
                 ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
@@ -153,13 +154,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     {
         if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && player != null && player.isSneaking() == true)
         {
-            this.changeSelectedModule(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
         }
     }
 
     /* Returns the number of installed modules of the given type. */
     @Override
-    public int getModuleCount(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
@@ -173,14 +174,14 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             return 3;
         }
@@ -193,15 +194,22 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            // Only allow the in-world type Link Crystals by default
-            if (moduleStack.getItemDamage() == 0)
+            // Only allow the in-world/location type Link Crystals by default
+            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION)
             {
                 return 3;
             }
@@ -210,30 +218,29 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return 0;
     }
 
-    /* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
-    @Override
-    public int getInstalledModulesMask(ItemStack stack)
-    {
-        return UtilItemModular.getInstalledModulesMask(stack);
-    }
-
     /* Returns the (max, if multiple) tier of the installed module. */
     @Override
-    public int getModuleTier(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
     {
-        return UtilItemModular.getModuleTier(stack, moduleType);
+        return UtilItemModular.getMaxModuleTier(stack, moduleType);
+    }
+
+    /* Returns the tier of the selected module of the given type. */
+    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
     }
 
     /* Returns the ItemStack of the (selected, if multiple) given module type. */
     @Override
-    public ItemStack getSelectedModuleStack(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);
     }
 
     /* Sets the selected modules' ItemStack of the given module type to the one provided. */
     @Override
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack moduleStack)
+    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
     }

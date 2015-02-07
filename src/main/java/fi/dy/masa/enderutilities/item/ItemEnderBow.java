@@ -22,6 +22,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -97,7 +98,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (mode == BOW_MODE_TP_TARGET)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
                 NBTHelperTarget target = new NBTHelperTarget();
                 // If we want to TP the target, we must have a valid target set
                 if (moduleStack == null || target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
@@ -189,7 +190,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             // If the bow is in 'TP target' mode, it has to have a valid target set
             if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
                 if (moduleStack == null || NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == false)
                 {
                     return stack;

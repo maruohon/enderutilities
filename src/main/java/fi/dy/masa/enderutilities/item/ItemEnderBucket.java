@@ -30,7 +30,10 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
@@ -183,7 +186,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
                 list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + ": " + amountStr);
 
-                ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
                 if (linkCrystalStack != null)
                 {
                     NBTHelperTarget target = new NBTHelperTarget();
@@ -592,7 +595,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null)
             {
                 NBTTagCompound moduleNbt = moduleStack.getTagCompound();
@@ -695,7 +698,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public void cacheFluid(ItemStack stack, FluidStack fluidStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null)
         {
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
@@ -714,7 +717,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
 
             moduleStack.setTagCompound(moduleNbt);
-            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
 
         this.cacheCapacity(stack);
@@ -724,7 +727,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null)
             {
                 NBTTagCompound moduleNbt = moduleStack.getTagCompound();
@@ -753,14 +756,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 }
 
                 moduleStack.setTagCompound(moduleNbt);
-                this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+                this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
             }
         }
     }
 
     public NBTHelperTarget getLinkedTankTargetData(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
             return null;
@@ -823,7 +826,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         // The Bucket has been linked to a tank
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+            ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null && moduleStack.getTagCompound() != null)
             {
                 if (moduleStack.getTagCompound().hasKey("FluidCached", Constants.NBT.TAG_COMPOUND) == true)
@@ -1180,14 +1183,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             return 3;
         }
@@ -1200,15 +1203,22 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             // Only allow the inventory type Link Crystals
-            if (moduleStack.getItemDamage() == 1)
+            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
             {
                 return 3;
             }

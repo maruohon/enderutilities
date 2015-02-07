@@ -5,8 +5,8 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 {
@@ -30,7 +30,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         {
             // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
-            this.addSlotToContainer(new SlotUpgradeModule(this.te, i, x, y, UtilItemModular.ModuleType.TYPE_ANY));
+            this.addSlotToContainer(new SlotUpgradeModule(this.te, i, x, y, ModuleType.TYPE_ANY));
 
             // First row done
             if (i == 5)
@@ -72,31 +72,39 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
 
     private void setUpgradeSlotTypes()
     {
-        Slot slot = (Slot)this.inventorySlots.get(0);
+        Slot slot = (Slot) this.inventorySlots.get(0);
         if (slot != null && slot.getHasStack() == true && slot.getStack().getItem() instanceof IModular)
         {
             ItemStack toolStack = slot.getStack();
-            int i = 1, j = 0, max = 0;
+            IModular imodular = (IModular) toolStack.getItem();
             int slots = this.inventorySlots.size();
 
+            int slotNum = 1;
+
             // Set the upgrade slot types according to how many of each type of upgrade the current tool supports.
-            for (UtilItemModular.ModuleType mt : UtilItemModular.ModuleType.values())
+            for (ModuleType moduleType : ModuleType.values())
             {
-                max = ((IModular)toolStack.getItem()).getMaxModules(toolStack, mt);
+                // Don't add the invalid type, doh
+                if (moduleType.equals(ModuleType.TYPE_INVALID) == true)
+                {
+                    continue;
+                }
+
+                int max = imodular.getMaxModules(toolStack, moduleType);
 
                 // 10: The Tool Workstation supports a maximum of 10 upgrade modules for a tool
-                for (j = 0; j < max && i < NUM_MODULE_SLOTS && i < slots; ++j, ++i)
+                for (int i = 0; i < max && slotNum <= NUM_MODULE_SLOTS && slotNum < slots; ++i, ++slotNum)
                 {
-                    if (i >= NUM_MODULE_SLOTS || mt.getOrdinal() < -1) // < -1: Don't add TYPE_INVALID slots...
-                    {
-                        return;
-                    }
-
-                    slot = (Slot)this.inventorySlots.get(i);
+                    slot = (Slot) this.inventorySlots.get(slotNum);
                     if (slot instanceof SlotUpgradeModule)
                     {
-                        ((SlotUpgradeModule)slot).setModuleType(mt);
+                        ((SlotUpgradeModule) slot).setModuleType(moduleType);
                     }
+                }
+
+                if (slotNum > NUM_MODULE_SLOTS || slotNum >= slots)
+                {
+                    return;
                 }
             }
         }
@@ -124,7 +132,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         {
             // This is to force the modules to be written to the tool before the transferStackInSlot/mergeItemStack
             // methods get a hold of the tool stack.
-            ((TileEntityToolWorkstation)this.te).writeModulesToItem();
+            ((TileEntityToolWorkstation) this.te).writeModulesToItem();
         }
 
         ItemStack stack = super.slotClick(slotNum, i1, i2, player);
@@ -133,7 +141,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         {
             // This is to write the changes to the tool if the player manually clicks an item into the module slots
             // (the above write call in that case happened before the item was added to the slot).
-            ((TileEntityToolWorkstation)this.te).writeModulesToItem();
+            ((TileEntityToolWorkstation) this.te).writeModulesToItem();
         }
 
         this.setUpgradeSlotTypes();

@@ -11,12 +11,12 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 
-public class ItemEnderPart extends ItemEnderUtilities
+public class ItemEnderPart extends ItemModule
 {
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -167,5 +167,29 @@ public class ItemEnderPart extends ItemEnderUtilities
             list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.2"));
             list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.3"));
         }
+    }
+
+    @Override
+    public ModuleType getModuleType(ItemStack stack)
+    {
+        // Active Ender Cores
+        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+        {
+            return ModuleType.TYPE_ENDERCORE_ACTIVE;
+        }
+
+        return ModuleType.TYPE_INVALID;
+    }
+
+    @Override
+    public int getModuleTier(ItemStack stack)
+    {
+        // Only Active Ender Cores are modules
+        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+        {
+            return stack.getItemDamage() - 15;
+        }
+
+        return 0;
     }
 }

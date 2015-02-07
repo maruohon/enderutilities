@@ -22,7 +22,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -59,7 +61,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTTagCompound bagNbt = stack.getTagCompound();
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
             return stack;
@@ -124,7 +126,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             moduleNbt.removeTag("Slots");
             moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
-            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
 
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
@@ -178,7 +180,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return true;
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
             return false;
@@ -188,6 +190,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (moduleNbt == null)
         {
             moduleNbt = new NBTTagCompound();
+            moduleStack.setTagCompound(moduleNbt);
         }
 
         NBTHelperPlayer playerData = new NBTHelperPlayer();
@@ -195,7 +198,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             moduleNbt = NBTHelperPlayer.writePlayerTagToNBT(moduleNbt, player);
             playerData.readFromNBT(moduleNbt);
-            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
         // If the player trying to set/modify the bag is not the owner and the bag is not set to be public
         else if (playerData.canAccess(player) == false)
@@ -228,7 +231,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
 
             moduleNbt = NBTHelperTarget.writeTargetTagToNBT(moduleNbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
-            this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
 
         return true;
@@ -243,14 +246,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             return 3;
         }
@@ -263,15 +266,22 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            // Only allow the inventory type Link Crystals
-            if (moduleStack.getItemDamage() == ItemLinkCrystal.LINK_CRYSTAL_TYPE_BLOCK)
+            // Only allow the inventory/block type Link Crystals
+            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
             {
                 return 3;
             }
@@ -312,7 +322,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (linkCrystalStack != null)
         {
             NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
@@ -336,7 +346,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (linkCrystalStack != null)
         {
             String textPre = EnumChatFormatting.DARK_GREEN.toString();
@@ -384,7 +394,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     public void toggleBagMode(EntityPlayer player, ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
             return;
@@ -404,7 +414,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         playerData.isPublic = ! playerData.isPublic;
         playerData.writeToNBT(moduleNbt);
-        this.setSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+        this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
     }
 
     @Override
@@ -498,7 +508,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         int index = 0;
 
         NBTTagCompound bagNbt = stack.getTagCompound();
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (bagNbt == null || moduleStack == null)
         {
             return this.iconArray[0];

@@ -31,13 +31,15 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular.ModuleType;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
@@ -563,7 +565,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
                 break;
             case 2: // 2: Core
-                tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE);
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
                 if (tier > 0)
                 {
                     i += tier + 4;
@@ -574,7 +576,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
                 break;
             case 3: // 3: Capacitor
-                tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR);
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
                 if (tier > 0)
                 {
                     i += tier + 7;
@@ -585,7 +587,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
                 break;
             case 4: // 4: Link Crystal
-                tier = this.getModuleTier(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
                 if (tier > 0)
                 {
                     i += tier + 10;
@@ -660,7 +662,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     /* Returns the number of installed modules of the given type. */
     @Override
-    public int getModuleCount(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
@@ -674,19 +676,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             return 1;
         }
@@ -699,20 +701,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCORE_ACTIVE))
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
         {
             return 1;
         }
 
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (UtilItemModular.getModuleType(moduleStack).equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
+            int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
             // Allow the in-world and inventory type Link Crystals
-            if (moduleStack.getItemDamage() == 0 || moduleStack.getItemDamage() == 1)
+            if (tier == ItemLinkCrystal.TYPE_LOCATION || tier == ItemLinkCrystal.TYPE_BLOCK)
             {
                 return 1;
             }
@@ -721,29 +731,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return 0;
     }
 
-    /* Returns a bitmask of the installed module types. Used for quicker checking of what is installed. */
-    @Override
-    public int getInstalledModulesMask(ItemStack stack)
-    {
-        return UtilItemModular.getInstalledModulesMask(stack);
-    }
-
     /* Returns the (max, if multiple) tier of the installed module. */
     @Override
-    public int getModuleTier(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
     {
-        return UtilItemModular.getModuleTier(stack, moduleType);
+        return UtilItemModular.getMaxModuleTier(stack, moduleType);
+    }
+
+    /* Returns the tier of the selected module of the given type. */
+    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
     }
 
     /* Returns the ItemStack of the (selected, if multiple) given module type. */
     @Override
-    public ItemStack getSelectedModuleStack(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);
     }
 
     /* Sets the selected modules' ItemStack of the given module type to the one provided. */
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, UtilItemModular.ModuleType moduleType, ItemStack moduleStack)
+    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
     }

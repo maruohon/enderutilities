@@ -14,12 +14,14 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
-public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable
+public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -60,6 +62,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     public int getCapacityFromItemType(ItemStack stack)
     {
+        if (stack.getItemDamage() == 0) { return 10000; } // Basic
         if (stack.getItemDamage() == 1) { return 50000; } // Enhanced
         if (stack.getItemDamage() == 2) { return 250000; } // Advanced
         return 10000; // Basic
@@ -237,5 +240,27 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             list.add(StatCollector.translateToLocal("gui.tooltip.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
         }
         */
+    }
+
+    @Override
+    public ModuleType getModuleType(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return ModuleType.TYPE_ENDERCAPACITOR;
+        }
+
+        return ModuleType.TYPE_INVALID;
+    }
+
+    @Override
+    public int getModuleTier(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return stack.getItemDamage();
+        }
+
+        return 0;
     }
 }

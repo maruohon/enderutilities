@@ -14,6 +14,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -70,7 +71,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, UtilItemModular.ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null && NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
             EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
         {
@@ -129,14 +130,14 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
     /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack, UtilItemModular.ModuleType moduleType)
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_ENDERCAPACITOR))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
             return 1;
         }
 
-        if (moduleType.equals(UtilItemModular.ModuleType.TYPE_LINKCRYSTAL))
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             return 4;
         }
