@@ -70,7 +70,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
                 bottomEntity.riddenByEntity.mountEntity(null);
             }
 
-            bottomEntity.mountEntity(pearl);
+            EntityUtils.getBottomEntity(player).mountEntity(pearl);
         }
 
         --stack.stackSize;
