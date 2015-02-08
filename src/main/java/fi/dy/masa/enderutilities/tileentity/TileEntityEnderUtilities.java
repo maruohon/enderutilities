@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.Constants;
 public class TileEntityEnderUtilities extends TileEntity
 {
     protected String tileEntityName;
-    protected byte rotation;
+    protected int rotation;
     protected String ownerName;
     protected UUID ownerUUID;
 
@@ -30,12 +30,12 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.tileEntityName;
     }
 
-    public void setRotation(byte rot)
+    public void setRotation(int rot)
     {
         this.rotation = rot;
     }
 
-    public byte getRotation()
+    public int getRotation()
     {
         return this.rotation;
     }
@@ -91,7 +91,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Rotation", this.rotation);
+        nbt.setByte("Rotation", (byte)this.rotation);
 
         if (this.ownerName != null)
         {
@@ -105,20 +105,29 @@ public class TileEntityEnderUtilities extends TileEntity
         }
     }
 
+    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        nbt.setByte("r", (byte)(this.getRotation() & 0x07));
+
+        if (this.ownerName != null)
+        {
+            nbt.setString("o", this.ownerName);
+        }
+
+        return nbt;
+    }
+
     @Override
     public Packet getDescriptionPacket()
     {
         if (this.worldObj != null)
         {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setByte("rot", (byte)(this.getRotation() & 0x07));
-
-            if (this.ownerName != null)
-            {
-                nbt.setString("owner", this.ownerName);
-            }
-
-            return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
+            return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, this.getDescriptionPacketTag(null));
         }
 
         return null;
@@ -128,12 +137,14 @@ public class TileEntityEnderUtilities extends TileEntity
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        byte flags = nbt.getByte("rot");
-        this.setRotation((byte)(flags & 0x07));
 
-        if (nbt.hasKey("owner", Constants.NBT.TAG_STRING) == true)
+        if (nbt.hasKey("r") == true)
         {
-            this.ownerName = nbt.getString("owner");
+            this.setRotation((byte)(nbt.getByte("r") & 0x07));
+        }
+        if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
+        {
+            this.ownerName = nbt.getString("o");
         }
 
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);

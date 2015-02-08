@@ -16,7 +16,6 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
@@ -128,39 +127,40 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public Packet getDescriptionPacket()
+    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
     {
-        if (this.worldObj != null)
+        nbt = super.getDescriptionPacketTag(nbt);
+
+        if (nbt == null)
         {
-            NBTTagCompound nbt = new NBTTagCompound();
-
-            byte flags = (byte)(this.getRotation() & 0x07);
-            // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
-            if (canSmelt() == true) { flags |= 0x10; }
-            if (isBurning() == true) { flags |= 0x20; }
-            if (this.operatingMode == 1) { flags |= 0x40; }
-            if (this.outputMode == 1) { flags |= 0x80; }
-            nbt.setByte("flags", flags);
-            nbt.setInteger("buffer", this.outputBufferAmount);
-
-            return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
+            nbt = new NBTTagCompound();
         }
 
-        return null;
+        byte flags = (byte)(this.getRotation() & 0x07);
+        // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
+        if (canSmelt() == true) { flags |= 0x10; }
+        if (isBurning() == true) { flags |= 0x20; }
+        if (this.operatingMode == 1) { flags |= 0x40; }
+        if (this.outputMode == 1) { flags |= 0x80; }
+        nbt.setByte("f", flags);
+        nbt.setInteger("b", this.outputBufferAmount);
+
+        return nbt;
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        byte flags = nbt.getByte("flags");
+        byte flags = nbt.getByte("f");
         this.setRotation((byte)(flags & 0x07));
         this.isActive = (flags & 0x10) == 0x10;
         this.usingFuel = (flags & 0x20) == 0x20;
         this.operatingMode = (byte)((flags & 0x40) >> 6);
         this.outputMode = (byte)((flags & 0x80) >> 7);
-        this.outputBufferAmount = nbt.getInteger("buffer");
-        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+        this.outputBufferAmount = nbt.getInteger("b");
+
+        super.onDataPacket(net, packet);
     }
 
     // Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
