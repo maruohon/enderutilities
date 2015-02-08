@@ -9,6 +9,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 
 public class TileEntityEnderUtilities extends TileEntity
 {
@@ -16,12 +17,14 @@ public class TileEntityEnderUtilities extends TileEntity
     protected int rotation;
     protected String ownerName;
     protected UUID ownerUUID;
+    protected boolean isPublic;
 
     public TileEntityEnderUtilities(String name)
     {
         this.rotation = 0;
         this.ownerName = null;
         this.ownerUUID = null;
+        this.isPublic = false;
         this.tileEntityName = name;
     }
 
@@ -68,14 +71,12 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         this.rotation = nbt.getByte("Rotation");
 
-        if (nbt.hasKey("OwnerName", Constants.NBT.TAG_STRING) == true)
+        NBTHelperPlayer playerData = new NBTHelperPlayer();
+        if (playerData.readFromNBT(nbt) != null)
         {
-            this.ownerName = nbt.getString("OwnerName");
-        }
-
-        if (nbt.hasKey("OwnerUUIDMost", Constants.NBT.TAG_LONG) == true && nbt.hasKey("OwnerUUIDLeast", Constants.NBT.TAG_LONG) == true)
-        {
-            this.ownerUUID = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
+            this.ownerUUID = new UUID(playerData.playerUUIDMost, playerData.playerUUIDLeast);
+            this.ownerName = playerData.playerName;
+            this.isPublic = playerData.isPublic;
         }
     }
 
@@ -93,15 +94,9 @@ public class TileEntityEnderUtilities extends TileEntity
 
         nbt.setByte("Rotation", (byte)this.rotation);
 
-        if (this.ownerName != null)
+        if (this.ownerUUID != null && this.ownerName != null)
         {
-            nbt.setString("OwnerName", this.ownerName);
-        }
-
-        if (this.ownerUUID != null)
-        {
-            nbt.setLong("OwnerUUIDMost", this.ownerUUID.getMostSignificantBits());
-            nbt.setLong("OwnerUUIDLeast", this.ownerUUID.getLeastSignificantBits());
+            NBTHelperPlayer.writeToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
         }
     }
 
