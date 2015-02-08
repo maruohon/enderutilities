@@ -460,7 +460,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @SideOnly(Side.CLIENT)
     public int getRenderPasses(int metadata)
     {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -468,12 +468,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
-        this.iconArray = new IIcon[4];
+        this.iconArray = new IIcon[6];
 
         this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".regular.open");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".enderchest.closed");
         this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".enderchest.open");
+        this.iconArray[4] = iconRegister.registerIcon(this.getIconString() + ".locked.closed");
+        this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".locked.open");
     }
 
     /**
@@ -506,6 +508,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
     {
         int index = 0;
+        boolean isOpen = false;
 
         NBTTagCompound bagNbt = stack.getTagCompound();
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -514,22 +517,33 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return this.iconArray[0];
         }
 
-        // Bag currently open
-        if (bagNbt.getBoolean("IsOpen") == true)
-        {
-            index += 1;
-        }
-
         NBTTagCompound moduleNbt = moduleStack.getTagCompound();
         NBTHelperTarget targetData = new NBTHelperTarget();
 
+        // Bag currently open
+        if (bagNbt.getBoolean("IsOpen") == true)
+        {
+            isOpen = true;
+            index += 1;
+        }
+
         // Currently linked to a vanilla Ender Chest
-        if (moduleNbt != null && targetData.readTargetTagFromNBT(moduleNbt) != null && targetData.blockName != null
-            && targetData.blockName.equals("minecraft:ender_chest") == true)
+        if (targetData.readTargetTagFromNBT(moduleNbt) != null && "minecraft:ender_chest".equals(targetData.blockName))
         {
             index += 2;
         }
 
+        // Locked
+        if (renderPass == 1)
+        {
+            NBTHelperPlayer playerData = new NBTHelperPlayer();
+            if (playerData.readFromNBT(moduleNbt) != null && playerData.isPublic == false)
+            {
+                index = (isOpen ? 5 : 4);
+            }
+        }
+
+        // NOTE: We don't have an empty texture for the lock overlay, so we use the same bag texture in case it is not locked
         return this.iconArray[(index < this.iconArray.length ? index : 0)];
     }
 }
