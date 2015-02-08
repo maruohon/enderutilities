@@ -372,10 +372,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         if (ReferenceKeys.keypressContainsShift(key) == true)
         {
             super.doKeyBindingAction(player, stack, key);
-            return;
         }
-
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        else if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.toggleBowMode(player, stack);
         }

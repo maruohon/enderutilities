@@ -152,7 +152,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && player != null && player.isSneaking() == true)
+        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && ReferenceKeys.keypressContainsShift(key) == true)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
         }

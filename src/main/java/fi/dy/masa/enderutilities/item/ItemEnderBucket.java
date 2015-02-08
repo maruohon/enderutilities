@@ -248,9 +248,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         if (stack != null)
         {
             NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null && nbt.hasKey("LinkMode") == true)
+            if (nbt != null && nbt.hasKey("Linked") == true)
             {
-                byte mode = nbt.getByte("LinkMode");
+                byte mode = nbt.getByte("Linked");
                 if (mode == LINK_MODE_DISABLED || mode == LINK_MODE_ENABLED)
                 {
                     return mode;
@@ -1227,66 +1227,62 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return 0;
     }
 
+    private void changeLinkMode(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        nbt.setBoolean("Linked", ! nbt.getBoolean("Linked"));
+        stack.setTagCompound(nbt);
+    }
+
+    private void changeOperationMode(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
+        byte val = nbt.getByte("Mode");
+        if (++val > OPERATION_MODE_BINDING)
+        {
+            val = OPERATION_MODE_NORMAL;
+        }
+
+        nbt.setByte("Mode", val);
+        stack.setTagCompound(nbt);
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        // Control + Shift + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
-        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsControl(key) == true
-            && ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE || stack == null)
         {
-            byte val = LINK_MODE_DISABLED;
-            NBTTagCompound nbt = stack.getTagCompound();
-
-            if (nbt != null)
-            {
-                val = nbt.getByte("LinkMode");
-            }
-            else
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            if (++val > LINK_MODE_ENABLED)
-            {
-                val = LINK_MODE_DISABLED;
-            }
-
-            nbt.setByte("LinkMode", val);
-            stack.setTagCompound(nbt);
-
             return;
         }
 
-        // Shift + Toggle mode: Change the selected link crystal
+        // Shift + (Control +) Toggle mode: Change the selected link crystal
         if (ReferenceKeys.keypressContainsShift(key) == true)
         {
-            super.doKeyBindingAction(player, stack, key);
-            return;
+            if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+            {
+                super.doKeyBindingAction(player, stack, key);
+            }
         }
-
-        // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        // Control + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
+        else if (ReferenceKeys.keypressContainsControl(key) == true)
         {
-            // 0: Normal, 1: Pickup only, 2: Deposit only
-            byte val = OPERATION_MODE_NORMAL;
-            NBTTagCompound nbt = stack.getTagCompound();
-
-            if (nbt != null)
-            {
-                val = nbt.getByte("Mode");
-            }
-            else
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            if (++val > OPERATION_MODE_BINDING)
-            {
-                val = OPERATION_MODE_NORMAL;
-            }
-
-            nbt.setByte("Mode", val);
-            stack.setTagCompound(nbt);
+            this.changeLinkMode(stack);
+        }
+        // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
+        else
+        {
+            this.changeOperationMode(stack);
         }
     }
 }
