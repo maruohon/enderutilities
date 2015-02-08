@@ -6,7 +6,7 @@ public class ReferenceKeys
 {
     public static final String KEYBIND_CAREGORY_ENDERUTILITIES = "category." + Reference.MOD_ID;
 
-    public static final String KEYBIND_NAME_TOGGLE_MODE = "key." + Reference.MOD_ID + ".togglemode";
+    public static final String KEYBIND_NAME_TOGGLE_MODE = Reference.MOD_ID + ".key.togglemode";
 
     public static final int DEFAULT_KEYBIND_TOGGLE_MODE = Keyboard.KEY_F;
 

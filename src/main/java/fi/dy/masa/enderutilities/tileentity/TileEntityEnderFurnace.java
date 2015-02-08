@@ -70,7 +70,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     public TileEntityEnderFurnace()
     {
-        super(ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE);
+        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.itemStacks = new ItemStack[3];
         this.operatingMode = 0;
         this.outputMode = 0;

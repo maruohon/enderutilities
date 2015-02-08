@@ -4,11 +4,11 @@ language.name=Deutsch
 language.region=DE
 language.code=de_DE
 
-tile.enderfurnace.name=Ender Ofen
+tile.enderutilities.enderfurnace.name=Ender Ofen
 
-item.enderarrow.name=Ender Pfeil
-item.enderbag.name=Ender Tasche
-item.enderbow.name=Ender Bogen
-item.enderbucket.name=Ender Eimer
-item.enderlasso.name=Ender Lasso
-item.enderpearlreusable.name=Ender Perle (wiederverwendbar)
+item.enderutilities.enderarrow.name=Ender Pfeil
+item.enderutilities.enderbag.name=Ender Tasche
+item.enderutilities.enderbow.name=Ender Bogen
+item.enderutilities.enderbucket.name=Ender Eimer
+item.enderutilities.enderlasso.name=Ender Lasso
+item.enderutilities.enderpearlreusable.name=Ender Perle (wiederverwendbar)

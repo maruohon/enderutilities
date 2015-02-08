@@ -16,7 +16,6 @@ import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceEntities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -39,8 +38,8 @@ public abstract class CommonProxy implements IProxy
     public void registerEntities()
     {
         int id = 0;
-        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceEntities.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
-        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceEntities.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_ARROW), id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE), id++, EnderUtilities.instance, 64, 3, true);
     }
 
     public void registerEventHandlers()
@@ -60,8 +59,9 @@ public abstract class CommonProxy implements IProxy
 
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE);
-        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.NAME_TILEENTITY_TOOL_WORKSTATION);
+        // TODO: Remove the WithAlternatives version of the register call after some releases. Added in v0.4.0 to be able to prefix the TE names with the MOD_ID.
+        GameRegistry.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE), ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        GameRegistry.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION), ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
     }
 
     public boolean isShiftKeyDown()

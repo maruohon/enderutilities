@@ -28,7 +28,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -49,7 +48,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BAG);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     @Override
@@ -109,7 +107,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (this.isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false &&
             (targetData.dimension != player.dimension || player.getDistanceSq(targetData.posX, targetData.posY, targetData.posZ) >= 10000.0d))
         {
-            player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("chat.message.enderbag.outofrange")));
+            player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
             return stack;
         }
 
@@ -131,7 +129,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
-            player.addChatMessage(new ChatComponentTranslation("chat.message.enderbag.blockchanged"));
+            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
 
             return stack;
         }
@@ -216,7 +214,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
             {
-                player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("chat.message.enderbag.blocknotwhitelisted")
+                player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.blocknotwhitelisted")
                         + " '" + Block.blockRegistry.getNameForObject(block) + ":" + meta + "'"));
                 return true;
             }*/
@@ -362,17 +360,17 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                 if (target.blockName != null && target.blockName.equals("minecraft:ender_chest"))
                 {
-                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
                 }
                 else if (playerData.readFromNBT(linkCrystalNbt) != null && playerData.canAccess(player) == true)
                 {
-                    list.add(StatCollector.translateToLocal("gui.tooltip.target") + ": " + textPre + targetName + rst);
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
 
                     super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
 
-                    String mode = StatCollector.translateToLocal((playerData.isPublic == true ? "gui.tooltip.public" : "gui.tooltip.private"));
-                    list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + mode);
-                    list.add(StatCollector.translateToLocal("gui.tooltip.owner") + ": " + playerData.getPlayerName());
+                    String mode = StatCollector.translateToLocal((playerData.isPublic == true ? "enderutilities.tooltip.item.public" : "enderutilities.tooltip.item.private"));
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + mode);
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.owner") + ": " + playerData.getPlayerName());
                 }
             }
             else

@@ -25,7 +25,6 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -47,7 +46,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     /**
@@ -219,13 +217,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // TP self to impact point
         if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("gui.tooltip.tpself") + rst);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
         }
         // TP the target entity
         else
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-            list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("gui.tooltip.tptarget") + rst);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
         }
     }
 

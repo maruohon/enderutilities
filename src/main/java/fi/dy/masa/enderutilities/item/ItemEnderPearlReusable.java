@@ -15,7 +15,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -30,7 +29,6 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     @Override

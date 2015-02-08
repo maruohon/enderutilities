@@ -20,7 +20,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemMobHarness extends ItemEnderUtilities
@@ -34,7 +33,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_MOB_HARNESS);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     @Override
@@ -246,7 +244,7 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         if (nbt == null || this.hasTarget(stack) == false)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notlinked"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notlinked"));
             return;
         }
 
@@ -254,7 +252,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
         String target = nbt.getString("TargetName");
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.linked") + ": " + pre + target + rst);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + target + rst);
     }
 
     @Override

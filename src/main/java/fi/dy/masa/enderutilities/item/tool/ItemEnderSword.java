@@ -56,8 +56,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.setNoRepair();
         this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_SWORD);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
+        this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
+        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
     }
 
     // This is used for determining which weapon is better when mobs pick up items
@@ -295,7 +295,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        //list.add(StatCollector.translateToLocal("gui.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
+        //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
     }
 
     @SideOnly(Side.CLIENT)
@@ -305,7 +305,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
                 "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
+        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
         this.iconArray = new IIcon[this.parts.length];
         String prefix = this.getIconString() + ".";
 

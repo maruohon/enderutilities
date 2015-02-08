@@ -69,7 +69,7 @@ public class ItemLocationBound extends ItemEnderUtilities
         NBTHelperTarget target = new NBTHelperTarget();
         if (target.readTargetTagFromNBT(stack.getTagCompound()) == null)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
             return;
         }
 
@@ -81,7 +81,7 @@ public class ItemLocationBound extends ItemEnderUtilities
         // Full tooltip
         if (verbose == true)
         {
-            String s = StatCollector.translateToLocal("gui.tooltip.dimension") + ": " + numPre + target.dimension + rst;
+            String s = StatCollector.translateToLocal("enderutilities.tooltip.dimension") + ": " + numPre + target.dimension + rst;
             if (dimName.length() > 0)
             {
                 s = s + " - " + dimPre + dimName + rst;
@@ -99,7 +99,7 @@ public class ItemLocationBound extends ItemEnderUtilities
             String s = dimPre + dimName + rst;
             if (dimName.length() == 0)
             {
-                s = StatCollector.translateToLocal("gui.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
+                s = StatCollector.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
             }
 
             list.add(String.format("%s - %s%.2f%s %s%.2f%s %s%.2f%s", s, numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));

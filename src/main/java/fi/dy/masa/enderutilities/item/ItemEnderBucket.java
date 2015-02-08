@@ -67,7 +67,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BUCKET);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()) + ".32");
+        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_BUCKET) + ".32");
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
     }
@@ -167,24 +167,26 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         else
         {
-            fluidName = StatCollector.translateToLocal("gui.tooltip.empty");
+            fluidName = StatCollector.translateToLocal("enderutilities.tooltip.item.empty");
         }
 
         byte mode = this.getBucketMode(stack);
         byte linkMode = this.getBucketLinkMode(stack);
 
         String amountStr = String.format("%s%s%s mB / %s%s%s mB", preNr, EUStringUtils.formatNumberWithKSeparators(amount), rst, preNr, EUStringUtils.formatNumberWithKSeparators(capacity), rst);
-        String modeStr = "gui.tooltip.bucket.mode.normal";
-        if (mode == OPERATION_MODE_FILL_BUCKET) { modeStr = "gui.tooltip.bucket.mode.fill"; }
-        else if (mode == OPERATION_MODE_DRAIN_BUCKET) { modeStr = "gui.tooltip.bucket.mode.drain"; }
-        else if (mode == OPERATION_MODE_BINDING) { modeStr = "gui.tooltip.bucket.mode.bind"; }
+        String modeStr;
+        if (mode == OPERATION_MODE_NORMAL) { modeStr = "enderutilities.tooltip.item.bucket.mode.normal"; }
+        else if (mode == OPERATION_MODE_FILL_BUCKET) { modeStr = "enderutilities.tooltip.item.bucket.mode.fill"; }
+        else if (mode == OPERATION_MODE_DRAIN_BUCKET) { modeStr = "enderutilities.tooltip.item.bucket.mode.drain"; }
+        else if (mode == OPERATION_MODE_BINDING) { modeStr = "enderutilities.tooltip.item.bucket.mode.bind"; }
+        else { modeStr = ""; }
 
         if (verbose == true)
         {
             if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid") + ": " + fluidName);
-                list.add(StatCollector.translateToLocal("gui.tooltip.cached.amount") + ": " + amountStr);
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
 
                 ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
                 if (linkCrystalStack != null)
@@ -194,29 +196,29 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     {
                         ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                         String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
-                        list.add(StatCollector.translateToLocal("gui.tooltip.linkedto") + ": " + preTxt + targetName + rst);
+                        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linkedto") + ": " + preTxt + targetName + rst);
                     }
                 }
             }
             else
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName);
-                list.add(StatCollector.translateToLocal("gui.tooltip.amount") + ": " + amountStr);
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.fluid") + ": " + fluidName);
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.amount") + ": " + amountStr);
             }
         }
         else
         {
             if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
             }
             else
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.fluid") + ": " + fluidName + " - " + amountStr);
+                list.add(fluidName + " - " + amountStr);
             }
         }
 
-        list.add(StatCollector.translateToLocal("gui.tooltip.mode") + ": " + StatCollector.translateToLocal(modeStr));
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + StatCollector.translateToLocal(modeStr));
 
         if (linkMode == LINK_MODE_ENABLED)
         {

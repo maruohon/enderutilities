@@ -11,6 +11,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
@@ -18,6 +20,13 @@ public class ItemEnderUtilities extends Item
     {
         super();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
+    }
+
+    @Override
+    public Item setUnlocalizedName(String name)
+    {
+        this.setTextureName(ReferenceTextures.getItemTextureName(name));
+        return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
 
     /*
@@ -44,7 +53,7 @@ public class ItemEnderUtilities extends Item
             tmpList.clear();
             this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
             list.add(tmpList.get(0));
-            list.add(StatCollector.translateToLocal("gui.tooltip.holdshift"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
         }
         else
         {

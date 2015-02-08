@@ -101,7 +101,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.use.toolworkstation"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -122,12 +122,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             }
             else
             {
-                list.add(StatCollector.translateToLocal("gui.tooltip.notargetset"));
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
             }
         }
         else
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.nolinkcrystals"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
         if (verbose == true && linkCrystalStack != null)
@@ -135,7 +135,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("gui.tooltip.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
         }
 
         // Ender Capacitor charge, if one has been installed

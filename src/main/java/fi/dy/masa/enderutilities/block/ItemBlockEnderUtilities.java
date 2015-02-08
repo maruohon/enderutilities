@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.block;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ItemBlockEnderUtilities extends ItemBlock
 {
@@ -31,7 +32,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
     {
         if (this.blockNames != null && stack.getItemDamage() < this.blockNames.length)
         {
-            return "tile." + this.blockNames[stack.getItemDamage()];
+            return "tile." + Reference.MOD_ID + "." + this.blockNames[stack.getItemDamage()];
         }
 
         return super.getUnlocalizedName(stack);

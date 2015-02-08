@@ -5,7 +5,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.reference.ReferenceEntities;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 @SideOnly(Side.CLIENT)
@@ -17,6 +17,6 @@ public class RenderEnderArrow extends RenderArrow
     @Override
     protected ResourceLocation getEntityTexture(EntityArrow par1EntityArrow)
     {
-        return new ResourceLocation(ReferenceTextures.getEntityTextureName(ReferenceEntities.NAME_ENTITY_ENDER_ARROW));
+        return new ResourceLocation(ReferenceTextures.getEntityTextureName(ReferenceNames.NAME_ENTITY_ENDER_ARROW));
     }
 }

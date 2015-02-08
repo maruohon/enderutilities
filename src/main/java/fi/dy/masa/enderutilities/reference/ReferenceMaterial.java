@@ -5,7 +5,7 @@ import net.minecraftforge.common.util.EnumHelper;
 
 public class ReferenceMaterial
 {
-    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = "enderalloyadvanced";
+    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + ".enderalloyadvanced";
 
     public static final class Tool
     {

@@ -2,10 +2,16 @@ package fi.dy.masa.enderutilities.reference;
 
 public class ReferenceNames
 {
+    public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
+    public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
+
+
     public static final String NAME_TILE_MACHINE_0              = "enderfurnace"; // Legacy weight name... :p
 
-    public static final String NAME_TILEENTITY_ENDER_FURNACE        = "enderfurnace";
-    public static final String NAME_TILEENTITY_TOOL_WORKSTATION     = "toolworkstation";
+
+    public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
+    public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
+
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";
@@ -31,4 +37,10 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDER_PEARL_REUSABLE   = "enderpearlreusable";
     public static final String NAME_ITEM_ENDER_PORTER           = "enderporter";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
+
+
+    public static String getPrefixedName(String name)
+    {
+        return Reference.MOD_ID + "." + name;
+    }
 }

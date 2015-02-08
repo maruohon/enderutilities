@@ -72,8 +72,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
         this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERTOOL);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
+        this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDERTOOL));
+        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDERTOOL));
     }
 
     @Override
@@ -477,7 +477,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                                     "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getTextureName("item.empty"));
+        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
         this.iconArray = new IIcon[52];
         String prefix = this.getIconString() + ".";
 
@@ -613,7 +613,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        //list.add(StatCollector.translateToLocal("gui.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
+        //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
     }
 
     public static byte getToolMode(ItemStack stack)

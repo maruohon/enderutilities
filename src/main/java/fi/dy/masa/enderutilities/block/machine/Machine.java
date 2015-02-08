@@ -30,8 +30,8 @@ public class Machine
 {
     protected static TIntObjectHashMap<Machine> machines = new TIntObjectHashMap<Machine>();
 
-    public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILEENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
-    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILEENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
+    public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
+    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
 
     protected int blockIndex;
     protected int blockMeta;

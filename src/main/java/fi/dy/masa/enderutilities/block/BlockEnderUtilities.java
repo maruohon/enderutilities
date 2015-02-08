@@ -16,6 +16,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockEnderUtilities extends Block
@@ -37,6 +38,12 @@ public class BlockEnderUtilities extends Block
         this.blockIndex = index;
         Machine.setBlockHardness(this, this.blockIndex);
         Machine.setBlockHarvestLevels(this, this.blockIndex);
+    }
+
+    @Override
+    public Block setBlockName(String name)
+    {
+        return super.setBlockName(ReferenceNames.getPrefixedName(name));
     }
 
     @Override

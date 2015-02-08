@@ -13,7 +13,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 
 public class ItemEnderPart extends ItemModule
@@ -28,7 +27,6 @@ public class ItemEnderPart extends ItemModule
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERPART);
-        this.setTextureName(ReferenceTextures.getTextureName(this.getUnlocalizedName()));
     }
 
     @Override
@@ -156,16 +154,16 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        list.add(StatCollector.translateToLocal("gui.tooltip.craftingingredient"));
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.craftingingredient"));
 
         // Damage 10: Inactive Ender Core (Basic)
         // Damage 11: Inactive Ender Core (Enhanced)
         // Damage 12: Inactive Ender Core (Advanced)
         if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
         {
-            list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.1"));
-            list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.2"));
-            list.add(StatCollector.translateToLocal("gui.tooltip.rightclick.endercrystal.to.activate.3"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.1"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.2"));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.3"));
         }
     }
 
