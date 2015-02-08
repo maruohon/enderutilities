@@ -5,6 +5,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Keyboard;
 
@@ -45,7 +46,9 @@ public class ClientProxy extends CommonProxy
     public void registerEventHandlers()
     {
         super.registerEventHandlers();
-        FMLCommonHandler.instance().bus().register(new InputEventHandler());
+        InputEventHandler ieh = new InputEventHandler();
+        FMLCommonHandler.instance().bus().register(ieh);
+        MinecraftForge.EVENT_BUS.register(ieh);
     }
 
     @Override
