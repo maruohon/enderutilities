@@ -6,6 +6,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -17,11 +18,11 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class EntityEnderPearlReusable extends EntityThrowable
+public class EntityEnderPearlReusable extends EntityThrowable implements IItemData
 {
     public float teleportDamage = 2.0f;
     public boolean canPickUp = true;
-    public boolean letMeFly = false;
+    public boolean isElite = false;
 
     public EntityEnderPearlReusable(World world)
     {
@@ -60,13 +61,16 @@ public class EntityEnderPearlReusable extends EntityThrowable
             this.motionX *= 1.3d;
             this.motionY *= 1.3d;
             this.motionZ *= 1.3d;
-            this.letMeFly = true;
+            this.isElite = true;
+
+            short val = (this.isElite ? (short)1 : (short)0);
+            this.dataWatcher.updateObject(6, val);
         }
     }
 
-    public void setLetMeFly(boolean value)
+    protected void entityInit()
     {
-        this.letMeFly = value;
+        this.dataWatcher.addObject(6, Short.valueOf((short)0));
     }
 
     @SideOnly(Side.CLIENT)
@@ -87,7 +91,7 @@ public class EntityEnderPearlReusable extends EntityThrowable
 
             // Don't collide with self or the entities in the 'stack' with self,
             // this check is needed for Elite pearl, which the thrower is riding
-            if (this.letMeFly == true && mop.typeOfHit == MovingObjectType.ENTITY
+            if (this.isElite == true && mop.typeOfHit == MovingObjectType.ENTITY
                 && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
             {
                 return;
@@ -116,28 +120,28 @@ public class EntityEnderPearlReusable extends EntityThrowable
             Entity bottom = EntityUtils.getBottomEntity(thrower);
 
             // If the player is "riding" an Ender Pearl (Elite version most likely)
-            if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null && (this.letMeFly == false || bottom == this))
+            if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null && (this.isElite == false || bottom == this))
             {
                 // Dismount the Ender Pearl ridden, if a regular pearl hits something, or when the actual ridden pearl hits something.
                 // This allows throwing multiple Elite Pearls while mid air, without the previous Elite Pearls dismounting the player when they land.
                 bottom.riddenByEntity.mountEntity(null);
 
                 // Elite pearl teleport needs to check that we are riding the pearl in question, to not dismount while a previous pearl impacts
-                if (this.letMeFly == true)
+                if (this.isElite == true)
                 {
                     TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
                 }
             }
 
             // Regular pearl teleport
-            if (this.letMeFly == false)
+            if (this.isElite == false)
             {
                 TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
             }
 
             if (this.canPickUp == true)
             {
-                int damage = (this.letMeFly == true ? 1 : 0);
+                int damage = (this.isElite == true ? 1 : 0);
 
                 boolean success = false;
                 // If the teleport was successful, try to add the pearl straight to the player's inventory
@@ -171,5 +175,17 @@ public class EntityEnderPearlReusable extends EntityThrowable
     public void onUpdate()
     {
         super.onUpdate();
+    }
+
+    @Override
+    public int getItemDamage(Entity entity)
+    {
+        return this.dataWatcher.getWatchableObjectShort(6);
+    }
+
+    @Override
+    public NBTTagCompound getTagCompound(Entity entity)
+    {
+        return null;
     }
 }
