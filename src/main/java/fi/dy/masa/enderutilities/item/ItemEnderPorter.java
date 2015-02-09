@@ -69,8 +69,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == true &&
+        if (NBTHelperTarget.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) &&
             EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
         {
             if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)

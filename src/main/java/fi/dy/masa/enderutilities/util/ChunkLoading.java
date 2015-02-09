@@ -237,11 +237,10 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         }
 
         //System.out.println("requestModTicket() succeeded");
-        NBTTagCompound nbt = ticket.getModData();
-
         if (isTemporary == false)
         {
             //System.out.println("requestModTicket() setting persistent flag");
+            NBTTagCompound nbt = ticket.getModData();
             nbt.setBoolean("Persistent", true);
         }
 
@@ -257,14 +256,13 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        NBTTagCompound nbt = ticket.getModData();
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readFromNBT(nbt) == null)
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(ticket.getModData());
+        if (playerData != null)
         {
-            return null;
+            return playerData.playerUUID;
         }
 
-        return playerData.playerUUID;
+        return null;
     }
 
     public void removeTicket(Ticket ticket)

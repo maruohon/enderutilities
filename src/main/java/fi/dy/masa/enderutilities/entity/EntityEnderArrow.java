@@ -454,8 +454,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
         }
-        this.tpTarget = new NBTHelperTarget();
-        this.tpTarget.readTargetTagFromNBT(tagCompound);
+        this.tpTarget = NBTHelperTarget.readTargetFromNBT(tagCompound);
         this.tpMode = tagCompound.getByte("tpMode");
     }
 

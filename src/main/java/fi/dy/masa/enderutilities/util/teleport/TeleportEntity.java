@@ -29,13 +29,13 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
 {
@@ -209,12 +209,7 @@ public class TeleportEntity
 
     public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
-        if (stack == null || (stack.getItem() instanceof IModular) == false)
-        {
-            return null;
-        }
-
-        return TeleportEntity.teleportEntityUsingItem(entity, ((IModular)stack.getItem()).getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
+        return TeleportEntity.teleportEntityUsingItem(entity, UtilItemModular.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
     }
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
@@ -224,13 +219,8 @@ public class TeleportEntity
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
-        if (entity.worldObj.isRemote == true || stack == null)
-        {
-            return null;
-        }
-
-        NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
+        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
+        if (target != null)
         {
             TeleportEntity.adjustTargetPosition(target, entity);
             return TeleportEntity.teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
@@ -241,7 +231,7 @@ public class TeleportEntity
 
     public static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
     {
-        if (entity == null || entity.worldObj.isRemote == true) { return null; }
+        if (entity == null || entity.worldObj == null || entity.worldObj.isRemote == true) { return null; }
         if (allowMounts == false && entity.ridingEntity != null) { return null; }
         if (allowRiders == false && entity.riddenByEntity != null) { return null; }
         if (canTeleportEntity(entity) == false) { return null; }

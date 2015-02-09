@@ -188,16 +188,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
 
-                ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (linkCrystalStack != null)
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (target != null)
                 {
-                    NBTHelperTarget target = new NBTHelperTarget();
-                    if (target.readTargetTagFromNBT(linkCrystalStack.getTagCompound()) != null)
-                    {
-                        ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
-                        String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
-                        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linkedto") + ": " + preTxt + targetName + rst);
-                    }
+                    ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+                    String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linkedto") + ": " + preTxt + targetName + rst);
                 }
             }
             else
@@ -765,14 +761,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public NBTHelperTarget getLinkedTankTargetData(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null)
-        {
-            return null;
-        }
-
-        NBTHelperTarget targetData = new NBTHelperTarget();
-        if (targetData.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
+        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (targetData == null)
         {
             return null;
         }
@@ -780,7 +770,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
         // work if we target a blue (=input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
         // but the top side should ever only be blue aka. input.
-        if (targetData.blockName != null && targetData.blockName.equals("ThermalExpansion:Tank"))
+        if ("ThermalExpansion:Tank".equals(targetData.blockName))
         {
             targetData.forgeDir = ForgeDirection.UP;
         }

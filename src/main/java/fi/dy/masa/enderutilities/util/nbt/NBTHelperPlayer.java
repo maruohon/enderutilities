@@ -3,8 +3,10 @@ package fi.dy.masa.enderutilities.util.nbt;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperPlayer
 {
@@ -20,6 +22,32 @@ public class NBTHelperPlayer
         this.playerUUIDLeast = 0;
         this.playerName = "";
         this.isPublic = false;
+    }
+
+    public static NBTHelperPlayer getPlayerData(NBTTagCompound nbt)
+    {
+        NBTHelperPlayer player = new NBTHelperPlayer();
+        if (player.readFromNBT(nbt) != null)
+        {
+            return player;
+        }
+
+        return null;
+    }
+
+    public static NBTHelperPlayer getPlayerData(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            return getPlayerData(stack.getTagCompound());
+        }
+
+        return null;
+    }
+
+    public static NBTHelperPlayer getPlayerDataFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    {
+        return getPlayerData(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
 
     public static boolean hasPlayerTag(NBTTagCompound nbt)

@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
@@ -8,6 +9,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperTarget
 {
@@ -41,6 +43,25 @@ public class NBTHelperTarget
         this.forgeDir = ForgeDirection.UP;
     }
 
+    public static NBTHelperTarget getTarget(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            NBTHelperTarget target = new NBTHelperTarget();
+            if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
+            {
+                return target;
+            }
+        }
+
+        return null;
+    }
+
+    public static NBTHelperTarget getTargetFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    {
+        return getTarget(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
+    }
+
     public static boolean hasTargetTag(NBTTagCompound nbt)
     {
         if (nbt == null || nbt.hasKey("Target", Constants.NBT.TAG_COMPOUND) == false)
@@ -62,6 +83,16 @@ public class NBTHelperTarget
         }
 
         return false;
+    }
+
+    public static boolean hasTargetTag(ItemStack stack)
+    {
+        return (stack != null && hasTargetTag(stack.getTagCompound()) == true);
+    }
+
+    public static boolean selectedModuleHasTargetTag(ItemStack toolStack, ModuleType moduleType)
+    {
+        return hasTargetTag(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
 
     public NBTTagCompound readTargetTagFromNBT(NBTTagCompound nbt)
@@ -87,6 +118,14 @@ public class NBTHelperTarget
         this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.posZ + 0.5d;
 
         return tag;
+    }
+
+    public static NBTHelperTarget readTargetFromNBT(NBTTagCompound nbt)
+    {
+        NBTHelperTarget target = new NBTHelperTarget();
+        target.readTargetTagFromNBT(nbt);
+
+        return target;
     }
 
     public static NBTTagCompound writeToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace)

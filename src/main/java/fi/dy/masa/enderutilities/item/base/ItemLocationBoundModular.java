@@ -106,7 +106,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
 
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        NBTHelperTarget target = new NBTHelperTarget();
 
         String numPre = EnumChatFormatting.BLUE.toString();
         String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
@@ -116,7 +115,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (linkCrystalStack != null)
         {
             // Valid target set in the currently selected Link Crystal
-            if (target.readTargetTagFromNBT(linkCrystalStack.getTagCompound()) != null)
+            if (NBTHelperTarget.hasTargetTag(linkCrystalStack) == true)
             {
                 super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
@@ -124,18 +123,18 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             {
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
             }
+
+            if (verbose == true)
+            {
+                int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+                String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
+            }
         }
         else
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
-        }
-
-        if (verbose == true && linkCrystalStack != null)
-        {
-            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
-            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
-            String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
         }
 
         // Ender Capacitor charge, if one has been installed

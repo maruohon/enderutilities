@@ -65,20 +65,24 @@ public class TickHandler
                 // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
                 if (nbt != null && nbt.getBoolean("ChunkLoadingRequired") == true)
                 {
+                    NBTHelperTarget target;
+
+                    // Note: There is the possibility that the target or the selected link crystal
+                    // has been changed since the chunk loading first started, but it just means
+                    // that the refreshing will not happen, or will happen to the new target chunk,
+                    // (the one currently active in the item) if that also happens to be chunk loaded by us.
+
                     // In case of modular items, we get the target info from the selected module (= Link Crystal)
                     if (stack.getItem() instanceof IModular)
                     {
-                        ItemStack moduleStack = ((IModular)stack.getItem()).getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                        if (moduleStack == null)
-                        {
-                            return;
-                        }
-
-                        nbt = moduleStack.getTagCompound();
+                        target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+                    }
+                    else
+                    {
+                        target = NBTHelperTarget.getTarget(stack);
                     }
 
-                    NBTHelperTarget target = new NBTHelperTarget();
-                    if (target.readTargetTagFromNBT(nbt) != null)
+                    if (target != null)
                     {
                         ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
                     }

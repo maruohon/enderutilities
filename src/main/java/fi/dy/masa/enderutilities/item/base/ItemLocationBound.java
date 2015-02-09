@@ -52,9 +52,9 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        NBTHelperTarget target = new NBTHelperTarget();
+        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
 
-        if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
+        if (target != null)
         {
             String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
             return super.getItemStackDisplayName(stack) + " (" + dimName + ")";
@@ -66,8 +66,8 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTHelperTarget target = new NBTHelperTarget();
-        if (target.readTargetTagFromNBT(stack.getTagCompound()) == null)
+        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
+        if (target == null)
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
             return;

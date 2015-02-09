@@ -71,8 +71,8 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         this.rotation = nbt.getByte("Rotation");
 
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readFromNBT(nbt) != null)
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(nbt);
+        if (playerData != null)
         {
             this.ownerUUID = new UUID(playerData.playerUUIDMost, playerData.playerUUIDLeast);
             this.ownerName = playerData.playerName;

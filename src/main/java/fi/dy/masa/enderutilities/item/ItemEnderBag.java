@@ -77,8 +77,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readFromNBT(moduleNbt) == null)
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(moduleNbt);
+        if (playerData == null)
         {
             return stack;
         }
@@ -320,21 +320,16 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (linkCrystalStack != null)
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (target != null)
         {
-            NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
-            NBTHelperTarget target = new NBTHelperTarget();
-            if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
-            {
-                ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+            ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
 
-                if (targetStack != null && targetStack.getItem() != null)
-                {
-                    String pre = EnumChatFormatting.GREEN.toString();
-                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
-                    return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetStack.getDisplayName() + rst;
-                }
+            if (targetStack != null && targetStack.getItem() != null)
+            {
+                String pre = EnumChatFormatting.GREEN.toString();
+                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetStack.getDisplayName() + rst;
             }
         }
 
@@ -350,19 +345,18 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             String textPre = EnumChatFormatting.DARK_GREEN.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
-            NBTTagCompound linkCrystalNbt = linkCrystalStack.getTagCompound();
-            NBTHelperTarget target = new NBTHelperTarget();
-            if (target.readTargetTagFromNBT(linkCrystalNbt) != null)
+            NBTHelperTarget target = NBTHelperTarget.getTarget(linkCrystalStack);
+            if (target != null)
             {
-                NBTHelperPlayer playerData = new NBTHelperPlayer();
+                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(linkCrystalStack);
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                 String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
-                if (target.blockName != null && target.blockName.equals("minecraft:ender_chest"))
+                if ("minecraft:ender_chest".equals(target.blockName))
                 {
                     list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
                 }
-                else if (playerData.readFromNBT(linkCrystalNbt) != null && playerData.canAccess(player) == true)
+                else if (playerData != null && playerData.canAccess(player) == true)
                 {
                     list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
 
@@ -404,8 +398,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return;
         }
 
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readFromNBT(moduleNbt) != null && playerData.isOwner(player) == false)
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(moduleNbt);
+        if (playerData == null || playerData.isOwner(player) == false)
         {
             return;
         }
@@ -506,38 +500,33 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
     {
         int index = 0;
-        boolean isOpen = false;
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-        NBTTagCompound bagNbt = stack.getTagCompound();
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (bagNbt == null || moduleStack == null)
+        if (target != null)
         {
-            return this.iconArray[0];
-        }
+            int isOpen = 0;
 
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        NBTHelperTarget targetData = new NBTHelperTarget();
-
-        // Bag currently open
-        if (bagNbt.getBoolean("IsOpen") == true)
-        {
-            isOpen = true;
-            index += 1;
-        }
-
-        // Currently linked to a vanilla Ender Chest
-        if (targetData.readTargetTagFromNBT(moduleNbt) != null && "minecraft:ender_chest".equals(targetData.blockName))
-        {
-            index += 2;
-        }
-
-        // Locked
-        if (renderPass == 1)
-        {
-            NBTHelperPlayer playerData = new NBTHelperPlayer();
-            if (playerData.readFromNBT(moduleNbt) != null && playerData.isPublic == false)
+            // Bag currently open
+            if (stack.getTagCompound().getBoolean("IsOpen") == true)
             {
-                index = (isOpen ? 5 : 4);
+                isOpen = 1;
+                index += 1;
+            }
+
+            // Currently linked to a vanilla Ender Chest
+            if ("minecraft:ender_chest".equals(target.blockName))
+            {
+                index += 2;
+            }
+
+            // The is-locked layer
+            if (renderPass == 1)
+            {
+                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (playerData != null && playerData.isPublic == false)
+                {
+                    index = 4 + isOpen;
+                }
             }
         }
 

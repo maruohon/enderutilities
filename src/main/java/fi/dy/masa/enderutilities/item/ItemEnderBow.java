@@ -96,10 +96,9 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (mode == BOW_MODE_TP_TARGET)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                NBTHelperTarget target = new NBTHelperTarget();
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
                 // If we want to TP the target, we must have a valid target set
-                if (moduleStack == null || target.readTargetTagFromNBT(moduleStack.getTagCompound()) == null)
+                if (target == null)
                 {
                     return;
                 }
@@ -188,8 +187,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             // If the bow is in 'TP target' mode, it has to have a valid target set
             if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET)
             {
-                ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (moduleStack == null || NBTHelperTarget.hasTargetTag(moduleStack.getTagCompound()) == false)
+                if (NBTHelperTarget.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
                 {
                     return stack;
                 }
