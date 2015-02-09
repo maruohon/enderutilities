@@ -328,6 +328,16 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return this.getItemIconForUseDuration(index);
     }
 
+    public byte getBowMode(ItemStack stack)
+    {
+        if (stack != null && stack.getTagCompound() != null)
+        {
+            return stack.getTagCompound().getByte("Mode");
+        }
+
+        return BOW_MODE_TP_TARGET;
+    }
+
     public void toggleBowMode(EntityPlayer player, ItemStack stack)
     {
         if (stack == null)
@@ -335,17 +345,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        byte val = BOW_MODE_TP_TARGET;
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null)
-        {
-            val = nbt.getByte("Mode");
-        }
-        else
+        if (nbt == null)
         {
             nbt = new NBTTagCompound();
         }
 
+        byte val = this.getBowMode(stack);
         if (++val > 1)
         {
             val = 0;
@@ -367,7 +373,10 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // Change the selected link crystal
         if (ReferenceKeys.keypressContainsShift(key) == true)
         {
-            super.doKeyBindingAction(player, stack, key);
+            if (this.getBowMode(stack) == BOW_MODE_TP_TARGET)
+            {
+                super.doKeyBindingAction(player, stack, key);
+            }
         }
         else if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
