@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -60,6 +61,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         {
             String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
             NBTTagCompound nbt = moduleStack.getTagCompound();
+            String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
             if (nbt != null && nbt.hasKey("display", Constants.NBT.TAG_COMPOUND) == true)
@@ -67,30 +70,27 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 NBTTagCompound tagDisplay = nbt.getCompoundTag("display");
                 if (tagDisplay.hasKey("Name", Constants.NBT.TAG_STRING) == true)
                 {
-                    String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-                    String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
-
                     if (itemName.length() >= 14)
                     {
-                        return EUStringUtils.getInitialsWithDots(itemName) + " " + dNamePre + tagDisplay.getString("Name") + rst;
+                        return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + tagDisplay.getString("Name") + rst;
                     }
 
-                    return itemName + " " + dNamePre + tagDisplay.getString("Name") + rst;
+                    return itemName + " " + pre + tagDisplay.getString("Name") + rst;
                 }
             }
 
-            /*NBTHelperTarget target = new NBTHelperTarget();
-            if (target.readTargetTagFromNBT(nbt) != null)
+            NBTHelperTarget target = NBTHelperTarget.getTarget(moduleStack);
+            if (target != null)
             {
-                String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-
                 if (itemName.length() >= 14)
                 {
-                    return EUStringUtils.getInitialsWithDots(itemName) + " (" + dimName + ")";
+                    itemName = EUStringUtils.getInitialsWithDots(itemName);
                 }
 
-                return itemName + " (" + dimName + ")";
-            }*/
+                String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
+                pre = EnumChatFormatting.GREEN.toString();
+                return itemName + " " + pre + dimName + rst;
+            }
         }
 
         return super.getItemStackDisplayName(stack);

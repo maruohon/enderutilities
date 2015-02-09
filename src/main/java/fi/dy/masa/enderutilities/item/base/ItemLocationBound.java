@@ -53,11 +53,12 @@ public class ItemLocationBound extends ItemEnderUtilities
     public String getItemStackDisplayName(ItemStack stack)
     {
         NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
-
         if (target != null)
         {
+            String pre = EnumChatFormatting.GREEN.toString();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
             String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-            return super.getItemStackDisplayName(stack) + " (" + dimName + ")";
+            return super.getItemStackDisplayName(stack) + " " + pre + dimName + rst;
         }
 
         return super.getItemStackDisplayName(stack);

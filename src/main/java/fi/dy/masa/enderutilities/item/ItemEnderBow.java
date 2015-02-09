@@ -199,11 +199,15 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return stack;
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
-    public int getMaxModules(ItemStack stack)
+    public String getItemStackDisplayName(ItemStack stack)
     {
-        return 4;
+        if (this.getBowMode(stack) == BOW_MODE_TP_SELF)
+        {
+            return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+        }
+
+        return super.getItemStackDisplayName(stack);
     }
 
     @Override
