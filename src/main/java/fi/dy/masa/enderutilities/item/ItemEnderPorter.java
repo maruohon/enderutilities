@@ -16,7 +16,6 @@ import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -155,8 +154,8 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
-        if (Configs.disableItemEnderPorterBasic.getBoolean(false) == false) { list.add(new ItemStack(this, 1, 0)); }
-        if (Configs.disableItemEnderPorterAdvanced.getBoolean(false) == false) { list.add(new ItemStack(this, 1, 1)); }
+        list.add(new ItemStack(this, 1, 0));
+        list.add(new ItemStack(this, 1, 1));
     }
 
     @Override

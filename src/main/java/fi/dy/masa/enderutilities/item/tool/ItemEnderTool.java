@@ -108,7 +108,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
         ItemStack stack;
-        if (Configs.disableItemEnderTool.getBoolean(false) == false)
+        if (Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             for (int i = 0; i <= 3; i++)
             {

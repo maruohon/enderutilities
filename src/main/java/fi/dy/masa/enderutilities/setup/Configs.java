@@ -34,15 +34,16 @@ public class Configs
     public static Property disableItemEnderBucket;
     public static Property disableItemEnderLasso;
     public static Property disableItemEnderPearl;
-    public static Property disableItemEnderPorterBasic;
-    public static Property disableItemEnderPorterAdvanced;
+    public static Property disableItemEnderPorter;
     public static Property disableItemEnderSword;
-    public static Property disableItemEnderTool;
+    public static Property disableItemEnderTools;
     public static Property disableItemMobHarness;
 
     // Recipe disable
     // Blocks
     public static Property disableRecipeEnderFurnace;
+    public static Property disableRecipeToolWorkstation;
+
     // Items
     public static Property disableRecipeEnderArrow;
     public static Property disableRecipeEnderBag;
@@ -50,7 +51,31 @@ public class Configs
     public static Property disableRecipeEnderBucket;
     public static Property disableRecipeEnderLasso;
     public static Property disableRecipeEnderPearl;
+    public static Property disableRecipeEnderPearlElite;
     public static Property disableRecipeEnderPorterBasic;
     public static Property disableRecipeEnderPorterAdvanced;
     public static Property disableRecipeMobHarness;
+    public static Property disableRecipeEnderSword;
+    public static Property disableRecipeEnderPickaxe;
+    public static Property disableRecipeEnderAxe;
+    public static Property disableRecipeEnderShovel;
+    public static Property disableRecipeEnderHoe;
+
+    // Parts
+    public static Property disableRecipePartEnderAlloy0;
+    public static Property disableRecipePartEnderAlloy1;
+    public static Property disableRecipePartEnderAlloy2;
+    public static Property disableRecipePartEnderCore0;
+    public static Property disableRecipePartEnderCore1;
+    public static Property disableRecipePartEnderCore2;
+    public static Property disableRecipePartEnderRope;
+    public static Property disableRecipePartEnderStick;
+
+    // Modules
+    public static Property disableRecipeModuleEnderCapacitor0;
+    public static Property disableRecipeModuleEnderCapacitor1;
+    public static Property disableRecipeModuleEnderCapacitor2;
+    public static Property disableRecipeModuleLinkCrystalLocation;
+    public static Property disableRecipeModuleLinkCrystalBlock;
+    public static Property disableRecipeModuleLinkCrystalPortal;
 }

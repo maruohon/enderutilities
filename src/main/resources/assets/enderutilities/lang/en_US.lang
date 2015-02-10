@@ -64,10 +64,14 @@ item.enderutilities.mobharness.name=Mob Harness
 # Tips displayed on 'fresh' items without NBT data:
 ###################################################
 
+####################
 # All modular items:
+####################
 enderutilities.itemlocationboundmodular.tooltips=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward,|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Shift or Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
 
+###################
 # Individual items:
+###################
 item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis anyone?!)
 item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
 item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self
@@ -76,17 +80,9 @@ item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to 
 item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser
 item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser
 item.enderutilities.enderlasso.tooltips=- Sneak + right click to bind|lf- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent hostile mobs from despawning
-item.enderutilities.enderpart.enderalloy.0.tooltips=Made in an Ender Infuser
-item.enderutilities.enderpart.enderalloy.1.tooltips=Made in an Ender Infuser
-item.enderutilities.enderpart.enderalloy.2.tooltips=Made in an Ender Infuser
 item.enderutilities.enderpart.endercore.0.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpart.endercore.1.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.endercore.2.active.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.enderrope.tooltips=Made in an Ender Infuser
-item.enderutilities.enderpart.enderstick.tooltips=Made in an Ender Infuser
 item.enderutilities.enderpearlreusable.elite.tooltips=Lets you fly! w00t!
 item.enderutilities.enderporter.tooltips=- Player teleportation inside the same dimension|lf- Not single-use anymore
 item.enderutilities.enderporter.advanced.tooltips=- Player teleportation cross-dimensionally

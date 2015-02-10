@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.init;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
@@ -17,17 +16,32 @@ public class EnderUtilitiesBlocks
     public static void init()
     {
         // Register blocks
-        if (Configs.disableBlockMachine_0.getBoolean(false) == false)
-        {
-            GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0);
-        }
+        if (Configs.disableBlockMachine_0.getBoolean(false) == false) { GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0); }
+
+        ItemStack chest = new ItemStack(Blocks.chest);
+        ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
+        ItemStack obsidian = new ItemStack(Blocks.obsidian);
+
+        ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 0);
+        //ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
+        //ItemStack alloy2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 2);
+        ItemStack core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 10);
+        //ItemStack core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 11);
+        //ItemStack core2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 12);
+        //ItemStack active_core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 15);
+        //ItemStack active_core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 16);
+        //ItemStack active_core2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 17);
+        //ItemStack ender_stick = new ItemStack(EnderUtilitiesItems.enderPart, 1, 20);
+        //ItemStack rope = new ItemStack(EnderUtilitiesItems.enderPart, 1, 21);
 
         // Register block recipes
         if (Configs.disableRecipeEnderFurnace.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
-            // Ender Furnace
-            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "PDP", "DFD", "EDE",
-                'E', new ItemStack(Items.ender_eye), 'D', new ItemStack(Items.diamond), 'F', new ItemStack(Blocks.furnace), 'P', new ItemStack(Items.ender_pearl));
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', new ItemStack(Blocks.furnace), 'C', core0);
+        }
+        if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 1), "CAC", "AHA", "CAC", 'A', alloy0, 'H', chest, 'C', craftingtable);
         }
     }
 }
