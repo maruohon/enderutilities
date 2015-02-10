@@ -22,6 +22,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -228,7 +229,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 moduleNbt.setInteger("Slots", player.getInventoryEnderChest().getSizeInventory());
             }
 
-            moduleNbt = NBTHelperTarget.writeTargetTagToNBT(moduleNbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
+            this.setTarget(moduleStack, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
             this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
         }
 
@@ -340,12 +341,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (linkCrystalStack != null)
+        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ILocationBound)
         {
             String textPre = EnumChatFormatting.DARK_GREEN.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
-            NBTHelperTarget target = NBTHelperTarget.getTarget(linkCrystalStack);
+            NBTHelperTarget target = ((ILocationBound)linkCrystalStack.getItem()).getTarget(linkCrystalStack);
             if (target != null)
             {
                 NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(linkCrystalStack);

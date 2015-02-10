@@ -43,8 +43,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 adjustPosHit = false;
             }
 
+            this.setTarget(moduleStack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             NBTTagCompound nbt = moduleStack.getTagCompound();
-            nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
             moduleStack.setTagCompound(nbt);
             this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
@@ -59,7 +59,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     public String getItemStackDisplayName(ItemStack stack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null)
+        if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
         {
             String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
             NBTTagCompound nbt = moduleStack.getTagCompound();
@@ -81,7 +81,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 }
             }
 
-            NBTHelperTarget target = NBTHelperTarget.getTarget(moduleStack);
+            NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
             if (target != null)
             {
                 if (itemName.length() >= 14)

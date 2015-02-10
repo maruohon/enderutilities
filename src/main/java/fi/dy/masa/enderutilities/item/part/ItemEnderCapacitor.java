@@ -55,6 +55,11 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         for (int i = 0; i <= 2; i++)
         {
             list.add(new ItemStack(this, 1, i));
+
+            // Add a fully charged version for creative tab and NEI
+            ItemStack tmp = new ItemStack(this, 1, i);
+            this.addCharge(tmp, this.getCapacityFromItemType(tmp), true);
+            list.add(tmp);
         }
     }
 

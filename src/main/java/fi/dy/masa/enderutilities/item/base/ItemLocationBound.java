@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemLocationBound extends ItemEnderUtilities
+public class ItemLocationBound extends ItemEnderUtilities implements ILocationBound
 {
     public ItemLocationBound()
     {
@@ -38,8 +38,8 @@ public class ItemLocationBound extends ItemEnderUtilities
                 adjustPosHit = false;
             }
 
+            this.setTarget(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             NBTTagCompound nbt = stack.getTagCompound();
-            nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
             nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
             stack.setTagCompound(nbt);
 
@@ -52,7 +52,7 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
+        NBTHelperTarget target = this.getTarget(stack);
         if (target != null)
         {
             String pre = EnumChatFormatting.GREEN.toString();
@@ -67,7 +67,7 @@ public class ItemLocationBound extends ItemEnderUtilities
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
+        NBTHelperTarget target = this.getTarget(stack);
         if (target == null)
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
@@ -107,5 +107,24 @@ public class ItemLocationBound extends ItemEnderUtilities
         }
 
 
+    }
+
+    @Override
+    public NBTHelperTarget getTarget(ItemStack stack)
+    {
+        return NBTHelperTarget.getTarget(stack);
+    }
+
+    @Override
+    public void setTarget(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    {
+        if (stack == null)
+        {
+            return;
+        }
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset);
+        stack.setTagCompound(nbt);
     }
 }
