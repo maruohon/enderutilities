@@ -220,9 +220,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);

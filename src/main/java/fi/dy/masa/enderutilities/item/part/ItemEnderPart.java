@@ -4,11 +4,9 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
@@ -148,23 +146,6 @@ public class ItemEnderPart extends ItemModule
 
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
-    {
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.craftingingredient"));
-
-        // Damage 10: Inactive Ender Core (Basic)
-        // Damage 11: Inactive Ender Core (Enhanced)
-        // Damage 12: Inactive Ender Core (Advanced)
-        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
-        {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.1"));
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.2"));
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.rightclick.endercrystal.to.activate.3"));
-        }
     }
 
     @Override

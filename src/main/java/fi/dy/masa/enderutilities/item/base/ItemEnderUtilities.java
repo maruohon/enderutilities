@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -43,9 +44,14 @@ public class ItemEnderUtilities extends Item
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
+        // "Fresh" items without NBT data: display the tips before the usual tooltip data
+        if (stack != null && stack.getTagCompound() == null)
+        {
+            this.addTooltips(stack, list, verbose);
+        }
+
         this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
 
-        //list.add("Size: " + tmpList.size()); // FIXME debug
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
@@ -59,5 +65,34 @@ public class ItemEnderUtilities extends Item
         {
             list.addAll(tmpList);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void addTooltips(String key, List<String> list, boolean verbose)
+    {
+        String translated = StatCollector.translateToLocal(key);
+        // Translation found
+        if (translated.equals(key) == false)
+        {
+            // We currently use '|lf' as a delimiter to split the string into multiple lines
+            if (translated.contains("|lf"))
+            {
+                String[] lines = translated.split(Pattern.quote("|lf"));
+                for (String line : lines)
+                {
+                    list.add(line);
+                }
+            }
+            else
+            {
+                list.add(translated);
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 }

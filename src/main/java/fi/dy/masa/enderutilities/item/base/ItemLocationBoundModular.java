@@ -9,6 +9,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
@@ -146,6 +148,14 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
             }
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips("enderutilities.itemlocationboundmodular.tooltips", list, verbose);
+        super.addTooltips(stack, list, verbose);
     }
 
     @Override

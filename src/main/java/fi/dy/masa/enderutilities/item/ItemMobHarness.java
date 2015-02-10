@@ -231,18 +231,29 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     public boolean clearData(ItemStack stack)
     {
-        stack.setTagCompound(null);
+        if (stack == null || stack.getTagCompound() == null)
+        {
+            return true;
+        }
+
+        stack.getTagCompound().removeTag("Mode");
 
         return true;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
     {
         NBTTagCompound nbt = stack.getTagCompound();
 
-        if (nbt == null || this.hasTarget(stack) == false)
+        if (nbt == null)
+        {
+            super.addInformation(stack, player, list, advancedTooltips);
+            return;
+        }
+
+        if (this.hasTarget(stack) == false)
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notlinked"));
             return;

@@ -5,11 +5,26 @@ language.code=en_US
 category.enderutilities=Ender Utilities
 enderutilities.key.togglemode=Toggle Mode
 
+
+############################
+# Container/inventory names:
+############################
+
 enderutilities.container.enderfurnace=Ender Furnace
 enderutilities.container.toolworkstation=Tool Workstation
 
+
+##############
+# Block names:
+##############
+
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.toolworkstation.name=Ender Tool Workstation
+
+
+#############
+# Item names:
+#############
 
 item.enderutilities.enderarrow.name=Ender Arrow
 item.enderutilities.enderbag.name=Ender Bag
@@ -22,12 +37,12 @@ item.enderutilities.enderlasso.name=Ender Lasso
 item.enderutilities.enderpart.enderalloy.0.name=Ender Alloy (Basic)
 item.enderutilities.enderpart.enderalloy.1.name=Ender Alloy (Enhanced)
 item.enderutilities.enderpart.enderalloy.2.name=Ender Alloy (Advanced)
-item.enderutilities.enderpart.endercore.0.inactive.name=Inactive Ender Core (Basic)
 item.enderutilities.enderpart.endercore.0.active.name=Ender Core (Basic)
-item.enderutilities.enderpart.endercore.1.inactive.name=Inactive Ender Core (Enhanced)
 item.enderutilities.enderpart.endercore.1.active.name=Ender Core (Enhanced)
-item.enderutilities.enderpart.endercore.2.inactive.name=Inactive Ender Core (Advanced)
 item.enderutilities.enderpart.endercore.2.active.name=Ender Core (Advanced)
+item.enderutilities.enderpart.endercore.0.inactive.name=Inactive Ender Core (Basic)
+item.enderutilities.enderpart.endercore.1.inactive.name=Inactive Ender Core (Enhanced)
+item.enderutilities.enderpart.endercore.2.inactive.name=Inactive Ender Core (Advanced)
 item.enderutilities.enderpart.enderrope.name=Ender Rope
 item.enderutilities.enderpart.enderstick.name=Ender Infused Stick
 item.enderutilities.enderpearlreusable.name=Ender Pearl (reusable)
@@ -43,6 +58,52 @@ item.enderutilities.linkcrystal.0.name=Link Crystal (In-World)
 item.enderutilities.linkcrystal.1.name=Link Crystal (Inventory)
 item.enderutilities.linkcrystal.2.name=Link Crystal (Portal)
 item.enderutilities.mobharness.name=Mob Harness
+
+
+###################################################
+# Tips displayed on 'fresh' items without NBT data:
+###################################################
+
+# All modular items:
+enderutilities.itemlocationboundmodular.tooltips=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward,|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Shift or Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
+
+# Individual items:
+item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis anyone?!)
+item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
+item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self
+item.enderutilities.enderbucket.tooltips=- Toggle mode key to cycle the operation mode|lf- Sneak + right click binds to tanks (in bind mode)|lf- Ctrl + Toggle mode key to switch between|lf  regular operation and linked to tanks|lf- In normal mode: right clicking a tank|lf  takes fluid from the tank and|lf  sneak + right clicking puts fluid to the tank
+item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser
+item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser
+item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser
+item.enderutilities.enderlasso.tooltips=- Sneak + right click to bind|lf- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent hostile mobs from despawning
+item.enderutilities.enderpart.enderalloy.0.tooltips=Made in an Ender Infuser
+item.enderutilities.enderpart.enderalloy.1.tooltips=Made in an Ender Infuser
+item.enderutilities.enderpart.enderalloy.2.tooltips=Made in an Ender Infuser
+item.enderutilities.enderpart.endercore.0.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.endercore.1.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.endercore.2.active.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart.enderrope.tooltips=Made in an Ender Infuser
+item.enderutilities.enderpart.enderstick.tooltips=Made in an Ender Infuser
+item.enderutilities.enderpearlreusable.elite.tooltips=Lets you fly! w00t!
+item.enderutilities.enderporter.tooltips=- Player teleportation inside the same dimension|lf- Not single-use anymore
+item.enderutilities.enderporter.advanced.tooltips=- Player teleportation cross-dimensionally
+item.enderutilities.endertool.enderpickaxe.tooltips=- Enchant with Efficiency V for|lf  instant mining of common blocks
+item.enderutilities.endertool.enderaxe.tooltips=- Enchant with Efficiency V for|lf  instant mining of common blocks
+item.enderutilities.endertool.endershovel.tooltips=- Enchant with Efficiency V for|lf  instant mining of common blocks
+item.enderutilities.endertool.enderhoe.tooltips=Ender Hoe
+item.enderutilities.endersword.tooltips=Ender Sword
+item.enderutilities.linkcrystal.0.tooltips=Sneak + right click to bind to a location
+item.enderutilities.linkcrystal.1.tooltips=Sneak + right click to bind to a block
+item.enderutilities.linkcrystal.2.tooltips=Sneak + right click to bind
+item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you
+
+
+###################################
+# GUI and item labels/tooltips etc:
+###################################
 
 enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.modulestorage=Module storage
@@ -72,9 +133,6 @@ enderutilities.tooltip.item.notlinked=Not linked
 enderutilities.tooltip.item.owner=Owner
 enderutilities.tooltip.item.private=Private
 enderutilities.tooltip.item.public=Public
-enderutilities.tooltip.item.rightclick.endercrystal.to.activate.1=Right click an Ender Crystal with inactive version
-enderutilities.tooltip.item.rightclick.endercrystal.to.activate.2=to get the active version.
-enderutilities.tooltip.item.rightclick.endercrystal.to.activate.3=(Ender Crystal: On top of obsidian pillars in The End)
 enderutilities.tooltip.item.selectedlinkcrystal=Selected Link Crystal:
 enderutilities.tooltip.item.selectedlinkcrystal.short=LC:
 enderutilities.tooltip.item.slots=Slots
@@ -82,6 +140,9 @@ enderutilities.tooltip.item.target=Target
 enderutilities.tooltip.item.tpself=TP self
 enderutilities.tooltip.item.tptarget=TP target
 enderutilities.tooltip.item.usetoolworkstation=Use the Tool Workstation to add or remove modules
+
+
+# Chat messages:
 
 enderutilities.chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
