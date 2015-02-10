@@ -124,16 +124,20 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             return false;
         }
 
-        TileEntity te = world.getTileEntity(x, y, z);
-        if (te == null || te instanceof TileEntityEnderUtilities == false)
-        {
-            return false;
-        }
-
         // TODO: Maybe this should be moved into the Machine class?
         if (world.isRemote == false)
         {
-            player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te == null || te instanceof TileEntityEnderUtilities == false)
+            {
+                return false;
+            }
+
+            Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+            if (machine != null && machine.isTileEntityValid(te) == true)
+            {
+                player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+            }
         }
 
         return true;

@@ -84,6 +84,16 @@ public class Machine
         }
     }
 
+    public boolean isTileEntityValid(TileEntity te)
+    {
+        if (te != null && te.getClass() == this.tileEntityClass)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public static String[] getNames(int blockIndex)
     {
         String[] names = new String[16];
