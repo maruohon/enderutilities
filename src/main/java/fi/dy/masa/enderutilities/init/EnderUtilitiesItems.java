@@ -61,9 +61,10 @@ public class EnderUtilitiesItems
         ItemStack emerald = new ItemStack(Items.emerald);
         ItemStack emerald_block = new ItemStack(Blocks.emerald_block);
         ItemStack eye = new ItemStack(Items.ender_eye);
+        ItemStack feather = new ItemStack(Items.feather);
         ItemStack glass = new ItemStack(Blocks.glass);
         ItemStack gold = new ItemStack(Items.gold_ingot);
-        ItemStack goldnugget = new ItemStack(Items.gold_nugget);
+        ItemStack gold_nugget = new ItemStack(Items.gold_nugget);
         ItemStack iron = new ItemStack(Items.iron_ingot);
         ItemStack leather = new ItemStack(Items.leather);
         ItemStack obsidian = new ItemStack(Blocks.obsidian);
@@ -89,7 +90,7 @@ public class EnderUtilitiesItems
         // "Usable" items
         if (Configs.disableRecipeEnderArrow.getBoolean(false) == false && Configs.disableItemEnderArrow.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "E  ", 'N', goldnugget, 'P', pearl, 'A', new ItemStack(Items.arrow), 'E', eye);
+            GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', gold_nugget, 'P', pearl, 'A', new ItemStack(Items.arrow));
         }
         if (Configs.disableRecipeEnderBag.getBoolean(false) == false && Configs.disableItemEnderBag.getBoolean(false) == false)
         {
@@ -109,11 +110,11 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderPearl.getBoolean(false) == false && Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "APA", "PRP", "APA", 'A', alloy0, 'P', pearl, 'R', redstone_block); // Regular version
+            GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "GPG", "PRP", "GPG", 'G', gold_nugget, 'P', pearl, 'R', redstone_block); // Regular version
         }
         if (Configs.disableRecipeEnderPearlElite.getBoolean(false) == false && Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPearlReusable, 1, 1), "RAR", "ACA", "RPR", 'R', rope, 'A', alloy0, 'C', core0, 'P', new ItemStack(enderPearlReusable, 1, 0));
+            GameRegistry.addRecipe(new ItemStack(enderPearlReusable, 1, 1), "FAF", "APA", "FCF", 'F', feather, 'A', alloy1, 'C', core0, 'P', new ItemStack(enderPearlReusable, 1, 0));
         }
         if (Configs.disableRecipeEnderPorterBasic.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
@@ -169,7 +170,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderAlloy2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 1, 2), iron, diamond, eye, obsidian);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 2), "IEI", "GDG", "OEO", 'I', iron, 'E', eye, 'G', gold, 'D', diamond, 'O', obsidian);
         }
         if (Configs.disableRecipePartEnderCore0.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {

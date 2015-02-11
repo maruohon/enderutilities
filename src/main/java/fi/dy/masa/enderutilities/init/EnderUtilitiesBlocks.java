@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.init;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
@@ -21,9 +22,11 @@ public class EnderUtilitiesBlocks
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
         ItemStack obsidian = new ItemStack(Blocks.obsidian);
+        //ItemStack pearl = new ItemStack(Items.ender_pearl);
+        ItemStack slime_ball = new ItemStack(Items.slime_ball);
 
         ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 0);
-        //ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
+        ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
         //ItemStack alloy2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 2);
         ItemStack core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 10);
         //ItemStack core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 11);
@@ -37,11 +40,11 @@ public class EnderUtilitiesBlocks
         // Register block recipes
         if (Configs.disableRecipeEnderFurnace.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', new ItemStack(Blocks.furnace), 'C', core0);
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', new ItemStack(Blocks.furnace), 'C', core0);
         }
         if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 1), "CAC", "AHA", "CAC", 'A', alloy0, 'H', chest, 'C', craftingtable);
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 1), "ASA", "ACA", "OHO", 'A', alloy0, 'S', slime_ball, 'C', craftingtable, 'O', obsidian, 'H', chest);
         }
     }
 }
