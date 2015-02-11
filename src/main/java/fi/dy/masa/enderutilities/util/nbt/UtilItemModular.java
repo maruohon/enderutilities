@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.setup.Configs;
 
 public class UtilItemModular
 {
@@ -283,6 +284,11 @@ public class UtilItemModular
      */
     public static boolean useEnderCharge(ItemStack stack, int amount, boolean doUse)
     {
+        if (Configs.valueUseEnderCharge == false)
+        {
+            return true;
+        }
+
         if ((stack.getItem() instanceof IModular) == false)
         {
             return false;
@@ -317,7 +323,7 @@ public class UtilItemModular
      */
     public static boolean useEnderCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
     {
-        if (player.capabilities.isCreativeMode == true)
+        if (Configs.valueUseEnderCharge == false || player.capabilities.isCreativeMode == true)
         {
             return true;
         }

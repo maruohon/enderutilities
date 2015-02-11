@@ -7,6 +7,9 @@ public class Configs
     public static Property configFileVersion;
 
     public static Property enderBucketCapacity;
+    public static Property useEnderCharge;
+
+    public static boolean valueUseEnderCharge;
 
     // Teleporting control
     public static Property enderBowAllowPlayers;

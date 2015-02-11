@@ -31,6 +31,7 @@ public class ConfigReader
         conf.load();
 
         category = "Generic";
+
         Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", false).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
@@ -42,6 +43,10 @@ public class ConfigReader
 
         Configs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(false);
         Configs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
+
+        Configs.useEnderCharge = conf.get(category, "UseEnderCharge", true).setRequiresMcRestart(false);
+        Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
+        Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
 
         category = "Version";
         // 0.3.1 was the version where the configs were first added, use that as the default (note that the version number itself was added later in 0.3.2)
@@ -126,6 +131,7 @@ public class ConfigReader
 
         // Block disable
         Configs.disableBlockMachine_0             = conf.get(category, "DisableBlockMachine_0", false).setRequiresMcRestart(true);
+        Configs.disableBlockMachine_0.comment = "0: Ender Furnace; 1: Tool Workstation";
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Note that some items are grouped together using the damage value to identify them. You can't completely disable a specific damage value (so that existing items would vanish).");
