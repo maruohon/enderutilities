@@ -76,11 +76,11 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public void registerIcons(IIconRegister iconRegister)
     {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".inventory");
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".location");
         this.iconArray = new IIcon[3];
 
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".world");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".inventory");
+        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
+        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
     }
 
