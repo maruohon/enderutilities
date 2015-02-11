@@ -152,6 +152,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
+        if (stack.getTagCompound() == null)
+        {
+            super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
+            return;
+        }
+
         FluidStack fluidStack = this.getFluidCached(stack);
         String fluidName;
         String preNr = EnumChatFormatting.BLUE.toString();

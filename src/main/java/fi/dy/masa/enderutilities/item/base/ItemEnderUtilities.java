@@ -47,9 +47,19 @@ public class ItemEnderUtilities extends Item
         // "Fresh" items without NBT data: display the tips before the usual tooltip data
         if (stack != null && stack.getTagCompound() == null)
         {
-            this.addTooltips(stack, list, verbose);
+            this.addTooltips(stack, tmpList, verbose);
+
+            if (verbose == false && tmpList.size() > 1)
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+            }
+            else
+            {
+                list.addAll(tmpList);
+            }
         }
 
+        tmpList.clear();
         this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line

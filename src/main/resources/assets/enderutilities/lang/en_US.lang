@@ -120,6 +120,7 @@ enderutilities.tooltip.durability=Durability
 enderutilities.tooltip.item.empty=empty
 enderutilities.tooltip.item.fluid=Fluid
 enderutilities.tooltip.item.holdshift=Hold §e§oShift§7 for more
+enderutilities.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for description
 enderutilities.tooltip.item.linked=Linked
 enderutilities.tooltip.item.linkedto=Linked to
 enderutilities.tooltip.item.mode=Mode
