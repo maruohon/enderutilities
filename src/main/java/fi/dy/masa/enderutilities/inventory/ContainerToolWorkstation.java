@@ -145,6 +145,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         }
 
         this.setUpgradeSlotTypes();
+        this.detectAndSendChanges();
 
         return stack;
     }

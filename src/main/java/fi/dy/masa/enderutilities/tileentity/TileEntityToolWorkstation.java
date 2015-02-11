@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 {
@@ -76,6 +77,12 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
             }
 
             this.itemStacks[SLOT_TOOL].setTagCompound(nbt);
+
+            if (this.worldObj.isRemote == false && NBTHelperTarget.compatibilityTransferTargetData(this.itemStacks[SLOT_TOOL]) == true)
+            {
+                this.clearModuleSlots();
+                this.readModulesFromItem();
+            }
         }
     }
 

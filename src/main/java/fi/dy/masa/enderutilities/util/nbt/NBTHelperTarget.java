@@ -3,12 +3,15 @@ package fi.dy.masa.enderutilities.util.nbt;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperTarget
@@ -208,5 +211,105 @@ public class NBTHelperTarget
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
     {
         return NBTHelper.writeTagToNBT(nbt, "Target", null);
+    }
+
+    /* This is for compatibility when upgrading from 0.3.x.
+     * It tries to transfer old style target data tags from the containing item to
+     * the first link crystal that has no target tag, and then removes the old target tag from the item.
+     * FIXME Remove this sometime around 0.5.0 or 0.6.0.
+     */
+    public static boolean compatibilityTransferTargetData(ItemStack toolStack)
+    {
+        if (toolStack == null || toolStack.getTagCompound() == null || (toolStack.getItem() instanceof IModular) == false)
+        {
+            return false;
+        }
+
+        IModular item = (IModular)toolStack.getItem();
+        // Only handle Ender Bow, Ender Lasso and Ender Porter target data
+        if (! (item == EnderUtilitiesItems.enderLasso
+            || item == EnderUtilitiesItems.enderBow
+            || item == EnderUtilitiesItems.enderPorter))
+        {
+            return false;
+        }
+
+        NBTTagCompound toolNbt = toolStack.getTagCompound();
+        if (toolNbt.hasKey("Target", Constants.NBT.TAG_COMPOUND) == false)
+        {
+            return false;
+        }
+
+        NBTTagCompound tag = toolNbt.getCompoundTag("Target");
+        // BlockFace tag was INT, otherwise we could have used the current method to check for target tag
+        if (! (tag != null &&
+            tag.hasKey("posX", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
+            tag.hasKey("Dim", Constants.NBT.TAG_INT) == true &&
+            //tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
+            //tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
+            tag.hasKey("BlockFace", Constants.NBT.TAG_INT) == true))
+        {
+            return false;
+        }
+
+        // See how many link crystals are installed
+        if (item.getModuleCount(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
+        {
+            return false;
+        }
+
+        // Read the old target tag
+        NBTHelperTarget target = new NBTHelperTarget();
+        target.posX = tag.getInteger("posX");
+        target.posY = tag.getInteger("posY");
+        target.posZ = tag.getInteger("posZ");
+        target.dimension = tag.getInteger("Dim");
+        target.dimensionName = tag.getString("DimName");
+        target.blockName = tag.getString("BlockName");
+        target.blockMeta = tag.getByte("BlockMeta");
+        target.blockFace = tag.getByte("BlockFace");
+        target.forgeDir = ForgeDirection.getOrientation(target.blockFace);
+
+        target.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : target.posX + 0.5d;
+        target.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : target.posY;
+        target.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : target.posZ + 0.5d;
+
+        if (toolNbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        {
+            return false;
+        }
+
+        NBTTagList nbtTagList = toolNbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        if (nbtTagList == null)
+        {
+            return false;
+        }
+
+        int listNumStacks = nbtTagList.tagCount();
+
+        // Try to find a link crystal that has no target tag yet
+        for (int i = 0; i < listNumStacks; ++i)
+        {
+            NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
+            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(moduleTag);
+            if (UtilItemModular.moduleTypeEquals(moduleStack, ModuleType.TYPE_LINKCRYSTAL) == true)
+            {
+                NBTTagCompound moduleNbt = moduleStack.getTagCompound();
+                if (moduleNbt == null || NBTHelperTarget.hasTargetTag(moduleNbt) == false)
+                {
+                    moduleNbt = target.writeToNBT(moduleNbt);
+                    moduleStack.setTagCompound(moduleNbt);
+                    // Write the new module ItemStack to the compound tag of the old one, so that we
+                    // preserve the Slot tag and any other non-ItemStack tags of the old one.
+                    nbtTagList.func_150304_a(i, moduleStack.writeToNBT(moduleTag));
+                    toolNbt.removeTag("Target");
+                    //System.out.println("post transfering target... lc: " + (i + 1) + " moduleNbt: " + moduleNbt + " toolNbt: " + toolNbt);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
