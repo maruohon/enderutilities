@@ -26,8 +26,9 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
-    public static final int ENDER_CHARGE_COST = 5000;
-    private static final int USE_TIME = 60;
+    public static final int ENDER_CHARGE_COST_INTER_DIM_TP = 1000;
+    public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 5000;
+    private static final int USE_TIME = 40;
 
     public ItemEnderPorter()
     {
@@ -58,6 +59,11 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         // This needs to also happen on the client, otherwise the in-use will derp up
 
+        if (player == null)
+        {
+            return stack;
+        }
+
         // Don't activate when sneaking and looking at a block, aka. binding to a new location
         if (player.isSneaking() == true)
         {
@@ -68,10 +74,13 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
         }
 
-        if (NBTHelperTarget.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) &&
-            EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false)
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        // The basic version can only teleport inside the same dimension
+        if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false
+            && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
         {
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
+            int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+            if (UtilItemModular.useEnderCharge(stack, player, cost, false) == false)
             {
                 return stack;
             }
@@ -93,27 +102,32 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         int useTime = USE_TIME;
 
+        if (player == null)
+        {
+            return;
+        }
+
         // Use a shorter delay in creative mode
         if (player.capabilities.isCreativeMode == true)
         {
-            useTime >>= 3;
+            useTime >>= 2;
         }
 
         if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime)
         {
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+            if (target == null || (stack.getItemDamage() == 0 && target.dimension != player.dimension))
             {
                 return;
             }
 
-            if (TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true) != null)
+            int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+            if (UtilItemModular.useEnderCharge(stack, player, cost, true) == false)
             {
-                // damage 0: basic/single use Ender Porter, 1: advanced/multi-use Ender Porter
-                if (player.capabilities.isCreativeMode == false && stack.getItemDamage() == 0 && --stack.stackSize <= 0)
-                {
-                    player.destroyCurrentEquippedItem();
-                }
+                return;
             }
+
+            TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true);
         }
     }
 
@@ -247,7 +261,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             // Use a shorter delay in creative mode
             if (player.capabilities.isCreativeMode == true)
             {
-                useTime >>= 3;
+                useTime >>= 2;
             }
 
             index += (7 * inUse / useTime); // 7 stages/icons
