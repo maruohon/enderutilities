@@ -15,10 +15,9 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
 {
     private TileEntityEnderInfuser teef;
-    public int burnTimeRemaining;
-    public int burnTimeFresh;
-    public int cookTime;
-    public int cookTimeFresh;
+    public int amountStored;
+    public int meltingProgress; // 0..100, 100 being 100% done; input item consumed and stored amount increased @ 100
+    public int chargeProgress; // 0..100, 100 being 100% done; used for the filling animation only
 
     public ContainerEnderInfuser(TileEntityEnderInfuser te, InventoryPlayer inventory)
     {
@@ -49,32 +48,26 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
         {
             icrafting = (ICrafting)this.crafters.get(i);
 
-            // Scale all values down by 8 (max burn time atm is 150 * COOKTIME = 180 000)
-            // We need to fit it in a short, where these get truncated to in non-local SMP
-            /*if (this.teef.burnTimeRemaining != this.burnTimeRemaining)
+            // The values need to fit into a short, where these get truncated to in non-local SMP
+
+            if (this.teef.amountStored != this.amountStored)
             {
-                icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining >> 3);
+                icrafting.sendProgressBarUpdate(this, 0, this.teef.amountStored);
             }
 
-            if (this.teef.burnTimeFresh != this.burnTimeFresh)
+            if (this.teef.meltingProgress != this.meltingProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh >> 3);
+                icrafting.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
             }
 
-            if (this.teef.cookTime != this.cookTime)
+            if (this.teef.chargeProgress != this.chargeProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime >> 3);
+                icrafting.sendProgressBarUpdate(this, 2, this.teef.chargeProgress);
             }
 
-            if (this.teef.cookTimeFresh != this.cookTimeFresh)
-            {
-                icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh >> 3);
-            }
-
-            this.burnTimeRemaining = this.teef.burnTimeRemaining;
-            this.burnTimeFresh = this.teef.burnTimeFresh;
-            this.cookTime = this.teef.cookTime;
-            this.cookTimeFresh = this.teef.cookTimeFresh;*/
+            this.amountStored = this.teef.amountStored;
+            this.meltingProgress = this.teef.meltingProgress;
+            this.chargeProgress = this.teef.chargeProgress;
         }
     }
 
@@ -82,31 +75,27 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
     public void addCraftingToCrafters(ICrafting icrafting)
     {
         super.addCraftingToCrafters(icrafting);
-        /*icrafting.sendProgressBarUpdate(this, 0, this.teef.burnTimeRemaining >> 3);
-        icrafting.sendProgressBarUpdate(this, 1, this.teef.burnTimeFresh >> 3);
-        icrafting.sendProgressBarUpdate(this, 2, this.teef.cookTime >> 3);
-        icrafting.sendProgressBarUpdate(this, 3, this.teef.cookTimeFresh >> 3);*/
+        icrafting.sendProgressBarUpdate(this, 0, this.teef.amountStored);
+        icrafting.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
+        icrafting.sendProgressBarUpdate(this, 2, this.teef.chargeProgress);
     }
 
     @SideOnly(Side.CLIENT)
     public void updateProgressBar(int var, int val)
     {
-        /*switch(var)
+        switch(var)
         {
             case 0:
-                this.teef.burnTimeRemaining = val;
+                this.teef.amountStored = val;
                 break;
             case 1:
-                this.teef.burnTimeFresh = val;
+                this.teef.meltingProgress = val;
                 break;
             case 2:
-                this.teef.cookTime = val;
-                break;
-            case 3:
-                this.teef.cookTimeFresh = val;
+                this.teef.chargeProgress = val;
                 break;
             default:
-        }*/
+        }
     }
 
     @Override

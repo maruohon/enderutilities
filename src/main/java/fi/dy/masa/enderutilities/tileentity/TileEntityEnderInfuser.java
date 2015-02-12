@@ -15,6 +15,13 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 {
     protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
+    public static final int AMOUNT_PER_ENDERPEARL = 250;
+    public static final int AMOUNT_PER_ENDEREYE = 500;
+    public static final int ENDER_CHARGE_PER_MILLIBUCKET = 4;
+    public static final int MAX_AMOUNT = 4000;
+    public int amountStored;
+    public int meltingProgress; // 0..100, 100 being 100% done; input item consumed and stored amount increased @ 100
+    public int chargeProgress; // 0..100, 100 being 100% done; used for the filling animation only
 
     public TileEntityEnderInfuser()
     {
@@ -43,6 +50,58 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     @Override
     public void updateEntity()
     {
+        // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo(?)
+        if (this.itemStacks[0] != null)
+        {
+            int amount = 0;
+            if (this.itemStacks[0].getItem() == Items.ender_pearl)
+            {
+                amount = AMOUNT_PER_ENDERPEARL;
+            }
+            else if (this.itemStacks[0].getItem() == Items.ender_eye)
+            {
+                amount = AMOUNT_PER_ENDEREYE;
+            }
+
+            if (amount > 0 && (amount + this.amountStored <= MAX_AMOUNT))
+            {
+                this.meltingProgress += 2;
+
+                if (this.meltingProgress >= 100)
+                {
+                    this.amountStored += amount;
+                    this.meltingProgress = 0;
+
+                    if (--this.itemStacks[0].stackSize <= 0)
+                    {
+                        this.itemStacks[0] = null;
+                    }
+                }
+            }
+        }
+
+        // Charge IChargeable items with the Ender Goo
+        if (this.itemStacks[1] != null && this.itemStacks[1].getItem() instanceof IChargeable && this.amountStored > 0)
+        {
+            IChargeable item = (IChargeable)this.itemStacks[1].getItem();
+            int charge = (this.amountStored >= 10 ? 10 : this.amountStored) * ENDER_CHARGE_PER_MILLIBUCKET;
+            int filled = item.addCharge(this.itemStacks[1], charge, false);
+            if (filled > 0)
+            {
+                if (filled < charge)
+                {
+                    charge = filled;
+                }
+                item.addCharge(this.itemStacks[1], charge, true);
+                int used = (int)Math.ceil(charge / ENDER_CHARGE_PER_MILLIBUCKET);
+                this.amountStored -= used;
+            }
+            else if (this.itemStacks[2] == null)
+            {
+                this.itemStacks[2] = this.itemStacks[1];
+                this.itemStacks[1] = null;
+            }
+        }
     }
 
     /* Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot. */

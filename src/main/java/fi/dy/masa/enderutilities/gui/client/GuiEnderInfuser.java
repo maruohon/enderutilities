@@ -1,8 +1,12 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.resources.I18n;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
 {
@@ -32,12 +36,61 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
+        // Empty input slot, draw the slot background
+        if (this.inventorySlots.getSlot(0).getStack() == null)
+        {
+            this.drawTexturedModalRect(x + 43, y + 23, 194, 0, 18, 18);
+        }
+
+        // Empty chargeable item slot, draw the slot background
+        if (this.inventorySlots.getSlot(1).getStack() == null)
+        {
+            this.drawTexturedModalRect(x + 133, y + 7, 176, 0, 18, 18);
+        }
+
+        // Some charge stored
+        if (this.teef.amountStored > 0)
+        {
+            int t = this.teef.amountStored * 46 / TileEntityEnderInfuser.MAX_AMOUNT;
+            this.drawTexturedModalRect(x + 87, y + 23 + 46 - t, 176, 18, 28, t);
+        }
+
+        // Currently melting an input item
+        if (this.teef.meltingProgress > 0)
+        {
+            int t = this.teef.meltingProgress * 15 / 100;
+            this.drawTexturedModalRect(x + 66, y + 26, 204, 18, t, 11);
+        }
+
+        // Currently charging an item
+        if (this.teef.chargeProgress > 0)
+        {
+            int t = this.teef.chargeProgress * 15 / 100;
+            this.drawTexturedModalRect(x + 116, y + 39, 204, 18, t, 11);
+        }
         //itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
     }
 
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        // Hovering over the "tank" area
+        if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 68)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(EUStringUtils.formatNumberWithKSeparators(this.teef.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+        // Hovering over an empty material slot
+        else if (mouseX >= x + 44 && mouseX <= x + 59 && mouseY >= y + 24 && mouseY <= y + 39 && this.inventorySlots.getSlot(0).getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.infuserinput", new Object[0]));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
     }
 
     @Override
