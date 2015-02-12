@@ -11,6 +11,7 @@ enderutilities.key.togglemode=Toggle Mode
 ############################
 
 enderutilities.container.enderfurnace=Ender Furnace
+enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.toolworkstation=Tool Workstation
 
 
@@ -19,6 +20,7 @@ enderutilities.container.toolworkstation=Tool Workstation
 ##############
 
 tile.enderutilities.enderfurnace.name=Ender Furnace
+tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.toolworkstation.name=Ender Tool Workstation
 
 

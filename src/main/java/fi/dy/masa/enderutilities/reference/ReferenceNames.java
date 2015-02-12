@@ -10,6 +10,7 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
+    public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 
 

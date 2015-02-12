@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.handler.TickHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -62,6 +63,7 @@ public abstract class CommonProxy implements IProxy
         // TODO: Remove the WithAlternatives version of the register call after some releases. Added in v0.4.0 to be able to prefix the TE names with the MOD_ID.
         GameRegistry.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE), ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         GameRegistry.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION), ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
+        GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
     }
 
     public boolean isShiftKeyDown()

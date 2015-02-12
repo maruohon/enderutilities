@@ -4,6 +4,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -32,6 +33,7 @@ public class Machine
 
     public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
     public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
+    public static Machine enderInfuser = new Machine(0, 2, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
 
     protected int blockIndex;
     protected int blockMeta;
