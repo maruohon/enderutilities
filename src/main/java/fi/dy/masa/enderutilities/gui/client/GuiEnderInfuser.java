@@ -48,25 +48,26 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
             this.drawTexturedModalRect(x + 133, y + 7, 176, 0, 18, 18);
         }
 
-        // Some charge stored
+        // Some charge stored, draw the "fluid" into the tank
         if (this.teef.amountStored > 0)
         {
-            int t = this.teef.amountStored * 46 / TileEntityEnderInfuser.MAX_AMOUNT;
-            this.drawTexturedModalRect(x + 87, y + 23 + 46 - t, 176, 18, 28, t);
+            int t = this.teef.amountStored * 45 / TileEntityEnderInfuser.MAX_AMOUNT;
+            this.drawTexturedModalRect(x + 87, y + 23 + 45 - t, 176, 18 + 45 - t, 28, t);
         }
 
-        // Currently melting an input item
+        // Currently melting an input item, draw the melting progress bar
         if (this.teef.meltingProgress > 0)
         {
             int t = this.teef.meltingProgress * 15 / 100;
             this.drawTexturedModalRect(x + 66, y + 26, 204, 18, t, 11);
         }
 
-        // Currently charging an item
-        if (this.teef.chargeProgress > 0)
+        // Currently charging an item, draw the charging progress bar
+        int progress = ((ContainerEnderInfuser)this.inventorySlots).chargeProgress;
+        if (progress > 0)
         {
-            int t = this.teef.chargeProgress * 15 / 100;
-            this.drawTexturedModalRect(x + 116, y + 39, 204, 18, t, 11);
+            progress = progress * 15 / 100;
+            this.drawTexturedModalRect(x + 116, y + 39, 204, 18, progress, 11);
         }
         //itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
     }

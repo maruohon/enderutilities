@@ -4,6 +4,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
@@ -21,7 +22,10 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     public static final int MAX_AMOUNT = 4000;
     public int amountStored;
     public int meltingProgress; // 0..100, 100 being 100% done; input item consumed and stored amount increased @ 100
-    public int chargeProgress; // 0..100, 100 being 100% done; used for the filling animation only
+    public boolean isCharging;
+    public int chargeableItemCapacity;
+    public int chargeableItemStartingCharge;
+    public int chargeableItemCurrentCharge;
 
     public TileEntityEnderInfuser()
     {
@@ -33,24 +37,41 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         super.readFromNBTCustom(nbt);
-    }
 
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-        super.readFromNBT(nbt);
+        // The stored amount is stored in a Fluid-compatible tag already,
+        // just in case I ever decide to change the "Ender Goo" (or Resonant Ender?)
+        // to actually be a Fluid, possibly compatible with Resonant Ender.
+        if (nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == true)
+        {
+            this.amountStored = nbt.getCompoundTag("Fluid").getInteger("Amount");
+        }
+        this.meltingProgress = nbt.getByte("Progress");
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setInteger("Amount", this.amountStored);
+        tag.setString("FluidName", "ender"); // For future compatibility
+        nbt.setTag("Fluid", tag);
+        nbt.setByte("Progress", (byte)this.meltingProgress);
     }
 
     @Override
     public void updateEntity()
     {
-        // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo(?)
+        if (this.worldObj.isRemote == true)
+        {
+            return;
+        }
+
+        boolean dirty = false;
+        boolean sync = false;
+
+        // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo?
         if (this.itemStacks[0] != null)
         {
             int amount = 0;
@@ -77,30 +98,79 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
                         this.itemStacks[0] = null;
                     }
                 }
+
+                dirty = true;
+                sync = true;
             }
         }
 
         // Charge IChargeable items with the Ender Goo
-        if (this.itemStacks[1] != null && this.itemStacks[1].getItem() instanceof IChargeable && this.amountStored > 0)
+        if (this.itemStacks[1] != null && this.itemStacks[1].getItem() instanceof IChargeable)
         {
             IChargeable item = (IChargeable)this.itemStacks[1].getItem();
-            int charge = (this.amountStored >= 10 ? 10 : this.amountStored) * ENDER_CHARGE_PER_MILLIBUCKET;
-            int filled = item.addCharge(this.itemStacks[1], charge, false);
-            if (filled > 0)
+
+            if (this.amountStored > 0)
             {
-                if (filled < charge)
+                int charge = (this.amountStored >= 10 ? 10 : this.amountStored) * ENDER_CHARGE_PER_MILLIBUCKET;
+                int filled = item.addCharge(this.itemStacks[1], charge, false);
+
+                if (filled > 0)
                 {
-                    charge = filled;
+                    // Just started charging an item, grab the current charge level and capacity for progress bar updating
+                    if (this.isCharging == false)
+                    {
+                        this.chargeableItemCapacity = item.getCapacity(this.itemStacks[1]);
+                        this.chargeableItemStartingCharge = item.getCharge(this.itemStacks[1]);
+                        this.chargeableItemCurrentCharge = this.chargeableItemStartingCharge;
+                        this.isCharging = true;
+                    }
+
+                    if (filled < charge)
+                    {
+                        charge = filled;
+                    }
+
+                    charge = item.addCharge(this.itemStacks[1], charge, true);
+                    int used = (int)Math.ceil(charge / ENDER_CHARGE_PER_MILLIBUCKET);
+                    this.amountStored -= used;
+                    this.chargeableItemCurrentCharge += charge; // = item.getCharge(this.itemStacks[1]);
+                    dirty = true;
                 }
-                item.addCharge(this.itemStacks[1], charge, true);
-                int used = (int)Math.ceil(charge / ENDER_CHARGE_PER_MILLIBUCKET);
-                this.amountStored -= used;
             }
-            else if (this.itemStacks[2] == null)
+
+            // A fully charged item is in the input slot, move it to the output slot, if possible
+            if (item.getCharge(this.itemStacks[1]) >= item.getCapacity(this.itemStacks[1]))
             {
-                this.itemStacks[2] = this.itemStacks[1];
-                this.itemStacks[1] = null;
+                this.isCharging = false;
+                this.chargeableItemCurrentCharge = 0;
+                this.chargeableItemStartingCharge = 0;
+                this.chargeableItemCapacity = 0;
+
+                // Output slot is currently empty, move the item
+                if (this.itemStacks[2] == null)
+                {
+                    this.itemStacks[2] = this.itemStacks[1];
+                    this.itemStacks[1] = null;
+                    dirty = true;
+                }
             }
+        }
+        else
+        {
+            this.isCharging = false;
+            this.chargeableItemCurrentCharge = 0;
+            this.chargeableItemStartingCharge = 0;
+            this.chargeableItemCapacity = 0;
+        }
+
+        if (dirty == true)
+        {
+            this.markDirty();
+        }
+
+        if (sync == true)
+        {
+            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
         }
     }
 
@@ -157,10 +227,5 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiEnderInfuser(this.getContainer(inventoryPlayer), this);
-    }
-
-    @Override
-    public void performGuiAction(int element, short action)
-    {
     }
 }

@@ -18,6 +18,10 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
     public int amountStored;
     public int meltingProgress; // 0..100, 100 being 100% done; input item consumed and stored amount increased @ 100
     public int chargeProgress; // 0..100, 100 being 100% done; used for the filling animation only
+    public int ciCapacity; // chargeableItemCapacity
+    public int ciStarting; // chargeableItemStartingCharge
+    public int ciCurrent; // chargeableItemCurrentCharge
+    public int ciCurrentLast;
 
     public ContainerEnderInfuser(TileEntityEnderInfuser te, InventoryPlayer inventory)
     {
@@ -43,10 +47,17 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
     {
         super.detectAndSendChanges();
 
-        ICrafting icrafting;
+        if (this.teef.chargeableItemCurrentCharge != this.ciCurrent)
+        {
+            this.ciCurrent = this.teef.chargeableItemCurrentCharge;
+            this.ciCapacity = this.teef.chargeableItemCapacity;
+            this.ciStarting = this.teef.chargeableItemStartingCharge;
+            this.updateChargingProgress();
+        }
+
         for (int i = 0; i < this.crafters.size(); ++i)
         {
-            icrafting = (ICrafting)this.crafters.get(i);
+            ICrafting icrafting = (ICrafting)this.crafters.get(i);
 
             // The values need to fit into a short, where these get truncated to in non-local SMP
 
@@ -60,24 +71,26 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
                 icrafting.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
             }
 
-            if (this.teef.chargeProgress != this.chargeProgress)
+            if (this.ciCurrentLast != this.ciCurrent)
             {
-                icrafting.sendProgressBarUpdate(this, 2, this.teef.chargeProgress);
+                icrafting.sendProgressBarUpdate(this, 2, this.chargeProgress);
             }
-
-            this.amountStored = this.teef.amountStored;
-            this.meltingProgress = this.teef.meltingProgress;
-            this.chargeProgress = this.teef.chargeProgress;
         }
+
+        this.ciCurrentLast = this.ciCurrent;
+        this.amountStored = this.teef.amountStored;
+        this.meltingProgress = this.teef.meltingProgress;
     }
 
     @Override
     public void addCraftingToCrafters(ICrafting icrafting)
     {
         super.addCraftingToCrafters(icrafting);
-        icrafting.sendProgressBarUpdate(this, 0, this.teef.amountStored);
-        icrafting.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
-        icrafting.sendProgressBarUpdate(this, 2, this.teef.chargeProgress);
+
+        this.updateChargingProgress();
+        icrafting.sendProgressBarUpdate(this, 0, this.amountStored);
+        icrafting.sendProgressBarUpdate(this, 1, this.meltingProgress);
+        icrafting.sendProgressBarUpdate(this, 2, this.chargeProgress);
     }
 
     @SideOnly(Side.CLIENT)
@@ -92,9 +105,21 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
                 this.teef.meltingProgress = val;
                 break;
             case 2:
-                this.teef.chargeProgress = val;
+                this.chargeProgress = val;
                 break;
             default:
+        }
+    }
+
+    private void updateChargingProgress()
+    {
+        if (this.ciCapacity != this.ciStarting)
+        {
+            this.chargeProgress = (this.ciCurrent - this.ciStarting) * 100 / (this.ciCapacity - this.ciStarting);
+        }
+        else
+        {
+            this.chargeProgress = 0;
         }
     }
 
