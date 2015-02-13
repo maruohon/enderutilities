@@ -69,7 +69,7 @@ item.enderutilities.mobharness.name=Mob Harness
 ####################
 # All modular items:
 ####################
-enderutilities.itemlocationboundmodular.tooltips=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward,|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Shift or Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
+enderutilities.itemlocationboundmodular.tooltips=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward or|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
 
 ###################
 # Individual items:
@@ -89,8 +89,8 @@ item.enderutilities.enderpart.endercore.0.inactive.tooltips=- Right click an End
 item.enderutilities.enderpart.endercore.1.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpearlreusable.elite.tooltips=Lets you fly! w00t!
-item.enderutilities.enderporter.tooltips=- Player teleportation inside the same dimension|lf- Not single-use anymore
-item.enderutilities.enderporter.advanced.tooltips=- Player teleportation cross-dimensionally
+item.enderutilities.enderporter.tooltips=- Player teleportation inside the same dimension|lf- Not single-use anymore!|lf - Sneak + right click to bind
+item.enderutilities.enderporter.advanced.tooltips=- Player teleportation cross-dimensionally|lf - Sneak + right click to bind
 item.enderutilities.endertool.enderpickaxe.tooltips=*WIP*|lf- Enchant with Efficiency V for|lf  instant mining of common blocks
 item.enderutilities.endertool.enderaxe.tooltips=*WIP*|lf- Enchant with Efficiency V for|lf  instant mining of common blocks
 item.enderutilities.endertool.endershovel.tooltips=*WIP*|lf- Enchant with Efficiency V for|lf  instant mining of common blocks
