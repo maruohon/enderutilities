@@ -66,8 +66,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public int getCapacityFromItemType(ItemStack stack)
     {
         if (stack.getItemDamage() == 0) { return 10000; } // Basic
-        if (stack.getItemDamage() == 1) { return 50000; } // Enhanced
-        if (stack.getItemDamage() == 2) { return 250000; } // Advanced
+        if (stack.getItemDamage() == 1) { return 100000; } // Enhanced
+        if (stack.getItemDamage() == 2) { return 500000; } // Advanced
         return 10000; // Basic
     }
 

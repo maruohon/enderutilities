@@ -31,7 +31,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
-    public static final int ENDER_CHARGE_COST = 400;
+    public static final int ENDER_CHARGE_COST_MOB_TP = 2000;
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
@@ -113,7 +113,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             if (player.capabilities.isCreativeMode == false)
             {
-                if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+                if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, true) == false)
                 {
                     return;
                 }
@@ -153,9 +153,10 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     {
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
 
+        // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false
             && stack.getTagCompound() != null && stack.getTagCompound().getByte("Mode") == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
+            && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, false) == false)
         {
             return stack;
         }

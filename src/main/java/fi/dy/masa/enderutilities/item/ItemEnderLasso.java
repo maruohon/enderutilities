@@ -6,7 +6,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderLasso extends ItemLocationBoundModular
 {
-    public static final int ENDER_CHARGE_COST = 500;
+    public static final int ENDER_CHARGE_COST = 2000;
 
     public ItemEnderLasso()
     {
