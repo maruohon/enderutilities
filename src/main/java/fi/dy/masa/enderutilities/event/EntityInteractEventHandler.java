@@ -11,7 +11,10 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -59,17 +62,11 @@ public class EntityInteractEventHandler
             return;
         }
 
-        if (item == EnderUtilitiesItems.enderPart)
+        if (item instanceof IModule && item == EnderUtilitiesItems.enderPart && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_INACTIVE))
         {
             if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
             {
-                int dmg = stack.getItemDamage();
-
-                // Inactive Ender Core: Change the stack to an active Ender Core
-                if (dmg >= 10 && dmg <= 12)
-                {
-                    stack.setItemDamage(dmg + 5);
-                }
+                ((ItemEnderPart)item).activateEnderCore(stack);
             }
             return;
         }

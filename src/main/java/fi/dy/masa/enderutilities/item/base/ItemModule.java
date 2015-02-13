@@ -12,7 +12,7 @@ public abstract class ItemModule extends ItemEnderUtilities implements IModule
     public enum ModuleType
     {
         TYPE_ENDERCORE_ACTIVE       (0, "endercore"),
-        TYPE_ENDERCORE_INACTIVE     (1, "endercore"),
+        TYPE_ENDERCORE_INACTIVE     (1, "endercore_inactive"),
         TYPE_ENDERCAPACITOR         (2, "endercapacitor"),
         TYPE_LINKCRYSTAL            (3, "linkcrystal"),
         TYPE_MOBPERSISTENCE         (4, "mobpersistence"),

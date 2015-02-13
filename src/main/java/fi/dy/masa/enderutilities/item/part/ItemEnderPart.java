@@ -148,9 +148,25 @@ public class ItemEnderPart extends ItemModule
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
     }
 
+    public void activateEnderCore(ItemStack stack)
+    {
+        // Inactive Ender Cores
+        if (stack != null && stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        {
+            // "Activate" the Ender Core (ie. change the item)
+            stack.setItemDamage(stack.getItemDamage() + 5);
+        }
+    }
+
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
+        // Inactive Ender Cores
+        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        {
+            return ModuleType.TYPE_ENDERCORE_INACTIVE;
+        }
+
         // Active Ender Cores
         if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
         {
@@ -163,12 +179,18 @@ public class ItemEnderPart extends ItemModule
     @Override
     public int getModuleTier(ItemStack stack)
     {
-        // Only Active Ender Cores are modules
+        // Inactive Ender Cores
+        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        {
+            return stack.getItemDamage() - 10;
+        }
+
+        // Active Ender Cores
         if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
         {
             return stack.getItemDamage() - 15;
         }
 
-        return 0;
+        return -1; // Invalid item (= non-module)
     }
 }
