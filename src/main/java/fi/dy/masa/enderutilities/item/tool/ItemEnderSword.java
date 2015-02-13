@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item.tool;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.google.common.collect.HashMultimap;
@@ -23,10 +25,12 @@ import com.google.common.collect.Multimap;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
@@ -293,9 +297,51 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
     {
+        ArrayList<String> tmpList = new ArrayList<String>();
+        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
+
+        // "Fresh" items without NBT data: display the tips before the usual tooltip data
+        if (stack != null && stack.getTagCompound() == null)
+        {
+            this.addTooltips(stack, tmpList, verbose);
+
+            if (verbose == false && tmpList.size() > 1)
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+            }
+            else
+            {
+                list.addAll(tmpList);
+            }
+        }
+
+        /*tmpList.clear();
+        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
+        // plus the "Hold Shift for more" tooltip.
+        if (verbose == false && tmpList.size() > 2)
+        {
+            tmpList.clear();
+            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            list.add(tmpList.get(0));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
+        }
+        else
+        {
+            list.addAll(tmpList);
+        }*/
         //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
+
+        super.addInformation(stack, player, list, advancedTooltips);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
     @SideOnly(Side.CLIENT)
