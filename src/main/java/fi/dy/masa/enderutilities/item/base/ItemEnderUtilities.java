@@ -17,6 +17,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
+    public String name;
+
     public ItemEnderUtilities()
     {
         super();
@@ -26,6 +28,7 @@ public class ItemEnderUtilities extends Item
     @Override
     public Item setUnlocalizedName(String name)
     {
+        this.name = name;
         this.setTextureName(ReferenceTextures.getItemTextureName(name));
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
