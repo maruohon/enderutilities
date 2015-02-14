@@ -191,6 +191,7 @@ public class ConfigReader
         Configs.disableRecipePartEnderCore0       = conf.get(category, "DisableRecipePartEnderCore0", false).setRequiresMcRestart(true);
         Configs.disableRecipePartEnderCore1       = conf.get(category, "DisableRecipePartEnderCore1", false).setRequiresMcRestart(true);
         Configs.disableRecipePartEnderCore2       = conf.get(category, "DisableRecipePartEnderCore2", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderRelic       = conf.get(category, "DisableRecipePartEnderRelic", false).setRequiresMcRestart(true);
         Configs.disableRecipePartEnderRope        = conf.get(category, "DisableRecipePartEnderRope", false).setRequiresMcRestart(true);
         Configs.disableRecipePartEnderStick       = conf.get(category, "DisableRecipePartEnderStick", false).setRequiresMcRestart(true);
 

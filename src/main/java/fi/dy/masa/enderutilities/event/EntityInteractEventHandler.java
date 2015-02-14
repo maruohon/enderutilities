@@ -73,7 +73,7 @@ public class EntityInteractEventHandler
 
         if (item instanceof IChargeable)
         {
-            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal && event.entity.dimension == 1)
             {
                 IChargeable chargeable = (IChargeable)item;
                 chargeable.addCharge(stack, chargeable.getCapacity(stack) >> 2, true);

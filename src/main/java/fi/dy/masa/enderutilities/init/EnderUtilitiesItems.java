@@ -80,7 +80,7 @@ public class EnderUtilitiesItems
         ItemStack alloy2 = new ItemStack(enderPart, 1, 2);
         ItemStack core0 = new ItemStack(enderPart, 1, 10);
         ItemStack core1 = new ItemStack(enderPart, 1, 11);
-        //ItemStack core2 = new ItemStack(enderPart, 1, 12);
+        ItemStack core2 = new ItemStack(enderPart, 1, 12);
         //ItemStack active_core0 = new ItemStack(enderPart, 1, 15);
         ItemStack active_core1 = new ItemStack(enderPart, 1, 16);
         ItemStack active_core2 = new ItemStack(enderPart, 1, 17);
@@ -183,6 +183,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePartEnderCore2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "EAE", "ADA", "OAO", 'E', eye, 'A', alloy2, 'D', diamond_block, 'O', obsidian);
+        }
+        if (Configs.disableRecipePartEnderRelic.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 40), "ODO", "DCD", "ODO", 'O', obsidian, 'D', diamond, 'C', core2);
         }
         if (Configs.disableRecipePartEnderRope.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
