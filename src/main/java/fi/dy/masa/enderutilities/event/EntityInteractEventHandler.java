@@ -64,7 +64,7 @@ public class EntityInteractEventHandler
 
         if (item instanceof IModule && item == EnderUtilitiesItems.enderPart && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_INACTIVE))
         {
-            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal)
+            if (event.entity.worldObj.isRemote == false && event.target instanceof EntityEnderCrystal && event.entity.dimension == 1)
             {
                 ((ItemEnderPart)item).activateEnderCore(stack);
             }
