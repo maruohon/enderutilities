@@ -7,6 +7,9 @@ import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
@@ -283,6 +286,47 @@ public class EntityUtils
                 world.spawnEntityInWorld(entityendercrystal);
             }
         }
+
+        return false;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" } )
+    public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class[] afterTasks)
+    {
+        if (entity == null)
+        {
+            return false;
+        }
+
+        EntityAITasks tasks = entity.tasks;
+        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
+        {
+            // If this entity already has our AI task, then do nothing
+            if (e.action.getClass() == task.getClass())
+            {
+                return true;
+            }
+        }
+
+        int priority = -1;
+        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
+        {
+            for (Class<? extends EntityAIBase> clazz : afterTasks)
+            {
+                if (priority <= e.priority && clazz.isAssignableFrom(e.action.getClass()))
+                {
+                    priority = e.priority + 1;
+                }
+            }
+        }
+
+        // Didn't find any matching AI tasks, insert ours as the highest priority task
+        if (priority == -1)
+        {
+            priority = 0;
+        }
+
+        tasks.addTask(priority, task);
 
         return false;
     }

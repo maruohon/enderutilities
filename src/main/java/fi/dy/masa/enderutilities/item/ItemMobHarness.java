@@ -9,8 +9,6 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAITasks;
-import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -78,7 +76,8 @@ public class ItemMobHarness extends ItemEnderUtilities
 
             if (entity instanceof EntityLiving)
             {
-                this.addAITask((EntityLiving)entity, player);
+                // Add a new AI task as the highest priority task after swimming and panic AI tasks
+                EntityUtils.addAITaskAfterTasks((EntityLiving)entity, new EntityAIControlledByPlayerUsingHarness((EntityLiving)entity, 0.3f), new Class[] {EntityAISwimming.class, EntityAIPanic.class});
             }
 
             return true;
@@ -253,46 +252,8 @@ public class ItemMobHarness extends ItemEnderUtilities
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean addAITask(EntityLiving entity, EntityPlayer player)
-    {
-        if (entity == null)
-        {
-            return false;
-        }
-
-        EntityAITasks tasks = entity.tasks;
-
-        // Find the highest priority after swimming and panic AI tasks
-        int priority = -1;
-        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
-        {
-            // If this entity already has our AI task, then do nothing
-            if (e.action instanceof EntityAIControlledByPlayerUsingHarness)
-            {
-                return true;
-            }
-
-            if (priority <= e.priority && (e.action instanceof EntityAISwimming || e.action instanceof EntityAIPanic))
-            {
-                priority = e.priority + 1;
-            }
-        }
-
-        // Found a valid priority
-        if (priority == -1)
-        {
-            priority = 0;
-        }
-
-        tasks.addTask(priority, new EntityAIControlledByPlayerUsingHarness(entity, 0.3f));
-        System.out.println("adding task");
-
-        return false;
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
     {
         NBTTagCompound nbt = stack.getTagCompound();
