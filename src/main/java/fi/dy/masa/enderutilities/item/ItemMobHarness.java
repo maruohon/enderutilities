@@ -6,6 +6,11 @@ import java.util.UUID;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.ai.EntityAIPanic;
+import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -46,7 +52,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (player.isSneaking() == true)
         {
             MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-            if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
+            if (movingobjectposition != null && movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY
                 && player.rotationPitch > 80.0f)
             {
                 this.clearData(stack);
@@ -69,6 +75,12 @@ public class ItemMobHarness extends ItemEnderUtilities
         {
             EntityUtils.unmountRider(entity);
             player.mountEntity(entity);
+
+            if (entity instanceof EntityLiving)
+            {
+                this.addAITask((EntityLiving)entity, player);
+            }
+
             return true;
         }
 
@@ -239,6 +251,44 @@ public class ItemMobHarness extends ItemEnderUtilities
         stack.getTagCompound().removeTag("Mode");
 
         return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean addAITask(EntityLiving entity, EntityPlayer player)
+    {
+        if (entity == null)
+        {
+            return false;
+        }
+
+        EntityAITasks tasks = entity.tasks;
+
+        // Find the highest priority after swimming and panic AI tasks
+        int priority = -1;
+        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
+        {
+            // If this entity already has our AI task, then do nothing
+            if (e.action instanceof EntityAIControlledByPlayerUsingHarness)
+            {
+                return true;
+            }
+
+            if (priority <= e.priority && (e.action instanceof EntityAISwimming || e.action instanceof EntityAIPanic))
+            {
+                priority = e.priority + 1;
+            }
+        }
+
+        // Found a valid priority
+        if (priority == -1)
+        {
+            priority = 0;
+        }
+
+        tasks.addTask(priority, new EntityAIControlledByPlayerUsingHarness(entity, 0.3f));
+        System.out.println("adding task");
+
+        return false;
     }
 
     @Override
