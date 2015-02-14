@@ -71,6 +71,7 @@ public class Configs
     public static Property disableRecipePartEnderCore0;
     public static Property disableRecipePartEnderCore1;
     public static Property disableRecipePartEnderCore2;
+    public static Property disableRecipePartMobPersistence;
     public static Property disableRecipePartEnderRelic;
     public static Property disableRecipePartEnderRope;
     public static Property disableRecipePartEnderStick;

@@ -21,6 +21,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_ENDERSTICK       = "enderstick";
     public static final String NAME_ITEM_ENDERPART_ENDERROPE        = "enderrope";
     public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL      = "linkcrystal";
+    public static final String NAME_ITEM_ENDERPART_MOBPERSISTENCE   = "mobpersistence";
     public static final String NAME_ITEM_ENDERPART_ENDERRELIC       = "enderrelic";
 
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";

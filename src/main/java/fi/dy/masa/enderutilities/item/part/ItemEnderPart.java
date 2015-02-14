@@ -4,13 +4,11 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
@@ -18,6 +16,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -78,6 +77,12 @@ public class ItemEnderPart extends ItemModule
             return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
         }
 
+        // Damage 45: Mob Persistence
+        if (stack.getItemDamage() == 45)
+        {
+            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE;
+        }
+
         return super.getUnlocalizedName();
     }
 
@@ -109,58 +114,9 @@ public class ItemEnderPart extends ItemModule
             list.add(new ItemStack(this, 1, 21)); // Ender Rope
 
             list.add(new ItemStack(this, 1, 40)); // Ender Relic
+
+            list.add(new ItemStack(this, 1, 45)); // Mob Persistence
         }
-    }
-
-    private boolean spawnEnderCrystal(World world, int x, int y, int z)
-    {
-        // Only allow the activation to happen in The End
-        if (world != null && world.provider != null)
-        {
-            // The item must be right clicked on the Bedrock block on top of the obsidian pillars
-            if (world.provider.dimensionId == 1 && world.getBlock(x, y, z) == Blocks.bedrock)
-            {
-                // Check that there aren't already Ender Crystals nearby
-                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.getBoundingBox(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
-                if (entities.isEmpty() == false)
-                {
-                    return false;
-                }
-
-                // Check that we have a pillar of obsidian below the bedrock block (at least 3x3 wide and 6 tall)
-                for (int by = y - 6; by < y; ++by)
-                {
-                    for (int bx = x - 1; bx <= x + 1; ++bx)
-                    {
-                        for (int bz = z - 1; bz <= z + 1; ++bz)
-                        {
-                            if (world.getBlock(bx, by, bz) != Blocks.obsidian)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-                // Everything ok, create an explosion and then spawn a new Ender Crystal
-                world.createExplosion(null, x + 0.5f, y + 1, z + 0.5f, 10, true);
-                EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5f, y, z + 0.5f, world.rand.nextFloat() * 360.0f, 0.0f);
-                world.spawnEntityInWorld(entityendercrystal);
-
-                return true;
-            }
-            // Allow spawning decorative Ender Crystals in other dimensions.
-            // They won't be valid for Ender Charge, and spawning them doesn't create an explosion or have block requirements.
-            else if (world.provider.dimensionId != 1)
-            {
-                EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5f, y, z + 0.5f, world.rand.nextFloat() * 360.0f, 0.0f);
-                world.spawnEntityInWorld(entityendercrystal);
-            }
-        }
-
-        return false;
     }
 
     @Override
@@ -174,7 +130,7 @@ public class ItemEnderPart extends ItemModule
         // Ender Relic
         if (stack != null && stack.getItemDamage() == 40)
         {
-            if (this.spawnEnderCrystal(world, x, y, z) == true)
+            if (EntityUtils.spawnEnderCrystal(world, x, y, z) == true)
             {
                 if (--stack.stackSize <= 0)
                 {
@@ -182,6 +138,25 @@ public class ItemEnderPart extends ItemModule
                 }
 
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if the item can be used on the given entity, e.g. shears on sheep.
+     */
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    {
+        if (stack != null && stack.getItemDamage() == 45)
+        {
+            if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
+            {
+                if (--stack.stackSize <= 0)
+                {
+                    player.destroyCurrentEquippedItem();
+                }
             }
         }
 
@@ -210,6 +185,9 @@ public class ItemEnderPart extends ItemModule
         // Ender Rope
         if (damage == 40) { return this.iconArray[11]; }
 
+        // Mob Persistence
+        if (damage == 45) { return this.iconArray[12]; }
+
         return this.itemIcon;
     }
 
@@ -218,7 +196,7 @@ public class ItemEnderPart extends ItemModule
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-        this.iconArray = new IIcon[12];
+        this.iconArray = new IIcon[13];
 
         int i = 0, j;
 
@@ -240,6 +218,7 @@ public class ItemEnderPart extends ItemModule
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
     }
 
     public void activateEnderCore(ItemStack stack)
@@ -267,6 +246,12 @@ public class ItemEnderPart extends ItemModule
             return ModuleType.TYPE_ENDERCORE_ACTIVE;
         }
 
+        // Mob Persistence
+        if (stack.getItemDamage() == 45)
+        {
+            return ModuleType.TYPE_MOBPERSISTENCE;
+        }
+
         return ModuleType.TYPE_INVALID;
     }
 
@@ -283,6 +268,12 @@ public class ItemEnderPart extends ItemModule
         if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
         {
             return stack.getItemDamage() - 15;
+        }
+
+        // Mob Persistence
+        if (stack.getItemDamage() == 45)
+        {
+            return 0;
         }
 
         return -1; // Invalid item (= non-module)

@@ -209,12 +209,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
 
         ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
-
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
-        {
-            return 1;
-        }
-
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
             // Only allow the in-world/location type Link Crystals by default
@@ -222,6 +216,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             {
                 return 3;
             }
+        }
+        else
+        {
+            return this.getMaxModules(toolStack, moduleType);
         }
 
         return 0;

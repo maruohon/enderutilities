@@ -21,8 +21,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -104,6 +106,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 }
 
                 entityenderarrow.setTpTarget(target);
+
+                // If there is a mob persistence module installed, mark that flag on the arrow entity
+                if (UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                {
+                    entityenderarrow.setPersistence(true);
+                }
             }
 
             if (f == 1.0F)
@@ -243,6 +251,118 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return false;
     }
 
+    public byte getBowMode(ItemStack stack)
+    {
+        if (stack != null && stack.getTagCompound() != null)
+        {
+            return stack.getTagCompound().getByte("Mode");
+        }
+
+        return BOW_MODE_TP_TARGET;
+    }
+
+    public void toggleBowMode(EntityPlayer player, ItemStack stack)
+    {
+        if (stack == null)
+        {
+            return;
+        }
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        byte val = this.getBowMode(stack);
+        if (++val > 1)
+        {
+            val = 0;
+        }
+
+        // If self teleporting is disabled in the configs, always set the mode to TP target
+        if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        {
+            val = BOW_MODE_TP_TARGET;
+        }
+
+        nbt.setByte("Mode", val);
+        stack.setTagCompound(nbt);
+    }
+
+    @Override
+    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    {
+        // Change the selected link crystal
+        if (ReferenceKeys.keypressContainsShift(key) == true)
+        {
+            if (this.getBowMode(stack) == BOW_MODE_TP_TARGET)
+            {
+                super.doKeyBindingAction(player, stack, key);
+            }
+        }
+        else if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        {
+            this.toggleBowMode(player, stack);
+        }
+    }
+
+    /* Returns the maximum number of modules that can be installed on this item. */
+    @Override
+    public int getMaxModules(ItemStack stack)
+    {
+        return 5;
+    }
+
+    /* Returns the maximum number of modules of the given type that can be installed on this item. */
+    @Override
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    {
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
+        {
+            return 3;
+        }
+
+        if (moduleType.equals(ModuleType.TYPE_MOBPERSISTENCE))
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /* Returns the maximum number of the given module that can be installed on this item.
+     * This is for exact module checking, instead of the general module type. */
+    @Override
+    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    {
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
+        {
+            // Only allow the in-world/location type Link Crystals by default
+            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION)
+            {
+                return 3;
+            }
+        }
+        else
+        {
+            return this.getMaxModules(toolStack, moduleType);
+        }
+
+        return 0;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
@@ -331,61 +451,5 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         return this.getItemIconForUseDuration(index);
-    }
-
-    public byte getBowMode(ItemStack stack)
-    {
-        if (stack != null && stack.getTagCompound() != null)
-        {
-            return stack.getTagCompound().getByte("Mode");
-        }
-
-        return BOW_MODE_TP_TARGET;
-    }
-
-    public void toggleBowMode(EntityPlayer player, ItemStack stack)
-    {
-        if (stack == null)
-        {
-            return;
-        }
-
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        byte val = this.getBowMode(stack);
-        if (++val > 1)
-        {
-            val = 0;
-        }
-
-        // If self teleporting is disabled in the configs, always set the mode to TP target
-        if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
-        {
-            val = BOW_MODE_TP_TARGET;
-        }
-
-        nbt.setByte("Mode", val);
-        stack.setTagCompound(nbt);
-    }
-
-    @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
-    {
-        // Change the selected link crystal
-        if (ReferenceKeys.keypressContainsShift(key) == true)
-        {
-            if (this.getBowMode(stack) == BOW_MODE_TP_TARGET)
-            {
-                super.doKeyBindingAction(player, stack, key);
-            }
-        }
-        else if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            this.toggleBowMode(player, stack);
-        }
     }
 }

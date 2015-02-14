@@ -184,6 +184,10 @@ public class EnderUtilitiesItems
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "EAE", "ADA", "OAO", 'E', eye, 'A', alloy2, 'D', diamond_block, 'O', obsidian);
         }
+        if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 4, 45), "ABA", "B B", "ABA", 'A', alloy0, 'B', new ItemStack(Blocks.iron_bars));
+        }
         if (Configs.disableRecipePartEnderRelic.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 40), "ODO", "DCD", "ODO", 'O', obsidian, 'D', diamond, 'C', core2);

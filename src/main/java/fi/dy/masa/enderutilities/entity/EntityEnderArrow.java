@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -44,6 +45,7 @@ public class EntityEnderArrow extends EntityArrow
     // "TP target" mode target location
     public NBTHelperTarget tpTarget;
     public byte tpMode;
+    public boolean applyPersistence;
     public UUID shooterUUID;
     public float teleportDamage = 2.0f;
 
@@ -144,6 +146,11 @@ public class EntityEnderArrow extends EntityArrow
     public void setTpMode(byte mode)
     {
         this.tpMode = mode;
+    }
+
+    public void setPersistence(boolean enabled)
+    {
+        this.applyPersistence = enabled;
     }
 
     public void setTpTarget(NBTHelperTarget target)
@@ -311,7 +318,11 @@ public class EntityEnderArrow extends EntityArrow
                             this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, movingobjectposition.entityHit);
                             if (this.tpTarget != null)
                             {
-                                TeleportEntity.teleportEntity(movingobjectposition.entityHit, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
+                                Entity e = TeleportEntity.teleportEntity(movingobjectposition.entityHit, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
+                                if (this.applyPersistence == true && e instanceof EntityLiving)
+                                {
+                                    EntityUtils.applyMobPersistence((EntityLiving)e);
+                                }
                             }
                             this.dropAsItem(false);
                             this.setDead();
