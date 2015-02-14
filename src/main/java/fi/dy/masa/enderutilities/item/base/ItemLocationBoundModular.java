@@ -131,7 +131,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
                 String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, numPre, sel, rst, numPre, num, rst));
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s%s%d%s / %s%d%s", dName, numPre, sel, rst, numPre, num, rst));
             }
         }
         else
@@ -139,9 +139,25 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
-        // Ender Capacitor charge, if one has been installed
         if (verbose == true)
         {
+            // Item supports Jailer modules, show if one is installed
+            if (this.getMaxModules(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+            {
+                String s;
+                if (this.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                {
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                }
+                else
+                {
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                }
+
+                list.add(s);
+            }
+
+            // Ender Capacitor charge, if one has been installed
             ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
             if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {

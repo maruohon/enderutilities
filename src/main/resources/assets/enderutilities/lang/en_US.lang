@@ -131,9 +131,11 @@ enderutilities.tooltip.item.empty=empty
 enderutilities.tooltip.item.fluid=Fluid
 enderutilities.tooltip.item.holdshift=Hold §e§oShift§7 for more
 enderutilities.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for description
+enderutilities.tooltip.item.jailer=Jailer
 enderutilities.tooltip.item.linked=Linked
 enderutilities.tooltip.item.linkedto=Linked to
 enderutilities.tooltip.item.mode=Mode
+enderutilities.tooltip.item.no=no
 enderutilities.tooltip.item.nolinkcrystals=No Link Crystals installed
 enderutilities.tooltip.item.notargetset=No target set
 enderutilities.tooltip.item.notlinked=Not linked
@@ -147,6 +149,7 @@ enderutilities.tooltip.item.target=Target
 enderutilities.tooltip.item.tpself=TP self
 enderutilities.tooltip.item.tptarget=TP target
 enderutilities.tooltip.item.usetoolworkstation=Use the Tool Workstation to add or remove modules
+enderutilities.tooltip.item.yes=yes
 
 
 # Chat messages:
