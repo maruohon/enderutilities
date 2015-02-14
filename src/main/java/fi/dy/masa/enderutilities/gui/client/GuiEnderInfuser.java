@@ -51,8 +51,9 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         // Some charge stored, draw the "fluid" into the tank
         if (this.teef.amountStored > 0)
         {
-            int t = this.teef.amountStored * 45 / TileEntityEnderInfuser.MAX_AMOUNT;
-            this.drawTexturedModalRect(x + 87, y + 23 + 45 - t, 176, 18 + 45 - t, 28, t);
+            int h = 48;
+            int t = this.teef.amountStored * h / TileEntityEnderInfuser.MAX_AMOUNT;
+            this.drawTexturedModalRect(x + 87, y + 23 + h - t, 176, 18 + h - t, 28, t);
         }
 
         // Currently melting an input item, draw the melting progress bar
@@ -89,7 +90,14 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         else if (mouseX >= x + 44 && mouseX <= x + 59 && mouseY >= y + 24 && mouseY <= y + 39 && this.inventorySlots.getSlot(0).getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.infuserinput", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.enderinfuser.input", new Object[0]));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+        // Hovering over an empty capacitor input slot
+        else if (mouseX >= x + 134 && mouseX <= x + 149 && mouseY >= y + 8 && mouseY <= y + 23 && this.inventorySlots.getSlot(1).getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.enderinfuser.capacitorinput", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }

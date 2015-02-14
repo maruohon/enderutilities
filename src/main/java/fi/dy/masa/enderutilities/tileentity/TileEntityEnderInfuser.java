@@ -103,6 +103,10 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
                 sync = true;
             }
         }
+        else
+        {
+            this.meltingProgress = 0;
+        }
 
         // Charge IChargeable items with the Ender Goo
         if (this.itemStacks[1] != null && this.itemStacks[1].getItem() instanceof IChargeable)
