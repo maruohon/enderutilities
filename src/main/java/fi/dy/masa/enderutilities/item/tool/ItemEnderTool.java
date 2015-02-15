@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.block.Block;
@@ -47,11 +49,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
-    public static final int TOOL_TYPE_PICKAXE = 0;
-    public static final int TOOL_TYPE_AXE     = 1;
-    public static final int TOOL_TYPE_SHOVEL  = 2;
-    public static final int TOOL_TYPE_HOE     = 3;
-
     public float efficiencyOnProperMaterial;
     public float damageVsEntity;
     private final Item.ToolMaterial material;
@@ -83,25 +80,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        int toolType = this.getToolType(stack);
-        if (toolType == TOOL_TYPE_PICKAXE)
+        ToolType toolType = this.getToolType(stack);
+        if (toolType != ToolType.INVALID)
         {
-            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE;
-        }
-
-        if (toolType == TOOL_TYPE_AXE)
-        {
-            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDER_AXE;
-        }
-
-        if (toolType == TOOL_TYPE_SHOVEL)
-        {
-            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDER_SHOVEL;
-        }
-
-        if (toolType == TOOL_TYPE_HOE)
-        {
-            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDER_HOE;
+            return super.getUnlocalizedName() + "." + toolType.getName();
         }
 
         return super.getUnlocalizedName();
@@ -166,7 +148,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             for (int i = 0; i <= 3; i++)
             {
                 stack = new ItemStack(this, 1, 0);
-                this.setToolType(stack, i);
+                this.setToolType(stack, ToolType.valueOf(i));
                 stack.getTagCompound().setBoolean("AddTooltips", true);
                 list.add(stack);
             }
@@ -185,23 +167,23 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    public int getToolType(ItemStack stack)
+    public ToolType getToolType(ItemStack stack)
     {
         if (stack == null)
         {
-            return 0;
+            return ToolType.INVALID;
         }
 
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null)
         {
-            return nbt.getByte("ToolType");
+            return ToolType.valueOf(nbt.getByte("ToolType"));
         }
 
-        return 0;
+        return ToolType.SHOVEL;
     }
 
-    public boolean setToolType(ItemStack stack, int type)
+    public boolean setToolType(ItemStack stack, ToolType type)
     {
         if (stack == null)
         {
@@ -214,7 +196,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             nbt = new NBTTagCompound();
         }
 
-        nbt.setByte("ToolType", (byte)type);
+        nbt.setByte("ToolType", (byte)type.getId());
         stack.setTagCompound(nbt);
 
         return true;
@@ -222,26 +204,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public String getToolClass(ItemStack stack)
     {
+        System.out.println("getToolClass()");
         if (stack != null)
         {
-            if (this.getToolType(stack) == TOOL_TYPE_PICKAXE)
+            ToolType type = this.getToolType(stack);
+            if (type.equals(ToolType.INVALID) == false)
             {
-                return "pickaxe";
-            }
-
-            if (this.getToolType(stack) == TOOL_TYPE_AXE)
-            {
-                return "axe";
-            }
-
-            if (this.getToolType(stack) == TOOL_TYPE_SHOVEL)
-            {
-                return "shovel";
-            }
-
-            if (this.getToolType(stack) == TOOL_TYPE_HOE)
-            {
-                return "hoe";
+                return type.getTypeString();
             }
         }
 
@@ -251,6 +220,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public Set<String> getToolClasses(ItemStack stack)
     {
+        System.out.println("getToolClasses()");
         String tc = this.getToolClass(stack);
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
@@ -286,19 +256,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
     {
-        //System.out.println("living1: " + living1 + " living2: " + living2);
+        System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
         {
             return false;
         }
 
-        int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
-        stack.damageItem(amount, living2);
+        //int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+        //stack.damageItem(amount, living2);
 
         // Tool just broke
-        if (this.isToolBroken(stack) == true)
+        //if (this.isToolBroken(stack) == true)
         {
-            living1.renderBrokenItemStack(stack);
+            living2.renderBrokenItemStack(stack);
         }
 
         return true;
@@ -307,13 +277,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
     {
-        //System.out.println("onBlockDestroyed()");
+        System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
         if (this.isToolBroken(stack) == false)
         {
-            stack.damageItem(1, living);
+            //stack.damageItem(1, living);
 
             // Tool just broke
-            if (this.isToolBroken(stack) == true)
+            //if (this.isToolBroken(stack) == true)
             {
                 living.renderBrokenItemStack(stack);
             }
@@ -327,14 +297,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean func_150897_b(Block block)
     {
-        //System.out.println("func_150897_b()");
+        System.out.println("func_150897_b()");
         return false;
     }
 
     @Override
     public float func_150893_a(ItemStack stack, Block block)
     {
-        //System.out.println("func_150893_a()");
+        System.out.println("func_150893_a()");
         if (this.isToolBroken(stack) == true)
         {
             return 0.2f;
@@ -362,7 +332,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return false;
         }
 
-        if (this.getToolType(stack) == TOOL_TYPE_PICKAXE) // Ender Pickaxe
+        if (this.getToolType(stack).equals(ToolType.PICKAXE)) // Ender Pickaxe
         {
             if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
                 block.getMaterial() == net.minecraft.block.material.Material.glass ||
@@ -371,21 +341,21 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 block.getMaterial() == net.minecraft.block.material.Material.iron ||
                 block.getMaterial() == net.minecraft.block.material.Material.anvil)
             {
-                //System.out.println("canHarvestBlock(): true; Pickaxe");
+                System.out.println("canHarvestBlock(): true; Pickaxe");
                 return true;
             }
         }
-        else if (this.getToolType(stack) == TOOL_TYPE_AXE) // Ender Axe
+        else if (this.getToolType(stack).equals(ToolType.AXE)) // Ender Axe
         {
             if (block.getMaterial() == net.minecraft.block.material.Material.wood ||
                 block.getMaterial() == net.minecraft.block.material.Material.plants ||
                 block.getMaterial() == net.minecraft.block.material.Material.vine)
             {
-                //System.out.println("canHarvestBlock(): true; Axe");
+                System.out.println("canHarvestBlock(): true; Axe");
                 return true;
             }
         }
-        else if (this.getToolType(stack) == TOOL_TYPE_SHOVEL) // Ender Shovel
+        else if (this.getToolType(stack).equals(ToolType.SHOVEL)) // Ender Shovel
         {
             if (block.getMaterial() == net.minecraft.block.material.Material.ground ||
                 block.getMaterial() == net.minecraft.block.material.Material.grass ||
@@ -394,12 +364,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 block.getMaterial() == net.minecraft.block.material.Material.craftedSnow ||
                 block.getMaterial() == net.minecraft.block.material.Material.clay)
             {
-                //System.out.println("canHarvestBlock(): true; Shovel");
+                System.out.println("canHarvestBlock(): true; Shovel");
                 return true;
             }
         }
 
-        //System.out.println("canHarvestBlock(): false");
+        System.out.println("canHarvestBlock(): false");
         //return func_150897_b(block);
         return false;
     }
@@ -430,17 +400,17 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (ForgeHooks.isToolEffective(stack, block, meta))
         {
-            //System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
+            System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
             return eff;
         }
 
         if (this.canHarvestBlock(block, stack))
         {
-            //System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
+            System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
             return eff;
         }
 
-        //System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
+        System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
         return super.getDigSpeed(stack, block, meta);
     }
 
@@ -455,6 +425,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public int getHarvestLevel(ItemStack stack, String toolClass)
     {
+        System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
         if (stack == null)
         {
             return -1;
@@ -490,7 +461,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public Multimap getAttributeModifiers(ItemStack stack)
     {
-        double dmg = (double)this.damageVsEntity;
+        //System.out.println("getAttributeModifiers()");
+        double dmg = this.damageVsEntity;
 
         // Broken tool
         if (this.isToolBroken(stack) == true)
@@ -499,19 +471,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
         else
         {
-            int toolType = this.getToolType(stack);
-            if (toolType == TOOL_TYPE_PICKAXE) // Pickaxe
-            {
-                dmg += 2.0d;
-            }
-            else if (toolType == TOOL_TYPE_AXE) // Axe
-            {
-                dmg += 3.0d;
-            }
-            else if (toolType == TOOL_TYPE_SHOVEL) // Shovel
-            {
-                dmg += 1.0d;
-            }
+            dmg += this.getToolType(stack).getAttackDamage();
         }
 
         Multimap<String, AttributeModifier> multimap = HashMultimap.create();
@@ -602,7 +562,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return this.itemIcon;
         }
 
-        int i = this.getToolType(stack) * this.parts.length;
+        ToolType type = this.getToolType(stack);
+        if (type.equals(ToolType.INVALID))
+        {
+            return this.itemIcon;
+        }
+
+        int i = type.getId() * this.parts.length;
         int tier = 0;
 
         switch(renderPass)
@@ -830,5 +796,74 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {
         return UtilItemModular.setModule(stack, index, nbt);
+    }
+
+    public enum ToolType
+    {
+        PICKAXE (0, "pickaxe",  ReferenceNames.NAME_ITEM_ENDER_PICKAXE, 2.0f),
+        AXE     (1, "axe",      ReferenceNames.NAME_ITEM_ENDER_AXE,     3.0f),
+        SHOVEL  (2, "shovel",   ReferenceNames.NAME_ITEM_ENDER_SHOVEL,  1.0f),
+        HOE     (3, "hoe",      ReferenceNames.NAME_ITEM_ENDER_HOE,     0.0f),
+        INVALID (-1, "null",    "null",                                 0.0f);
+
+        private final int id;
+        private final String typeString;
+        private final String name;
+        private final float attackDamage;
+
+        private static final Map<Integer, ToolType> map = new HashMap<Integer, ToolType>();
+
+        static
+        {
+            for (ToolType type : ToolType.values())
+            {
+                map.put(type.getId(), type);
+            }
+        }
+
+        ToolType(int id, String type, String name, float attackDamage)
+        {
+            this.id = id;
+            this.typeString = type;
+            this.name = name;
+            this.attackDamage = attackDamage;
+        }
+
+        public int getId()
+        {
+            return this.id;
+        }
+
+        public String getTypeString()
+        {
+            return this.typeString;
+        }
+
+        public String getName()
+        {
+            return this.name;
+        }
+
+        public float getAttackDamage()
+        {
+            return this.attackDamage;
+        }
+
+        public boolean equals(ToolType other)
+        {
+            return this.id == other.getId();
+        }
+
+        public static ToolType valueOf(int id)
+        {
+            ToolType type = map.get(id);
+
+            if (type != null)
+            {
+                return type;
+            }
+
+            return INVALID;
+        }
     }
 }

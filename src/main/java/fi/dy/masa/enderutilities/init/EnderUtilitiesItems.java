@@ -137,25 +137,25 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeEnderPickaxe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             ItemStack pick = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(pick, ItemEnderTool.TOOL_TYPE_PICKAXE);
+            ((ItemEnderTool)enderTool).setToolType(pick, ItemEnderTool.ToolType.PICKAXE);
             GameRegistry.addRecipe(pick, "AAA", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderAxe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             ItemStack axe = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(axe, ItemEnderTool.TOOL_TYPE_AXE);
+            ((ItemEnderTool)enderTool).setToolType(axe, ItemEnderTool.ToolType.AXE);
             GameRegistry.addRecipe(axe, "AA ", "AS ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderShovel.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             ItemStack shovel = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(shovel, ItemEnderTool.TOOL_TYPE_SHOVEL);
+            ((ItemEnderTool)enderTool).setToolType(shovel, ItemEnderTool.ToolType.SHOVEL);
             GameRegistry.addRecipe(shovel, " A ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderHoe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             ItemStack hoe = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.TOOL_TYPE_HOE);
+            ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
             GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
 
