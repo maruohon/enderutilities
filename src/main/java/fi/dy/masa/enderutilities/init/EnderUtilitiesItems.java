@@ -174,15 +174,15 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderCore0.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 10), "PAP", "ARA", "OAO", 'P', pearl, 'A', alloy0, 'R', redstone_block, 'O', obsidian);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 10), "OAO", "ARA", "OAO", 'O', obsidian, 'A', alloy0, 'R', redstone_block);
         }
         if (Configs.disableRecipePartEnderCore1.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 11), "EAE", "AMA", "OAO", 'E', eye, 'A', alloy1, 'M', emerald_block, 'O', obsidian);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 11), "OAO", "AMA", "OAO", 'O', obsidian, 'A', alloy1, 'M', emerald_block);
         }
         if (Configs.disableRecipePartEnderCore2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "EAE", "ADA", "OAO", 'E', eye, 'A', alloy2, 'D', diamond_block, 'O', obsidian);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "OAO", "ADA", "OAO", 'O', obsidian, 'A', alloy2, 'D', diamond_block);
         }
         if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
