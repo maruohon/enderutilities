@@ -224,7 +224,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeModuleLinkCrystalPortal.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            //GameRegistry.addShapelessRecipe(new ItemStack(linkCrystal, 1, 1), "LO", 'L', new ItemStack(linkCrystal, 1, 0), 'O', obsidian);
+            //GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 2), "ORO", "RAR", "ORO", 'O', obsidian, 'R', redstone, 'A', alloy1);
         }
     }
 }

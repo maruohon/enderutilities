@@ -53,7 +53,8 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     {
         if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            for (int i = 0; i <= 2; i++)
+            // FIXME Disabled the Portal type Link Crystal until it is actually used
+            for (int i = 0; i <= 1; i++)
             {
                 list.add(new ItemStack(this, 1, i));
             }
