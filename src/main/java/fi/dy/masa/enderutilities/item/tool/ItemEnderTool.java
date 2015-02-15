@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -57,8 +58,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     private IIcon[] iconArray;
     @SideOnly(Side.CLIENT)
     private IIcon iconEmpty;
-    @SideOnly(Side.CLIENT)
-    String[] tools;
     @SideOnly(Side.CLIENT)
     String[] parts;
 
@@ -177,7 +176,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null)
         {
-            return ToolType.valueOf(nbt.getByte("ToolType"));
+            return ToolType.valueOfType(nbt.getString("ToolType"));
         }
 
         return ToolType.SHOVEL;
@@ -185,26 +184,21 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public boolean setToolType(ItemStack stack, ToolType type)
     {
-        if (stack == null)
-        {
-            return false;
-        }
-
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
         }
 
-        nbt.setByte("ToolType", (byte)type.getId());
-        stack.setTagCompound(nbt);
+        nbt.setString("ToolType", type.getTypeString());
 
         return true;
     }
 
     public String getToolClass(ItemStack stack)
     {
-        System.out.println("getToolClass()");
+        //System.out.println("getToolClass()");
         if (stack != null)
         {
             ToolType type = this.getToolType(stack);
@@ -220,7 +214,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public Set<String> getToolClasses(ItemStack stack)
     {
-        System.out.println("getToolClasses()");
+        //System.out.println("getToolClasses()");
         String tc = this.getToolClass(stack);
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
@@ -239,8 +233,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
          * Returns the maximum damage an item can take.
          */
         //return this.func_150913_i().getMaxUses();
-        //return this.material.getMaxUses();
-        return 5;
+        return this.material.getMaxUses();
+        //return 5;
     }
 
     public boolean isToolBroken(ItemStack stack)
@@ -256,19 +250,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
     {
-        System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
+        //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
         {
             return false;
         }
 
-        //int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
-        //stack.damageItem(amount, living2);
+        int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+        stack.damageItem(amount, living2);
 
         // Tool just broke
-        //if (this.isToolBroken(stack) == true)
+        if (this.isToolBroken(stack) == true)
         {
-            living2.renderBrokenItemStack(stack);
+            living1.renderBrokenItemStack(stack);
         }
 
         return true;
@@ -277,13 +271,20 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
     {
-        System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
+        //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
+
+        // Don't use durability for breaking leaves with an axe
+        if (block.getMaterial() != null && block.getMaterial() == Material.leaves && this.getToolType(stack).equals(ToolType.AXE))
+        {
+            return false;
+        }
+
         if (this.isToolBroken(stack) == false)
         {
-            //stack.damageItem(1, living);
+            stack.damageItem(1, living);
 
             // Tool just broke
-            //if (this.isToolBroken(stack) == true)
+            if (this.isToolBroken(stack) == true)
             {
                 living.renderBrokenItemStack(stack);
             }
@@ -297,14 +298,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public boolean func_150897_b(Block block)
     {
-        System.out.println("func_150897_b()");
+        //System.out.println("func_150897_b()");
         return false;
     }
 
     @Override
     public float func_150893_a(ItemStack stack, Block block)
     {
-        System.out.println("func_150893_a()");
+        //System.out.println("func_150893_a()");
         if (this.isToolBroken(stack) == true)
         {
             return 0.2f;
@@ -334,42 +335,47 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (this.getToolType(stack).equals(ToolType.PICKAXE)) // Ender Pickaxe
         {
-            if (block.getMaterial() == net.minecraft.block.material.Material.rock ||
-                block.getMaterial() == net.minecraft.block.material.Material.glass ||
-                block.getMaterial() == net.minecraft.block.material.Material.ice ||
-                block.getMaterial() == net.minecraft.block.material.Material.packedIce ||
-                block.getMaterial() == net.minecraft.block.material.Material.iron ||
-                block.getMaterial() == net.minecraft.block.material.Material.anvil)
+            if (block.getMaterial() == Material.rock
+                || block.getMaterial() == Material.glass
+                || block.getMaterial() == Material.ice
+                || block.getMaterial() == Material.packedIce
+                || block.getMaterial() == Material.piston
+                || block.getMaterial() == Material.iron
+                || block.getMaterial() == Material.anvil)
             {
-                System.out.println("canHarvestBlock(): true; Pickaxe");
+                //System.out.println("canHarvestBlock(): true; Pickaxe");
                 return true;
             }
         }
         else if (this.getToolType(stack).equals(ToolType.AXE)) // Ender Axe
         {
-            if (block.getMaterial() == net.minecraft.block.material.Material.wood ||
-                block.getMaterial() == net.minecraft.block.material.Material.plants ||
-                block.getMaterial() == net.minecraft.block.material.Material.vine)
+            if (block.getMaterial() == Material.wood
+                || block.getMaterial() == Material.leaves
+                || block.getMaterial() == Material.gourd
+                || block.getMaterial() == Material.carpet
+                || block.getMaterial() == Material.cloth
+                || block.getMaterial() == Material.plants
+                || block.getMaterial() == Material.vine)
             {
-                System.out.println("canHarvestBlock(): true; Axe");
+                //System.out.println("canHarvestBlock(): true; Axe");
                 return true;
             }
         }
         else if (this.getToolType(stack).equals(ToolType.SHOVEL)) // Ender Shovel
         {
-            if (block.getMaterial() == net.minecraft.block.material.Material.ground ||
-                block.getMaterial() == net.minecraft.block.material.Material.grass ||
-                block.getMaterial() == net.minecraft.block.material.Material.sand ||
-                block.getMaterial() == net.minecraft.block.material.Material.snow ||
-                block.getMaterial() == net.minecraft.block.material.Material.craftedSnow ||
-                block.getMaterial() == net.minecraft.block.material.Material.clay)
+            if (block.getMaterial() == Material.ground
+                || block.getMaterial() == Material.grass
+                || block.getMaterial() == Material.sand
+                || block.getMaterial() == Material.snow
+                || block.getMaterial() == Material.craftedSnow
+                || block.getMaterial() == Material.clay)
             {
-                System.out.println("canHarvestBlock(): true; Shovel");
+                //System.out.println("canHarvestBlock(): true; Shovel");
                 return true;
             }
         }
 
-        System.out.println("canHarvestBlock(): false");
+        //System.out.println("canHarvestBlock(): false");
         //return func_150897_b(block);
         return false;
     }
@@ -389,6 +395,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return 0.2f;
         }
 
+        // Allow instant mine of leaves with the axe
+        if (block.getMaterial() != null && block.getMaterial() == Material.leaves && this.getToolType(stack).equals(ToolType.AXE))
+        {
+            // This seems to be enough to instant mine leaves even when jumping/flying
+            return 100.0f;
+        }
+
         float eff = this.efficiencyOnProperMaterial;
         // TODO Add a mode and NBT tag for "fast mode", which uses double durability but allows instant mining @ Efficiency V
         // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble
@@ -400,17 +413,17 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (ForgeHooks.isToolEffective(stack, block, meta))
         {
-            System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
+            //System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
             return eff;
         }
 
         if (this.canHarvestBlock(block, stack))
         {
-            System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
+            //System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
             return eff;
         }
 
-        System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
+        //System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
         return super.getDigSpeed(stack, block, meta);
     }
 
@@ -425,7 +438,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public int getHarvestLevel(ItemStack stack, String toolClass)
     {
-        System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
+        //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
         if (stack == null)
         {
             return -1;
@@ -483,10 +496,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public void registerIcons(IIconRegister iconRegister)
     {
-        this.tools = new String[] { ReferenceNames.NAME_ITEM_ENDER_PICKAXE,
-                                    ReferenceNames.NAME_ITEM_ENDER_AXE,
-                                    ReferenceNames.NAME_ITEM_ENDER_SHOVEL,
-                                    ReferenceNames.NAME_ITEM_ENDER_HOE};
         this.parts = new String[] {"rod", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
                                     "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
@@ -495,11 +504,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         this.iconArray = new IIcon[52];
         String prefix = this.getIconString() + ".";
 
-        for (int i = 0; i < this.tools.length; i++)
+        for (ToolType type : ToolType.values())
         {
-            for (int j = 0; j < this.parts.length; j++)
+            int id = type.getId();
+            int start = id * this.parts.length;
+
+            for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.iconArray.length; j++)
             {
-                this.iconArray[(i * this.parts.length) + j] = iconRegister.registerIcon(prefix + this.tools[i] + "." + this.parts[j]);
+                this.iconArray[start + j] = iconRegister.registerIcon(prefix + type.getName() + "." + this.parts[j]);
             }
         }
     }
@@ -811,13 +823,15 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         private final String name;
         private final float attackDamage;
 
-        private static final Map<Integer, ToolType> map = new HashMap<Integer, ToolType>();
+        private static final Map<Integer, ToolType> mapInt = new HashMap<Integer, ToolType>();
+        private static final Map<String, ToolType> mapType = new HashMap<String, ToolType>();
 
         static
         {
             for (ToolType type : ToolType.values())
             {
-                map.put(type.getId(), type);
+                mapInt.put(type.getId(), type);
+                mapType.put(type.getTypeString(), type);
             }
         }
 
@@ -856,7 +870,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         public static ToolType valueOf(int id)
         {
-            ToolType type = map.get(id);
+            ToolType type = mapInt.get(id);
+
+            if (type != null)
+            {
+                return type;
+            }
+
+            return INVALID;
+        }
+
+        public static ToolType valueOfType(String typeName)
+        {
+            ToolType type = mapType.get(typeName);
 
             if (type != null)
             {
