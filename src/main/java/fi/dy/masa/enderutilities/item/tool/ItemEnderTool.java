@@ -301,9 +301,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return false;
         }
 
-        if (this.isToolBroken(stack) == false)
+        // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
+        if (this.isToolBroken(stack) == false && block.getBlockHardness(world, x, y, z) > 0.0f)
         {
-            stack.damageItem(1, living);
+            int dmg = 1;
+
+            // Fast mode uses double the durability
+            if (this.getToolModeByName(stack, "DigMode") == 1)
+            {
+                dmg++;
+            }
+
+            dmg = Math.min(dmg, this.getMaxDamage(stack) - stack.getItemDamage());
+            stack.damageItem(dmg, living);
 
             // Tool just broke
             if (this.isToolBroken(stack) == true)
@@ -425,12 +435,20 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         float eff = this.efficiencyOnProperMaterial;
-        // TODO Add a mode and NBT tag for "fast mode", which uses double durability but allows instant mining @ Efficiency V
-        // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble
-        // 1474 on obsidian. So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
-        if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
+        // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble,
+        // 124 is the minimum for iron blocks @ hardness 5.0f (which is about the highest of "normal" blocks), 1474 on obsidian.
+        // So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
+        if (this.getToolModeByName(stack, "DigMode") == 1)
         {
-            eff = 160.0f;
+            if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
+            {
+                eff = 124.0f;
+            }
+            // This is enough to give instant mining for sandstone and netherrack without any Efficiency enchants.
+            else
+            {
+                eff = 24.0f;
+            }
         }
 
         if (ForgeHooks.isToolEffective(stack, block, meta))
