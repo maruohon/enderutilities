@@ -68,19 +68,18 @@ public class UtilItemModular
     }
 
     /* Returns the (max, if multiple) tier of the installed module.
-     * The tier is in the range of 1..n 
+     * The tier is in the range of 0..n. Invalid tier/module is -1.
      */
     public static int getMaxModuleTier(ItemStack toolStack, ModuleType moduleType)
     {
+        int tier = -1;
         NBTTagList nbtTagList = getInstalledModules(toolStack);
         if (nbtTagList == null)
         {
-            return 0;
+            return tier;
         }
 
-        int tier = -1;
         int listNumStacks = nbtTagList.tagCount();
-
         // Read all the module ItemStacks from the tool
         for (int i = 0; i < listNumStacks; ++i)
         {
@@ -95,7 +94,7 @@ public class UtilItemModular
             }
         }
 
-        return tier + 1;
+        return tier;
     }
 
     /* Returns the tier of the selected module of the given type. */

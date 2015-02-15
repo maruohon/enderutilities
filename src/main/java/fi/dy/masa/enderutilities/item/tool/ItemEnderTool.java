@@ -196,6 +196,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return true;
     }
 
+    public byte getToolModeByName(ItemStack stack, String name)
+    {
+        if (stack != null && stack.getTagCompound() != null)
+        {
+            return stack.getTagCompound().getByte(name);
+        }
+
+        return 0;
+    }
+
+    public void setToolModeByName(ItemStack stack, String name, byte value)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
+        }
+
+        nbt.setByte(name, value);
+    }
+
     public String getToolClass(ItemStack stack)
     {
         //System.out.println("getToolClass()");
@@ -496,12 +518,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     @Override
     public void registerIcons(IIconRegister iconRegister)
     {
-        this.parts = new String[] {"rod", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
+        this.parts = new String[] {"rod.1", "rod.2", "rod.3", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
                                     "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
 
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
         this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.iconArray = new IIcon[52];
+        this.iconArray = new IIcon[60];
         String prefix = this.getIconString() + ".";
 
         for (ToolType type : ToolType.values())
@@ -586,9 +608,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         switch(renderPass)
         {
             case 0: // 0: Rod
+                i += getToolModeByName(stack, "DropsMode");
                 break;
             case 1: // 1: Head
-                i += getToolMode(stack) + 1; // +1: Rod is the first icon
+                i += getToolModeByName(stack, "DigMode") + 3; // Head icons start at index 3
 
                 // Broken tool
                 if (this.isToolBroken(stack) == true)
@@ -598,18 +621,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 break;
             case 2: // 2: Core
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier > 0)
-                {
-                    i += tier + 4;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier > 0)
+                if (tier >= 0)
                 {
                     i += tier + 7;
                 }
@@ -618,11 +630,22 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     return this.iconEmpty;
                 }
                 break;
-            case 4: // 4: Link Crystal
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (tier > 0)
+            case 3: // 3: Capacitor
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
+                if (tier >= 0)
                 {
                     i += tier + 10;
+                }
+                else
+                {
+                    return this.iconEmpty;
+                }
+                break;
+            case 4: // 4: Link Crystal
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (tier >= 0)
+                {
+                    i += tier + 13;
                 }
                 else
                 {
@@ -641,36 +664,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.iconArray[i];
     }
 
-    public static byte getToolMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        return nbt.getByte("ToolMode");
-    }
-
-    public void toggleToolMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        byte mode = getToolMode(stack);
-        // Two modes: Normal (= insert to player inventory) and Send (= send to bound inventory)
-        if (++mode > 1)
-        {
-            mode = 0;
-        }
-
-        nbt.setByte("ToolMode", mode);
-        stack.setTagCompound(nbt);
-    }
-
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -681,7 +674,26 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            this.toggleToolMode(stack);
+            // Ctrl + Toggle mode: Toggle the block drops handling mode: normal, player, remote
+            if (ReferenceKeys.keypressContainsControl(key))
+            {
+                byte mode = this.getToolModeByName(stack, "DropsMode");
+                if (++mode > 2)
+                {
+                    mode = 0;
+                }
+                this.setToolModeByName(stack, "DropsMode", mode);
+            }
+            // Toggle the dig mode: normal, fast
+            else
+            {
+                byte mode = this.getToolModeByName(stack, "DigMode");
+                if (++mode > 1)
+                {
+                    mode = 0;
+                }
+                this.setToolModeByName(stack, "DigMode", mode);
+            }
         }
     }
 
