@@ -26,8 +26,8 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
-    public static final int ENDER_CHARGE_COST_INTER_DIM_TP = 10000;
-    public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 50000;
+    public static final int ENDER_CHARGE_COST_INTER_DIM_TP = 5000;
+    public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 25000;
     private static final int USE_TIME = 40;
 
     public ItemEnderPorter()

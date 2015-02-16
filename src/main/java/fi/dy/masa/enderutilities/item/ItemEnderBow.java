@@ -33,7 +33,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
-    public static final int ENDER_CHARGE_COST_MOB_TP = 2000;
+    public static final int ENDER_CHARGE_COST_MOB_TP = 1000;
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
