@@ -117,7 +117,7 @@ tile.enderutilities.toolworkstation.tooltips=- Used to manipulate the modules in
 enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.modulestorage=Module storage
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
-enderutilities.gui.label.enderinfuser.capacitorinput=Chargeable Ender Capacitors
+enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
 
 enderutilities.tooltip.dimension=Dimension
 enderutilities.tooltip.dimension.compact=DIM

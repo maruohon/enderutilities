@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
@@ -12,7 +13,9 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 {
@@ -110,22 +113,44 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         }
 
         // Charge IChargeable items with the Ender Goo
-        if (this.itemStacks[1] != null && this.itemStacks[1].getItem() instanceof IChargeable)
+        if (this.itemStacks[1] != null && (this.itemStacks[1].getItem() instanceof IChargeable || this.itemStacks[1].getItem() instanceof IModular))
         {
-            IChargeable item = (IChargeable)this.itemStacks[1].getItem();
+            boolean isModular = false;
+            ItemStack capacitorStack = this.itemStacks[1];
+            IChargeable item;
+
+            if (this.itemStacks[1].getItem() instanceof IChargeable)
+            {
+                item = (IChargeable) capacitorStack.getItem();
+            }
+            else if (this.itemStacks[1].getItem() instanceof IModular)
+            {
+                capacitorStack = UtilItemModular.getSelectedModuleStack(this.itemStacks[1], ModuleType.TYPE_ENDERCAPACITOR);
+                if (capacitorStack == null || (capacitorStack.getItem() instanceof IChargeable) == false)
+                {
+                    return;
+                }
+
+                item = (IChargeable) capacitorStack.getItem();
+                isModular = true;
+            }
+            else
+            {
+                return;
+            }
 
             if (this.amountStored > 0)
             {
                 int charge = (this.amountStored >= 10 ? 10 : this.amountStored) * ENDER_CHARGE_PER_MILLIBUCKET;
-                int filled = item.addCharge(this.itemStacks[1], charge, false);
+                int filled = item.addCharge(capacitorStack, charge, false);
 
                 if (filled > 0)
                 {
                     // Just started charging an item, grab the current charge level and capacity for progress bar updating
                     if (this.isCharging == false)
                     {
-                        this.chargeableItemCapacity = item.getCapacity(this.itemStacks[1]);
-                        this.chargeableItemStartingCharge = item.getCharge(this.itemStacks[1]);
+                        this.chargeableItemCapacity = item.getCapacity(capacitorStack);
+                        this.chargeableItemStartingCharge = item.getCharge(capacitorStack);
                         this.chargeableItemCurrentCharge = this.chargeableItemStartingCharge;
                         this.isCharging = true;
                     }
@@ -135,16 +160,21 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
                         charge = filled;
                     }
 
-                    charge = item.addCharge(this.itemStacks[1], charge, true);
+                    charge = item.addCharge(capacitorStack, charge, true);
                     int used = (int)Math.ceil(charge / ENDER_CHARGE_PER_MILLIBUCKET);
                     this.amountStored -= used;
-                    this.chargeableItemCurrentCharge += charge; // = item.getCharge(this.itemStacks[1]);
+                    this.chargeableItemCurrentCharge += charge; // = item.getCharge(capacitorStack);
                     dirty = true;
+
+                    if (isModular == true)
+                    {
+                        UtilItemModular.setSelectedModuleStack(this.itemStacks[1], ModuleType.TYPE_ENDERCAPACITOR, capacitorStack);
+                    }
                 }
             }
 
             // A fully charged item is in the input slot, move it to the output slot, if possible
-            if (item.getCharge(this.itemStacks[1]) >= item.getCapacity(this.itemStacks[1]))
+            if (item.getCharge(capacitorStack) >= item.getCapacity(capacitorStack))
             {
                 this.isCharging = false;
                 this.chargeableItemCurrentCharge = 0;
@@ -183,16 +213,22 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
+        if (stack == null)
+        {
+            return true;
+        }
+
+        Item item = stack.getItem();
         // Only allow Ender Pearls and Eyes of Ender to the melting slot
         if (slotNum == 0)
         {
-            return (stack != null && (stack.getItem() == Items.ender_pearl || stack.getItem() == Items.ender_eye));
+            return (item == Items.ender_pearl || item == Items.ender_eye);
         }
 
         // Only accept chargeable items to the item input slot
         if (slotNum == 1)
         {
-            return (stack != null && (stack.getItem() instanceof IChargeable || stack.getItem() instanceof IModular));
+            return (item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0));
         }
 
         return false;

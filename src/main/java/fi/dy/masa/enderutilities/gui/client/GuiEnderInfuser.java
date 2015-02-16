@@ -100,7 +100,7 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         else if (mouseX >= x + 134 && mouseX <= x + 149 && mouseY >= y + 8 && mouseY <= y + 23 && this.inventorySlots.getSlot(1).getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.enderinfuser.capacitorinput", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
