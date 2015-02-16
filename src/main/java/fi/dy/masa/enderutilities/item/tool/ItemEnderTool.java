@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,25 +16,33 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -41,15 +50,21 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
+    public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
     public float damageVsEntity;
     private final Item.ToolMaterial material;
@@ -325,6 +340,146 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         return false;
+    }
+
+    public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
+    {
+        if (event.world == null || event.world.isRemote == true)
+        {
+            return;
+        }
+
+        int numDropsOriginal = event.drops.size();
+        byte mode = this.getToolModeByName(toolStack, "DropsMode");
+        // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
+
+        // 0: normal mode; do nothing
+        if (mode == 0)
+        {
+            return;
+        }
+
+        EntityPlayer player = event.harvester;
+        boolean isSilk = event.isSilkTouching;
+
+        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
+        if (mode == 1 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        {
+            Iterator<ItemStack> iter = event.drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                ItemStack s = iter.next();
+                if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                {
+                    if (player.inventory.addItemStackToInventory(s) == true)
+                    {
+                        iter.remove();
+                    }
+                }
+            }
+        }
+
+        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
+        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
+                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
+        {
+            ItemStack linkCrystalStack = this.getSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+            NBTHelperTarget target = NBTHelperTarget.getTarget(linkCrystalStack);
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            // Block/inventory type link crystal
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 1)
+            {
+                Block block = targetWorld.getBlock(target.posX, target.posY, target.posZ);
+                TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+
+                // Block has changed since binding, or does not implement IInventory, abort
+                if (Block.blockRegistry.getNameForObject(block).equals(target.blockName) == false
+                    || target.blockMeta != targetWorld.getBlockMetadata(target.posX, target.posY, target.posZ)
+                    || te == null || (te instanceof IInventory) == false)
+                {
+                    // Remove the bind
+                    NBTTagCompound moduleNbt = linkCrystalStack.getTagCompound();
+                    moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
+                    this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, linkCrystalStack);
+                    return;
+                }
+
+                if (te instanceof IInventory)
+                {
+                    Iterator<ItemStack> iter = event.drops.iterator();
+                    while (iter.hasNext() == true)
+                    {
+                        ItemStack stack = iter.next();
+                        if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                        {
+                            if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack, target.blockFace) == true)
+                            {
+                                iter.remove();
+                            }
+                        }
+                    }
+                }
+            }
+            // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
+            {
+                Iterator<ItemStack> iter = event.drops.iterator();
+                while (iter.hasNext() == true)
+                {
+                    ItemStack stack = iter.next();
+                    if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                    {
+                        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.5d, target.dPosZ, stack);
+                        entityItem.motionX = entityItem.motionZ = 0.0d;
+                        entityItem.motionY = 0.15d;
+
+                        if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                        {
+                            Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                            iter.remove();
+                        }
+                    }
+                }
+            }
+        }
+
+        // At least something got transported somewhere...
+        if (event.drops.size() != numDropsOriginal)
+        {
+            // Transported the drops to somewhere remote
+            if (mode == 2)
+            {
+                UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+            }
+
+            //Particles.spawnParticles(event.world, "portal", event.x, event.y, event.z, 6, 0.2d, 1.0d);
+            Sounds.playSound(event.world, event.x, event.y, event.z, "mob.endermen.portal", 0.08f, 1.2f);
+
+            PacketHandler.INSTANCE.sendToAllAround(
+                new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, event.x, event.y, event.z, 6),
+                    new NetworkRegistry.TargetPoint(event.world.provider.dimensionId, event.x, event.y, event.z, 24.0d));
+        }
+
+        // All items successfully transported somewhere, cancel the drops
+        if (event.drops.size() == 0)
+        {
+            event.dropChance = 0.0f;
+        }
     }
 
     @Override

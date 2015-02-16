@@ -18,41 +18,50 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
 
     private int effectType;
     private int flags;
-    double x;
-    double y;
-    double z;
+    private double x;
+    private double y;
+    private double z;
+    private int particleCount;
 
     public MessageAddEffects()
     {
     }
 
-    public MessageAddEffects(int id, int flags, double x, double y, double z)
+    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
     {
         this.effectType = id;
         this.flags = flags;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.particleCount = particleCount;
+    }
+
+    public MessageAddEffects(int id, int flags, double x, double y, double z)
+    {
+        this(id, flags, x, y, z, 32);
     }
 
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        this.effectType = buf.readInt();
-        this.flags = buf.readInt();
+        this.effectType = buf.readByte();
+        this.flags = buf.readByte();
         this.x = buf.readDouble();
         this.y = buf.readDouble();
         this.z = buf.readDouble();
+        this.particleCount = buf.readShort();
     }
 
     @Override
     public void toBytes(ByteBuf buf)
     {
-        buf.writeInt(this.effectType);
-        buf.writeInt(this.flags);
+        buf.writeByte(this.effectType);
+        buf.writeByte(this.flags);
         buf.writeDouble(this.x);
         buf.writeDouble(this.y);
         buf.writeDouble(this.z);
+        buf.writeShort(this.particleCount);
     }
 
     @Override
@@ -71,7 +80,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, 32, 0.2d, 2.0d);
+                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, this.particleCount, 0.2d, 2.0d);
                 }
             }
         }
