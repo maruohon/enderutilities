@@ -195,20 +195,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return 0;
         }
 
-        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+        IModule imodule = (IModule) moduleStack.getItem();
+        ModuleType moduleType = imodule.getModuleType(moduleStack);
 
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        // Only allow the block/inventory type Link Crystals
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            // Only allow the inventory/block type Link Crystals
-            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                return 3;
-            }
+            return this.getMaxModules(toolStack, moduleType);
         }
 
         return 0;

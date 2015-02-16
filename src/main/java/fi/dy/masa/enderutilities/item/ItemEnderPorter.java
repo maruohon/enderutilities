@@ -75,6 +75,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
 
         NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false
             && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
@@ -89,7 +90,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
             if (player.worldObj.isRemote == false)
             {
-                Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.08f, 1.2f);
+                Sounds.playSound(world, player.posX, player.posY, player.posZ, "portal.travel", 0.06f, 1.2f);
             }
             //player.playSound("portal.travel", 0.2f, 1.2f);
         }

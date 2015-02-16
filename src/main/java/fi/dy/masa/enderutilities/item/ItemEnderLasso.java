@@ -58,16 +58,11 @@ public class ItemEnderLasso extends ItemLocationBoundModular
             return 0;
         }
 
-        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            // Only allow the in-world/location type Link Crystals by default
-            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION)
-            {
-                return 3;
-            }
-        }
-        else
+        IModule imodule = (IModule) moduleStack.getItem();
+        ModuleType moduleType = imodule.getModuleType(moduleStack);
+
+        // Only allow the in-world/location type Link Crystals
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION)
         {
             return this.getMaxModules(toolStack, moduleType);
         }

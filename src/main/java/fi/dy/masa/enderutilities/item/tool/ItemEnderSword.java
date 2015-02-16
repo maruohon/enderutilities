@@ -498,26 +498,15 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             return 0;
         }
 
-        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+        IModule imodule = (IModule) moduleStack.getItem();
+        ModuleType moduleType = imodule.getModuleType(moduleStack);
 
-        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
+        // Allow the in-world/location and block/inventory type Link Crystals
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false
+            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
+            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
-        {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
-            // Allow the in-world and inventory type Link Crystals
-            if (tier == ItemLinkCrystal.TYPE_LOCATION || tier == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                return 1;
-            }
+            return this.getMaxModules(toolStack, moduleType);
         }
 
         return 0;

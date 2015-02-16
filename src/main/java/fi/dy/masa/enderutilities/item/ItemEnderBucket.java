@@ -798,7 +798,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return null;
         }
 
-        // Force load the target chunk where the tank is located and for a 30 grace period after use
+        // Force load the target chunk where the tank is located with a 30 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 30) == false)
         {
             return null;
@@ -1172,30 +1172,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return this.itemIcon;
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
-    @Override
-    public int getMaxModules(ItemStack stack)
-    {
-        return 4;
-    }
-
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
-    @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
-    {
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
-        {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            return 3;
-        }
-
-        return 0;
-    }
-
     /* Returns the maximum number of the given module that can be installed on this item.
      * This is for exact module checking, instead of the general module type. */
     @Override
@@ -1206,20 +1182,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return 0;
         }
 
-        ModuleType moduleType = ((IModule) moduleStack.getItem()).getModuleType(moduleStack);
+        IModule imodule = (IModule) moduleStack.getItem();
+        ModuleType moduleType = imodule.getModuleType(moduleStack);
 
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        // Only allow the block/inventory type Link Crystals
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            // Only allow the inventory type Link Crystals
-            if (((IModule) moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                return 3;
-            }
+            return this.getMaxModules(toolStack, moduleType);
         }
 
         return 0;
