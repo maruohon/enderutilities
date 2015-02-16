@@ -83,7 +83,10 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 68)
         {
             List<String> list = new ArrayList<String>();
-            list.add(EUStringUtils.formatNumberWithKSeparators(this.teef.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " EC");
+            int ec = this.teef.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
+            int ec_capacity = TileEntityEnderInfuser.MAX_AMOUNT * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
+            list.add(EUStringUtils.formatNumberWithKSeparators(ec) + " / " + EUStringUtils.formatNumberWithKSeparators(ec_capacity) + " EC");
+            list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teef.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         // Hovering over an empty material slot
