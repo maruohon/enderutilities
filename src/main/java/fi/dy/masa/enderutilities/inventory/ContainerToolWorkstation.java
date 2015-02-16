@@ -22,7 +22,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
     protected void addSlots()
     {
         // Item slot
-        this.addSlotToContainer(new SlotItemModular(this.te, 0, 8, 19));
+        this.addSlotToContainer(new SlotItemInput(this.te, 0, 8, 19));
 
         // Module slots
         int x = 80, y = 19;
@@ -44,7 +44,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
         x = 8; y = 66;
         for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
         {
-            this.addSlotToContainer(new SlotUpgradeModuleStorage(this.te, i + 11, x, y));
+            this.addSlotToContainer(new SlotItemInput(this.te, i + 11, x, y));
         }
 
         this.setUpgradeSlotTypes();

@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
@@ -191,7 +192,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         // Only accept chargeable items to the item input slot
         if (slotNum == 1)
         {
-            return (stack != null && stack.getItem() instanceof IChargeable);
+            return (stack != null && (stack.getItem() instanceof IChargeable || stack.getItem() instanceof IModular));
         }
 
         return false;

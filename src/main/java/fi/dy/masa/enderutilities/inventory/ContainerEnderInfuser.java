@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 
 public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
@@ -31,8 +32,8 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
 
     protected void addSlots()
     {
-        this.addSlotToContainer(new SlotInfuserMaterial(this.te, 0, 44, 24));
-        this.addSlotToContainer(new SlotChargeable(this.te, 1, 134, 8));
+        this.addSlotToContainer(new SlotItemInput(this.te, 0, 44, 24));
+        this.addSlotToContainer(new SlotItemInput(this.te, 1, 134, 8));
         this.addSlotToContainer(new SlotOutput(this.te, 2, 134, 66));
     }
 
@@ -164,7 +165,7 @@ public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
                     }
                 }
                 // Chargeable items to the input item slot
-                else if (item instanceof IChargeable)
+                else if (item instanceof IChargeable || item instanceof IModular)
                 {
                     if (this.mergeItemStack(stackInSlot, 1, 2, false) == false)
                     {

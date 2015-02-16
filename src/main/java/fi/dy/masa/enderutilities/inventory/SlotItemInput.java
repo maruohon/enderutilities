@@ -3,11 +3,10 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.item.base.IModular;
 
-public class SlotItemModular extends Slot
+public class SlotItemInput extends Slot
 {
-    public SlotItemModular(IInventory inventory, int slot, int posX, int posY)
+    public SlotItemInput(IInventory inventory, int slot, int posX, int posY)
     {
         super(inventory, slot, posX, posY);
     }
@@ -15,6 +14,6 @@ public class SlotItemModular extends Slot
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return stack != null && stack.getItem() instanceof IModular;
+        return this.inventory.isItemValidForSlot(this.slotNumber, stack);
     }
 }

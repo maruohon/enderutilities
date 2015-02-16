@@ -27,8 +27,8 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
 
     protected void addSlots()
     {
-        this.addSlotToContainer(new SlotFurnaceInput(this.te, 0, 34, 17));
-        this.addSlotToContainer(new SlotFurnaceFuel(this.te, 1, 34, 53));
+        this.addSlotToContainer(new SlotItemInput(this.te, 0, 34, 17));
+        this.addSlotToContainer(new SlotItemInput(this.te, 1, 34, 53));
         this.addSlotToContainer(new SlotFurnace(this.inventoryPlayer.player, this.te, 2, 88, 35));
     }
 

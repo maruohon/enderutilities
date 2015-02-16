@@ -11,9 +11,11 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 {
@@ -198,6 +200,25 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
+    {
+        if (slotNum == SLOT_TOOL)
+        {
+            return stack != null && stack.getItem() instanceof IModular;
+        }
+        else if (slotNum >= SLOT_MODULE_STORAGE_START)
+        {
+            return stack != null && stack.getItem() instanceof IModule && UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false;
+        }
+        else if (slotNum > SLOT_TOOL && slotNum < SLOT_MODULE_STORAGE_START)
+        {
+            return false; // TODO This case is still in the specialized SlotUpgradeModule class
+        }
+
+        return false;
     }
 
     @Override
