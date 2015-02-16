@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -46,7 +47,7 @@ public class NBTHelperTarget
         this.forgeDir = ForgeDirection.UP;
     }
 
-    public static NBTHelperTarget getTarget(ItemStack stack)
+    public static NBTHelperTarget getTargetFromItem(ItemStack stack)
     {
         if (stack != null)
         {
@@ -62,10 +63,10 @@ public class NBTHelperTarget
 
     public static NBTHelperTarget getTargetFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
     {
-        return getTarget(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
+        return getTargetFromItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
 
-    public static boolean hasTargetTag(NBTTagCompound nbt)
+    public static boolean nbtHasTargetTag(NBTTagCompound nbt)
     {
         if (nbt == null || nbt.hasKey("Target", Constants.NBT.TAG_COMPOUND) == false)
         {
@@ -88,19 +89,19 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static boolean hasTargetTag(ItemStack stack)
+    public static boolean itemHasTargetTag(ItemStack stack)
     {
-        return (stack != null && hasTargetTag(stack.getTagCompound()) == true);
+        return (stack != null && nbtHasTargetTag(stack.getTagCompound()) == true);
     }
 
     public static boolean selectedModuleHasTargetTag(ItemStack toolStack, ModuleType moduleType)
     {
-        return hasTargetTag(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
+        return itemHasTargetTag(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
 
     public NBTTagCompound readTargetTagFromNBT(NBTTagCompound nbt)
     {
-        if (hasTargetTag(nbt) == false)
+        if (nbtHasTargetTag(nbt) == false)
         {
             return null;
         }
@@ -131,7 +132,7 @@ public class NBTHelperTarget
         return target;
     }
 
-    public static NBTTagCompound writeToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace)
     {
         if (nbt == null)
         {
@@ -199,18 +200,88 @@ public class NBTHelperTarget
             }
         }
 
-        return writeToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace);
+        return writeTargetTagToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        return writeToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
+        return writeTargetTagToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
             this.dimensionName, this.blockName, this.blockMeta, this.blockFace);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
     {
         return NBTHelper.writeTagToNBT(nbt, "Target", null);
+    }
+
+    public static void removeTargetTagFromItem(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(removeTargetTagFromNBT(stack.getTagCompound()));
+        }
+    }
+
+    public static boolean removeTargetTagFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+        if (moduleStack != null)
+        {
+            removeTargetTagFromItem(moduleStack);
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void writeTargetTagToItem(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset));
+        }
+    }
+
+    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+        if (moduleStack != null)
+        {
+            writeTargetTagToItem(moduleStack, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset);
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isTargetBlockUnchanged()
+    {
+        MinecraftServer server = MinecraftServer.getServer();
+        if (server == null)
+        {
+            return false;
+        }
+
+        World world = server.worldServerForDimension(this.dimension);
+        if (world == null)
+        {
+            return false;
+        }
+
+        Block block = world.getBlock(this.posX, this.posY, this.posZ);
+
+        // The target block unique name and metadata matches what we have stored
+        if (this.blockName != null && this.blockName.equals(Block.blockRegistry.getNameForObject(block)) == true
+            && this.blockMeta == world.getBlockMetadata(this.posX, this.posY, this.posZ))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /* This is for compatibility when upgrading from 0.3.x.
@@ -297,7 +368,7 @@ public class NBTHelperTarget
             if (UtilItemModular.moduleTypeEquals(moduleStack, ModuleType.TYPE_LINKCRYSTAL) == true)
             {
                 NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-                if (moduleNbt == null || NBTHelperTarget.hasTargetTag(moduleNbt) == false)
+                if (moduleNbt == null || NBTHelperTarget.nbtHasTargetTag(moduleNbt) == false)
                 {
                     moduleNbt = target.writeToNBT(moduleNbt);
                     moduleStack.setTagCompound(moduleNbt);

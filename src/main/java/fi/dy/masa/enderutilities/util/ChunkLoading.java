@@ -256,7 +256,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(ticket.getModData());
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromNBT(ticket.getModData());
         if (playerData != null)
         {
             return playerData.playerUUID;

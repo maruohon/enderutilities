@@ -219,7 +219,7 @@ public class TeleportEntity
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTarget(stack);
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
         if (target != null)
         {
             TeleportEntity.adjustTargetPosition(target, entity);

@@ -60,26 +60,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTTagCompound bagNbt = stack.getTagCompound();
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null)
-        {
-            return stack;
-        }
-
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        if (moduleNbt == null)
-        {
-            return stack;
-        }
-
-        NBTHelperTarget targetData = new NBTHelperTarget();
-        if (targetData.readTargetTagFromNBT(moduleNbt) == null || targetData.blockName == null)
-        {
-            return stack;
-        }
-
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(moduleNbt);
-        if (playerData == null)
+        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (targetData == null || targetData.blockName == null)
         {
             return stack;
         }
@@ -97,8 +79,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
-        // Access is only allowed if the target is set to public, or if the player is the owner
-        if (playerData.canAccess(player) == false)
+        // For other targets, access is only allowed if the mode is set to public, or if the player is the owner
+        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return stack;
         }
@@ -112,21 +94,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return stack;
         }
 
-        World tgtWorld = MinecraftServer.getServer().worldServerForDimension(targetData.dimension);
-        if (tgtWorld == null)
-        {
-            return stack;
-        }
-
-        Block block = tgtWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
         // The target block has changed since binding the bag, remove the bind (not for vanilla Ender Chests)
-        if (Block.blockRegistry.getNameForObject(block).equals(targetData.blockName) == false
-            || targetData.blockMeta != tgtWorld.getBlockMetadata(targetData.posX, targetData.posY, targetData.posZ))
+        if (targetData.isTargetBlockUnchanged() == false)
         {
-            moduleNbt.removeTag("Slots");
-            moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
-            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
-
+            NBTHelperTarget.removeTargetTagFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
@@ -144,6 +115,18 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60) == true)
         {
+            MinecraftServer server = MinecraftServer.getServer();
+            if (server == null)
+            {
+                return stack;
+            }
+
+            World targetWorld = server.worldServerForDimension(targetData.dimension);
+            if (targetWorld == null)
+            {
+                return stack;
+            }
+
             // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
             if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
             {
@@ -159,8 +142,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             float hy = (float)targetData.dPosY - targetData.posY;
             float hz = (float)targetData.dPosZ - targetData.posZ;
 
+            Block block = world.getBlock(targetData.posX, targetData.posY, targetData.posZ);
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-            block.onBlockActivated(tgtWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
+            block.onBlockActivated(targetWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
         }
 
         return stack;
@@ -169,49 +153,19 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() == false)
+        if (player.isSneaking() == false || world.isRemote == true)
         {
-            return false;
+            return world.isRemote; // hah, saved an extra if() by returning this :p~
         }
 
-        if (world.isRemote == true)
-        {
-            return true;
-        }
-
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null)
-        {
-            return false;
-        }
-
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        if (moduleNbt == null)
-        {
-            moduleNbt = new NBTTagCompound();
-            moduleStack.setTagCompound(moduleNbt);
-        }
-
-        NBTHelperPlayer playerData = new NBTHelperPlayer();
-        if (playerData.readFromNBT(moduleNbt) == null)
-        {
-            moduleNbt = NBTHelperPlayer.writePlayerTagToNBT(moduleNbt, player);
-            playerData.readFromNBT(moduleNbt);
-            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
-        }
-        // If the player trying to set/modify the bag is not the owner and the bag is not set to be public
-        else if (playerData.canAccess(player) == false)
+        // If the player trying to set/modify the bag is not the owner of the selected Link Crystal and it is not set to be public
+        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return false;
         }
 
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te == null)
-        {
-            return false;
-        }
-
-        if (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+        if (te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
             /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
             {
@@ -220,44 +174,15 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return true;
             }*/
 
-            if (te instanceof IInventory)
+            if (NBTHelperPlayer.selectedModuleHasPlayerTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
             {
-                moduleNbt.setInteger("Slots", ((IInventory)te).getSizeInventory());
-            }
-            else
-            {
-                moduleNbt.setInteger("Slots", player.getInventoryEnderChest().getSizeInventory());
+                NBTHelperPlayer.writePlayerTagToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player, true);
             }
 
-            this.setTarget(moduleStack, x, y, z, player.dimension, side, hitX, hitY, hitZ, false);
-            this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
+            NBTHelperTarget.writeTargetTagToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, world.provider.dimensionId, side, hitX, hitY, hitZ, false);
         }
 
         return true;
-    }
-
-    /* Returns the maximum number of modules that can be installed on this item. */
-    @Override
-    public int getMaxModules(ItemStack stack)
-    {
-        return 4;
-    }
-
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
-    @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
-    {
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
-        {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            return 3;
-        }
-
-        return 0;
     }
 
     /* Returns the maximum number of the given module that can be installed on this item.
@@ -349,7 +274,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             NBTHelperTarget target = ((ILocationBound)linkCrystalStack.getItem()).getTarget(linkCrystalStack);
             if (target != null)
             {
-                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(linkCrystalStack);
+                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromItem(linkCrystalStack);
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                 String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
@@ -399,7 +324,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return;
         }
 
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerData(moduleNbt);
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromNBT(moduleNbt);
         if (playerData == null || playerData.isOwner(player) == false)
         {
             return;

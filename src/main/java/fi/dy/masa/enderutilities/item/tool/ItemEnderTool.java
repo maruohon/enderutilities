@@ -26,6 +26,7 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -383,8 +384,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
                 && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
         {
-            ItemStack linkCrystalStack = this.getSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-            NBTHelperTarget target = NBTHelperTarget.getTarget(linkCrystalStack);
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
             if (target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
@@ -402,20 +402,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
 
             // Block/inventory type link crystal
-            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 1)
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
             {
-                Block block = targetWorld.getBlock(target.posX, target.posY, target.posZ);
                 TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
 
                 // Block has changed since binding, or does not implement IInventory, abort
-                if (Block.blockRegistry.getNameForObject(block).equals(target.blockName) == false
-                    || target.blockMeta != targetWorld.getBlockMetadata(target.posX, target.posY, target.posZ)
-                    || te == null || (te instanceof IInventory) == false)
+                if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
                 {
                     // Remove the bind
-                    NBTTagCompound moduleNbt = linkCrystalStack.getTagCompound();
-                    moduleNbt = NBTHelperTarget.removeTargetTagFromNBT(moduleNbt);
-                    this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, linkCrystalStack);
+                    NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                    player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
                     return;
                 }
 
@@ -436,7 +432,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
             }
             // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
+            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
             {
                 Iterator<ItemStack> iter = event.drops.iterator();
                 while (iter.hasNext() == true)

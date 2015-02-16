@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.handler;
+package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -79,7 +79,7 @@ public class TickHandler
                     }
                     else
                     {
-                        target = NBTHelperTarget.getTarget(stack);
+                        target = NBTHelperTarget.getTargetFromItem(stack);
                     }
 
                     if (target != null)

@@ -112,7 +112,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public NBTHelperTarget getTarget(ItemStack stack)
     {
-        return NBTHelperTarget.getTarget(stack);
+        return NBTHelperTarget.getTargetFromItem(stack);
     }
 
     @Override

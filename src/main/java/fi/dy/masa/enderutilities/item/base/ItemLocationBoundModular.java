@@ -117,7 +117,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (linkCrystalStack != null)
         {
             // Valid target set in the currently selected Link Crystal
-            if (NBTHelperTarget.hasTargetTag(linkCrystalStack) == true)
+            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
             {
                 super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
