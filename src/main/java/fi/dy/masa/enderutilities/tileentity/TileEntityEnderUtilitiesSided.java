@@ -19,7 +19,7 @@ public class TileEntityEnderUtilitiesSided extends TileEntityEnderUtilitiesInven
     @Override
     public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
     {
-        return true;
+        return this.isItemValidForSlot(slotNum, itemStack);
     }
 
     @Override
