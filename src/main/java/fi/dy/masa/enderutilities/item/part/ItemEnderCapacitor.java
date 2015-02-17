@@ -231,17 +231,15 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);
 
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberFloorWithPostfix(charge) + " / " + EUStringUtils.formatNumberFloorWithPostfix(capacity));
-        /*
-        if (EnderUtilities.proxy.isShiftKeyDown() == true)
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
+        /*if (EnderUtilities.proxy.isShiftKeyDown() == true)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + charge + " / " + capacity);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberFloor(charge) + " / " + EUStringUtils.formatNumberFloor(capacity));
-        }
-        */
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberFloorWithPostfix(charge) + " / " + EUStringUtils.formatNumberFloorWithPostfix(capacity));
+        }*/
     }
 
     @Override

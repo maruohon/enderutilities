@@ -143,8 +143,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             list.addAll(tmpList);
         }*/
         //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
-
-        super.addInformation(stack, player, list, advancedTooltips);
     }
 
     @SideOnly(Side.CLIENT)

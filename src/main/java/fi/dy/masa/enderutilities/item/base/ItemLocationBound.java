@@ -2,13 +2,18 @@ package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -23,30 +28,21 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (stack == null)
+        if (stack == null || stack.getItem() == null || player == null || player.isSneaking() == false || NBTHelperPlayer.canAccessItem(stack, player) == false)
         {
             return false;
         }
 
-        if (player.isSneaking() == true)
+        Item item = stack.getItem();
+        boolean adjustPosHit = item == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+        this.setTarget(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
+
+        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
         {
-            boolean adjustPosHit = true;
-
-            // Don't adjust the target position for uses that are targeting the block, not the actual exact location.
-            if (stack.getItem() == EnderUtilitiesItems.linkCrystal && stack.getItemDamage() != 0)
-            {
-                adjustPosHit = false;
-            }
-
-            this.setTarget(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
-            NBTTagCompound nbt = stack.getTagCompound();
-            nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
-            stack.setTagCompound(nbt);
-
-            return true;
+            NBTHelperPlayer.writePlayerTagToItem(stack, player, true);
         }
 
-        return false;
+        return true;
     }
 
     @Override
@@ -74,39 +70,97 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             return;
         }
 
-        String dimPre = EnumChatFormatting.DARK_GREEN.toString();
-        String numPre = EnumChatFormatting.BLUE.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
+        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-        String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false);
+
+        if (NBTHelperPlayer.canAccessItem(stack, player) == true)
+        {
+            String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false);
+
+            boolean showBlock = false;
+            String blockName = "";
+            Item item = stack.getItem();
+            // Show the target block info for block type link crystals
+            if (item instanceof IModule && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_LINKCRYSTAL) && ((IModule)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
+            {
+                // FIXME this may not be accurate if the damage is different than the meta! See util.BlockInfo.getBasicBlockInfo() in the TellMe mod.
+                ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+                if (targetStack != null && targetStack.getItem() != null)
+                {
+                    blockName = targetStack.getDisplayName();
+                    showBlock = true;
+                }
+            }
+
+            // Full tooltip
+            if (verbose == true)
+            {
+                String s = StatCollector.translateToLocal("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
+                if (dimName.length() > 0)
+                {
+                    s = s + " - " + preDGreen + dimName + rst;
+                }
+                list.add(s);
+                list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
+
+                if (showBlock == true)
+                {
+                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
+                    if (advancedTooltips == true)
+                    {
+                        list.add("(" + target.blockName + "#" + target.blockMeta + " side: " + ForgeDirection.getOrientation(target.blockFace) + ")");
+                    }
+                }
+            }
+            // Compact/short tooltip
+            else
+            {
+                String s = preDGreen + dimName + rst;
+                if (dimName.length() == 0)
+                {
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
+                }
+
+                if (showBlock == true)
+                {
+                    list.add(String.format("%s%s%s - %s @ %s%.2f%s %s%.2f%s %s%.2f%s", preDGreen, blockName, rst, s, preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
+                }
+                else
+                {
+                    list.add(String.format("%s @ %s%.2f%s %s%.2f%s %s%.2f%s", s, preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
+                }
+            }
+        }
+
+        // Player tag data
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        if (playerData == null)
+        {
+            return;
+        }
+
+        String strPublic = "";
+        if (playerData.isPublic == true)
+        {
+            strPublic = EnumChatFormatting.GREEN.toString() + StatCollector.translateToLocal("enderutilities.tooltip.item.public") + rst;
+        }
+        else
+        {
+            strPublic = EnumChatFormatting.RED.toString() + StatCollector.translateToLocal("enderutilities.tooltip.item.private") + rst;
+        }
 
         // Full tooltip
         if (verbose == true)
         {
-            String s = StatCollector.translateToLocal("enderutilities.tooltip.dimension") + ": " + numPre + target.dimension + rst;
-            if (dimName.length() > 0)
-            {
-                s = s + " - " + dimPre + dimName + rst;
-            }
-
-            list.add(s);
-            list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
-
-            // For debug:
-            //list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", coordPre, target.posX, rst, coordPre, target.posY, rst, coordPre, target.posZ, rst));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + strPublic);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.playerName + rst);
         }
         // Compact/short tooltip
         else
         {
-            String s = dimPre + dimName + rst;
-            if (dimName.length() == 0)
-            {
-                s = StatCollector.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + numPre + target.dimension + rst;
-            }
-
-            list.add(String.format("%s - %s%.2f%s %s%.2f%s %s%.2f%s", s, numPre, target.dPosX, rst, numPre, target.dPosY, rst, numPre, target.dPosZ, rst));
+            list.add(strPublic + " - " + preDGreen + playerData.playerName + rst);
         }
-
-
     }
 
     @Override

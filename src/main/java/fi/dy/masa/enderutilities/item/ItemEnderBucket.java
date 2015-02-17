@@ -193,14 +193,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             {
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
-
-                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (target != null)
-                {
-                    ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
-                    String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linkedto") + ": " + preTxt + targetName + rst);
-                }
             }
             else
             {

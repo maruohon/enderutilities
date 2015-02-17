@@ -109,8 +109,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-        String numPre = EnumChatFormatting.BLUE.toString();
-        String dNamePre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
+        String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
         // Link Crystals installed
@@ -130,8 +130,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             {
                 int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
-                String dName = (linkCrystalStack.hasDisplayName() ? dNamePre + linkCrystalStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s%s%d%s / %s%d%s", dName, numPre, sel, rst, numPre, num, rst));
+                String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else

@@ -22,7 +22,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -258,43 +257,22 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ILocationBound)
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (target != null)
         {
-            String textPre = EnumChatFormatting.DARK_GREEN.toString();
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-
-            NBTHelperTarget target = ((ILocationBound)linkCrystalStack.getItem()).getTarget(linkCrystalStack);
-            if (target != null)
+            if ("minecraft:ender_chest".equals(target.blockName))
             {
-                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromItem(linkCrystalStack);
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                 String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
-                if ("minecraft:ender_chest".equals(target.blockName))
-                {
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
-                }
-                else if (playerData != null && playerData.canAccess(player) == true)
-                {
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
-
-                    super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-
-                    String mode = StatCollector.translateToLocal((playerData.isPublic == true ? "enderutilities.tooltip.item.public" : "enderutilities.tooltip.item.private"));
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + mode);
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.owner") + ": " + playerData.getPlayerName());
-                }
-            }
-            else
-            {
-                super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
+                String textPre = EnumChatFormatting.DARK_GREEN.toString();
+                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
+                return;
             }
         }
-        else
-        {
-            super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-        }
+
+        super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
 
     @Override
