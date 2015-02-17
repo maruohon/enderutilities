@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.settings;
+package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.client.settings.KeyBinding;
 
