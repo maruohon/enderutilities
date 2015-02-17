@@ -1216,8 +1216,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
-        byte val = nbt.getByte("Mode");
-        if (++val > OPERATION_MODE_BINDING)
+        byte val = (byte)(nbt.getByte("Mode") + 1);
+        if (val > OPERATION_MODE_BINDING || (val == OPERATION_MODE_BINDING && this.getBucketLinkMode(stack) == LINK_MODE_DISABLED))
         {
             val = OPERATION_MODE_NORMAL;
         }
