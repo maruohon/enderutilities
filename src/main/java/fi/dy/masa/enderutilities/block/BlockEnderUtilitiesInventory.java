@@ -100,16 +100,12 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
         }
     }
 
-    // If this returns true, then comparators facing away from this block will use the value from
-    // getComparatorInputOverride instead of the actual redstone signal strength.
     @Override
     public boolean hasComparatorInputOverride()
     {
         return true;
     }
 
-    // If hasComparatorInputOverride returns true, the return value from this is used instead of the redstone signal
-    // strength when this block inputs to a comparator.
     @Override
     public int getComparatorInputOverride(World world, int x, int y, int z, int meta)
     {

@@ -100,7 +100,11 @@ public class EntityUtils
         return ent;
     }
 
-    // Check if there are any players in this entity 'stack' (pile of mounted entities)
+    /**
+     * Check if there are any players in this entity 'stack' (pile of mounted entities)
+     * @param entity
+     * @return
+     */
     public static boolean doesEntityStackHavePlayers(Entity entity)
     {
         Entity ent;
@@ -124,7 +128,12 @@ public class EntityUtils
         return false;
     }
 
-    // Check if the given entity is contained in the 'stack' that the second argument is part of
+    /**
+     * Check if the given entity is contained in the 'stack' that the second argument is part of
+     * @param entity
+     * @param entityInStack
+     * @return
+     */
     public static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack)
     {
         Entity ent;
@@ -148,7 +157,11 @@ public class EntityUtils
         return false;
     }
 
-    // Check if there are any blacklisted entities in this entity 'stack' (pile of mounted entities)
+    /**
+     * Check if there are any blacklisted entities in this entity 'stack' (pile of mounted entities)
+     * @param entity
+     * @return
+     */
     public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
     {
         List<String> blacklist = Registry.getTeleportBlacklist();
@@ -195,6 +208,12 @@ public class EntityUtils
         return false;
     }
 
+    /**
+     * Adds the persistenceRequired flag to entities, if they need it in order to not despawn.
+     * The checks are probably at most accurate for vanilla entities.
+     * @param livingBase
+     * @return
+     */
     public static boolean applyMobPersistence(EntityLiving livingBase)
     {
         EntityLiving living = (EntityLiving) livingBase;
@@ -290,6 +309,13 @@ public class EntityUtils
         return false;
     }
 
+    /**
+     * Adds the AI task 'task' to 'entity' after all the existing tasks of types in 'afterTasks' 
+     * @param entity
+     * @param task
+     * @param afterTasks
+     * @return
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" } )
     public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class[] afterTasks)
     {
@@ -328,6 +354,6 @@ public class EntityUtils
 
         tasks.addTask(priority, task);
 
-        return false;
+        return true;
     }
 }

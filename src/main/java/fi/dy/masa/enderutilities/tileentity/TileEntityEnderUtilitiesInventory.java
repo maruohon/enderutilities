@@ -30,14 +30,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         this.customInventoryName = name;
     }
 
-    /* Returns if the inventory is named */
     @Override
     public boolean hasCustomInventoryName()
     {
         return this.customInventoryName != null && this.customInventoryName.length() > 0;
     }
 
-    /* Returns the name of the inventory */
     @Override
     public String getInventoryName()
     {
@@ -118,7 +116,9 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return itemStacks[slotNum];
     }
 
-    /* Removes from an inventory slot (slotNum) up to a specified number (maxAmount) of items and returns them in a new stack. */
+    /**
+     * Removes from an inventory slot (slotNum) up to a specified number (maxAmount) of items and returns them in a new stack.
+     */
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
@@ -147,9 +147,6 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return null;
     }
 
-    /* When some containers are closed they call this on each slot, then drop whatever it returns as an EntityItem -
-     * like when you close a workbench GUI.
-     */
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
@@ -158,7 +155,6 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return stack;
     }
 
-    /* Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections). */
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack stack)
     {
@@ -170,14 +166,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         this.itemStacks[slotNum] = stack;
     }
 
-    /* Returns the maximum stack size for a inventory slot. */
     @Override
     public int getInventoryStackLimit()
     {
         return 64;
     }
 
-    /* Do not make give this method the name canInteractWith because it clashes with Container */
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {

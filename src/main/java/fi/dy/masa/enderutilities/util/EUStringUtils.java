@@ -3,6 +3,12 @@ package fi.dy.masa.enderutilities.util;
 
 public class EUStringUtils
 {
+    /**
+     * Formats the number in value into a floored, postfixed form for display.
+     * Supported formats are: 0..1000, 1.0k..9.9k, 10k..999k, 1M..nM
+     * @param value
+     * @return
+     */
     public static String formatNumberFloorWithPostfix(int value)
     {
         if (value >= 1000000)
@@ -23,6 +29,11 @@ public class EUStringUtils
         return String.valueOf(value);
     }
 
+    /**
+     * Formats the number in value with thousand separator "," for display.
+     * @param value
+     * @return
+     */
     public static String formatNumberWithKSeparators(int value)
     {
         StringBuilder sb = new StringBuilder(16);
@@ -54,6 +65,11 @@ public class EUStringUtils
         return sb.toString();
     }
 
+    /**
+     * Formats the string in str into the initial letters of each word, imploded with "."
+     * @param str
+     * @return
+     */
     public static String getInitialsWithDots(String str)
     {
         StringBuilder sb = new StringBuilder(64);

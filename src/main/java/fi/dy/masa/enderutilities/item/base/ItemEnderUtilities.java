@@ -33,7 +33,7 @@ public class ItemEnderUtilities extends Item
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
 
-    /*
+    /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)

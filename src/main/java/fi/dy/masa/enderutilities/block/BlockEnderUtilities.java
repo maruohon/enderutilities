@@ -52,7 +52,6 @@ public class BlockEnderUtilities extends Block
         return meta;
     }
 
-    // Called whenever the block is added into the world. Args: world, x, y, z
     @Override
     public void onBlockAdded(World world, int x, int y, int z)
     {
@@ -86,7 +85,6 @@ public class BlockEnderUtilities extends Block
         Machine.getSubBlocks(this.blockIndex, this, item, tab, list);
     }
 
-    // A randomly called display update to be able to add particles or other items for display
     @SideOnly(Side.CLIENT)
     @Override
     public void randomDisplayTick(World world, int x, int y, int z, Random rand)

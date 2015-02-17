@@ -15,6 +15,13 @@ import fi.dy.masa.enderutilities.setup.Configs;
 
 public class UtilItemModular
 {
+    /**
+     * Checks if the given moduleStack is an IModule and the ModuleType of it
+     * is the same as moduleType.
+     * @param moduleStack
+     * @param moduleType
+     * @return
+     */
     public static boolean moduleTypeEquals(ItemStack moduleStack, ModuleType moduleType)
     {
         if (moduleStack != null && moduleStack.getItem() instanceof IModule
@@ -26,6 +33,11 @@ public class UtilItemModular
         return false;
     }
 
+    /**
+     * Returns the NBTTagList containing all the modules in toolStack, or null in case it fails.
+     * @param toolStack
+     * @return
+     */
     public static NBTTagList getInstalledModules(ItemStack toolStack)
     {
         if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
@@ -42,7 +54,12 @@ public class UtilItemModular
         return nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
     }
 
-    /* Returns the number of installed modules of the given type. */
+    /**
+     * Returns the number of installed modules in toolStack of the type moduleType.
+     * @param toolStack
+     * @param moduleType
+     * @return
+     */
     public static int getModuleCount(ItemStack toolStack, ModuleType moduleType)
     {
         NBTTagList nbtTagList = getInstalledModules(toolStack);
@@ -67,8 +84,12 @@ public class UtilItemModular
         return count;
     }
 
-    /* Returns the (max, if multiple) tier of the installed module.
-     * The tier is in the range of 0..n. Invalid tier/module is -1.
+    /**
+     * Returns the (maximum, if multiple) tier of the installed module in toolStack of the type moduleType.
+     * Valid tiers are in the range of 0..n. Invalid tier/module returns -1.
+     * @param toolStack
+     * @param moduleType
+     * @return
      */
     public static int getMaxModuleTier(ItemStack toolStack, ModuleType moduleType)
     {
@@ -97,7 +118,12 @@ public class UtilItemModular
         return tier;
     }
 
-    /* Returns the tier of the selected module of the given type. */
+    /**
+     * Returns the tier of the currently selected module of type moduleType in toolStack.
+     * @param toolStack
+     * @param moduleType
+     * @return
+     */
     public static int getSelectedModuleTier(ItemStack toolStack, ModuleType moduleType)
     {
         ItemStack moduleStack = getSelectedModuleStack(toolStack, moduleType);
@@ -109,6 +135,12 @@ public class UtilItemModular
         return ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
     }
 
+    /**
+     * Returns the index (0..num-1) of the currently selected module of type moduleType in toolStack.
+     * @param toolStack
+     * @param moduleType
+     * @return
+     */
     public static int getClampedModuleSelection(ItemStack toolStack, ModuleType moduleType)
     {
         if (toolStack == null || toolStack.getTagCompound() == null)
@@ -127,8 +159,13 @@ public class UtilItemModular
         return selected;
     }
 
-    /* Returns the TAG_Compound containing the (selected, if multiple) given module type.
-     * The tag contains the Slot and the ItemStack data. */
+    /**
+     * Returns the TAG_Compound containing the (currently selected, if multiple) installed module of type moduleType.
+     * The tag contains the Slot and the ItemStack data.
+     * @param toolStack
+     * @param moduleType
+     * @return
+     */
     public static NBTTagCompound getSelectedModuleTagCompound(ItemStack toolStack, ModuleType moduleType)
     {
         NBTTagList nbtTagList = getInstalledModules(toolStack);
@@ -157,7 +194,12 @@ public class UtilItemModular
         return null;
     }
 
-    /* Returns the ItemStack of the (selected, if multiple) given module type. */
+    /**
+     * Returns the ItemStack of the (currently selected, if multiple) installed module of type moduleType.
+     * @param toolStack
+     * @param moduleType
+     * @return
+     */
     public static ItemStack getSelectedModuleStack(ItemStack toolStack, ModuleType moduleType)
     {
         NBTTagCompound tag = UtilItemModular.getSelectedModuleTagCompound(toolStack, moduleType);
@@ -169,7 +211,13 @@ public class UtilItemModular
         return null;
     }
 
-    /* Sets the selected modules' ItemStack of the given module type to the one provided. */
+    /**
+     * Sets the currently selected module's ItemStack of type moduleStack to the one provided in newModuleStack.
+     * @param toolStack
+     * @param moduleType
+     * @param newModuleStack
+     * @return
+     */
     public static ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack newModuleStack)
     {
         NBTTagList nbtTagList = getInstalledModules(toolStack);
@@ -206,7 +254,11 @@ public class UtilItemModular
         return toolStack;
     }
 
-    /* Returns a list of all the installed modules. */
+    /**
+     * Returns a list of all the installed modules. UNIMPLEMENTED ATM
+     * @param stack
+     * @return
+     */
     public static List<NBTTagCompound> getAllModules(ItemStack stack)
     {
         if (stack == null)
@@ -219,7 +271,12 @@ public class UtilItemModular
         return null;
     }
 
-    /* Sets the modules to the ones provided in the list. */
+    /**
+     * Sets the modules to the ones provided in the list. UNIMPLEMENTED ATM
+     * @param stack
+     * @param modules
+     * @return
+     */
     public static ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
     {
         if (stack == null)
@@ -232,7 +289,14 @@ public class UtilItemModular
         return stack;
     }
 
-    /* Sets the module indicated by the position to the one provided in the compound tag. */
+    /**
+     * Sets the module indicated by the position to the one provided in the compound tag.
+     * UNIMPLEMENTED ATM
+     * @param stack
+     * @param index
+     * @param nbt
+     * @return
+     */
     public static ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {
         if (stack == null)
@@ -245,7 +309,13 @@ public class UtilItemModular
         return stack;
     }
 
-    /* Change the selected module to the next one, if any. */
+    /**
+     * Change the currently selected module of type moduleType to the next one, if any.
+     * @param toolStack
+     * @param moduleType
+     * @param reverse True if we want to change to the previous module instead of the next module
+     * @return
+     */
     public static ItemStack changeSelectedModule(ItemStack toolStack, ModuleType moduleType, boolean reverse)
     {
         int moduleCount = UtilItemModular.getModuleCount(toolStack, moduleType);
@@ -277,9 +347,14 @@ public class UtilItemModular
         return toolStack;
     }
 
-    /* If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
+    /**
+     * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
+     * @param stack
+     * @param amount
+     * @param doUse True to actually drain, false to simulate
+     * @return false if the requested amount of charge could not be drained
      */
     public static boolean useEnderCharge(ItemStack stack, int amount, boolean doUse)
     {
@@ -314,11 +389,17 @@ public class UtilItemModular
         return true;
     }
 
-    /* If the player is in creative mode, then no charge will be required or drained.
+    /**
+     * If the player is in creative mode, then no charge will be required or drained, and true will be returned.
      * Normally:
      * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
+     * @param stack
+     * @param player
+     * @param amount
+     * @param doUse
+     * @return
      */
     public static boolean useEnderCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
     {

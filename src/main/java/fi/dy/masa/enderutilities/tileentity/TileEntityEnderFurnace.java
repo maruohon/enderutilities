@@ -157,15 +157,23 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         super.onDataPacket(net, packet);
     }
 
-    // Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
+    /**
+     * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
+     * @param i
+     * @return
+     */
     @SideOnly(Side.CLIENT)
     public int getCookProgressScaled(int i)
     {
         return this.cookTime * i / this.cookTimeFresh;
     }
 
-    // Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
-    // item, where 0 means that the item is exhausted and the passed value means that the item is fresh
+    /**
+     * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
+     * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
+     * @param i
+     * @return
+     */
     @SideOnly(Side.CLIENT)
     public int getBurnTimeRemainingScaled(int i)
     {
@@ -449,7 +457,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return burnTime;
     }
 
-    // Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+    /**
+     * Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+     * @return
+     */
     public boolean canSmelt()
     {
         if (this.itemStacks[0] == null)
@@ -493,7 +504,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
     }
 
-    // Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
+    /**
+     * Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
+     */
     public void smeltItem()
     {
         if (this.canSmelt() == true)
@@ -533,7 +546,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
     }
 
-    // Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't fuel
+    /**
+     * Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't fuel
+     * @param stack
+     * @return
+     */
     public static int getItemBurnTime(ItemStack stack)
     {
         if (stack == null)
@@ -572,6 +589,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT * 3 / 400;
     }
 
+    /**
+     * Uses one dose (<= 250 mB) of fluid fuel, returns the amount of cook time that was gained from it.
+     * @param stack
+     * @return
+     */
     public static int consumeFluidFuelDosage(ItemStack stack)
     {
         if (itemContainsFluidFuel(stack) == false)
@@ -590,12 +612,22 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return (amount * 15 * COOKTIME_DEFAULT / 100);
     }
 
-    /* Check if the given item works as a fuel source in this furnace */
+    /**
+     * Check if the given item works as a fuel source in this furnace
+     * @param stack
+     * @return
+     */
     public static boolean isItemFuel(ItemStack stack)
     {
         return itemContainsFluidFuel(stack) || getItemBurnTime(stack) > 0;
     }
 
+    /**
+     * Checks if the given ItemStack contains a valid fluid fuel source for the furnace.
+     * Valid fuels are currently just lava.
+     * @param stack
+     * @return
+     */
     public static boolean itemContainsFluidFuel(ItemStack stack)
     {
         if (stack == null || stack.getItem() == null || (stack.getItem() instanceof IFluidContainerItem) == false)
@@ -618,7 +650,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return false;
     }
 
-    /* Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot. */
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
     {
@@ -637,7 +668,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return FurnaceRecipes.smelting().getSmeltingResult(itemStack) != null;
     }
 
-    /* Returns an array containing the indices of the slots that can be accessed by automation on the given side of this block. */
     @Override
     public int[] getAccessibleSlotsFromSide(int side)
     {
@@ -645,14 +675,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         return SLOTS_SIDES;
     }
 
-    /* Returns true if automation can insert the given item in the given slot from the given side. Args: slot, itemstack, side */
     @Override
     public boolean canInsertItem(int slot, ItemStack stack, int side)
     {
         return this.isItemValidForSlot(slot, stack);
     }
 
-    // Returns true if automation can extract the given item in the given slot from the given side. Args: slot, itemstack, side
     @Override
     public boolean canExtractItem(int slot, ItemStack stack, int side)
     {

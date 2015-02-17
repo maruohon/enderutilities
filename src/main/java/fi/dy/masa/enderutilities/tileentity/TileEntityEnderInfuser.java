@@ -209,7 +209,6 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         }
     }
 
-    /* Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot. */
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
@@ -234,7 +233,6 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         return false;
     }
 
-    /* Returns an array containing the indices of the slots that can be accessed by automation on the given side of this block. */
     @Override
     public int[] getAccessibleSlotsFromSide(int side)
     {
@@ -242,14 +240,12 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         return SLOTS_SIDES;
     }
 
-    /* Returns true if automation can insert the given item in the given slot from the given side. Args: slot, itemstack, side */
     @Override
     public boolean canInsertItem(int slot, ItemStack stack, int side)
     {
         return this.isItemValidForSlot(slot, stack);
     }
 
-    // Returns true if automation can extract the given item in the given slot from the given side. Args: slot, itemstack, side
     @Override
     public boolean canExtractItem(int slot, ItemStack stack, int side)
     {

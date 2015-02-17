@@ -238,7 +238,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return OPERATION_MODE_NORMAL;
     }
 
-    /* Returns whether the bucket is currently set to link to a tank. */
+    /**
+     *  Returns whether the bucket is currently set to link to a tank.
+     */
     public byte getBucketLinkMode(ItemStack stack)
     {
         if (stack != null)
@@ -257,6 +259,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return LINK_MODE_DISABLED;
     }
 
+    /**
+     * Checks if the player can edit the target block
+     */
     public boolean isTargetUsable(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side)
     {
         if (world == null)
@@ -534,7 +539,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return false;
     }
 
-    /*
+    /**
      *  Attempts to place one fluid block in the world, identified by the given FluidStack
      */
     public boolean tryPlaceFluidBlock(World world, int x, int y, int z, FluidStack fluidStack)
@@ -1164,8 +1169,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return this.itemIcon;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
@@ -1186,6 +1189,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return 0;
     }
 
+    /**
+     * Toggles the linked-to-tank mode ON/OFF.
+     */
     private void changeLinkMode(ItemStack stack)
     {
         NBTTagCompound nbt = stack.getTagCompound();
@@ -1198,6 +1204,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         stack.setTagCompound(nbt);
     }
 
+    /**
+     * Cycles through the operation modes: Normal, Fill, Drain, Bind to tanks
+     */
     private void changeOperationMode(ItemStack stack)
     {
         NBTTagCompound nbt = stack.getTagCompound();

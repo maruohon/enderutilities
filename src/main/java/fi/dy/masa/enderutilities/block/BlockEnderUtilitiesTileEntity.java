@@ -33,7 +33,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         super(index, name, hardness, material);
     }
 
-    // Returns a new instance of a block's tile entity class. Called on placing the block.
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
@@ -114,7 +113,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         }
     }
 
-    // Called upon block activation (right click on the block.)
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
     {

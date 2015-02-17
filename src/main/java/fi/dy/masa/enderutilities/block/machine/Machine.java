@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-/*
+/**
  * Machine specific data, such as icons.
  * The basic structure of this class has been inspired by MineFactoryReloaded, credits powercrystals, skyboy + others.
  */
@@ -86,6 +86,11 @@ public class Machine
         }
     }
 
+    /**
+     * Checks if class of the given TileEntity instance matches the one of this machine.
+     * @param te The TileEntity to be validated
+     * @return true if the given TileEntity is not null and matches the class of this machine's TE
+     */
     public boolean isTileEntityValid(TileEntity te)
     {
         if (te != null && te.getClass() == this.tileEntityClass)
@@ -96,6 +101,11 @@ public class Machine
         return false;
     }
 
+    /**
+     * Returns all the block names for the given block index
+     * @param blockIndex
+     * @return String[] of defined block names
+     */
     public static String[] getNames(int blockIndex)
     {
         String[] names = new String[16];
@@ -146,7 +156,7 @@ public class Machine
         return block;
     }
 
-    /*
+    /**
      * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)

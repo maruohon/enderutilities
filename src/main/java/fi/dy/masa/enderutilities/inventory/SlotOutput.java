@@ -11,6 +11,9 @@ public class SlotOutput extends Slot
         super(inventory, slot, posX, posY);
     }
 
+    /**
+     * Since this is an output slot, this always returns false.
+     */
     @Override
     public boolean isItemValid(ItemStack stack)
     {

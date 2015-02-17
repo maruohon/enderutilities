@@ -132,14 +132,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack)
     {
         return 5;
     }
 
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
@@ -206,7 +204,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     }
 
     /**
-     * used to cycle through icons based on their used duration, i.e. for the bow
+     * Used to cycle through icons based on their used duration, i.e. for the bow
      */
     @SideOnly(Side.CLIENT)
     public IIcon getItemIconForUseDuration(int index)

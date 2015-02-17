@@ -27,6 +27,13 @@ public class SlotUpgradeModule extends Slot
         this.moduleType = type;
     }
 
+    /**
+     * Checks if the given ItemStack is valid for this slot.
+     * For it to be valid, there needs to be an IModular item in the tool slot,
+     * and the input stack's item needs to be an IModule, the ModuleType of it
+     * has to match the ModuleType of this slot, or this slot must accept any type
+     * of module, and the tool must support this type of module.
+     */
     @Override
     public boolean isItemValid(ItemStack moduleStack)
     {

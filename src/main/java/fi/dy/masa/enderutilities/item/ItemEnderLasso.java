@@ -19,14 +19,12 @@ public class ItemEnderLasso extends ItemLocationBoundModular
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_LASSO);
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack)
     {
         return 5;
     }
 
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
@@ -48,8 +46,6 @@ public class ItemEnderLasso extends ItemLocationBoundModular
         return 0;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {

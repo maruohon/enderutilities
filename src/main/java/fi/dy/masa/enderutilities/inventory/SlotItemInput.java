@@ -11,6 +11,10 @@ public class SlotItemInput extends Slot
         super(inventory, slot, posX, posY);
     }
 
+    /**
+     * Checks if the given ItemStack is valid for this slot.
+     * Does the check by calling isItemValidForSlot() on the IInventory.
+     */
     @Override
     public boolean isItemValid(ItemStack stack)
     {

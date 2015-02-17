@@ -183,21 +183,18 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
     }
 
-    /* Returns the number of installed modules of the given type. */
     @Override
     public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack)
     {
         return 4;
     }
 
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
@@ -214,8 +211,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return 0;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
@@ -236,55 +231,47 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return 0;
     }
 
-    /* Returns the (max, if multiple) tier of the installed module. */
     @Override
     public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getMaxModuleTier(stack, moduleType);
     }
 
-    /* Returns the tier of the selected module of the given type. */
     public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleTier(stack, moduleType);
     }
 
-    /* Returns the ItemStack of the (selected, if multiple) given module type. */
     @Override
     public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);
     }
 
-    /* Sets the selected modules' ItemStack of the given module type to the one provided. */
     @Override
     public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
     }
 
-    /* Change the selected module to the next one, if any. */
     @Override
     public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
     {
         return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
     }
 
-    /* Returns a list of all the installed modules. */
     @Override
     public List<NBTTagCompound> getAllModules(ItemStack stack)
     {
         return UtilItemModular.getAllModules(stack);
     }
 
-    /* Sets the modules to the ones provided in the list. */
     @Override
     public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
     {
         return UtilItemModular.setAllModules(stack, modules);
     }
 
-    /* Sets the module indicated by the position to the one provided in the compound tag. */
     @Override
     public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {

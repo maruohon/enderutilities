@@ -103,6 +103,5 @@ public class ItemRenderer
             tessellator.addVertexWithUV(x2, y, z2, (double)maxU, v);
         }
         tessellator.draw();
-
     }
 }

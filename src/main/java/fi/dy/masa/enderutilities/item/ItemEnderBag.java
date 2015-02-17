@@ -184,8 +184,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         return true;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {

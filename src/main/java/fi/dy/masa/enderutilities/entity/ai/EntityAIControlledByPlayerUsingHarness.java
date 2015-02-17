@@ -63,6 +63,10 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer && ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));
     }
 
+    /**
+     * Moves the ridden entity based on player input
+     * @param player
+     */
     public void moveEntity(EntityPlayer player)
     {
         this.entity.prevRotationYaw = this.entity.rotationYaw = player.rotationYaw % 360.0F;

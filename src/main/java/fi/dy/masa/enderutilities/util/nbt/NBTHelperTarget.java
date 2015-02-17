@@ -284,7 +284,8 @@ public class NBTHelperTarget
         return false;
     }
 
-    /* This is for compatibility when upgrading from 0.3.x.
+    /**
+     * This is for compatibility when upgrading from 0.3.x.
      * It tries to transfer old style target data tags from the containing item to
      * the first link crystal that has no target tag, and then removes the old target tag from the item.
      * FIXME Remove this sometime around 0.5.0 or 0.6.0.
