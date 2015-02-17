@@ -463,12 +463,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
             }
 
-            //Particles.spawnParticles(event.world, "portal", event.x, event.y, event.z, 6, 0.2d, 1.0d);
-            Sounds.playSound(event.world, event.x, event.y, event.z, "mob.endermen.portal", 0.08f, 1.2f);
+            Sounds.playSound(event.world, event.x, event.y, event.z, "mob.endermen.portal", 0.08f, 1.8f);
 
             PacketHandler.INSTANCE.sendToAllAround(
-                new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES, event.x, event.y, event.z, 6),
-                    new NetworkRegistry.TargetPoint(event.world.provider.dimensionId, event.x, event.y, event.z, 24.0d));
+                new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES,
+                    event.x + 0.5d, event.y + 0.5d, event.z + 0.5d, 8, 0.3d, 0.4d),
+                        new NetworkRegistry.TargetPoint(event.world.provider.dimensionId, event.x, event.y, event.z, 24.0d));
         }
 
         // All items successfully transported somewhere, cancel the drops

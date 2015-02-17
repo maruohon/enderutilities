@@ -22,12 +22,14 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
     private double y;
     private double z;
     private int particleCount;
+    private double offset;
+    private double velocity;
 
     public MessageAddEffects()
     {
     }
 
-    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
+    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount, double offset, double velocity)
     {
         this.effectType = id;
         this.flags = flags;
@@ -35,11 +37,18 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
         this.y = y;
         this.z = z;
         this.particleCount = particleCount;
+        this.offset = offset;
+        this.velocity = velocity;
+    }
+
+    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
+    {
+        this(id, flags, x, y, z, particleCount, 0.2d, 2.0d);
     }
 
     public MessageAddEffects(int id, int flags, double x, double y, double z)
     {
-        this(id, flags, x, y, z, 32);
+        this(id, flags, x, y, z, 32, 0.2d, 2.0d);
     }
 
     @Override
@@ -51,6 +60,8 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
         this.y = buf.readDouble();
         this.z = buf.readDouble();
         this.particleCount = buf.readShort();
+        this.offset = buf.readFloat();
+        this.velocity = buf.readFloat();
     }
 
     @Override
@@ -62,6 +73,8 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
         buf.writeDouble(this.y);
         buf.writeDouble(this.z);
         buf.writeShort(this.particleCount);
+        buf.writeFloat((float)this.offset);
+        buf.writeFloat((float)this.velocity);
     }
 
     @Override
@@ -80,7 +93,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, this.particleCount, 0.2d, 2.0d);
+                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
             }
         }
