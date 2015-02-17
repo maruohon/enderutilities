@@ -26,7 +26,6 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Registry;
@@ -277,47 +276,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
     {
         return false;
-    }
-
-    public void toggleBagMode(EntityPlayer player, ItemStack stack)
-    {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null)
-        {
-            return;
-        }
-
-        NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-        if (moduleNbt == null)
-        {
-            return;
-        }
-
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromNBT(moduleNbt);
-        if (playerData == null || playerData.isOwner(player) == false)
-        {
-            return;
-        }
-
-        playerData.isPublic = ! playerData.isPublic;
-        playerData.writeToNBT(moduleNbt);
-        this.setSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
-    }
-
-    @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
-    {
-        // Change the selected link crystal
-        if (ReferenceKeys.keypressContainsShift(key) == true)
-        {
-            super.doKeyBindingAction(player, stack, key);
-            return;
-        }
-
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            this.toggleBagMode(player, stack);
-        }
     }
 
     @Override

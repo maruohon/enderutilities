@@ -60,6 +60,11 @@ public class InputEventHandler
                         key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
                     }
 
+                    if (EnderUtilities.proxy.isAltKeyDown() == true)
+                    {
+                        key |= ReferenceKeys.KEYBIND_MODIFIER_ALT;
+                    }
+
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
                 }
                 return;

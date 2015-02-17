@@ -86,8 +86,42 @@ public class NBTHelperPlayer
         return writePlayerTagToNBT(nbt, this.playerUUIDMost, this.playerUUIDLeast, this.playerName, this.isPublic);
     }
 
+    public boolean writeToItem(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(this.writeToNBT(stack.getTagCompound()));
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean writeToSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+        if (moduleStack != null)
+        {
+            if (this.writeToItem(moduleStack) == false)
+            {
+                return false;
+            }
+
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, long most, long least, String name, boolean isPublic)
     {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
         NBTTagCompound tag = new NBTTagCompound();
         tag.setLong("UUIDM", most);
         tag.setLong("UUIDL", least);

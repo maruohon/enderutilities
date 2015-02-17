@@ -14,11 +14,12 @@ import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
-public class ItemLocationBound extends ItemEnderUtilities implements ILocationBound
+public class ItemLocationBound extends ItemEnderUtilities implements ILocationBound, IKeyBound
 {
     public ItemLocationBound()
     {
@@ -160,6 +161,35 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         else
         {
             list.add(strPublic + " - " + preDGreen + playerData.playerName + rst);
+        }
+    }
+
+    /**
+     * Toggles between public and private mode, if this item has a plyer tag,
+     * and if the player is the owner of this item.
+     * @param stack
+     * @param player
+     */
+    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
+    {
+        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        if (data != null && data.isOwner(player) == true)
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToItem(stack);
+        }
+    }
+
+    @Override
+    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    {
+        // Alt + Toggle mode: Toggle the private/public mode
+        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE
+            && ReferenceKeys.keypressContainsShift(key) == false
+            && ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            this.changePrivacyMode(stack, player);
         }
     }
 

@@ -37,6 +37,7 @@ public abstract class CommonProxy implements IProxy
         }
     }
 
+    @Override
     public void registerEntities()
     {
         int id = 0;
@@ -44,6 +45,7 @@ public abstract class CommonProxy implements IProxy
         EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE), id++, EnderUtilities.instance, 64, 3, true);
     }
 
+    @Override
     public void registerEventHandlers()
     {
         MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
@@ -55,11 +57,13 @@ public abstract class CommonProxy implements IProxy
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
     }
 
+    @Override
     public void registerFuelHandlers()
     {
         //GameRegistry.registerFuelHandler(new FuelHandler());
     }
 
+    @Override
     public void registerTileEntities()
     {
         // TODO: Remove the WithAlternatives version of the register call after some releases. Added in v0.4.0 to be able to prefix the TE names with the MOD_ID.
@@ -68,12 +72,30 @@ public abstract class CommonProxy implements IProxy
         GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
     }
 
+    @Override
+    public void registerKeyBindings()
+    {
+    }
+
+    @Override
+    public void registerRenderers()
+    {
+    }
+
+    @Override
     public boolean isShiftKeyDown()
     {
         return false;
     }
 
+    @Override
     public boolean isControlKeyDown()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isAltKeyDown()
     {
         return false;
     }

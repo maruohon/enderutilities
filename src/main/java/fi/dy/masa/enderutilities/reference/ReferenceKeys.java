@@ -15,6 +15,7 @@ public class ReferenceKeys
 
     public static final int KEYBIND_MODIFIER_SHIFT      = 0x00010000;
     public static final int KEYBIND_MODIFIER_CONTROL    = 0x00020000;
+    public static final int KEYBIND_MODIFIER_ALT        = 0x00040000;
 
     public static int getBaseKey(int key)
     {
@@ -29,5 +30,10 @@ public class ReferenceKeys
     public static boolean keypressContainsControl(int key)
     {
         return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_CONTROL) != 0;
+    }
+
+    public static boolean keypressContainsAlt(int key)
+    {
+        return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_ALT) != 0;
     }
 }

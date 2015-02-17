@@ -175,11 +175,37 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
+    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
+    {
+        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (data != null && data.isOwner(player) == true)
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        }
+    }
+
+    @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE && ReferenceKeys.keypressContainsShift(key) == true)
+        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        {
+            return;
+        }
+
+        // Shift + (Ctrl + ) Toggle mode
+        if (ReferenceKeys.keypressContainsShift(key) == true)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+        }
+        // Alt + Toggle mode: Toggle the private/public mode
+        else if (ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            this.changePrivacyMode(stack, player);
+        }
+        else
+        {
+            super.doKeyBindingAction(player, stack, key);
         }
     }
 

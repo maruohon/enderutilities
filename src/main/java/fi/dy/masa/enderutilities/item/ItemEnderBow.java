@@ -291,17 +291,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        // Change the selected link crystal
-        if (ReferenceKeys.keypressContainsShift(key) == true)
-        {
-            if (this.getBowMode(stack) == BOW_MODE_TP_TARGET)
-            {
-                super.doKeyBindingAction(player, stack, key);
-            }
-        }
-        else if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        // Just Toggle mode key: Change Bow mode
+        if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.toggleBowMode(player, stack);
+        }
+        else
+        {
+            super.doKeyBindingAction(player, stack, key);
         }
     }
 

@@ -22,4 +22,6 @@ public interface IProxy
     public abstract boolean isShiftKeyDown();
 
     public abstract boolean isControlKeyDown();
+
+    public abstract boolean isAltKeyDown();
 }
