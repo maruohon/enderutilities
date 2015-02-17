@@ -105,7 +105,7 @@ item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a bl
 item.enderutilities.linkcrystal.2.tooltips=*WIP*
 item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you|lf- Tip: If riding a Creeper, don't|lf  let it see you before mounting it!
 
-tile.enderutilities.enderfurnace.tooltips=- A lot faster that a vanilla furnace|lf  (3 seconds per item on normal, 1 s on fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  like the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
+tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
 tile.enderutilities.toolworkstation.tooltips=- Used to manipulate the modules in modular items
 
@@ -118,6 +118,8 @@ enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.modulestorage=Module storage
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
 enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
+enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
+enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 
 enderutilities.tooltip.dimension=Dimension
 enderutilities.tooltip.dimension.compact=DIM

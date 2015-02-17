@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
@@ -96,18 +99,8 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 
     protected void createButtons()
     {
-        int modeOffset = 0;
-        int outputOffset = 0;
-
-        if (this.teef.operatingMode == 1)
-        {
-            modeOffset = 16;
-        }
-
-        if (this.teef.outputMode == 1)
-        {
-            outputOffset = 16;
-        }
+        int modeOffset = (this.teef.operatingMode == 1 ? 16 : 0);
+        int outputOffset = (this.teef.outputMode == 1 ? 16 : 0);
 
         this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, this.guiTexture, 200, 14 + modeOffset);
         this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, this.guiTexture, 200, 46 + outputOffset);
@@ -119,6 +112,23 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        // Hovering over slow/fast mode button
+        if (mouseX >= x + 10 && mouseX <= x + 25 && mouseY >= y + 53 && mouseY <= y + 68)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.slowfasttoggle"));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+        // Hovering over the output-to-ender-chest button
+        else if (mouseX >= x + 145 && mouseX <= x + 160 && mouseY >= y + 53 && mouseY <= y + 68)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.outputtoenderchest"));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
     }
 
     @Override
