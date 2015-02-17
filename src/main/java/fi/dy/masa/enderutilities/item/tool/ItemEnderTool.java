@@ -369,10 +369,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             Iterator<ItemStack> iter = event.drops.iterator();
             while (iter.hasNext() == true)
             {
-                ItemStack s = iter.next();
-                if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                ItemStack stack = iter.next();
+                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                 {
-                    if (player.inventory.addItemStackToInventory(s) == true)
+                    if (player.inventory.addItemStackToInventory(stack.copy()) == true)
                     {
                         iter.remove();
                     }
@@ -421,9 +421,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     while (iter.hasNext() == true)
                     {
                         ItemStack stack = iter.next();
-                        if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                        if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                         {
-                            if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack, target.blockFace) == true)
+                            if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack.copy(), target.blockFace) == true)
                             {
                                 iter.remove();
                             }
@@ -438,9 +438,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 while (iter.hasNext() == true)
                 {
                     ItemStack stack = iter.next();
-                    if (isSilk || event.world.rand.nextFloat() < event.dropChance)
+                    if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.5d, target.dPosZ, stack);
+                        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
                         entityItem.motionX = entityItem.motionZ = 0.0d;
                         entityItem.motionY = 0.15d;
 
