@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -50,6 +51,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -60,6 +62,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -104,6 +107,73 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return super.getUnlocalizedName();
     }
 
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
+
+        // Drops mode
+        byte mode = this.getToolModeByName(stack, "DropsMode");
+        String str = (mode == 0 ? "enderutilities.tooltip.item.normal" : mode == 1 ? "enderutilities.tooltip.item.endertool.playerinv" : "enderutilities.tooltip.item.endertool.remote");
+        str = StatCollector.translateToLocal(str);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
+
+        // Dig mode (normal/fast)
+        mode = this.getToolModeByName(stack, "DigMode");
+        str = (mode == 0 ? "enderutilities.tooltip.item.normal" : "enderutilities.tooltip.item.fast");
+        str = StatCollector.translateToLocal(str);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
+
+        // Installed Ender Core type
+        str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
+        if (coreTier >= 0)
+        {
+            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            coreType = StatCollector.translateToLocal(coreType);
+            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+        }
+        else
+        {
+            String preRed = EnumChatFormatting.RED.toString();
+            str += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.none") + rst;
+        }
+        list.add(str);
+
+        // Link Crystals installed
+        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+        {
+            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+            // Valid target set in the currently selected Link Crystal
+            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            {
+                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+            }
+            else
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+            }
+
+            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+            String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+        }
+
+        // Capacitor installed
+        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        {
+            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+        }
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
@@ -111,8 +181,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
-        // "Fresh" items without NBT data: display the tips before the usual tooltip data
-        if (stack != null && stack.getTagCompound() != null && stack.getTagCompound().getBoolean("AddTooltips"))
+        // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
+        // We check for the ench and Items tags so that creative spawned items won't show the tooltip
+        // once they have some other NBT data on them
+        if (stack != null && stack.getTagCompound() != null && stack.getTagCompound().getBoolean("AddTooltips")
+            && stack.getTagCompound().hasKey("ench") == false && stack.getTagCompound().hasKey("Items") == false)
         {
             this.addTooltips(stack, tmpList, verbose);
 
@@ -124,9 +197,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             {
                 list.addAll(tmpList);
             }
+            return;
         }
 
-        /*tmpList.clear();
+        tmpList.clear();
         this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
@@ -141,7 +215,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         else
         {
             list.addAll(tmpList);
-        }*/
+        }
         //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
     }
 
@@ -646,20 +720,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return -1;
     }
 
-    /**
-     * ItemStack sensitive version of getItemEnchantability
-     * 
-     * @param stack The ItemStack
-     * @return the item echantability value
-     */
+    @Override
     public int getItemEnchantability(ItemStack stack)
     {
         return this.material.getEnchantability();
     }
 
-    /**
-     * ItemStack sensitive version of getItemAttributeModifiers
-     */
     @Override
     public Multimap getAttributeModifiers(ItemStack stack)
     {
@@ -831,54 +897,78 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.iconArray[i];
     }
 
+    public void changeDigMode(ItemStack stack)
+    {
+        byte mode = this.getToolModeByName(stack, "DigMode");
+        if (++mode > 1)
+        {
+            mode = 0;
+        }
+        this.setToolModeByName(stack, "DigMode", mode);
+    }
+
+    public void changeDropsMode(ItemStack stack)
+    {
+        byte mode = this.getToolModeByName(stack, "DropsMode");
+        if (++mode > 2)
+        {
+            mode = 0;
+        }
+        this.setToolModeByName(stack, "DropsMode", mode);
+    }
+
+    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
+    {
+        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (data != null && data.isOwner(player) == true)
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        }
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null)
+        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             return;
         }
 
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        // Just Toggle mode key: Change the dig mode
+        if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            // Ctrl + Toggle mode: Toggle the block drops handling mode: normal, player, remote
-            if (ReferenceKeys.keypressContainsControl(key))
-            {
-                byte mode = this.getToolModeByName(stack, "DropsMode");
-                if (++mode > 2)
-                {
-                    mode = 0;
-                }
-                this.setToolModeByName(stack, "DropsMode", mode);
-            }
-            // Toggle the dig mode: normal, fast
-            else
-            {
-                byte mode = this.getToolModeByName(stack, "DigMode");
-                if (++mode > 1)
-                {
-                    mode = 0;
-                }
-                this.setToolModeByName(stack, "DigMode", mode);
-            }
+            this.changeDigMode(stack);
+        }
+        // Shift + (Ctrl + ) Toggle mode
+        else if (ReferenceKeys.keypressContainsShift(key) == true)
+        {
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+        }
+        // Ctrl + Toggle mode: Toggle the block drops handling mode: normal, player, remote
+        else if (ReferenceKeys.keypressContainsControl(key))
+        {
+            this.changeDropsMode(stack);
+        }
+        // Alt + Toggle mode: Toggle the private/public mode
+        else if (ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            this.changePrivacyMode(stack, player);
         }
     }
 
-    /* Returns the number of installed modules of the given type. */
     @Override
     public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack)
     {
-        return 3;
+        return 5;
     }
 
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
@@ -894,14 +984,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 1;
+            return 3;
         }
 
         return 0;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
@@ -924,54 +1012,47 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return 0;
     }
 
-    /* Returns the (max, if multiple) tier of the installed module. */
     @Override
     public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getMaxModuleTier(stack, moduleType);
     }
 
-    /* Returns the tier of the selected module of the given type. */
     public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleTier(stack, moduleType);
     }
 
-    /* Returns the ItemStack of the (selected, if multiple) given module type. */
     @Override
     public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);
     }
 
-    /* Sets the selected modules' ItemStack of the given module type to the one provided. */
+    @Override
     public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
     }
 
-    /* Change the selected module to the next one, if any. */
     @Override
     public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
     {
-        return stack;
+        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
     }
 
-    /* Returns a list of all the installed modules. */
     @Override
     public List<NBTTagCompound> getAllModules(ItemStack stack)
     {
         return UtilItemModular.getAllModules(stack);
     }
 
-    /* Sets the modules to the ones provided in the list. */
     @Override
     public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
     {
         return UtilItemModular.setAllModules(stack, modules);
     }
 
-    /* Sets the module indicated by the position to the one provided in the compound tag. */
     @Override
     public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {
