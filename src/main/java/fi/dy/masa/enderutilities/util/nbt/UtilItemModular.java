@@ -404,7 +404,7 @@ public class UtilItemModular
      */
     public static boolean useEnderCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
     {
-        if (Configs.valueUseEnderCharge == false || player.capabilities.isCreativeMode == true)
+        if (Configs.valueUseEnderCharge == false || (player != null && player.capabilities.isCreativeMode == true))
         {
             return true;
         }
