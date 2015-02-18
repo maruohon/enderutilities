@@ -21,13 +21,13 @@ public class ItemBlockEnderUtilities extends ItemBlock
     public ItemBlockEnderUtilities(Block block)
     {
         super(block);
+        this.setHasSubtypes(true);
         this.setMaxDamage(0);
     }
 
     public void setNames(String[] names)
     {
         this.blockNames = names;
-        this.setHasSubtypes(true);
     }
 
     @Override
