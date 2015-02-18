@@ -214,6 +214,12 @@ public class TeleportEntity
         if (target != null)
         {
             TeleportEntity.adjustTargetPosition(target, entity);
+
+            if (target.hasAngle == true && entity != null)
+            {
+                entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+            }
+
             return TeleportEntity.teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
         }
 

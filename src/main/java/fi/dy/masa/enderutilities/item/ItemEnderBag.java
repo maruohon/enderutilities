@@ -52,7 +52,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-        if (stack == null || stack.getTagCompound() == null || world.isRemote == true)
+        if (world.isRemote == true || stack == null || stack.getTagCompound() == null)
         {
             return stack;
         }
@@ -156,12 +156,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return world.isRemote; // hah, saved an extra if() by returning this :p~
         }
 
-        // If the player trying to set/modify the bag is not the owner of the selected Link Crystal and it is not set to be public
-        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-        {
-            return false;
-        }
-
         TileEntity te = world.getTileEntity(x, y, z);
         if (te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
@@ -172,12 +166,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return true;
             }*/
 
-            if (NBTHelperPlayer.selectedModuleHasPlayerTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
-            {
-                NBTHelperPlayer.writePlayerTagToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player, true);
-            }
-
-            NBTHelperTarget.writeTargetTagToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, world.provider.dimensionId, side, hitX, hitY, hitZ, false);
+            super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
         }
 
         return true;

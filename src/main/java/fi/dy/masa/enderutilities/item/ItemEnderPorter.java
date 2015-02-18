@@ -89,11 +89,10 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
             player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 
-            if (player.worldObj.isRemote == false)
+            if (world.isRemote == false)
             {
                 Sounds.playSoundEffectServer(world, player.posX, player.posY, player.posZ, "portal.travel", 0.06f, 1.2f);
             }
-            //player.playSound("portal.travel", 0.2f, 1.2f);
         }
 
         return stack;

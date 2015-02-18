@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -29,21 +28,24 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (stack == null || stack.getItem() == null || player == null || player.isSneaking() == false || NBTHelperPlayer.canAccessItem(stack, player) == false)
+        if (world.isRemote == false && player != null && player.isSneaking() == true)
         {
-            return false;
-        }
-
-        Item item = stack.getItem();
-        boolean adjustPosHit = item == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
-        this.setTarget(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
-
-        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
-        {
-            NBTHelperPlayer.writePlayerTagToItem(stack, player, true);
+            boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+            this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
         }
 
         return true;
+    }
+
+    @Override
+    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    {
+        if (world.isRemote == false && player != null && player.isSneaking() == true)
+        {
+            this.setTarget(stack, player, true);
+        }
+
+        return stack;
     }
 
     @Override
@@ -165,7 +167,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     /**
-     * Toggles between public and private mode, if this item has a plyer tag,
+     * Toggles between public and private mode, if this item has a player tag,
      * and if the player is the owner of this item.
      * @param stack
      * @param player
@@ -183,13 +185,24 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
+        if (stack == null || player == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        {
+            return;
+        }
+
         // Alt + Toggle mode: Toggle the private/public mode
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE
+        if (ReferenceKeys.keypressContainsAlt(key) == true
             && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == true)
+            && ReferenceKeys.keypressContainsControl(key) == false)
         {
             this.changePrivacyMode(stack, player);
+        }
+        // Alt + Shift + Toggle mode: Store the player's current location, including rotation
+        else if (ReferenceKeys.keypressContainsAlt(key) == true
+            && ReferenceKeys.keypressContainsShift(key) == true
+            && ReferenceKeys.keypressContainsControl(key) == false)
+        {
+            this.setTarget(stack, player, true);
         }
     }
 
@@ -199,16 +212,32 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         return NBTHelperTarget.getTargetFromItem(stack);
     }
 
-    @Override
-    public void setTarget(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    public void setTarget(ItemStack stack, EntityPlayer player, boolean storeRotation)
     {
-        if (stack == null)
+        if (NBTHelperPlayer.canAccessItem(stack, player) == false)
         {
             return;
         }
 
-        NBTTagCompound nbt = stack.getTagCompound();
-        nbt = NBTHelperTarget.writeTargetTagToNBT(nbt, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset);
-        stack.setTagCompound(nbt);
+        int x = (int)player.posX;
+        int y = (int)player.posY;
+        int z = (int)player.posZ;
+        double hitX = player.posX - x;
+        double hitY = player.posY - y;
+        double hitZ = player.posZ - z;
+        boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+
+        this.setTarget(stack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+    }
+
+    @Override
+    public void setTarget(ItemStack stack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    {
+        NBTHelperTarget.writeTargetTagToItem(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+
+        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
+        {
+            NBTHelperPlayer.writePlayerTagToItem(stack, player, true);
+        }
     }
 }

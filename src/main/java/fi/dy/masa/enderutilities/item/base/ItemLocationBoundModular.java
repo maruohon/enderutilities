@@ -9,9 +9,9 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -25,39 +25,15 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
     @Override
-    public boolean onItemUse(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true || player == null || player.isSneaking() == false || toolStack == null || toolStack.getItem() == null
-            || NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (world.isRemote == false && player != null && player.isSneaking() == true)
         {
-            return world.isRemote;
+            boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+            this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
         }
 
-        ItemStack moduleStack = this.getSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && moduleStack.getItem() != null)
-        {
-            boolean adjustPosHit = true;
-
-            // Don't adjust the target position for uses that are targeting the block, not the in-world location
-            if (moduleStack.getItem() == EnderUtilitiesItems.linkCrystal
-                && ((ItemLinkCrystal)moduleStack.getItem()).getModuleTier(moduleStack) != ItemLinkCrystal.TYPE_LOCATION)
-            {
-                adjustPosHit = false;
-            }
-
-            this.setTarget(moduleStack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
-
-            if (NBTHelperPlayer.itemHasPlayerTag(moduleStack) == false)
-            {
-                NBTHelperPlayer.writePlayerTagToItem(moduleStack, player, true);
-            }
-
-            this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     @Override
@@ -180,6 +156,37 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
+    public void setTarget(ItemStack stack, EntityPlayer player, boolean storeRotation)
+    {
+        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return;
+        }
+
+        int x = (int)player.posX;
+        int y = (int)player.posY;
+        int z = (int)player.posZ;
+        double hitX = player.posX - x;
+        double hitY = player.posY - y;
+        double hitZ = player.posZ - z;
+        // Don't adjust the target position for uses that are targeting the block, not the in-world location
+        boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+
+        this.setTarget(stack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+    }
+
+    @Override
+    public void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeAngle)
+    {
+        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeAngle);
+
+        if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
+        {
+            NBTHelperPlayer.writePlayerTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
+        }
+    }
+
+    @Override
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
         NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -199,14 +206,9 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
 
         // Shift + (Ctrl + ) Toggle mode
-        if (ReferenceKeys.keypressContainsShift(key) == true)
+        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
-        }
-        // Alt + Toggle mode: Toggle the private/public mode
-        else if (ReferenceKeys.keypressContainsAlt(key) == true)
-        {
-            this.changePrivacyMode(stack, player);
         }
         else
         {

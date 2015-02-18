@@ -318,7 +318,13 @@ public class EntityEnderArrow extends EntityArrow
                             this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, movingobjectposition.entityHit);
                             if (this.tpTarget != null)
                             {
-                                Entity e = TeleportEntity.teleportEntity(movingobjectposition.entityHit, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
+                                Entity e = movingobjectposition.entityHit;
+                                if (this.tpTarget.hasAngle == true && entity != null)
+                                {
+                                    entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);
+                                }
+
+                                e = TeleportEntity.teleportEntity(e, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
                                 if (this.applyPersistence == true && e instanceof EntityLiving)
                                 {
                                     EntityUtils.applyMobPersistence((EntityLiving)e);

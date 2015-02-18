@@ -25,6 +25,9 @@ public class NBTHelperTarget
     public double dPosZ;
     public int dimension;
     public String dimensionName;
+    public boolean hasAngle;
+    public float yaw;
+    public float pitch;
     public String blockName;
     public int blockMeta;
     /* Face of the target block */
@@ -41,6 +44,9 @@ public class NBTHelperTarget
         this.dPosZ = 0.0d;
         this.dimension = 0;
         this.dimensionName = "";
+        this.hasAngle = false;
+        this.yaw = 0.0f;
+        this.pitch = 0.0f;
         this.blockName = "";
         this.blockMeta = 0;
         this.blockFace = -1;
@@ -121,6 +127,13 @@ public class NBTHelperTarget
         this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.posY;
         this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.posZ + 0.5d;
 
+        if (tag.hasKey("Yaw", Constants.NBT.TAG_FLOAT) == true && tag.hasKey("Pitch", Constants.NBT.TAG_FLOAT) == true)
+        {
+            this.hasAngle = true;
+            this.yaw = tag.getFloat("Yaw");
+            this.pitch = tag.getFloat("Pitch");
+        }
+
         return tag;
     }
 
@@ -132,7 +145,7 @@ public class NBTHelperTarget
         return target;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
@@ -152,12 +165,18 @@ public class NBTHelperTarget
         tag.setByte("BlockMeta", (byte)meta);
         tag.setByte("BlockFace", (byte)blockFace);
 
+        if (hasAngle == true)
+        {
+            tag.setFloat("Yaw", yaw);
+            tag.setFloat("Pitch", pitch);
+        }
+
         nbt.setTag("Target", tag);
 
         return nbt;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
@@ -200,13 +219,13 @@ public class NBTHelperTarget
             }
         }
 
-        return writeTargetTagToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace);
+        return writeTargetTagToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace, yaw, pitch, hasAngle);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         return writeTargetTagToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
-            this.dimensionName, this.blockName, this.blockMeta, this.blockFace);
+            this.dimensionName, this.blockName, this.blockMeta, this.blockFace, this.yaw, this.pitch, this.hasAngle);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
@@ -236,20 +255,20 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static void writeTargetTagToItem(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    public static void writeTargetTagToItem(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (stack != null)
         {
-            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset));
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
     }
 
-    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset)
+    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack != null)
         {
-            writeTargetTagToItem(moduleStack, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset);
+            writeTargetTagToItem(moduleStack, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
 
             return true;
