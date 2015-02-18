@@ -119,14 +119,14 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         if (mouseX >= x + 10 && mouseX <= x + 25 && mouseY >= y + 53 && mouseY <= y + 68)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.slowfasttoggle"));
+            list.add(I18n.format("enderutilities.gui.label.slowfasttoggle", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         // Hovering over the output-to-ender-chest button
         else if (mouseX >= x + 145 && mouseX <= x + 160 && mouseY >= y + 53 && mouseY <= y + 68)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.outputtoenderchest"));
+            list.add(I18n.format("enderutilities.gui.label.outputtoenderchest", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
