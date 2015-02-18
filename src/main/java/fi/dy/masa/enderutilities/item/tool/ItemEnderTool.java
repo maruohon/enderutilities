@@ -261,9 +261,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null)
+        if (nbt != null && nbt.getString("ToolType").length() > 0)
         {
             return ToolType.valueOfType(nbt.getString("ToolType"));
+        }
+        else
+        {
+            this.setToolType(stack, ToolType.SHOVEL);
         }
 
         return ToolType.SHOVEL;

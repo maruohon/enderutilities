@@ -10,6 +10,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
 import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.BlockEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
@@ -48,6 +49,7 @@ public abstract class CommonProxy implements IProxy
     @Override
     public void registerEventHandlers()
     {
+        MinecraftForge.EVENT_BUS.register(new AnvilUpdateEventHandler());
         MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockEventHandler());
         MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
