@@ -104,6 +104,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
             return stack.getItemDamage();
         }
 
-        return 0;
+        return -1;
     }
 }

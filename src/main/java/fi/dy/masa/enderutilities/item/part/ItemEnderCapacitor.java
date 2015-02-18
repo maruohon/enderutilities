@@ -261,6 +261,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return stack.getItemDamage();
         }
 
-        return 0;
+        return -1;
     }
 }

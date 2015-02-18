@@ -119,17 +119,18 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the tier of the currently selected module of type moduleType in toolStack.
+     * Returns the tier of the currently selected module of type moduleType in toolStack,
+     * or -1 for invalid or missing modules.
      * @param toolStack
      * @param moduleType
-     * @return
+     * @return 0..n for valid modules, -1 for invalid or missing modules
      */
     public static int getSelectedModuleTier(ItemStack toolStack, ModuleType moduleType)
     {
         ItemStack moduleStack = getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
-            return 0;
+            return -1;
         }
 
         return ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
