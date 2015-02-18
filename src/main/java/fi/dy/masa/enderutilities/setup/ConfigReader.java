@@ -32,7 +32,7 @@ public class ConfigReader
 
         category = "Generic";
 
-        Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", false).setRequiresMcRestart(false);
+        Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
         Configs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(false);
@@ -41,12 +41,19 @@ public class ConfigReader
         Configs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
         Configs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
 
-        Configs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", false).setRequiresMcRestart(false);
+        Configs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
 
         Configs.useEnderCharge = conf.get(category, "UseEnderCharge", true).setRequiresMcRestart(false);
         Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
+
+        category = "Client";
+        Configs.useToolParticles = conf.get(category, "UseToolParticles", true).setRequiresMcRestart(false);
+        Configs.useToolParticles.comment = "Does the block drops teleporting by Ender tools cause particle effects";
+
+        Configs.useToolSounds = conf.get(category, "UseToolSounds", true).setRequiresMcRestart(false);
+        Configs.useToolSounds.comment = "Does the block drops teleporting by Ender tools play the sound effect";
 
         category = "Version";
         // 0.3.1 was the version where the configs were first added, use that as the default (note that the version number itself was added later in 0.3.2)

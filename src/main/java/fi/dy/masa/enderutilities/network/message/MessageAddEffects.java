@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.network.message;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.effects.Sounds;
+import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -15,6 +17,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
     public static final int PARTICLES = 2;
 
     public static final int EFFECT_TELEPORT = 1;
+    public static final int EFFECT_ENDER_TOOLS = 2;
 
     private int effectType;
     private int flags;
@@ -89,9 +92,21 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
             {
                 if ((message.flags & SOUND) == SOUND)
                 {
-                    //world.playSoundEffect(message.x, message.y, message.z, "mob.endermen.portal", 0.8f, 1.0f + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5f);
+                    float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
+                    Sounds.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
+                {
+                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                }
+            }
+            else if (message.effectType == EFFECT_ENDER_TOOLS)
+            {
+                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
+                {
+                    Sounds.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
+                }
+                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
                 {
                     Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }

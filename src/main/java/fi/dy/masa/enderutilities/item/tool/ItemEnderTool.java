@@ -44,7 +44,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -540,11 +539,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
             }
 
-            Sounds.playSound(event.world, event.x, event.y, event.z, "mob.endermen.portal", 0.08f, 1.8f);
-
             PacketHandler.INSTANCE.sendToAllAround(
-                new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES,
-                    event.x + 0.5d, event.y + 0.5d, event.z + 0.5d, 8, 0.3d, 0.4d),
+                new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                    event.x + 0.5d, event.y + 0.5d, event.z + 0.5d, 8, 0.2d, 0.3d),
                         new NetworkRegistry.TargetPoint(event.world.provider.dimensionId, event.x, event.y, event.z, 24.0d));
         }
 

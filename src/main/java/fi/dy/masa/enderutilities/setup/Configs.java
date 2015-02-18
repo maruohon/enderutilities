@@ -4,14 +4,19 @@ import net.minecraftforge.common.config.Property;
 
 public class Configs
 {
-    public static Property configFileVersion;
+    // Raw "cached" values for stuff that might be used often
+    public static boolean valueUseEnderCharge;
 
+    // Client
+    public static Property useToolParticles;
+    public static Property useToolSounds;
+
+    // Generic
+    public static Property configFileVersion;
     public static Property enderBucketCapacity;
     public static Property useEnderCharge;
 
-    public static boolean valueUseEnderCharge;
-
-    // Teleporting control
+    // Teleport control
     public static Property enderBowAllowPlayers;
     public static Property enderBowAllowSelfTP;
     public static Property enderLassoAllowPlayers;
@@ -20,7 +25,6 @@ public class Configs
     public static Property enderBagListType;
     public static Property enderBagBlacklist;
     public static Property enderBagWhitelist;
-
     public static Property teleportBlacklist;
 
     // Block disable

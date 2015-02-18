@@ -41,25 +41,16 @@ public class TeleportEntity
 {
     public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
     {
-        if (world.isRemote == true)
+        if (world.isRemote == false)
         {
-            return;
+            PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
+                    new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
         }
-
-        world.playSoundEffect(x, y, z, "mob.endermen.portal", 0.8F, 1.0F + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5F);
-
-        PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
-            new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
     }
 
     public static boolean canTeleportEntity(Entity entity)
     {
-        if (EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == true)
-        {
-            return false;
-        }
-
-        return true;
+        return ! EntityUtils.doesEntityStackHaveBlacklistedEntities(entity);
     }
 
     public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
