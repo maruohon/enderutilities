@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -41,17 +42,18 @@ public class EntityInteractEventHandler
             if (event.target instanceof EntityLivingBase && event.entity instanceof EntityPlayer &&
                 (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
             {
-                if (UtilItemModular.useEnderCharge(stack, (EntityPlayer)event.entity, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
+                if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer)event.entity) == false
+                    || UtilItemModular.useEnderCharge(stack, (EntityPlayer)event.entity, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
                 {
                     return;
                 }
 
-                Entity e = TeleportEntity.teleportEntityUsingModularItem(event.target, stack);
-                if (e != null)
+                Entity entity = TeleportEntity.teleportEntityUsingModularItem(event.target, stack);
+                if (entity != null)
                 {
-                    if (e instanceof EntityLiving && UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                    if (entity instanceof EntityLiving && UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {
-                        EntityUtils.applyMobPersistence((EntityLiving)e);
+                        EntityUtils.applyMobPersistence((EntityLiving)entity);
                     }
 
                     event.setCanceled(true);

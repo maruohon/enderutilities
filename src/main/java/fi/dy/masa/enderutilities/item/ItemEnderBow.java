@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -54,8 +55,22 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
     {
+        byte mode = this.getBowMode(stack);
+
         // Do nothing on the client side
-        if (world.isRemote == true)
+        if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET
+                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+        {
+            return;
+        }
+
+        // If self teleporting is disabled in the configs, do nothing
+        if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        {
+            return;
+        }
+
+        if (player.capabilities.isCreativeMode == false && player.inventory.hasItem(EnderUtilitiesItems.enderArrow) == false)
         {
             return;
         }
@@ -69,68 +84,50 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         j = event.charge;
+        float f = (float)j / 20.0f;
+        f = (f * f + f * 2.0f) / 3.0f;
+        if (f < 0.1f) { return; }
+        if (f > 1.0f) { f = 1.0f; }
 
-        if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
+        EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0f);
+        entityenderarrow.setTpMode(mode);
+
+        if (mode == BOW_MODE_TP_TARGET)
         {
-            byte mode = BOW_MODE_TP_TARGET;
-
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null && nbt.hasKey("Mode") == true)
-            {
-                mode = nbt.getByte("Mode");
-            }
-
-            // If self teleporting is disabled in the configs, do nothing
-            if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+            // If we want to TP the target, we must have a valid target set
+            if (target == null)
             {
                 return;
             }
 
-            float f = (float)j / 20.0f;
-            f = (f * f + f * 2.0f) / 3.0f;
-            if (f < 0.1f) { return; }
-            if (f > 1.0f) { f = 1.0f; }
+            entityenderarrow.setTpTarget(target);
 
-            EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0f);
-            entityenderarrow.setTpMode(mode);
-
-            if (mode == BOW_MODE_TP_TARGET)
+            // If there is a mob persistence module installed, mark that flag on the arrow entity
+            if (UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
             {
-                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-                // If we want to TP the target, we must have a valid target set
-                if (target == null)
-                {
-                    return;
-                }
-
-                entityenderarrow.setTpTarget(target);
-
-                // If there is a mob persistence module installed, mark that flag on the arrow entity
-                if (UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
-                {
-                    entityenderarrow.setPersistence(true);
-                }
+                entityenderarrow.setPersistence(true);
             }
-
-            if (f == 1.0F)
-            {
-                entityenderarrow.setIsCritical(true);
-            }
-
-            if (player.capabilities.isCreativeMode == false)
-            {
-                if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, true) == false)
-                {
-                    return;
-                }
-
-                player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
-                stack.damageItem(1, player);
-            }
-
-            world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
-            world.spawnEntityInWorld(entityenderarrow);
         }
+
+        if (player.capabilities.isCreativeMode == false)
+        {
+            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, true) == false)
+            {
+                return;
+            }
+
+            player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
+            stack.damageItem(1, player);
+        }
+
+        if (f == 1.0F)
+        {
+            entityenderarrow.setIsCritical(true);
+        }
+
+        world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+        world.spawnEntityInWorld(entityenderarrow);
     }
 
     /**
@@ -160,9 +157,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
 
         // In survival teleporting targets requires Ender Charge
-        if (player.capabilities.isCreativeMode == false
-            && stack.getTagCompound() != null && stack.getTagCompound().getByte("Mode") == BOW_MODE_TP_TARGET
+        if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
             && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, false) == false)
+        {
+            return stack;
+        }
+
+        if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return stack;
         }

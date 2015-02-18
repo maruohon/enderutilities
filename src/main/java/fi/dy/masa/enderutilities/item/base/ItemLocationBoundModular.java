@@ -27,9 +27,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean onItemUse(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true || player == null || player.isSneaking() == false || toolStack == null || toolStack.getItem() == null)
+        if (world.isRemote == true || player == null || player.isSneaking() == false || toolStack == null || toolStack.getItem() == null
+            || NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
-            return false;
+            return world.isRemote;
         }
 
         ItemStack moduleStack = this.getSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL);
@@ -38,15 +39,19 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             boolean adjustPosHit = true;
 
             // Don't adjust the target position for uses that are targeting the block, not the in-world location
-            if (moduleStack.getItem() == EnderUtilitiesItems.linkCrystal && moduleStack.getItemDamage() != 0)
+            if (moduleStack.getItem() == EnderUtilitiesItems.linkCrystal
+                && ((ItemLinkCrystal)moduleStack.getItem()).getModuleTier(moduleStack) != ItemLinkCrystal.TYPE_LOCATION)
             {
                 adjustPosHit = false;
             }
 
             this.setTarget(moduleStack, x, y, z, player.dimension, side, hitX, hitY, hitZ, adjustPosHit);
-            NBTTagCompound nbt = moduleStack.getTagCompound();
-            nbt = NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
-            moduleStack.setTagCompound(nbt);
+
+            if (NBTHelperPlayer.itemHasPlayerTag(moduleStack) == false)
+            {
+                NBTHelperPlayer.writePlayerTagToItem(moduleStack, player, true);
+            }
+
             this.setSelectedModuleStack(toolStack, ModuleType.TYPE_LINKCRYSTAL, moduleStack);
 
             return true;

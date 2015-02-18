@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -59,7 +60,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         // This needs to also happen on the client, otherwise the in-use will derp up
 
-        if (player == null)
+        if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return stack;
         }
@@ -101,13 +102,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
     {
-        int useTime = USE_TIME;
-
-        if (player == null)
+        if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
         }
 
+        int useTime = USE_TIME;
         // Use a shorter delay in creative mode
         if (player.capabilities.isCreativeMode == true)
         {

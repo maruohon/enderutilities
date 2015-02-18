@@ -40,6 +40,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -76,7 +77,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
         // Do nothing on the client side
-        if (world.isRemote == true)
+        if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED
+                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return false;
         }
@@ -111,6 +113,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return true;
         }
 
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return false;
+        }
+
         // First try to use the bucket on a fluid block, if any.
         // If that fails (not targeting fluid), then we use it on a block (see below).
         if (this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack)) == true)
@@ -125,7 +132,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         // Do nothing on the client side
-        if (world.isRemote == true)
+        if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED
+                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return stack;
         }

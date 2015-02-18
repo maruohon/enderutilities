@@ -422,7 +422,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return;
         }
 
-        int numDropsOriginal = event.drops.size();
         byte mode = this.getToolModeByName(toolStack, "DropsMode");
         // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
 
@@ -434,6 +433,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         EntityPlayer player = event.harvester;
         boolean isSilk = event.isSilkTouching;
+        int numDropsOriginal = event.drops.size();
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
         if (mode == 1 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
@@ -456,6 +456,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
                 && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
         {
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            {
+                return;
+            }
+
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
@@ -875,7 +880,15 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
                 break;
             case 4: // 4: Link Crystal
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+                ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
+                {
+                    tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
+                }
+                else
+                {
+                    tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
                 if (tier >= 0)
                 {
                     i += tier + 13;
