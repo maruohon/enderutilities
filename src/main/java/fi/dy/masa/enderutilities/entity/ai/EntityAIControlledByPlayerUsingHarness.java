@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
 {
@@ -49,17 +50,17 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     @Override
     public void updateTask()
     {
-        if (this.entity.riddenByEntity instanceof EntityPlayer)
+        Entity top = EntityUtils.getTopEntity(this.entity);
+        if (top instanceof EntityPlayer)
         {
-            EntityPlayer player = (EntityPlayer)this.entity.riddenByEntity;
-            this.moveEntity(player);
+            this.moveEntity(this.entity, (EntityPlayer)top);
         }
     }
 
     @Override
     public boolean shouldExecute()
     {
-        Entity rider = this.entity.riddenByEntity;
+        Entity rider = EntityUtils.getTopEntity(this.entity);
         return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer && ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));
     }
 
@@ -67,11 +68,11 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
      * Moves the ridden entity based on player input
      * @param player
      */
-    public void moveEntity(EntityPlayer player)
+    public void moveEntity(EntityLiving entity, EntityPlayer player)
     {
-        this.entity.prevRotationYaw = this.entity.rotationYaw = player.rotationYaw % 360.0F;
-        this.entity.rotationPitch = (player.rotationPitch * 0.5F) % 360.0F;
-        this.entity.rotationYawHead = this.entity.renderYawOffset = this.entity.rotationYaw;
+        entity.prevRotationYaw = entity.rotationYaw = player.rotationYaw % 360.0F;
+        entity.rotationPitch = (player.rotationPitch * 0.5F) % 360.0F;
+        entity.rotationYawHead = entity.renderYawOffset = entity.rotationYaw;
         float strafe = player.moveStrafing * 0.5F;
         float forward = player.moveForward;
 
@@ -80,18 +81,18 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
             forward *= 0.25F;
         }
 
-        this.entity.stepHeight = 1.0F;
-        this.entity.jumpMovementFactor = this.entity.getAIMoveSpeed() * 0.1F;
+        entity.stepHeight = 1.0F;
+        entity.jumpMovementFactor = entity.getAIMoveSpeed() * 0.1F;
 
-        if (this.entity.worldObj.isRemote == false)
+        if (entity.worldObj.isRemote == false)
         {
-            this.entity.setAIMoveSpeed((float)this.entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
-            this.entity.moveEntityWithHeading(strafe, forward);
+            entity.setAIMoveSpeed((float)entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
+            entity.moveEntityWithHeading(strafe, forward);
         }
 
-        this.entity.prevLimbSwingAmount = this.entity.limbSwingAmount;
-        double d1 = this.entity.posX - this.entity.prevPosX;
-        double d0 = this.entity.posZ - this.entity.prevPosZ;
+        entity.prevLimbSwingAmount = entity.limbSwingAmount;
+        double d1 = entity.posX - entity.prevPosX;
+        double d0 = entity.posZ - entity.prevPosZ;
         float f4 = MathHelper.sqrt_double(d1 * d1 + d0 * d0) * 4.0F;
 
         if (f4 > 1.0F)
@@ -99,8 +100,8 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
             f4 = 1.0F;
         }
 
-        this.entity.limbSwingAmount += (f4 - this.entity.limbSwingAmount) * 0.4F;
-        this.entity.limbSwing += this.entity.limbSwingAmount;
+        entity.limbSwingAmount += (f4 - entity.limbSwingAmount) * 0.4F;
+        entity.limbSwing += entity.limbSwingAmount;
     }
 
     public boolean isStairsOrSlab(Block block)

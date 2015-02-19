@@ -73,11 +73,12 @@ public class ItemMobHarness extends ItemEnderUtilities
         {
             EntityUtils.unmountRider(entity);
             player.mountEntity(entity);
+            Entity bottom = EntityUtils.getBottomEntity(entity);
 
-            if (entity instanceof EntityLiving)
+            if (bottom instanceof EntityLiving)
             {
                 // Add a new AI task as the highest priority task after swimming and panic AI tasks
-                EntityUtils.addAITaskAfterTasks((EntityLiving)entity, new EntityAIControlledByPlayerUsingHarness((EntityLiving)entity, 0.3f), new Class[] {EntityAISwimming.class, EntityAIPanic.class});
+                EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), new Class[] {EntityAISwimming.class, EntityAIPanic.class});
             }
 
             return true;
