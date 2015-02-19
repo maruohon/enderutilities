@@ -21,8 +21,11 @@ public class EnderUtilitiesBlocks
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
+        ItemStack furnace = new ItemStack(Blocks.furnace);
+        ItemStack hopper = new ItemStack(Blocks.hopper);
         ItemStack obsidian = new ItemStack(Blocks.obsidian);
         //ItemStack pearl = new ItemStack(Items.ender_pearl);
+        ItemStack piston = new ItemStack(Blocks.piston);
         ItemStack slime_ball = new ItemStack(Items.slime_ball);
 
         ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 0);
@@ -40,11 +43,15 @@ public class EnderUtilitiesBlocks
         // Register block recipes
         if (Configs.disableRecipeEnderFurnace.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', new ItemStack(Blocks.furnace), 'C', core0);
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', furnace, 'C', core0);
         }
         if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(machine_0, 1, 1), "ASA", "ACA", "OHO", 'A', alloy0, 'S', slime_ball, 'C', craftingtable, 'O', obsidian, 'H', chest);
+        }
+        if (Configs.disableRecipeEnderInfuser.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(machine_0, 1, 2), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
         }
     }
 }

@@ -163,6 +163,7 @@ public class ConfigReader
         // Recipe disable
         // Blocks
         Configs.disableRecipeEnderFurnace         = conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderInfuser         = conf.get(category, "DisableRecipeEnderInfuser", false).setRequiresMcRestart(true);
         Configs.disableRecipeToolWorkstation      = conf.get(category, "DisableRecipeToolWorkstation", false).setRequiresMcRestart(true);
 
         // Items

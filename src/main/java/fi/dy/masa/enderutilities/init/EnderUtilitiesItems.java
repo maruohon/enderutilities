@@ -62,7 +62,6 @@ public class EnderUtilitiesItems
         ItemStack emerald_block = new ItemStack(Blocks.emerald_block);
         ItemStack eye = new ItemStack(Items.ender_eye);
         ItemStack feather = new ItemStack(Items.feather);
-        ItemStack glass = new ItemStack(Blocks.glass);
         ItemStack gold = new ItemStack(Items.gold_ingot);
         ItemStack gold_nugget = new ItemStack(Items.gold_nugget);
         ItemStack iron = new ItemStack(Items.iron_ingot);
@@ -118,11 +117,11 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderPorterBasic.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPorter), "EAE", "ACA", "EAE", 'E', eye, 'A', alloy1, 'C', active_core1);
+            GameRegistry.addRecipe(new ItemStack(enderPorter), "EAE", "ACA", "EAE", 'E', eye, 'A', alloy2, 'C', active_core1);
         }
         if (Configs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "PAP", "ACA", "ORO", 'P', pearl, 'A', alloy2, 'C', active_core2, 'O', obsidian, 'R', new ItemStack(enderPorter, 1, 0));
+            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ARA", "ECE", 'E', eye, 'A', alloy2, 'R', new ItemStack(enderPorter, 1, 0), 'C', active_core2);
         }
         if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
         {
@@ -130,10 +129,6 @@ public class EnderUtilitiesItems
         }
 
         // Tools and weapons
-        if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(enderSword), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
-        }
         if (Configs.disableRecipeEnderPickaxe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
             ItemStack pick = new ItemStack(enderTool, 1, 0);
@@ -156,7 +151,12 @@ public class EnderUtilitiesItems
         {
             ItemStack hoe = new ItemStack(enderTool, 1, 0);
             ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
-            GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            //GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+        }
+
+        if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
+        {
+            //GameRegistry.addRecipe(new ItemStack(enderSword), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
         }
 
         // Parts, modules etc.
@@ -216,15 +216,15 @@ public class EnderUtilitiesItems
 
         if (Configs.disableRecipeModuleLinkCrystalLocation.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 0), "GRG", "RAR", "GRG", 'G', glass, 'R', redstone, 'A', alloy0);
+            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 0), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.stained_glass, 1, 13), 'A', alloy0);
         }
         if (Configs.disableRecipeModuleLinkCrystalBlock.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 1), "GRG", "RAR", "GRG", 'G', glass, 'R', redstone, 'A', alloy1);
+            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 1), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.stained_glass, 1, 11), 'A', alloy0);
         }
         if (Configs.disableRecipeModuleLinkCrystalPortal.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            //GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 2), "ORO", "RAR", "ORO", 'O', obsidian, 'R', redstone, 'A', alloy1);
+            //GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 2), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.glass, 1, 10), 'A', alloy0);
         }
     }
 }

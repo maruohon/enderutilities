@@ -49,6 +49,7 @@ public class Configs
     // Recipe disable
     // Blocks
     public static Property disableRecipeEnderFurnace;
+    public static Property disableRecipeEnderInfuser;
     public static Property disableRecipeToolWorkstation;
 
     // Items
