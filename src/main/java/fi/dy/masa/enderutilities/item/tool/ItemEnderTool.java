@@ -26,6 +26,7 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
@@ -104,6 +105,26 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         return super.getUnlocalizedName();
+    }
+
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        if (world.isRemote == true)
+        {
+            return false;
+        }
+
+        TileEntity te = world.getTileEntity(x, y, z);
+        // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
+        // then bind the crystal to the block clicked on.
+        if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+            && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
+        {
+            UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+        }
+
+        return true;
     }
 
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
@@ -972,17 +993,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             this.changeDigMode(stack);
         }
         // Shift + (Ctrl + ) Toggle mode
-        else if (ReferenceKeys.keypressContainsShift(key) == true)
+        else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
         }
+        // Shift + Alt + Toggle mode: Store the player's current location
+        else if (ReferenceKeys.keypressContainsShift(key) == true
+                && ReferenceKeys.keypressContainsAlt(key) == true
+                && ReferenceKeys.keypressContainsControl(key) == false)
+        {
+            UtilItemModular.setTarget(stack, player, true);
+        }
         // Ctrl + Toggle mode: Toggle the block drops handling mode: normal, player, remote
-        else if (ReferenceKeys.keypressContainsControl(key))
+        else if (ReferenceKeys.keypressContainsControl(key) == true
+                && ReferenceKeys.keypressContainsShift(key) == false
+                && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeDropsMode(stack);
         }
         // Alt + Toggle mode: Toggle the private/public mode
-        else if (ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (ReferenceKeys.keypressContainsAlt(key) == true
+                && ReferenceKeys.keypressContainsShift(key) == false
+                && ReferenceKeys.keypressContainsControl(key) == false)
         {
             this.changePrivacyMode(stack, player);
         }

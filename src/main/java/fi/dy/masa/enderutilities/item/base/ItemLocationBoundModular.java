@@ -9,7 +9,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -158,32 +157,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void setTarget(ItemStack stack, EntityPlayer player, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-        {
-            return;
-        }
-
-        int x = (int)player.posX;
-        int y = (int)player.posY;
-        int z = (int)player.posZ;
-        double hitX = player.posX - x;
-        double hitY = player.posY - y;
-        double hitZ = player.posZ - z;
-        // Don't adjust the target position for uses that are targeting the block, not the in-world location
-        boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-
-        this.setTarget(stack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        UtilItemModular.setTarget(stack, player, storeRotation);
     }
 
     @Override
-    public void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeAngle)
+    public void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeAngle);
-
-        if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
-        {
-            NBTHelperPlayer.writePlayerTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
-        }
+        UtilItemModular.setTarget(toolStack, player, x, y, z, side, hitX, hitY, hitZ, doHitOffset, storeRotation);
     }
 
     @Override

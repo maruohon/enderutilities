@@ -7,10 +7,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.setup.Configs;
 
 public class UtilItemModular
@@ -410,5 +412,55 @@ public class UtilItemModular
         }
 
         return useEnderCharge(stack, amount, doUse);
+    }
+
+    /**
+     * Stores the player's current position as the Target tag to the currently selected Link Crystal in the modular item in toolStack.
+     * @param stack The ItemStack containing the modular item
+     * @param player The player that we get the position from.
+     * @param storeRotation true if we also want to store the player's yaw and pitch rotations
+     */
+    public static void setTarget(ItemStack toolStack, EntityPlayer player, boolean storeRotation)
+    {
+        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return;
+        }
+
+        int x = (int)player.posX;
+        int y = (int)player.posY;
+        int z = (int)player.posZ;
+        double hitX = player.posX - x;
+        double hitY = player.posY - y;
+        double hitZ = player.posZ - z;
+        // Don't adjust the target position for uses that are targeting the block, not the in-world location
+        boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+
+        setTarget(toolStack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+    }
+
+    /**
+     * Store a new target tag to the currently selected Link Crystal in the modular item in toolStack.
+     * @param toolStack
+     * @param player
+     * @param x
+     * @param y
+     * @param z
+     * @param side
+     * @param hitX
+     * @param hitY
+     * @param hitZ
+     * @param doHitOffset true if we want to calculate the actual position (including the hitX/Y/Z offsets) instead of only
+     * using the integer position. This is normally true for location type Link Crystals, and false for block type Link Crystals.
+     * @param storeRotation true if we also want to store the player's yaw and pitch rotations
+     */
+    public static void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    {
+        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+
+        if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
+        {
+            NBTHelperPlayer.writePlayerTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
+        }
     }
 }
