@@ -447,7 +447,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             // Fast mode uses double the durability
             if (this.getToolModeByName(stack, "DigMode") == 1)
             {
-                dmg++;
+                dmg = 2;
             }
 
             dmg = Math.min(dmg, this.getMaxDamage(stack) - stack.getItemDamage());
@@ -817,30 +817,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return multimap;
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.parts = new String[] {"rod.1", "rod.2", "rod.3", "head.1", "head.2", "head.1.broken", "head.2.broken", "core.1", "core.2", "core.3",
-                                    "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
-
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.iconArray = new IIcon[60];
-        String prefix = this.getIconString() + ".";
-
-        for (ToolType type : ToolType.values())
-        {
-            int id = type.getId();
-            int start = id * this.parts.length;
-
-            for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.iconArray.length; j++)
-            {
-                this.iconArray[start + j] = iconRegister.registerIcon(prefix + type.getName() + "." + this.parts[j]);
-            }
-        }
-    }
-
     /**
      * Render Pass sensitive version of hasEffect()
      */
@@ -865,14 +841,35 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return 5;
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
+        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
+        this.parts = new String[] {"rod.1", "head.1", "head.2", "head.3",
+                                            "head.1.glow", "head.2.glow", "head.3.glow",
+                                            "head.1.broken", "head.2.broken", "head.3.broken",
+                                            "head.1.glow.broken", "head.2.glow.broken", "head.3.glow.broken",
+                                            "core.1", "core.2", "core.3",
+                                            "capacitor.1", "capacitor.2", "capacitor.3",
+                                            "linkcrystal.1", "linkcrystal.2"};
+
+        this.iconArray = new IIcon[this.parts.length * 4];
+        String prefix = this.getIconString() + ".";
+
+        for (ToolType type : ToolType.values())
+        {
+            int id = type.getId();
+            int start = id * this.parts.length;
+
+            for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.iconArray.length; j++)
+            {
+                this.iconArray[start + j] = iconRegister.registerIcon(prefix + type.getName() + "." + this.parts[j]);
+            }
+        }
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
@@ -880,16 +877,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -911,22 +898,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         switch(renderPass)
         {
             case 0: // 0: Rod
-                i += getToolModeByName(stack, "DropsMode");
                 break;
             case 1: // 1: Head
-                i += getToolModeByName(stack, "DigMode") + 3; // Head icons start at index 3
+                // The head color is defined by the drops handling mode
+                i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
+
+                // Fast mode uses the glow variation of the head
+                if (getToolModeByName(stack, "DigMode") != 0)
+                {
+                    i += 3;
+                }
 
                 // Broken tool
                 if (this.isToolBroken(stack) == true)
                 {
-                    i += 2;
+                    i += 6;
                 }
                 break;
             case 2: // 2: Core
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
                 if (tier >= 0)
                 {
-                    i += tier + 7;
+                    i += tier + 13;
                 }
                 else
                 {
@@ -937,7 +930,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
                 if (tier >= 0)
                 {
-                    i += tier + 10;
+                    i += tier + 16;
                 }
                 else
                 {
@@ -956,7 +949,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 }
                 if (tier >= 0)
                 {
-                    i += tier + 13;
+                    i += tier + 19;
                 }
                 else
                 {
