@@ -459,60 +459,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
                 && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
         {
-            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-            {
-                return;
-            }
-
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
-            // For cross-dimensional item teleport we require the third tier of active Ender Core
-            if (target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
-            {
-                return;
-            }
-
-            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-            if (targetWorld == null)
-            {
-                return;
-            }
-
-            // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
-
-            // Block/inventory type link crystal
-            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
-
-                // Block has changed since binding, or does not implement IInventory, abort
-                if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
-                {
-                    // Remove the bind
-                    NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                    player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
-                    return;
-                }
-
-                if (te instanceof IInventory)
-                {
-                    Iterator<ItemStack> iter = event.drops.iterator();
-                    while (iter.hasNext() == true)
-                    {
-                        ItemStack stack = iter.next();
-                        if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                        {
-                            if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack.copy(), target.blockFace) == true)
-                            {
-                                iter.remove();
-                            }
-                        }
-                    }
-                }
-            }
-            // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+            // Bound to a vanilla Ender Chest
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK
+                && target != null && "minecraft:ender_chest".equals(target.blockName) == true)
             {
                 Iterator<ItemStack> iter = event.drops.iterator();
                 while (iter.hasNext() == true)
@@ -520,14 +471,80 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     ItemStack stack = iter.next();
                     if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
-                        entityItem.motionX = entityItem.motionZ = 0.0d;
-                        entityItem.motionY = 0.15d;
-
-                        if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                        if (InventoryUtils.tryInsertItemStackToInventory(player.getInventoryEnderChest(), stack.copy(), target.blockFace) == true)
                         {
-                            Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                             iter.remove();
+                        }
+                    }
+                }
+            }
+            // Bound to regular inventories
+            else
+            {
+                // For cross-dimensional item teleport we require the third tier of active Ender Core
+                if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                    || target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+                {
+                    return;
+                }
+
+                World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+                if (targetWorld == null)
+                {
+                    return;
+                }
+
+                // Chunk load the target for 30 seconds
+                ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+                // Block/inventory type link crystal
+                if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
+                {
+                    TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+
+                    // Block has changed since binding, or does not implement IInventory, abort
+                    if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+                    {
+                        // Remove the bind
+                        NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                        player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+                        return;
+                    }
+
+                    if (te instanceof IInventory)
+                    {
+                        Iterator<ItemStack> iter = event.drops.iterator();
+                        while (iter.hasNext() == true)
+                        {
+                            ItemStack stack = iter.next();
+                            if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                            {
+                                if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack.copy(), target.blockFace) == true)
+                                {
+                                    iter.remove();
+                                }
+                            }
+                        }
+                    }
+                }
+                // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+                else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+                {
+                    Iterator<ItemStack> iter = event.drops.iterator();
+                    while (iter.hasNext() == true)
+                    {
+                        ItemStack stack = iter.next();
+                        if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                        {
+                            EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
+                            entityItem.motionX = entityItem.motionZ = 0.0d;
+                            entityItem.motionY = 0.15d;
+
+                            if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                            {
+                                Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                                iter.remove();
+                            }
                         }
                     }
                 }
