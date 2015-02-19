@@ -18,9 +18,11 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
@@ -112,7 +114,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     {
         if (world.isRemote == true)
         {
-            return false;
+            return true;
         }
 
         TileEntity te = world.getTileEntity(x, y, z);
@@ -122,6 +124,30 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+        }
+        // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
+        else if (player != null)
+        {
+            int origSlot = player.inventory.currentItem;
+            int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
+            ItemStack targetStack = player.inventory.getStackInSlot(slot);
+
+            // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
+            if (origSlot == 0 && (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false))
+            {
+                slot = InventoryPlayer.getHotbarSize() - 1;
+                targetStack = player.inventory.getStackInSlot(slot);
+            }
+
+            // If the target stack is an ItemBlock, we try to place that in the world
+            if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
+            {
+                player.inventory.currentItem = slot;
+                targetStack.tryPlaceItemIntoWorld(player, world, x, y, z, side, hitX, hitY, hitZ);
+                player.inventory.currentItem = origSlot;
+                player.inventory.markDirty();
+                player.inventoryContainer.detectAndSendChanges();
+            }
         }
 
         return true;
