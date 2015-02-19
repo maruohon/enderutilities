@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -50,6 +51,27 @@ public class MachineEnderFurnace extends Machine
     
         // We want the default BlockEnderUtilitiesInventory.breakBlock() to deal with the generic inventory
         return false;
+    }
+
+    @Override
+    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    {
+        TileEntity te = world.getTileEntity(x, y, z);
+        if (te != null && te instanceof TileEntityEnderFurnace)
+        {
+            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
+            if (teef.isBurning() == true)
+            {
+                return 15;
+            }
+            // No-fuel mode
+            else if (teef.burnTimeFresh != 0)
+            {
+                return 7;
+            }
+        }
+
+        return block.getLightValue();
     }
 
     @SideOnly(Side.CLIENT)

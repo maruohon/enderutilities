@@ -170,6 +170,25 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
     }
 
+    @Override
+    public int getLightValue(IBlockAccess world, int x, int y, int z)
+    {
+        Block block = world.getBlock(x, y, z);
+        if (block != this)
+        {
+            return block.getLightValue(world, x, y, z);
+        }
+
+        int meta = world.getBlockMetadata(x, y, z);
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        if (machine != null)
+        {
+            return machine.getLightValue(world, x, y, z, block, meta);
+        }
+
+        return super.getLightValue(world, x, y, z);
+    }
+
     public int getBlockIndex()
     {
         return this.blockIndex;

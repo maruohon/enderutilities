@@ -17,6 +17,7 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -138,6 +139,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         if (this.outputMode == 1) { flags |= 0x80; }
         nbt.setByte("f", flags);
         nbt.setInteger("b", this.outputBufferAmount);
+        nbt.setShort("btr", (short)this.burnTimeRemaining);
+        nbt.setBoolean("cs", this.canSmelt());
 
         return nbt;
     }
@@ -153,8 +156,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         this.operatingMode = (byte)((flags & 0x40) >> 6);
         this.outputMode = (byte)((flags & 0x80) >> 7);
         this.outputBufferAmount = nbt.getInteger("b");
+        this.burnTimeRemaining = nbt.getShort("btr");
+        this.burnTimeFresh = nbt.getBoolean("cs") ? 1 : 0; // abusing this variable on the client side for light updates
 
         super.onDataPacket(net, packet);
+
+        this.worldObj.updateLightByType(EnumSkyBlock.Block, this.xCoord, this.yCoord, this.zCoord);
     }
 
     /**

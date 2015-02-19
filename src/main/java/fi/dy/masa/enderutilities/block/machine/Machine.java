@@ -19,6 +19,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -164,6 +165,11 @@ public class Machine
     public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
         return false;
+    }
+
+    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    {
+        return block.getLightValue();
     }
 
     @SideOnly(Side.CLIENT)
