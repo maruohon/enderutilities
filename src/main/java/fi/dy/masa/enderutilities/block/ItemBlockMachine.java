@@ -11,9 +11,9 @@ public class ItemBlockMachine extends ItemBlockEnderUtilities
     {
         super(block);
 
-        if (block instanceof BlockEnderUtilities)
+        if (block instanceof BlockEnderUtilitiesTileEntity)
         {
-            this.setNames(Machine.getNames(((BlockEnderUtilities)block).getBlockIndex()));
+            this.setNames(Machine.getNames(((BlockEnderUtilitiesTileEntity)block).getBlockIndex()));
         }
     }
 

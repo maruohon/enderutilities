@@ -1,19 +1,30 @@
 package fi.dy.masa.enderutilities.block;
 
+import java.util.List;
+import java.util.Random;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -22,15 +33,19 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
     public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+    public int blockIndex;
 
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
     {
-        super(index, name, hardness);
+        this(index, name, hardness, Material.rock);
     }
 
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness, Material material)
     {
         super(index, name, hardness, material);
+        this.blockIndex = index;
+        Machine.setBlockHardness(this, this.blockIndex);
+        Machine.setBlockHarvestLevels(this, this.blockIndex);
     }
 
     @Override
@@ -139,5 +154,78 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         }
 
         return true;
+    }
+
+    @Override
+    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    {
+        // This is for handling custom storage stuff like buffers, which are not regular
+        // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        if (machine != null)
+        {
+            machine.breakBlock(world, x, y, z, block, meta);
+        }
+
+        super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
+    }
+
+    public int getBlockIndex()
+    {
+        return this.blockIndex;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void getSubBlocks(Item item, CreativeTabs tab, List list)
+    {
+        Machine.getSubBlocks(this.blockIndex, this, item, tab, list);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
+        {
+            machine.randomDisplayTick(world, x, y, z, rand);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIcon(int side, int meta)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        if (machine != null)
+        {
+            return machine.getIcon(side);
+        }
+
+        return this.blockIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
+    {
+        TileEntity te = blockAccess.getTileEntity(x, y, z);
+        if (te != null && te instanceof TileEntityEnderUtilities)
+        {
+            Machine machine = Machine.getMachine(this.blockIndex, blockAccess.getBlockMetadata(x, y, z));
+            if (machine != null)
+            {
+                return machine.getIcon((TileEntityEnderUtilities)te, side);
+            }
+        }
+
+        return this.getIcon(side, blockAccess.getBlockMetadata(x, y, z));
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerBlockIcons(IIconRegister iconRegister)
+    {
+        Machine.registerIcons(this.blockIndex, iconRegister);
     }
 }
