@@ -132,11 +132,7 @@ public class ItemEnderPart extends ItemModule
         {
             if (EntityUtils.spawnEnderCrystal(world, x, y, z) == true)
             {
-                if (--stack.stackSize <= 0)
-                {
-                    player.destroyCurrentEquippedItem();
-                }
-
+                --stack.stackSize;
                 return true;
             }
         }

@@ -139,7 +139,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             float hy = (float)targetData.dPosY - targetData.posY;
             float hz = (float)targetData.dPosZ - targetData.posZ;
 
-            Block block = world.getBlock(targetData.posX, targetData.posY, targetData.posZ);
+            Block block = targetWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
             block.onBlockActivated(targetWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
         }
@@ -152,7 +152,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         if (player.isSneaking() == false || world.isRemote == true)
         {
-            return world.isRemote; // hah, saved an extra if() by returning this :p~
+            return false;
         }
 
         TileEntity te = world.getTileEntity(x, y, z);
@@ -307,7 +307,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             if (nbt.hasKey("IsOpenDummy") == true)
             {
                 nbt.removeTag("IsOpenDummy");
-                nbt.setBoolean("IsOpen", false);
             }
         }
     }

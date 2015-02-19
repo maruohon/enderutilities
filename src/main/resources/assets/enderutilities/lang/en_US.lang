@@ -77,7 +77,7 @@ enderutilities.tooltips.itemlocationboundmodular=- Shift + Toggle mode key to cy
 # Individual items:
 ###################
 item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis anyone?!)
-item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
+item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Alt + Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
 item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent mobs from despawning
 item.enderutilities.enderbucket.tooltips=- Toggle mode key to cycle the operation mode|lf- Sneak + right click binds to tanks (in bind mode)|lf- Ctrl + Toggle mode key to switch between|lf  regular operation and linked to tanks|lf- In normal mode: right clicking a tank|lf  takes fluid from the tank and|lf  sneak + right clicking puts fluid to the tank
 item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*

@@ -289,9 +289,9 @@ public class EntityUtils
                 }
 
                 // Everything ok, create an explosion and then spawn a new Ender Crystal
-                world.createExplosion(null, x + 0.5f, y + 1, z + 0.5f, 10, true);
+                world.createExplosion(null, x + 0.5d, y + 1.0d, z + 0.5d, 10.0f, true);
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5f, y, z + 0.5f, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x + 0.5d, (double)y, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
 
                 return true;
@@ -301,7 +301,7 @@ public class EntityUtils
             else if (world.provider.dimensionId != 1)
             {
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5f, y, z + 0.5f, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x + 0.5d, y + 1.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
             }
         }

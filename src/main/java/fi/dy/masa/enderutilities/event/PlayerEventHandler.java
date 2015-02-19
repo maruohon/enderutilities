@@ -35,7 +35,7 @@ public class PlayerEventHandler
 
         EntityPlayer player = event.entityPlayer;
         ItemStack stack = player.getCurrentEquippedItem();
-        if (stack != null && stack.getItem() != null && stack.getItem() == EnderUtilitiesItems.enderBag)
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderBag)
         {
             NBTTagCompound nbt = stack.getTagCompound();
             if (nbt != null && nbt.getBoolean("IsOpen") == true)
@@ -51,9 +51,10 @@ public class PlayerEventHandler
                 else
                 {
                     nbt.removeTag("ChunkLoadingRequired");
+                    nbt.removeTag("IsOpen");
                     nbt.setBoolean("IsOpenDummy", true);
-                    player.inventory.markDirty();
-                    player.inventoryContainer.detectAndSendChanges();
+                    //player.inventory.markDirty();
+                    //player.inventoryContainer.detectAndSendChanges();
                 }
             }
         }
