@@ -64,17 +64,6 @@ public class ItemRendererEnderBucket implements IItemRenderer
 
         GL11.glPushMatrix();
 
-        switch(type)
-        {
-            case INVENTORY:
-                break;
-            default:
-                GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        }
-
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_BLEND);
-
         // Render the bucket upside down if the fluid is a gas
         if (fluid != null && fluid.isGaseous() == true)
         {
@@ -101,6 +90,23 @@ public class ItemRendererEnderBucket implements IItemRenderer
 
         Tessellator t = Tessellator.instance;
 
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
+
+        switch(type)
+        {
+            case INVENTORY:
+                GL11.glEnable(GL11.GL_BLEND);
+                break;
+            default:
+                GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+                GL11.glDisable(GL11.GL_BLEND);
+        }
+
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
         if (iicon != null)
         {
             this.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
@@ -114,8 +120,6 @@ public class ItemRendererEnderBucket implements IItemRenderer
         }
 
         this.mc.renderEngine.bindTexture(TextureMap.locationItemsTexture);
-
-        GL11.glEnable(GL11.GL_BLEND);
 
         int offset = 0;
         int mainPartIndex = itemBucket.getBucketMode(stack);
@@ -157,6 +161,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
                 GL11.glDisable(GL12.GL_RESCALE_NORMAL);
         }
 
+        GL11.glPopAttrib();
         GL11.glPopMatrix();
     }
 
