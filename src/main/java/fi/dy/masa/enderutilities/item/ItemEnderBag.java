@@ -85,8 +85,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
         // FIXME: How should we properly check if the player is within range?
-        if (this.isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false &&
-            (targetData.dimension != player.dimension || player.getDistanceSq(targetData.posX, targetData.posY, targetData.posZ) >= 10000.0d))
+        if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player) == true)
         {
             player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
             return stack;
@@ -192,7 +191,37 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         return 0;
     }
 
-    private boolean isTargetBlockWhitelisted(String name, int meta)
+    public static boolean targetNeedsToBeLoadedOnClient(ItemStack stack)
+    {
+        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (targetData == null || targetData.blockName == null)
+        {
+            return false;
+        }
+
+        // Player's location doesn't matter with Ender Chests
+        if (targetData.blockName.equals("minecraft:ender_chest") == true
+            || isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == true)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean targetOutsideOfPlayerRange(ItemStack stack, EntityPlayer player)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (target == null)
+        {
+            return true;
+        }
+
+        // We allow a max range of 64 blocks, to hopefully be on the safer side
+        return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
+    }
+
+    public static boolean isTargetBlockWhitelisted(String name, int meta)
     {
         List<String> list;
 

@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.ItemEnderBag;
 
 public class PlayerEventHandler
 {
@@ -34,25 +35,25 @@ public class PlayerEventHandler
 
         EntityPlayer player = event.entityPlayer;
         ItemStack stack = player.getCurrentEquippedItem();
-        if (stack != null && stack.getItem() != null)
+        if (stack != null && stack.getItem() != null && stack.getItem() == EnderUtilitiesItems.enderBag)
         {
-            if (stack.getItem() == EnderUtilitiesItems.enderBag)
+            NBTTagCompound nbt = stack.getTagCompound();
+            if (nbt != null && nbt.getBoolean("IsOpen") == true)
             {
-                NBTTagCompound nbt = stack.getTagCompound();
-                if (nbt != null && nbt.getBoolean("IsOpen") == true)
+                if (player.openContainer != player.inventoryContainer
+                    && (ItemEnderBag.targetNeedsToBeLoadedOnClient(stack) == false
+                    || ItemEnderBag.targetOutsideOfPlayerRange(stack, player) == false))
                 {
-                    if (player.openContainer != player.inventoryContainer)
-                    {
-                        // Allow access from anywhere with the Ender Bag (bypassing the distance checks)
-                        event.setResult(Result.ALLOW);
-                    }
-                    // Ender Bag: Player has just closed the remote container
-                    else
-                    {
-                        nbt.removeTag("ChunkLoadingRequired");
-                        nbt.setBoolean("IsOpenDummy", true);
-                        //player.inventory.markDirty();
-                    }
+                    // Allow access from anywhere with the Ender Bag (bypassing the distance checks)
+                    event.setResult(Result.ALLOW);
+                }
+                // Ender Bag: Player has just closed the remote container
+                else
+                {
+                    nbt.removeTag("ChunkLoadingRequired");
+                    nbt.setBoolean("IsOpenDummy", true);
+                    player.inventory.markDirty();
+                    player.inventoryContainer.detectAndSendChanges();
                 }
             }
         }
