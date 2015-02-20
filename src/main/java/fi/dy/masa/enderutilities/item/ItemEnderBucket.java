@@ -792,7 +792,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public IFluidHandler getLinkedTank(ItemStack stack)
     {
         NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
-        if (targetData == null)
+        if (targetData == null || MinecraftServer.getServer() == null)
         {
             return null;
         }
