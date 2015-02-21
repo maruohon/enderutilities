@@ -2,11 +2,12 @@ package fi.dy.masa.enderutilities.client.effects;
 
 import java.util.Random;
 
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 
 public class Particles
 {
-    public static void spawnParticles(World world, String name, double x, double y, double z, int count, double offset, double velocity)
+    public static void spawnParticles(World world, EnumParticleTypes type, double x, double y, double z, int count, double offset, double velocity)
     {
         // Spawn some particles
         for (int i = 0; i < count; i++)
@@ -18,11 +19,11 @@ public class Particles
             double velX = (world.rand.nextFloat() - 0.5d) * velocity;
             double velY = (world.rand.nextFloat() - 0.5d) * velocity;
             double velZ = (world.rand.nextFloat() - 0.5d) * velocity;
-            world.spawnParticle(name, x + offX, y + offY, z + offZ, -velX, -velY, -velZ);
+            world.spawnParticle(type, x + offX, y + offY, z + offZ, -velX, -velY, -velZ);
         }
     }
 
-    public static void spawnParticlesAround(World world, String name, int x, int y, int z, int count, Random rand)
+    public static void spawnParticlesAround(World world, EnumParticleTypes type, int x, int y, int z, int count, Random rand)
     {
         for (int i = 0; i < count; ++i)
         {
@@ -37,7 +38,7 @@ public class Particles
             double vy = ((double)rand.nextFloat() - 0.5D) * 0.125D;
             double vz = (double)(rand.nextFloat() * 1.0F * (float)j1);
 
-            world.spawnParticle(name, x1, y1, z1, vx, vy, vz);
+            world.spawnParticle(type, x1, y1, z1, vx, vy, vz);
         }
     }
 }

@@ -3,10 +3,10 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 
@@ -37,7 +37,7 @@ public class AnvilUpdateEventHandler
                     else if (StringUtils.isBlank(event.name) == true && repaired.hasDisplayName() == true)
                     {
                         // Remove the custom name
-                        repaired.func_135074_t();
+                        repaired.clearCustomName();
                     }
 
                     event.output = repaired;

@@ -37,7 +37,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomInventoryName() ? this.te.getInventoryName() : I18n.format(this.te.getInventoryName(), new Object[0]);
+        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage", new Object[0]), 8, 56, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 84, 0x404025);

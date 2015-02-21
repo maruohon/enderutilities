@@ -2,17 +2,17 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -120,7 +120,7 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
@@ -130,7 +130,7 @@ public class ItemEnderPart extends ItemModule
         // Ender Relic
         if (stack != null && stack.getItemDamage() == 40)
         {
-            if (EntityUtils.spawnEnderCrystal(world, x, y, z) == true)
+            if (EntityUtils.spawnEnderCrystal(world, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d) == true)
             {
                 --stack.stackSize;
                 return true;

@@ -8,6 +8,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 
@@ -47,7 +48,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (player != null)
         {
-            this.ownerName = player.getCommandSenderName();
+            this.ownerName = player.getName();
             this.ownerUUID = player.getUniqueID();
         }
         else
@@ -122,7 +123,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (this.worldObj != null)
         {
-            return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, this.getDescriptionPacketTag(null));
+            return new S35PacketUpdateTileEntity(this.getPos(), 0, this.getDescriptionPacketTag(null));
         }
 
         return null;
@@ -131,7 +132,7 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
 
         if (nbt.hasKey("r") == true)
         {
@@ -142,12 +143,13 @@ public class TileEntityEnderUtilities extends TileEntity
             this.ownerName = nbt.getString("o");
         }
 
-        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+        this.worldObj.markBlockForUpdate(this.getPos());
     }
 
     @Override
     public String toString()
     {
-        return this.getClass().getSimpleName() + "(x=" + xCoord + ",y=" + yCoord + ",z=" + zCoord + ")@" + System.identityHashCode(this);
+        BlockPos p = this.getPos();
+        return this.getClass().getSimpleName() + "(x=" + p.getX() + ",y=" + p.getY() + ",z=" + p.getZ() + ")@" + System.identityHashCode(this);
     }
 }

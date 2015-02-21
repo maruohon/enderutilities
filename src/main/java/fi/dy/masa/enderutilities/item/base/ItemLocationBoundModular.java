@@ -5,12 +5,14 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -24,12 +26,12 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == false && player != null && player.isSneaking() == true)
         {
             boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-            this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+            this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
         }
 
         return true;
@@ -161,9 +163,9 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public void setTarget(ItemStack toolStack, EntityPlayer player, BlockPos pos, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        UtilItemModular.setTarget(toolStack, player, x, y, z, side, hitX, hitY, hitZ, doHitOffset, storeRotation);
+        UtilItemModular.setTarget(toolStack, player, pos, face, hitX, hitY, hitZ, doHitOffset, storeRotation);
     }
 
     @Override

@@ -7,10 +7,11 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAction, IMessage>
 {
@@ -73,7 +74,7 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
             switch(message.guiId)
             {
                 case ReferenceGuiIds.GUI_ID_ENDER_FURNACE:
-                    TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
+                    TileEntity te = world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
                     if (te != null && te instanceof TileEntityEnderUtilitiesSided)
                     {
                         ((TileEntityEnderUtilitiesSided)te).performGuiAction(message.elementId, message.action);

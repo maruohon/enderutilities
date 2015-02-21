@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -31,7 +33,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomInventoryName() ? this.te.getInventoryName() : I18n.format(this.te.getInventoryName(), new Object[0]);
+        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 4, 0x404025);
 
@@ -94,7 +96,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
             this.drawTexturedModalRect(x + 57, y + 34, 176, 14 + vOffset, w, 16);
         }
 
-        itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
+        itemRender.renderItemAndEffectIntoGUI(new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
     }
 
     protected void createButtons()
@@ -153,11 +155,12 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     }
 
     @Override
-    protected void actionPerformed(GuiButton btn)
+    protected void actionPerformed(GuiButton btn) throws IOException
     {
         super.actionPerformed(btn);
 
-        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
+        BlockPos pos = this.te.getPos();
+        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorld().provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(),
                 ReferenceGuiIds.GUI_ID_ENDER_FURNACE, btn.id, (short)0));
     }
 }

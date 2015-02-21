@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 public class TileEntityEnderUtilitiesSided extends TileEntityEnderUtilitiesInventory implements ISidedInventory
 {
@@ -11,19 +12,19 @@ public class TileEntityEnderUtilitiesSided extends TileEntityEnderUtilitiesInven
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing face)
     {
         return null;
     }
 
     @Override
-    public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
+    public boolean canInsertItem(int slotNum, ItemStack itemStack, EnumFacing face)
     {
         return this.isItemValidForSlot(slotNum, itemStack);
     }
 
     @Override
-    public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
+    public boolean canExtractItem(int slotNum, ItemStack itemStack, EnumFacing face)
     {
         return true;
     }

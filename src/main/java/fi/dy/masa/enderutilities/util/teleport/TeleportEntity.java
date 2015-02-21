@@ -15,7 +15,9 @@ import net.minecraft.network.play.server.S1DPacketEntityEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -23,11 +25,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -44,7 +45,7 @@ public class TeleportEntity
         if (world.isRemote == false)
         {
             PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
-                    new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
         }
     }
 
@@ -92,7 +93,7 @@ public class TeleportEntity
 
             //if (entity.worldObj.isAirBlock((int)x, (int)y, (int)z) == true &&
             //    entity.worldObj.isAirBlock((int)x, (int)y + 1, (int)z) == true)
-            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
+            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.getBoundingBox()).isEmpty() == true)
             {
                 //entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
                 entity.setPositionAndUpdate(x, y, z);
@@ -117,12 +118,12 @@ public class TeleportEntity
         if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
         {
             //System.out.println("sideHit: " + mop.sideHit);
-            ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-            pos.posX += (dir.offsetX * 0.5d * entity.width);
-            pos.posZ += (dir.offsetZ * 0.5d * entity.width);
+            EnumFacing dir = mop.sideHit;
+            pos.posX += (dir.getFrontOffsetX() * entity.width / 2);
+            pos.posZ += (dir.getFrontOffsetZ() * entity.width / 2);
 
             // Bottom side
-            if (mop.sideHit == 0)
+            if (mop.sideHit.equals(EnumFacing.DOWN) == true)
             {
                 pos.posY -= entity.height;
             }
@@ -133,8 +134,8 @@ public class TeleportEntity
             //else
             {
                 int y = (int)pos.posY;
-                while (y < 254 && (entity.worldObj.getBlock((int)pos.posX, y, (int)pos.posZ).getMaterial().isOpaque() == true
-                        || entity.worldObj.getBlock((int)pos.posX, y + 1, (int)pos.posZ).getMaterial().isOpaque() == true))
+                while (y < 254 && (entity.worldObj.getBlockState(new BlockPos(pos.posX, y, pos.posZ)).getBlock().getMaterial().isOpaque() == true
+                        || entity.worldObj.getBlockState(new BlockPos(pos.posX, y + 1, pos.posZ)).getBlock().getMaterial().isOpaque() == true))
                 {
                     pos.posY += 1.0d;
                     ++y;
@@ -166,28 +167,23 @@ public class TeleportEntity
             return target;
         }
 
-        ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
-        if (entity != null && entity.boundingBox != null)
-        {
-            target.dPosX += dir.offsetX * (entity.width / 2);
-            target.dPosZ += dir.offsetZ * (entity.width / 2);
+        double offsetHoriz = 0.5d;
+        double offsetY = 1.0d;
 
-            // Targeting the bottom face of a block, adjust the position lower
-            if (dir.offsetY < 0)
-            {
-                target.dPosY -= entity.height;
-            }
+        EnumFacing dir = EnumFacing.getFront(target.blockFace);
+        if (entity != null && entity.getBoundingBox() != null)
+        {
+            offsetHoriz = entity.width / 2;
+            offsetY = entity.height;
         }
-        else
-        {
-            target.dPosX += dir.offsetX * 0.5d;
-            target.dPosZ += dir.offsetZ * 0.5d;
 
-            // Targeting the bottom face of a block, adjust the position lower
-            if (dir.offsetY < 0)
-            {
-                target.dPosY -= 1.0d;
-            }
+        target.dPosX += dir.getFrontOffsetX() * offsetHoriz;
+        target.dPosZ += dir.getFrontOffsetZ() * offsetHoriz;
+
+        // Targeting the bottom face of a block, adjust the position lower
+        if (dir.getFrontOffsetY() < 0)
+        {
+            target.dPosY -= offsetY;
         }
 
         return target;
@@ -307,8 +303,6 @@ public class TeleportEntity
                 return null;
             }
 
-            //System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
-
             IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
             if (chunkProvider == null)
             {
@@ -318,7 +312,7 @@ public class TeleportEntity
             if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
             {
                 //worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
-                chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
+                chunkProvider.provideChunk((int)x >> 4, (int)z >> 4); // TODO check this (1.7-1.8: loadChunk() -> provideChunk())
             }
 
             if (entity instanceof EntityLiving)
@@ -326,10 +320,6 @@ public class TeleportEntity
                 ((EntityLiving)entity).setMoveForward(0.0f);
                 ((EntityLiving)entity).getNavigator().clearPathEntity();
             }
-            // FIXME debug
-            //System.out.printf("entity.worldObj: %s %s\n", entity.worldObj.toString(), entity.worldObj.getClass().getSimpleName());
-            //double d = (x - entity.posX) * (x - entity.posX) + (y - entity.posY) * (y - entity.posY) + (z - entity.posZ) * (z - entity.posZ);
-            //System.out.printf("Tp distance: %.4f\n", MathHelper.sqrt_double(d));
 
             if (entity.dimension != dimDst || (entity.worldObj instanceof WorldServer && entity.worldObj != worldServerDst))
             {
@@ -401,7 +391,7 @@ public class TeleportEntity
             return null;
         }
 
-        entityDst.copyDataFrom(entitySrc, true);
+        entityDst.copyDataFromOld(entitySrc); // TODO: 1.8: what was the last boolean parameter in 1.7?
         entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
         worldServerDst.spawnEntityInWorld(entityDst);
         worldServerDst.resetUpdateEntityTick();
@@ -444,7 +434,7 @@ public class TeleportEntity
             return null;
         }
 
-        entityDst.copyDataFrom(entitySrc, true);
+        entityDst.copyDataFromOld(entitySrc);
         // FIXME ugly special case to prevent the chest minecart etc from duping items
         if (entitySrc instanceof EntityMinecartContainer)
         {
@@ -500,7 +490,7 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension, player.worldObj.difficultySetting, player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
+        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
@@ -514,7 +504,7 @@ public class TeleportEntity
         worldServerDst.spawnEntityInWorld(player);
         worldServerDst.updateEntityWithOptionalForce(player, false);
         player.setWorld(worldServerDst);
-        serverCM.func_72375_a(player, worldServerSrc); // remove player from the source world
+        serverCM.preparePlayer(player, worldServerSrc); // remove player from the source world TODO: 1.8 update: is this the correct method?
         player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
         player.theItemInWorldManager.setWorld(worldServerDst);
         player.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(player, worldServerDst);

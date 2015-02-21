@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -16,15 +15,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -61,11 +60,11 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
-        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
     }
 
     // This is used for determining which weapon is better when mobs pick up items
-    public float func_150931_i()
+    @Override
+    public float getDamageVsEntity()
     {
         // FIXME no way to check if the item is broken without ItemStack and NBT data
         return this.damageVsEntity;
@@ -98,7 +97,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return false;
     }
 
-    public float func_150893_a(ItemStack stack, Block block)
+    @Override
+    public float getStrVsBlock(ItemStack stack, Block block)
     {
         if (this.isToolBroken(stack) == true)
         {
@@ -127,6 +127,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
      * Current implementations of this method in child classes do not use the entry argument beside ev. They just raise
      * the damage on the stack.
      */
+    @Override
     public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
     {
         if (this.isToolBroken(stack) == false)
@@ -145,9 +146,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return false;
     }
 
-    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase livingbase)
+    @Override
+    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, BlockPos pos, EntityLivingBase livingbase)
     {
-        if (block.getBlockHardness(world, x, y, z) != 0.0f && this.isToolBroken(stack) == false)
+        if (block.getBlockHardness(world, pos) != 0.0f && this.isToolBroken(stack) == false)
         {
             int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
             stack.damageItem(amount, livingbase);
@@ -182,6 +184,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
      * @param stack The ItemStack
      * @return the item echantability value
      */
+    @Override
     public int getItemEnchantability(ItemStack stack)
     {
         return this.material.getEnchantability();
@@ -199,14 +202,16 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
+    @Override
     public EnumAction getItemUseAction(ItemStack stack)
     {
-        return EnumAction.block;
+        return EnumAction.BLOCK;
     }
 
     /**
      * How long it takes to use or consume an item
      */
+    @Override
     public int getMaxItemUseDuration(ItemStack stack)
     {
         return 72000;
@@ -215,13 +220,15 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
         return stack;
     }
 
-    public boolean func_150897_b(Block block)
+    @Override
+    public boolean canHarvestBlock(Block block)
     {
         return block == Blocks.web;
     }
@@ -229,6 +236,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     /**
      * Return whether this item is repairable in an anvil.
      */
+    @Override
     public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
     {
         return false;
@@ -237,6 +245,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     /**
      * Gets a map of item attribute modifiers, used by ItemSword to increase hit damage.
      */
+    @Override
     public Multimap getAttributeModifiers(ItemStack stack)
     {
         double dmg = this.damageVsEntity;
@@ -246,7 +255,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
 
         Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", dmg, 0));
+        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(Item.itemModifierUUID, "Weapon modifier", dmg, 0));
         return multimap;
     }
 

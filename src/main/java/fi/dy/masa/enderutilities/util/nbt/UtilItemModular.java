@@ -6,8 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -248,7 +249,7 @@ public class UtilItemModular
                 {
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                    nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
+                    nbtTagList.set(i, newModuleStack.writeToNBT(moduleTag));
                     return toolStack;
                 }
             }
@@ -436,17 +437,15 @@ public class UtilItemModular
         // Don't adjust the target position for uses that are targeting the block, not the in-world location
         boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
 
-        setTarget(toolStack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        setTarget(toolStack, player, new BlockPos (x, y, z), EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     /**
      * Store a new target tag to the currently selected Link Crystal in the modular item in toolStack.
      * @param toolStack
      * @param player
-     * @param x
-     * @param y
-     * @param z
-     * @param side
+     * @param pos
+     * @param face
      * @param hitX
      * @param hitY
      * @param hitZ
@@ -454,9 +453,9 @@ public class UtilItemModular
      * using the integer position. This is normally true for location type Link Crystals, and false for block type Link Crystals.
      * @param storeRotation true if we also want to store the player's yaw and pitch rotations
      */
-    public static void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public static void setTarget(ItemStack toolStack, EntityPlayer player, BlockPos pos, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, face, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
         {

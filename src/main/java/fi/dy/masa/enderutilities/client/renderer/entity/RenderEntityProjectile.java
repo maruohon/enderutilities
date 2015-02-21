@@ -1,11 +1,13 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -17,8 +19,9 @@ public class RenderEntityProjectile extends Render
 {
     private Item item;
 
-    public RenderEntityProjectile(Item item)
+    public RenderEntityProjectile(RenderManager renderManager, Item item)
     {
+        super(renderManager);
         this.item = item;
     }
 
@@ -37,16 +40,17 @@ public class RenderEntityProjectile extends Render
 
         if (iicon != null)
         {
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
             GL11.glTranslatef((float)x, (float)y, (float)z);
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
             GL11.glScalef(0.5F, 0.5F, 0.5F);
             this.bindEntityTexture(entity);
-            Tessellator tessellator = Tessellator.instance;
+            Tessellator tessellator = Tessellator.getInstance();
+            WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 
             this.drawQuad(tessellator, iicon);
             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 
@@ -56,7 +60,7 @@ public class RenderEntityProjectile extends Render
         return TextureMap.locationItemsTexture;
     }
 
-    private void drawQuad(Tessellator tessellator, IIcon iicon)
+    private void drawQuad(Tessellator tessellator, WorldRenderer worldRenderer, IIcon iicon)
     {
         float minU = iicon.getMinU();
         float maxU = iicon.getMaxU();
@@ -66,12 +70,12 @@ public class RenderEntityProjectile extends Render
         GL11.glRotatef(180.0f - this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
         GL11.glRotatef(-this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
 
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0f, 1.0f, 0.0f);
-        tessellator.addVertexWithUV(-0.5d, -0.25d, 0.0d, (double)minU, (double)maxV);
-        tessellator.addVertexWithUV( 0.5d, -0.25d, 0.0d, (double)maxU, (double)maxV);
-        tessellator.addVertexWithUV( 0.5d,  0.75d, 0.0d, (double)maxU, (double)minV);
-        tessellator.addVertexWithUV(-0.5d,  0.75d, 0.0d, (double)minU, (double)minV);
+        GL11.glNormal3f(0.0f, 1.0f, 0.0f);
+        worldRenderer.startDrawingQuads();
+        worldRenderer.addVertexWithUV(-0.5d, -0.25d, 0.0d, (double)minU, (double)maxV);
+        worldRenderer.addVertexWithUV( 0.5d, -0.25d, 0.0d, (double)maxU, (double)maxV);
+        worldRenderer.addVertexWithUV( 0.5d,  0.75d, 0.0d, (double)maxU, (double)minV);
+        worldRenderer.addVertexWithUV(-0.5d,  0.75d, 0.0d, (double)minU, (double)minV);
         tessellator.draw();
     }
 }

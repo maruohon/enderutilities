@@ -145,7 +145,7 @@ public class NBTHelperPlayer
             return nbt;
         }
 
-        return writePlayerTagToNBT(nbt, player.getUniqueID().getMostSignificantBits(), player.getUniqueID().getLeastSignificantBits(), player.getCommandSenderName(), isPublic);
+        return writePlayerTagToNBT(nbt, player.getUniqueID().getMostSignificantBits(), player.getUniqueID().getLeastSignificantBits(), player.getName(), isPublic);
     }
 
     public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, EntityPlayer player)

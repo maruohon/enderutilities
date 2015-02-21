@@ -6,10 +6,11 @@ import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEffects, IMessage>
 {
@@ -97,7 +98,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                    Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
             }
             else if (message.effectType == EFFECT_ENDER_TOOLS)
@@ -108,7 +109,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                    Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
             }
         }

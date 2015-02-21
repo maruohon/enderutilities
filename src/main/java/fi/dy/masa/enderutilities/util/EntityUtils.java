@@ -18,9 +18,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.setup.Registry;
 
@@ -222,7 +223,7 @@ public class EntityUtils
             boolean canDespawn = (living instanceof EntityMob) || (living instanceof EntityWaterMob);
             canDespawn |= ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 
-            Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "v", "func_70692_ba"});
+            Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "C", "func_70692_ba"});
             try
             {
                 Object o = method.invoke(living);
@@ -250,7 +251,7 @@ public class EntityUtils
             if (canDespawn == true)
             {
                 // Sets the persistenceRequired boolean
-                living.func_110163_bv();
+                living.enablePersistence();
                 return true;
             }
         }
@@ -258,29 +259,29 @@ public class EntityUtils
         return false;
     }
 
-    public static boolean spawnEnderCrystal(World world, int x, int y, int z)
+    public static boolean spawnEnderCrystal(World world, double x, double y, double z)
     {
         // Only allow the activation to happen in The End
         if (world != null && world.provider != null)
         {
             // The item must be right clicked on the Bedrock block on top of the obsidian pillars
-            if (world.provider.dimensionId == 1 && world.getBlock(x, y, z) == Blocks.bedrock)
+            if (world.provider.getDimensionId() == 1 && world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.bedrock)
             {
                 // Check that there aren't already Ender Crystals nearby
-                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.getBoundingBox(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
+                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
                 if (entities.isEmpty() == false)
                 {
                     return false;
                 }
 
                 // Check that we have a pillar of obsidian below the bedrock block (at least 3x3 wide and 6 tall)
-                for (int by = y - 6; by < y; ++by)
+                for (int by = (int)y - 6; by < y; ++by)
                 {
-                    for (int bx = x - 1; bx <= x + 1; ++bx)
+                    for (int bx = (int)x - 1; bx <= x + 1; ++bx)
                     {
-                        for (int bz = z - 1; bz <= z + 1; ++bz)
+                        for (int bz = (int)z - 1; bz <= z + 1; ++bz)
                         {
-                            if (world.getBlock(bx, by, bz) != Blocks.obsidian)
+                            if (world.getBlockState(new BlockPos(bx, by, bz)).getBlock() != Blocks.obsidian)
                             {
                                 return false;
                             }
@@ -289,19 +290,19 @@ public class EntityUtils
                 }
 
                 // Everything ok, create an explosion and then spawn a new Ender Crystal
-                world.createExplosion(null, x + 0.5d, y + 1.0d, z + 0.5d, 10.0f, true);
+                world.createExplosion(null, x, y, z, 10.0f, true);
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5d, (double)y, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
 
                 return true;
             }
             // Allow spawning decorative Ender Crystals in other dimensions.
             // They won't be valid for Ender Charge, and spawning them doesn't create an explosion or have block requirements.
-            else if (world.provider.dimensionId != 1)
+            else if (world.provider.getDimensionId() != 1)
             {
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x + 0.5d, y + 1.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x, y + 1.0d, z, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
             }
         }

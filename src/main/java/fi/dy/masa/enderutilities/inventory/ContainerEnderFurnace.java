@@ -4,11 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotFurnace;
+import net.minecraft.inventory.SlotFurnaceOutput;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
@@ -29,7 +29,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
     {
         this.addSlotToContainer(new SlotItemInput(this.te, 0, 34, 17));
         this.addSlotToContainer(new SlotItemInput(this.te, 1, 34, 53));
-        this.addSlotToContainer(new SlotFurnace(this.inventoryPlayer.player, this.te, 2, 88, 35));
+        this.addSlotToContainer(new SlotFurnaceOutput(this.inventoryPlayer.player, this.te, 2, 88, 35));
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
             else
             {
                 // Has a smelting recipe, try to put in in the input slot
-                if (FurnaceRecipes.smelting().getSmeltingResult(stackInSlot) != null)
+                if (FurnaceRecipes.instance().getSmeltingResult(stackInSlot) != null)
                 {
                     if (this.mergeItemStack(stackInSlot, 0, 1, false) == false)
                     {

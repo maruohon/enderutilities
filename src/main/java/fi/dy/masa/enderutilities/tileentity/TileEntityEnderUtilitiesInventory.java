@@ -6,9 +6,13 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
@@ -30,16 +34,32 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         this.customInventoryName = name;
     }
 
+    /**
+     * Returns true if this thing is named
+     */
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         return this.customInventoryName != null && this.customInventoryName.length() > 0;
     }
 
+    /**
+     * Gets the name of this command sender (usually username, but possibly "Rcon")
+     */
     @Override
-    public String getInventoryName()
+    public String getName()
     {
-        return this.hasCustomInventoryName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+        return this.hasCustomName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+    }
+
+
+    /**
+     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     */
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return (IChatComponent)(this.hasCustomName() ? new ChatComponentText(this.getName()) : new ChatComponentTranslation(this.getName(), new Object[0]));
     }
 
     @Override
@@ -88,7 +108,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     {
         super.writeToNBT(nbt);
 
-        if (this.hasCustomInventoryName())
+        if (this.hasCustomName())
         {
             nbt.setString("CustomName", this.customInventoryName);
         }
@@ -167,6 +187,32 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
+    public void clear()
+    {
+        for (int i = 0; i < this.itemStacks.length; ++i)
+        {
+            this.setInventorySlotContents(i, null);
+        }
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+    }
+
+    @Override
     public int getInventoryStackLimit()
     {
         return 64;
@@ -175,12 +221,13 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        if (this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord) != this)
+        BlockPos pos = this.getPos();
+        if (this.worldObj.getTileEntity(pos) != this)
         {
             return false;
         }
 
-        if (player.getDistanceSq((double)this.xCoord + 0.5d, (double)this.yCoord + 0.5d, (double)this.zCoord + 0.5d) >= 64.0d)
+        if (player.getDistanceSq(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d) >= 64.0d)
         {
             return false;
         }
@@ -189,12 +236,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
     }
 

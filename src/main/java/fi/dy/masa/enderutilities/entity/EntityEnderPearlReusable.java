@@ -12,8 +12,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -47,7 +47,7 @@ public class EntityEnderPearlReusable extends EntityThrowable implements IItemDa
         float f = 0.4f;
         double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
         double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.func_70183_g()) / 180.0f * (float)Math.PI) * f);
+        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.getInaccuracy()) / 180.0f * (float)Math.PI) * f);
         this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 0.2f);
     }
 
@@ -161,7 +161,7 @@ public class EntityEnderPearlReusable extends EntityThrowable implements IItemDa
                     entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
                     entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
                     entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
-                    entityitem.delayBeforeCanPickup = 0;
+                    entityitem.setPickupDelay(0);
 
                     this.worldObj.spawnEntityInWorld(entityitem);
                 }

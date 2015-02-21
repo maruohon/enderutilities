@@ -6,10 +6,11 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -26,12 +27,12 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == false && player != null && player.isSneaking() == true)
         {
             boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
-            this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+            this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
         }
 
         return true;
@@ -112,7 +113,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                     list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
                     if (advancedTooltips == true)
                     {
-                        list.add("(" + target.blockName + "#" + target.blockMeta + " side: " + ForgeDirection.getOrientation(target.blockFace) + ")");
+                        list.add("(" + target.blockName + "#" + target.blockMeta + " side: " + target.facing.toString() + ")");
                     }
                 }
             }
@@ -227,13 +228,13 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         double hitZ = player.posZ - z;
         boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
 
-        this.setTarget(stack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        this.setTarget(stack, player, new BlockPos(x, y, z), EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     @Override
-    public void setTarget(ItemStack stack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        NBTHelperTarget.writeTargetTagToItem(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, face, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
         {

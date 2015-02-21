@@ -8,12 +8,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
@@ -29,7 +28,6 @@ public class ItemEnderUtilities extends Item
     public Item setUnlocalizedName(String name)
     {
         this.name = name;
-        this.setTextureName(ReferenceTextures.getItemTextureName(name));
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
 

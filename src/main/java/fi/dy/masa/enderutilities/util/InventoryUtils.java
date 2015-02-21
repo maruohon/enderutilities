@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.util;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 public class InventoryUtils
 {
@@ -18,16 +19,16 @@ public class InventoryUtils
      * @param side The side of the block we try to insert from, in case of ISidedInventory
      * @return true if all items were successfully inserted, false if none or only some were
      */
-    public static boolean tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, int side)
+    public static boolean tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, EnumFacing face)
     {
         if (inv instanceof ISidedInventory)
         {
             ISidedInventory sided = (ISidedInventory) inv;
-            int[] slots = sided.getAccessibleSlotsFromSide(side);
+            int[] slots = sided.getSlotsForFace(face);
 
             for (int i = 0; i < slots.length; ++i)
             {
-                if (isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                if (isItemStackValidForSlot(sided, stackIn, i, face) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
                 {
                     return true;
                 }
@@ -118,9 +119,9 @@ public class InventoryUtils
      * @param side
      * @return true if stackIn is valid for slotNum in sided from side
      */
-    public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, int side)
+    public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, EnumFacing face)
     {
-        return (sided.canInsertItem(slotNum, stackIn, side) && sided.isItemValidForSlot(slotNum, stackIn));
+        return (sided.canInsertItem(slotNum, stackIn, face) && sided.isItemValidForSlot(slotNum, stackIn));
     }
 
     /**

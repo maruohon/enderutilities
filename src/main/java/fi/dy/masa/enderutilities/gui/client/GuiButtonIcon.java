@@ -3,11 +3,10 @@ package fi.dy.masa.enderutilities.gui.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonIcon extends GuiButton
@@ -34,8 +33,8 @@ public class GuiButtonIcon extends GuiButton
         {
             mc.getTextureManager().bindTexture(this.texture);
             GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            this.field_146123_n = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            int state = this.getHoverState(this.field_146123_n);
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            int state = this.getHoverState(this.hovered);
             this.drawTexturedModalRect(this.xPosition, this.yPosition, this.u + state * this.width, this.v, this.width, this.height);
             this.mouseDragged(mc, mouseX, mouseY);
         }

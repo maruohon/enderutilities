@@ -4,9 +4,10 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
@@ -222,25 +223,19 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public boolean canUpdate()
-    {
-        return false;
-    }
-
-    @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing face)
     {
         return SLOTS;
     }
 
     @Override
-    public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
+    public boolean canInsertItem(int slotNum, ItemStack itemStack, EnumFacing face)
     {
         return false;
     }
 
     @Override
-    public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
+    public boolean canExtractItem(int slotNum, ItemStack itemStack, EnumFacing face)
     {
         return false;
     }

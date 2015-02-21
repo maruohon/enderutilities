@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,6 +18,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -63,7 +66,6 @@ public class EntityEnderArrow extends EntityArrow
         this.renderDistanceWeight = 10.0D;
         this.setSize(0.5F, 0.5F);
         this.setPosition(par2, par4, par6);
-        this.yOffset = 0.0F;
     }
 
     public EntityEnderArrow(World par1World, EntityLivingBase par2EntityLivingBase, EntityLivingBase par3EntityLivingBase, float par4, float par5)
@@ -85,7 +87,7 @@ public class EntityEnderArrow extends EntityArrow
 
         this.posY = par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight() - 0.10000000149011612D;
         double d0 = par3EntityLivingBase.posX - par2EntityLivingBase.posX;
-        double d1 = par3EntityLivingBase.boundingBox.minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
+        double d1 = par3EntityLivingBase.getBoundingBox().minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
         double d2 = par3EntityLivingBase.posZ - par2EntityLivingBase.posZ;
         double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
 
@@ -96,7 +98,6 @@ public class EntityEnderArrow extends EntityArrow
             double d4 = d0 / d3;
             double d5 = d2 / d3;
             this.setLocationAndAngles(par2EntityLivingBase.posX + d4, this.posY, par2EntityLivingBase.posZ + d5, f2, f3);
-            this.yOffset = 0.0F;
             float f4 = (float)d3 * 0.2F;
             this.setThrowableHeading(d0, d1 + (double)f4, d2, par4, par5);
         }
@@ -130,13 +131,12 @@ public class EntityEnderArrow extends EntityArrow
         y = this.posY - 0.10000000149011612d;
         z += (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.74f) * (double)(MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI));
         z -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.1f);
-        if (par1World.getBlock((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z)) == Blocks.air)
+        if (par1World.getBlockState(new BlockPos((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z))).getBlock() == Blocks.air)
         {
             this.posX = x;
             this.posZ = z;
         }
         this.setPosition(this.posX, this.posY, this.posZ);
-        this.yOffset = 0.0F;
         this.motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionY = (double)(-MathHelper.sin(this.rotationPitch / 180.0F * (float)Math.PI));
@@ -172,7 +172,7 @@ public class EntityEnderArrow extends EntityArrow
         entityitem.motionX = 0.01d * r.nextGaussian();
         entityitem.motionY = 0.01d * r.nextGaussian() + 0.05d;
         entityitem.motionZ = 0.01d * r.nextGaussian();
-        entityitem.delayBeforeCanPickup = 10;
+        entityitem.setPickupDelay(10);
 
         this.worldObj.spawnEntityInWorld(entityitem);
     }
@@ -191,14 +191,16 @@ public class EntityEnderArrow extends EntityArrow
             this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f) * 180.0D / Math.PI);
         }
 
-        Block block = this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ);
+        BlockPos blockPos = new BlockPos(this.blockX, this.blockY, this.blockZ);
+        IBlockState iBlockState = this.worldObj.getBlockState(blockPos);
+        Block block = iBlockState.getBlock();
 
         if (block.getMaterial() != Material.air)
         {
-            block.setBlockBoundsBasedOnState(this.worldObj, this.blockX, this.blockY, this.blockZ);
-            AxisAlignedBB axisalignedbb = block.getCollisionBoundingBoxFromPool(this.worldObj, this.blockX, this.blockY, this.blockZ);
+            block.setBlockBoundsBasedOnState(this.worldObj, blockPos);
+            AxisAlignedBB axisalignedbb = block.getCollisionBoundingBox(this.worldObj, blockPos, iBlockState);
 
-            if (axisalignedbb != null && axisalignedbb.isVecInside(Vec3.createVectorHelper(this.posX, this.posY, this.posZ)))
+            if (axisalignedbb != null && axisalignedbb.isVecInside(new Vec3(this.posX, this.posY, this.posZ)))
             {
                 this.inGround = true;
             }
@@ -211,7 +213,7 @@ public class EntityEnderArrow extends EntityArrow
 
         if (this.inGround)
         {
-            int j = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
+            int j = block.getMetaFromState(iBlockState);
 
             if (block == this.inBlock && j == this.inData)
             {
@@ -236,19 +238,19 @@ public class EntityEnderArrow extends EntityArrow
         }
 
         ++this.ticksInAir;
-        Vec3 vec31 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        Vec3 vec3 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-        MovingObjectPosition movingobjectposition = this.worldObj.func_147447_a(vec31, vec3, false, true, false);
-        vec31 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        vec3 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3 vec31 = new Vec3(this.posX, this.posY, this.posZ);
+        Vec3 vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        MovingObjectPosition movingobjectposition = this.worldObj.rayTraceBlocks(vec31, vec3, false, true, false);
+        vec31 = new Vec3(this.posX, this.posY, this.posZ);
+        vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3 = Vec3.createVectorHelper(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3 = new Vec3(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         Entity entity = null;
-        List<?> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<?> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
@@ -260,7 +262,7 @@ public class EntityEnderArrow extends EntityArrow
             if (entity1.canBeCollidedWith() && (entity1 != this.shootingEntity || this.ticksInAir >= 5))
             {
                 f1 = 0.3F;
-                AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double)f1, (double)f1, (double)f1);
+                AxisAlignedBB axisalignedbb1 = entity1.getBoundingBox().expand((double)f1, (double)f1, (double)f1);
                 MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);
 
                 if (movingobjectposition1 != null)
@@ -349,11 +351,12 @@ public class EntityEnderArrow extends EntityArrow
             // hit something else, so a block
             else
             {
-                this.blockX = movingobjectposition.blockX;
-                this.blockY = movingobjectposition.blockY;
-                this.blockZ = movingobjectposition.blockZ;
-                this.inBlock = this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ);
-                this.inData = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
+                this.blockX = movingobjectposition.getBlockPos().getX();
+                this.blockY = movingobjectposition.getBlockPos().getY();
+                this.blockZ = movingobjectposition.getBlockPos().getZ();
+                IBlockState bs = this.worldObj.getBlockState(blockPos);
+                this.inBlock = bs.getBlock();
+                this.inData = this.inBlock.getMetaFromState(bs);
                 this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
                 this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
                 this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));
@@ -368,7 +371,7 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (this.inBlock.getMaterial() != Material.air)
                 {
-                    this.inBlock.onEntityCollidedWithBlock(this.worldObj, this.blockX, this.blockY, this.blockZ, this);
+                    this.inBlock.onEntityCollidedWithBlock(this.worldObj, blockPos, bs, this);
                 }
             }
         }
@@ -377,7 +380,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             for (i = 0; i < 4; ++i)
             {
-                this.worldObj.spawnParticle("crit", this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
+                this.worldObj.spawnParticle(EnumParticleTypes.CRIT, this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
             }
         }
 
@@ -405,7 +408,7 @@ public class EntityEnderArrow extends EntityArrow
             for (int l = 0; l < 4; ++l)
             {
                 f4 = 0.25F;
-                this.worldObj.spawnParticle("bubble", this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
+                this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
             }
             f3 = 0.8F;
         }
@@ -420,7 +423,7 @@ public class EntityEnderArrow extends EntityArrow
         this.motionZ *= (double)f3;
         this.motionY -= (double)f1;
         this.setPosition(this.posX, this.posY, this.posZ);
-        this.func_145775_I();
+        this.doBlockCollisions();
     }
 
     /**

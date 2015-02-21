@@ -5,9 +5,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
@@ -17,7 +19,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
+public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implements IUpdatePlayerListBox
 {
     protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
     public static final int AMOUNT_PER_ENDERPEARL = 250;
@@ -65,7 +67,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void updateEntity()
+    public void update()
     {
         if (this.worldObj.isRemote == true)
         {
@@ -205,7 +207,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 
         if (sync == true)
         {
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
     }
 
@@ -234,14 +236,14 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing face)
     {
         // Allow access to all slots from all sides
         return SLOTS_SIDES;
     }
 
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    public boolean canExtractItem(int slot, ItemStack stack, EnumFacing face)
     {
         // Only allow pulling out items from the output slot
         return slot == 2;

@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
@@ -36,7 +38,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
     }
 
     @Override
-    protected void actionPerformed(GuiButton btn)
+    protected void actionPerformed(GuiButton btn) throws IOException
     {
         super.actionPerformed(btn);
     }

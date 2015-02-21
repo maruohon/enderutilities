@@ -178,10 +178,10 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        Ticket ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), world, ForgeChunkManager.Type.NORMAL);
+        Ticket ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getName(), world, ForgeChunkManager.Type.NORMAL);
         if (ticket == null)
         {
-            EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getCommandSenderName() + "'");
+            EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getName() + "'");
             return null;
         }
 
@@ -277,7 +277,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             UUID uuid = this.getPlayerUUIDFromTicket(ticket);
             if (ticket.world.provider != null && uuid != null)
             {
-                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.dimensionId).remove(ticket);
+                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.getDimensionId()).remove(ticket);
             }
         }
         else
@@ -372,7 +372,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
         {
             //System.out.println("loadChunkWithoutForce() loading chunk");
-            chunkProvider.loadChunk(chunkX, chunkZ);
+            chunkProvider.provideChunk(chunkX, chunkZ); // TODO 1.8 update: check if this is correct: was loadChunk()
         }
 
         //System.out.println("loadChunkWithoutForce() end");

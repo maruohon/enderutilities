@@ -9,7 +9,6 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
@@ -17,21 +16,23 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
+public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implements IUpdatePlayerListBox
 {
     // The values that define how fuels burn and items smelt
     public static final int COOKTIME_INC_NOFUEL = 1; // No fuel mode: 60 seconds per item
@@ -151,7 +152,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
         byte flags = nbt.getByte("f");
         this.setRotation((byte)(flags & 0x07));
         this.isActive = (flags & 0x10) == 0x10;
@@ -164,7 +165,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
         super.onDataPacket(net, packet);
 
-        this.worldObj.updateLightByType(EnumSkyBlock.Block, this.xCoord, this.yCoord, this.zCoord);
+        this.worldObj.checkLightFor(EnumSkyBlock.BLOCK, this.getPos());
     }
 
     /**
@@ -202,7 +203,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void updateEntity()
+    public void update()
     {
         if (this.worldObj.isRemote == true)
         {
@@ -323,7 +324,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         // Check if we need to sync some stuff to the clients
         if (needsSync == true || this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
         {
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
 
         this.isBurningLast = this.isBurning();
@@ -484,7 +485,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
         else
         {
-            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
+            ItemStack resultStack = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
             if (resultStack == null)
             {
                 return false;
@@ -526,7 +527,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     {
         if (this.canSmelt() == true)
         {
-            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
+            ItemStack resultStack = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
             int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
 
             if (this.itemStacks[SLOT_OUTPUT] == null)
@@ -597,7 +598,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT * 3 / 4;
             if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
             if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
-            if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+            //if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10; // FIXME 1.8 update
 
         }
 
@@ -680,24 +681,24 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return isItemFuel(itemStack);
         }
 
-        return FurnaceRecipes.smelting().getSmeltingResult(itemStack) != null;
+        return FurnaceRecipes.instance().getSmeltingResult(itemStack) != null;
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing face)
     {
         // Allow access to all slots from all sides
         return SLOTS_SIDES;
     }
 
     @Override
-    public boolean canInsertItem(int slot, ItemStack stack, int side)
+    public boolean canInsertItem(int slot, ItemStack stack, EnumFacing face)
     {
         return this.isItemValidForSlot(slot, stack);
     }
 
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    public boolean canExtractItem(int slot, ItemStack stack, EnumFacing face)
     {
         // Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
         if (slot == 1)
@@ -739,7 +740,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
                 this.operatingMode = 0;
             }
             this.markDirty();
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (element == 1)
@@ -749,7 +750,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
                 this.outputMode = 0;
             }
             this.markDirty();
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
     }
 }

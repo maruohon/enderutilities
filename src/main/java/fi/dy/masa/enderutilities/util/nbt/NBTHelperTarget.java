@@ -1,16 +1,18 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry.UniqueIdentifier;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -23,6 +25,7 @@ public class NBTHelperTarget
     public double dPosX;
     public double dPosY;
     public double dPosZ;
+    public BlockPos pos;
     public int dimension;
     public String dimensionName;
     public boolean hasAngle;
@@ -32,7 +35,7 @@ public class NBTHelperTarget
     public int blockMeta;
     /* Face of the target block */
     public int blockFace;
-    public ForgeDirection forgeDir;
+    public EnumFacing facing;
 
     public NBTHelperTarget()
     {
@@ -42,6 +45,7 @@ public class NBTHelperTarget
         this.dPosX = 0.0d;
         this.dPosY = 0.0d;
         this.dPosZ = 0.0d;
+        this.pos = new BlockPos(0, 0, 0);
         this.dimension = 0;
         this.dimensionName = "";
         this.hasAngle = false;
@@ -50,7 +54,7 @@ public class NBTHelperTarget
         this.blockName = "";
         this.blockMeta = 0;
         this.blockFace = -1;
-        this.forgeDir = ForgeDirection.UP;
+        this.facing = EnumFacing.UP;
     }
 
     public static NBTHelperTarget getTargetFromItem(ItemStack stack)
@@ -116,12 +120,13 @@ public class NBTHelperTarget
         this.posX = tag.getInteger("posX");
         this.posY = tag.getInteger("posY");
         this.posZ = tag.getInteger("posZ");
+        this.pos = new BlockPos(this.posX, this.posY, this.posZ);
         this.dimension = tag.getInteger("Dim");
         this.dimensionName = tag.getString("DimName");
         this.blockName = tag.getString("BlockName");
         this.blockMeta = tag.getByte("BlockMeta");
         this.blockFace = tag.getByte("BlockFace");
-        this.forgeDir = ForgeDirection.getOrientation(this.blockFace);
+        this.facing = EnumFacing.getFront(this.blockFace);
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
         this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.posY;
@@ -145,7 +150,7 @@ public class NBTHelperTarget
         return target;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace, float yaw, float pitch, boolean hasAngle)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, EnumFacing face, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
@@ -153,9 +158,9 @@ public class NBTHelperTarget
         }
 
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("posX", x);
-        tag.setInteger("posY", y);
-        tag.setInteger("posZ", z);
+        tag.setInteger("posX", pos.getX());
+        tag.setInteger("posY", pos.getY());
+        tag.setInteger("posZ", pos.getZ());
         tag.setDouble("dPosX", dx);
         tag.setDouble("dPosY", dy);
         tag.setDouble("dPosZ", dz);
@@ -163,7 +168,7 @@ public class NBTHelperTarget
         tag.setString("DimName", dimName);
         tag.setString("BlockName", blockName);
         tag.setByte("BlockMeta", (byte)meta);
-        tag.setByte("BlockFace", (byte)blockFace);
+        tag.setByte("BlockFace", (byte)face.getIndex());
 
         if (hasAngle == true)
         {
@@ -176,16 +181,16 @@ public class NBTHelperTarget
         return nbt;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
         }
 
-        double dPosX = x;
-        double dPosY = y;
-        double dPosZ = z;
+        double dPosX = pos.getX();
+        double dPosY = pos.getY();
+        double dPosZ = pos.getZ();
 
         if (doHitOffset == true)
         {
@@ -205,27 +210,29 @@ public class NBTHelperTarget
             {
                 dimName = world.provider.getDimensionName();
 
-                UniqueIdentifier ui = GameRegistry.findUniqueIdentifierFor(world.getBlock(x, y, z));
+                IBlockState blockState = world.getBlockState(pos);
+                Block block = blockState.getBlock();
+                UniqueIdentifier ui = GameRegistry.findUniqueIdentifierFor(block);
                 if (ui != null)
                 {
                     blockName = ui.toString();
                 }
                 else
                 {
-                    blockName = Block.blockRegistry.getNameForObject(world.getBlock(x, y, z));
+                    blockName = Block.blockRegistry.getNameForObject(block).toString();
                 }
 
-                meta = world.getBlockMetadata(x, y, z);
+                meta = block.getMetaFromState(blockState);
             }
         }
 
-        return writeTargetTagToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace, yaw, pitch, hasAngle);
+        return writeTargetTagToNBT(nbt, pos, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, face, yaw, pitch, hasAngle);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        return writeTargetTagToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
-            this.dimensionName, this.blockName, this.blockMeta, this.blockFace, this.yaw, this.pitch, this.hasAngle);
+        return writeTargetTagToNBT(nbt, this.pos, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
+            this.dimensionName, this.blockName, this.blockMeta, this.facing, this.yaw, this.pitch, this.hasAngle);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
@@ -255,20 +262,20 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static void writeTargetTagToItem(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (stack != null)
         {
-            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(),pos, dim, face, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
     }
 
-    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, BlockPos pos, int dim, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack != null)
         {
-            writeTargetTagToItem(moduleStack, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
+            writeTargetTagToItem(moduleStack, pos, dim, face, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
 
             return true;
@@ -291,11 +298,12 @@ public class NBTHelperTarget
             return false;
         }
 
-        Block block = world.getBlock(this.posX, this.posY, this.posZ);
+        IBlockState blockState = world.getBlockState(new BlockPos(this.posX, this.posY, this.posZ));
+        Block block = blockState.getBlock();
 
         // The target block unique name and metadata matches what we have stored
-        if (this.blockName != null && this.blockName.equals(Block.blockRegistry.getNameForObject(block)) == true
-            && this.blockMeta == world.getBlockMetadata(this.posX, this.posY, this.posZ))
+        if (this.blockName != null && this.blockName.equals(Block.blockRegistry.getNameForObject(block).toString()) == true
+            && this.blockMeta == block.getMetaFromState(blockState))
         {
             return true;
         }
@@ -356,12 +364,13 @@ public class NBTHelperTarget
         target.posX = tag.getInteger("posX");
         target.posY = tag.getInteger("posY");
         target.posZ = tag.getInteger("posZ");
+        target.pos = new BlockPos(target.posX, target.posY, target.posZ);
         target.dimension = tag.getInteger("Dim");
         target.dimensionName = tag.getString("DimName");
         target.blockName = tag.getString("BlockName");
         target.blockMeta = tag.getByte("BlockMeta");
         target.blockFace = tag.getByte("BlockFace");
-        target.forgeDir = ForgeDirection.getOrientation(target.blockFace);
+        target.facing = EnumFacing.getFront(target.blockFace);
 
         target.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : target.posX + 0.5d;
         target.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : target.posY;
@@ -394,7 +403,7 @@ public class NBTHelperTarget
                     moduleStack.setTagCompound(moduleNbt);
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                    nbtTagList.func_150304_a(i, moduleStack.writeToNBT(moduleTag));
+                    nbtTagList.set(i, moduleStack.writeToNBT(moduleTag));
                     toolNbt.removeTag("Target");
                     //System.out.println("post transfering target... lc: " + (i + 1) + " moduleNbt: " + moduleNbt + " toolNbt: " + toolNbt);
                     return true;
