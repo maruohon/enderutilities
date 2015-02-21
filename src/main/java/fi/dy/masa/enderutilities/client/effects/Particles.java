@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.client.effects;
 
 import java.util.Random;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 
@@ -23,8 +24,12 @@ public class Particles
         }
     }
 
-    public static void spawnParticlesAround(World world, EnumParticleTypes type, int x, int y, int z, int count, Random rand)
+    public static void spawnParticlesAround(World world, EnumParticleTypes type, BlockPos pos, int count, Random rand)
     {
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
+
         for (int i = 0; i < count; ++i)
         {
             int i1 = rand.nextInt(2) * 2 - 1;

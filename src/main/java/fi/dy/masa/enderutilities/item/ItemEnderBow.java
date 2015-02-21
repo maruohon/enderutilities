@@ -143,7 +143,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public EnumAction getItemUseAction(ItemStack stack)
     {
-        return EnumAction.bow;
+        return EnumAction.BOW;
     }
 
     /**

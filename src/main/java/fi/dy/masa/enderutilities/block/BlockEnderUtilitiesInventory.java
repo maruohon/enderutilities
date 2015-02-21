@@ -1,12 +1,13 @@
 package fi.dy.masa.enderutilities.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.Machine;
@@ -25,40 +26,44 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
         // This is for handling custom storage stuff like buffers, which are not regular
         // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
         if (machine != null)
         {
-            if (machine.breakBlock(world, x, y, z, block, meta) == true)
+            if (machine.breakBlock(world, pos, iBlockState) == true)
             {
-                world.removeTileEntity(x, y, z);
+                world.removeTileEntity(pos);
                 return;
             }
         }
 
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
         {
             TileEntityEnderUtilitiesInventory teeui = (TileEntityEnderUtilitiesInventory)te;
 
             for (int i = 0; i < teeui.getSizeInventory(); ++i)
             {
-                dropItemStacks(world, x, y, z, teeui.getStackInSlot(i), -1, false);
+                dropItemStacks(world, pos, teeui.getStackInSlot(i), -1, false);
             }
         }
 
-        world.removeTileEntity(x, y, z);
+        world.removeTileEntity(pos);
     }
 
-    public static void dropItemStacks(World world, int x, int y, int z, ItemStack stack, int amount, boolean dropFullStacks)
+    public static void dropItemStacks(World world, BlockPos pos, ItemStack stack, int amount, boolean dropFullStacks)
     {
         if (stack == null)
         {
             return;
         }
+
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
 
         double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
         double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
@@ -107,9 +112,9 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public int getComparatorInputOverride(World world, int x, int y, int z, int meta)
+    public int getComparatorInputOverride(World world, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if ((te instanceof IInventory) == false)
         {
             return 0;

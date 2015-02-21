@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -160,14 +162,14 @@ public class Machine
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)
      */
-    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public boolean breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
         return false;
     }
 
-    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    public int getLightValue(IBlockAccess world, BlockPos pos, IBlockState iBlockState)
     {
-        return block.getLightValue();
+        return world.getBlockState(pos).getBlock().getLightValue();
     }
 
     @SideOnly(Side.CLIENT)
@@ -242,7 +244,7 @@ public class Machine
     }
 
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    public void randomDisplayTick(World world, BlockPos pos, IBlockState iBlockState, Random rand)
     {
     }
 }

@@ -6,6 +6,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +14,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -59,9 +62,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState iBlockState, EntityLivingBase livingBase, ItemStack stack)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te == null || (te instanceof TileEntityEnderUtilities) == false)
         {
             return;
@@ -127,9 +130,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState iBlockState, EntityPlayer player, EnumFacing face, float offsetX, float offsetY, float offsetZ)
     {
-        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, x, y, z, side, world);
+        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, pos, face, world);
         if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
         {
             return false;
@@ -138,16 +141,16 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         // TODO: Maybe this should be moved into the Machine class?
         if (world.isRemote == false)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
+            TileEntity te = world.getTileEntity(pos);
             if (te == null || te instanceof TileEntityEnderUtilities == false)
             {
                 return false;
             }
 
-            Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+            Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
             if (machine != null && machine.isTileEntityValid(te) == true)
             {
-                player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+                player.openGui(EnderUtilities.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
             }
         }
 
@@ -155,36 +158,36 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
         // This is for handling custom storage stuff like buffers, which are not regular
         // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
         if (machine != null)
         {
-            machine.breakBlock(world, x, y, z, block, meta);
+            machine.breakBlock(world, pos, iBlockState);
         }
 
-        super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
+        super.breakBlock(world, pos, iBlockState);   // world.removeTileEntity(x, y, z);
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z)
+    public int getLightValue(IBlockAccess world, BlockPos pos)
     {
-        Block block = world.getBlock(x, y, z);
+        IBlockState iBlockState = world.getBlockState(pos);
+        Block block = iBlockState.getBlock();
         if (block != this)
         {
-            return block.getLightValue(world, x, y, z);
+            return block.getLightValue(world, pos);
         }
 
-        int meta = world.getBlockMetadata(x, y, z);
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        Machine machine = Machine.getMachine(this.blockIndex, block.getMetaFromState(iBlockState));
         if (machine != null)
         {
-            return machine.getLightValue(world, x, y, z, block, meta);
+            return machine.getLightValue(world, pos, iBlockState);
         }
 
-        return super.getLightValue(world, x, y, z);
+        return super.getLightValue(world, pos);
     }
 
     public int getBlockIndex()
@@ -200,12 +203,12 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    public void randomDisplayTick(World world, BlockPos pos, IBlockState iBlockState, Random rand)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
         if (machine != null)
         {
-            machine.randomDisplayTick(world, x, y, z, rand);
+            machine.randomDisplayTick(world, pos, iBlockState, rand);
         }
     }
 

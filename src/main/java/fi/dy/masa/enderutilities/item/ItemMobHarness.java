@@ -149,7 +149,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (entity instanceof EntityPlayer)
         {
             mode = (byte)2;
-            nbt.setString("TargetName", ((EntityPlayer)entity).getCommandSenderName());
+            nbt.setString("TargetName", ((EntityPlayer)entity).getName());
         }
         else
         {
@@ -183,7 +183,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (mode == (byte)1)
         {
             List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(player,
-                    AxisAlignedBB.getBoundingBox(player.posX - radius, player.posY - radius, player.posZ - radius,
+                    new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
                         player.posX + radius, player.posY + radius, player.posZ + radius));
 
             for (Entity entity : list)

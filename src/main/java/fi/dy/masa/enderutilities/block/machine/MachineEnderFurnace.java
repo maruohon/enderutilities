@@ -2,8 +2,10 @@ package fi.dy.masa.enderutilities.block.machine;
 
 import java.util.Random;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -36,15 +38,15 @@ public class MachineEnderFurnace extends Machine
     }
 
     @Override
-    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public boolean breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
 
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             // Drop the items from the output buffer
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-            BlockEnderUtilitiesInventory.dropItemStacks(world, x, y, z, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
+            BlockEnderUtilitiesInventory.dropItemStacks(world, pos, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
         }
     
         // We want the default BlockEnderUtilitiesInventory.breakBlock() to deal with the generic inventory
@@ -52,9 +54,9 @@ public class MachineEnderFurnace extends Machine
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    public int getLightValue(IBlockAccess world, BlockPos pos, IBlockState iBlockState)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
@@ -69,7 +71,7 @@ public class MachineEnderFurnace extends Machine
             }
         }
 
-        return block.getLightValue();
+        return world.getBlockState(pos).getBlock().getLightValue();
     }
 
     @SideOnly(Side.CLIENT)
@@ -133,14 +135,14 @@ public class MachineEnderFurnace extends Machine
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    public void randomDisplayTick(World world, BlockPos pos, IBlockState iBlockState, Random rand)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             if (((TileEntityEnderFurnace)te).isActive == true)
             {
-                Particles.spawnParticlesAround(world, "portal", x, y, z, 2, rand);
+                Particles.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
             }
         }
     }

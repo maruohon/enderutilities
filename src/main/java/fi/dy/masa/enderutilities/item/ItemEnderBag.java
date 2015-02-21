@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -11,9 +12,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -137,23 +140,24 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             float hy = (float)targetData.dPosY - targetData.posY;
             float hz = (float)targetData.dPosZ - targetData.posZ;
 
-            Block block = targetWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
+            IBlockState iBlockState = world.getBlockState(targetData.pos);
+            Block block = iBlockState.getBlock();
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-            block.onBlockActivated(targetWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
+            block.onBlockActivated(targetWorld, targetData.pos, iBlockState, player, targetData.facing, hx, hy, hz);
         }
 
         return stack;
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true || player.isSneaking() == false)
         {
             return true;
         }
 
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
             /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
@@ -163,7 +167,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return true;
             }*/
 
-            return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+            return super.onItemUse(stack, player, world, pos, face, hitX, hitY, hitZ);
         }
 
         return true;
@@ -289,7 +293,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
+    public boolean doesSneakBypassUse(World world, BlockPos pos, EntityPlayer player)
     {
         return false;
     }
