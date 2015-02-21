@@ -18,9 +18,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon eliteIcon;
-
     public ItemEnderPearlReusable()
     {
         this.setMaxStackSize(4);
@@ -87,6 +84,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         }
     }
 
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister iconRegister)
@@ -106,4 +104,5 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
         return this.itemIcon;
     }
+    */
 }

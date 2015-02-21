@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block.machine;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -44,7 +43,6 @@ public class Machine
     protected String toolClass;
     protected int harvestLevel;
     protected float blockHardness;
-    protected IIcon[] icons;
 
     public Machine(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
@@ -180,65 +178,6 @@ public class Machine
             if (getMachine(blockIndex, meta) != null)
             {
                 list.add(new ItemStack(block, 1, meta));
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side)
-    {
-        // These are for the rendering in ItemBlock form in inventories etc.
-
-        if (side == 0 || side == 1)
-        {
-            return this.icons[1]; // top
-        }
-        if (side == 3)
-        {
-            return this.icons[2]; // front
-        }
-
-        return this.icons[4]; // side (left)
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(TileEntityEnderUtilities te, int side)
-    {
-        // FIXME we should get the proper side (left, right, back) textures based on the TE rotation and the side argument
-        if (side == 0 || side == 1)
-        {
-            return this.icons[side];
-        }
-
-        if (te != null && side == te.getRotation())
-        {
-            return this.icons[2]; // front
-        }
-
-        return this.icons[4];
-    }
-
-    @SideOnly(Side.CLIENT)
-    protected void registerIcons(IIconRegister iconRegister)
-    {
-        this.icons = new IIcon[6];
-        this.icons[0] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".bottom");
-        this.icons[1] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".top");
-        this.icons[2] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".front");
-        this.icons[3] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".back");
-        this.icons[4] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".left");
-        this.icons[5] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".right");
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static void registerIcons(int blockIndex, IIconRegister iconRegister)
-    {
-        for (int meta = 0; meta < 16; ++meta)
-        {
-            Machine m = getMachine(blockIndex, meta);
-            if (m != null)
-            {
-                m.registerIcons(iconRegister);
             }
         }
     }

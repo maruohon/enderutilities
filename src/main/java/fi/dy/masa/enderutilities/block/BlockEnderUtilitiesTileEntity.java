@@ -211,41 +211,4 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             machine.randomDisplayTick(world, pos, iBlockState, rand);
         }
     }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(int side, int meta)
-    {
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
-        if (machine != null)
-        {
-            return machine.getIcon(side);
-        }
-
-        return this.blockIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
-    {
-        TileEntity te = blockAccess.getTileEntity(x, y, z);
-        if (te != null && te instanceof TileEntityEnderUtilities)
-        {
-            Machine machine = Machine.getMachine(this.blockIndex, blockAccess.getBlockMetadata(x, y, z));
-            if (machine != null)
-            {
-                return machine.getIcon((TileEntityEnderUtilities)te, side);
-            }
-        }
-
-        return this.getIcon(side, blockAccess.getBlockMetadata(x, y, z));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerBlockIcons(IIconRegister iconRegister)
-    {
-        Machine.registerIcons(this.blockIndex, iconRegister);
-    }
 }

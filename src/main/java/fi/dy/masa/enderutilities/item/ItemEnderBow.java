@@ -14,8 +14,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -34,10 +32,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
-    public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
-                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
+    /*public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
+                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};*/
 
     public ItemEnderBow()
     {
@@ -328,6 +324,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return 0;
     }
 
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
@@ -355,23 +352,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
     }
 
-    /**
-     * used to cycle through icons based on their used duration, i.e. for the bow
-     */
     @SideOnly(Side.CLIENT)
     public IIcon getItemIconForUseDuration(int par1)
     {
         return this.iconArray[par1];
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
@@ -379,16 +365,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -417,4 +393,5 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         return this.getItemIconForUseDuration(index);
     }
+    */
 }

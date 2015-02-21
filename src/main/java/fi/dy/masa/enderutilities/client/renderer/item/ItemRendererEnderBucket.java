@@ -1,16 +1,8 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 
 public class ItemRendererEnderBucket implements IItemRenderer
@@ -42,7 +34,7 @@ public class ItemRendererEnderBucket implements IItemRenderer
     @Override
     public void renderItem(ItemRenderType type, ItemStack stack, Object... data)
     {
-        if (stack == null || stack.getItem() == null || (stack.getItem() instanceof ItemEnderBucket) == false)
+        /*if (stack == null || stack.getItem() == null || (stack.getItem() instanceof ItemEnderBucket) == false)
         {
             return;
         }
@@ -161,10 +153,10 @@ public class ItemRendererEnderBucket implements IItemRenderer
         }
 
         GL11.glPopAttrib();
-        GL11.glPopMatrix();
+        GL11.glPopMatrix();*/
     }
 
-    private void renderQuad(ItemRenderType type, Tessellator t, IIcon iicon, float minX, float minY, float relWidth, float relHeight,
+    /*private void renderQuad(ItemRenderType type, Tessellator t, IIcon iicon, float minX, float minY, float relWidth, float relHeight,
             double layerShrinkX, double layerShrinkY, double layerShrinkZ)
     {
         int width = (int)(relWidth * iicon.getIconWidth());
@@ -217,5 +209,5 @@ public class ItemRendererEnderBucket implements IItemRenderer
                 layerShrinkX, layerShrinkY, layerShrinkZ);
 
         GL11.glPopMatrix();
-    }
+    }*/
 }

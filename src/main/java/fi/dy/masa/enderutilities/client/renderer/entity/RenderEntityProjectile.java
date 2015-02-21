@@ -1,81 +1,70 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
+import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.entity.IItemData;
 
-public class RenderEntityProjectile extends Render
+public class RenderEntityProjectile extends RenderSnowball
 {
-    private Item item;
+    //private final RenderItem renderItem;
+    //private Item item;
 
-    public RenderEntityProjectile(RenderManager renderManager, Item item)
+    public RenderEntityProjectile(RenderManager renderManager, Item item, RenderItem renderItem)
     {
-        super(renderManager);
-        this.item = item;
+        super(renderManager, item, renderItem);
+        //this.item = item;
+        //this.renderItem = renderItem;
     }
 
-    @Override
-    public void doRender(Entity entity, double x, double y, double z, float yaw, float brightness)
+    /*@Override
+    public void doRender(Entity entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        IIcon iicon;
-        if (entity instanceof IItemData)
-        {
-            iicon = this.item.getIconFromDamage(((IItemData)entity).getItemDamage(entity));
-        }
-        else
-        {
-            iicon = this.item.getIconFromDamage(0);
-        }
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.scale(0.5f, 0.5f, 0.5f);
+        GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
+        this.bindTexture(TextureMap.locationBlocksTexture);
+        //Tessellator tessellator = Tessellator.getInstance();
+        //WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 
-        if (iicon != null)
-        {
-            GlStateManager.pushMatrix();
-            GL11.glTranslatef((float)x, (float)y, (float)z);
-            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-            GL11.glScalef(0.5F, 0.5F, 0.5F);
-            this.bindEntityTexture(entity);
-            Tessellator tessellator = Tessellator.getInstance();
-            WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        this.renderItem.renderItemModel(this.getItemStack(entity));
+        //this.drawQuad(tessellator, iicon);
 
-            this.drawQuad(tessellator, iicon);
-            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-            GlStateManager.popMatrix();
-        }
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.popMatrix();
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
+    }*/
+
+    @Override
+    public ItemStack func_177082_d(Entity entity)
+    {
+        int damage = (entity instanceof IItemData ? ((IItemData)entity).getItemDamage(entity) : 0);
+        return new ItemStack(this.field_177084_a, 1, damage);
     }
 
-    @Override
+    /*@Override
     protected ResourceLocation getEntityTexture(Entity p_110775_1_)
     {
-        return TextureMap.locationItemsTexture;
-    }
+        return TextureMap.locationBlocksTexture;
+    }*/
 
-    private void drawQuad(Tessellator tessellator, WorldRenderer worldRenderer, IIcon iicon)
+    /*private void drawQuad(Tessellator tessellator, WorldRenderer worldRenderer)
     {
-        float minU = iicon.getMinU();
-        float maxU = iicon.getMaxU();
-        float minV = iicon.getMinV();
-        float maxV = iicon.getMaxV();
+        GlStateManager.rotate(180.0f - this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(-this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
 
-        GL11.glRotatef(180.0f - this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
-        GL11.glRotatef(-this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
-
-        GL11.glNormal3f(0.0f, 1.0f, 0.0f);
+        //GlStateManager.normal(0.0f, 1.0f, 0.0f);
         worldRenderer.startDrawingQuads();
         worldRenderer.addVertexWithUV(-0.5d, -0.25d, 0.0d, (double)minU, (double)maxV);
         worldRenderer.addVertexWithUV( 0.5d, -0.25d, 0.0d, (double)maxU, (double)maxV);
         worldRenderer.addVertexWithUV( 0.5d,  0.75d, 0.0d, (double)maxU, (double)minV);
         worldRenderer.addVertexWithUV(-0.5d,  0.75d, 0.0d, (double)minU, (double)minV);
         tessellator.draw();
-    }
+    }*/
 }

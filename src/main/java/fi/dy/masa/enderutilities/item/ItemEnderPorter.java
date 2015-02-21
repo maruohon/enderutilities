@@ -22,9 +22,6 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class ItemEnderPorter extends ItemLocationBoundModular
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public static final int ENDER_CHARGE_COST_INTER_DIM_TP = 5000;
     public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 25000;
     private static final int USE_TIME = 40;
@@ -168,6 +165,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         list.add(new ItemStack(this, 1, 1));
     }
 
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
@@ -200,9 +198,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
     }
 
-    /**
-     * Used to cycle through icons based on their used duration, i.e. for the bow
-     */
     @SideOnly(Side.CLIENT)
     public IIcon getItemIconForUseDuration(int index)
     {
@@ -218,14 +213,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return this.iconArray[index];
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
@@ -233,16 +220,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -276,4 +253,5 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         return this.getItemIconForUseDuration(index);
     }
+    */
 }

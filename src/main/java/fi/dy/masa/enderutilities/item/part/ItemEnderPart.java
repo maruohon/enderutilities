@@ -20,9 +20,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPart extends ItemModule
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemEnderPart()
     {
         super();
@@ -159,64 +156,6 @@ public class ItemEnderPart extends ItemModule
         return false;
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        // Ender Alloy
-        if (damage >= 0 && damage <= 2) { return this.iconArray[damage]; }
-
-        // Inactive Ender Core
-        if (damage >= 10 && damage <= 12) { return this.iconArray[damage - 7]; }
-
-        // Ender Core (active)
-        if (damage >= 15 && damage <= 17) { return this.iconArray[damage - 9]; }
-
-        // Ender Stick
-        if (damage == 20) { return this.iconArray[9]; }
-
-        // Ender Rope
-        if (damage == 21) { return this.iconArray[10]; }
-
-        // Ender Rope
-        if (damage == 40) { return this.iconArray[11]; }
-
-        // Mob Persistence
-        if (damage == 45) { return this.iconArray[12]; }
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-        this.iconArray = new IIcon[13];
-
-        int i = 0, j;
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
-        }
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
-        }
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
-        }
-
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
-    }
-
     public void activateEnderCore(ItemStack stack)
     {
         // Inactive Ender Cores
@@ -274,4 +213,64 @@ public class ItemEnderPart extends ItemModule
 
         return -1; // Invalid item (= non-module)
     }
+
+    /*
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconFromDamage(int damage)
+    {
+        // Ender Alloy
+        if (damage >= 0 && damage <= 2) { return this.iconArray[damage]; }
+
+        // Inactive Ender Core
+        if (damage >= 10 && damage <= 12) { return this.iconArray[damage - 7]; }
+
+        // Ender Core (active)
+        if (damage >= 15 && damage <= 17) { return this.iconArray[damage - 9]; }
+
+        // Ender Stick
+        if (damage == 20) { return this.iconArray[9]; }
+
+        // Ender Rope
+        if (damage == 21) { return this.iconArray[10]; }
+
+        // Ender Rope
+        if (damage == 40) { return this.iconArray[11]; }
+
+        // Mob Persistence
+        if (damage == 45) { return this.iconArray[12]; }
+
+        return this.itemIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
+        this.iconArray = new IIcon[13];
+
+        int i = 0, j;
+
+        for (j = 0; j < 3; ++i, ++j)
+        {
+            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
+        }
+
+        for (j = 0; j < 3; ++i, ++j)
+        {
+            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
+        }
+
+        for (j = 0; j < 3; ++i, ++j)
+        {
+            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
+        }
+
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
+    }
+    */
 }

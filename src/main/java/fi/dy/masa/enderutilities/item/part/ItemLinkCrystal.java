@@ -19,9 +19,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     public static final int TYPE_BLOCK = 1;
     public static final int TYPE_PORTAL = 2;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemLinkCrystal()
     {
         super();
@@ -59,6 +56,30 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         }
     }
 
+
+    @Override
+    public ModuleType getModuleType(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return ModuleType.TYPE_LINKCRYSTAL;
+        }
+
+        return ModuleType.TYPE_INVALID;
+    }
+
+    @Override
+    public int getModuleTier(ItemStack stack)
+    {
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        {
+            return stack.getItemDamage();
+        }
+
+        return -1;
+    }
+
+    /*
     @SideOnly(Side.CLIENT)
     @Override
     public IIcon getIconFromDamage(int damage)
@@ -82,26 +103,5 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
     }
-
-    @Override
-    public ModuleType getModuleType(ItemStack stack)
-    {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
-        {
-            return ModuleType.TYPE_LINKCRYSTAL;
-        }
-
-        return ModuleType.TYPE_INVALID;
-    }
-
-    @Override
-    public int getModuleTier(ItemStack stack)
-    {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
-        {
-            return stack.getItemDamage();
-        }
-
-        return -1;
-    }
+    */
 }

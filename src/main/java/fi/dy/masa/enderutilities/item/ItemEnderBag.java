@@ -19,8 +19,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -38,9 +36,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
     public static final int ENDER_CHARGE_COST = 200;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon iconArray[];
 
     public ItemEnderBag()
     {
@@ -313,6 +308,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
     }
 
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
@@ -342,14 +338,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".locked.open");
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
@@ -357,16 +345,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -405,4 +383,5 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // NOTE: We don't have an empty texture for the lock overlay, so we use the same bag texture in case it is not locked
         return this.iconArray[(index < this.iconArray.length ? index : 0)];
     }
+    */
 }

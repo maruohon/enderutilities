@@ -20,9 +20,6 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemEnderCapacitor()
     {
         super();
@@ -169,60 +166,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return this.useCharge(stack, amount, doUse);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        int damage = stack.getItemDamage();
-        if (damage >= 0 && damage <= 2)
-        {
-            if (this.getCharge(stack) > 0)
-            {
-                return this.iconArray[damage + 3];
-            }
-
-            return this.iconArray[damage];
-        }
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
-        this.iconArray = new IIcon[6];
-
-        for (int i = 0; i < 3; ++i)
-        {
-            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
-            this.iconArray[i + 3] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
-        }
-    }
-
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
@@ -261,4 +204,52 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
         return -1;
     }
+
+    /*
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean requiresMultipleRenderPasses()
+    {
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public int getRenderPasses(int metadata)
+    {
+        return 1;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(ItemStack stack, int renderPass)
+    {
+        int damage = stack.getItemDamage();
+        if (damage >= 0 && damage <= 2)
+        {
+            if (this.getCharge(stack) > 0)
+            {
+                return this.iconArray[damage + 3];
+            }
+
+            return this.iconArray[damage];
+        }
+
+        return this.itemIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
+        this.iconArray = new IIcon[6];
+
+        for (int i = 0; i < 3; ++i)
+        {
+            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
+            this.iconArray[i + 3] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
+        }
+    }
+    */
 }

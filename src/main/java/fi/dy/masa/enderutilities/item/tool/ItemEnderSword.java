@@ -35,20 +35,12 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 {
     private float damageVsEntity;
     private final Item.ToolMaterial material;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-    @SideOnly(Side.CLIENT)
-    private IIcon iconEmpty;
-    @SideOnly(Side.CLIENT)
-    String[] parts;
 
     public ItemEnderSword()
     {
@@ -353,114 +345,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
-                "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.iconArray = new IIcon[this.parts.length];
-        String prefix = this.getIconString() + ".";
-
-        for (int i = 0; i < this.parts.length; i++)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(prefix + this.parts[i]);
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        if (stack == null)
-        {
-            return this.itemIcon;
-        }
-
-        int i = 0;
-        int tier = 0;
-
-        switch(renderPass)
-        {
-            case 0: // 0: Rod
-                break;
-            case 1: // 1: Head
-                i += getToolMode(stack) + 1;
-
-                // Broken tool
-                if (this.isToolBroken(stack) == true)
-                {
-                    i += 3;
-                }
-                break;
-            case 2: // 2: Core
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier > 0) { i += tier + 6; }
-                else { return this.iconEmpty; }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier > 0) { i += tier + 9; }
-                else { return this.iconEmpty; }
-                break;
-            case 4: // 4: Link Crystal
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (tier > 0) { i += tier + 12; }
-                else { return this.iconEmpty; }
-                break;
-            default:
-                return this.iconEmpty;
-        }
-
-        if (i < 0 || i >= this.iconArray.length)
-        {
-            return this.iconEmpty;
-        }
-
-        return this.iconArray[i];
-    }
-
     /* Returns the number of installed modules of the given type. */
     @Override
     public int getModuleCount(ItemStack stack, ModuleType moduleType)
@@ -574,4 +458,96 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     {
         return UtilItemModular.setModule(stack, index, nbt);
     }
+
+    /*
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
+                "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
+        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
+        this.iconArray = new IIcon[this.parts.length];
+        String prefix = this.getIconString() + ".";
+
+        for (int i = 0; i < this.parts.length; i++)
+        {
+            this.iconArray[i] = iconRegister.registerIcon(prefix + this.parts[i]);
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean requiresMultipleRenderPasses()
+    {
+        return true;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public int getRenderPasses(int metadata)
+    {
+        return 5;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(ItemStack stack, int renderPass)
+    {
+        return this.getIcon(stack, renderPass, null, null, 0);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+    {
+        if (stack == null)
+        {
+            return this.itemIcon;
+        }
+
+        int i = 0;
+        int tier = 0;
+
+        switch(renderPass)
+        {
+            case 0: // 0: Rod
+                break;
+            case 1: // 1: Head
+                i += getToolMode(stack) + 1;
+
+                // Broken tool
+                if (this.isToolBroken(stack) == true)
+                {
+                    i += 3;
+                }
+                break;
+            case 2: // 2: Core
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+                if (tier > 0) { i += tier + 6; }
+                else { return this.iconEmpty; }
+                break;
+            case 3: // 3: Capacitor
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
+                if (tier > 0) { i += tier + 9; }
+                else { return this.iconEmpty; }
+                break;
+            case 4: // 4: Link Crystal
+                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (tier > 0) { i += tier + 12; }
+                else { return this.iconEmpty; }
+                break;
+            default:
+                return this.iconEmpty;
+        }
+
+        if (i < 0 || i >= this.iconArray.length)
+        {
+            return this.iconEmpty;
+        }
+
+        return this.iconArray[i];
+    }
+    */
 }
