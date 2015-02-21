@@ -47,6 +47,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public static final int OUTPUT_INTERVAL = 20; // Only try outputting items to an Ender Chest once every 1 seconds, to try to reduce server load
 
     protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
+    public static final int SLOT_INPUT = 0;
+    public static final int SLOT_FUEL = 1;
+    public static final int SLOT_OUTPUT = 2;
 
     @SideOnly(Side.CLIENT)
     public boolean isActive;
@@ -298,7 +301,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         // Output to Ender Chest enabled
-        if (this.outputMode == 1 && this.itemStacks[2] != null && this.itemStacks[2].stackSize > 0)
+        if (this.outputMode == 1 && this.itemStacks[SLOT_OUTPUT] != null && this.itemStacks[SLOT_OUTPUT].stackSize > 0)
         {
             if (++this.timer >= OUTPUT_INTERVAL)
             {
@@ -334,14 +337,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return false;
         }
 
-        if (this.itemStacks[2] == null)
+        if (this.itemStacks[SLOT_OUTPUT] == null)
         {
-            this.itemStacks[2] = this.outputBufferStack.copy();
-            this.itemStacks[2].stackSize = 0;
+            this.itemStacks[SLOT_OUTPUT] = this.outputBufferStack.copy();
+            this.itemStacks[SLOT_OUTPUT].stackSize = 0;
         }
 
-        int size = this.itemStacks[2].stackSize;
-        int max = Math.min(this.getInventoryStackLimit(), this.itemStacks[2].getMaxStackSize());
+        int size = this.itemStacks[SLOT_OUTPUT].stackSize;
+        int max = Math.min(this.getInventoryStackLimit(), this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
 
         if (size >= max)
         {
@@ -349,7 +352,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         int amount = Math.min(max - size, this.outputBufferAmount);
-        this.itemStacks[2].stackSize += amount;
+        this.itemStacks[SLOT_OUTPUT].stackSize += amount;
         this.outputBufferAmount -= amount;
         if (this.outputBufferAmount <= 0)
         {
@@ -361,7 +364,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     private boolean moveItemsToEnderChest()
     {
-        if (this.itemStacks[2] == null)
+        if (this.itemStacks[SLOT_OUTPUT] == null)
         {
             return false;
         }
@@ -389,24 +392,24 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
                 // Check that the target stack either is empty, or has the same item, same damage and same NBT
                 if (enderChestStack == null ||
                         ((invEnderChest.getInventoryStackLimit() - size) > 0 &&
-                        this.itemStacks[2].isItemEqual(enderChestStack) &&
-                        ItemStack.areItemStackTagsEqual(this.itemStacks[2], enderChestStack)))
+                        this.itemStacks[SLOT_OUTPUT].isItemEqual(enderChestStack) &&
+                        ItemStack.areItemStackTagsEqual(this.itemStacks[SLOT_OUTPUT], enderChestStack)))
                 {
                     if (enderChestStack == null)
                     {
-                        enderChestStack = this.itemStacks[2].copy();
+                        enderChestStack = this.itemStacks[SLOT_OUTPUT].copy();
                     }
 
-                    int moved = Math.min(this.itemStacks[2].stackSize, invEnderChest.getInventoryStackLimit() - size);
+                    int moved = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit() - size);
                     enderChestStack.stackSize = size + moved;
 
                     invEnderChest.setInventorySlotContents(i, enderChestStack);
-                    this.itemStacks[2].stackSize -= moved;
+                    this.itemStacks[SLOT_OUTPUT].stackSize -= moved;
                     movedSomething = true;
 
-                    if (this.itemStacks[2].stackSize <= 0)
+                    if (this.itemStacks[SLOT_OUTPUT].stackSize <= 0)
                     {
-                        this.itemStacks[2] = null;
+                        this.itemStacks[SLOT_OUTPUT] = null;
                         break;
                     }
                 }
@@ -428,36 +431,40 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     public boolean hasFuelAvailable()
     {
-        if (this.itemStacks[1] == null)
+        if (this.itemStacks[SLOT_FUEL] == null)
         {
             return false;
         }
 
-        return (getItemBurnTime(this.itemStacks[1]) > 0 || itemContainsFluidFuel(this.itemStacks[1]));
+        return (getItemBurnTime(this.itemStacks[SLOT_FUEL]) > 0 || itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]));
     }
 
+    /**
+     * Consumes one fuel item or one dose of fluid fuel.
+     * @return returns the amount of furnace burn time that was gained from the fuel
+     */
     public int consumeFuelItem()
     {
-        if (this.itemStacks[1] == null)
+        if (this.itemStacks[SLOT_FUEL] == null)
         {
             return 0;
         }
 
-        int burnTime = getItemBurnTime(this.itemStacks[1]);
+        int burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL]);
 
         // Regular solid fuels
         if (burnTime > 0)
         {
-            if (--this.itemStacks[1].stackSize <= 0)
+            if (--this.itemStacks[SLOT_FUEL].stackSize <= 0)
             {
-                this.itemStacks[1] = this.itemStacks[1].getItem().getContainerItem(this.itemStacks[1]);
+                this.itemStacks[SLOT_FUEL] = this.itemStacks[SLOT_FUEL].getItem().getContainerItem(this.itemStacks[SLOT_FUEL]);
             }
             this.burnTimeFresh = burnTime;
         }
         // IFluidContainerItem items with lava
-        else if (itemContainsFluidFuel(this.itemStacks[1]) == true)
+        else if (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true)
         {
-            burnTime = consumeFluidFuelDosage(this.itemStacks[1]);
+            burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
             this.burnTimeFresh = burnTime;
         }
 
@@ -465,30 +472,31 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     /**
-     * Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
-     * @return
+     * Returns true if the furnace can smelt an item. Checks the input slot for valid smeltable items and the output slots and buffer
+     * for stackable items and free space. Does not check the fuel.
+     * @return true if input and output item stacks allow the current item to be smelted
      */
     public boolean canSmelt()
     {
-        if (this.itemStacks[0] == null)
+        if (this.itemStacks[SLOT_INPUT] == null)
         {
             return false;
         }
         else
         {
-            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
+            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
             if (resultStack == null)
             {
                 return false;
             }
 
-            if (this.itemStacks[2] == null && this.outputBufferAmount == 0)
+            if (this.itemStacks[SLOT_OUTPUT] == null && this.outputBufferAmount == 0)
             {
                 return true;
             }
 
-            if (this.itemStacks[2] != null &&
-                (this.itemStacks[2].isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.itemStacks[2], resultStack) == false))
+            if (this.itemStacks[SLOT_OUTPUT] != null &&
+                (this.itemStacks[SLOT_OUTPUT].isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.itemStacks[SLOT_OUTPUT], resultStack) == false))
             {
                 return false;
             }
@@ -501,9 +509,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
             int amount = 0;
             int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
-            if (this.itemStacks[2] != null)
+            if (this.itemStacks[SLOT_OUTPUT] != null)
             {
-                amount = this.itemStacks[2].stackSize;
+                amount = this.itemStacks[SLOT_OUTPUT].stackSize;
             }
             amount = amount + this.outputBufferAmount + resultStack.stackSize;
 
@@ -518,25 +526,25 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     {
         if (this.canSmelt() == true)
         {
-            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[0]);
+            ItemStack resultStack = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
             int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
 
-            if (this.itemStacks[2] == null)
+            if (this.itemStacks[SLOT_OUTPUT] == null)
             {
-                this.itemStacks[2] = resultStack.copy();
-                this.itemStacks[2].stackSize = 0;
+                this.itemStacks[SLOT_OUTPUT] = resultStack.copy();
+                this.itemStacks[SLOT_OUTPUT].stackSize = 0;
             }
 
             int resultAmount = resultStack.stackSize;
 
-            if ((this.itemStacks[2].stackSize + resultAmount) <= stackLimit)
+            if ((this.itemStacks[SLOT_OUTPUT].stackSize + resultAmount) <= stackLimit)
             {
-                this.itemStacks[2].stackSize += resultAmount;
+                this.itemStacks[SLOT_OUTPUT].stackSize += resultAmount;
             }
             else
             {
-                int max = stackLimit - this.itemStacks[2].stackSize;
-                this.itemStacks[2].stackSize += max;
+                int max = stackLimit - this.itemStacks[SLOT_OUTPUT].stackSize;
+                this.itemStacks[SLOT_OUTPUT].stackSize += max;
                 this.outputBufferAmount += (resultAmount - max);
 
                 if (this.outputBufferStack == null)
@@ -546,9 +554,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
                 }
             }
 
-            if (--this.itemStacks[0].stackSize <= 0)
+            if (--this.itemStacks[SLOT_INPUT].stackSize <= 0)
             {
-                this.itemStacks[0] = null;
+                this.itemStacks[SLOT_INPUT] = null;
             }
         }
     }
