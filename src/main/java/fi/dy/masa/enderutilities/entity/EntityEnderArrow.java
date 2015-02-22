@@ -87,7 +87,7 @@ public class EntityEnderArrow extends EntityArrow
 
         this.posY = par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight() - 0.10000000149011612D;
         double d0 = par3EntityLivingBase.posX - par2EntityLivingBase.posX;
-        double d1 = par3EntityLivingBase.getBoundingBox().minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
+        double d1 = par3EntityLivingBase.getEntityBoundingBox().minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
         double d2 = par3EntityLivingBase.posZ - par2EntityLivingBase.posZ;
         double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
 
@@ -250,19 +250,19 @@ public class EntityEnderArrow extends EntityArrow
         }
 
         Entity entity = null;
-        List<?> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
 
         for (i = 0; i < list.size(); ++i)
         {
-            Entity entity1 = (Entity)list.get(i);
+            Entity entity1 = list.get(i);
 
             if (entity1.canBeCollidedWith() && (entity1 != this.shootingEntity || this.ticksInAir >= 5))
             {
                 f1 = 0.3F;
-                AxisAlignedBB axisalignedbb1 = entity1.getBoundingBox().expand((double)f1, (double)f1, (double)f1);
+                AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().expand((double)f1, (double)f1, (double)f1);
                 MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);
 
                 if (movingobjectposition1 != null)

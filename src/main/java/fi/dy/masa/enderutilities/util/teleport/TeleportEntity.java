@@ -93,7 +93,7 @@ public class TeleportEntity
 
             //if (entity.worldObj.isAirBlock((int)x, (int)y, (int)z) == true &&
             //    entity.worldObj.isAirBlock((int)x, (int)y + 1, (int)z) == true)
-            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.getBoundingBox()).isEmpty() == true)
+            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
             {
                 //entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
                 entity.setPositionAndUpdate(x, y, z);
@@ -171,7 +171,7 @@ public class TeleportEntity
         double offsetY = 1.0d;
 
         EnumFacing dir = EnumFacing.getFront(target.blockFace);
-        if (entity != null && entity.getBoundingBox() != null)
+        if (entity != null && entity.getEntityBoundingBox() != null)
         {
             offsetHoriz = entity.width / 2;
             offsetY = entity.height;
