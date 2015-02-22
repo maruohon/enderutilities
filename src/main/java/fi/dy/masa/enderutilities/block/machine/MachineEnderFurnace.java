@@ -18,9 +18,9 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 public class MachineEnderFurnace extends Machine
 {
 
-    public MachineEnderFurnace(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
+    public MachineEnderFurnace(EnumMachine machineType, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
-        super(index, meta, name, TEClass, tool, harvestLevel, hardness);
+        super(machineType, name, TEClass, tool, harvestLevel, hardness);
     }
 
     @Override

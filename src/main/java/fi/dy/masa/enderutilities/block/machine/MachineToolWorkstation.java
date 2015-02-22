@@ -11,9 +11,9 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class MachineToolWorkstation extends Machine
 {
-    public MachineToolWorkstation(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
+    public MachineToolWorkstation(EnumMachine machineType, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
-        super(index, meta, name, TEClass, tool, harvestLevel, hardness);
+        super(machineType, name, TEClass, tool, harvestLevel, hardness);
     }
 
     @Override

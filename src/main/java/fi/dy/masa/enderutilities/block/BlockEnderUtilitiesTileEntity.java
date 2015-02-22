@@ -6,6 +6,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -27,6 +28,7 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.machine.EnumMachine;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -45,16 +47,57 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     {
         super(index, name, hardness, material);
         this.blockIndex = index;
+        this.setDefaultState(this.blockState.getBaseState().withProperty(Machine.MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)));
         Machine.setBlockHardness(this, this.blockIndex);
         Machine.setBlockHarvestLevels(this, this.blockIndex);
     }
 
     @Override
+    public int damageDropped(IBlockState iBlockState)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
+        if (machine != null)
+        {
+            System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
+            return machine.damageDropped();
+        }
+
+        return this.getMetaFromState(iBlockState);
+    }
+
+    @Override
+    protected BlockState createBlockState()
+    {
+        return Machine.createBlockState(this, this.blockIndex);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta)
+    {
+        return this.getDefaultState().withProperty(Machine.MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state)
+    {
+        return ((EnumMachine)state.getValue(Machine.MACHINE_TYPE)).getMetadata();
+    }
+
+    @Override
+    public TileEntity createTileEntity(World world, IBlockState iBlockState)
+    {
+        System.out.println("createTileEntity(), iBlockState: " + iBlockState); // FIXME debug
+        return this.createNewTileEntity(world, this.getMetaFromState(iBlockState));
+    }
+
+    @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
+        System.out.println("createNewTileEntity(), meta: " + meta); // FIXME debug
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
+            System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
             return machine.createNewTileEntity();
         }
 

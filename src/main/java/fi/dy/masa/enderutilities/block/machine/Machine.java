@@ -1,17 +1,14 @@
 package fi.dy.masa.enderutilities.block.machine;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -22,6 +19,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 /**
  * Machine specific data, such as icons.
@@ -29,32 +32,29 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class Machine
 {
-    protected static TIntObjectHashMap<Machine> machines = new TIntObjectHashMap<Machine>();
+    public static final PropertyEnum MACHINE_TYPE = PropertyEnum.create("machinetype", EnumMachine.class);
 
-    public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
-    public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
-    public static Machine enderInfuser = new Machine(0, 2, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
+    protected static final Map<EnumMachine, Machine> machines = new HashMap<EnumMachine, Machine>();
+    protected static Machine enderFurnace = new MachineEnderFurnace(EnumMachine.ENDER_FURNACE, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
+    protected static Machine toolWorkstation = new MachineToolWorkstation(EnumMachine.TOOL_WORKSTATION, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
+    protected static Machine enderInfuser = new Machine(EnumMachine.ENDER_INFUSER, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
 
-    protected int blockIndex;
-    protected int blockMeta;
-    protected int machineIndex;
+    protected EnumMachine machineType;
     protected String blockName;
     protected Class<? extends TileEntityEnderUtilities> tileEntityClass;
     protected String toolClass;
     protected int harvestLevel;
     protected float blockHardness;
 
-    public Machine(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
+    public Machine(EnumMachine machineType, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
-        this.blockIndex = index;
-        this.blockMeta = meta;
-        this.machineIndex = (index << 4) | (meta & 0x0F);
+        this.machineType = machineType;
         this.blockName = name;
         this.tileEntityClass = TEClass;
         this.toolClass = tool;
         this.harvestLevel = harvestLevel;
         this.blockHardness = hardness;
-        machines.put(this.machineIndex, this);
+        machines.put(machineType, this);
     }
 
     public String getBlockName()
@@ -62,9 +62,29 @@ public class Machine
         return this.blockName;
     }
 
+    public static Machine getMachine(EnumMachine machineType)
+    {
+        return machines.get(machineType);
+    }
+
     public static Machine getMachine(int blockIndex, int meta)
     {
-        return machines.get((blockIndex << 4) | (meta & 0x0F));
+        return machines.get(EnumMachine.getMachineType(blockIndex, meta));
+    }
+
+    public static EnumMachine getDefaultState(int blockIndex)
+    {
+        return EnumMachine.getMachineType(blockIndex, 0);
+    }
+
+    public static BlockState createBlockState(Block block, int index)
+    {
+        return new BlockState(block, new IProperty[] {MACHINE_TYPE});
+    }
+
+    public int damageDropped()
+    {
+        return this.machineType.getMetadata();
     }
 
     public TileEntity createNewTileEntity()
@@ -111,10 +131,10 @@ public class Machine
 
         for (int meta = 0; meta < 16; ++meta)
         {
-            Machine m = getMachine(blockIndex, meta);
-            if (m != null)
+            Machine machine = getMachine(blockIndex, meta);
+            if (machine != null)
             {
-                names[meta] = m.blockName;
+                names[meta] = machine.blockName;
             }
             else
             {
@@ -129,10 +149,10 @@ public class Machine
     {
         for (int meta = 0; meta < 16; ++meta)
         {
-            Machine m = getMachine(blockIndex, meta);
-            if (m != null)
+            Machine machine = getMachine(blockIndex, meta);
+            if (machine != null)
             {
-                block.setHardness(m.blockHardness);
+                block.setHardness(machine.blockHardness);
                 break; // Since hardness is not meta sensitive, we set the hardness to the first one found for this block id
             }
         }
@@ -145,10 +165,10 @@ public class Machine
         // Wood: 0; Gold: 0; Stone: 1; Iron: 2; Diamond: 3
         for (int meta = 0; meta < 16; ++meta)
         {
-            Machine m = getMachine(blockIndex, meta);
-            if (m != null)
+            Machine machine = getMachine(blockIndex, meta);
+            if (machine != null)
             {
-                block.setHarvestLevel(m.toolClass, m.harvestLevel, block.getStateFromMeta(meta));
+                block.setHarvestLevel(machine.toolClass, machine.harvestLevel, block.getStateFromMeta(meta));
             }
         }
 

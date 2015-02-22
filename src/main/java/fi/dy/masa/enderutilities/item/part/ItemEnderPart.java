@@ -146,10 +146,7 @@ public class ItemEnderPart extends ItemModule
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
             {
-                if (--stack.stackSize <= 0)
-                {
-                    player.destroyCurrentEquippedItem();
-                }
+                --stack.stackSize;
             }
         }
 

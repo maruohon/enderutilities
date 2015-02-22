@@ -39,8 +39,6 @@ public class BlockEnderUtilities extends Block
         this.onNeighborBlockChange(world, pos, iBlockState, this);
     }
 
-
-
     @SideOnly(Side.CLIENT)
     public EnumWorldBlockLayer getBlockLayer()
     {
