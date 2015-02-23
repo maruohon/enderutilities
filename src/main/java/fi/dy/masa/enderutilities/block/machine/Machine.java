@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -32,9 +29,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
  */
 public class Machine
 {
-    public static final PropertyEnum MACHINE_TYPE = PropertyEnum.create("machinetype", EnumMachine.class);
-
-    protected static final Map<EnumMachine, Machine> machines = new HashMap<EnumMachine, Machine>();
+    protected static final Map<EnumMachine, Machine> MACHINES = new HashMap<EnumMachine, Machine>();
     protected static Machine enderFurnace = new MachineEnderFurnace(EnumMachine.ENDER_FURNACE, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
     protected static Machine toolWorkstation = new MachineToolWorkstation(EnumMachine.TOOL_WORKSTATION, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
     protected static Machine enderInfuser = new Machine(EnumMachine.ENDER_INFUSER, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
@@ -54,7 +49,7 @@ public class Machine
         this.toolClass = tool;
         this.harvestLevel = harvestLevel;
         this.blockHardness = hardness;
-        machines.put(machineType, this);
+        MACHINES.put(machineType, this);
     }
 
     public String getBlockName()
@@ -64,12 +59,12 @@ public class Machine
 
     public static Machine getMachine(EnumMachine machineType)
     {
-        return machines.get(machineType);
+        return MACHINES.get(machineType);
     }
 
     public static Machine getMachine(int blockIndex, int meta)
     {
-        return machines.get(EnumMachine.getMachineType(blockIndex, meta));
+        return MACHINES.get(EnumMachine.getMachineType(blockIndex, meta));
     }
 
     public static EnumMachine getDefaultState(int blockIndex)
@@ -77,9 +72,9 @@ public class Machine
         return EnumMachine.getMachineType(blockIndex, 0);
     }
 
-    public static BlockState createBlockState(Block block, int index)
+    public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
     {
-        return new BlockState(block, new IProperty[] {MACHINE_TYPE});
+        return iBlockState;
     }
 
     public int damageDropped()

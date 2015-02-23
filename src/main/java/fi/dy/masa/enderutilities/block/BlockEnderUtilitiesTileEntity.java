@@ -6,6 +6,9 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -17,7 +20,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,7 +37,11 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
-    public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+    public static final PropertyEnum MACHINE_TYPE = PropertyEnum.create("machinetype", EnumMachine.class);
+
+    //public static final PropertyEnum FURNACE_STATE = PropertyEnum.create("furnacestate", EnumFurnaceState.class);
+
     public int blockIndex;
 
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
@@ -47,7 +53,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     {
         super(index, name, hardness, material);
         this.blockIndex = index;
-        this.setDefaultState(this.blockState.getBaseState().withProperty(Machine.MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)).withProperty(FACING, EnumFacing.NORTH));
         Machine.setBlockHardness(this, this.blockIndex);
         Machine.setBlockHarvestLevels(this, this.blockIndex);
     }
@@ -68,21 +74,47 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     protected BlockState createBlockState()
     {
-        return Machine.createBlockState(this, this.blockIndex);
+        return new BlockState(this, new IProperty[] {MACHINE_TYPE, FACING});
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
         //System.out.println("getStateFromMeta(), meta: " + meta); // FIXME debug
-        return this.getDefaultState().withProperty(Machine.MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
+        return this.getDefaultState().withProperty(MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
     }
 
     @Override
     public int getMetaFromState(IBlockState iBlockState)
     {
         //System.out.println("getMetaFromState(), iBlockState: " + iBlockState); // FIXME debug
-        return ((EnumMachine)iBlockState.getValue(Machine.MACHINE_TYPE)).getMetadata();
+        return ((EnumMachine)iBlockState.getValue(MACHINE_TYPE)).getMetadata();
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te != null && te instanceof TileEntityEnderUtilities)
+        {
+            EnumFacing enumFacing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
+
+            if (enumFacing.getAxis() == EnumFacing.Axis.Y)
+            {
+                enumFacing = EnumFacing.NORTH;
+            }
+
+            iBlockState = iBlockState.withProperty(FACING, enumFacing);
+        }
+
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
+        if (machine != null)
+        {
+            //System.out.println("getActualState(), machine: " + machine); // FIXME debug
+            return machine.getActualState(iBlockState, worldIn, pos);
+        }
+
+        return iBlockState;
     }
 
     @Override
@@ -107,7 +139,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState iBlockState, EntityLivingBase livingBase, ItemStack stack)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState iBlockState, EntityLivingBase placer, ItemStack stack)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te == null || (te instanceof TileEntityEnderUtilities) == false)
@@ -115,56 +147,19 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             return;
         }
 
-        int yaw = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
-
         TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
-
         NBTTagCompound nbt = stack.getTagCompound();
 
         // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
         if (nbt != null && nbt.hasKey("TileEntityData", Constants.NBT.TAG_COMPOUND) == true)
         {
             teeu.readFromNBTCustom(nbt.getCompoundTag("TileEntityData"));
-
-            // Update the rotation
-            if (yaw < YAW_TO_DIRECTION.length)
-            {
-                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
-            }
         }
         else
         {
-            /*
-            if (livingBase.rotationPitch > 45.0f)
+            if (placer instanceof EntityPlayer)
             {
-                rot = (rot << 4) | 1;
-            }
-            else if (livingBase.rotationPitch < -45.0f)
-            {
-                rot = rot << 4;
-            }
-            else
-            {
-            */
-                // {DOWN, UP, NORTH, SOUTH, WEST, EAST}
-                /*switch (yaw)
-                {
-                    case 0: yaw = 2; break;
-                    case 1: yaw = 5; break;
-                    case 2: yaw = 3; break;
-                    case 3: yaw = 4; break;
-                    default:
-                }*/
-            //}
-
-            if (yaw < YAW_TO_DIRECTION.length)
-            {
-                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
-            }
-
-            if (livingBase instanceof EntityPlayer)
-            {
-                teeu.setOwner((EntityPlayer)livingBase);
+                teeu.setOwner((EntityPlayer)placer);
             }
 
             if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
@@ -172,6 +167,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
                 ((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
             }
         }
+
+        // Update the rotation
+        teeu.setRotation(placer.getHorizontalFacing().getOpposite().getIndex());
     }
 
     @Override

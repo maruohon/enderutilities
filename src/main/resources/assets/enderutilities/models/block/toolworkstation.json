@@ -1,0 +1,11 @@
+{
+    "parent": "enderutilities:block/orientable",
+    "textures": {
+        "bottom":   "enderutilities:blocks/tile.toolworkstation.bottom",
+        "top":      "enderutilities:blocks/tile.toolworkstation.top",
+        "front":    "enderutilities:blocks/tile.toolworkstation.front",
+        "back":     "enderutilities:blocks/tile.toolworkstation.side",
+        "left":     "enderutilities:blocks/tile.toolworkstation.side",
+        "right":    "enderutilities:blocks/tile.toolworkstation.side"
+    }
+}

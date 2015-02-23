@@ -1,0 +1,11 @@
+{
+    "parent": "enderutilities:block/orientable",
+    "textures": {
+        "bottom":   "enderutilities:blocks/tile.enderfurnace.top",
+        "top":      "enderutilities:blocks/tile.enderfurnace.top",
+        "front":    "enderutilities:blocks/tile.enderfurnace.front.on.slow",
+        "back":     "enderutilities:blocks/tile.enderfurnace.side",
+        "left":     "enderutilities:blocks/tile.enderfurnace.side",
+        "right":    "enderutilities:blocks/tile.enderfurnace.side"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "parent": "enderutilities:block/orientable",
+    "textures": {
+        "bottom":   "enderutilities:blocks/tile.enderinfuser.top",
+        "top":      "enderutilities:blocks/tile.enderinfuser.top",
+        "front":    "enderutilities:blocks/tile.enderinfuser.front",
+        "back":     "enderutilities:blocks/tile.enderinfuser.side",
+        "left":     "enderutilities:blocks/tile.enderinfuser.side",
+        "right":    "enderutilities:blocks/tile.enderinfuser.side"
+    }
+}

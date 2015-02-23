@@ -38,6 +38,7 @@ public enum EnumMachine implements IStringSerializable
         return MACHINE_LOOKUP.get((blockIndex << 4) | (meta & 0xF));
     }
 
+    @Override
     public String getName()
     {
         return this.name;
