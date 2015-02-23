@@ -17,7 +17,10 @@ public class EnderUtilitiesBlocks
     public static void init()
     {
         // Register blocks
-        if (Configs.disableBlockMachine_0.getBoolean(false) == false) { GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0); }
+        if (Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0);
+        }
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);

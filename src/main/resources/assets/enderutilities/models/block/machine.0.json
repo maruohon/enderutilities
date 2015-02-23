@@ -1,0 +1,12 @@
+{
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+        "particle": "enderutilities:blocks/tile.enderinfuser.left",
+        "up": "enderutilities:blocks/tile.enderinfuser.top",
+        "down": "enderutilities:blocks/tile.enderinfuser.bottom",
+        "north": "enderutilities:blocks/tile.enderinfuser.left",
+        "east": "enderutilities:blocks/tile.enderinfuser.left",
+        "south": "enderutilities:blocks/tile.enderinfuser.left",
+        "west": "enderutilities:blocks/tile.enderinfuser.left"
+    }
+}
