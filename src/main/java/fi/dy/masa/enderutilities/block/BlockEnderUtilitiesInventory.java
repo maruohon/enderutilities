@@ -30,7 +30,7 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     {
         // This is for handling custom storage stuff like buffers, which are not regular
         // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
         if (machine != null)
         {
             if (machine.breakBlock(world, pos, iBlockState) == true)

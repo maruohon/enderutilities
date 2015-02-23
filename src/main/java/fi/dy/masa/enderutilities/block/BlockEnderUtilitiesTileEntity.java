@@ -58,7 +58,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
         if (machine != null)
         {
-            System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
+            //System.out.println("damageDropped(), machine: " + machine); // FIXME debug
             return machine.damageDropped();
         }
 
@@ -74,30 +74,32 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
+        //System.out.println("getStateFromMeta(), meta: " + meta); // FIXME debug
         return this.getDefaultState().withProperty(Machine.MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
     }
 
     @Override
-    public int getMetaFromState(IBlockState state)
+    public int getMetaFromState(IBlockState iBlockState)
     {
-        return ((EnumMachine)state.getValue(Machine.MACHINE_TYPE)).getMetadata();
+        //System.out.println("getMetaFromState(), iBlockState: " + iBlockState); // FIXME debug
+        return ((EnumMachine)iBlockState.getValue(Machine.MACHINE_TYPE)).getMetadata();
     }
 
     @Override
     public TileEntity createTileEntity(World world, IBlockState iBlockState)
     {
-        System.out.println("createTileEntity(), iBlockState: " + iBlockState); // FIXME debug
+        //System.out.println("createTileEntity(), iBlockState: " + iBlockState); // FIXME debug
         return this.createNewTileEntity(world, this.getMetaFromState(iBlockState));
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        System.out.println("createNewTileEntity(), meta: " + meta); // FIXME debug
+        //System.out.println("createNewTileEntity(), meta: " + meta); // FIXME debug
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
+            //System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
             return machine.createNewTileEntity();
         }
 
