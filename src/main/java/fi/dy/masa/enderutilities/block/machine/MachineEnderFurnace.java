@@ -60,12 +60,12 @@ public class MachineEnderFurnace extends Machine
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-            if (teef.isBurning() == true)
+            if (teef.isBurningLast == true)
             {
                 return 15;
             }
             // No-fuel mode
-            else if (teef.burnTimeFresh != 0)
+            else if (teef.isCookingLast == true)
             {
                 return 7;
             }
@@ -102,12 +102,12 @@ public class MachineEnderFurnace extends Machine
 
         if (te != null && te instanceof TileEntityEnderFurnace && side == ((TileEntityEnderFurnace)te).getRotation())
         {
-            if (((TileEntityEnderFurnace)te).isActive == false)
+            if (((TileEntityEnderFurnace)te).isCookingLast == false)
             {
                 return this.iconFront;
             }
 
-            if (((TileEntityEnderFurnace)te).usingFuel == true)
+            if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
                 if (((TileEntityEnderFurnace)te).operatingMode == 1)
                 {
@@ -140,7 +140,7 @@ public class MachineEnderFurnace extends Machine
         TileEntity te = world.getTileEntity(x, y, z);
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
-            if (((TileEntityEnderFurnace)te).isActive == true)
+            if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
                 Particles.spawnParticlesAround(world, "portal", x, y, z, 2, rand);
             }

@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 {
+    private ContainerEnderFurnace container;
     private GuiButtonIcon buttonMode;
     private GuiButtonIcon buttonOutput;
     private TileEntityEnderFurnace teef;
@@ -23,6 +24,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     public GuiEnderFurnace(ContainerEnderFurnace container, TileEntityEnderFurnace te)
     {
         super(container, te);
+        this.container = container;
         this.teef = te;
     }
 
@@ -35,7 +37,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 4, 0x404025);
 
-        s = I18n.format("enderutilities.gui.label.outputbuffer", new Object[0]) + ": " + this.teef.getOutputBufferAmount();
+        s = I18n.format("enderutilities.gui.label.outputbuffer", new Object[0]) + ": " + this.container.outputBufferAmount;
         this.fontRendererObj.drawString(s, 60, 58, 0x404025);
 
         if (this.teef.getOwnerName() != null)
@@ -59,10 +61,10 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         }
 
         // Draw the burn progress flame
-        if (this.teef.usingFuel == true)
+        if (this.teef.isBurningLast == true)
         {
             int uOffset = 0;
-            int h = this.teef.getBurnTimeRemainingScaled(13);
+            int h = this.container.fuelProgress * 13 / 100;
             if (this.teef.operatingMode == 1)
             {
                 uOffset = 14;
@@ -72,17 +74,12 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         }
 
         // Draw the smelting progress arrow
-        if (this.teef.isActive == true)
+        if (this.teef.isCookingLast == true)
         {
             int vOffset = 0;
-            int w = 0;
+            int w = this.container.smeltingProgress * 24 / 100;
 
-            if (this.teef.cookTimeFresh != 0)
-            {
-                w = this.teef.cookTime * 24 / this.teef.cookTimeFresh;
-            }
-
-            if (this.teef.usingFuel == true)
+            if (this.teef.isBurningLast == true)
             {
                 vOffset = 16;
                 if (this.teef.operatingMode == 1)

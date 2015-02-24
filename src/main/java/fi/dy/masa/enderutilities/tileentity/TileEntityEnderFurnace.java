@@ -51,11 +51,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_OUTPUT = 2;
 
-    @SideOnly(Side.CLIENT)
-    public boolean isActive;
-    @SideOnly(Side.CLIENT)
-    public boolean usingFuel;
-
     public byte operatingMode;
     public byte outputMode;
     private int outputBufferAmount;
@@ -66,8 +61,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public int cookTime;            // The time the currently cooking item has been cooking for
     public int cookTimeFresh;       // The total time the currently cooking item will take to finish
 
-    private boolean isBurningLast;
-    private boolean isCookingLast;
+    public boolean isBurningLast;
+    public boolean isCookingLast;
 
     private int timer;
 
@@ -141,9 +136,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         if (this.operatingMode == 1) { flags |= 0x40; }
         if (this.outputMode == 1) { flags |= 0x80; }
         nbt.setByte("f", flags);
-        nbt.setInteger("b", this.outputBufferAmount);
-        nbt.setShort("btr", (short)this.burnTimeRemaining);
-        nbt.setBoolean("cs", this.canSmelt());
 
         return nbt;
     }
@@ -154,13 +146,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         NBTTagCompound nbt = packet.func_148857_g();
         byte flags = nbt.getByte("f");
         this.setRotation((byte)(flags & 0x07));
-        this.isActive = (flags & 0x10) == 0x10;
-        this.usingFuel = (flags & 0x20) == 0x20;
+        this.isCookingLast = (flags & 0x10) == 0x10;
+        this.isBurningLast = (flags & 0x20) == 0x20;
         this.operatingMode = (byte)((flags & 0x40) >> 6);
         this.outputMode = (byte)((flags & 0x80) >> 7);
-        this.outputBufferAmount = nbt.getInteger("b");
-        this.burnTimeRemaining = nbt.getShort("btr");
-        this.burnTimeFresh = nbt.getBoolean("cs") ? 1 : 0; // abusing this variable on the client side for light updates
 
         super.onDataPacket(net, packet);
 
