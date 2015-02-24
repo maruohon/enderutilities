@@ -117,7 +117,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         {
             boolean isModular = false;
             ItemStack capacitorStack = this.itemStacks[1];
-            IChargeable item;
+            IChargeable item = null;
 
             if (this.itemStacks[1].getItem() instanceof IChargeable)
             {
@@ -126,20 +126,14 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
             else if (this.itemStacks[1].getItem() instanceof IModular)
             {
                 capacitorStack = UtilItemModular.getSelectedModuleStack(this.itemStacks[1], ModuleType.TYPE_ENDERCAPACITOR);
-                if (capacitorStack == null || (capacitorStack.getItem() instanceof IChargeable) == false)
+                if (capacitorStack != null && (capacitorStack.getItem() instanceof IChargeable) == true)
                 {
-                    return;
+                    item = (IChargeable) capacitorStack.getItem();
+                    isModular = true;
                 }
-
-                item = (IChargeable) capacitorStack.getItem();
-                isModular = true;
-            }
-            else
-            {
-                return;
             }
 
-            if (this.amountStored > 0)
+            if (item != null && this.amountStored > 0)
             {
                 int charge = (this.amountStored >= 10 ? 10 : this.amountStored) * ENDER_CHARGE_PER_MILLIBUCKET;
                 int filled = item.addCharge(capacitorStack, charge, false);
@@ -174,7 +168,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
             }
 
             // A fully charged item is in the input slot, move it to the output slot, if possible
-            if (item.getCharge(capacitorStack) >= item.getCapacity(capacitorStack))
+            if (item != null && item.getCharge(capacitorStack) >= item.getCapacity(capacitorStack))
             {
                 this.isCharging = false;
                 this.chargeableItemCurrentCharge = 0;
