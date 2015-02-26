@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -36,6 +37,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
@@ -128,7 +130,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            System.out.println("plop");
             UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
         }
         // Hoe
@@ -136,10 +137,20 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             if (this.isToolPowered(stack) == true)
             {
-                return this.useHoeArea(stack, player, world, x, y, z, side, 1, 1);
+                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                if (this.useHoeArea(stack, player, world, x, y, z, side, 1, 1) == false)
+                {
+                    this.useHoeToPlantArea(stack, player, world, x, y, z, side, hitX, hitY, hitZ, 1, 1);
+                }
             }
-
-            return this.useHoe(stack, player, world, x, y, z, side);
+            else
+            {
+                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                if (this.useHoe(stack, player, world, x, y, z, side) == false)
+                {
+                    this.useHoeToPlant(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+                }
+            }
         }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
         else if (player != null && (player instanceof FakePlayer) == false)
@@ -224,6 +235,112 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
 
             return true;
+        }
+
+        return false;
+    }
+
+    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, int xIn, int yIn, int zIn, int side, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
+    {
+        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean retValue = false;
+
+        if (northSouth == false)
+        {
+            int tmp = rWidth;
+            rWidth = rHeight;
+            rHeight = tmp;
+        }
+
+        for (int x = xIn - rWidth; x <= (xIn + rWidth); ++x)
+        {
+            for (int z = zIn - rHeight; z <= (zIn + rHeight); ++z)
+            {
+                retValue |= this.useHoeToPlant(stack, player, world, x, yIn, z, side, hitX, hitY, hitZ);
+            }
+        }
+
+        return retValue;
+    }
+
+    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        if (UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == false)
+        {
+            return false;
+        }
+
+        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+
+        if (inv != null)
+        {
+            if (inv instanceof ISidedInventory)
+            {
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                ISidedInventory sided = (ISidedInventory) inv;
+                int[] slots = sided.getAccessibleSlotsFromSide(target.blockFace);
+                for (int slotNum : slots)
+                {
+                    if (this.plantItemFromInventorySlot(world, player, sided, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
+                    {
+                        UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+
+                        PacketHandler.INSTANCE.sendToAllAround(
+                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                    }
+                }
+            }
+            else
+            {
+                int size = inv.getSizeInventory();
+                for (int slotNum = 0; slotNum < size; ++slotNum)
+                {
+                    if (this.plantItemFromInventorySlot(world, player, inv, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
+                    {
+                        // Use Ender Charge if planting from a remote inventory
+                        if (this.getToolModeByName(toolStack, "DigMode") == 2)
+                        {
+                            UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                        }
+
+                        PacketHandler.INSTANCE.sendToAllAround(
+                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IInventory inv, int slotNum, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        ItemStack plantStack = inv.getStackInSlot(slotNum);
+        if (plantStack != null && plantStack.getItem() instanceof IPlantable)
+        {
+            ItemStack newStack = plantStack.copy();
+            if (newStack.tryPlaceItemIntoWorld(player, world, x, y, z, side, hitX, hitY, hitZ) == true)
+            {
+                if (newStack.stackSize > 0)
+                {
+                    inv.setInventorySlotContents(slotNum, newStack);
+                }
+                else
+                {
+                    inv.setInventorySlotContents(slotNum, null);
+                }
+
+                inv.markDirty();
+
+                if (inv instanceof InventoryPlayer)
+                {
+                    player.inventoryContainer.detectAndSendChanges();
+                }
+
+                return true;
+            }
         }
 
         return false;
@@ -540,6 +657,72 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
+    private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
+    {
+        byte mode = this.getToolModeByName(toolStack, "DropsMode");
+        // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
+
+        // 0: normal mode; do nothing
+        if (mode == 0)
+        {
+            return null;
+        }
+
+        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
+        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        {
+            return player.inventory;
+        }
+
+        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
+        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
+                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
+            {
+                return null;
+            }
+
+            // Bound to a vanilla Ender Chest
+            if ("minecraft:ender_chest".equals(target.blockName) == true)
+            {
+                return player.getInventoryEnderChest();
+            }
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return null;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return null;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+            // Block has changed since binding, or does not implement IInventory, abort
+            if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+            {
+                // Remove the bind
+                NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+                return null;
+            }
+
+            return (IInventory) te;
+        }
+
+        return null;
+    }
+
     public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
     {
         if (event.world == null || event.world.isRemote == true)
@@ -560,114 +743,77 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         boolean isSilk = event.isSilkTouching;
         int numDropsOriginal = event.drops.size();
 
-        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        if (inv != null)
         {
             Iterator<ItemStack> iter = event.drops.iterator();
-            while (iter.hasNext() == true)
-            {
-                ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                {
-                    if (player.inventory.addItemStackToInventory(stack.copy()) == true)
-                    {
-                        iter.remove();
-                    }
-                }
-            }
-        }
 
-        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
-        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
-        {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-            // Bound to a vanilla Ender Chest
-            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK
-                && target != null && "minecraft:ender_chest".equals(target.blockName) == true)
+            if (inv instanceof InventoryPlayer)
             {
-                Iterator<ItemStack> iter = event.drops.iterator();
                 while (iter.hasNext() == true)
                 {
                     ItemStack stack = iter.next();
                     if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        if (InventoryUtils.tryInsertItemStackToInventory(player.getInventoryEnderChest(), stack.copy(), target.blockFace) == true)
+                        if (player.inventory.addItemStackToInventory(stack.copy()) == true)
                         {
                             iter.remove();
                         }
                     }
                 }
             }
-            // Bound to regular inventories
             else
             {
-                // For cross-dimensional item teleport we require the third tier of active Ender Core
-                if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                    || target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+                while (iter.hasNext() == true)
                 {
-                    return;
-                }
-
-                World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-                if (targetWorld == null)
-                {
-                    return;
-                }
-
-                // Chunk load the target for 30 seconds
-                ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
-
-                // Block/inventory type link crystal
-                if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
-                {
-                    TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
-
-                    // Block has changed since binding, or does not implement IInventory, abort
-                    if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+                    ItemStack stack = iter.next();
+                    if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        // Remove the bind
-                        NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                        player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
-                        return;
-                    }
-
-                    if (te instanceof IInventory)
-                    {
-                        Iterator<ItemStack> iter = event.drops.iterator();
-                        while (iter.hasNext() == true)
+                        if (InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace) == true)
                         {
-                            ItemStack stack = iter.next();
-                            if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                            {
-                                if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack.copy(), target.blockFace) == true)
-                                {
-                                    iter.remove();
-                                }
-                            }
+                            iter.remove();
                         }
                     }
                 }
-                // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-                else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
-                {
-                    Iterator<ItemStack> iter = event.drops.iterator();
-                    while (iter.hasNext() == true)
-                    {
-                        ItemStack stack = iter.next();
-                        if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                        {
-                            EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
-                            entityItem.motionX = entityItem.motionZ = 0.0d;
-                            entityItem.motionY = 0.15d;
+            }
+        }
+        // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+        else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
-                            if (targetWorld.spawnEntityInWorld(entityItem) == true)
-                            {
-                                Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
-                                iter.remove();
-                            }
-                        }
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            Iterator<ItemStack> iter = event.drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                ItemStack stack = iter.next();
+                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                {
+                    EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
+                    entityItem.motionX = entityItem.motionZ = 0.0d;
+                    entityItem.motionY = 0.15d;
+
+                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                    {
+                        Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        iter.remove();
                     }
                 }
             }
