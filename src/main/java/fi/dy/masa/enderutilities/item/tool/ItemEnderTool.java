@@ -299,7 +299,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     if (this.plantItemFromInventorySlot(world, player, inv, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
                     {
                         // Use Ender Charge if planting from a remote inventory
-                        if (this.getToolModeByName(toolStack, "DigMode") == 2)
+                        if (this.getToolModeByName(toolStack, "DropsMode") == 2)
                         {
                             UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
                         }
