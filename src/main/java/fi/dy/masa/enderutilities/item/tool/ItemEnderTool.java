@@ -32,6 +32,7 @@ import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
@@ -133,7 +134,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Hoe
         else if (this.getToolType(stack).equals(ToolType.HOE) == true)
         {
-            return this.useHoe(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+            if (this.isToolPowered(stack) == true)
+            {
+                return this.useHoeArea(stack, player, world, x, y, z, side, 1, 1);
+            }
+
+            return this.useHoe(stack, player, world, x, y, z, side);
         }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
         else if (player != null && (player instanceof FakePlayer) == false)
@@ -163,7 +169,30 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return true;
     }
 
-    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, int xIn, int yIn, int zIn, int side, int rWidth, int rHeight)
+    {
+        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean retValue = false;
+
+        if (northSouth == false)
+        {
+            int tmp = rWidth;
+            rWidth = rHeight;
+            rHeight = tmp;
+        }
+
+        for (int x = xIn - rWidth; x <= (xIn + rWidth); ++x)
+        {
+            for (int z = zIn - rHeight; z <= (zIn + rHeight); ++z)
+            {
+                retValue |= this.useHoe(stack, player, world, x, yIn, z, side);
+            }
+        }
+
+        return retValue;
+    }
+
+    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side)
     {
         if (player.canPlayerEdit(x, y, z, side, stack) == false)
         {
@@ -215,11 +244,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         str = StatCollector.translateToLocal(str);
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
 
-        // Dig mode (normal/fast)
-        mode = this.getToolModeByName(stack, "Powered");
-        str = (mode == 0 ? "enderutilities.tooltip.item.normal" : "enderutilities.tooltip.item.fast");
-        str = StatCollector.translateToLocal(str);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
+        if (this.getToolType(stack).equals(ToolType.HOE) == true)
+        {
+            str = (this.isToolPowered(stack) ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
+            str = StatCollector.translateToLocal(str);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
+        }
+        else
+        {
+            // Dig mode (normal/fast)
+            str = (this.isToolPowered(stack) ? "enderutilities.tooltip.item.fast" : "enderutilities.tooltip.item.normal");
+            str = StatCollector.translateToLocal(str);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
+        }
 
         // Installed Ender Core type
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
@@ -1004,6 +1041,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         return this.iconArray[i];
+    }
+
+    public boolean isToolPowered(ItemStack stack)
+    {
+        return this.getToolModeByName(stack, "Powered") == 1;
     }
 
     public void changePoweredMode(ItemStack stack)
