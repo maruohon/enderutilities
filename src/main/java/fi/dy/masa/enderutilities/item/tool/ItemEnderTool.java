@@ -35,6 +35,9 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 
 import com.google.common.collect.HashMultimap;
@@ -42,6 +45,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
+import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -123,10 +127,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
+            System.out.println("plop");
             UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
         }
+        // Hoe
+        else if (this.getToolType(stack).equals(ToolType.HOE) == true)
+        {
+            return this.useHoe(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+        }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (player != null)
+        else if (player != null && (player instanceof FakePlayer) == false)
         {
             int origSlot = player.inventory.currentItem;
             int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
@@ -153,6 +163,43 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return true;
     }
 
+    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        if (player.canPlayerEdit(x, y, z, side, stack) == false)
+        {
+            return false;
+        }
+
+        UseHoeEvent event = new UseHoeEvent(player, stack, world, x, y, z);
+        if (MinecraftForge.EVENT_BUS.post(event))
+        {
+            return false;
+        }
+
+        if (event.getResult() == Result.ALLOW)
+        {
+            this.addToolDamage(stack, 1, player, player);
+            return true;
+        }
+
+        Block block = world.getBlock(x, y, z);
+        if (side != 0 && world.getBlock(x, y + 1, z).isAir(world, x, y + 1, z) && (block == Blocks.grass || block == Blocks.dirt))
+        {
+            if (world.isRemote == false)
+            {
+                Block blockFarmland = Blocks.farmland;
+                world.playSoundEffect(x + 0.5d, y + 0.5d, z + 0.5d, blockFarmland.stepSound.getStepResourcePath(), (blockFarmland.stepSound.getVolume() + 1.0f) / 2.0f, blockFarmland.stepSound.getPitch() * 0.8f);
+
+                world.setBlock(x, y, z, blockFarmland);
+                this.addToolDamage(stack, 1, player, player);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -169,7 +216,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
 
         // Dig mode (normal/fast)
-        mode = this.getToolModeByName(stack, "DigMode");
+        mode = this.getToolModeByName(stack, "Powered");
         str = (mode == 0 ? "enderutilities.tooltip.item.normal" : "enderutilities.tooltip.item.fast");
         str = StatCollector.translateToLocal(str);
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
@@ -407,8 +454,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    @Override
-    public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
+    public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
@@ -416,7 +462,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return false;
         }
 
-        int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+        amount = Math.min(amount, this.getMaxDamage(stack) - stack.getItemDamage());
         stack.damageItem(amount, living2);
 
         // Tool just broke
@@ -426,6 +472,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         return true;
+    }
+
+    @Override
+    public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
+    {
+        return this.addToolDamage(stack, 2, living1, living2);
     }
 
     @Override
@@ -442,24 +494,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
         if (this.isToolBroken(stack) == false && block.getBlockHardness(world, x, y, z) > 0.0f)
         {
-            int dmg = 1;
-
             // Fast mode uses double the durability
-            if (this.getToolModeByName(stack, "DigMode") == 1)
-            {
-                dmg = 2;
-            }
+            int dmg = (this.getToolModeByName(stack, "Powered") == 1 ? 2 : 1);
 
-            dmg = Math.min(dmg, this.getMaxDamage(stack) - stack.getItemDamage());
-            stack.damageItem(dmg, living);
-
-            // Tool just broke
-            if (this.isToolBroken(stack) == true)
-            {
-                living.renderBrokenItemStack(stack);
-            }
-
-            return true;
+            return this.addToolDamage(stack, dmg, living, living);
         }
 
         return false;
@@ -486,7 +524,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         int numDropsOriginal = event.drops.size();
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == 1 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
         {
             Iterator<ItemStack> iter = event.drops.iterator();
             while (iter.hasNext() == true)
@@ -731,7 +769,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble,
         // 124 is the minimum for iron blocks @ hardness 5.0f (which is about the highest of "normal" blocks), 1474 on obsidian.
         // So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
-        if (this.getToolModeByName(stack, "DigMode") == 1)
+        if (this.getToolModeByName(stack, "Powered") == 1)
         {
             if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
             {
@@ -904,7 +942,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
 
                 // Fast mode uses the glow variation of the head
-                if (getToolModeByName(stack, "DigMode") != 0)
+                if (getToolModeByName(stack, "Powered") == 1)
                 {
                     i += 3;
                 }
@@ -968,14 +1006,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.iconArray[i];
     }
 
-    public void changeDigMode(ItemStack stack)
+    public void changePoweredMode(ItemStack stack)
     {
-        byte mode = this.getToolModeByName(stack, "DigMode");
+        byte mode = this.getToolModeByName(stack, "Powered");
         if (++mode > 1)
         {
             mode = 0;
         }
-        this.setToolModeByName(stack, "DigMode", mode);
+        this.setToolModeByName(stack, "Powered", mode);
     }
 
     public void changeDropsMode(ItemStack stack)
@@ -1009,7 +1047,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Just Toggle mode key: Change the dig mode
         if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            this.changeDigMode(stack);
+            this.changePoweredMode(stack);
         }
         // Shift + (Ctrl + ) Toggle mode
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
