@@ -151,7 +151,7 @@ public class EnderUtilitiesItems
         {
             ItemStack hoe = new ItemStack(enderTool, 1, 0);
             ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
-            //GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
 
         if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
