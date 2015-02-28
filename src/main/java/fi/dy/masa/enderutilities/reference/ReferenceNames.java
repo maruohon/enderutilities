@@ -5,6 +5,8 @@ public class ReferenceNames
     public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
 
+    public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
+
 
     public static final String NAME_TILE_MACHINE_0              = "enderfurnace"; // Legacy weight name... :p
 

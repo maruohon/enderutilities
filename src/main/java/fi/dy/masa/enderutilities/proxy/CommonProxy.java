@@ -10,6 +10,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
 import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.BlockEventHandler;
@@ -45,6 +46,7 @@ public abstract class CommonProxy implements IProxy
         int id = 0;
         EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_ARROW), id++, EnderUtilities.instance, 64, 3, true);
         EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE), id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEndermanFighter.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER), id++, EnderUtilities.instance, 64, 3, true);
     }
 
     @Override

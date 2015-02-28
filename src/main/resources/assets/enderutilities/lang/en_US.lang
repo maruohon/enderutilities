@@ -25,6 +25,14 @@ tile.enderutilities.toolworkstation.name=Ender Tool Workstation
 
 
 #############
+# Entities:
+#############
+entity.enderutilities.enderarrow.name=Ender Arrow
+entity.enderutilities.endermanfighter.name=Enderman Fighter
+entity.enderutilities.enderpearlreusable.name=Reusable Ender Pearl
+
+
+#############
 # Item names:
 #############
 

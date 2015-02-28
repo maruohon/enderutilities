@@ -40,6 +40,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -62,6 +63,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 {
     public static final int ENDER_CHARGE_COST = 50;
+    public static final int MODE_SUMMON = 3;
     private float damageVsEntity;
     private final Item.ToolMaterial material;
 
@@ -159,9 +161,15 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
+    public boolean hitEntity(ItemStack stack, EntityLivingBase targetEntity, EntityLivingBase attacker)
     {
-        return this.addToolDamage(stack, 1, living1, living2);
+        // Summon fighters mode
+        if (targetEntity != null && targetEntity.worldObj.isRemote == false && this.getSwordMode(stack) == MODE_SUMMON)
+        {
+            this.summonFighterEndermen(targetEntity.worldObj, targetEntity, 4);
+        }
+
+        return this.addToolDamage(stack, 1, targetEntity, attacker);
     }
 
     @Override
@@ -260,7 +268,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         byte mode = this.getSwordMode(toolStack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
 
-        if (mode == 0 || mode == 3)
+        if (mode == 0 || mode == MODE_SUMMON)
         {
             return;
         }
@@ -363,6 +371,32 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
     }
 
+    private void summonFighterEndermen(World world, EntityLivingBase targetEntity, int amount)
+    {
+        int count = 0;
+        for (int i = 0; i < 64; ++i)
+        {
+            double x = targetEntity.posX - 5.0d + world.rand.nextFloat() * 10.0d;
+            double z = targetEntity.posZ - 5.0d + world.rand.nextFloat() * 10.0d;
+
+            EntityEndermanFighter fighter = new EntityEndermanFighter(world);
+            fighter.setPosition(x, targetEntity.posY, z);
+            Block block = world.getBlock((int)x, (int)targetEntity.posY - 1, (int)z);
+
+            if (world.getCollidingBoundingBoxes(fighter, fighter.boundingBox).isEmpty()  == true && world.isAnyLiquid(fighter.boundingBox) == false
+                && block.getMaterial().blocksMovement() == true)
+            {
+                world.spawnEntityInWorld(fighter);
+                fighter.setRevengeTarget(targetEntity);
+
+                if (++count >= amount)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
     @Override
     public boolean isItemTool(ItemStack stack)
     {
@@ -444,9 +478,11 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     public Multimap getAttributeModifiers(ItemStack stack)
     {
         double dmg = this.damageVsEntity;
-        if (this.isToolBroken(stack) == true)
+
+        // Broken sword, or in Summon fighters mode, only deal minimal damage directly
+        if (this.isToolBroken(stack) == true || this.getSwordMode(stack) == 3)
         {
-            dmg = 1.0d;
+            dmg = 0.0d;
         }
 
         Multimap<String, AttributeModifier> multimap = HashMultimap.create();
@@ -480,7 +516,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     {
         byte mode = this.getSwordMode(stack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
-        if (++mode > 3)
+        if (++mode > MODE_SUMMON)
         {
             mode = 0;
         }
@@ -648,7 +684,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     @Override
     public void registerIcons(IIconRegister iconRegister)
     {
-        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
+        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.4", "head.1.broken", "head.2.broken", "head.3.broken", "head.4.broken",
                 "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
         this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
@@ -704,14 +740,14 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 // Broken tool
                 if (this.isToolBroken(stack) == true)
                 {
-                    i += 3;
+                    i += 4;
                 }
                 break;
             case 2: // 2: Core
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier > 0)
+                if (tier >= 0)
                 {
-                    i += tier + 6;
+                    i += tier + 9;
                 }
                 else
                 {
@@ -720,9 +756,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 break;
             case 3: // 3: Capacitor
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier > 0)
+                if (tier >= 0)
                 {
-                    i += tier + 9;
+                    i += tier + 12;
                 }
                 else
                 {
@@ -741,7 +777,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 }
                 if (tier >= 0)
                 {
-                    i += tier + 13;
+                    i += tier + 15;
                 }
                 else
                 {
