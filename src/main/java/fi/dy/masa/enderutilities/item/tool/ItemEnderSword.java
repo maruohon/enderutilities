@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -9,38 +10,58 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 {
+    public static final int ENDER_CHARGE_COST = 50;
     private float damageVsEntity;
     private final Item.ToolMaterial material;
 
@@ -65,27 +86,40 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     // This is used for determining which weapon is better when mobs pick up items
+    @Override
     public float func_150931_i()
     {
         // FIXME no way to check if the item is broken without ItemStack and NBT data
         return this.damageVsEntity;
     }
 
-    /**
-     * Return the maxDamage for this ItemStack. Defaults to the maxDamage field in this item, 
-     * but can be overridden here for other sources such as NBT.
-     *
-     * @param stack The itemstack that is damaged
-     * @return the damage value
-     */
+    public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
+    {
+        //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
+        if (stack == null || this.isToolBroken(stack) == true)
+        {
+            return false;
+        }
+
+        amount = Math.min(amount, this.getMaxDamage(stack) - stack.getItemDamage());
+        stack.damageItem(amount, living2);
+
+        // Tool just broke
+        if (this.isToolBroken(stack) == true)
+        {
+            living1.renderBrokenItemStack(stack);
+        }
+
+        return true;
+    }
+
     @Override
     public int getMaxDamage(ItemStack stack)
     {
         /**
          * Returns the maximum damage an item can take.
          */
-        //return this.material.getMaxUses();
-        return 5;
+        return this.material.getMaxUses();
     }
 
     public boolean isToolBroken(ItemStack stack)
@@ -98,6 +132,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return false;
     }
 
+    @Override
     public float func_150893_a(ItemStack stack, Block block)
     {
         if (this.isToolBroken(stack) == true)
@@ -123,28 +158,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return 1.0f;
     }
 
-    /**
-     * Current implementations of this method in child classes do not use the entry argument beside ev. They just raise
-     * the damage on the stack.
-     */
+    @Override
     public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
     {
-        if (this.isToolBroken(stack) == false)
-        {
-            stack.damageItem(1, living1);
-
-            // Tool just broke
-            if (this.isToolBroken(stack) == true)
-            {
-                living1.renderBrokenItemStack(stack);
-            }
-
-            return true;
-        }
-
-        return false;
+        return this.addToolDamage(stack, 1, living1, living2);
     }
 
+    @Override
     public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase livingbase)
     {
         if (block.getBlockHardness(world, x, y, z) != 0.0f && this.isToolBroken(stack) == false)
@@ -164,6 +184,185 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return false;
     }
 
+    private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
+    {
+        byte mode = this.getSwordMode(toolStack);
+        // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
+
+        // 0: normal mode; do nothing
+        if (mode == 0)
+        {
+            return null;
+        }
+
+        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
+        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        {
+            return player.inventory;
+        }
+
+        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
+        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
+                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
+            {
+                return null;
+            }
+
+            // Bound to a vanilla Ender Chest
+            if ("minecraft:ender_chest".equals(target.blockName) == true)
+            {
+                return player.getInventoryEnderChest();
+            }
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return null;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return null;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+            // Block has changed since binding, or does not implement IInventory, abort
+            if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+            {
+                // Remove the bind
+                NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+                return null;
+            }
+
+            return (IInventory) te;
+        }
+
+        return null;
+    }
+
+    public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
+    {
+        if (this.isToolBroken(toolStack) == true || event.drops == null || event.drops.size() == 0)
+        {
+            return;
+        }
+
+        byte mode = this.getSwordMode(toolStack);
+        // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
+
+        if (mode == 0 || mode == 3)
+        {
+            return;
+        }
+
+        boolean transported = false;
+        EntityPlayer player = (EntityPlayer)event.source.getSourceOfDamage();
+
+        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        if (inv != null)
+        {
+            Iterator<EntityItem> iter = event.drops.iterator();
+
+            if (inv instanceof InventoryPlayer)
+            {
+                while (iter.hasNext() == true)
+                {
+                    ItemStack stack = iter.next().getEntityItem();
+                    if (stack != null)
+                    {
+                        if (player.inventory.addItemStackToInventory(stack.copy()) == true)
+                        {
+                            iter.remove();
+                            transported = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+                while (iter.hasNext() == true)
+                {
+                    ItemStack stack = iter.next().getEntityItem();
+                    if (stack != null)
+                    {
+                        if (InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace) == true)
+                        {
+                            iter.remove();
+                            transported = true;
+                        }
+                    }
+                }
+            }
+        }
+        // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+        else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            Iterator<EntityItem> iter = event.drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                ItemStack stack = iter.next().getEntityItem();
+                if (stack != null)
+                {
+                    EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
+                    entityItem.motionX = entityItem.motionZ = 0.0d;
+                    entityItem.motionY = 0.15d;
+
+                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                    {
+                        Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        iter.remove();
+                        transported = true;
+                    }
+                }
+            }
+        }
+
+        // At least something got transported somewhere...
+        if (transported == true)
+        {
+            // Transported the drops to somewhere remote
+            if (mode == 2)
+            {
+                UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+            }
+
+            PacketHandler.INSTANCE.sendToAllAround(
+                new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                    event.entity.posX + 0.5d, event.entity.posY + 0.5d, event.entity.posZ + 0.5d, 8, 0.2d, 0.3d),
+                        new NetworkRegistry.TargetPoint(event.entity.dimension, event.entity.posX, event.entity.posY, event.entity.posZ, 24.0d));
+        }
+    }
+
     @Override
     public boolean isItemTool(ItemStack stack)
     {
@@ -176,67 +375,72 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return false;
     }
 
-    /**
-     * ItemStack sensitive version of getItemEnchantability
-     * 
-     * @param stack The ItemStack
-     * @return the item echantability value
-     */
+    @Override
     public int getItemEnchantability(ItemStack stack)
     {
         return this.material.getEnchantability();
     }
 
-    /**
-     * Returns True is the item is renderer in full 3D when hold.
-     */
     @SideOnly(Side.CLIENT)
+    @Override
     public boolean isFull3D()
     {
         return true;
     }
 
-    /**
-     * returns the action that specifies what animation to play when the items is being used
-     */
+    @Override
     public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.block;
     }
 
-    /**
-     * How long it takes to use or consume an item
-     */
+    @Override
     public int getMaxItemUseDuration(ItemStack stack)
     {
         return 72000;
     }
 
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
+    @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
         return stack;
     }
 
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        if (world.isRemote == true)
+        {
+            return true;
+        }
+
+        TileEntity te = world.getTileEntity(x, y, z);
+        // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
+        // then bind the crystal to the block clicked on.
+        if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+            && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
+        {
+            UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean func_150897_b(Block block)
     {
         return block == Blocks.web;
     }
 
-    /**
-     * Return whether this item is repairable in an anvil.
-     */
+    @Override
     public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
     {
         return false;
     }
 
-    /**
-     * Gets a map of item attribute modifiers, used by ItemSword to increase hit damage.
-     */
+    @Override
     public Multimap getAttributeModifiers(ItemStack stack)
     {
         double dmg = this.damageVsEntity;
@@ -250,48 +454,143 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return multimap;
     }
 
-    private byte getToolMode(ItemStack stack)
+    public byte getSwordMode(ItemStack stack)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
+        if (stack != null && stack.getTagCompound() != null)
         {
-            nbt = new NBTTagCompound();
+            return stack.getTagCompound().getByte("Mode");
         }
 
-        return nbt.getByte("ToolMode");
+        return 0;
     }
 
-    public void toggleToolMode(ItemStack stack)
+    public void setSwordMode(ItemStack stack,byte value)
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
         }
 
-        byte mode = this.getToolMode(stack);
+        nbt.setByte("Mode", value);
+    }
 
-        // Ender Sword has 3 modes: Normal (= insert to player inventory), Send (= send to bound inventory) and Summon
-        if (++mode > 2)
+    public void changeSwordMode(ItemStack stack)
+    {
+        byte mode = this.getSwordMode(stack);
+        // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
+        if (++mode > 3)
         {
             mode = 0;
         }
+        this.setSwordMode(stack, mode);
+    }
 
-        nbt.setByte("ToolMode", mode);
-        stack.setTagCompound(nbt);
+    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
+    {
+        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (data != null && data.isOwner(player) == true)
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        }
     }
 
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null)
+        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             return;
         }
 
-        if (ReferenceKeys.getBaseKey(key) == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        // Shift + (Ctrl + ) Toggle mode
+        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.toggleToolMode(stack);
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+        }
+        // Shift + Alt + Toggle mode: Store the player's current location
+        else if (ReferenceKeys.keypressContainsShift(key) == true
+                && ReferenceKeys.keypressContainsAlt(key) == true
+                && ReferenceKeys.keypressContainsControl(key) == false)
+        {
+            UtilItemModular.setTarget(stack, player, true);
+        }
+        // Ctrl + Toggle mode: Toggle the sword mode: normal, drops to player, drops tp remote, summon fighters
+        else if (ReferenceKeys.keypressContainsControl(key) == true
+                && ReferenceKeys.keypressContainsShift(key) == false
+                && ReferenceKeys.keypressContainsAlt(key) == false)
+        {
+            this.changeSwordMode(stack);
+        }
+        // Alt + Toggle mode: Toggle the private/public mode
+        else if (ReferenceKeys.keypressContainsAlt(key) == true
+                && ReferenceKeys.keypressContainsShift(key) == false
+                && ReferenceKeys.keypressContainsControl(key) == false)
+        {
+            this.changePrivacyMode(stack, player);
+        }
+    }
+
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
+
+        // Drops mode
+        byte mode = this.getSwordMode(stack);
+        String str = (mode == 0 ? "enderutilities.tooltip.item.normal" : mode == 1 ? "enderutilities.tooltip.item.endertool.playerinv" : mode == 2 ? "enderutilities.tooltip.item.endertool.remote" : "enderutilities.tooltip.item.endersword.summon");
+        str = StatCollector.translateToLocal(str);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
+
+        // Installed Ender Core type
+        str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
+        if (coreTier >= 0)
+        {
+            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            coreType = StatCollector.translateToLocal(coreType);
+            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+        }
+        else
+        {
+            String preRed = EnumChatFormatting.RED.toString();
+            str += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.none") + rst;
+        }
+        list.add(str);
+
+        // Link Crystals installed
+        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+        {
+            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+            // Valid target set in the currently selected Link Crystal
+            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            {
+                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+            }
+            else
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+            }
+
+            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+            String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+        }
+
+        // Capacitor installed
+        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        {
+            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
         }
     }
 
@@ -302,7 +601,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
-        // "Fresh" items without NBT data: display the tips before the usual tooltip data
+        // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
+        // We check for the ench and Items tags so that creative spawned items won't show the tooltip
+        // once they have some other NBT data on them
         if (stack != null && stack.getTagCompound() == null)
         {
             this.addTooltips(stack, tmpList, verbose);
@@ -315,9 +616,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             {
                 list.addAll(tmpList);
             }
+            return;
         }
 
-        /*tmpList.clear();
+        tmpList.clear();
         this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
@@ -332,10 +634,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         else
         {
             list.addAll(tmpList);
-        }*/
+        }
         //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
-
-        super.addInformation(stack, player, list, advancedTooltips);
     }
 
     @SideOnly(Side.CLIENT)
@@ -375,14 +675,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return 5;
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
@@ -390,16 +682,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -417,7 +699,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             case 0: // 0: Rod
                 break;
             case 1: // 1: Head
-                i += getToolMode(stack) + 1;
+                i += getSwordMode(stack) + 1;
 
                 // Broken tool
                 if (this.isToolBroken(stack) == true)
@@ -427,18 +709,44 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 break;
             case 2: // 2: Core
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier > 0) { i += tier + 6; }
-                else { return this.iconEmpty; }
+                if (tier > 0)
+                {
+                    i += tier + 6;
+                }
+                else
+                {
+                    return this.iconEmpty;
+                }
                 break;
             case 3: // 3: Capacitor
                 tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier > 0) { i += tier + 9; }
-                else { return this.iconEmpty; }
+                if (tier > 0)
+                {
+                    i += tier + 9;
+                }
+                else
+                {
+                    return this.iconEmpty;
+                }
                 break;
             case 4: // 4: Link Crystal
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (tier > 0) { i += tier + 12; }
-                else { return this.iconEmpty; }
+                ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+                if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
+                {
+                    tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
+                }
+                else
+                {
+                    tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
+                if (tier >= 0)
+                {
+                    i += tier + 13;
+                }
+                else
+                {
+                    return this.iconEmpty;
+                }
                 break;
             default:
                 return this.iconEmpty;
@@ -452,21 +760,18 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return this.iconArray[i];
     }
 
-    /* Returns the number of installed modules of the given type. */
     @Override
     public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getModuleCount(stack, moduleType);
     }
 
-    /* Returns the maximum number of modules that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack)
     {
-        return 3;
+        return 5;
     }
 
-    /* Returns the maximum number of modules of the given type that can be installed on this item. */
     @Override
     public int getMaxModules(ItemStack stack, ModuleType moduleType)
     {
@@ -482,14 +787,12 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 1;
+            return 3;
         }
 
         return 0;
     }
 
-    /* Returns the maximum number of the given module that can be installed on this item.
-     * This is for exact module checking, instead of the general module type. */
     @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
@@ -512,54 +815,46 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return 0;
     }
 
-    /* Returns the (max, if multiple) tier of the installed module. */
     @Override
     public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getMaxModuleTier(stack, moduleType);
     }
 
-    /* Returns the tier of the selected module of the given type. */
     public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleTier(stack, moduleType);
     }
 
-    /* Returns the ItemStack of the (selected, if multiple) given module type. */
     @Override
     public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);
     }
 
-    /* Sets the selected modules' ItemStack of the given module type to the one provided. */
     public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
     }
 
-    /* Change the selected module to the next one, if any. */
     @Override
     public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
     {
-        return stack;
+        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
     }
 
-    /* Returns a list of all the installed modules. */
     @Override
     public List<NBTTagCompound> getAllModules(ItemStack stack)
     {
         return UtilItemModular.getAllModules(stack);
     }
 
-    /* Sets the modules to the ones provided in the list. */
     @Override
     public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
     {
         return UtilItemModular.setAllModules(stack, modules);
     }
 
-    /* Sets the module indicated by the position to the one provided in the compound tag. */
     @Override
     public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
     {

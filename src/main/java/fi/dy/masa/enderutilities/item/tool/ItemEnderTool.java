@@ -580,22 +580,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
 
-    /**
-     * Return the maxDamage for this ItemStack. Defaults to the maxDamage field in this item, 
-     * but can be overridden here for other sources such as NBT.
-     *
-     * @param stack The itemstack that is damaged
-     * @return the damage value
-     */
     @Override
     public int getMaxDamage(ItemStack stack)
     {
-        /**
-         * Returns the maximum damage an item can take.
-         */
-        //return this.func_150913_i().getMaxUses();
         return this.material.getMaxUses();
-        //return 5;
     }
 
     public boolean isToolBroken(ItemStack stack)
@@ -725,7 +713,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
     {
-        if (event.world == null || event.world.isRemote == true)
+        if (this.isToolBroken(toolStack) == true || event.world == null || event.world.isRemote == true)
         {
             return;
         }
@@ -865,12 +853,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return 1.0f;
     }
 
-    /**
-     * ItemStack sensitive version of {@link #canHarvestBlock(Block)}
-     * @param par1Block The block trying to harvest
-     * @param itemStack The itemstack used to harvest the block
-     * @return true if can harvest the block
-     */
     @Override
     public boolean canHarvestBlock(Block block, ItemStack stack)
     {
@@ -926,13 +908,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    /**
-     * Metadata-sensitive version of getStrVsBlock
-     * @param itemstack The Item Stack
-     * @param block The block the item is trying to break
-     * @param metadata The items current metadata
-     * @return The damage strength
-     */
     @Override
     public float getDigSpeed(ItemStack stack, Block block, int meta)
     {
@@ -981,31 +956,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return super.getDigSpeed(stack, block, meta);
     }
 
-    /**
-     * Queries the harvest level of this item stack for the specified tool class,
-     * Returns -1 if this tool is not of the specified type
-     * 
-     * @param stack This item stack instance
-     * @param toolClass Tool Class
-     * @return Harvest level, or -1 if not the specified tool type.
-     */
     @Override
     public int getHarvestLevel(ItemStack stack, String toolClass)
     {
         //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
-        if (stack == null)
+        if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(this.getToolClass(stack)) == true)
         {
-            return -1;
-        }
-
-        if (this.isToolBroken(stack) == true)
-        {
-            return -1;
-        }
-
-        if (toolClass.equals(this.getToolClass(stack)) == true)
-        {
-            return this.func_150913_i().getHarvestLevel();
+            return this.material.getHarvestLevel();
         }
 
         return -1;

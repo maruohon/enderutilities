@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.BlockEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
+import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -53,6 +54,7 @@ public abstract class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockEventHandler());
         MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
+        MinecraftForge.EVENT_BUS.register(new LivingDropsEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
         FMLCommonHandler.instance().bus().register(new TickHandler());
         FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
