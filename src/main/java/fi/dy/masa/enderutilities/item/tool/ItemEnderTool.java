@@ -281,7 +281,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 int[] slots = sided.getAccessibleSlotsFromSide(target.blockFace);
                 for (int slotNum : slots)
                 {
-                    if (this.plantItemFromInventorySlot(world, player, sided, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
+                    if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.blockFace) == true
+                        && this.plantItemFromInventorySlot(world, player, sided, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
                     {
                         UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
 
