@@ -57,18 +57,6 @@ public class EntityEndermanFighter extends EntityMob
         this.dataWatcher.addObject(18, new Byte((byte)0)); // isScreaming()
     }
 
-    /*@Override
-    public void writeEntityToNBT(NBTTagCompound p_70014_1_)
-    {
-        super.writeEntityToNBT(p_70014_1_);
-    }
-
-    @Override
-    public void readEntityFromNBT(NBTTagCompound p_70037_1_)
-    {
-        super.readEntityFromNBT(p_70037_1_);
-    }*/
-
     public boolean isPlayerHoldingSummonItem(EntityPlayer player)
     {
         if (player.getCurrentEquippedItem() != null)
@@ -149,7 +137,7 @@ public class EntityEndermanFighter extends EntityMob
         return null;
     }
 
-    private boolean shouldAttackPlayer(EntityPlayer player)
+    public boolean shouldAttackPlayer(EntityPlayer player)
     {
         // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
         // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
