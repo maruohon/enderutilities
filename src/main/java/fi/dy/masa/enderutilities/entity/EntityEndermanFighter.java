@@ -31,6 +31,7 @@ public class EntityEndermanFighter extends EntityMob
     private Entity lastEntityToAttack;
     private boolean isAggressive;
     private int timer;
+    private int idleTimer;
 
     public EntityEndermanFighter(World world)
     {
@@ -45,7 +46,7 @@ public class EntityEndermanFighter extends EntityMob
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(40.0d);
         this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.4d);
-        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(9.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(5.0d);
     }
 
     @Override
@@ -85,7 +86,7 @@ public class EntityEndermanFighter extends EntityMob
 
     public EntityPlayer getClosestVulnerablePlayer(double x, double y, double z, double distance)
     {
-        double d4 = -1.0D;
+        double d4 = -1.0d;
         EntityPlayer player = null;
 
         for (int i = 0; i < this.worldObj.playerEntities.size(); ++i)
@@ -100,22 +101,22 @@ public class EntityEndermanFighter extends EntityMob
 
                 if (playerTmp.isSneaking())
                 {
-                    d6 = distance * 0.800000011920929D;
+                    d6 = distance * 0.8d;
                 }
 
                 if (playerTmp.isInvisible())
                 {
                     float f = playerTmp.getArmorVisibility();
 
-                    if (f < 0.1F)
+                    if (f < 0.1f)
                     {
-                        f = 0.1F;
+                        f = 0.1f;
                     }
 
-                    d6 *= (double)(0.7F * f);
+                    d6 *= (double)(0.7f * f);
                 }
 
-                if ((distance < 0.0D || d5 < d6 * d6) && (d4 == -1.0D || d5 < d4))
+                if ((distance < 0.0d || d5 < d6 * d6) && (d4 == -1.0d || d5 < d4))
                 {
                     d4 = d5;
                     player = playerTmp;
@@ -131,14 +132,14 @@ public class EntityEndermanFighter extends EntityMob
     {
         if (this.timer == 0)
         {
-            EntityPlayer player = this.getClosestVulnerablePlayer(this.posX, this.posY, this.posZ, 32.0d);
+            EntityPlayer player = this.getClosestVulnerablePlayer(this.posX, this.posY, this.posZ, 64.0d);
 
             if (player != null)
             {
                 if (this.shouldAttackPlayer(player) == true)
                 {
                     this.isAggressive = true;
-                    this.worldObj.playSoundEffect(player.posX, player.posY, player.posZ, "mob.endermen.stare", 1.0F, 1.0F);
+                    this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.stare", 0.9f, 1.0f);
                     this.setScreaming(true);
                     return player;
                 }
@@ -150,8 +151,9 @@ public class EntityEndermanFighter extends EntityMob
 
     private boolean shouldAttackPlayer(EntityPlayer player)
     {
-        // The fighters always attack player that are not holding an Ender Sword in the Summon mode
-        if (this.isPlayerHoldingSummonItem(player) == true)
+        // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
+        // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
+        if (this.hasCustomNameTag() == true || this.isPlayerHoldingSummonItem(player) == true)
         {
             return false;
         }
@@ -182,7 +184,7 @@ public class EntityEndermanFighter extends EntityMob
 
         if (this.isWet())
         {
-            this.attackEntityFrom(DamageSource.drown, 1.0F);
+            this.attackEntityFrom(DamageSource.drown, 1.0f);
         }
 
         if (this.lastEntityToAttack != this.entityToAttack)
@@ -208,27 +210,8 @@ public class EntityEndermanFighter extends EntityMob
             this.worldObj.spawnParticle("portal", x, y, z, vx, -this.rand.nextDouble(), vz);
         }
 
-        /*if (this.worldObj.isDaytime() && this.worldObj.isRemote == false)
-        {
-            float f = this.getBrightness(1.0F);
-
-            if (f > 0.5F && this.worldObj.canBlockSeeTheSky(MathHelper.floor_double(this.posX),
-                    MathHelper.floor_double(this.posY),
-                    MathHelper.floor_double(this.posZ))
-                && this.rand.nextFloat() * 30.0F < (f - 0.4F) * 2.0F)
-            {
-                this.entityToAttack = null;
-                this.setScreaming(false);
-                this.isAggressive = false;
-                this.teleportRandomly();
-            }
-        }*/
-
         if (this.isWet() || this.isBurning())
         {
-            this.entityToAttack = null;
-            this.setScreaming(false);
-            this.isAggressive = false;
             this.teleportRandomly();
         }
 
@@ -248,24 +231,31 @@ public class EntityEndermanFighter extends EntityMob
         {
             if (this.entityToAttack != null)
             {
-                if (this.entityToAttack instanceof EntityPlayer && this.shouldAttackPlayer((EntityPlayer)this.entityToAttack))
+                if (this.entityToAttack instanceof EntityPlayer)
                 {
-                    if (this.entityToAttack.getDistanceSqToEntity(this) < 16.0D)
+                    if (this.shouldAttackPlayer((EntityPlayer)this.entityToAttack) == true)
                     {
-                        this.teleportRandomly();
-                    }
+                        if (this.entityToAttack.getDistanceSqToEntity(this) < 16.0d && this.worldObj.rand.nextFloat() < 0.03f)
+                        {
+                            this.teleportRandomly();
+                        }
 
-                    this.teleportDelay = 0;
-                    this.setRaging(true);
-                }
-                else if (this.entityToAttack.getDistanceSqToEntity(this) > 256.0D && this.teleportDelay++ >= 30 && this.teleportToEntity(this.entityToAttack))
-                {
-                    this.teleportDelay = 0;
-                    this.setRaging(false);
+                        this.setRaging(true);
+                    }
+                    else
+                    {
+                        this.setTarget(null);
+                        this.setRaging(false);
+                    }
                 }
                 else
                 {
                     this.setRaging(false);
+                }
+
+                if (this.entityToAttack != null && this.entityToAttack.getDistanceSqToEntity(this) > 256.0d && this.teleportDelay++ >= 30 && this.teleportToEntity(this.entityToAttack))
+                {
+                    this.teleportDelay = 0;
                 }
             }
             else
@@ -276,6 +266,32 @@ public class EntityEndermanFighter extends EntityMob
             }
         }
 
+        if (this.worldObj.isRemote == false && this.entityToAttack == null && this.isNoDespawnRequired() == false)
+        {
+            // Despawn ("teleport away") the entity sometime after 10 seconds of not attacking anything
+            if (++this.idleTimer >= 200 && this.worldObj.rand.nextFloat() < 0.03f)
+            {
+                for (int i = 0; i < 16; ++i)
+                {
+                    float vx = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                    float vy = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                    float vz = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                    double x = this.posX + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
+                    double y = this.posY + this.rand.nextDouble() * (double)this.height;
+                    double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
+                    this.worldObj.spawnParticle("portal", x, y, z, vx, vy, vz);
+                }
+
+                this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.portal", 0.7f, 1.0f);
+
+                this.setDead();
+            }
+        }
+        else
+        {
+            this.idleTimer = 0;
+        }
+
         super.onLivingUpdate();
     }
 
@@ -284,24 +300,24 @@ public class EntityEndermanFighter extends EntityMob
      */
     protected boolean teleportRandomly()
     {
-        double d0 = this.posX + (this.rand.nextDouble() - 0.5D) * 64.0D;
-        double d1 = this.posY + (double)(this.rand.nextInt(64) - 32);
-        double d2 = this.posZ + (this.rand.nextDouble() - 0.5D) * 64.0D;
+        double d0 = this.posX + (this.rand.nextDouble() - 0.5d) * 32.0d;
+        double d1 = this.posY + (this.rand.nextInt(8) - 4);
+        double d2 = this.posZ + (this.rand.nextDouble() - 0.5d) * 32.0d;
         return this.teleportTo(d0, d1, d2);
     }
 
     /**
      * Teleport the enderman to another entity
      */
-    protected boolean teleportToEntity(Entity p_70816_1_)
+    protected boolean teleportToEntity(Entity target)
     {
-        Vec3 vec3 = Vec3.createVectorHelper(this.posX - p_70816_1_.posX, this.boundingBox.minY + (double)(this.height / 2.0F) - p_70816_1_.posY + (double)p_70816_1_.getEyeHeight(), this.posZ - p_70816_1_.posZ);
+        Vec3 vec3 = Vec3.createVectorHelper(this.posX - target.posX, this.boundingBox.minY + (this.height / 2.0d) - target.posY + (double)target.getEyeHeight(), this.posZ - target.posZ);
         vec3 = vec3.normalize();
-        double d0 = 16.0D;
-        double d1 = this.posX + (this.rand.nextDouble() - 0.5D) * 8.0D - vec3.xCoord * d0;
-        double d2 = this.posY + (double)(this.rand.nextInt(16) - 8) - vec3.yCoord * d0;
-        double d3 = this.posZ + (this.rand.nextDouble() - 0.5D) * 8.0D - vec3.zCoord * d0;
-        return this.teleportTo(d1, d2, d3);
+        double d = 16.0d;
+        double x = this.posX + (this.rand.nextDouble() - 0.5d) * (d / 2) - vec3.xCoord * d;
+        double y = this.posY + (this.rand.nextInt((int)d) - (int)(d / 2)) - vec3.yCoord * d;
+        double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (d / 2) - vec3.zCoord * d;
+        return this.teleportTo(x, y, z);
     }
 
     /**
@@ -367,18 +383,18 @@ public class EntityEndermanFighter extends EntityMob
 
             for (int i = 0; i < short1; ++i)
             {
-                double d6 = (double)i / ((double)short1 - 1.0D);
-                float f = (this.rand.nextFloat() - 0.5F) * 0.2F;
-                float f1 = (this.rand.nextFloat() - 0.5F) * 0.2F;
-                float f2 = (this.rand.nextFloat() - 0.5F) * 0.2F;
-                double d7 = oldX + (this.posX - oldX) * d6 + (this.rand.nextDouble() - 0.5D) * (double)this.width * 2.0D;
+                double d6 = (double)i / ((double)short1 - 1.0d);
+                float f = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                float f1 = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                float f2 = (this.rand.nextFloat() - 0.5f) * 0.2f;
+                double d7 = oldX + (this.posX - oldX) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                 double d8 = oldY + (this.posY - oldY) * d6 + this.rand.nextDouble() * (double)this.height;
-                double d9 = oldZ + (this.posZ - oldZ) * d6 + (this.rand.nextDouble() - 0.5D) * (double)this.width * 2.0D;
+                double d9 = oldZ + (this.posZ - oldZ) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                 this.worldObj.spawnParticle("portal", d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
-            this.worldObj.playSoundEffect(oldX, oldY, oldZ, "mob.endermen.portal", 1.0F, 1.0F);
-            this.playSound("mob.endermen.portal", 1.0F, 1.0F);
+            this.worldObj.playSoundEffect(oldX, oldY, oldZ, "mob.endermen.portal", 0.7f, 1.0f);
+
             return true;
         }
     }

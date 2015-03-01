@@ -23,6 +23,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
@@ -166,7 +167,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         // Summon fighters mode
         if (targetEntity != null && targetEntity.worldObj.isRemote == false && this.getSwordMode(stack) == MODE_SUMMON)
         {
-            this.summonFighterEndermen(targetEntity.worldObj, targetEntity, 4);
+            this.summonFighterEndermen(targetEntity.worldObj, targetEntity, 3);
         }
 
         return this.addToolDamage(stack, 1, targetEntity, attacker);
@@ -373,11 +374,38 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     private void summonFighterEndermen(World world, EntityLivingBase targetEntity, int amount)
     {
-        int count = 0;
+        if (targetEntity instanceof EntityEndermanFighter)
+        {
+            return;
+        }
+
+        double r = 16.0d;
+        double x = targetEntity.posX;
+        double y = targetEntity.posY;
+        double z = targetEntity.posZ;
+        int numReTargeted = 0;
+        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(x - r, y - r, z - r, x + r, y + r, z + r);
+        List<EntityEndermanFighter> list = world.getEntitiesWithinAABB(EntityEndermanFighter.class, bb);
+        for (EntityEndermanFighter fighter : list)
+        {
+            if (fighter.getEntityToAttack() == null && fighter.hasCustomNameTag() == false)
+            {
+                fighter.setTarget(targetEntity);
+                numReTargeted++;
+            }
+        }
+
+        if (numReTargeted >= amount)
+        {
+            return;
+        }
+
+        int count = numReTargeted;
         for (int i = 0; i < 64; ++i)
         {
-            double x = targetEntity.posX - 5.0d + world.rand.nextFloat() * 10.0d;
-            double z = targetEntity.posZ - 5.0d + world.rand.nextFloat() * 10.0d;
+            x = targetEntity.posX - 5.0d + world.rand.nextFloat() * 10.0d;
+            y = targetEntity.posY - 2.0d + world.rand.nextFloat() * 4.0d;
+            z = targetEntity.posZ - 5.0d + world.rand.nextFloat() * 10.0d;
 
             EntityEndermanFighter fighter = new EntityEndermanFighter(world);
             fighter.setPosition(x, targetEntity.posY, z);
@@ -386,8 +414,18 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             if (world.getCollidingBoundingBoxes(fighter, fighter.boundingBox).isEmpty()  == true && world.isAnyLiquid(fighter.boundingBox) == false
                 && block.getMaterial().blocksMovement() == true)
             {
+                for (int j = 0; j < 16; ++j)
+                {
+                    float vx = (world.rand.nextFloat() - 0.5F) * 0.2F;
+                    float vy = (world.rand.nextFloat() - 0.5F) * 0.2F;
+                    float vz = (world.rand.nextFloat() - 0.5F) * 0.2F;
+                    world.spawnParticle("portal", x, y, z, vx, vy, vz);
+                }
+
+                world.playSoundEffect(x, y, z, "mob.endermen.portal", 1.0F, 1.0F);
+
                 world.spawnEntityInWorld(fighter);
-                fighter.setRevengeTarget(targetEntity);
+                fighter.setTarget(targetEntity);
 
                 if (++count >= amount)
                 {
