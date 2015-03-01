@@ -153,10 +153,9 @@ public class EnderUtilitiesItems
             ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
             GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
-
         if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
         {
-            //GameRegistry.addRecipe(new ItemStack(enderSword), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderSword, 1, 0), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
         }
 
         // Parts, modules etc.

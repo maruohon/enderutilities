@@ -82,7 +82,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
-        this.damageVsEntity = 6.0f + this.material.getDamageVsEntity();
+        this.damageVsEntity = 5.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
         this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
