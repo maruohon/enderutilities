@@ -52,9 +52,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return super.getUnlocalizedName();
     }
 
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
@@ -153,39 +150,36 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return 0;
     }
 
-    /**
-     * How long it takes to use or consume an item
-     */
     @Override
     public int getMaxItemUseDuration(ItemStack stack)
     {
         return 72000;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public boolean requiresMultipleRenderPasses()
     {
         return true;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public int getRenderPasses(int metadata)
     {
         return 1;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".stage.1");
@@ -220,33 +214,15 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return this.iconArray[index];
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public IIcon getIcon(ItemStack stack, int renderPass)
     {
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
     {
         int index = 0;

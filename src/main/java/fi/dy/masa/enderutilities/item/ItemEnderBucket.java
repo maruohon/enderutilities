@@ -1151,73 +1151,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.itemIconLinked = iconRegister.registerIcon(this.getIconString() + ".linked");
-
-        this.iconParts = new IIcon[12];
-        this.iconParts[0] = iconRegister.registerIcon(this.getIconString() + ".main.normal");
-        this.iconParts[1] = iconRegister.registerIcon(this.getIconString() + ".main.fill");
-        this.iconParts[2] = iconRegister.registerIcon(this.getIconString() + ".main.drain");
-        this.iconParts[3] = iconRegister.registerIcon(this.getIconString() + ".main.bind");
-        this.iconParts[4] = iconRegister.registerIcon(this.getIconString() + ".inside");
-        this.iconParts[5] = iconRegister.registerIcon(this.getIconString() + ".window");
-        this.iconParts[6] = iconRegister.registerIcon(this.getIconString() + ".linked.main.normal");
-        this.iconParts[7] = iconRegister.registerIcon(this.getIconString() + ".linked.main.fill");
-        this.iconParts[8] = iconRegister.registerIcon(this.getIconString() + ".linked.main.drain");
-        this.iconParts[9] = iconRegister.registerIcon(this.getIconString() + ".linked.main.bind");
-        this.iconParts[10] = iconRegister.registerIcon(this.getIconString() + ".linked.inside");
-        this.iconParts[11] = iconRegister.registerIcon(this.getIconString() + ".linked.window");
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIconPart(int i)
-    {
-        if (i >= this.iconParts.length)
-        {
-            i = 0;
-        }
-        return this.iconParts[i];
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        // FIXME we would actually need the whole texture for each mode...
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED && this.getBucketMode(stack) == OPERATION_MODE_NORMAL)
-        {
-            return this.itemIconLinked;
-        }
-
-        return this.itemIcon;
-    }
-
-    @Override
     public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
     {
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
@@ -1306,5 +1239,50 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             super.doKeyBindingAction(player, stack, key);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString());
+        this.itemIconLinked = iconRegister.registerIcon(this.getIconString() + ".linked");
+
+        this.iconParts = new IIcon[12];
+        this.iconParts[0] = iconRegister.registerIcon(this.getIconString() + ".main.normal");
+        this.iconParts[1] = iconRegister.registerIcon(this.getIconString() + ".main.fill");
+        this.iconParts[2] = iconRegister.registerIcon(this.getIconString() + ".main.drain");
+        this.iconParts[3] = iconRegister.registerIcon(this.getIconString() + ".main.bind");
+        this.iconParts[4] = iconRegister.registerIcon(this.getIconString() + ".inside");
+        this.iconParts[5] = iconRegister.registerIcon(this.getIconString() + ".window");
+        this.iconParts[6] = iconRegister.registerIcon(this.getIconString() + ".linked.main.normal");
+        this.iconParts[7] = iconRegister.registerIcon(this.getIconString() + ".linked.main.fill");
+        this.iconParts[8] = iconRegister.registerIcon(this.getIconString() + ".linked.main.drain");
+        this.iconParts[9] = iconRegister.registerIcon(this.getIconString() + ".linked.main.bind");
+        this.iconParts[10] = iconRegister.registerIcon(this.getIconString() + ".linked.inside");
+        this.iconParts[11] = iconRegister.registerIcon(this.getIconString() + ".linked.window");
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getIconPart(int i)
+    {
+        if (i >= this.iconParts.length)
+        {
+            i = 0;
+        }
+        return this.iconParts[i];
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconIndex(ItemStack stack)
+    {
+        // FIXME we would actually need the whole texture for each mode...
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED && this.getBucketMode(stack) == OPERATION_MODE_NORMAL)
+        {
+            return this.itemIconLinked;
+        }
+
+        return this.itemIcon;
     }
 }

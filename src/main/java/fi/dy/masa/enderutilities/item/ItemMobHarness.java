@@ -278,22 +278,22 @@ public class ItemMobHarness extends ItemEnderUtilities
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + StatCollector.translateToLocal("entity." + target + ".name") + rst);
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public boolean requiresMultipleRenderPasses()
     {
         return true;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public int getRenderPasses(int metadata)
     {
         return 1;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString());
@@ -302,17 +302,9 @@ public class ItemMobHarness extends ItemEnderUtilities
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".active");
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
+    @Override
+    public IIcon getIcon(ItemStack stack, int pass)
     {
         if (this.hasTarget(stack) == true)
         {

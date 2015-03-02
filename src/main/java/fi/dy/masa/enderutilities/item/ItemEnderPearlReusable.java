@@ -78,8 +78,8 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         return stack;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
         if (Configs.disableItemEnderPearl.getBoolean(false) == false)

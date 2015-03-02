@@ -607,6 +607,108 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
     }
 
+    @Override
+    public int getModuleCount(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getModuleCount(stack, moduleType);
+    }
+
+    @Override
+    public int getMaxModules(ItemStack stack)
+    {
+        return 5;
+    }
+
+    @Override
+    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    {
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
+        {
+            return 3;
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    {
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return 0;
+        }
+
+        IModule imodule = (IModule) moduleStack.getItem();
+        ModuleType moduleType = imodule.getModuleType(moduleStack);
+
+        // Allow the in-world/location and block/inventory type Link Crystals
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false
+            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
+            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+        {
+            return this.getMaxModules(toolStack, moduleType);
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getMaxModuleTier(stack, moduleType);
+    }
+
+    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
+    }
+
+    @Override
+    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getSelectedModuleStack(stack, moduleType);
+    }
+
+    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
+    {
+        return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+    }
+
+    @Override
+    public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
+    {
+        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
+    }
+
+    @Override
+    public List<NBTTagCompound> getAllModules(ItemStack stack)
+    {
+        return UtilItemModular.getAllModules(stack);
+    }
+
+    @Override
+    public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
+    {
+        return UtilItemModular.setAllModules(stack, modules);
+    }
+
+    @Override
+    public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
+    {
+        return UtilItemModular.setModule(stack, index, nbt);
+    }
+
+    @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -720,6 +822,20 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
+    public boolean requiresMultipleRenderPasses()
+    {
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public int getRenderPasses(int metadata)
+    {
+        return 5;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
     public void registerIcons(IIconRegister iconRegister)
     {
         this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.4", "head.1.broken", "head.2.broken", "head.3.broken", "head.4.broken",
@@ -735,30 +851,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
     @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
     {
         if (stack == null)
         {
@@ -832,106 +927,5 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
 
         return this.iconArray[i];
-    }
-
-    @Override
-    public int getModuleCount(ItemStack stack, ModuleType moduleType)
-    {
-        return UtilItemModular.getModuleCount(stack, moduleType);
-    }
-
-    @Override
-    public int getMaxModules(ItemStack stack)
-    {
-        return 5;
-    }
-
-    @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
-    {
-        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
-        {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
-        {
-            return 1;
-        }
-
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
-        {
-            return 3;
-        }
-
-        return 0;
-    }
-
-    @Override
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
-    {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
-        {
-            return 0;
-        }
-
-        IModule imodule = (IModule) moduleStack.getItem();
-        ModuleType moduleType = imodule.getModuleType(moduleStack);
-
-        // Allow the in-world/location and block/inventory type Link Crystals
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
-        {
-            return this.getMaxModules(toolStack, moduleType);
-        }
-
-        return 0;
-    }
-
-    @Override
-    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
-    {
-        return UtilItemModular.getMaxModuleTier(stack, moduleType);
-    }
-
-    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
-    {
-        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
-    }
-
-    @Override
-    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
-    {
-        return UtilItemModular.getSelectedModuleStack(stack, moduleType);
-    }
-
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
-    {
-        return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
-    }
-
-    @Override
-    public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
-    {
-        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
-    }
-
-    @Override
-    public List<NBTTagCompound> getAllModules(ItemStack stack)
-    {
-        return UtilItemModular.getAllModules(stack);
-    }
-
-    @Override
-    public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
-    {
-        return UtilItemModular.setAllModules(stack, modules);
-    }
-
-    @Override
-    public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
-    {
-        return UtilItemModular.setModule(stack, index, nbt);
     }
 }

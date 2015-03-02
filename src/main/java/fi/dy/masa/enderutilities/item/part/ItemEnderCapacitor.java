@@ -48,21 +48,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return super.getUnlocalizedName();
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        for (int i = 0; i <= 2; i++)
-        {
-            list.add(new ItemStack(this, 1, i));
-
-            // Add a fully charged version for creative tab and NEI
-            ItemStack tmp = new ItemStack(this, 1, i);
-            this.addCharge(tmp, this.getCapacityFromItemType(tmp), true);
-            list.add(tmp);
-        }
-    }
-
     public int getCapacityFromItemType(ItemStack stack)
     {
         int dmg = stack.getItemDamage();
@@ -190,52 +175,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return this.useCharge(stack, amount, doUse);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        int damage = stack.getItemDamage();
-        if (damage >= 0 && damage <= 2)
-        {
-            if (this.getCharge(stack) > 0)
-            {
-                return this.iconArray[damage + 3];
-            }
-
-            return this.iconArray[damage];
-        }
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
-        this.iconArray = new IIcon[6];
-
-        for (int i = 0; i < 3; ++i)
-        {
-            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
-            this.iconArray[i + 3] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
-        }
-    }
-
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
@@ -273,5 +212,52 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         }
 
         return -1;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        for (int i = 0; i <= 2; i++)
+        {
+            list.add(new ItemStack(this, 1, i));
+
+            // Add a fully charged version for creative tab and NEI
+            ItemStack tmp = new ItemStack(this, 1, i);
+            this.addCharge(tmp, this.getCapacityFromItemType(tmp), true);
+            list.add(tmp);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
+        this.iconArray = new IIcon[6];
+
+        for (int i = 0; i < 3; ++i)
+        {
+            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
+            this.iconArray[i + 3] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconIndex(ItemStack stack)
+    {
+        int damage = stack.getItemDamage();
+        if (damage >= 0 && damage <= 2)
+        {
+            if (this.getCharge(stack) > 0)
+            {
+                damage += 3;
+            }
+
+            return this.iconArray[damage];
+        }
+
+        return this.itemIcon;
     }
 }

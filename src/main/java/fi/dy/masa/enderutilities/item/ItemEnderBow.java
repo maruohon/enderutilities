@@ -330,15 +330,15 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return 0;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public boolean requiresMultipleRenderPasses()
     {
         return true;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public int getRenderPasses(int metadata)
     {
         return 1;
@@ -361,36 +361,23 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
      * used to cycle through icons based on their used duration, i.e. for the bow
      */
     @SideOnly(Side.CLIENT)
-    public IIcon getItemIconForUseDuration(int par1)
+    public IIcon getItemIconForUseDuration(int index)
     {
-        return this.iconArray[par1];
+        if (index < this.iconArray.length)
+        {
+            return this.iconArray[index];
+        }
+
+        return this.itemIcon;
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public IIcon getIcon(ItemStack stack, int renderPass)
     {
         return this.getIcon(stack, renderPass, null, null, 0);
     }
 
-    /**
-     * Player, Render pass, and item usage sensitive version of getIconIndex.
-     *
-     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
-     * @param renderPass The pass to get the icon for, 0 is default.
-     * @param player The player holding the item
-     * @param usingItem The item the player is actively using. Can be null if not using anything.
-     * @param useRemaining The ticks remaining for the active item.
-     * @return The icon index
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)

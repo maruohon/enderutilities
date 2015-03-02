@@ -47,44 +47,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         return super.getUnlocalizedName();
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
-        {
-            // FIXME Disabled the Portal type Link Crystal until it is actually used
-            for (int i = 0; i <= 1; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        if (damage >= 0 && damage <= 2)
-        {
-            return this.iconArray[damage];
-        }
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray = new IIcon[3];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
-    }
-
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
@@ -105,5 +67,43 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         }
 
         return -1;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
+        {
+            // FIXME Disabled the Portal type Link Crystal until it is actually used
+            for (int i = 0; i <= 1; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".location");
+        this.iconArray = new IIcon[3];
+
+        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
+        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
+        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getIconFromDamage(int damage)
+    {
+        if (damage >= 0 && damage <= 2)
+        {
+            return this.iconArray[damage];
+        }
+
+        return this.itemIcon;
     }
 }
