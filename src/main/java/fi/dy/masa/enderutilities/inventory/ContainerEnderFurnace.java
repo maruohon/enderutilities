@@ -22,6 +22,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
     public int fuelProgress;
     public int smeltingProgress;
     public int outputBufferAmount;
+    public boolean outputToEnderChest;
 
     public ContainerEnderFurnace(TileEntityEnderFurnace te, InventoryPlayer inventory)
     {
@@ -46,8 +47,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
         {
             icrafting = (ICrafting)this.crafters.get(i);
 
-            // Scale all values down by 8 (max burn time atm is 150 * COOKTIME = 180 000)
-            // We need to fit it in a short, where these get truncated to in non-local SMP
+            // Note: the value gets truncated to a short in non-local SMP
             if (this.teef.burnTimeRemaining != this.burnTimeRemaining
                 || this.teef.burnTimeFresh != this.burnTimeFresh
                 || this.teef.cookTime != this.cookTime
@@ -71,11 +71,17 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
                 icrafting.sendProgressBarUpdate(this, 1, this.teef.getOutputBufferAmount());
             }
 
+            if (this.teef.outputToEnderChest != this.outputToEnderChest)
+            {
+                icrafting.sendProgressBarUpdate(this, 2, this.teef.outputToEnderChest ? 1 : 0);
+            }
+
             this.burnTimeRemaining = this.teef.burnTimeRemaining;
             this.burnTimeFresh = this.teef.burnTimeFresh;
             this.cookTime = this.teef.cookTime;
             this.cookTimeFresh = this.teef.cookTimeFresh;
             this.outputBufferAmount = this.teef.getOutputBufferAmount();
+            this.outputToEnderChest = this.teef.outputToEnderChest;
         }
     }
 
@@ -95,6 +101,7 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
         }
         icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
         icrafting.sendProgressBarUpdate(this, 1, this.teef.getOutputBufferAmount());
+        icrafting.sendProgressBarUpdate(this, 2, this.teef.outputToEnderChest ? 1 : 0);
     }
 
     @SideOnly(Side.CLIENT)
@@ -108,6 +115,9 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
                 break;
             case 1:
                 this.outputBufferAmount = val;
+                break;
+            case 2:
+                this.outputToEnderChest = (val == 1);
                 break;
             default:
         }

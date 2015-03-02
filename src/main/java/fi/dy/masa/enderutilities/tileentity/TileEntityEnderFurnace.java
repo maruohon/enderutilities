@@ -51,8 +51,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_OUTPUT = 2;
 
-    public byte operatingMode;
-    public byte outputMode;
+    public boolean fastMode;
+    public boolean outputToEnderChest;
     private int outputBufferAmount;
     private ItemStack outputBufferStack;
 
@@ -70,8 +70,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.itemStacks = new ItemStack[3];
-        this.operatingMode = 0;
-        this.outputMode = 0;
+        this.fastMode = false;
+        this.outputToEnderChest = false;
         this.burnTimeRemaining = 0;
         this.cookTime = 0;
         this.timer = 0;
@@ -84,8 +84,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         super.readFromNBTCustom(nbt);
 
         byte flags              = nbt.getByte("Flags"); // Flags
-        this.operatingMode      = (byte)(flags & 0x01);
-        this.outputMode         = (byte)((flags >> 1) & 0x01);
+        this.fastMode           = (flags & 0x01) == 0x01;
+        this.outputToEnderChest = (flags & 0x02) == 0x02;
         this.burnTimeRemaining  = nbt.getInteger("BurnTimeRemaining");
         this.burnTimeFresh      = nbt.getInteger("BurnTimeFresh");
         this.cookTime           = nbt.getInteger("CookTime");
@@ -104,8 +104,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         super.writeToNBT(nbt);
 
         byte flags = 0;
-        flags |= (this.operatingMode & 0x01);
-        flags |= ((this.outputMode & 0x01) << 1);
+        if (this.fastMode == true)
+        {
+            flags |= 0x01;
+        }
+        if (this.outputToEnderChest == true)
+        {
+            flags |= 0x02;
+        }
+
         nbt.setByte("Flags", flags);
         nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
         nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
@@ -130,11 +137,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         byte flags = (byte)(this.getRotation() & 0x07);
-        // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
+        // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active
         if (canSmelt() == true) { flags |= 0x10; }
         if (isBurning() == true) { flags |= 0x20; }
-        if (this.operatingMode == 1) { flags |= 0x40; }
-        if (this.outputMode == 1) { flags |= 0x80; }
+        if (this.fastMode == true) { flags |= 0x40; }
         nbt.setByte("f", flags);
 
         return nbt;
@@ -148,8 +154,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         this.setRotation((byte)(flags & 0x07));
         this.isCookingLast = (flags & 0x10) == 0x10;
         this.isBurningLast = (flags & 0x20) == 0x20;
-        this.operatingMode = (byte)((flags & 0x40) >> 6);
-        this.outputMode = (byte)((flags & 0x80) >> 7);
+        this.fastMode = (flags & 0x40) == 0x40;
 
         super.onDataPacket(net, packet);
 
@@ -198,20 +203,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return;
         }
 
-        boolean needsSync = false;
         boolean dirty = false;
-
-        if (this.fillOutputSlotFromBuffer() == true)
-        {
-            needsSync = true;
-        }
+        this.fillOutputSlotFromBuffer();
 
         int cookTimeIncrement = COOKTIME_INC_SLOW;
         if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == false)
         {
             cookTimeIncrement = COOKTIME_INC_NOFUEL;
         }
-        else if (this.operatingMode == 1) // Fast mode
+        else if (this.fastMode == true)
         {
             cookTimeIncrement = COOKTIME_INC_FAST;
         }
@@ -220,7 +220,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         if (this.burnTimeRemaining > 0)
         {
             int btUse = BURNTIME_USAGE_SLOW;
-            if (this.operatingMode == 1) // Fast mode
+            if (this.fastMode == true)
             {
                 btUse = BURNTIME_USAGE_FAST;
             }
@@ -259,7 +259,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             if (this.cookTime >= this.cookTimeFresh)
             {
                 this.smeltItem();
-                needsSync = true;
 
                 // We can smelt the next item and we "overcooked" the last one, carry over the extra progress
                 if (this.canSmelt() == true && this.cookTime > this.cookTimeFresh)
@@ -290,7 +289,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         // Output to Ender Chest enabled
-        if (this.outputMode == 1 && this.itemStacks[SLOT_OUTPUT] != null && this.itemStacks[SLOT_OUTPUT].stackSize > 0)
+        if (this.outputToEnderChest == true && this.itemStacks[SLOT_OUTPUT] != null && this.itemStacks[SLOT_OUTPUT].stackSize > 0)
         {
             if (++this.timer >= OUTPUT_INTERVAL)
             {
@@ -299,7 +298,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
                 if (this.moveItemsToEnderChest() == true)
                 {
                     dirty = true;
-                    needsSync = true;
                 }
             }
         }
@@ -310,7 +308,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         // Check if we need to sync some stuff to the clients
-        if (needsSync == true || this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
+        if (this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
         {
             this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
         }
@@ -439,21 +437,21 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return 0;
         }
 
-        int burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL]);
+        int burnTime = 0;
 
+        // IFluidContainerItem items with lava
+        if (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true)
+        {
+            burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
+            this.burnTimeFresh = burnTime;
+        }
         // Regular solid fuels
-        if (burnTime > 0)
+        else if ((burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL])) > 0)
         {
             if (--this.itemStacks[SLOT_FUEL].stackSize <= 0)
             {
                 this.itemStacks[SLOT_FUEL] = this.itemStacks[SLOT_FUEL].getItem().getContainerItem(this.itemStacks[SLOT_FUEL]);
             }
-            this.burnTimeFresh = burnTime;
-        }
-        // IFluidContainerItem items with lava
-        else if (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true)
-        {
-            burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
             this.burnTimeFresh = burnTime;
         }
 
@@ -682,7 +680,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     @Override
     public boolean canInsertItem(int slot, ItemStack stack, int side)
     {
-        return this.isItemValidForSlot(slot, stack);
+        // Not allowed to insert into the output slot
+        /*if (slot == 2)
+        {
+            return false;
+        }*/
+
+        return slot != 2 && this.isItemValidForSlot(slot, stack);
     }
 
     @Override
@@ -695,7 +699,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         }
 
         // Allow pulling out output items from any side, but only when not outputting to Ender Chest
-        if (slot == 2 && (this.outputMode & 0x01) == 0)
+        if (slot == 2 && this.outputToEnderChest == false)
         {
             return true;
         }
@@ -723,22 +727,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         // 0: Operating mode (slow/eco vs. fast)
         if (element == 0)
         {
-            if (++this.operatingMode > 1)
-            {
-                this.operatingMode = 0;
-            }
-            this.markDirty();
+            this.fastMode = ! this.fastMode;
             this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (element == 1)
         {
-            if (++this.outputMode > 1)
-            {
-                this.outputMode = 0;
-            }
-            this.markDirty();
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.outputToEnderChest = ! this.outputToEnderChest;
         }
+
+        this.markDirty();
     }
 }

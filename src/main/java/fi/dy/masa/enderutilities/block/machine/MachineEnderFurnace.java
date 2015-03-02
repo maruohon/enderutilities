@@ -109,7 +109,7 @@ public class MachineEnderFurnace extends Machine
 
             if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
-                if (((TileEntityEnderFurnace)te).operatingMode == 1)
+                if (((TileEntityEnderFurnace)te).fastMode == true)
                 {
                     return this.iconFrontOnFast;
                 }

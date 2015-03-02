@@ -55,7 +55,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         int y = (this.height - this.ySize) / 2;
 
         // 1: Outputting to Ender Chest, draw the regular arrow instead of the crossed over arrow
-        if (this.teef.outputMode == 1)
+        if (this.container.outputToEnderChest == true)
         {
             this.drawTexturedModalRect(x + 114, y + 34, 176, 78, 24, 16);
         }
@@ -65,7 +65,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         {
             int uOffset = 0;
             int h = this.container.fuelProgress * 13 / 100;
-            if (this.teef.operatingMode == 1)
+            if (this.teef.fastMode == true)
             {
                 uOffset = 14;
             }
@@ -82,7 +82,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
             if (this.teef.isBurningLast == true)
             {
                 vOffset = 16;
-                if (this.teef.operatingMode == 1)
+                if (this.teef.fastMode == true)
                 {
                     vOffset = 32;
                 }
@@ -96,8 +96,8 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 
     protected void createButtons()
     {
-        int modeOffset = (this.teef.operatingMode == 1 ? 16 : 0);
-        int outputOffset = (this.teef.outputMode == 1 ? 16 : 0);
+        int modeOffset = (this.teef.fastMode == true ? 16 : 0);
+        int outputOffset = (this.container.outputToEnderChest == true ? 16 : 0);
 
         this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, this.guiTexture, 200, 14 + modeOffset);
         this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, this.guiTexture, 200, 46 + outputOffset);
