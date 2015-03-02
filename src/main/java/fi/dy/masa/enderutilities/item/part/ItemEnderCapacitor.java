@@ -65,16 +65,15 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     public int getCapacityFromItemType(ItemStack stack)
     {
-        if (stack.getItemDamage() == 0) { return 10000; } // Basic
-        if (stack.getItemDamage() == 1) { return 100000; } // Enhanced
-        if (stack.getItemDamage() == 2) { return 500000; } // Advanced
+        int dmg = stack.getItemDamage();
+        if (dmg == 0) { return 10000; } // Basic
+        if (dmg == 1) { return 100000; } // Enhanced
+        if (dmg == 2) { return 500000; } // Advanced
         return 10000; // Basic
     }
 
-    @Override
-    public int getCapacity(ItemStack stack)
+    private int getCapacity(ItemStack stack, NBTTagCompound nbt)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null || nbt.hasKey("EnderChargeCapacity", Constants.NBT.TAG_INT) == false)
         {
             return this.getCapacityFromItemType(stack);
@@ -84,16 +83,32 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @Override
+    public int getCapacity(ItemStack stack)
+    {
+        return this.getCapacity(stack, stack.getTagCompound());
+    }
+
+    private void setCapacity(NBTTagCompound nbt, int capacity)
+    {
+        nbt.setInteger("EnderChargeCapacity", capacity);
+    }
+
+    @Override
     public void setCapacity(ItemStack stack, int capacity)
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
         }
 
-        nbt.setInteger("EnderChargeCapacity", capacity);
-        stack.setTagCompound(nbt);
+        this.setCapacity(nbt, capacity);
+    }
+
+    private int getCharge(NBTTagCompound nbt)
+    {
+        return nbt.getInteger("EnderChargeAmount");
     }
 
     @Override
@@ -105,14 +120,26 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return 0;
         }
 
-        return nbt.getInteger("EnderChargeAmount");
+        return this.getCharge(nbt);
+    }
+
+    private void setCharge(NBTTagCompound nbt, int value)
+    {
+        nbt.setInteger("EnderChargeAmount", value);
     }
 
     @Override
     public int addCharge(ItemStack stack, int amount, boolean doCharge)
     {
-        int charge = this.getCharge(stack);
-        int capacity = this.getCapacity(stack);
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
+        }
+
+        int charge = this.getCharge(nbt);
+        int capacity = this.getCapacity(stack, nbt);
 
         if ((capacity - charge) < amount)
         {
@@ -121,14 +148,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
         if (doCharge == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt == null)
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            nbt.setInteger("EnderChargeAmount", charge + amount);
-            stack.setTagCompound(nbt);
+            this.setCharge(nbt, charge + amount);
         }
 
         return amount;
@@ -137,7 +157,13 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public int useCharge(ItemStack stack, int amount, boolean doUse)
     {
-        int charge = this.getCharge(stack);
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            return 0;
+        }
+
+        int charge = this.getCharge(nbt);
 
         if (charge < amount)
         {
@@ -146,14 +172,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
         if (doUse == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt == null)
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            nbt.setInteger("EnderChargeAmount", charge - amount);
-            stack.setTagCompound(nbt);
+            this.setCharge(nbt, charge - amount);
         }
 
         return amount;
@@ -185,14 +204,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return 1;
     }
 
-    /**
-     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
-     *
-     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
-     * @param stack to render for
-     * @param pass the multi-render pass
-     * @return the icon
-     */
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass)
