@@ -157,15 +157,20 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return 72000;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));
     }
 
-    /*
+    /*@SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int ticksRemaining)
+    {
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()

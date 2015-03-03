@@ -21,10 +21,9 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
+import fi.dy.masa.enderutilities.event.ModelEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 
 public class ClientProxy extends CommonProxy
@@ -51,6 +50,7 @@ public class ClientProxy extends CommonProxy
         InputEventHandler ieh = new InputEventHandler();
         FMLCommonHandler.instance().bus().register(ieh);
         MinecraftForge.EVENT_BUS.register(ieh);
+        MinecraftForge.EVENT_BUS.register(new ModelEventHandler());
     }
 
     @Override
@@ -73,17 +73,8 @@ public class ClientProxy extends CommonProxy
         //MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
 
         // FIXME early test stuff:
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_TILE_MACHINE_0, 0);
-
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_ARROW, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_BAG, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_BOW, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_BUCKET, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_LASSO, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE, 1);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_PORTER, 0);
-        EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_MOB_HARNESS, 0);
+        //EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_ARROW, 0);
+        //EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_LASSO, 0);
     }
 
     @Override

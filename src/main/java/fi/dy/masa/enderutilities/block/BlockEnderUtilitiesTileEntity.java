@@ -62,7 +62,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
         if (machine != null)
         {
-            System.out.println("damageDropped(), machine: " + machine);
+            //System.out.println("damageDropped(), machine: " + machine);
             return machine.damageDropped();
         }
 
@@ -121,18 +121,18 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     public TileEntity createTileEntity(World world, IBlockState iBlockState)
     {
-        System.out.println("createTileEntity(), iBlockState: " + iBlockState);
+        //System.out.println("createTileEntity(), iBlockState: " + iBlockState);
         return this.createNewTileEntity(world, this.getMetaFromState(iBlockState));
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        System.out.println("createNewTileEntity(), meta: " + meta);
+        //System.out.println("createNewTileEntity(), meta: " + meta);
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            System.out.println("createNewTileEntity(), machine: " + machine);
+            //System.out.println("createNewTileEntity(), machine: " + machine);
             return machine.createNewTileEntity();
         }
 

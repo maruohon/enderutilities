@@ -1,24 +1,24 @@
 {
     "variants": {
-        "machinetype=enderfurnace,facing=up":       { "model": "enderutilities:enderfurnace.off" },
-        "machinetype=enderfurnace,facing=down":     { "model": "enderutilities:enderfurnace.off" },
-        "machinetype=enderfurnace,facing=north":    { "model": "enderutilities:enderfurnace.off" },
-        "machinetype=enderfurnace,facing=east":     { "model": "enderutilities:enderfurnace.off", "y": 90 },
-        "machinetype=enderfurnace,facing=south":    { "model": "enderutilities:enderfurnace.off", "y": 180 },
-        "machinetype=enderfurnace,facing=west":     { "model": "enderutilities:enderfurnace.off", "y": 270 },
+        "machinetype=enderfurnace,isactive=false,facing=up":       { "model": "enderutilities:enderfurnace.off" },
+        "machinetype=enderfurnace,isactive=false,facing=down":     { "model": "enderutilities:enderfurnace.off" },
+        "machinetype=enderfurnace,isactive=false,facing=north":    { "model": "enderutilities:enderfurnace.off" },
+        "machinetype=enderfurnace,isactive=false,facing=east":     { "model": "enderutilities:enderfurnace.off", "y": 90 },
+        "machinetype=enderfurnace,isactive=false,facing=south":    { "model": "enderutilities:enderfurnace.off", "y": 180 },
+        "machinetype=enderfurnace,isactive=false,facing=west":     { "model": "enderutilities:enderfurnace.off", "y": 270 },
 
-        "machinetype=toolworkstation,facing=up":    { "model": "enderutilities:toolworkstation" },
-        "machinetype=toolworkstation,facing=down":  { "model": "enderutilities:toolworkstation" },
-        "machinetype=toolworkstation,facing=north": { "model": "enderutilities:toolworkstation" },
-        "machinetype=toolworkstation,facing=east":  { "model": "enderutilities:toolworkstation", "y": 90 },
-        "machinetype=toolworkstation,facing=south": { "model": "enderutilities:toolworkstation", "y": 180 },
-        "machinetype=toolworkstation,facing=west":  { "model": "enderutilities:toolworkstation", "y": 270 },
+        "machinetype=toolworkstation,isactive=false,facing=up":    { "model": "enderutilities:toolworkstation" },
+        "machinetype=toolworkstation,isactive=false,facing=down":  { "model": "enderutilities:toolworkstation" },
+        "machinetype=toolworkstation,isactive=false,facing=north": { "model": "enderutilities:toolworkstation" },
+        "machinetype=toolworkstation,isactive=false,facing=east":  { "model": "enderutilities:toolworkstation", "y": 90 },
+        "machinetype=toolworkstation,isactive=false,facing=south": { "model": "enderutilities:toolworkstation", "y": 180 },
+        "machinetype=toolworkstation,isactive=false,facing=west":  { "model": "enderutilities:toolworkstation", "y": 270 },
 
-        "machinetype=enderinfuser,facing=up":       { "model": "enderutilities:enderinfuser" },
-        "machinetype=enderinfuser,facing=down":     { "model": "enderutilities:enderinfuser" },
-        "machinetype=enderinfuser,facing=north":    { "model": "enderutilities:enderinfuser" },
-        "machinetype=enderinfuser,facing=east":     { "model": "enderutilities:enderinfuser", "y": 90 },
-        "machinetype=enderinfuser,facing=south":    { "model": "enderutilities:enderinfuser", "y": 180 },
-        "machinetype=enderinfuser,facing=west":     { "model": "enderutilities:enderinfuser", "y": 270 }
+        "machinetype=enderinfuser,isactive=false,facing=up":       { "model": "enderutilities:enderinfuser" },
+        "machinetype=enderinfuser,isactive=false,facing=down":     { "model": "enderutilities:enderinfuser" },
+        "machinetype=enderinfuser,isactive=false,facing=north":    { "model": "enderutilities:enderinfuser" },
+        "machinetype=enderinfuser,isactive=false,facing=east":     { "model": "enderutilities:enderinfuser", "y": 90 },
+        "machinetype=enderinfuser,isactive=false,facing=south":    { "model": "enderutilities:enderinfuser", "y": 180 },
+        "machinetype=enderinfuser,isactive=false,facing=west":     { "model": "enderutilities:enderinfuser", "y": 270 }
     }
 }
