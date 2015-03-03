@@ -6,12 +6,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -23,31 +23,16 @@ public class MachineEnderFurnace extends Machine
         super(machineType, name, TEClass, tool, harvestLevel, hardness);
     }
 
-    /*@Override
-    public BlockState createBlockState(Block block)
-    {
-        return new BlockState(block, new IProperty[] {MACHINE_TYPE, FACING, FURNACE_STATE});
-    }*/
-
     @Override
     public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
     {
-        /*TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = worldIn.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
-            iBlockState = super.getActualState(iBlockState, worldIn, pos);
-
-            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
+            //iBlockState = super.getActualState(iBlockState, worldIn, pos);
             // TODO fast mode
-            if (teef.isActive == true)
-            {
-                return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.FURNACE_STATE, EnumFurnaceState.STATE_ON_NORMAL);
-            }
-            else
-            {
-                return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.FURNACE_STATE, EnumFurnaceState.STATE_OFF);
-            }
-        }*/
+            return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.IS_ACTIVE, Boolean.valueOf(((TileEntityEnderFurnace)te).isActive));
+        }
 
         return iBlockState;
     }
@@ -100,26 +85,6 @@ public class MachineEnderFurnace extends Machine
             {
                 Particles.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
             }
-        }
-    }
-
-    public enum EnumFurnaceState implements IStringSerializable
-    {
-        STATE_OFF       ("off"),
-        STATE_ON_NORMAL ("on_normal"),
-        STATE_ON_FAST   ("on_fast");
-
-        private String state;
-
-        EnumFurnaceState(String state)
-        {
-            this.state = state;
-        }
-
-        @Override
-        public String getName()
-        {
-            return this.state;
         }
     }
 }

@@ -54,6 +54,17 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
         world.removeTileEntity(pos);
     }
 
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amount.
+     * It can be larger than the stackSize of stack; in that case stack is only the ItemStack template.
+     * However, if amount is < 0, then the stackSize of stack is used.
+     * @param world
+     * @param pos
+     * @param stack The template ItemStack of the dropped items.
+     * @param amount Amount of items to spawn; if positive, stack is only a template. If negative, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     */
     public static void dropItemStacks(World world, BlockPos pos, ItemStack stack, int amount, boolean dropFullStacks)
     {
         if (stack == null)
@@ -61,13 +72,9 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
             return;
         }
 
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-
-        double xr = world.rand.nextFloat() * -0.5d + 0.75d + x;
-        double yr = world.rand.nextFloat() * -0.5d + 0.75d + y;
-        double zr = world.rand.nextFloat() * -0.5d + 0.75d + z;
+        double x = world.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
+        double y = world.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
+        double z = world.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();
         double motionScale = 0.04d;
 
         if (amount < 0)
@@ -96,7 +103,7 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
             dropStack.stackSize = num;
             amount -= num;
 
-            EntityItem entityItem = new EntityItem(world, xr, yr, zr, dropStack);
+            EntityItem entityItem = new EntityItem(world, x, y, z, dropStack);
             entityItem.motionX = world.rand.nextGaussian() * motionScale;
             entityItem.motionY = world.rand.nextGaussian() * motionScale + 0.3d;
             entityItem.motionZ = world.rand.nextGaussian() * motionScale;

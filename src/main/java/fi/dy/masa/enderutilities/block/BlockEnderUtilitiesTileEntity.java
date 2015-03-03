@@ -7,7 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -37,10 +37,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
-    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
     public static final PropertyEnum MACHINE_TYPE = PropertyEnum.create("machinetype", EnumMachine.class);
-
-    //public static final PropertyEnum FURNACE_STATE = PropertyEnum.create("furnacestate", EnumFurnaceState.class);
+    public static final PropertyBool IS_ACTIVE = PropertyBool.create("isactive");
 
     public int blockIndex;
 
@@ -52,8 +50,8 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness, Material material)
     {
         super(index, name, hardness, material);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)).withProperty(IS_ACTIVE, Boolean.valueOf(false)));
         this.blockIndex = index;
-        this.setDefaultState(this.blockState.getBaseState().withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)).withProperty(FACING, EnumFacing.NORTH));
         Machine.setBlockHardness(this, this.blockIndex);
         Machine.setBlockHarvestLevels(this, this.blockIndex);
     }
@@ -64,7 +62,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
         if (machine != null)
         {
-            //System.out.println("damageDropped(), machine: " + machine); // FIXME debug
+            System.out.println("damageDropped(), machine: " + machine);
             return machine.damageDropped();
         }
 
@@ -74,20 +72,20 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     protected BlockState createBlockState()
     {
-        return new BlockState(this, new IProperty[] {MACHINE_TYPE, FACING});
+        return new BlockState(this, new IProperty[] {FACING, MACHINE_TYPE, IS_ACTIVE});
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        //System.out.println("getStateFromMeta(), meta: " + meta); // FIXME debug
+        //System.out.println("getStateFromMeta(), meta: " + meta);
         return this.getDefaultState().withProperty(MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
     }
 
     @Override
     public int getMetaFromState(IBlockState iBlockState)
     {
-        //System.out.println("getMetaFromState(), iBlockState: " + iBlockState); // FIXME debug
+        //System.out.println("getMetaFromState(), iBlockState: " + iBlockState);
         return ((EnumMachine)iBlockState.getValue(MACHINE_TYPE)).getMetadata();
     }
 
@@ -107,10 +105,13 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             iBlockState = iBlockState.withProperty(FACING, enumFacing);
         }
 
-        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(iBlockState));
+        int meta = this.getMetaFromState(iBlockState);
+        iBlockState = iBlockState.withProperty(MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
+
+        Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            //System.out.println("getActualState(), machine: " + machine); // FIXME debug
+            //System.out.println("getActualState(), machine: " + machine);
             return machine.getActualState(iBlockState, worldIn, pos);
         }
 
@@ -120,18 +121,18 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     public TileEntity createTileEntity(World world, IBlockState iBlockState)
     {
-        //System.out.println("createTileEntity(), iBlockState: " + iBlockState); // FIXME debug
+        System.out.println("createTileEntity(), iBlockState: " + iBlockState);
         return this.createNewTileEntity(world, this.getMetaFromState(iBlockState));
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        //System.out.println("createNewTileEntity(), meta: " + meta); // FIXME debug
+        System.out.println("createNewTileEntity(), meta: " + meta);
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            //System.out.println("createNewTileEntity(), machine: " + machine); // FIXME debug
+            System.out.println("createNewTileEntity(), machine: " + machine);
             return machine.createNewTileEntity();
         }
 
