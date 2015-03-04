@@ -63,29 +63,21 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         // Draw the burn progress flame
         if (this.teef.isBurningLast == true)
         {
-            int uOffset = 0;
+            int uOffset = (this.teef.fastMode == true ? 14 : 0);
             int h = this.container.fuelProgress * 13 / 100;
-            if (this.teef.fastMode == true)
-            {
-                uOffset = 14;
-            }
 
             this.drawTexturedModalRect(x + 34, y + 36 + 12 - h, 176 + uOffset, 12 - h, 14, h + 1);
         }
 
         // Draw the smelting progress arrow
-        if (this.teef.isCookingLast == true)
+        if (this.container.smeltingProgress > 0)
         {
             int vOffset = 0;
             int w = this.container.smeltingProgress * 24 / 100;
 
             if (this.teef.isBurningLast == true)
             {
-                vOffset = 16;
-                if (this.teef.fastMode == true)
-                {
-                    vOffset = 32;
-                }
+                vOffset = (this.teef.fastMode == true ? 32 : 16);
             }
 
             this.drawTexturedModalRect(x + 57, y + 34, 176, 14 + vOffset, w, 16);

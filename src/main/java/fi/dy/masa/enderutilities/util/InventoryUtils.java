@@ -120,7 +120,7 @@ public class InventoryUtils
      */
     public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, int side)
     {
-        return (sided.canInsertItem(slotNum, stackIn, side) && sided.isItemValidForSlot(slotNum, stackIn));
+        return (sided.isItemValidForSlot(slotNum, stackIn) && sided.canInsertItem(slotNum, stackIn, side));
     }
 
     /**
@@ -134,5 +134,41 @@ public class InventoryUtils
     {
         //return inv.isItemValidForSlot(slotNum, stackIn) && ((inv instanceof ISidedInventory) == false || ((ISidedInventory)inv).canInsertItem(slotNum, stackIn, side));
         return inv.isItemValidForSlot(slotNum, stackIn);
+    }
+
+    /**
+     * Checks if the given ItemStacks have the same item, damage and NBT. Ignores stack sizes.
+     * @param stack1
+     * @param stack2
+     * @return Returns true if the ItemStacks have the same item, damage and NBT.
+     */
+    public static boolean areItemStacksEqual(ItemStack stack1, ItemStack stack2)
+    {
+        if (stack1 == null || stack2 == null)
+        {
+            if (stack1 == stack2)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        if (stack1.getItem() != stack2.getItem() || stack1.getItemDamage() != stack2.getItemDamage())
+        {
+            return false;
+        }
+
+        if (stack1.getTagCompound() == null || stack2.getTagCompound() == null)
+        {
+            if (stack1.getTagCompound() == stack2.getTagCompound())
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        return stack1.getTagCompound().equals(stack2.getTagCompound());
     }
 }

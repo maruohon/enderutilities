@@ -1258,12 +1258,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
     }
 
-    /*@SideOnly(Side.CLIENT)
+    @SideOnly(Side.CLIENT)
     @Override
     public boolean hasEffect(ItemStack par1ItemStack, int pass)
     {
         return false;
-    }*/
+    }
 
     @SideOnly(Side.CLIENT)
     @Override

@@ -50,18 +50,15 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
             // Note: the value gets truncated to a short in non-local SMP
             if (this.teef.burnTimeRemaining != this.burnTimeRemaining
                 || this.teef.burnTimeFresh != this.burnTimeFresh
-                || this.teef.cookTime != this.cookTime
-                || this.teef.cookTimeFresh != this.cookTimeFresh)
+                || this.teef.cookTime != this.cookTime)
             {
                 int b = 0, c = 0;
                 if (this.teef.burnTimeFresh != 0)
                 {
                     b = 100 * this.teef.burnTimeRemaining / this.teef.burnTimeFresh;
                 }
-                if (this.teef.cookTimeFresh != 0)
-                {
-                    c = 100 * this.teef.cookTime / this.teef.cookTimeFresh;
-                }
+                c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
+
                 // smelting progress and fuel burning progress are both 0..100, we send the smelting progress in the upper byte of the short
                 icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
             }
@@ -79,7 +76,6 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
             this.burnTimeRemaining = this.teef.burnTimeRemaining;
             this.burnTimeFresh = this.teef.burnTimeFresh;
             this.cookTime = this.teef.cookTime;
-            this.cookTimeFresh = this.teef.cookTimeFresh;
             this.outputBufferAmount = this.teef.getOutputBufferAmount();
             this.outputToEnderChest = this.teef.outputToEnderChest;
         }
@@ -90,15 +86,14 @@ public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
     {
         super.addCraftingToCrafters(icrafting);
 
-        int b = 0, c = 0;
+        int b = 0;
         if (this.teef.burnTimeFresh != 0)
         {
             b = 100 * this.teef.burnTimeRemaining / this.teef.burnTimeFresh;
         }
-        if (this.teef.cookTimeFresh != 0)
-        {
-            c = 100 * this.teef.cookTime / this.teef.cookTimeFresh;
-        }
+
+        int c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
+
         icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
         icrafting.sendProgressBarUpdate(this, 1, this.teef.getOutputBufferAmount());
         icrafting.sendProgressBarUpdate(this, 2, this.teef.outputToEnderChest ? 1 : 0);

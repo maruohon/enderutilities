@@ -53,6 +53,17 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
         world.removeTileEntity(x, y, z);
     }
 
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amount.
+     * If amount is >= 0, then stack is only the ItemStack template; amount can also be larger than stack.stackSize.
+     * However, if amount is < 0, then stack.stackSize is used.
+     * @param world
+     * @param pos
+     * @param stack The template ItemStack of the dropped items.
+     * @param amount Amount of items to spawn; if >= 0, stack is only a template. If negative, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     */
     public static void dropItemStacks(World world, int x, int y, int z, ItemStack stack, int amount, boolean dropFullStacks)
     {
         if (stack == null)
