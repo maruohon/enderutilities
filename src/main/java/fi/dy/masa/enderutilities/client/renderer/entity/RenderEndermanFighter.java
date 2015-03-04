@@ -67,40 +67,38 @@ public class RenderEndermanFighter extends RenderLiving
         {
             return -1;
         }
+
+        if (enderman.isRaging() == true)
+        {
+            this.bindTexture(TEXTURE_EYES_RAGING);
+        }
         else
         {
-            if (enderman.isRaging() == true)
-            {
-                this.bindTexture(TEXTURE_EYES_RAGING);
-            }
-            else
-            {
-                this.bindTexture(TEXTURE_EYES_NORMAL);
-            }
-
-            float f1 = 1.0F;
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glDisable(GL11.GL_ALPHA_TEST);
-            GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-            GL11.glDisable(GL11.GL_LIGHTING);
-
-            if (enderman.isInvisible())
-            {
-                GL11.glDepthMask(false);
-            }
-            else
-            {
-                GL11.glDepthMask(true);
-            }
-
-            char c0 = 61680;
-            int j = c0 % 65536;
-            int k = c0 / 65536;
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
-            GL11.glEnable(GL11.GL_LIGHTING);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, f1);
-            return 1;
+            this.bindTexture(TEXTURE_EYES_NORMAL);
         }
+
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        if (enderman.isInvisible())
+        {
+            GL11.glDepthMask(false);
+        }
+        else
+        {
+            GL11.glDepthMask(true);
+        }
+
+        char c0 = 61680;
+        int j = c0 % 65536;
+        int k = c0 / 65536;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        return 1;
     }
 
     @Override
