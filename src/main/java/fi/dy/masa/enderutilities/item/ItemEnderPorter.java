@@ -79,7 +79,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
         {
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, player, cost, false) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
             {
                 return stack;
             }
@@ -119,7 +119,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
 
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, player, cost, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
             {
                 return;
             }

@@ -112,7 +112,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (player.capabilities.isCreativeMode == false)
         {
-            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, true) == false)
+            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
             {
                 return;
             }
@@ -158,7 +158,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, false) == false)
+            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, false) == false)
         {
             return stack;
         }

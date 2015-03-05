@@ -11,6 +11,11 @@ public class EUStringUtils
      */
     public static String formatNumberFloorWithPostfix(int value)
     {
+        if (value >= 1000000000)
+        {
+            return String.format("%dG", value / 1000000000);
+        }
+
         if (value >= 1000000)
         {
             return String.format("%dM", value / 1000000);
@@ -38,28 +43,20 @@ public class EUStringUtils
     {
         StringBuilder sb = new StringBuilder(16);
 
-        if (value >= 1000000000)
-        {
-            sb.append(String.valueOf(value / 1000000000) + ",");
-        }
+        String number = String.valueOf(value);
+        int len = number.length();
+        int end = len % 3, i = 0;
 
-        if (value >= 1000000)
-        {
-            sb.append(String.valueOf((value / 1000000) % 1000) + ",");
-        }
+        sb.append(number.substring(0, end));
 
-        if (value >= 1000)
+        for (i = end; i <= (len - 3); i += 3)
         {
-            sb.append(String.valueOf((value / 1000) % 1000) + ",");
-        }
+            if (i > 0)
+            {
+                sb.append(",");
+            }
 
-        if (value != 0)
-        {
-            sb.append(String.format("%03d", value % 1000));
-        }
-        else
-        {
-            sb.append(String.valueOf(value));
+            sb.append(number.substring(i, i + 3));
         }
 
         return sb.toString();

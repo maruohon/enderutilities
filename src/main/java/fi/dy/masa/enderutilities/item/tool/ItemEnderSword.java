@@ -208,7 +208,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
+                && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
@@ -358,7 +358,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             // Transported the drops to somewhere remote
             if (mode == 2)
             {
-                UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
             PacketHandler.INSTANCE.sendToAllAround(

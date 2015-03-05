@@ -265,7 +265,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == false)
         {
             return false;
         }
@@ -284,7 +284,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.blockFace) == true
                         && this.plantItemFromInventorySlot(world, player, sided, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
                     {
-                        UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
 
                         PacketHandler.INSTANCE.sendToAllAround(
                             new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
@@ -302,7 +302,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                         // Use Ender Charge if planting from a remote inventory
                         if (this.getToolModeByName(toolStack, "DropsMode") == 2)
                         {
-                            UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                            UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
                         }
 
                         PacketHandler.INSTANCE.sendToAllAround(
@@ -522,7 +522,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
+                && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
@@ -671,7 +671,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             // Transported the drops to somewhere remote
             if (mode == 2)
             {
-                UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
             PacketHandler.INSTANCE.sendToAllAround(

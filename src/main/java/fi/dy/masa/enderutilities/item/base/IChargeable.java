@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item.base;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public interface IChargeable
@@ -37,15 +36,4 @@ public interface IChargeable
      * @return The amount of charge that was or would have been successfully drained from the item
      */
     public int useCharge(ItemStack stack, int amount, boolean simulate);
-
-    /**
-     * Uses or simulates using charge from this item, unless the player is in creative mode.
-     * If the player is in creative mode, then the return value is always the amount.
-     * @param stack The target ItemStack
-     * @param player The player who is performing the action
-     * @param amount The amount of charge to use
-     * @param simulate True if we just want to simulate using charge, and not actually do it
-     * @return The amount of charge that was or would have been successfully drained from the item
-     */
-    public int useCharge(ItemStack stack, EntityPlayer player, int amount, boolean simulate);
 }

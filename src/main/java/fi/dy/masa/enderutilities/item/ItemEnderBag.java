@@ -67,7 +67,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Access is allowed for everyone to a vanilla Ender Chest
         if (targetData.blockName.equals("minecraft:ender_chest") == true)
         {
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
                 return stack;
             }
@@ -104,7 +104,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Check that we have sufficient charge left to use the bag.
-        if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
         {
             return stack;
         }
@@ -125,7 +125,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
 
             // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
                 // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
                 //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);

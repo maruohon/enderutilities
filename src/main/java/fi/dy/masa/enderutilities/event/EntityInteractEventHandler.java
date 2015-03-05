@@ -43,7 +43,7 @@ public class EntityInteractEventHandler
                 (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer)event.entity) == false
-                    || UtilItemModular.useEnderCharge(stack, (EntityPlayer)event.entity, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
+                    || UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == false)
                 {
                     return;
                 }
