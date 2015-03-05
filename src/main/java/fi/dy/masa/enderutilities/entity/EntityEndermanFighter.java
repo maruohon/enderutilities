@@ -124,9 +124,21 @@ public class EntityEndermanFighter extends EntityMob
         return false;
     }
 
+    public void setTargetCommanded(Entity entity)
+    {
+        //System.out.println("setTargetCommanded(): " + entity);
+        this.attackTargetCommanded = entity;
+
+        if (entity != null)
+        {
+            this.attackTargetUUID = entity.getUniqueID();
+        }
+    }
+
     @Override
     public void setTarget(Entity entity)
     {
+        //System.out.println("setTarget(): " + entity);
         super.setTarget(entity);
 
         if (entity == null)
@@ -251,6 +263,7 @@ public class EntityEndermanFighter extends EntityMob
                 this.setTarget(null);
             }
 
+            //System.out.println("clearing revenge target");
             this.revengeTarget = null;
             this.revengeTargetUUID = null;
         }
@@ -262,6 +275,7 @@ public class EntityEndermanFighter extends EntityMob
                 this.setTarget(null);
             }
 
+            //System.out.println("clearing commanded target");
             this.attackTargetCommanded = null;
             this.attackTargetUUID = null;
         }
@@ -278,11 +292,13 @@ public class EntityEndermanFighter extends EntityMob
 
             // This entity is being controlled and is currently attacking something other than the commanded target,
             // switch to the commanded target.
-            if (this.entityToAttack != this.attackTargetCommanded && this.attackTargetCommanded != null)
+            if (this.attackTargetCommanded != null && this.entityToAttack != this.attackTargetCommanded)
             {
+                //System.out.println("is controlled, switching to commanded target");
                 this.setTarget(this.attackTargetCommanded);
             }
         }
+        // Not controlled by a Summon item
         else
         {
             if (this.revengeTarget == null && this.revengeTargetUUID != null)
@@ -290,11 +306,18 @@ public class EntityEndermanFighter extends EntityMob
                 this.revengeTarget = this.getLivingEntityNearbyByUUID(this.revengeTargetUUID, 64.0d);
             }
 
-            if (this.entityToAttack != this.revengeTarget && this.revengeTarget != null)
+            // This entity is NOT being controlled at the moment, has a revenge target but is not currently attacking it,
+            // switch to the revenge target.
+            if (this.revengeTarget != null && this.entityToAttack != this.revengeTarget)
             {
-                // This entity is NOT being controlled at the moment, but is attacking the commanded target,
-                // switch to the revenge target if we have one.
+                //System.out.println("not controlled, switching to revenge target");
                 this.setTarget(this.revengeTarget);
+            }
+            // Not controlled, has no revenge target and is attacking a commanded target, switch to the closest player. 
+            else if (this.revengeTarget == null && this.entityToAttack == this.attackTargetCommanded)
+            {
+                //System.out.println("not controlled, switching to player");
+                this.findPlayerToAttack();
             }
         }
     }
@@ -302,6 +325,22 @@ public class EntityEndermanFighter extends EntityMob
     @Override
     public void onLivingUpdate()
     {
+        if (this.worldObj.isRemote == true)
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                double x = this.posX + (this.rand.nextDouble() - 0.5d) * (double)this.width;
+                double y = this.posY + this.rand.nextDouble() * (double)this.height - 0.25d;
+                double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width;
+                double vx = (this.rand.nextDouble() - 0.5d) * 2.0d;
+                double vz = (this.rand.nextDouble() - 0.5d) * 2.0d;
+                this.worldObj.spawnParticle("portal", x, y, z, vx, -this.rand.nextDouble(), vz);
+            }
+
+            super.onLivingUpdate();
+            return;
+        }
+
         // 1 second timer
         if (++this.timer >= 20)
         {
@@ -321,16 +360,6 @@ public class EntityEndermanFighter extends EntityMob
             this.lastEntityToAttack = this.entityToAttack;
         }
 
-        for (int i = 0; i < 2; ++i)
-        {
-            double x = this.posX + (this.rand.nextDouble() - 0.5d) * (double)this.width;
-            double y = this.posY + this.rand.nextDouble() * (double)this.height - 0.25d;
-            double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width;
-            double vx = (this.rand.nextDouble() - 0.5d) * 2.0d;
-            double vz = (this.rand.nextDouble() - 0.5d) * 2.0d;
-            this.worldObj.spawnParticle("portal", x, y, z, vx, -this.rand.nextDouble(), vz);
-        }
-
         if (this.isWet())
         {
             this.attackEntityFrom(DamageSource.drown, 1.0f);
@@ -348,12 +377,7 @@ public class EntityEndermanFighter extends EntityMob
 
         this.isJumping = false;
 
-        /*if (this.entityToAttack != null)
-        {
-            this.faceEntity(this.entityToAttack, 100.0f, 100.0f);
-        }*/
-
-        if (this.worldObj.isRemote == false && this.isEntityAlive() == true)
+        if (this.isEntityAlive() == true)
         {
             this.checkTargetsNotDead();
             this.updateIsBeingControlled();
@@ -377,6 +401,7 @@ public class EntityEndermanFighter extends EntityMob
                     }
                     else
                     {
+                        //System.out.println("should not attack player");
                         this.setTarget(null);
                         this.setRaging(false);
                     }
@@ -399,7 +424,7 @@ public class EntityEndermanFighter extends EntityMob
             }
         }
 
-        if (this.worldObj.isRemote == false && this.entityToAttack == null && this.isNoDespawnRequired() == false)
+        if (this.entityToAttack == null && this.isNoDespawnRequired() == false)
         {
             // Despawn ("teleport away") the entity sometime after 10 seconds of not attacking anything
             if (++this.idleTimer >= 200 && this.worldObj.rand.nextFloat() < 0.03f)
@@ -573,6 +598,7 @@ public class EntityEndermanFighter extends EntityMob
 
         if (source instanceof EntityDamageSource && source.getEntity() instanceof EntityLivingBase)
         {
+            //System.out.println("setting revenge target");
             this.revengeTarget = (EntityLivingBase)source.getEntity();
             this.revengeTargetUUID = this.revengeTarget.getUniqueID();
             this.isAggressive = true;

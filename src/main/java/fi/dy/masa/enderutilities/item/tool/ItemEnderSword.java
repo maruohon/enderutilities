@@ -98,7 +98,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
-        //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
         {
             return false;
@@ -119,9 +118,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     @Override
     public int getMaxDamage(ItemStack stack)
     {
-        /**
-         * Returns the maximum damage an item can take.
-         */
         return this.material.getMaxUses();
     }
 
@@ -384,13 +380,15 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         double y = targetEntity.posY;
         double z = targetEntity.posZ;
         int numReTargeted = 0;
+
         AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(x - r, y - r, z - r, x + r, y + r, z + r);
         List<EntityEndermanFighter> list = world.getEntitiesWithinAABB(EntityEndermanFighter.class, bb);
+
         for (EntityEndermanFighter fighter : list)
         {
             if (fighter.getEntityToAttack() == null && fighter.hasCustomNameTag() == false)
             {
-                fighter.setTarget(targetEntity);
+                fighter.setTargetCommanded(targetEntity);
                 numReTargeted++;
             }
         }
@@ -425,7 +423,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 world.playSoundEffect(x, y, z, "mob.endermen.portal", 1.0F, 1.0F);
 
                 world.spawnEntityInWorld(fighter);
-                fighter.setTarget(targetEntity);
+                fighter.setTargetCommanded(targetEntity);
 
                 if (++count >= amount)
                 {
