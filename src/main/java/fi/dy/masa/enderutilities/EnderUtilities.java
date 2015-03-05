@@ -37,7 +37,7 @@ public class EnderUtilities
     {
         instance = this;
         logger = event.getModLog();
-        ConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
+        ConfigReader.loadConfigsAll(event.getSuggestedConfigurationFile());
         proxy.registerKeyBindings();
         PacketHandler.init(); // Initialize network stuff
         EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
