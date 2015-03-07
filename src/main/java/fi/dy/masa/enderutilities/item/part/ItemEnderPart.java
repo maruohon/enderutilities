@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,6 +21,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderPart extends ItemModule
 {
     public ItemEnderPart()
@@ -214,9 +216,12 @@ public class ItemEnderPart extends ItemModule
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[13];
+        this.texture_names = new String[this.textures.length];
+
         int i = 0, j;
 
         for (j = 0; j < 3; ++i, ++j)
@@ -234,39 +239,40 @@ public class ItemEnderPart extends ItemModule
             this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active", textureMap);
         }
 
-        this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK, textureMap);
-        this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE, textureMap);
-        this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC, textureMap);
-        this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE, textureMap);
+        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK, textureMap);
+        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE, textureMap);
+        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC, textureMap);
+        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE, textureMap);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    public IBakedModel getItemModel(ItemStack stack)
     {
+        int index = 0;
         int damage = stack.getItemDamage();
 
         // Ender Alloy
-        if (damage >= 0 && damage <= 2) { return this.textures[damage]; }
+        if (damage >= 0 && damage <= 2) { index = damage; }
 
         // Inactive Ender Core
-        if (damage >= 10 && damage <= 12) { return this.textures[damage - 7]; }
+        if (damage >= 10 && damage <= 12) { index = damage - 7; }
 
         // Ender Core (active)
-        if (damage >= 15 && damage <= 17) { return this.textures[damage - 9]; }
+        if (damage >= 15 && damage <= 17) { index = damage - 9; }
 
         // Ender Stick
-        if (damage == 20) { return this.textures[9]; }
+        if (damage == 20) { index = 9; }
 
         // Ender Rope
-        if (damage == 21) { return this.textures[10]; }
+        if (damage == 21) { index = 10; }
 
         // Ender Rope
-        if (damage == 40) { return this.textures[11]; }
+        if (damage == 40) { index = 11; }
 
         // Mob Persistence
-        if (damage == 45) { return this.textures[12]; }
+        if (damage == 45) { index = 12; }
 
-        return this.textures[0];
+        return this.models[index];
     }
 }

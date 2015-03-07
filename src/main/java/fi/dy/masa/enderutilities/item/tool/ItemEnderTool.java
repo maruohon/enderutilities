@@ -12,6 +12,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -36,6 +38,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.IRegistry;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -50,6 +53,7 @@ import com.google.common.collect.Sets;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -73,6 +77,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
     public static final int ENDER_CHARGE_COST = 50;
@@ -82,6 +87,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     public TextureAtlasSprite textures[];
+    @SideOnly(Side.CLIENT)
+    public String texture_names[];
+    @SideOnly(Side.CLIENT)
+    public IBakedModel models[];
     @SideOnly(Side.CLIENT)
     String[] parts;
 
@@ -1228,22 +1237,43 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     */
 
     @SideOnly(Side.CLIENT)
+    public void registerModel(int index, IRegistry modelRegistry)
+    {
+        if (this.textures.length <= index || this.textures[index] == null)
+        {
+            EnderUtilities.logger.fatal("Good afternoon, this is Major Derp. I live in ItemEnderTool.registerModel()");
+            return;
+        }
+
+        this.models[index] = EnderUtilitiesModelRegistry.createModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
+        //modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
+        modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
+    }
+
+    @SideOnly(Side.CLIENT)
     public void registerTexture(int index, String spriteName, TextureMap textureMap)
     {
-        TextureAtlasSprite texture = textureMap.getTextureExtry(Reference.MOD_ID + ":" + spriteName);
-        if (texture == null)
+        if (index >= this.textures.length)
         {
-            texture = new TextureItems(ReferenceTextures.getItemTextureName(spriteName));
-            if (index < this.textures.length)
-            {
-                this.textures[index] = texture;
-            }
-            else
-            {
-                EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
-            }
+            EnderUtilities.logger.fatal("Index out of bounds in ItemEnderTool.registerTexture(): " + index);
+            return;
+        }
 
-            textureMap.setTextureEntry(Reference.MOD_ID + ":" + spriteName, texture);
+        textureMap.setTextureEntry(ReferenceTextures.getItemTextureName(spriteName), new TextureItems(ReferenceTextures.getItemTextureName(spriteName)));
+
+        this.textures[index] = textureMap.getTextureExtry(ReferenceTextures.getItemTextureName(spriteName));
+        this.texture_names[index] = ReferenceTextures.getItemTextureName(spriteName);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerModels(IRegistry modelRegistry)
+    {
+        int len = this.textures.length;
+        this.models = new IBakedModel[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            this.registerModel(i, modelRegistry);
         }
     }
 
@@ -1259,6 +1289,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 "linkcrystal.1", "linkcrystal.2"};
 
          this.textures = new TextureAtlasSprite[this.parts.length * 4];
+         this.texture_names = new String[this.textures.length];
+
          String prefix = ReferenceNames.NAME_ITEM_ENDERTOOL + ".";
 
          for (ToolType type : ToolType.values())
@@ -1274,17 +1306,17 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    public IBakedModel getItemModel(ItemStack stack)
     {
         if (stack == null)
         {
-            return this.textures[0];
+            return this.models[0];
         }
 
         ToolType type = this.getToolType(stack);
         if (type.equals(ToolType.INVALID))
         {
-            return this.textures[0];
+            return this.models[0];
         }
 
         int i = type.getId() * this.parts.length;
@@ -1307,9 +1339,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         if (i >= this.textures.length)
         {
-            return this.textures[0];
+            return this.models[0];
         }
 
-        return this.textures[i];
+        return this.models[i];
     }
 }

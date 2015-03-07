@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -30,6 +31,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
     public static final int ENDER_CHARGE_COST_MOB_TP = 1000;
@@ -400,16 +402,20 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     */
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         // TODO use time based icons, how the hell does one do those in 1.8 ??
         this.textures = new TextureAtlasSprite[2];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name + ".standby", textureMap);
         this.registerTexture(1, this.name + ".mode2.standby", textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
 
@@ -424,6 +430,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             index += mode;
         }
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -46,6 +47,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
     public static final double ENDER_CHARGE_COST = 0.2d; // charge cost per 1 mB of fluid transferred to/from a linked tank
@@ -1271,15 +1273,19 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     */
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[2];
-        this.registerTexture(0, this.name            , textureMap);
-        this.registerTexture(1, this.name + ".linked", textureMap);
+        this.texture_names = new String[this.textures.length];
+
+        this.registerTexture(0, this.name + ".32"       , textureMap);
+        this.registerTexture(1, this.name + ".32.linked", textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
@@ -1287,6 +1293,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             index += 1;
         }
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -26,6 +27,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
+@SuppressWarnings("deprecation")
 public class ItemMobHarness extends ItemEnderUtilities
 {
     public ItemMobHarness()
@@ -314,21 +316,26 @@ public class ItemMobHarness extends ItemEnderUtilities
     */
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[2];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name            , textureMap);
         this.registerTexture(1, this.name + ".active", textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
+        int index = 0;
         if (this.hasTarget(stack) == true)
         {
-            return this.textures[1];
+            index = 1;
         }
 
-        return this.textures[0];
+        return this.models[index];
     }
 }

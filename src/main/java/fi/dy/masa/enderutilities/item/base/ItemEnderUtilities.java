@@ -6,25 +6,34 @@ import java.util.regex.Pattern;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IRegistry;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderUtilities extends Item
 {
     public String name;
 
     @SideOnly(Side.CLIENT)
     public TextureAtlasSprite textures[];
+    @SideOnly(Side.CLIENT)
+    public String texture_names[];
+    @SideOnly(Side.CLIENT)
+    public IBakedModel models[];
 
     public ItemEnderUtilities()
     {
@@ -116,37 +125,61 @@ public class ItemEnderUtilities extends Item
     }
 
     @SideOnly(Side.CLIENT)
+    public void registerModel(int index, IRegistry modelRegistry)
+    {
+        if (this.textures.length <= index || this.textures[index] == null)
+        {
+            EnderUtilities.logger.fatal("Good afternoon, this is Major Derp. I live in ItemEnderUtilities.registerModel()");
+            return;
+        }
+
+        this.models[index] = EnderUtilitiesModelRegistry.createModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
+        //modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
+        modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
+    }
+
+
+    @SideOnly(Side.CLIENT)
+    public void registerModels(IRegistry modelRegistry)
+    {
+        int len = this.textures.length;
+        this.models = new IBakedModel[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            this.registerModel(i, modelRegistry);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
     public void registerTexture(int index, String spriteName, TextureMap textureMap)
     {
-        TextureAtlasSprite texture = textureMap.getTextureExtry(Reference.MOD_ID + ":" + spriteName);
-        if (texture == null)
+        if (index >= this.textures.length)
         {
-            texture = new TextureItems(ReferenceTextures.getItemTextureName(spriteName));
-            if (index < this.textures.length)
-            {
-                this.textures[index] = texture;
-            }
-            else
-            {
-                EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
-            }
-
-            textureMap.setTextureEntry(Reference.MOD_ID + ":" + spriteName, texture);
+            EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
+            return;
         }
+
+        textureMap.setTextureEntry(ReferenceTextures.getItemTextureName(spriteName), new TextureItems(ReferenceTextures.getItemTextureName(spriteName)));
+
+        this.textures[index] = textureMap.getTextureExtry(ReferenceTextures.getItemTextureName(spriteName));
+        this.texture_names[index] = ReferenceTextures.getItemTextureName(spriteName);
     }
 
     @SideOnly(Side.CLIENT)
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[1];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name, textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = stack.getItemDamage();
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

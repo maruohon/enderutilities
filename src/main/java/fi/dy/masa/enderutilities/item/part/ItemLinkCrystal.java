@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,6 +16,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 
+@SuppressWarnings("deprecation")
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
     public static final int TYPE_LOCATION = 0;
@@ -82,19 +84,23 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[3];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name + ".location", textureMap);
         this.registerTexture(1, this.name + ".block",    textureMap);
         this.registerTexture(2, this.name + ".portal",   textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = stack.getItemDamage();
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

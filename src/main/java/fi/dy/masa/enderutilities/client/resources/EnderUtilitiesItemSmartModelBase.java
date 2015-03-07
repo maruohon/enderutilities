@@ -30,24 +30,28 @@ public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
     private boolean isGui3d;
     private boolean isBuiltInRenderer;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public EnderUtilitiesItemSmartModelBase(IBakedModel baseModel)
     {
-        this.generalQuads = baseModel.getGeneralQuads();
+        this.generalQuads = new LinkedList();
+        this.generalQuads.addAll(baseModel.getGeneralQuads());
+
         this.faceQuads = newBlankFacingLists();
 
         for (EnumFacing facing : EnumFacing.values())
         {
-            for (Object o : baseModel.getFaceQuads(facing))
+            this.faceQuads.get(facing.ordinal()).addAll(baseModel.getFaceQuads(facing));
+
+            /*for (Object o : baseModel.getFaceQuads(facing))
             {
                 this.faceQuads.get(facing.ordinal()).add((BakedQuad) o);
-            }
+            }*/
         }
 
-        this.cameraTransforms = baseModel.getItemCameraTransforms();
-        this.isAmbientOcclusion = baseModel.isAmbientOcclusion();
         this.isGui3d = baseModel.isGui3d();
+        this.isAmbientOcclusion = baseModel.isAmbientOcclusion();
         this.isBuiltInRenderer = baseModel.isBuiltInRenderer();
+        this.cameraTransforms = baseModel.getItemCameraTransforms();
         this.texture = baseModel.getTexture();
     }
 
@@ -101,15 +105,18 @@ public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
             Item item = stack.getItem();
             if (item instanceof ItemEnderUtilities)
             {
-                this.texture = ((ItemEnderUtilities)stack.getItem()).getItemTexture(stack);
+                return ((ItemEnderUtilities)stack.getItem()).getItemModel(stack);
+                //this.texture = ((ItemEnderUtilities)stack.getItem()).getItemModel(stack).getTexture();
             }
             else if (item instanceof ItemEnderTool)
             {
-                this.texture = ((ItemEnderTool)stack.getItem()).getItemTexture(stack);
+                return ((ItemEnderTool)stack.getItem()).getItemModel(stack);
+                //this.texture = ((ItemEnderTool)stack.getItem()).getItemModel(stack).getTexture();
             }
             else if (item instanceof ItemEnderSword)
             {
-                this.texture = ((ItemEnderSword)stack.getItem()).getItemTexture(stack);
+                return ((ItemEnderSword)stack.getItem()).getItemModel(stack);
+                //this.texture = ((ItemEnderSword)stack.getItem()).getItemModel(stack).getTexture();
             }
         }
 

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -37,6 +38,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
     public static final int ENDER_CHARGE_COST = 200;
@@ -313,9 +315,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[4];
+        this.texture_names = new String[this.textures.length];
+
         // TODO add locked textures
         this.registerTexture(0, this.name + ".regular.closed", textureMap);
         this.registerTexture(1, this.name + ".regular.open", textureMap);
@@ -324,7 +329,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -352,6 +358,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
         */
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

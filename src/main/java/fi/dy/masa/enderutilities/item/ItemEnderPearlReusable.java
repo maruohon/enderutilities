@@ -76,8 +76,8 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         return stack;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List list)
     {
         if (Configs.disableItemEnderPearl.getBoolean(false) == false)
@@ -87,32 +87,13 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         }
     }
 
-    /*
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.eliteIcon = iconRegister.registerIcon(this.getIconString() + ".elite");
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        if (damage == 1)
-        {
-            return this.eliteIcon;
-        }
-
-        return this.itemIcon;
-    }
-    */
-
-    @SideOnly(Side.CLIENT)
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[2];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name           , textureMap);
         this.registerTexture(1, this.name + ".elite", textureMap);
     }

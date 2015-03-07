@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -20,6 +21,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
+@SuppressWarnings("deprecation")
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
     public ItemEnderCapacitor()
@@ -208,9 +210,12 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[6];
+        this.texture_names = new String[this.textures.length];
+
         for (int i = 0; i < 3; ++i)
         {
             this.registerTexture(i    , this.name + ".empty."   + i, textureMap);
@@ -219,7 +224,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    @Override
+    public IBakedModel getItemModel(ItemStack stack)
     {
         int index = stack.getItemDamage();
 
@@ -231,6 +237,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             }
         }
 
-        return this.textures[index < this.textures.length ? index : 0];
+        return this.models[index < this.textures.length ? index : 0];
     }
 }

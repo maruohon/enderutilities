@@ -24,7 +24,7 @@ public class ModelEventHandler
 
         EnderUtilitiesModelRegistry.registerBlockModels(event.modelRegistry, itemModelMesher);
 
-        EnderUtilitiesModelRegistry.registerItemMeshDefinitions(itemModelMesher);
         EnderUtilitiesModelRegistry.registerSmartItemModel(event.modelRegistry, itemModelMesher);
+        EnderUtilitiesModelRegistry.registerItemModels(event.modelRegistry, itemModelMesher);
     }
 }

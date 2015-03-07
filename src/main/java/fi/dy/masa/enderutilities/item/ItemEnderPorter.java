@@ -167,66 +167,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         list.add(new ItemStack(this, 1, 1));
     }
 
-    /*@SideOnly(Side.CLIENT)
-    @Override
-    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int ticksRemaining)
-    {
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".stage.1");
-        this.iconArray = new IIcon[14];
-
-        for (int i = 0; i < 7; ++i)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + ".stage." + (i + 1));
-        }
-
-        for (int i = 0; i < 7; ++i)
-        {
-            this.iconArray[7 + i] = iconRegister.registerIcon(this.getIconString() + ".advanced.stage." + (i + 1));
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getItemIconForUseDuration(int index)
-    {
-        if (index >= this.iconArray.length)
-        {
-            index = this.iconArray.length - 1;
-        }
-        if (index < 0)
-        {
-            index = 0;
-        }
-
-        return this.iconArray[index];
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
@@ -263,9 +204,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     */
 
     @SideOnly(Side.CLIENT)
+    @Override
     public void registerTextures(TextureMap textureMap)
     {
         this.textures = new TextureAtlasSprite[2];
+        this.texture_names = new String[this.textures.length];
+
         this.registerTexture(0, this.name + ".stage.1"         , textureMap);
         this.registerTexture(1, this.name + ".advanced.stage.1", textureMap);
     }
