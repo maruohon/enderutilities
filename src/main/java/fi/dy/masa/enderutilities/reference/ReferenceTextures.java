@@ -18,7 +18,7 @@ public class ReferenceTextures
 
     public static String getItemTextureName(String name)
     {
-        return Reference.MOD_ID + ":item." + name;
+        return Reference.MOD_ID + ":items/item." + name;
     }
 
     public static String getEntityTextureName(String name)

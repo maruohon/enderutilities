@@ -10,6 +10,8 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -48,6 +50,7 @@ import com.google.common.collect.Sets;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -58,9 +61,11 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -74,6 +79,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public float efficiencyOnProperMaterial;
     public float damageVsEntity;
     private final Item.ToolMaterial material;
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite textures[];
+    @SideOnly(Side.CLIENT)
+    String[] parts;
 
     public ItemEnderTool()
     {
@@ -1216,4 +1226,90 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.iconArray[i];
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTexture(int index, String spriteName, TextureMap textureMap)
+    {
+        TextureAtlasSprite texture = textureMap.getTextureExtry(Reference.MOD_ID + ":" + spriteName);
+        if (texture == null)
+        {
+            texture = new TextureItems(ReferenceTextures.getItemTextureName(spriteName));
+            if (index < this.textures.length)
+            {
+                this.textures[index] = texture;
+            }
+            else
+            {
+                EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
+            }
+
+            textureMap.setTextureEntry(Reference.MOD_ID + ":" + spriteName, texture);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+         this.parts = new String[] {"rod.1", "head.1", "head.2", "head.3",
+                "head.1.glow", "head.2.glow", "head.3.glow",
+                "head.1.broken", "head.2.broken", "head.3.broken",
+                "head.1.glow.broken", "head.2.glow.broken", "head.3.glow.broken",
+                "core.1", "core.2", "core.3",
+                "capacitor.1", "capacitor.2", "capacitor.3",
+                "linkcrystal.1", "linkcrystal.2"};
+
+         this.textures = new TextureAtlasSprite[this.parts.length * 4];
+         String prefix = ReferenceNames.NAME_ITEM_ENDERTOOL + ".";
+
+         for (ToolType type : ToolType.values())
+         {
+             int id = type.getId();
+             int start = id * this.parts.length;
+
+             for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.textures.length; j++)
+             {
+                 this.registerTexture(start + j, prefix + type.getName() + "." + this.parts[j], textureMap);
+             }
+         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    {
+        if (stack == null)
+        {
+            return this.textures[0];
+        }
+
+        ToolType type = this.getToolType(stack);
+        if (type.equals(ToolType.INVALID))
+        {
+            return this.textures[0];
+        }
+
+        int i = type.getId() * this.parts.length;
+        //int tier = 0;
+
+        // TODO: How does one do multi layer textures in 1.8 ???
+        i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
+
+        // Fast mode uses the glow variation of the head
+        if (getToolModeByName(stack, "DigMode") != 0)
+        {
+            i += 3;
+        }
+
+        // Broken tool
+        if (this.isToolBroken(stack) == true)
+        {
+            i += 6;
+        }
+
+        if (i >= this.textures.length)
+        {
+            return this.textures[0];
+        }
+
+        return this.textures[i];
+    }
 }

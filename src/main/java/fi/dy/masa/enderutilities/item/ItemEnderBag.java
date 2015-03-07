@@ -4,6 +4,8 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -19,6 +21,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -308,58 +312,28 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
     }
 
-    /*
-    @Override
     @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
+    public void registerTextures(TextureMap textureMap)
     {
-        return true;
+        this.textures = new TextureAtlasSprite[4];
+        // TODO add locked textures
+        this.registerTexture(0, this.name + ".regular.closed", textureMap);
+        this.registerTexture(1, this.name + ".regular.open", textureMap);
+        this.registerTexture(2, this.name + ".enderchest.closed", textureMap);
+        this.registerTexture(3, this.name + ".enderchest.open", textureMap);
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 2;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
-        this.iconArray = new IIcon[6];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".regular.open");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".enderchest.closed");
-        this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".enderchest.open");
-        this.iconArray[4] = iconRegister.registerIcon(this.getIconString() + ".locked.closed");
-        this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".locked.open");
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
     {
         int index = 0;
         NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
         if (target != null)
         {
-            int isOpen = 0;
-
             // Bag currently open
             if (stack.getTagCompound().getBoolean("IsOpen") == true)
             {
-                isOpen = 1;
                 index += 1;
             }
 
@@ -368,20 +342,16 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             {
                 index += 2;
             }
-
-            // The is-locked layer
-            if (renderPass == 1)
-            {
-                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (playerData != null && playerData.isPublic == false)
-                {
-                    index = 4 + isOpen;
-                }
-            }
         }
 
-        // NOTE: We don't have an empty texture for the lock overlay, so we use the same bag texture in case it is not locked
-        return this.iconArray[(index < this.iconArray.length ? index : 0)];
+        /*
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (playerData != null && playerData.isPublic == false)
+        {
+            index += 4;
+        }
+        */
+
+        return this.textures[index < this.textures.length ? index : 0];
     }
-    */
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -11,12 +13,18 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
     public String name;
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite textures[];
 
     public ItemEnderUtilities()
     {
@@ -105,5 +113,40 @@ public class ItemEnderUtilities extends Item
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerTexture(int index, String spriteName, TextureMap textureMap)
+    {
+        TextureAtlasSprite texture = textureMap.getTextureExtry(Reference.MOD_ID + ":" + spriteName);
+        if (texture == null)
+        {
+            texture = new TextureItems(ReferenceTextures.getItemTextureName(spriteName));
+            if (index < this.textures.length)
+            {
+                this.textures[index] = texture;
+            }
+            else
+            {
+                EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
+            }
+
+            textureMap.setTextureEntry(Reference.MOD_ID + ":" + spriteName, texture);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.textures = new TextureAtlasSprite[1];
+        this.registerTexture(0, this.name, textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    {
+        int index = stack.getItemDamage();
+
+        return this.textures[index < this.textures.length ? index : 0];
     }
 }

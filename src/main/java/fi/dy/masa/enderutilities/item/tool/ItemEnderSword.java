@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -25,6 +27,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -32,15 +35,22 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 {
     private float damageVsEntity;
     private final Item.ToolMaterial material;
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite textures[];
+    @SideOnly(Side.CLIENT)
+    String[] parts;
 
     public ItemEnderSword()
     {
@@ -550,4 +560,67 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return this.iconArray[i];
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTexture(int index, String spriteName, TextureMap textureMap)
+    {
+        TextureAtlasSprite texture = textureMap.getTextureExtry(Reference.MOD_ID + ":" + spriteName);
+        if (texture == null)
+        {
+            texture = new TextureItems(ReferenceTextures.getItemTextureName(spriteName));
+            if (index < this.textures.length)
+            {
+                this.textures[index] = texture;
+            }
+            else
+            {
+                EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
+            }
+
+            textureMap.setTextureEntry(Reference.MOD_ID + ":" + spriteName, texture);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
+                "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
+        //this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
+
+        this.textures = new TextureAtlasSprite[this.parts.length];
+        String prefix = ReferenceNames.NAME_ITEM_ENDER_SWORD + ".";
+
+        for (int i = 0; i < this.parts.length; i++)
+        {
+            this.registerTexture(i, prefix + this.parts[i], textureMap);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    {
+        if (stack == null)
+        {
+            return this.textures[0];
+        }
+
+        int i = 0;
+        //int tier = 0;
+
+        i += getToolMode(stack) + 1;
+
+        // Broken tool
+        if (this.isToolBroken(stack) == true)
+        {
+            i += 3;
+        }
+
+        if (i >= this.textures.length)
+        {
+            return this.textures[0];
+        }
+
+        return this.textures[i];
+    }
 }

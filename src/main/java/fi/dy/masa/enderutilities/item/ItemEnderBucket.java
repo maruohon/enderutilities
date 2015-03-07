@@ -5,6 +5,8 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -27,6 +29,8 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -1264,32 +1268,25 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         return this.iconParts[i];
     }
+    */
 
-    @Override
     @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
+    public void registerTextures(TextureMap textureMap)
     {
-        return true;
+        this.textures = new TextureAtlasSprite[2];
+        this.registerTexture(0, this.name            , textureMap);
+        this.registerTexture(1, this.name + ".linked", textureMap);
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
     {
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        // FIXME we would actually need the whole texture for each mode...
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED && this.getBucketMode(stack) == OPERATION_MODE_NORMAL)
+        int index = 0;
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            return this.itemIconLinked;
+            index += 1;
         }
 
-        return this.itemIcon;
+        return this.textures[index < this.textures.length ? index : 0];
     }
-    */
 }

@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -79,29 +81,20 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         return -1;
     }
 
-    /*
     @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
+    public void registerTextures(TextureMap textureMap)
     {
-        if (damage >= 0 && damage <= 2)
-        {
-            return this.iconArray[damage];
-        }
-
-        return this.itemIcon;
+        this.textures = new TextureAtlasSprite[3];
+        this.registerTexture(0, this.name + ".location", textureMap);
+        this.registerTexture(1, this.name + ".block",    textureMap);
+        this.registerTexture(2, this.name + ".portal",   textureMap);
     }
 
     @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
     {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray = new IIcon[3];
+        int index = stack.getItemDamage();
 
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
+        return this.textures[index < this.textures.length ? index : 0];
     }
-    */
 }

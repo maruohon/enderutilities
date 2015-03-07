@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -310,4 +312,23 @@ public class ItemMobHarness extends ItemEnderUtilities
         return this.iconArray[0];
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.textures = new TextureAtlasSprite[2];
+        this.registerTexture(0, this.name            , textureMap);
+        this.registerTexture(1, this.name + ".active", textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    {
+        if (this.hasTarget(stack) == true)
+        {
+            return this.textures[1];
+        }
+
+        return this.textures[0];
+    }
 }

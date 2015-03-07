@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -205,51 +207,30 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return -1;
     }
 
-    /*
     @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
+    public void registerTextures(TextureMap textureMap)
     {
-        return true;
+        this.textures = new TextureAtlasSprite[6];
+        for (int i = 0; i < 3; ++i)
+        {
+            this.registerTexture(i    , this.name + ".empty."   + i, textureMap);
+            this.registerTexture(i + 3, this.name + ".charged." + i, textureMap);
+        }
     }
 
     @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
     {
-        return 1;
-    }
+        int index = stack.getItemDamage();
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        int damage = stack.getItemDamage();
-        if (damage >= 0 && damage <= 2)
+        if (index >= 0 && index <= 2)
         {
             if (this.getCharge(stack) > 0)
             {
-                return this.iconArray[damage + 3];
+                index += 3;
             }
-
-            return this.iconArray[damage];
         }
 
-        return this.itemIcon;
+        return this.textures[index < this.textures.length ? index : 0];
     }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
-        this.iconArray = new IIcon[6];
-
-        for (int i = 0; i < 3; ++i)
-        {
-            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
-            this.iconArray[i + 3] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
-        }
-    }
-    */
 }

@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -14,6 +16,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -394,4 +398,32 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return this.getItemIconForUseDuration(index);
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        // TODO use time based icons, how the hell does one do those in 1.8 ??
+        this.textures = new TextureAtlasSprite[2];
+        this.registerTexture(0, this.name + ".standby", textureMap);
+        this.registerTexture(1, this.name + ".mode2.standby", textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite getItemTexture(ItemStack stack)
+    {
+        int index = 0;
+
+        if (stack.getTagCompound() != null)
+        {
+            byte mode = stack.getTagCompound().getByte("Mode");
+            if (mode > 1 || mode < 0)
+            {
+                mode = 0;
+            }
+
+            index += mode;
+        }
+
+        return this.textures[index < this.textures.length ? index : 0];
+    }
 }

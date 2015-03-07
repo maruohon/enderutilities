@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -106,4 +108,12 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         return this.itemIcon;
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.textures = new TextureAtlasSprite[2];
+        this.registerTexture(0, this.name           , textureMap);
+        this.registerTexture(1, this.name + ".elite", textureMap);
+    }
 }

@@ -1,10 +1,8 @@
-package fi.dy.masa.enderutilities.init;
+package fi.dy.masa.enderutilities.client.resources;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,7 +11,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.client.model.EnderUtilitiesItemSmartModel;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
@@ -21,29 +19,28 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 @SideOnly(Side.CLIENT)
 public class EnderUtilitiesModelRegistry
 {
-    public static void registerBlockModels(IRegistry modelRegistry)
+    public static void registerBlockModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        ItemModelMesher imm = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-        Item item = Item.getItemFromBlock(EnderUtilitiesBlocks.machine_0);
-        ModelBakery.addVariantName(item, "enderfurnace.off", "toolworkstation", "enderinfuser");
+        //Item item = Item.getItemFromBlock(EnderUtilitiesBlocks.machine_0);
+        //ModelBakery.addVariantName(item, "enderfurnace.off", "toolworkstation", "enderinfuser");
 
-        registerBlockModel(imm, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE,     0); // Ender Furnace
-        registerBlockModel(imm, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,  1); // Tool Workstation
-        registerBlockModel(imm, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,     2); // Ender Infuser
+        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE,     0, "inventory"); // Ender Furnace
+        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,  1, "inventory"); // Tool Workstation
+        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,     2, "inventory"); // Ender Infuser
     }
 
-    public static void registerBlockModel(ItemModelMesher itemModelMesher, String name, int meta)
+    public static void registerSmartItemModel(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        /*Item item = Item.getItemFromBlock(Block.getBlockFromName(Reference.MOD_ID + ":" + name));
+        // We use the Ender Lasso as a base model for all the items based on the ISmartItemModel.
+        String name = ReferenceNames.NAME_ITEM_ENDER_LASSO;
+        registerModel(itemModelMesher, name, 0, "inventory");
+
         ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory");
-        itemModelMesher.register(item, meta, mrl);*/
-        registerModel(itemModelMesher, name, meta, "inventory");
+        modelRegistry.putObject(mrl, new EnderUtilitiesItemSmartModelBase((IBakedModel)modelRegistry.getObject(mrl)));
     }
 
-    public static void registerItemMeshDefinitions()
+    public static void registerItemMeshDefinitions(ItemModelMesher itemModelMesher)
     {
-        ItemModelMesher itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-
         ItemMeshDefinition imd = new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
@@ -66,17 +63,6 @@ public class EnderUtilitiesModelRegistry
         itemModelMesher.register(EnderUtilitiesItems.enderTool,             imd);
         itemModelMesher.register(EnderUtilitiesItems.linkCrystal,           imd);
         itemModelMesher.register(EnderUtilitiesItems.mobHarness,            imd);
-    }
-
-    public static void registerItemModels(IRegistry modelRegistry)
-    {
-        ItemModelMesher itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-        String name = ReferenceNames.NAME_ITEM_ENDER_LASSO;
-        // We use the Lasso as a base model for the ISmartItemModel, which will operate as a wrapper for generating the actual models for each item
-        registerModel(itemModelMesher, name, 0, "inventory");
-
-        ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory");
-        modelRegistry.putObject(mrl, new EnderUtilitiesItemSmartModel((IBakedModel)modelRegistry.getObject(mrl)));
     }
 
     public static void registerModel(ItemModelMesher itemModelMesher, String name, int meta, String type)

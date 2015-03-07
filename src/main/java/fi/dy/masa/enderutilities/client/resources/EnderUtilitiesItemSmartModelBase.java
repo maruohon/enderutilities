@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.model;
+package fi.dy.masa.enderutilities.client.resources;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ISmartItemModel;
@@ -14,8 +15,12 @@ import net.minecraftforge.client.model.ISmartItemModel;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
+
 @SuppressWarnings("deprecation")
-public class EnderUtilitiesItemSmartModel implements ISmartItemModel
+public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
 {
     private TextureAtlasSprite texture;
     private List<LinkedList<BakedQuad>> faceQuads;
@@ -26,7 +31,7 @@ public class EnderUtilitiesItemSmartModel implements ISmartItemModel
     private boolean isBuiltInRenderer;
 
     @SuppressWarnings("unchecked")
-    public EnderUtilitiesItemSmartModel(IBakedModel baseModel)
+    public EnderUtilitiesItemSmartModelBase(IBakedModel baseModel)
     {
         this.generalQuads = baseModel.getGeneralQuads();
         this.faceQuads = newBlankFacingLists();
@@ -91,7 +96,23 @@ public class EnderUtilitiesItemSmartModel implements ISmartItemModel
     @Override
     public IBakedModel handleItemState(ItemStack stack)
     {
-        // TODO Auto-generated method stub
+        if (stack != null)
+        {
+            Item item = stack.getItem();
+            if (item instanceof ItemEnderUtilities)
+            {
+                this.texture = ((ItemEnderUtilities)stack.getItem()).getItemTexture(stack);
+            }
+            else if (item instanceof ItemEnderTool)
+            {
+                this.texture = ((ItemEnderTool)stack.getItem()).getItemTexture(stack);
+            }
+            else if (item instanceof ItemEnderSword)
+            {
+                this.texture = ((ItemEnderSword)stack.getItem()).getItemTexture(stack);
+            }
+        }
+
         return this;
     }
 

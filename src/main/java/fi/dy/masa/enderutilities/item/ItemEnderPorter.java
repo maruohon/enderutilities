@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -259,4 +261,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return this.getItemIconForUseDuration(index);
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.textures = new TextureAtlasSprite[2];
+        this.registerTexture(0, this.name + ".stage.1"         , textureMap);
+        this.registerTexture(1, this.name + ".advanced.stage.1", textureMap);
+    }
 }
