@@ -19,8 +19,8 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 
-@SuppressWarnings("deprecation")
-public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
+@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
+public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
 {
     private TextureAtlasSprite texture;
     private List<LinkedList<BakedQuad>> faceQuads;
@@ -30,29 +30,26 @@ public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
     private boolean isGui3d;
     private boolean isBuiltInRenderer;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public EnderUtilitiesItemSmartModelBase(IBakedModel baseModel)
+    public EnderUtilitiesSmartItemModelBase(IBakedModel baseModel)
     {
-        this.generalQuads = new LinkedList();
-        this.generalQuads.addAll(baseModel.getGeneralQuads());
+        this(baseModel.getGeneralQuads(), null, baseModel.isGui3d(), baseModel.isAmbientOcclusion(), baseModel.isBuiltInRenderer(), baseModel.getTexture(), baseModel.getItemCameraTransforms());
 
         this.faceQuads = newBlankFacingLists();
-
         for (EnumFacing facing : EnumFacing.values())
         {
             this.faceQuads.get(facing.ordinal()).addAll(baseModel.getFaceQuads(facing));
-
-            /*for (Object o : baseModel.getFaceQuads(facing))
-            {
-                this.faceQuads.get(facing.ordinal()).add((BakedQuad) o);
-            }*/
         }
+    }
 
-        this.isGui3d = baseModel.isGui3d();
-        this.isAmbientOcclusion = baseModel.isAmbientOcclusion();
-        this.isBuiltInRenderer = baseModel.isBuiltInRenderer();
-        this.cameraTransforms = baseModel.getItemCameraTransforms();
-        this.texture = baseModel.getTexture();
+    public EnderUtilitiesSmartItemModelBase(List generalQuads, List faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
+    {
+        this.generalQuads = generalQuads;
+        this.faceQuads = faceQuads;
+        this.isAmbientOcclusion = isAmbientOcclusion;
+        this.isGui3d = isGui3d;
+        this.isBuiltInRenderer = isBuiltInRenderer;
+        this.texture = texture;
+        this.cameraTransforms = cameraTransforms;
     }
 
     @Override
@@ -106,17 +103,14 @@ public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
             if (item instanceof ItemEnderUtilities)
             {
                 return ((ItemEnderUtilities)stack.getItem()).getItemModel(stack);
-                //this.texture = ((ItemEnderUtilities)stack.getItem()).getItemModel(stack).getTexture();
             }
             else if (item instanceof ItemEnderTool)
             {
                 return ((ItemEnderTool)stack.getItem()).getItemModel(stack);
-                //this.texture = ((ItemEnderTool)stack.getItem()).getItemModel(stack).getTexture();
             }
             else if (item instanceof ItemEnderSword)
             {
                 return ((ItemEnderSword)stack.getItem()).getItemModel(stack);
-                //this.texture = ((ItemEnderSword)stack.getItem()).getItemModel(stack).getTexture();
             }
         }
 
@@ -126,7 +120,6 @@ public class EnderUtilitiesItemSmartModelBase implements ISmartItemModel
     /**
      * Taken from DenseOres, by RWTema, in accordance to http://creativecommons.org/licenses/by/4.0/deed.en_GB
      */
-    @SuppressWarnings("rawtypes")
     public static List newBlankFacingLists()
     {
         Object[] list = new Object[EnumFacing.values().length];

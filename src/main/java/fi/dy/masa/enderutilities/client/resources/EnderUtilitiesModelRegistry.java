@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IRegistry;
@@ -43,7 +42,7 @@ public class EnderUtilitiesModelRegistry
         String name = ReferenceNames.NAME_ITEM_ENDER_LASSO;
 
         ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory");
-        baseItemModel = new EnderUtilitiesItemSmartModelBase(itemModelMesher.getModelManager().getModel(mrl));
+        baseItemModel = new EnderUtilitiesSmartItemModelBase(itemModelMesher.getModelManager().getModel(mrl));
         modelRegistry.putObject(mrl, baseItemModel);
     }
 
@@ -88,11 +87,11 @@ public class EnderUtilitiesModelRegistry
     }*/
 
     @SuppressWarnings("rawtypes")
-    public static IBakedModel createModel(IBakedModel baseModel, TextureAtlasSprite newTexture)
+    public static IBakedModel createNewModel(IBakedModel baseModel, TextureAtlasSprite newTexture)
     {
         //System.out.println("pre: " + newTexture.toString());
 
-        IBakedModel newModel = new SimpleBakedModel(new LinkedList(), EnderUtilitiesItemSmartModelBase.newBlankFacingLists(), baseModel.isGui3d(), baseModel.isAmbientOcclusion(), newTexture, baseModel.getItemCameraTransforms());
+        IBakedModel newModel = new EnderUtilitiesSmartItemModelBase(new LinkedList(), EnderUtilitiesSmartItemModelBase.newBlankFacingLists(), baseModel.isGui3d(), baseModel.isAmbientOcclusion(), baseModel.isBuiltInRenderer(), newTexture, baseModel.getItemCameraTransforms());
 
         for (Object o : baseModel.getGeneralQuads())
         {

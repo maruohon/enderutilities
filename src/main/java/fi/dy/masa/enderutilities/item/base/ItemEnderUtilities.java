@@ -150,7 +150,7 @@ public class ItemEnderUtilities extends Item
             return;
         }
 
-        this.models[index] = EnderUtilitiesModelRegistry.createModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
+        this.models[index] = EnderUtilitiesModelRegistry.createNewModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
         modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
         //modelRegistry.putObject(ReferenceNames.getPrefixedName(this.texture_names[index]), this.models[index]);
         //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);

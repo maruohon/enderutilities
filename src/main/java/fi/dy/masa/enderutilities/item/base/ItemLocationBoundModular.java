@@ -25,6 +25,11 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
+    public ItemLocationBoundModular()
+    {
+        super();
+    }
+
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {

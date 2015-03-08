@@ -9,6 +9,11 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemModular extends ItemEnderUtilities implements IModular
 {
+    public ItemModular()
+    {
+        super();
+    }
+
     @Override
     public int getModuleCount(ItemStack stack, ModuleType moduleType)
     {

@@ -22,6 +22,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
     public ItemEnderPearlReusable()
     {
+        super();
         this.setMaxStackSize(4);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);

@@ -64,27 +64,27 @@ public class EnderUtilitiesTextureRegistry
             // calculate the UVs based on the x,y,z and the 'face' of the quad
             switch (quad.getFace().ordinal())
             {
-                case 0:
+                case 0: // Down
                     u = x * 16.0F;
                     v = (1.0F - z) * 16.0F;
                     break;
-                case 1:
+                case 1: // Up
                     u = x * 16.0F;
                     v = z * 16.0F;
                     break;
-                case 2:
+                case 2: // North
                     u = (1.0F - x) * 16.0F;
                     v = (1.0F - y) * 16.0F;
                     break;
-                case 3:
+                case 3: // South
                     u = x * 16.0F;
                     v = (1.0F - y) * 16.0F;
                     break;
-                case 4:
+                case 4: // West
                     u = z * 16.0F;
                     v = (1.0F - y) * 16.0F;
                     break;
-                case 5:
+                case 5: // East
                     u = (1.0F - z) * 16.0F;
                     v = (1.0F - y) * 16.0F;
             }
