@@ -5,10 +5,11 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -580,9 +581,26 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
 
         this.models[index] = EnderUtilitiesModelRegistry.createModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
-        //modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
-        modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
-        //System.out.println("registerModel(): " + index + " model: " + this.models[index].toString() + " tex: " + this.textures[index]);
+        modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
+        //modelRegistry.putObject(new ModelResourceLocation(ReferenceTextures.getItemTextureName(this.texture_names[index]), "inventory"), this.models[index]);
+        //modelRegistry.putObject(ReferenceNames.getPrefixedName(this.texture_names[index]), this.models[index]);
+        //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher, ItemMeshDefinition imd)
+    {
+        itemModelMesher.register(this, imd);
+
+        int len = this.textures.length;
+        this.models = new IBakedModel[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            this.registerModel(i, modelRegistry);
+        }
+
+        //ItemEnderUtilities.addVariantNames(this, this.texture_names);
     }
 
     @SideOnly(Side.CLIENT)
@@ -597,19 +615,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         textureMap.setTextureEntry(ReferenceTextures.getItemTextureName(spriteName), new TextureItems(ReferenceTextures.getItemTextureName(spriteName)));
 
         this.textures[index] = textureMap.getTextureExtry(ReferenceTextures.getItemTextureName(spriteName));
-        this.texture_names[index] = ReferenceTextures.getItemTextureName(spriteName);
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerModels(IRegistry modelRegistry)
-    {
-        int len = this.textures.length;
-        this.models = new IBakedModel[len];
-
-        for (int i = 0; i < len; ++i)
-        {
-            this.registerModel(i, modelRegistry);
-        }
+        this.texture_names[index] = spriteName;
     }
 
     @SideOnly(Side.CLIENT)

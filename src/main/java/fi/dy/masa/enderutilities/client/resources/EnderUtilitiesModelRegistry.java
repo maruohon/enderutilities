@@ -9,15 +9,11 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.SimpleBakedModel;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
@@ -42,14 +38,13 @@ public class EnderUtilitiesModelRegistry
 
     public static void registerSmartItemModel(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        // We use the Ender Lasso as a base model for all the items based on the ISmartItemModel.
+        // Base model for the ISmartItemModel model, which then gets customized for each item as needed.
+        //String name = ReferenceNames.NAME_ITEM_MODEL_BASE;
         String name = ReferenceNames.NAME_ITEM_ENDER_LASSO;
-        //registerModel(itemModelMesher, name, 0, "inventory");
 
-        //ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory");
-        //baseItemModel = new EnderUtilitiesItemSmartModelBase((IBakedModel)modelRegistry.getObject(mrl));
-        baseItemModel = new EnderUtilitiesItemSmartModelBase(itemModelMesher.getItemModel(new ItemStack(Items.book)));
-        modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory"), baseItemModel);
+        ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, "inventory");
+        baseItemModel = new EnderUtilitiesItemSmartModelBase(itemModelMesher.getModelManager().getModel(mrl));
+        modelRegistry.putObject(mrl, baseItemModel);
     }
 
     public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
@@ -58,41 +53,28 @@ public class EnderUtilitiesModelRegistry
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
-                // We use the Lasso as a base model for the ISmartItemModel, see below
+                // Base model for the ISmartItemModel
+                //return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE, "inventory");
                 return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_ENDER_LASSO, "inventory");
             }
         };
 
-        itemModelMesher.register(EnderUtilitiesItems.enderArrow,            imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderBag,              imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderBow,              imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderBucket,           imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderLasso,            imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderPearlReusable,    imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderPorter,           imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderCapacitor,        imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderPart,             imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderSword,            imd);
-        itemModelMesher.register(EnderUtilitiesItems.enderTool,             imd);
-        itemModelMesher.register(EnderUtilitiesItems.linkCrystal,           imd);
-        itemModelMesher.register(EnderUtilitiesItems.mobHarness,            imd);
-
-        EnderUtilitiesItems.enderArrow.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderBag.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderBow.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderBucket.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderLasso.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderPearlReusable.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderPorter.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderCapacitor.registerModels(modelRegistry);
-        EnderUtilitiesItems.enderPart.registerModels(modelRegistry);
-        ((ItemEnderSword)EnderUtilitiesItems.enderSword).registerModels(modelRegistry);
-        ((ItemEnderTool)EnderUtilitiesItems.enderTool).registerModels(modelRegistry);
-        EnderUtilitiesItems.linkCrystal.registerModels(modelRegistry);
-        EnderUtilitiesItems.mobHarness.registerModels(modelRegistry);
+        EnderUtilitiesItems.enderArrow.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderBag.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderBow.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderBucket.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderLasso.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderPearlReusable.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderPorter.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderCapacitor.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.enderPart.registerModels(modelRegistry, itemModelMesher, imd);
+        ((ItemEnderSword)EnderUtilitiesItems.enderSword).registerModels(modelRegistry, itemModelMesher, imd);
+        ((ItemEnderTool)EnderUtilitiesItems.enderTool).registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.linkCrystal.registerModels(modelRegistry, itemModelMesher, imd);
+        EnderUtilitiesItems.mobHarness.registerModels(modelRegistry, itemModelMesher, imd);
     }
 
-    public static void registerModel(ItemModelMesher itemModelMesher, String name, int meta, String type)
+    /*public static void registerModel(ItemModelMesher itemModelMesher, String name, int meta, String type)
     {
         Item item = GameRegistry.findItem(Reference.MOD_ID, name);
         if (item == null)
@@ -103,12 +85,12 @@ public class EnderUtilitiesModelRegistry
 
         ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, type);
         itemModelMesher.register(item, meta, mrl);
-    }
+    }*/
 
     @SuppressWarnings("rawtypes")
     public static IBakedModel createModel(IBakedModel baseModel, TextureAtlasSprite newTexture)
     {
-        System.out.println("pre: " + newTexture.toString());
+        //System.out.println("pre: " + newTexture.toString());
 
         IBakedModel newModel = new SimpleBakedModel(new LinkedList(), EnderUtilitiesItemSmartModelBase.newBlankFacingLists(), baseModel.isGui3d(), baseModel.isAmbientOcclusion(), newTexture, baseModel.getItemCameraTransforms());
 
