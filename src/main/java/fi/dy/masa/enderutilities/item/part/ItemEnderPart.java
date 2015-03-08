@@ -226,12 +226,12 @@ public class ItemEnderPart extends ItemModule
 
         for (i = 0; i < 3; ++i, ++j)
         {
-            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i;
+            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i + ".inactive";
         }
 
         for (i = 0; i < 3; ++i, ++j)
         {
-            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i;
+            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i + ".active";
         }
 
         allVariants[j++] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;

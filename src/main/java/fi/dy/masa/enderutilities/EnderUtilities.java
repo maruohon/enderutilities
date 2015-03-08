@@ -43,6 +43,7 @@ public class EnderUtilities
         PacketHandler.init(); // Initialize network stuff
         EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
         EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
+        proxy.preInit(); // Needs to be after block and item registrations
     }
 
     @EventHandler

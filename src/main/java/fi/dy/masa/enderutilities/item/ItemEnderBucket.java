@@ -1273,7 +1273,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         this.addVariants(   this.name + ".32",
                             this.name + ".32.linked");
-    }    
+    }
 
     @SideOnly(Side.CLIENT)
     @Override

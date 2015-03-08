@@ -23,7 +23,10 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.event.ModelEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 
 public class ClientProxy extends CommonProxy
@@ -94,5 +97,62 @@ public class ClientProxy extends CommonProxy
     public boolean isAltKeyDown()
     {
         return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+    }
+
+    @Override
+    public void preInit()
+    {
+        if (Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderPart.registerVariants();
+        }
+        if (Configs.disableItemEnderCapacitor.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderCapacitor.registerVariants();
+        }
+        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.linkCrystal.registerVariants();
+        }
+        if (Configs.disableItemEnderArrow.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderArrow.registerVariants();
+        }
+        if (Configs.disableItemEnderBag.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderBag.registerVariants();
+        }
+        if (Configs.disableItemEnderBow.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderBow.registerVariants();
+        }
+        if (Configs.disableItemEnderBucket.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderBucket.registerVariants();
+        }
+        if (Configs.disableItemEnderLasso.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderLasso.registerVariants();
+        }
+        if (Configs.disableItemEnderPearl.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderPearlReusable.registerVariants();
+        }
+        if (Configs.disableItemEnderPorter.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.enderPorter.registerVariants();
+        }
+        if (Configs.disableItemEnderSword.getBoolean(false) == false)
+        {
+            ((ItemEnderSword)EnderUtilitiesItems.enderSword).registerVariants();
+        }
+        if (Configs.disableItemEnderTools.getBoolean(false) == false)
+        {
+            ((ItemEnderTool)EnderUtilitiesItems.enderTool).registerVariants();
+        }
+        if (Configs.disableItemMobHarness.getBoolean(false) == false)
+        {
+            EnderUtilitiesItems.mobHarness.registerVariants();
+        }
     }
 }
