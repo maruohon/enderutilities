@@ -2,9 +2,6 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -14,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
@@ -21,7 +19,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderPart extends ItemModule
 {
     public ItemEnderPart()
@@ -217,37 +214,37 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[13];
-        this.texture_names = new String[this.textures.length];
+        String[] allVariants = new String[13];
+        int i = 0, j = 0;
 
-        int i = 0, j;
-
-        for (j = 0; j < 3; ++i, ++j)
+        for (i = 0; i < 3; ++i, ++j)
         {
-            this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j, textureMap);
+            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + i;
         }
 
-        for (j = 0; j < 3; ++i, ++j)
+        for (i = 0; i < 3; ++i, ++j)
         {
-            this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive", textureMap);
+            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i;
         }
 
-        for (j = 0; j < 3; ++i, ++j)
+        for (i = 0; i < 3; ++i, ++j)
         {
-            this.registerTexture(i, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active", textureMap);
+            allVariants[j] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + i;
         }
 
-        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK, textureMap);
-        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE, textureMap);
-        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC, textureMap);
-        this.registerTexture(i++, this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE, textureMap);
+        allVariants[j++] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;
+        allVariants[j++] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
+        allVariants[j++] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
+        allVariants[j++] = this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE;
+
+        this.addVariants(allVariants);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         int damage = stack.getItemDamage();

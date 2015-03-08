@@ -5,23 +5,25 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public interface IProxy
 {
-    public abstract EntityPlayer getPlayerFromMessageContext(MessageContext ctx);
+    public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);
 
-    public abstract void registerEntities();
+    public void preInit();
 
-    public abstract void registerEventHandlers();
+    public void registerEntities();
 
-    public abstract void registerFuelHandlers();
+    public void registerEventHandlers();
 
-    public abstract void registerKeyBindings();
+    public void registerFuelHandlers();
 
-    public abstract void registerRenderers();
+    public void registerKeyBindings();
 
-    public abstract void registerTileEntities();
+    public void registerRenderers();
 
-    public abstract boolean isShiftKeyDown();
+    public void registerTileEntities();
 
-    public abstract boolean isControlKeyDown();
+    public boolean isShiftKeyDown();
 
-    public abstract boolean isAltKeyDown();
+    public boolean isControlKeyDown();
+
+    public boolean isAltKeyDown();
 }

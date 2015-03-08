@@ -40,7 +40,7 @@ public class EnderUtilitiesTextureRegistry
      * Copy a quad with a different texture overlayed on it.
      * Taken from DenseOres, by RWTema, in accordance to http://creativecommons.org/licenses/by/4.0/deed.en_GB
      */
-    public static BakedQuad changeTexture(BakedQuad quad, TextureAtlasSprite tex)
+    public static BakedQuad changeTextureForItem(BakedQuad quad, TextureAtlasSprite tex)
     {
         quad = copyQuad(quad);
 

@@ -4,9 +4,6 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -22,6 +19,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
@@ -38,7 +36,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
     public static final int ENDER_CHARGE_COST = 200;
@@ -316,21 +313,18 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[4];
-        this.texture_names = new String[this.textures.length];
-
         // TODO add locked textures
-        this.registerTexture(0, this.name + ".regular.closed", textureMap);
-        this.registerTexture(1, this.name + ".regular.open", textureMap);
-        this.registerTexture(2, this.name + ".enderchest.closed", textureMap);
-        this.registerTexture(3, this.name + ".enderchest.open", textureMap);
+        this.addVariants(   this.name + ".regular.closed",
+                            this.name + ".regular.open",
+                            this.name + ".enderchest.closed",
+                            this.name + ".enderchest.open");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);

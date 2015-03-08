@@ -3,9 +3,6 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -19,6 +16,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,7 +25,6 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-@SuppressWarnings("deprecation")
 public class ItemMobHarness extends ItemEnderUtilities
 {
     public ItemMobHarness()
@@ -317,18 +314,16 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[2];
-        this.texture_names = new String[this.textures.length];
-
-        this.registerTexture(0, this.name            , textureMap);
-        this.registerTexture(1, this.name + ".active", textureMap);
+        // TODO add locked textures
+        this.addVariants(   this.name,
+                            this.name + ".active");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         if (this.hasTarget(stack) == true)

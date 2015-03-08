@@ -2,9 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -13,6 +10,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
@@ -31,7 +29,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
     public static final int ENDER_CHARGE_COST_MOB_TP = 1000;
@@ -403,19 +400,16 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
         // TODO use time based icons, how the hell does one do those in 1.8 ??
-        this.textures = new TextureAtlasSprite[2];
-        this.texture_names = new String[this.textures.length];
-
-        this.registerTexture(0, this.name + ".standby", textureMap);
-        this.registerTexture(1, this.name + ".mode2.standby", textureMap);
+        this.addVariants(   this.name + ".standby",
+                            this.name + ".mode2.standby");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
 

@@ -8,13 +8,14 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -25,17 +26,17 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderUtilities extends Item
 {
     public String name;
 
+    /** Non-namespaced/non-mod-domain-prepended variant names for this item. */
+    @SideOnly(Side.CLIENT)
+    public String variants[];
     @SideOnly(Side.CLIENT)
     public TextureAtlasSprite textures[];
     @SideOnly(Side.CLIENT)
-    public String texture_names[];
-    @SideOnly(Side.CLIENT)
-    public IBakedModel models[];
+    public IFlexibleBakedModel models[];
 
     public ItemEnderUtilities()
     {
@@ -127,33 +128,36 @@ public class ItemEnderUtilities extends Item
     }
 
     @SideOnly(Side.CLIENT)
-    public static void addVariantNames(Item item, String[] names)
+    public void addVariants(String... variantsIn)
     {
         // FIXME we should register all _models_ not individual texture names
         // That would also mean fixing the models so that a single model has all the necessary layers for each item
         // and the face quads should be baked based on the item NBT.
-        String[] nameSpaced = new String[names.length];
-        for (int i = 0; i < names.length; ++i)
+        int len = variantsIn.length;
+        this.variants = new String[len];
+
+        String[] namespaced = new String[len];
+        for (int i = 0; i < len; ++i)
         {
-            nameSpaced[i] = Reference.MOD_ID + ":" + names[i];
+            this.variants[i] = variantsIn[i];
+            namespaced[i] = Reference.MOD_ID + ":" + variantsIn[i];
         }
 
-        ModelBakery.addVariantName(item, nameSpaced);
+        ModelBakery.addVariantName(this, namespaced);
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerModel(int index, IRegistry modelRegistry)
+    public void registerTextures(TextureMap textureMap)
     {
-        if (this.textures.length <= index || this.textures[index] == null)
-        {
-            EnderUtilities.logger.fatal("Good afternoon, this is Major Derp. I live in ItemEnderUtilities.registerModel()");
-            return;
-        }
+        int len = this.variants.length;
+        this.textures = new TextureAtlasSprite[len];
 
-        this.models[index] = EnderUtilitiesModelRegistry.createNewModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
-        modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
-        //modelRegistry.putObject(ReferenceNames.getPrefixedName(this.texture_names[index]), this.models[index]);
-        //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
+        for (int i = 0; i < len; ++i)
+        {
+            String name = ReferenceTextures.getItemTextureName(this.variants[i]);
+            textureMap.setTextureEntry(name, new TextureItems(name));
+            this.textures[i] = textureMap.getTextureExtry(name);
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -161,43 +165,24 @@ public class ItemEnderUtilities extends Item
     {
         itemModelMesher.register(this, imd);
 
-        int len = this.textures.length;
-        this.models = new IBakedModel[len];
+        int len = this.variants.length;
+        this.models = new IFlexibleBakedModel[len];
 
         for (int i = 0; i < len; ++i)
         {
-            this.registerModel(i, modelRegistry);
+            this.models[i] = EnderUtilitiesModelRegistry.createNewBasicItemModel(this.textures[i]);
+            modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
         }
-
-        //addVariantNames(this, this.texture_names);
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerTexture(int index, String spriteName, TextureMap textureMap)
+    public void registerVariants()
     {
-        if (index >= this.textures.length)
-        {
-            EnderUtilities.logger.fatal("Index out of bounds in ItemEnderUtilities.registerTexture(): " + index);
-            return;
-        }
-
-        textureMap.setTextureEntry(ReferenceTextures.getItemTextureName(spriteName), new TextureItems(ReferenceTextures.getItemTextureName(spriteName)));
-
-        this.textures[index] = textureMap.getTextureExtry(ReferenceTextures.getItemTextureName(spriteName));
-        this.texture_names[index] = spriteName;
+        this.addVariants(this.name);
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerTextures(TextureMap textureMap)
-    {
-        this.textures = new TextureAtlasSprite[1];
-        this.texture_names = new String[this.textures.length];
-
-        this.registerTexture(0, this.name, textureMap);
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = stack.getItemDamage();
 

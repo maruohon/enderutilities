@@ -26,6 +26,11 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 public abstract class CommonProxy implements IProxy
 {
     @Override
+    public void preInit()
+    {
+    }
+
+    @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
         switch (ctx.side)

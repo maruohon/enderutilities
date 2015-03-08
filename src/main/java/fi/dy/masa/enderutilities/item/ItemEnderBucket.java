@@ -5,9 +5,6 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -21,6 +18,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -46,7 +44,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
     public static final double ENDER_CHARGE_COST = 0.2d; // charge cost per 1 mB of fluid transferred to/from a linked tank
@@ -1272,18 +1269,15 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[2];
-        this.texture_names = new String[this.textures.length];
-
-        this.registerTexture(0, this.name + ".32"       , textureMap);
-        this.registerTexture(1, this.name + ".32.linked", textureMap);
-    }
+        this.addVariants(   this.name + ".32",
+                            this.name + ".32.linked");
+    }    
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)

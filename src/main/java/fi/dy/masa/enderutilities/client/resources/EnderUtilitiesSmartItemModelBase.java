@@ -1,34 +1,38 @@
 package fi.dy.masa.enderutilities.client.resources;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.Attributes;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 
-@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
-public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
+@SuppressWarnings("deprecation")
+public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, ISmartItemModel
 {
     private TextureAtlasSprite texture;
-    private List<LinkedList<BakedQuad>> faceQuads;
+    private List<List<BakedQuad>> faceQuads;
     private List<BakedQuad> generalQuads;
     private ItemCameraTransforms cameraTransforms;
     private boolean isAmbientOcclusion;
     private boolean isGui3d;
     private boolean isBuiltInRenderer;
+    private VertexFormat format;
 
     public EnderUtilitiesSmartItemModelBase(IBakedModel baseModel)
     {
@@ -41,7 +45,7 @@ public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
         }
     }
 
-    public EnderUtilitiesSmartItemModelBase(List generalQuads, List faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
+    public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
     {
         this.generalQuads = generalQuads;
         this.faceQuads = faceQuads;
@@ -50,18 +54,19 @@ public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
         this.isBuiltInRenderer = isBuiltInRenderer;
         this.texture = texture;
         this.cameraTransforms = cameraTransforms;
+        this.format = Attributes.DEFAULT_BAKED_FORMAT;
     }
 
     @Override
-    public List getFaceQuads(EnumFacing facing)
-    {
-        return this.faceQuads.get(facing.ordinal());
-    }
-
-    @Override
-    public List getGeneralQuads()
+    public List<BakedQuad> getGeneralQuads()
     {
         return this.generalQuads;
+    }
+
+    @Override
+    public List<BakedQuad> getFaceQuads(EnumFacing facing)
+    {
+        return this.faceQuads.get(facing.ordinal());
     }
 
     @Override
@@ -94,8 +99,15 @@ public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
         return this.cameraTransforms;
     }
 
+
     @Override
-    public IBakedModel handleItemState(ItemStack stack)
+    public VertexFormat getFormat()
+    {
+        return this.format;
+    }
+
+    @Override
+    public IFlexibleBakedModel handleItemState(ItemStack stack)
     {
         if (stack != null)
         {
@@ -120,13 +132,13 @@ public class EnderUtilitiesSmartItemModelBase implements ISmartItemModel
     /**
      * Taken from DenseOres, by RWTema, in accordance to http://creativecommons.org/licenses/by/4.0/deed.en_GB
      */
-    public static List newBlankFacingLists()
+    public static List<List<BakedQuad>> newBlankFacingLists()
     {
-        Object[] list = new Object[EnumFacing.values().length];
+        List<List<BakedQuad>> list = new ArrayList<List<BakedQuad>>(EnumFacing.values().length);
 
         for (int i = 0; i < EnumFacing.values().length; ++i)
         {
-            list[i] = Lists.newLinkedList();
+            list.add(i, new LinkedList<BakedQuad>());
         }
 
         return ImmutableList.copyOf(list);

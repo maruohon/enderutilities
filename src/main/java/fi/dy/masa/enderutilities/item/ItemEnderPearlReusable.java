@@ -2,8 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -90,12 +88,10 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[2];
-        this.texture_names = new String[this.textures.length];
-
-        this.registerTexture(0, this.name           , textureMap);
-        this.registerTexture(1, this.name + ".elite", textureMap);
+        // TODO add locked textures
+        this.addVariants(   this.name,
+                            this.name + ".elite");
     }
 }

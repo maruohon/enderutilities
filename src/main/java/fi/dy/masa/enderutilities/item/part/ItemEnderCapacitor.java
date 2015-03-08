@@ -2,15 +2,13 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,7 +19,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
     public ItemEnderCapacitor()
@@ -211,21 +208,20 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
-        this.textures = new TextureAtlasSprite[6];
-        this.texture_names = new String[this.textures.length];
-
-        for (int i = 0; i < 3; ++i)
-        {
-            this.registerTexture(i    , this.name + ".empty."   + i, textureMap);
-            this.registerTexture(i + 3, this.name + ".charged." + i, textureMap);
-        }
+        // TODO add locked textures
+        this.addVariants(   this.name + ".empty.0",
+                            this.name + ".empty.1",
+                            this.name + ".empty.2",
+                            this.name + ".charged.0",
+                            this.name + ".charged.1",
+                            this.name + ".charged.2");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = stack.getItemDamage();
 

@@ -14,7 +14,8 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -42,6 +43,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -78,7 +80,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-@SuppressWarnings("deprecation")
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
     public static final int ENDER_CHARGE_COST = 50;
@@ -86,14 +87,15 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public float damageVsEntity;
     private final Item.ToolMaterial material;
 
+    /** Non-namespaced/non-mod-domain-prepended variant names for this item. */
+    @SideOnly(Side.CLIENT)
+    public String variants[];
     @SideOnly(Side.CLIENT)
     public TextureAtlasSprite textures[];
     @SideOnly(Side.CLIENT)
-    public String texture_names[];
+    public IFlexibleBakedModel models[];
     @SideOnly(Side.CLIENT)
-    public IBakedModel models[];
-    @SideOnly(Side.CLIENT)
-    String[] parts;
+    private String[] parts;
 
     public ItemEnderTool()
     {
@@ -1238,19 +1240,36 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     */
 
     @SideOnly(Side.CLIENT)
-    public void registerModel(int index, IRegistry modelRegistry)
+    public void addVariants(String... variantsIn)
     {
-        if (this.textures.length <= index || this.textures[index] == null)
+        // FIXME we should register all _models_ not individual texture names
+        // That would also mean fixing the models so that a single model has all the necessary layers for each item
+        // and the face quads should be baked based on the item NBT.
+        int len = variantsIn.length;
+        this.variants = new String[len];
+
+        String[] namespaced = new String[len];
+        for (int i = 0; i < len; ++i)
         {
-            EnderUtilities.logger.fatal("Good afternoon, this is Major Derp. I live in ItemEnderTool.registerModel()");
-            return;
+            this.variants[i] = variantsIn[i];
+            namespaced[i] = Reference.MOD_ID + ":" + variantsIn[i];
         }
 
-        this.models[index] = EnderUtilitiesModelRegistry.createNewModel(EnderUtilitiesModelRegistry.baseItemModel, this.textures[index]);
-        modelRegistry.putObject(Reference.MOD_ID + ":" + this.texture_names[index], this.models[index]);
-        //modelRegistry.putObject(new ModelResourceLocation(ReferenceTextures.getItemTextureName(this.texture_names[index]), "inventory"), this.models[index]);
-        //modelRegistry.putObject(ReferenceNames.getPrefixedName(this.texture_names[index]), this.models[index]);
-        //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.texture_names[index], "inventory"), this.models[index]);
+        ModelBakery.addVariantName(this, namespaced);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        int len = this.variants.length;
+        this.textures = new TextureAtlasSprite[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            String name = ReferenceTextures.getItemTextureName(this.variants[i]);
+            textureMap.setTextureEntry(name, new TextureItems(name));
+            this.textures[i] = textureMap.getTextureExtry(name);
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -1258,34 +1277,18 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     {
         itemModelMesher.register(this, imd);
 
-        int len = this.textures.length;
-        this.models = new IBakedModel[len];
+        int len = this.variants.length;
+        this.models = new IFlexibleBakedModel[len];
 
         for (int i = 0; i < len; ++i)
         {
-            this.registerModel(i, modelRegistry);
+            this.models[i] = EnderUtilitiesModelRegistry.createNewBasicItemModel(this.textures[i]);
+            modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
         }
-
-        //ItemEnderUtilities.addVariantNames(this, this.texture_names);
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerTexture(int index, String spriteName, TextureMap textureMap)
-    {
-        if (index >= this.textures.length)
-        {
-            EnderUtilities.logger.fatal("Index out of bounds in ItemEnderTool.registerTexture(): " + index);
-            return;
-        }
-
-        textureMap.setTextureEntry(ReferenceTextures.getItemTextureName(spriteName), new TextureItems(ReferenceTextures.getItemTextureName(spriteName)));
-
-        this.textures[index] = textureMap.getTextureExtry(ReferenceTextures.getItemTextureName(spriteName));
-        this.texture_names[index] = spriteName;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerTextures(TextureMap textureMap)
+    public void registerVariants()
     {
          this.parts = new String[] {"rod.1", "head.1", "head.2", "head.3",
                 "head.1.glow", "head.2.glow", "head.3.glow",
@@ -1295,25 +1298,27 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 "capacitor.1", "capacitor.2", "capacitor.3",
                 "linkcrystal.1", "linkcrystal.2"};
 
-         this.textures = new TextureAtlasSprite[this.parts.length * 4];
-         this.texture_names = new String[this.textures.length];
-
+         int partsLen = this.parts.length;
+         int variantsLen = partsLen * 4;
          String prefix = ReferenceNames.NAME_ITEM_ENDERTOOL + ".";
+         String[] allVariants = new String[variantsLen];
 
          for (ToolType type : ToolType.values())
          {
              int id = type.getId();
-             int start = id * this.parts.length;
+             int start = id * partsLen;
 
-             for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.textures.length; j++)
+             for (int j = 0; id >= 0 && j < partsLen; j++)
              {
-                 this.registerTexture(start + j, prefix + type.getName() + "." + this.parts[j], textureMap);
+                 allVariants[start + j] = prefix + type.getName() + "." + this.parts[j];
              }
          }
+
+         this.addVariants(allVariants);
     }
 
     @SideOnly(Side.CLIENT)
-    public IBakedModel getItemModel(ItemStack stack)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         if (stack == null)
         {
