@@ -330,46 +330,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     /*
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".standby");
-        this.iconArray = new IIcon[bowPullIconNameArray.length];
-
-        for (int i = 0; i < this.iconArray.length; ++i)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + bowPullIconNameArray[i]);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getItemIconForUseDuration(int par1)
-    {
-        return this.iconArray[par1];
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
     {
         int index = 0;
@@ -397,6 +357,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return this.getItemIconForUseDuration(index);
     }
     */
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public String getBaseModelName(String variant)
+    {
+        return ReferenceNames.NAME_ITEM_ENDER_BOW;
+    }
 
     @SideOnly(Side.CLIENT)
     @Override

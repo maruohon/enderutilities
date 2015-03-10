@@ -313,6 +313,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     @SideOnly(Side.CLIENT)
     @Override
+    public String getBaseModelName(String variant)
+    {
+        return ReferenceNames.NAME_ITEM_ENDER_BAG;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
     public void registerVariants()
     {
         // TODO add locked textures

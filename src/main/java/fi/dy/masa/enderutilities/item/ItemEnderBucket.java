@@ -1269,6 +1269,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     @SideOnly(Side.CLIENT)
     @Override
+    public String getBaseModelName(String variant)
+    {
+        return ReferenceNames.NAME_ITEM_ENDER_BUCKET;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
     public void registerVariants()
     {
         this.addVariants(   this.name + ".32",

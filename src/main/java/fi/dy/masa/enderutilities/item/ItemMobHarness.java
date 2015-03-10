@@ -274,43 +274,13 @@ public class ItemMobHarness extends ItemEnderUtilities
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + StatCollector.translateToLocal("entity." + target + ".name") + rst);
     }
 
-    /*
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
 
-    @Override
     @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
+    public String getBaseModelName(String variant)
     {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.iconArray = new IIcon[2];
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".active");
+        return ReferenceNames.NAME_ITEM_MOB_HARNESS;
     }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        if (this.hasTarget(stack) == true)
-        {
-            return this.iconArray[1];
-        }
-
-        return this.iconArray[0];
-    }
-    */
 
     @SideOnly(Side.CLIENT)
     @Override

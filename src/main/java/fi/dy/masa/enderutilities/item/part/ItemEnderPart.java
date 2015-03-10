@@ -212,6 +212,19 @@ public class ItemEnderPart extends ItemModule
         return -1; // Invalid item (= non-module)
     }
 
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public String getBaseModelName(String variant)
+    {
+        if (variant.equals(this.name + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK))
+        {
+            return ReferenceNames.NAME_ITEM_ENDERTOOL;
+        }
+
+        return null;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void registerVariants()

@@ -1,0 +1,18 @@
+{
+    "parent": "builtin/generated",
+    "textures": {
+        "layer0": "enderutilities:items/item.enderpart.enderstick"
+    },
+    "display": {
+        "thirdperson": {
+            "rotation": [ 180, 92, 122 ],
+            "translation": [ -0.25, 1.5, -4.0 ],
+            "scale": [ 0.55, 0.55, 0.55 ]
+        },
+        "firstperson": {
+            "rotation": [ 358, 239, 23 ],
+            "translation": [ 0.75, 3.75, 1.75 ],
+            "scale": [ 1.4, 1.4, 1.4 ]
+        }
+    }
+}

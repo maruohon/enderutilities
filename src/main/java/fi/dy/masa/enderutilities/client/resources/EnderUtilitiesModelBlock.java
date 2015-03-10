@@ -101,6 +101,11 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         return modelBlock;
     }
 
+    public static ResourceLocation getModelLocation(ResourceLocation location)
+    {
+        return new ResourceLocation(location.getResourceDomain(), location.getResourcePath() + ".json");
+    }
+
     public static void setModelParents()
     {
         Iterator iterator = EnderUtilitiesModelRegistry.models.values().iterator();
@@ -112,11 +117,6 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         }
 
         ModelBlock.checkModelHierarchy(EnderUtilitiesModelRegistry.models);
-    }
-
-    public static ResourceLocation getModelLocation(ResourceLocation location)
-    {
-        return new ResourceLocation(location.getResourceDomain(), location.getResourcePath() + ".json");
     }
 
     /**

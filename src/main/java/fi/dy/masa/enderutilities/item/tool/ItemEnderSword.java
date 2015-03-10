@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item.tool;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -626,7 +627,20 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         int len = this.variants.length;
         this.models = new IFlexibleBakedModel[len];
 
-        ModelBlock base = EnderUtilitiesModelRegistry.modelBlockBase;
+        ModelBlock base;
+
+        String name = Reference.MOD_ID + ":" + "models/item/" + ReferenceNames.NAME_ITEM_ENDERTOOL;
+
+        try
+        {
+            base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+        }
+        catch (IOException e)
+        {
+            EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
+            base = EnderUtilitiesModelRegistry.modelBlockBase;
+        }
+
         for (int i = 0; i < len; ++i)
         {
             String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];

@@ -93,7 +93,7 @@ public class EnderUtilitiesModelRegistry
         //EnderUtilities.logger.info("Generated base ModelBlock: " + modelBlock.name);
         //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
 
-        String name = Reference.MOD_ID + ":" + "models/item/itemmodelbase";
+        String name = Reference.MOD_ID + ":" + "models/item/" + ReferenceNames.NAME_ITEM_MODEL_BASE;
 
         try
         {

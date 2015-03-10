@@ -1,0 +1,18 @@
+{
+    "parent": "builtin/generated",
+    "textures": {
+        "layer0": "enderutilities:items/item.enderbucket.32"
+    },
+    "display": {
+        "thirdperson": {
+            "rotation": [ 270, 0, 0 ],
+            "translation": [ -0.25, 1.25, -3.0 ],
+            "scale": [ 0.5, 0.5, 0.5 ]
+        },
+        "firstperson": {
+            "rotation": [ 350, 253, 17 ],
+            "translation": [ 2.0, 5.25, 2.0 ],
+            "scale": [ 1.6, 1.6, 1.6 ]
+        }
+    }
+}

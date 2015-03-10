@@ -13,7 +13,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 
-    public static final String NAME_ITEM_MODEL_BASE                 = "itemmodelbase";
+    public static final String NAME_ITEM_MODEL_BASE                 = "item_model_base";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";

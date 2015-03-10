@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -175,9 +176,34 @@ public class ItemEnderUtilities extends Item
         int len = this.variants.length;
         this.models = new IFlexibleBakedModel[len];
 
-        ModelBlock base = EnderUtilitiesModelRegistry.modelBlockBase;
         for (int i = 0; i < len; ++i)
         {
+            // Get the name of the model with the correct translation/rotation/scale etc.
+            String name = this.getBaseModelName(this.variants[i]);
+            ModelBlock base;
+
+            if (name != null)
+            {
+                name = Reference.MOD_ID + ":models/item/" + name;
+
+                try
+                {
+                    base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+                }
+                catch (IOException e)
+                {
+                    EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
+                    base = EnderUtilitiesModelRegistry.modelBlockBase;
+                }
+            }
+            // If the name is null, then the item in question doesn't have a custom model and we want to use the base model
+            else
+            {
+                base = EnderUtilitiesModelRegistry.modelBlockBase;
+            }
+
+            //EnderUtilitiesModelBlock.printModelBlock(base); // FIXME debug
+
             String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];
             ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTexture(base, this.textures[i], modelName, modelMap);
             modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
@@ -192,6 +218,16 @@ public class ItemEnderUtilities extends Item
                 EnderUtilities.logger.fatal("ModelBlock from makeItemModel() was null when trying to bake item model for " + this.variants[i]);
             }
         }
+    }
+
+    /**
+     * Get the name of the item model to use as the base model.
+     * @return the name of the model to use (without any paths or modid), or null to use the default model
+     */
+    @SideOnly(Side.CLIENT)
+    public String getBaseModelName(String variant)
+    {
+        return null;
     }
 
     @SideOnly(Side.CLIENT)
