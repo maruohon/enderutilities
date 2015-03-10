@@ -52,11 +52,18 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
     {
-        byte mode = this.getBowMode(stack);
+        // Remove the client-side useCount counter that is used for the texture animation
+        if (world.isRemote == true)
+        {
+            if (stack.getTagCompound() != null)
+            {
+                stack.getTagCompound().removeTag("useCount");
+            }
+            return;
+        }
 
-        // Do nothing on the client side
-        if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET
-                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+        byte mode = this.getBowMode(stack);
+        if (mode == BOW_MODE_TP_TARGET && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
         }
@@ -358,6 +365,26 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     }
     */
 
+    @Override
+    public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
+    {
+        // Only do this on the _CLIENT_
+        if (player.worldObj.isRemote == false)
+        {
+            return;
+        }
+
+        // Add the use count to the NBT on the client side, to be used for changing texture
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
+        }
+
+        nbt.setInteger("useCount", stack.getMaxItemUseDuration() - count);
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public String getBaseModelName(String variant)
@@ -369,9 +396,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void registerVariants()
     {
-        // TODO use time based icons, how the hell does one do those in 1.8 ??
         this.addVariants(   this.name + ".standby",
-                            this.name + ".mode2.standby");
+                            this.name + ".pulling.0",
+                            this.name + ".pulling.1",
+                            this.name + ".pulling.2",
+                            this.name + ".mode2.standby",
+                            this.name + ".mode2.pulling.0",
+                            this.name + ".mode2.pulling.1",
+                            this.name + ".mode2.pulling.2");
     }
 
     @SideOnly(Side.CLIENT)
@@ -382,13 +414,25 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (stack.getTagCompound() != null)
         {
-            byte mode = stack.getTagCompound().getByte("Mode");
-            if (mode > 1 || mode < 0)
+            if (stack.getTagCompound().getByte("Mode") == 1)
             {
-                mode = 0;
+                index = 4;
             }
 
-            index += mode;
+            int inUse = stack.getTagCompound().getInteger("useCount");
+
+            if (inUse >= 18)
+            {
+                index += 3;
+            }
+            else if (inUse >= 13)
+            {
+                index += 2;
+            }
+            else if (inUse > 0)
+            {
+                index += 1;
+            }
         }
 
         return this.models[index < this.textures.length ? index : 0];

@@ -2,12 +2,15 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
@@ -96,6 +99,16 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
     {
+        // Remove the client-side useCount counter that is used for the texture animation
+        if (world.isRemote == true)
+        {
+            if (stack.getTagCompound() != null)
+            {
+                stack.getTagCompound().removeTag("useCount");
+            }
+            return;
+        }
+
         if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
@@ -165,20 +178,58 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         list.add(new ItemStack(this, 1, 1));
     }
 
-    /*
     @Override
+    public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
+    {
+        // Only do this on the _CLIENT_
+        if (player.worldObj.isRemote == false)
+        {
+            return;
+        }
+
+        // Add the use count to the NBT on the client side, to be used for changing texture
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
+        }
+
+        nbt.setInteger("useCount", stack.getMaxItemUseDuration() - count);
+    }
+
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
+    @Override
+    public void registerVariants()
+    {
+        this.addVariants(   this.name + ".stage.1",
+                            this.name + ".stage.2",
+                            this.name + ".stage.3",
+                            this.name + ".stage.4",
+                            this.name + ".stage.5",
+                            this.name + ".stage.6",
+                            this.name + ".stage.7",
+                            this.name + ".advanced.stage.1",
+                            this.name + ".advanced.stage.2",
+                            this.name + ".advanced.stage.3",
+                            this.name + ".advanced.stage.4",
+                            this.name + ".advanced.stage.5",
+                            this.name + ".advanced.stage.6",
+                            this.name + ".advanced.stage.7");
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
         int index = 0;
 
-        if (player != null && player.getItemInUse() != null && stack != null)
+        if (stack.getTagCompound() != null)
         {
-            int inUse = stack.getMaxItemUseDuration() - useRemaining;
+            int inUse = stack.getTagCompound().getInteger("useCount");
             int useTime = USE_TIME;
 
             // Use a shorter delay in creative mode
-            if (player.capabilities.isCreativeMode == true)
+            if (Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode == true)
             {
                 useTime >>= 2;
             }
@@ -197,16 +248,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             index += 7;
         }
 
-        return this.getItemIconForUseDuration(index);
-    }
-    */
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerVariants()
-    {
-        // TODO add locked textures
-        this.addVariants(   this.name + ".stage.1",
-                            this.name + ".advanced.stage.1");
+        return this.models[index < this.textures.length ? index : 0];
     }
 }
