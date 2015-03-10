@@ -1,31 +1,37 @@
 package fi.dy.masa.enderutilities.client.resources;
 
-import java.util.LinkedList;
+import java.io.IOException;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelBlock;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IRegistry;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Maps;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
-@SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
 public class EnderUtilitiesModelRegistry
 {
+    public static Map<ResourceLocation, ModelBlock> models = Maps.newHashMap();
     public static IFlexibleBakedModel baseItemModel;
+    public static ModelBlock modelBlockBase;
+    public static ItemMeshDefinition baseItemMeshDefinition;
 
     public static void registerBlockModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
@@ -40,54 +46,77 @@ public class EnderUtilitiesModelRegistry
     public static void registerSmartItemModel(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
         // Base model for the ISmartItemModel model, which then gets customized for each item as needed.
-        //String name = ReferenceNames.NAME_ITEM_MODEL_BASE;
-        //String name = ReferenceNames.NAME_ITEM_ENDER_LASSO;
+        String name = Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE;
 
-        ModelResourceLocation mrl = new ModelResourceLocation("minecraft:blaze_rod", "inventory");
+        ModelResourceLocation mrl = new ModelResourceLocation(name, "inventory");
         baseItemModel = new EnderUtilitiesSmartItemModelBase(itemModelMesher.getModelManager().getModel(mrl));
         modelRegistry.putObject(mrl, baseItemModel);
     }
 
     public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        ItemMeshDefinition imd = new ItemMeshDefinition()
+        TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();
+
+        EnderUtilitiesItems.enderArrow.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderBag.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderBow.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderBucket.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderLasso.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderPearlReusable.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderPorter.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderCapacitor.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.enderPart.registerModels(modelRegistry, itemModelMesher, textures, models);
+        ((ItemEnderSword)EnderUtilitiesItems.enderSword).registerModels(modelRegistry, itemModelMesher, textures, models);
+        ((ItemEnderTool)EnderUtilitiesItems.enderTool).registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.linkCrystal.registerModels(modelRegistry, itemModelMesher, textures, models);
+        EnderUtilitiesItems.mobHarness.registerModels(modelRegistry, itemModelMesher, textures, models);
+    }
+
+    public static boolean setupBaseModels()
+    {
+        baseItemMeshDefinition = new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
                 // Base model for the ISmartItemModel
-                return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_ENDER_LASSO, "inventory");
+                return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE, "inventory");
             }
         };
 
-        EnderUtilitiesItems.enderArrow.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderBag.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderBow.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderBucket.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderLasso.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderPearlReusable.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderPorter.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderCapacitor.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.enderPart.registerModels(modelRegistry, itemModelMesher, imd);
-        ((ItemEnderSword)EnderUtilitiesItems.enderSword).registerModels(modelRegistry, itemModelMesher, imd);
-        ((ItemEnderTool)EnderUtilitiesItems.enderTool).registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.linkCrystal.registerModels(modelRegistry, itemModelMesher, imd);
-        EnderUtilitiesItems.mobHarness.registerModels(modelRegistry, itemModelMesher, imd);
-    }
+        ModelBlock modelBlock = ModelBlock.deserialize("{\"elements\":[{" + 
+                                                            "\"from\": [0, 0, 0], \"to\": [16, 16, 16]," +
+                                                            "\"faces\": { \"down\": {\"uv\": [0, 0, 16, 16], \"texture\":\"\"}   }}]}");
+        modelBlock.name = "minecraft:builtin/generated";
+        models.put(new ResourceLocation(modelBlock.name), modelBlock);
 
-    /*public static void registerModel(ItemModelMesher itemModelMesher, String name, int meta, String type)
-    {
-        Item item = GameRegistry.findItem(Reference.MOD_ID, name);
-        if (item == null)
+        // FIXME debugging:
+        //EnderUtilities.logger.info("Generated base ModelBlock: " + modelBlock.name);
+        //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
+
+        String name = Reference.MOD_ID + ":" + "models/item/itemmodelbase";
+
+        try
         {
-            EnderUtilities.logger.fatal(String.format("Failed registering model for %s (meta: %d), type: %s", name, meta, type));
-            return;
+            modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        }
+        catch (IOException e)
+        {
+            EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
+            return false;
         }
 
-        ModelResourceLocation mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + name, type);
-        itemModelMesher.register(item, meta, mrl);
-    }*/
+        if (modelBlock == null)
+        {
+            EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
+            return false;
+        }
 
-    public static IFlexibleBakedModel createNewBasicItemModel(TextureAtlasSprite newTexture)
+        modelBlockBase = modelBlock;
+
+        return true;
+    }
+
+    /*public static IFlexibleBakedModel createNewBasicItemModel(TextureAtlasSprite newTexture)
     {
         //System.out.println("pre: " + newTexture.toString());
 
@@ -95,82 +124,37 @@ public class EnderUtilitiesModelRegistry
 
         for (Object o : baseItemModel.getGeneralQuads())
         {
-            newModel.getGeneralQuads().add(EnderUtilitiesTextureRegistry.changeTextureForItem((BakedQuad) o, newTexture));
+            BakedQuad quad = (BakedQuad) o;
+            if (quad.getFace().equals(EnumFacing.UP))
+            {
+                newModel.getGeneralQuads().add(EnderUtilitiesTextureRegistry.changeItemTextureForQuad(quad, newTexture));
+            }
         }
 
         for (EnumFacing facing : EnumFacing.values())
         {
+            if (facing.equals(EnumFacing.UP) == false)
+            {
+                continue;
+            }
+
             for (Object o : baseItemModel.getFaceQuads(facing))
             {
-                newModel.getFaceQuads(facing).add(EnderUtilitiesTextureRegistry.changeTextureForItem((BakedQuad) o, newTexture));
+                BakedQuad quad = (BakedQuad) o;
+                if (quad.getFace().equals(EnumFacing.UP))
+                {
+                    newModel.getFaceQuads(facing).add(EnderUtilitiesTextureRegistry.changeItemTextureForQuad(quad, newTexture));
+                }
             }
         }
 
-        /*newModel.getGeneralQuads().addAll(baseModel.getGeneralQuads());
+        //newModel.getGeneralQuads().addAll(baseModel.getGeneralQuads());
 
-        for (EnumFacing facing : EnumFacing.values())
-        {
-            newModel.getFaceQuads(facing).addAll(baseModel.getFaceQuads(facing));
-        }*/
+        //for (EnumFacing facing : EnumFacing.values())
+        //{
+        //    newModel.getFaceQuads(facing).addAll(baseModel.getFaceQuads(facing));
+        //}
 
         return newModel;
-    }
-
-    public static void printModelData(String modelName)
-    {
-        ModelResourceLocation mrl = new ModelResourceLocation(modelName, "inventory");
-        IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(mrl);
-        if (model == null)
-        {
-            System.out.println("model == null");
-            return;
-        }
-
-        System.out.println("model name: " + modelName + " model: " + model.toString());
-        System.out.println("generalQuads:");
-        int i = 0;
-        for (Object o : model.getGeneralQuads())
-        {
-            BakedQuad quad = (BakedQuad) o;
-            System.out.printf("BakedQuad: %d tintIndex: %d\n", i, quad.getTintIndex());
-            int[] vd = quad.getVertexData();
-            //System.out.println("vertex data length: " + vd.length);
-            for (int j = 0; j < (vd.length / 7); ++j)
-            {
-                int k = j * 7;
-                float x = Float.intBitsToFloat(vd[k + 0]);
-                float y = Float.intBitsToFloat(vd[k + 1]);
-                float z = Float.intBitsToFloat(vd[k + 2]);
-                float u = Float.intBitsToFloat(vd[k + 4]);
-                float v = Float.intBitsToFloat(vd[k + 5]);
-                System.out.printf("vertex %d: x:%f y:%f z:%f shadeColor:0x%02X u:%f v:%f unused:%d\n", j, x, y, z, vd[k + 3], u, v, vd[k + 6]);
-            }
-            i++;
-        }
-
-        System.out.println("faceQuads:");
-        for (EnumFacing facing : EnumFacing.values())
-        {
-            i = 0;
-            System.out.println("face: " + facing);
-            for (Object o : model.getFaceQuads(facing))
-            {
-                BakedQuad quad = (BakedQuad) o;
-                System.out.printf("BakedQuad: %d tintIndex: %d\n", i, quad.getTintIndex());
-                int[] vd = quad.getVertexData();
-                //System.out.println("vertex data length: " + vd.length);
-                for (int j = 0; j < (vd.length / 7); ++j)
-                {
-                    int k = j * 7;
-                    float x = Float.intBitsToFloat(vd[k + 0]);
-                    float y = Float.intBitsToFloat(vd[k + 1]);
-                    float z = Float.intBitsToFloat(vd[k + 2]);
-                    float u = Float.intBitsToFloat(vd[k + 4]);
-                    float v = Float.intBitsToFloat(vd[k + 5]);
-                    System.out.printf("vertex %d: x:%f y:%f z:%f shadeColor:0x%02X u:%f v:%f unused:%d\n", j, x, y, z, vd[k + 3], u, v, vd[k + 6]);
-                }
-                i++;
-            }
-        }
-    }
+    }*/
 }

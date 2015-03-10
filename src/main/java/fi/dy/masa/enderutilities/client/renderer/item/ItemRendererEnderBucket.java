@@ -3,8 +3,11 @@ package fi.dy.masa.enderutilities.client.renderer.item;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 
+@SideOnly(Side.CLIENT)
 public class ItemRendererEnderBucket implements IItemRenderer
 {
     public Minecraft mc;

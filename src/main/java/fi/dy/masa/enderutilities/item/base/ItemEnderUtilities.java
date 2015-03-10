@@ -2,23 +2,29 @@ package fi.dy.masa.enderutilities.item.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.renderer.block.model.ItemModelGenerator;
+import net.minecraft.client.renderer.block.model.ModelBlock;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IRegistry;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
@@ -161,17 +167,30 @@ public class ItemEnderUtilities extends Item
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher, ItemMeshDefinition imd)
+    public void registerModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher, TextureMap textureMap, Map<ResourceLocation, ModelBlock> modelMap)
     {
-        itemModelMesher.register(this, imd);
+        itemModelMesher.register(this, EnderUtilitiesModelRegistry.baseItemMeshDefinition);
+        ItemModelGenerator itemModelGenerator = new ItemModelGenerator();
 
         int len = this.variants.length;
         this.models = new IFlexibleBakedModel[len];
 
+        ModelBlock base = EnderUtilitiesModelRegistry.modelBlockBase;
         for (int i = 0; i < len; ++i)
         {
-            this.models[i] = EnderUtilitiesModelRegistry.createNewBasicItemModel(this.textures[i]);
-            modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
+            String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTexture(base, this.textures[i], modelName, modelMap);
+            modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
+
+            if (modelBlock != null)
+            {
+                this.models[i] = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, true); // FIXME: rotation and uv-lock ??
+                modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
+            }
+            else
+            {
+                EnderUtilities.logger.fatal("ModelBlock from makeItemModel() was null when trying to bake item model for " + this.variants[i]);
+            }
         }
     }
 

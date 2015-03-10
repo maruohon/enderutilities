@@ -6,8 +6,11 @@ import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.IItemData;
 
+@SideOnly(Side.CLIENT)
 public class RenderEntityProjectile extends RenderSnowball
 {
     //private final RenderItem renderItem;

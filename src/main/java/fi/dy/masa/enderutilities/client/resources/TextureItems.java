@@ -12,13 +12,6 @@ public class TextureItems extends TextureAtlasSprite
         super(spriteName);
     }
 
-    /*@Override
-    public void loadSprite(BufferedImage[] images, AnimationMetadataSection meta)
-    {
-        System.out.println("loadSprite(); images.len: " + (images != null ? images.length : 0));
-        super.loadSprite(images, meta);
-    }*/
-
     /**
      * The result of this function determines is the below 'load' function is called, and the
      * default vanilla loading code is bypassed completely.
