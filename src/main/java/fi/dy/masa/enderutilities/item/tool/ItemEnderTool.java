@@ -1295,7 +1295,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
             if (modelBlock != null)
             {
-                this.models[i] = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, true); // FIXME: rotation and uv-lock ??
+                this.models[i] = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false); // FIXME: rotation and uv-lock ??
                 modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
             }
             else
