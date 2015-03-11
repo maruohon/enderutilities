@@ -34,9 +34,8 @@ public class ModelEventHandler
             return;
         }
 
-        EnderUtilitiesModelRegistry.registerSmartItemModel(event.modelRegistry, itemModelMesher);
         EnderUtilitiesModelRegistry.registerItemModels(event.modelRegistry, itemModelMesher);
 
-        //EnderUtilitiesModelRegistry.registerBlockModels(event.modelRegistry, itemModelMesher);
+        EnderUtilitiesModelRegistry.registerBlockModels(event.modelRegistry, itemModelMesher);
     }
 }

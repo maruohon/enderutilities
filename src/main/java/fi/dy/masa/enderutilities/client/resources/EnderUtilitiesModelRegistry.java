@@ -43,18 +43,19 @@ public class EnderUtilitiesModelRegistry
         //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,     2, "inventory"); // Ender Infuser
     }
 
-    public static void registerSmartItemModel(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
+    public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        // Base model for the ISmartItemModel model, which then gets customized for each item as needed.
         String name = Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE;
 
+        // Register the base ISmartItemModel that the fetches the correct model from the Item classes
+        // via the handleItemState() method.
+        // For this ISmartItemModel model to be fetched first for each item, the items register the common ItemMeshDefinition
+        // 'baseItemMeshDefinition' (see below in setupBaseModels()), which returns the ModelResourceLocation
+        // of this ISmartItemModel for all items.
         ModelResourceLocation mrl = new ModelResourceLocation(name, "inventory");
         baseItemModel = new EnderUtilitiesSmartItemModelBase(itemModelMesher.getModelManager().getModel(mrl));
         modelRegistry.putObject(mrl, baseItemModel);
-    }
 
-    public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
-    {
         TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();
 
         EnderUtilitiesItems.enderArrow.registerModels(modelRegistry, itemModelMesher, textures, models);
@@ -74,6 +75,8 @@ public class EnderUtilitiesModelRegistry
 
     public static boolean setupBaseModels()
     {
+        // Setup the common ItemMeshDefinition which returns the ModelResourceLocation of the
+        // base ISmartItemModel (see above), which then gets the actual model from the item classes.
         baseItemMeshDefinition = new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
