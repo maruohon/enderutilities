@@ -10,25 +10,18 @@ import net.minecraft.client.renderer.block.model.ModelBlock;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.Attributes;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
-import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
-import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
-
 @SideOnly(Side.CLIENT)
 @SuppressWarnings("deprecation")
-public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, ISmartItemModel
+public class EnderUtilitiesFlexibleBakedModel implements IFlexibleBakedModel
 {
     private List<BakedQuad> generalQuads;
     private List<List<BakedQuad>> faceQuads;
@@ -39,7 +32,7 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
     private ItemCameraTransforms cameraTransforms;
     private VertexFormat format;
 
-    public EnderUtilitiesSmartItemModelBase(IBakedModel baseModel)
+    public EnderUtilitiesFlexibleBakedModel(IBakedModel baseModel)
     {
         this(baseModel.getGeneralQuads(), null, baseModel.isGui3d(), baseModel.isAmbientOcclusion(), baseModel.isBuiltInRenderer(), baseModel.getTexture(), baseModel.getItemCameraTransforms());
 
@@ -50,12 +43,12 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
         }
     }
 
-    public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
+    public EnderUtilitiesFlexibleBakedModel(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
     {
         this(generalQuads, faceQuads, isAmbientOcclusion, isGui3d, false, texture, cameraTransforms);
     }
 
-    public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
+    public EnderUtilitiesFlexibleBakedModel(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
     {
         this.generalQuads = generalQuads;
         this.faceQuads = faceQuads;
@@ -116,29 +109,6 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
         return this.format;
     }
 
-    @Override
-    public IFlexibleBakedModel handleItemState(ItemStack stack)
-    {
-        if (stack != null)
-        {
-            Item item = stack.getItem();
-            if (item instanceof ItemEnderUtilities)
-            {
-                return ((ItemEnderUtilities)stack.getItem()).getItemModel(stack);
-            }
-            else if (item instanceof ItemEnderTool)
-            {
-                return ((ItemEnderTool)stack.getItem()).getItemModel(stack);
-            }
-            else if (item instanceof ItemEnderSword)
-            {
-                return ((ItemEnderSword)stack.getItem()).getItemModel(stack);
-            }
-        }
-
-        return this;
-    }
-
     @SideOnly(Side.CLIENT)
     public static class Builder
     {
@@ -169,19 +139,19 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
             }
         }
 
-        public EnderUtilitiesSmartItemModelBase.Builder addGeneralQuad(BakedQuad quad)
+        public EnderUtilitiesFlexibleBakedModel.Builder addGeneralQuad(BakedQuad quad)
         {
             this.builderGeneralQuads.add(quad);
             return this;
         }
 
-        public EnderUtilitiesSmartItemModelBase.Builder addFaceQuad(EnumFacing face, BakedQuad quad)
+        public EnderUtilitiesFlexibleBakedModel.Builder addFaceQuad(EnumFacing face, BakedQuad quad)
         {
             this.builderFaceQuads.get(face.ordinal()).add(quad);
             return this;
         }
 
-        public EnderUtilitiesSmartItemModelBase.Builder setTexture(TextureAtlasSprite texture)
+        public EnderUtilitiesFlexibleBakedModel.Builder setTexture(TextureAtlasSprite texture)
         {
             this.builderTexture = texture;
             return this;
@@ -195,7 +165,7 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
                 this.builderTexture = new TextureItems("missingno");
             }
 
-            return new EnderUtilitiesSmartItemModelBase(this.builderGeneralQuads, this.builderFaceQuads, this.builderAmbientOcclusion, this.builderGui3d, this.builderTexture, this.builderCameraTransforms);
+            return new EnderUtilitiesFlexibleBakedModel(this.builderGeneralQuads, this.builderFaceQuads, this.builderAmbientOcclusion, this.builderGui3d, this.builderTexture, this.builderCameraTransforms);
         }
     }
 

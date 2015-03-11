@@ -53,7 +53,7 @@ public class EnderUtilitiesModelRegistry
         // 'baseItemMeshDefinition' (see below in setupBaseModels()), which returns the ModelResourceLocation
         // of this ISmartItemModel for all items.
         ModelResourceLocation mrl = new ModelResourceLocation(name, "inventory");
-        baseItemModel = new EnderUtilitiesSmartItemModelBase(itemModelMesher.getModelManager().getModel(mrl));
+        baseItemModel = new EnderUtilitiesSmartItemModel(itemModelMesher.getModelManager().getModel(mrl));
         modelRegistry.putObject(mrl, baseItemModel);
 
         TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();

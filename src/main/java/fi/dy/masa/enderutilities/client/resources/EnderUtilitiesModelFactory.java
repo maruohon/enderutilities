@@ -42,7 +42,7 @@ public class EnderUtilitiesModelFactory
     public IFlexibleBakedModel bakeModel(ModelBlock modelBlockIn, ITransformation modelRotationIn, boolean uvLocked)
     {
         TextureAtlasSprite spriteParticle = this.textureMap.getTextureExtry(modelBlockIn.resolveTextureName("particle"));
-        EnderUtilitiesSmartItemModelBase.Builder builder = (new EnderUtilitiesSmartItemModelBase.Builder(modelBlockIn)).setTexture(spriteParticle);
+        EnderUtilitiesSmartItemModel.Builder builder = (new EnderUtilitiesSmartItemModel.Builder(modelBlockIn)).setTexture(spriteParticle);
         Iterator<BlockPart> blockPartIterator = modelBlockIn.getElements().iterator();
 
         while (blockPartIterator.hasNext())
@@ -81,14 +81,14 @@ public class EnderUtilitiesModelFactory
         generalQuads.addAll(in1.getGeneralQuads());
         generalQuads.addAll(in2.getGeneralQuads());
 
-        List<List<BakedQuad>> faceQuads = EnderUtilitiesSmartItemModelBase.newBlankFacingLists();
+        List<List<BakedQuad>> faceQuads = EnderUtilitiesFlexibleBakedModel.newBlankFacingLists();
         for (EnumFacing facing : EnumFacing.values())
         {
             faceQuads.get(facing.ordinal()).addAll(in1.getFaceQuads(facing));
             faceQuads.get(facing.ordinal()).addAll(in2.getFaceQuads(facing));
         }
 
-        return new EnderUtilitiesSmartItemModelBase(generalQuads, faceQuads, in1.isAmbientOcclusion(), in1.isGui3d(), in1.getTexture(), in1.getItemCameraTransforms());
+        return new EnderUtilitiesSmartItemModel(generalQuads, faceQuads, in1.isAmbientOcclusion(), in1.isGui3d(), in1.getTexture(), in1.getItemCameraTransforms());
     }
 
     public static void printModelData(String modelName)
