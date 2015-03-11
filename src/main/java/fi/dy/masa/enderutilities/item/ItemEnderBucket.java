@@ -30,6 +30,7 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -1278,20 +1279,32 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public void registerVariants()
     {
-        this.addVariants(   this.name + ".32",
-                            this.name + ".32.linked");
+        this.addVariants(   this.name + ".32.normal",
+                            this.name + ".32.linked",
+                            this.name + ".32.mode.fill",
+                            this.name + ".32.mode.drain",
+                            this.name + ".32.mode.bind");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
-        int index = 0;
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (stack == null)
         {
-            index += 1;
+            return this.models[0];
         }
 
-        return this.models[index < this.textures.length ? index : 0];
+        byte op_mode = this.getBucketMode(stack);
+        byte link_mode = this.getBucketLinkMode(stack);
+
+        IFlexibleBakedModel model = this.models[link_mode == LINK_MODE_ENABLED ? 1 : 0];
+
+        if (op_mode > OPERATION_MODE_NORMAL && op_mode <= OPERATION_MODE_BINDING)
+        {
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[op_mode + 1]);
+        }
+
+        return model;
     }
 }

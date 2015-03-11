@@ -1095,156 +1095,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
     }
 
-    /*
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean hasEffect(ItemStack par1ItemStack, int pass)
-    {
-        return false;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.parts = new String[] {"rod.1", "head.1", "head.2", "head.3",
-                                            "head.1.glow", "head.2.glow", "head.3.glow",
-                                            "head.1.broken", "head.2.broken", "head.3.broken",
-                                            "head.1.glow.broken", "head.2.glow.broken", "head.3.glow.broken",
-                                            "core.1", "core.2", "core.3",
-                                            "capacitor.1", "capacitor.2", "capacitor.3",
-                                            "linkcrystal.1", "linkcrystal.2"};
-
-        this.iconArray = new IIcon[this.parts.length * 4];
-        String prefix = this.getIconString() + ".";
-
-        for (ToolType type : ToolType.values())
-        {
-            int id = type.getId();
-            int start = id * this.parts.length;
-
-            for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.iconArray.length; j++)
-            {
-                this.iconArray[start + j] = iconRegister.registerIcon(prefix + type.getName() + "." + this.parts[j]);
-            }
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        if (stack == null)
-        {
-            return this.itemIcon;
-        }
-
-        ToolType type = this.getToolType(stack);
-        if (type.equals(ToolType.INVALID))
-        {
-            return this.itemIcon;
-        }
-
-        int i = type.getId() * this.parts.length;
-        int tier = 0;
-
-        switch(renderPass)
-        {
-            case 0: // 0: Rod
-                break;
-            case 1: // 1: Head
-                // The head color is defined by the drops handling mode
-                i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
-
-                // Fast mode uses the glow variation of the head
-                if (getToolModeByName(stack, "DigMode") != 0)
-                {
-                    i += 3;
-                }
-
-                // Broken tool
-                if (this.isToolBroken(stack) == true)
-                {
-                    i += 6;
-                }
-                break;
-            case 2: // 2: Core
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier >= 0)
-                {
-                    i += tier + 13;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier >= 0)
-                {
-                    i += tier + 16;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 4: // 4: Link Crystal
-                ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
-                {
-                    tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
-                }
-                else
-                {
-                    tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                }
-                if (tier >= 0)
-                {
-                    i += tier + 19;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            default:
-                return this.iconEmpty;
-        }
-
-        if (i < 0 || i >= this.iconArray.length)
-        {
-            return this.iconEmpty;
-        }
-
-        return this.iconArray[i];
-    }
-    */
-
     @SideOnly(Side.CLIENT)
     public void addVariants(String... variantsIn)
     {
@@ -1363,11 +1213,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return this.models[0];
         }
 
-        int i = type.getId() * this.parts.length;
-        //int tier = 0;
-
-        // TODO: How does one do multi layer textures in 1.8 ???
-        i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
+        int start = type.getId() * this.parts.length;
+        int i = start + getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
 
         // Fast mode uses the glow variation of the head
         if (getToolModeByName(stack, "DigMode") != 0)
@@ -1381,11 +1228,40 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             i += 6;
         }
 
-        if (i >= this.textures.length)
+        // Merge the rod and the correct head models
+        IFlexibleBakedModel model = EnderUtilitiesModelFactory.mergeModelsSimple(this.models[start], this.models[i]);
+
+        int tier = 0;
+        // Core module
+        tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        if (tier >= 0)
         {
-            return this.models[0];
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[start + tier + 13]);
         }
 
-        return this.models[i];
+        // Capacitor module
+        tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (tier >= 0)
+        {
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[start + tier + 16]);
+        }
+
+        // Link Crystal
+        ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
+        {
+            tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
+        }
+        else
+        {
+            tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+        }
+
+        if (tier >= 0)
+        {
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[start + tier + 19]);
+        }
+
+        return model;
     }
 }

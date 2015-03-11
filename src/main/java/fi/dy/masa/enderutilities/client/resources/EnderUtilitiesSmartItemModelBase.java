@@ -50,9 +50,9 @@ public class EnderUtilitiesSmartItemModelBase implements IFlexibleBakedModel, IS
         }
     }
 
-    public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean ambientOcclusion, boolean isGui3d, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
+    public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)
     {
-        this(generalQuads, faceQuads, ambientOcclusion, isGui3d, false, texture, cameraTransforms);
+        this(generalQuads, faceQuads, isAmbientOcclusion, isGui3d, false, texture, cameraTransforms);
     }
 
     public EnderUtilitiesSmartItemModelBase(List<BakedQuad> generalQuads, List<List<BakedQuad>> faceQuads, boolean isAmbientOcclusion, boolean isGui3d, boolean isBuiltInRenderer, TextureAtlasSprite texture, ItemCameraTransforms cameraTransforms)

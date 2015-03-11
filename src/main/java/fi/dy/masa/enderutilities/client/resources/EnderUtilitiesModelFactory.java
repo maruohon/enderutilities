@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.client.resources;
 
 import java.util.Iterator;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -18,6 +19,9 @@ import net.minecraftforge.client.model.ITransformation;
 import net.minecraftforge.client.model.TRSRTransformation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Lists;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 
 @SideOnly(Side.CLIENT)
@@ -69,6 +73,22 @@ public class EnderUtilitiesModelFactory
     private BakedQuad makeBakedQuad(BlockPart blockPart, BlockPartFace blockPartFace, TextureAtlasSprite texture, EnumFacing facing, ITransformation transformation, boolean uvLocked)
     {
         return this.faceBakery.makeBakedQuad(blockPart.positionFrom, blockPart.positionTo, blockPartFace, texture, facing, transformation, blockPart.partRotation, uvLocked, blockPart.shade);
+    }
+
+    public static IFlexibleBakedModel mergeModelsSimple(IFlexibleBakedModel in1, IFlexibleBakedModel in2)
+    {
+        List<BakedQuad> generalQuads = Lists.newArrayList();
+        generalQuads.addAll(in1.getGeneralQuads());
+        generalQuads.addAll(in2.getGeneralQuads());
+
+        List<List<BakedQuad>> faceQuads = EnderUtilitiesSmartItemModelBase.newBlankFacingLists();
+        for (EnumFacing facing : EnumFacing.values())
+        {
+            faceQuads.get(facing.ordinal()).addAll(in1.getFaceQuads(facing));
+            faceQuads.get(facing.ordinal()).addAll(in2.getFaceQuads(facing));
+        }
+
+        return new EnderUtilitiesSmartItemModelBase(generalQuads, faceQuads, in1.isAmbientOcclusion(), in1.isGui3d(), in1.getTexture(), in1.getItemCameraTransforms());
     }
 
     public static void printModelData(String modelName)

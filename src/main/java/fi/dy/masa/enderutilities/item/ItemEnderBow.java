@@ -334,37 +334,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return 0;
     }
 
-    /*
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        int index = 0;
-        byte mode = 0;
-
-        if (stack.getTagCompound() != null)
-        {
-            mode = stack.getTagCompound().getByte("Mode");
-            if (mode > 1 || mode < 0) { mode = 0; }
-            index = mode * 4;
-        }
-
-        if (player != null && player.getItemInUse() != null)
-        {
-            int inUse = 0;
-            if (stack != null)
-            {
-                inUse = stack.getMaxItemUseDuration() - useRemaining;
-            }
-            if (inUse >= 18) { index += 3; }
-            else if (inUse >= 13) { index += 2; }
-            else if (inUse > 0) { index += 1; }
-        }
-
-        return this.getItemIconForUseDuration(index);
-    }
-    */
-
     @Override
     public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
     {

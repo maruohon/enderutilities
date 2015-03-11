@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -326,14 +327,16 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         this.addVariants(   this.name + ".regular.closed",
                             this.name + ".regular.open",
                             this.name + ".enderchest.closed",
-                            this.name + ".enderchest.open");
+                            this.name + ".enderchest.open",
+                            this.name + ".locked.closed",
+                            this.name + ".locked.open");
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public IFlexibleBakedModel getItemModel(ItemStack stack)
     {
-        int index = 0;
+        int index = 0, open = 0;
         NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
         if (target != null)
@@ -342,6 +345,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             if (stack.getTagCompound().getBoolean("IsOpen") == true)
             {
                 index += 1;
+                open = 1;
             }
 
             // Currently linked to a vanilla Ender Chest
@@ -351,13 +355,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
         }
 
-        /*
+        // Locked overlay
         NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (playerData != null && playerData.isPublic == false)
         {
-            index += 4;
+            return EnderUtilitiesModelFactory.mergeModelsSimple(this.models[index], this.models[open + 4]);
         }
-        */
 
         return this.models[index < this.textures.length ? index : 0];
     }

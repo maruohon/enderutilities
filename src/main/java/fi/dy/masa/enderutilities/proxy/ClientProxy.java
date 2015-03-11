@@ -71,13 +71,6 @@ public class ClientProxy extends CommonProxy
         RenderItem ri = Minecraft.getMinecraft().getRenderItem();
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow(rm));
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderEntityProjectile(rm, EnderUtilitiesItems.enderPearlReusable, ri));
-
-        //MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
-        //MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
-
-        // FIXME early test stuff:
-        //EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_ARROW, 0);
-        //EnderUtilitiesModelRegistry.registerItemModel(ReferenceNames.NAME_ITEM_ENDER_LASSO, 0);
     }
 
     @Override

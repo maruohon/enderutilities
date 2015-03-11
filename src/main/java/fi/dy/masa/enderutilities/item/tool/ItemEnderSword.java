@@ -493,98 +493,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return UtilItemModular.setModule(stack, index, nbt);
     }
 
-    /*
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.1.broken", "head.2.broken", "head.3.broken",
-                "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.iconArray = new IIcon[this.parts.length];
-        String prefix = this.getIconString() + ".";
-
-        for (int i = 0; i < this.parts.length; i++)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(prefix + this.parts[i]);
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        if (stack == null)
-        {
-            return this.itemIcon;
-        }
-
-        int i = 0;
-        int tier = 0;
-
-        switch(renderPass)
-        {
-            case 0: // 0: Rod
-                break;
-            case 1: // 1: Head
-                i += getToolMode(stack) + 1;
-
-                // Broken tool
-                if (this.isToolBroken(stack) == true)
-                {
-                    i += 3;
-                }
-                break;
-            case 2: // 2: Core
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier > 0) { i += tier + 6; }
-                else { return this.iconEmpty; }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier > 0) { i += tier + 9; }
-                else { return this.iconEmpty; }
-                break;
-            case 4: // 4: Link Crystal
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (tier > 0) { i += tier + 12; }
-                else { return this.iconEmpty; }
-                break;
-            default:
-                return this.iconEmpty;
-        }
-
-        if (i < 0 || i >= this.iconArray.length)
-        {
-            return this.iconEmpty;
-        }
-
-        return this.iconArray[i];
-    }
-    */
-
     @SideOnly(Side.CLIENT)
     public void addVariants(String... variantsIn)
     {
@@ -686,10 +594,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             return this.models[0];
         }
 
-        int i = 0;
-        //int tier = 0;
-
-        i += getToolMode(stack) + 1;
+        int i = getToolMode(stack) + 1; // Head icons start at index 1
 
         // Broken tool
         if (this.isToolBroken(stack) == true)
@@ -697,11 +602,40 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             i += 3;
         }
 
-        if (i >= this.textures.length)
+        // Merge the rod and the correct head models
+        IFlexibleBakedModel model = EnderUtilitiesModelFactory.mergeModelsSimple(this.models[0], this.models[i]);
+
+        int tier = 0;
+        // Core module
+        tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        if (tier >= 0)
         {
-            return this.models[0];
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[tier + 7]);
         }
 
-        return this.models[i];
+        // Capacitor module
+        tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (tier >= 0)
+        {
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[tier + 10]);
+        }
+
+        // Link Crystal
+        ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
+        {
+            tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
+        }
+        else
+        {
+            tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
+        }
+
+        if (tier >= 0)
+        {
+            model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[tier + 13]);
+        }
+
+        return model;
     }
 }
