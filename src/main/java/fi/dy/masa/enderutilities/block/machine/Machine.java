@@ -8,7 +8,6 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelBlock;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.creativetab.CreativeTabs;
@@ -16,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
@@ -27,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import com.google.common.collect.Maps;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
@@ -58,8 +59,6 @@ public class Machine
 
     @SideOnly(Side.CLIENT)
     public String texture_names[];
-    @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite textures[];
     @SideOnly(Side.CLIENT)
     public IFlexibleBakedModel models[];
 
@@ -232,7 +231,6 @@ public class Machine
             Machine machine = getMachine(blockIndex, meta);
             if (machine != null)
             {
-                System.out.println("Machine.registerTextures(): " + meta);
                 machine.registerTextures(textureMap);
             }
         }
@@ -251,28 +249,49 @@ public class Machine
         }
     }
 
+    @SideOnly(Side.CLIENT)
+    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    {
+        Map<String, String> map = this.getTextureMapping(iBlockState);
+
+        String modelName = Reference.MOD_ID + ":block/" + this.blockName;
+        ModelBlock modelBlock = EnderUtilitiesModelBlock.cloneModelBlock(EnderUtilitiesModelRegistry.modelBlockBaseBlocks, modelName, map, EnderUtilitiesModelRegistry.models);
+        if (modelBlock != null)
+        {
+            //EnderUtilities.logger.info("Machine.getModel(): baking... " + modelName + ":");
+            //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
+            ModelRotation rotation = ModelRotation.X0_Y0;
+            EnumFacing facing = (EnumFacing)iBlockState.getValue(BlockEnderUtilities.FACING);
+            switch(facing)
+            {
+                case NORTH: rotation = ModelRotation.X0_Y0; break;
+                case EAST: rotation =  ModelRotation.X0_Y90; break;
+                case SOUTH: rotation = ModelRotation.X0_Y180; break;
+                case WEST: rotation =  ModelRotation.X0_Y270; break;
+                default:
+            }
+            IFlexibleBakedModel model = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, rotation, false);
+            //EnderUtilitiesModelFactory.printModelData(modelName, model);
+            return model;
+        }
+
+        //EnderUtilities.logger.info("Machine.getModel(): modelBlock == null; return baseBlockModel");
+        return EnderUtilitiesModelRegistry.baseBlockModel;
+    }
+
     /**
      * Register the textures for this block/machine. You are required to register at least three textures
-     * for the front, top and sides, in that order, unless you also override getModel().
+     * for the front, top and sides, in that order, unless you also override getTextureMapping().
      * @param textureMap
      */
     @SideOnly(Side.CLIENT)
     public void registerTextures(TextureMap textureMap)
     {
         int len = this.texture_names.length;
-        this.textures = new TextureAtlasSprite[len];
 
         for (int i = 0; i < len; ++i)
         {
-            String name = ReferenceTextures.getTileTextureName(this.texture_names[i]);
-            textureMap.registerSprite(new ResourceLocation(name));
-            /*this.textures[i] = textureMap.getTextureExtry(name);
-
-            if (this.textures[i] == null)
-            {
-                textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
-                this.textures[i] = textureMap.getTextureExtry(name);
-            }*/
+            textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getTileTextureName(this.texture_names[i])));
         }
     }
 
@@ -282,25 +301,14 @@ public class Machine
     }
 
     @SideOnly(Side.CLIENT)
-    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    public Map<String, String> getTextureMapping(IBlockState iBlockState)
     {
-        Map<String, String> map = Maps.newHashMap();
-        map.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[0]));
-        map.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[1]));
-        map.put("side",    ReferenceTextures.getTileTextureName(this.texture_names[2]));
+        Map<String, String> textureMapping = Maps.newHashMap();
+        textureMapping.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[0]));
+        textureMapping.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[1]));
+        textureMapping.put("bottom",  ReferenceTextures.getTileTextureName(this.texture_names[1]));
+        textureMapping.put("side",    ReferenceTextures.getTileTextureName(this.texture_names[2]));
 
-        String modelName = Reference.MOD_ID + ":block/" + this.blockName;
-        ModelBlock modelBlock = EnderUtilitiesModelBlock.cloneModelBlock(EnderUtilitiesModelRegistry.modelBlockBaseBlocks, modelName, map, EnderUtilitiesModelRegistry.models);
-        if (modelBlock != null)
-        {
-            EnderUtilities.logger.info("Machine.getModel(): baking... " + modelName + ":");
-            EnderUtilitiesModelBlock.printModelBlock(modelBlock);
-            IFlexibleBakedModel model = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false);
-            //EnderUtilitiesModelFactory.printModelData(modelName, model);
-            return model;
-        }
-
-        EnderUtilities.logger.info("Machine.getModel(): modelBlock == null; return baseBlockModel");
-        return EnderUtilitiesModelRegistry.baseBlockModel;
+        return textureMapping;
     }
 }

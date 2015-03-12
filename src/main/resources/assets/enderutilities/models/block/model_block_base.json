@@ -2,7 +2,7 @@
     "parent": "enderutilities:block/cube",
     "textures": {
         "particle":     "#front",
-        "down":         "#top",
+        "down":         "#bottom",
         "up":           "#top",
         "north":        "#front",
         "east":         "#side",

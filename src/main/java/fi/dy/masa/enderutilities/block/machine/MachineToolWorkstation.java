@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.block.machine;
 
+import java.util.Map;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.tileentity.TileEntity;
@@ -7,7 +9,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Maps;
+
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
@@ -55,5 +61,18 @@ public class MachineToolWorkstation extends Machine
         this.texture_names[3] = "machine.side.0";
 
         super.registerTextures(textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public Map<String, String> getTextureMapping(IBlockState iBlockState)
+    {
+        Map<String, String> textureMapping = Maps.newHashMap();
+        textureMapping.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[0]));
+        textureMapping.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[1]));
+        textureMapping.put("bottom",  ReferenceTextures.getTileTextureName(this.texture_names[2]));
+        textureMapping.put("side",    ReferenceTextures.getTileTextureName(this.texture_names[3]));
+
+        return textureMapping;
     }
 }

@@ -56,9 +56,9 @@ public class EnderUtilitiesModelRegistry
         mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "inventory");
         modelRegistry.putObject(mrl, baseBlockModel);
 
-        //StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.FACING, BlockEnderUtilitiesTileEntity.MACHINE_TYPE, BlockEnderUtilitiesTileEntity.MACHINE_MODE}).build();
+        StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.FACING, BlockEnderUtilitiesTileEntity.MACHINE_TYPE, BlockEnderUtilitiesTileEntity.MACHINE_MODE}).build();
         //StateMap sm = (new StateMap.Builder()).setProperty(BlockEnderUtilitiesTileEntity.MACHINE_TYPE).build();
-        StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.MACHINE_TYPE}).build();
+        //StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.MACHINE_TYPE}).build();
         modelManager.getBlockModelShapes().registerBlockWithStateMapper(EnderUtilitiesBlocks.machine_0, sm);
 
         TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();
@@ -149,46 +149,4 @@ public class EnderUtilitiesModelRegistry
 
         return true;
     }
-
-    /*public static IFlexibleBakedModel createNewBasicItemModel(TextureAtlasSprite newTexture)
-    {
-        //System.out.println("pre: " + newTexture.toString());
-
-        IFlexibleBakedModel newModel = new EnderUtilitiesSmartItemModelBase(new LinkedList<BakedQuad>(), EnderUtilitiesSmartItemModelBase.newBlankFacingLists(), baseItemModel.isGui3d(), baseItemModel.isAmbientOcclusion(), baseItemModel.isBuiltInRenderer(), newTexture, baseItemModel.getItemCameraTransforms());
-
-        for (Object o : baseItemModel.getGeneralQuads())
-        {
-            BakedQuad quad = (BakedQuad) o;
-            if (quad.getFace().equals(EnumFacing.UP))
-            {
-                newModel.getGeneralQuads().add(EnderUtilitiesTextureRegistry.changeItemTextureForQuad(quad, newTexture));
-            }
-        }
-
-        for (EnumFacing facing : EnumFacing.values())
-        {
-            if (facing.equals(EnumFacing.UP) == false)
-            {
-                continue;
-            }
-
-            for (Object o : baseItemModel.getFaceQuads(facing))
-            {
-                BakedQuad quad = (BakedQuad) o;
-                if (quad.getFace().equals(EnumFacing.UP))
-                {
-                    newModel.getFaceQuads(facing).add(EnderUtilitiesTextureRegistry.changeItemTextureForQuad(quad, newTexture));
-                }
-            }
-        }
-
-        //newModel.getGeneralQuads().addAll(baseModel.getGeneralQuads());
-
-        //for (EnumFacing facing : EnumFacing.values())
-        //{
-        //    newModel.getFaceQuads(facing).addAll(baseModel.getFaceQuads(facing));
-        //}
-
-        return newModel;
-    }*/
 }

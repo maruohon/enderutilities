@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.block.machine;
 
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.state.IBlockState;
@@ -9,12 +10,15 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Maps;
+
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
@@ -25,7 +29,7 @@ public class MachineEnderFurnace extends Machine
         super(machineType, name, TEClass, tool, harvestLevel, hardness);
     }
 
-    /*@Override
+    @Override
     public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
     {
         TileEntity te = worldIn.getTileEntity(pos);
@@ -33,11 +37,29 @@ public class MachineEnderFurnace extends Machine
         {
             //iBlockState = super.getActualState(iBlockState, worldIn, pos);
             // TODO fast mode
-            return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.MACHINE_MODE, Integer.valueOf(((TileEntityEnderFurnace)te).isActive ? 1 : 0));
+            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
+            int mode = 0;
+            if (teef.isActive == true)
+            {
+                if (teef.operatingMode == 1)
+                {
+                    mode = 3;
+                }
+                else if (teef.usingFuel == true)
+                {
+                    mode = 2;
+                }
+                else
+                {
+                    mode = 1;
+                }
+            }
+
+            return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.MACHINE_MODE, Integer.valueOf(mode));
         }
 
         return iBlockState;
-    }*/
+    }
 
     @Override
     public boolean breakBlock(World world, BlockPos pos, IBlockState iBlockState)
@@ -107,8 +129,20 @@ public class MachineEnderFurnace extends Machine
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    public Map<String, String> getTextureMapping(IBlockState iBlockState)
     {
-        return EnderUtilitiesModelRegistry.baseBlockModel;
+        Map<String, String> textureMapping = Maps.newHashMap();
+        int index = 0;
+        int mode = (Integer)iBlockState.getValue(BlockEnderUtilitiesTileEntity.MACHINE_MODE);
+        if (mode >= 0 && mode < 4)
+        {
+            index = mode;
+        }
+        textureMapping.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[index]));
+        textureMapping.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[4]));
+        textureMapping.put("bottom",  ReferenceTextures.getTileTextureName(this.texture_names[4]));
+        textureMapping.put("side",    ReferenceTextures.getTileTextureName(this.texture_names[5]));
+
+        return textureMapping;
     }
 }

@@ -141,6 +141,12 @@ public class EnderUtilitiesModelBlock extends ModelBlock
      */
     public static void printModelBlock(ModelBlock modelIn)
     {
+        if (modelIn == null)
+        {
+            EnderUtilities.logger.info("printModelBlock(): null");
+            return;
+        }
+
         EnderUtilities.logger.info("printModelBlock():");
         EnderUtilities.logger.info("    name: " + modelIn.name);
         EnderUtilities.logger.info("    parentLocation: " + modelIn.getParentLocation());

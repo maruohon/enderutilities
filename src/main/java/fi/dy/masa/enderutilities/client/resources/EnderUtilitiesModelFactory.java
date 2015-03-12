@@ -47,26 +47,25 @@ public class EnderUtilitiesModelFactory
         EnderUtilitiesSmartItemModel.Builder builder = (new EnderUtilitiesSmartItemModel.Builder(modelBlockIn)).setTexture(sprite);
         Iterator<BlockPart> blockPartIterator = modelBlockIn.getElements().iterator();
 
-        int i = 0;
         while (blockPartIterator.hasNext())
         {
             BlockPart blockPart = blockPartIterator.next();
-            EnderUtilities.logger.info("blockPart: " + i++ + " " + blockPart.toString());
+            //EnderUtilities.logger.info("blockPart: " + " " + blockPart.toString());
             Iterator<EnumFacing> facingIterator = blockPart.mapFaces.keySet().iterator();
 
             while (facingIterator.hasNext())
             {
                 EnumFacing facing = (EnumFacing)facingIterator.next();
                 BlockPartFace blockPartFace = (BlockPartFace)blockPart.mapFaces.get(facing);
-                EnderUtilities.logger.info("facing: " + facing + " blockPartFace: " + blockPartFace.toString());
+                //EnderUtilities.logger.info("facing: " + facing + " blockPartFace: " + blockPartFace.toString());
                 textureName = new ResourceLocation(modelBlockIn.resolveTextureName(blockPartFace.texture)).toString();
                 sprite = this.textureMap.getTextureExtry(textureName);
                 if (sprite == null)
                 {
-                    String bn = modelBlockIn.name;
-                    String ft = blockPartFace.texture;
-                    String rt = modelBlockIn.resolveTextureName(blockPartFace.texture);
-                    EnderUtilities.logger.fatal("bakeModel(): sprite == null: blockName: " + bn + " face tex: " + ft + " resolved: " + rt + " rl: " + textureName);
+                    //String bn = modelBlockIn.name;
+                    //String ft = blockPartFace.texture;
+                    //String rt = modelBlockIn.resolveTextureName(blockPartFace.texture);
+                    //EnderUtilities.logger.fatal("bakeModel(): sprite == null: blockName: " + bn + " face tex: " + ft + " resolved: " + rt + " rl: " + textureName);
                     sprite = this.textureMap.getMissingSprite();
                 }
 

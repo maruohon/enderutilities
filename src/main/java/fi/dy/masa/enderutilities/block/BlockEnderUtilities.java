@@ -4,11 +4,15 @@ import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelBlock;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.ResourceLocation;
@@ -21,7 +25,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class BlockEnderUtilities extends Block
 {
-    //public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
 
     public int blockIndex;
 
@@ -41,7 +45,7 @@ public class BlockEnderUtilities extends Block
     {
         super(material);
         this.blockIndex = index;
-        //this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         this.setStepSound(soundTypeStone);
         this.setHardness(hardness);
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
@@ -58,11 +62,11 @@ public class BlockEnderUtilities extends Block
         return this.getMetaFromState(iBlockState);
     }
 
-    /*@Override
+    @Override
     protected BlockState createBlockState()
     {
         return new BlockState(this, new IProperty[] {FACING});
-    }*/
+    }
 
     @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState iBlockState)
@@ -101,19 +105,11 @@ public class BlockEnderUtilities extends Block
     public void registerTextures(TextureMap textureMap)
     {
         int len = this.texture_names.length;
-        this.textures = new TextureAtlasSprite[len];
 
         for (int i = 0; i < len; ++i)
         {
             String name = ReferenceTextures.getTileTextureName(this.texture_names[i]);
             textureMap.registerSprite(new ResourceLocation(name));
-            /*this.textures[i] = textureMap.getTextureExtry(name);
-
-            if (this.textures[i] == null)
-            {
-                textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
-                this.textures[i] = textureMap.getTextureExtry(name);
-            }*/
         }
     }
 
