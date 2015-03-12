@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -38,6 +39,7 @@ public class EnderUtilitiesModelRegistry
     public static ModelBlock modelBlockBaseItems;
     public static ModelBlock modelBlockBaseBlocks;
     public static ItemMeshDefinition baseItemMeshDefinition;
+    public static ItemMeshDefinition baseItemBlockMeshDefinition;
 
     public static void registerBlockModels(ModelManager modelManager, IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
@@ -47,22 +49,19 @@ public class EnderUtilitiesModelRegistry
         // via the handleBlockState() method.
         ModelResourceLocation mrl = new ModelResourceLocation(name, "normal");
         baseBlockModel = new EnderUtilitiesSmartBlockModel(itemModelMesher.getModelManager().getModel(mrl));
-        //ModelResourceLocation mrl = new ModelResourceLocation(name, "normal");
-        //baseBlockModel = EnderUtilitiesModelFactory.instance.bakeModel(modelBlockBaseBlocks, ModelRotation.X0_Y0, false);//new EnderUtilitiesSmartBlockModel(itemModelMesher.getModelManager().getModel(mrl));
-        modelRegistry.putObject(mrl, baseBlockModel);
+        modelRegistry.putObject(new ModelResourceLocation(name, "normal"), baseBlockModel);
+        modelRegistry.putObject(new ModelResourceLocation(name, "inventory"), baseBlockModel);
 
-        mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "normal");
-        modelRegistry.putObject(mrl, baseBlockModel);
-        mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "inventory");
-        modelRegistry.putObject(mrl, baseBlockModel);
+        modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "normal"), baseBlockModel);
 
         StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.FACING, BlockEnderUtilitiesTileEntity.MACHINE_TYPE, BlockEnderUtilitiesTileEntity.MACHINE_MODE}).build();
-        //StateMap sm = (new StateMap.Builder()).setProperty(BlockEnderUtilitiesTileEntity.MACHINE_TYPE).build();
-        //StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.MACHINE_TYPE}).build();
         modelManager.getBlockModelShapes().registerBlockWithStateMapper(EnderUtilitiesBlocks.machine_0, sm);
 
         TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();
         EnderUtilitiesBlocks.machine_0.registerModels(modelRegistry, textures, models);
+
+        // Register the ItemMeshDefinition that will redirect the ItemBlock model retrieval to the same base class that handles the blocks themselves
+        itemModelMesher.register(GameRegistry.findItem(Reference.MOD_ID, ReferenceNames.NAME_TILE_MACHINE_0), EnderUtilitiesModelRegistry.baseItemBlockMeshDefinition);
     }
 
     public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
@@ -105,6 +104,15 @@ public class EnderUtilitiesModelRegistry
             {
                 // Base model for the ISmartItemModel
                 return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_MODEL_ITEM_BASE, "inventory");
+            }
+        };
+
+        baseItemBlockMeshDefinition = new ItemMeshDefinition()
+        {
+            public ModelResourceLocation getModelLocation(ItemStack stack)
+            {
+                // Base model for the ISmartItemModel, which is used for the ItemBlocks
+                return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_MODEL_BLOCK_BASE, "inventory");
             }
         };
 

@@ -261,15 +261,21 @@ public class Machine
             //EnderUtilities.logger.info("Machine.getModel(): baking... " + modelName + ":");
             //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
             ModelRotation rotation = ModelRotation.X0_Y0;
-            EnumFacing facing = (EnumFacing)iBlockState.getValue(BlockEnderUtilities.FACING);
-            switch(facing)
+
+            // When we retrieve the model for the ItemBlocks, the IBlockState will be null!
+            if (iBlockState != null)
             {
-                case NORTH: rotation = ModelRotation.X0_Y0; break;
-                case EAST: rotation =  ModelRotation.X0_Y90; break;
-                case SOUTH: rotation = ModelRotation.X0_Y180; break;
-                case WEST: rotation =  ModelRotation.X0_Y270; break;
-                default:
+                EnumFacing facing = (EnumFacing)iBlockState.getValue(BlockEnderUtilities.FACING);
+                switch(facing)
+                {
+                    case NORTH: rotation = ModelRotation.X0_Y0; break;
+                    case EAST: rotation =  ModelRotation.X0_Y90; break;
+                    case SOUTH: rotation = ModelRotation.X0_Y180; break;
+                    case WEST: rotation =  ModelRotation.X0_Y270; break;
+                    default:
+                }
             }
+
             IFlexibleBakedModel model = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, rotation, false);
             //EnderUtilitiesModelFactory.printModelData(modelName, model);
             return model;

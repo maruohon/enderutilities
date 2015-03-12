@@ -7,15 +7,20 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartBlockModel;
+import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.block.ItemBlockMachine;
+import fi.dy.masa.enderutilities.block.machine.Machine;
 
 @SideOnly(Side.CLIENT)
 @SuppressWarnings("deprecation")
-public class EnderUtilitiesSmartBlockModel extends EnderUtilitiesFlexibleBakedModel implements ISmartBlockModel
+public class EnderUtilitiesSmartBlockModel extends EnderUtilitiesFlexibleBakedModel implements ISmartBlockModel, ISmartItemModel
 {
     public EnderUtilitiesSmartBlockModel(IBakedModel baseModel)
     {
@@ -38,6 +43,26 @@ public class EnderUtilitiesSmartBlockModel extends EnderUtilitiesFlexibleBakedMo
         if (state.getBlock() instanceof BlockEnderUtilities)
         {
             return ((BlockEnderUtilities)state.getBlock()).getModel(state);
+        }
+
+        return this;
+    }
+
+    @Override
+    public IFlexibleBakedModel handleItemState(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            Item item = stack.getItem();
+            if (item instanceof ItemBlockMachine && ((ItemBlockMachine)stack.getItem()).getBlock() instanceof BlockEnderUtilities)
+            {
+                ItemBlockMachine ib = (ItemBlockMachine)stack.getItem();
+                Machine machine = Machine.getMachine(((BlockEnderUtilities)ib.getBlock()).getBlockIndex(), stack.getItemDamage());
+                if (machine != null)
+                {
+                    return machine.getModel(null);
+                }
+            }
         }
 
         return this;

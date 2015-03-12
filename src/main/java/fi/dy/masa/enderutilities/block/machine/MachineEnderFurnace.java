@@ -133,11 +133,17 @@ public class MachineEnderFurnace extends Machine
     {
         Map<String, String> textureMapping = Maps.newHashMap();
         int index = 0;
-        int mode = (Integer)iBlockState.getValue(BlockEnderUtilitiesTileEntity.MACHINE_MODE);
-        if (mode >= 0 && mode < 4)
+
+        // When we retrieve the model for the ItemBlocks, the IBlockState will be null!
+        if (iBlockState != null)
         {
-            index = mode;
+            int mode = (Integer)iBlockState.getValue(BlockEnderUtilitiesTileEntity.MACHINE_MODE);
+            if (mode >= 0 && mode < 4)
+            {
+                index = mode;
+            }
         }
+
         textureMapping.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[index]));
         textureMapping.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[4]));
         textureMapping.put("bottom",  ReferenceTextures.getTileTextureName(this.texture_names[4]));
