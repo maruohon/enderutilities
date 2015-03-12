@@ -172,12 +172,6 @@ public class EntityEnderPearlReusable extends EntityThrowable implements IItemDa
     }
 
     @Override
-    public void onUpdate()
-    {
-        super.onUpdate();
-    }
-
-    @Override
     public int getItemDamage(Entity entity)
     {
         return this.dataWatcher.getWatchableObjectShort(6);

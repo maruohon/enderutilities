@@ -52,9 +52,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_OUTPUT = 2;
 
-    @SideOnly(Side.CLIENT)
     public boolean isActive;
-    @SideOnly(Side.CLIENT)
     public boolean usingFuel;
 
     public byte operatingMode;

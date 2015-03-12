@@ -305,6 +305,8 @@ public class EntityUtils
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
                 entityendercrystal.setLocationAndAngles(x, y + 1.5d, z, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
+
+                return true;
             }
         }
 
