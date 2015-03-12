@@ -8,5 +8,17 @@
         "east":         "#side",
         "south":        "#side",
         "west":         "#side"
+    },
+    "display": {
+        "thirdperson": {
+        "rotation": [ 10, -45, 170 ],
+        "translation": [ 0.00, 1.50, -2.75 ],
+        "scale": [ 0.38, 0.38, 0.38 ]
+        },
+        "firstperson": {
+            "rotation": [ 0, 90, 0 ],
+            "translation": [ 0.00, 0.00, 0.00 ],
+            "scale": [ 1.00, 1.00, 1.00 ]
+        }
     }
 }
