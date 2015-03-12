@@ -265,17 +265,18 @@ public class EntityUtils
         if (world != null && world.provider != null)
         {
             // The item must be right clicked on the Bedrock block on top of the obsidian pillars
-            if (world.provider.getDimensionId() == 1 && world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.bedrock)
+            if (world.provider.getDimensionId() == 1 && world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.obsidian)
             {
                 // Check that there aren't already Ender Crystals nearby
-                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
+                double r = 6.0d;
+                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(x - r, y - r, z - r, x + r, y + r, z + r));
                 if (entities.isEmpty() == false)
                 {
                     return false;
                 }
 
                 // Check that we have a pillar of obsidian below the bedrock block (at least 3x3 wide and 6 tall)
-                for (int by = (int)y - 6; by < y; ++by)
+                for (int by = (int)y - 5; by <= y; ++by)
                 {
                     for (int bx = (int)x - 1; bx <= x + 1; ++bx)
                     {
@@ -290,9 +291,9 @@ public class EntityUtils
                 }
 
                 // Everything ok, create an explosion and then spawn a new Ender Crystal
-                world.createExplosion(null, x, y, z, 10.0f, true);
+                world.createExplosion(null, x, y + 1.0d, z, 10.0f, true);
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x, y + 0.5d, z, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
 
                 return true;
@@ -302,7 +303,7 @@ public class EntityUtils
             else if (world.provider.getDimensionId() != 1)
             {
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
-                entityendercrystal.setLocationAndAngles(x, y + 1.0d, z, world.rand.nextFloat() * 360.0f, 0.0f);
+                entityendercrystal.setLocationAndAngles(x, y + 1.5d, z, world.rand.nextFloat() * 360.0f, 0.0f);
                 world.spawnEntityInWorld(entityendercrystal);
             }
         }
