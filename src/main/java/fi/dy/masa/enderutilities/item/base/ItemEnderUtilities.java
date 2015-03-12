@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item.base;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
-import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -157,13 +155,14 @@ public class ItemEnderUtilities extends Item
     public void registerTextures(TextureMap textureMap)
     {
         int len = this.variants.length;
-        this.textures = new TextureAtlasSprite[len];
+        //this.textures = new TextureAtlasSprite[len];
 
         for (int i = 0; i < len; ++i)
         {
             String name = ReferenceTextures.getItemTextureName(this.variants[i]);
-            textureMap.setTextureEntry(name, new TextureItems(name));
-            this.textures[i] = textureMap.getTextureExtry(name);
+            //textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
+            //this.textures[i] = textureMap.getTextureExtry(name);
+            textureMap.registerSprite(new ResourceLocation(name));
         }
     }
 
@@ -184,28 +183,25 @@ public class ItemEnderUtilities extends Item
 
             if (name != null)
             {
-                name = Reference.MOD_ID + ":models/item/" + name;
-
-                try
+                name = Reference.MOD_ID + ":item/" + name;
+                base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+                if (base == null)
                 {
-                    base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
-                }
-                catch (IOException e)
-                {
-                    EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
-                    base = EnderUtilitiesModelRegistry.modelBlockBase;
+                    EnderUtilities.logger.fatal("Failed to read ModelBlock for " + name);
+                    base = EnderUtilitiesModelRegistry.modelBlockBaseItems;
                 }
             }
             // If the name is null, then the item in question doesn't have a custom model and we want to use the base model
             else
             {
-                base = EnderUtilitiesModelRegistry.modelBlockBase;
+                base = EnderUtilitiesModelRegistry.modelBlockBaseItems;
             }
 
             //EnderUtilitiesModelBlock.printModelBlock(base); // FIXME debug
 
-            String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];
-            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTexture(base, this.textures[i], modelName, modelMap);
+            String modelName = Reference.MOD_ID + ":item/" + this.variants[i];
+            String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
             modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
 
             if (modelBlock != null)
@@ -241,6 +237,6 @@ public class ItemEnderUtilities extends Item
     {
         int index = stack.getItemDamage();
 
-        return this.models[index < this.textures.length ? index : 0];
+        return this.models[index < this.models.length ? index : 0];
     }
 }

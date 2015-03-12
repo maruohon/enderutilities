@@ -5,9 +5,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class TextureItems extends TextureAtlasSprite
+public class EnderUtilitiesTexture extends TextureAtlasSprite
 {
-    public TextureItems(String spriteName)
+    public EnderUtilitiesTexture(String spriteName)
     {
         super(spriteName);
     }

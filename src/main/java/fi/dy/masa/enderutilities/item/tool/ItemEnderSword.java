@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item.tool;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
-import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -244,12 +242,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
-        // FIXME debug
-        if (world.isRemote == true)
-        {
-            EnderUtilitiesModelFactory.printModelData("enderutilities:enderarrow");
-            EnderUtilitiesModelFactory.printModelData("minecraft:gold_nugget");
-        }
         return stack;
     }
 
@@ -521,8 +513,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         for (int i = 0; i < len; ++i)
         {
             String name = ReferenceTextures.getItemTextureName(this.variants[i]);
-            textureMap.setTextureEntry(name, new TextureItems(name));
-            this.textures[i] = textureMap.getTextureExtry(name);
+            //textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
+            //this.textures[i] = textureMap.getTextureExtry(name);
+            textureMap.registerSprite(new ResourceLocation(name));
         }
     }
 
@@ -537,22 +530,19 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
         ModelBlock base;
 
-        String name = Reference.MOD_ID + ":" + "models/item/" + ReferenceNames.NAME_ITEM_ENDERTOOL;
-
-        try
+        String name = Reference.MOD_ID + ":item/" + ReferenceNames.NAME_ITEM_ENDERTOOL;
+        base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+        if (base == null)
         {
-            base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
-        }
-        catch (IOException e)
-        {
-            EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
-            base = EnderUtilitiesModelRegistry.modelBlockBase;
+            EnderUtilities.logger.fatal("Failed to read ModelBlock for " + name);
+            base = EnderUtilitiesModelRegistry.modelBlockBaseItems;
         }
 
         for (int i = 0; i < len; ++i)
         {
-            String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];
-            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTexture(base, this.textures[i], modelName, modelMap);
+            String modelName = Reference.MOD_ID + ":item/" + this.variants[i];
+            String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
             modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
 
             if (modelBlock != null)

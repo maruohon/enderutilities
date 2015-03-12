@@ -283,6 +283,6 @@ public class ItemEnderPart extends ItemModule
         // Mob Persistence
         if (damage == 45) { index = 12; }
 
-        return this.models[index];
+        return this.models[index < this.models.length ? index : 0];
     }
 }

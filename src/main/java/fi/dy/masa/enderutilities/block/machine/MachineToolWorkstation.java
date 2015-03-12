@@ -1,9 +1,12 @@
 package fi.dy.masa.enderutilities.block.machine;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -39,5 +42,18 @@ public class MachineToolWorkstation extends Machine
         }
 
         return true; // We want this to override any other (custom/mod) block breaking methods
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.texture_names = new String[4];
+        this.texture_names[0] = "toolworkstation.front";
+        this.texture_names[1] = "toolworkstation.top";
+        this.texture_names[2] = "toolworkstation.bottom";
+        this.texture_names[3] = "machine.side.0";
+
+        super.registerTextures(textureMap);
     }
 }

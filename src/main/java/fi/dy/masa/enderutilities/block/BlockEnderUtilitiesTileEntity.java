@@ -1,16 +1,18 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelBlock;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,8 +22,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IRegistry;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -32,15 +37,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.EnumMachine;
 import fi.dy.masa.enderutilities.block.machine.Machine;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
 {
     public static final PropertyEnum MACHINE_TYPE = PropertyEnum.create("machinetype", EnumMachine.class);
-    public static final PropertyBool IS_ACTIVE = PropertyBool.create("isactive");
-
-    public int blockIndex;
+    //public static final PropertyInteger MACHINE_MODE = PropertyInteger.create("machinemode", 0, 2);
 
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
     {
@@ -50,8 +54,8 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness, Material material)
     {
         super(index, name, hardness, material);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)).withProperty(IS_ACTIVE, Boolean.valueOf(false)));
-        this.blockIndex = index;
+        //this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)).withProperty(MACHINE_MODE, Integer.valueOf(0)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(MACHINE_TYPE, Machine.getDefaultState(this.blockIndex)));
         Machine.setBlockHardness(this, this.blockIndex);
         Machine.setBlockHarvestLevels(this, this.blockIndex);
     }
@@ -72,7 +76,8 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     protected BlockState createBlockState()
     {
-        return new BlockState(this, new IProperty[] {FACING, MACHINE_TYPE, IS_ACTIVE});
+        //return new BlockState(this, new IProperty[] {FACING, MACHINE_TYPE, MACHINE_MODE});
+        return new BlockState(this, new IProperty[] {MACHINE_TYPE});
     }
 
     @Override
@@ -92,7 +97,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        /*TileEntity te = worldIn.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderUtilities)
         {
             EnumFacing enumFacing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
@@ -103,7 +108,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             }
 
             iBlockState = iBlockState.withProperty(FACING, enumFacing);
-        }
+        }*/
 
         int meta = this.getMetaFromState(iBlockState);
         iBlockState = iBlockState.withProperty(MACHINE_TYPE, EnumMachine.getMachineType(this.blockIndex, meta));
@@ -234,11 +239,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         return super.getLightValue(world, pos);
     }
 
-    public int getBlockIndex()
-    {
-        return this.blockIndex;
-    }
-
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item item, CreativeTabs tab, List list)
     {
@@ -254,5 +254,32 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         {
             machine.randomDisplayTick(world, pos, iBlockState, rand);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerTextures(TextureMap textureMap)
+    {
+        Machine.registerTextures(this.blockIndex, textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerModels(IRegistry modelRegistry, TextureMap textures, Map<ResourceLocation, ModelBlock> models)
+    {
+        Machine.registerModels(this.blockIndex, modelRegistry, textures, models);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    {
+        Machine machine = Machine.getMachine((EnumMachine)iBlockState.getValue(MACHINE_TYPE));
+        if (machine != null)
+        {
+            return machine.getModel(iBlockState);
+        }
+
+        return EnderUtilitiesModelRegistry.baseBlockModel;
     }
 }

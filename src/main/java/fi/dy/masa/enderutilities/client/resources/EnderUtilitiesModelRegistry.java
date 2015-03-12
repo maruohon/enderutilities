@@ -1,13 +1,15 @@
 package fi.dy.masa.enderutilities.client.resources;
 
-import java.io.IOException;
 import java.util.Map;
 
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.ModelBlock;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IRegistry;
@@ -19,6 +21,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import com.google.common.collect.Maps;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
@@ -29,23 +33,41 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class EnderUtilitiesModelRegistry
 {
     public static Map<ResourceLocation, ModelBlock> models = Maps.newHashMap();
+    public static IFlexibleBakedModel baseBlockModel;
     public static IFlexibleBakedModel baseItemModel;
-    public static ModelBlock modelBlockBase;
+    public static ModelBlock modelBlockBaseItems;
+    public static ModelBlock modelBlockBaseBlocks;
     public static ItemMeshDefinition baseItemMeshDefinition;
 
-    public static void registerBlockModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
+    public static void registerBlockModels(ModelManager modelManager, IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        //Item item = Item.getItemFromBlock(EnderUtilitiesBlocks.machine_0);
-        //ModelBakery.addVariantName(item, "enderfurnace.off", "toolworkstation", "enderinfuser");
+        String name = Reference.MOD_ID + ":" + ReferenceNames.NAME_MODEL_BLOCK_BASE;
 
-        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE,     0, "inventory"); // Ender Furnace
-        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,  1, "inventory"); // Tool Workstation
-        //registerModel(itemModelMesher, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,     2, "inventory"); // Ender Infuser
+        // Register the base ISmartBlockModel that the fetches the correct model from the Block/Machine classes
+        // via the handleBlockState() method.
+        ModelResourceLocation mrl = new ModelResourceLocation(name, "normal");
+        baseBlockModel = new EnderUtilitiesSmartBlockModel(itemModelMesher.getModelManager().getModel(mrl));
+        //ModelResourceLocation mrl = new ModelResourceLocation(name, "normal");
+        //baseBlockModel = EnderUtilitiesModelFactory.instance.bakeModel(modelBlockBaseBlocks, ModelRotation.X0_Y0, false);//new EnderUtilitiesSmartBlockModel(itemModelMesher.getModelManager().getModel(mrl));
+        modelRegistry.putObject(mrl, baseBlockModel);
+
+        mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "normal");
+        modelRegistry.putObject(mrl, baseBlockModel);
+        mrl = new ModelResourceLocation(Reference.MOD_ID + ":" + "machine.0", "inventory");
+        modelRegistry.putObject(mrl, baseBlockModel);
+
+        //StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.FACING, BlockEnderUtilitiesTileEntity.MACHINE_TYPE, BlockEnderUtilitiesTileEntity.MACHINE_MODE}).build();
+        //StateMap sm = (new StateMap.Builder()).setProperty(BlockEnderUtilitiesTileEntity.MACHINE_TYPE).build();
+        StateMap sm = (new StateMap.Builder()).addPropertiesToIgnore(new IProperty[] {BlockEnderUtilitiesTileEntity.MACHINE_TYPE}).build();
+        modelManager.getBlockModelShapes().registerBlockWithStateMapper(EnderUtilitiesBlocks.machine_0, sm);
+
+        TextureMap textures = Minecraft.getMinecraft().getTextureMapBlocks();
+        EnderUtilitiesBlocks.machine_0.registerModels(modelRegistry, textures, models);
     }
 
     public static void registerItemModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher)
     {
-        String name = Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE;
+        String name = Reference.MOD_ID + ":" + ReferenceNames.NAME_MODEL_ITEM_BASE;
 
         // Register the base ISmartItemModel that the fetches the correct model from the Item classes
         // via the handleItemState() method.
@@ -82,7 +104,7 @@ public class EnderUtilitiesModelRegistry
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
                 // Base model for the ISmartItemModel
-                return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_ITEM_MODEL_BASE, "inventory");
+                return new ModelResourceLocation(Reference.MOD_ID + ":" + ReferenceNames.NAME_MODEL_ITEM_BASE, "inventory");
             }
         };
 
@@ -96,25 +118,34 @@ public class EnderUtilitiesModelRegistry
         //EnderUtilities.logger.info("Generated base ModelBlock: " + modelBlock.name);
         //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
 
-        String name = Reference.MOD_ID + ":" + "models/item/" + ReferenceNames.NAME_ITEM_MODEL_BASE;
-
-        try
+        // enderutilities:item/model_item_base
+        String name = Reference.MOD_ID + ":" + "item/" + ReferenceNames.NAME_MODEL_ITEM_BASE;
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        if (modelBlock == null)
         {
-            modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
-        }
-        catch (IOException e)
-        {
-            EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
+            EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
             return false;
         }
+        modelBlockBaseItems = modelBlock;
 
+        // enderutilities:block/cube
+        name = Reference.MOD_ID + ":" + "block/cube";
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
         if (modelBlock == null)
         {
             EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
             return false;
         }
 
-        modelBlockBase = modelBlock;
+        // enderutilities:block/model_block_base
+        name = Reference.MOD_ID + ":" + "block/" + ReferenceNames.NAME_MODEL_BLOCK_BASE;
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        if (modelBlock == null)
+        {
+            EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
+            return false;
+        }
+        modelBlockBaseBlocks = modelBlock;
 
         return true;
     }

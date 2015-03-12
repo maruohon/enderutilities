@@ -362,6 +362,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return EnderUtilitiesModelFactory.mergeModelsSimple(this.models[index], this.models[open + 4]);
         }
 
-        return this.models[index < this.textures.length ? index : 0];
+        return this.models[index < this.models.length ? index : 0];
     }
 }

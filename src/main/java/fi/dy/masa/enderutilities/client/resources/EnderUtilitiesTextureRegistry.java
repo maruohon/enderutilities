@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
@@ -14,6 +15,11 @@ import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 @SideOnly(Side.CLIENT)
 public class EnderUtilitiesTextureRegistry
 {
+    public static void registerBlockTextures(TextureMap textureMap)
+    {
+        EnderUtilitiesBlocks.machine_0.registerTextures(textureMap);
+    }
+
     public static void registerItemTextures(TextureMap textureMap)
     {
         EnderUtilitiesItems.enderArrow.registerTextures(textureMap);

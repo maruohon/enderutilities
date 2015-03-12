@@ -44,6 +44,12 @@ public enum EnumMachine implements IStringSerializable
         return this.name;
     }
 
+    @Override
+    public String toString()
+    {
+        return this.name;
+    }
+
     static
     {
         for (EnumMachine machine : values())

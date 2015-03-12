@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ITransformation;
 import net.minecraftforge.client.model.TRSRTransformation;
@@ -41,28 +42,41 @@ public class EnderUtilitiesModelFactory
 
     public IFlexibleBakedModel bakeModel(ModelBlock modelBlockIn, ITransformation modelRotationIn, boolean uvLocked)
     {
-        TextureAtlasSprite spriteParticle = this.textureMap.getTextureExtry(modelBlockIn.resolveTextureName("particle"));
-        EnderUtilitiesSmartItemModel.Builder builder = (new EnderUtilitiesSmartItemModel.Builder(modelBlockIn)).setTexture(spriteParticle);
+        String textureName = new ResourceLocation(modelBlockIn.resolveTextureName("particle")).toString();
+        TextureAtlasSprite sprite = this.textureMap.getTextureExtry(textureName);
+        EnderUtilitiesSmartItemModel.Builder builder = (new EnderUtilitiesSmartItemModel.Builder(modelBlockIn)).setTexture(sprite);
         Iterator<BlockPart> blockPartIterator = modelBlockIn.getElements().iterator();
 
+        int i = 0;
         while (blockPartIterator.hasNext())
         {
             BlockPart blockPart = blockPartIterator.next();
+            EnderUtilities.logger.info("blockPart: " + i++ + " " + blockPart.toString());
             Iterator<EnumFacing> facingIterator = blockPart.mapFaces.keySet().iterator();
 
             while (facingIterator.hasNext())
             {
                 EnumFacing facing = (EnumFacing)facingIterator.next();
                 BlockPartFace blockPartFace = (BlockPartFace)blockPart.mapFaces.get(facing);
-                TextureAtlasSprite spriteFace = this.textureMap.getTextureExtry(modelBlockIn.resolveTextureName(blockPartFace.texture));
+                EnderUtilities.logger.info("facing: " + facing + " blockPartFace: " + blockPartFace.toString());
+                textureName = new ResourceLocation(modelBlockIn.resolveTextureName(blockPartFace.texture)).toString();
+                sprite = this.textureMap.getTextureExtry(textureName);
+                if (sprite == null)
+                {
+                    String bn = modelBlockIn.name;
+                    String ft = blockPartFace.texture;
+                    String rt = modelBlockIn.resolveTextureName(blockPartFace.texture);
+                    EnderUtilities.logger.fatal("bakeModel(): sprite == null: blockName: " + bn + " face tex: " + ft + " resolved: " + rt + " rl: " + textureName);
+                    sprite = this.textureMap.getMissingSprite();
+                }
 
                 if (blockPartFace.cullFace == null || TRSRTransformation.isInteger(modelRotationIn.getMatrix()) == false)
                 {
-                    builder.addGeneralQuad(this.makeBakedQuad(blockPart, blockPartFace, spriteFace, facing, modelRotationIn, uvLocked));
+                    builder.addGeneralQuad(this.makeBakedQuad(blockPart, blockPartFace, sprite, facing, modelRotationIn, uvLocked));
                 }
                 else
                 {
-                    builder.addFaceQuad(modelRotationIn.rotate(blockPartFace.cullFace), this.makeBakedQuad(blockPart, blockPartFace, spriteFace, facing, modelRotationIn, uvLocked));
+                    builder.addFaceQuad(modelRotationIn.rotate(blockPartFace.cullFace), this.makeBakedQuad(blockPart, blockPartFace, sprite, facing, modelRotationIn, uvLocked));
                 }
             }
         }
@@ -95,6 +109,11 @@ public class EnderUtilitiesModelFactory
     {
         ModelResourceLocation mrl = new ModelResourceLocation(modelName, "inventory");
         IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(mrl);
+        printModelData(modelName, model);
+    }
+
+    public static void printModelData(String modelName, IBakedModel model)
+    {
         if (model == null)
         {
             EnderUtilities.logger.info("model == null");

@@ -248,6 +248,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             index += 7;
         }
 
-        return this.models[index < this.textures.length ? index : 0];
+        return this.models[index < this.models.length ? index : 0];
     }
 }

@@ -3,16 +3,18 @@ package fi.dy.masa.enderutilities.block.machine;
 import java.util.Random;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
@@ -23,7 +25,7 @@ public class MachineEnderFurnace extends Machine
         super(machineType, name, TEClass, tool, harvestLevel, hardness);
     }
 
-    @Override
+    /*@Override
     public IBlockState getActualState(IBlockState iBlockState, IBlockAccess worldIn, BlockPos pos)
     {
         TileEntity te = worldIn.getTileEntity(pos);
@@ -31,11 +33,11 @@ public class MachineEnderFurnace extends Machine
         {
             //iBlockState = super.getActualState(iBlockState, worldIn, pos);
             // TODO fast mode
-            return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.IS_ACTIVE, Boolean.valueOf(((TileEntityEnderFurnace)te).isActive));
+            return iBlockState.withProperty(BlockEnderUtilitiesTileEntity.MACHINE_MODE, Integer.valueOf(((TileEntityEnderFurnace)te).isActive ? 1 : 0));
         }
 
         return iBlockState;
-    }
+    }*/
 
     @Override
     public boolean breakBlock(World world, BlockPos pos, IBlockState iBlockState)
@@ -86,5 +88,27 @@ public class MachineEnderFurnace extends Machine
                 Particles.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
             }
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerTextures(TextureMap textureMap)
+    {
+        this.texture_names = new String[6];
+        this.texture_names[0] = "enderfurnace.front.off";
+        this.texture_names[1] = "enderfurnace.front.on.nofuel";
+        this.texture_names[2] = "enderfurnace.front.on.slow";
+        this.texture_names[3] = "enderfurnace.front.on.fast";
+        this.texture_names[4] = "machine.top.0";
+        this.texture_names[5] = "machine.side.0";
+
+        super.registerTextures(textureMap);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    {
+        return EnderUtilitiesModelRegistry.baseBlockModel;
     }
 }

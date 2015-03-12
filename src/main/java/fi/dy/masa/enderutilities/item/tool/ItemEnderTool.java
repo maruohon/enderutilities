@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item.tool;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,7 +62,6 @@ import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
-import fi.dy.masa.enderutilities.client.resources.TextureItems;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -1123,8 +1121,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         for (int i = 0; i < len; ++i)
         {
             String name = ReferenceTextures.getItemTextureName(this.variants[i]);
-            textureMap.setTextureEntry(name, new TextureItems(name));
-            this.textures[i] = textureMap.getTextureExtry(name);
+            //textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
+            //this.textures[i] = textureMap.getTextureExtry(name);
+            textureMap.registerSprite(new ResourceLocation(name));
         }
     }
 
@@ -1139,22 +1138,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
         ModelBlock base;
 
-        String name = Reference.MOD_ID + ":" + "models/item/" + ReferenceNames.NAME_ITEM_ENDERTOOL;
-
-        try
+        String name = Reference.MOD_ID + ":item/" + ReferenceNames.NAME_ITEM_ENDERTOOL;
+        base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+        if (base == null)
         {
-            base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
-        }
-        catch (IOException e)
-        {
-            EnderUtilities.logger.fatal("Caught an IOException while trying to read ModelBlock for " + name);
-            base = EnderUtilitiesModelRegistry.modelBlockBase;
+            EnderUtilities.logger.fatal("Failed to read ModelBlock for " + name);
+            base = EnderUtilitiesModelRegistry.modelBlockBaseItems;
         }
 
         for (int i = 0; i < len; ++i)
         {
-            String modelName = Reference.MOD_ID + ":models/item/" + this.variants[i];
-            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTexture(base, this.textures[i], modelName, modelMap);
+            String modelName = Reference.MOD_ID + ":item/" + this.variants[i];
+            String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
             modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
 
             if (modelBlock != null)

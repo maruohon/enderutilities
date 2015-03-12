@@ -26,8 +26,8 @@ public class ReferenceTextures
         return Reference.MOD_ID + ":textures/entity/entity." + name + ".png";
     }
 
-    public static String getTileName(String name)
+    public static String getTileTextureName(String name)
     {
-        return Reference.MOD_ID + ":tile." + name;
+        return Reference.MOD_ID + ":blocks/tile." + name;
     }
 }

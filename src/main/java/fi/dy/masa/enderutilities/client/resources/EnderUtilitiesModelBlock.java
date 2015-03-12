@@ -10,7 +10,6 @@ import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ModelBlock;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,36 +39,54 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         this.parentLocation = parentLocation;
     }
 
-    public static ModelBlock createNewModelBlockForTexture(ModelBlock base, TextureAtlasSprite sprite, String name, Map<ResourceLocation, ModelBlock> models)
+    public static ModelBlock createNewItemModelBlockForTexture(ModelBlock base, String name, String textureName, Map<ResourceLocation, ModelBlock> models)
     {
-        if (sprite == null)
-        {
-            EnderUtilities.logger.fatal("createNewModelBlockForTexture(): sprite == null");
-            return base;
-        }
-
         // FIXME debug
-        //EnderUtilities.logger.info("createNewModelBlockForTexture(): from base modelBlock:");
+        //EnderUtilities.logger.info("createNewItemModelBlockForTexture(): from base modelBlock:");
         //printModelBlock(base);
 
         Map<String, String> map = Maps.newHashMap();
-        map.put("layer0", sprite.getIconName()); // FIXME
+        map.put("layer0", textureName);
 
+        return createNewModelBlockForTextures(base, name, map, models);
+    }
+
+    /**
+     * Creates a new ModelBlock from the provided base ModelBlock. Note: this will replace the textureMap!
+     */
+    public static ModelBlock createNewModelBlockForTextures(ModelBlock base, String name, Map mapTextures, Map<ResourceLocation, ModelBlock> models)
+    {
         ItemCameraTransforms ct = new ItemCameraTransforms(base.getThirdPersonTransform(), base.getFirstPersonTransform(), base.getHeadTransform(), base.getInGuiTransform());
-        EnderUtilitiesModelBlock newModelBlock = new EnderUtilitiesModelBlock(base.getElements(), map, base.isAmbientOcclusion(), base.isGui3d(), ct);
+        EnderUtilitiesModelBlock newModelBlock = new EnderUtilitiesModelBlock(base.getElements(), mapTextures, base.isAmbientOcclusion(), base.isGui3d(), ct);
         newModelBlock.name = name;
+        //newModelBlock.setParentLocation(base.getParentLocation());
+        //newModelBlock.getParentFromMap(models);
         newModelBlock.setParentLocation(base.getParentLocation());
         newModelBlock.getParentFromMap(models);
-        models.put(new ResourceLocation(name), newModelBlock);
+
+        if (models != null)
+        {
+            models.put(new ResourceLocation(name), newModelBlock);
+        }
 
         // FIXME debug
-        //EnderUtilities.logger.info("createNewModelBlockForTexture(): newModelBlock:");
+        //EnderUtilities.logger.info("createNewModelBlockForTextures(): newModelBlock:");
         //printModelBlock(newModelBlock);
 
         return newModelBlock;
     }
 
-    public static ModelBlock readModel(ResourceLocation location, Map<ResourceLocation, ModelBlock> models) throws IOException
+    public static ModelBlock cloneModelBlock(ModelBlock base, String name, Map mapTextures, Map<ResourceLocation, ModelBlock> models)
+    {
+        ItemCameraTransforms ct = new ItemCameraTransforms(base.getThirdPersonTransform(), base.getFirstPersonTransform(), base.getHeadTransform(), base.getInGuiTransform());
+        EnderUtilitiesModelBlock newModelBlock = new EnderUtilitiesModelBlock(base.getElements(), mapTextures, base.isAmbientOcclusion(), base.isGui3d(), ct);
+        newModelBlock.name = name;
+        newModelBlock.setParentLocation(new ResourceLocation(base.name));
+        newModelBlock.getParentFromMap(models);
+        return newModelBlock;
+    }
+
+    public static ModelBlock readModel(ResourceLocation location, Map<ResourceLocation, ModelBlock> models)
     {
         String resourcePath = location.getResourcePath();
 
@@ -81,18 +98,17 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         Object object = null;
         ModelBlock modelBlock = null;
 
-        IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource(getModelLocation(location));
-        object = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
-
         try
         {
-            ModelBlock mb = ModelBlock.deserialize((Reader)object);
-            mb.name = location.toString();
-            modelBlock = mb;
-        }
-        finally
-        {
+            IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource(getModelLocation(location));
+            object = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
+            modelBlock = ModelBlock.deserialize((Reader)object);
+            modelBlock.name = location.toString();
             ((Reader)object).close();
+        }
+        catch (IOException e)
+        {
+            return null;
         }
 
         modelBlock.getParentFromMap(models);
@@ -103,7 +119,7 @@ public class EnderUtilitiesModelBlock extends ModelBlock
 
     public static ResourceLocation getModelLocation(ResourceLocation location)
     {
-        return new ResourceLocation(location.getResourceDomain(), location.getResourcePath() + ".json");
+        return new ResourceLocation(location.getResourceDomain(), "models/" + location.getResourcePath() + ".json");
     }
 
     public static void setModelParents()
@@ -144,7 +160,7 @@ public class EnderUtilitiesModelBlock extends ModelBlock
             Map.Entry pair = iter2.next();
             String key = (String)pair.getKey();
             String val = (String)pair.getValue();
-            EnderUtilities.logger.info("         key: " + key + " val: " + val);
+            EnderUtilities.logger.info("         " + key + ": " + val);
         }
     }
 }

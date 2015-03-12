@@ -162,7 +162,7 @@ public class EnderUtilitiesFlexibleBakedModel implements IFlexibleBakedModel
             if (this.builderTexture == null)
             {
                 //throw new RuntimeException("Missing particle!");
-                this.builderTexture = new TextureItems("missingno");
+                this.builderTexture = new EnderUtilitiesTexture("missingno");
             }
 
             return new EnderUtilitiesFlexibleBakedModel(this.builderGeneralQuads, this.builderFaceQuads, this.builderAmbientOcclusion, this.builderGui3d, this.builderTexture, this.builderCameraTransforms);

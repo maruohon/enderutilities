@@ -95,6 +95,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     {
         int index = stack.getItemDamage();
 
-        return this.models[index < this.textures.length ? index : 0];
+        return this.models[index < this.models.length ? index : 0];
     }
 }

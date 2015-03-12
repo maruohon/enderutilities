@@ -20,6 +20,7 @@ public class ModelEventHandler
     public void onTextureStitchEvent(TextureStitchEvent.Pre event)
     {
         EnderUtilitiesTextureRegistry.registerItemTextures(event.map);
+        EnderUtilitiesTextureRegistry.registerBlockTextures(event.map);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -35,7 +36,6 @@ public class ModelEventHandler
         }
 
         EnderUtilitiesModelRegistry.registerItemModels(event.modelRegistry, itemModelMesher);
-
-        EnderUtilitiesModelRegistry.registerBlockModels(event.modelRegistry, itemModelMesher);
+        EnderUtilitiesModelRegistry.registerBlockModels(event.modelManager, event.modelRegistry, itemModelMesher);
     }
 }

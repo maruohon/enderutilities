@@ -7,17 +7,32 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelBlock;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.IRegistry;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Maps;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -32,7 +47,7 @@ public class Machine
     protected static final Map<EnumMachine, Machine> MACHINES = new HashMap<EnumMachine, Machine>();
     protected static Machine enderFurnace = new MachineEnderFurnace(EnumMachine.ENDER_FURNACE, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
     protected static Machine toolWorkstation = new MachineToolWorkstation(EnumMachine.TOOL_WORKSTATION, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
-    protected static Machine enderInfuser = new Machine(EnumMachine.ENDER_INFUSER, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
+    protected static Machine enderInfuser = new MachineEnderInfuser(EnumMachine.ENDER_INFUSER, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
 
     protected EnumMachine machineType;
     protected String blockName;
@@ -40,6 +55,13 @@ public class Machine
     protected String toolClass;
     protected int harvestLevel;
     protected float blockHardness;
+
+    @SideOnly(Side.CLIENT)
+    public String texture_names[];
+    @SideOnly(Side.CLIENT)
+    public TextureAtlasSprite textures[];
+    @SideOnly(Side.CLIENT)
+    public IFlexibleBakedModel models[];
 
     public Machine(EnumMachine machineType, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
@@ -200,5 +222,85 @@ public class Machine
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(World world, BlockPos pos, IBlockState iBlockState, Random rand)
     {
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void registerTextures(int blockIndex, TextureMap textureMap)
+    {
+        for (int meta = 0; meta < 16; ++meta)
+        {
+            Machine machine = getMachine(blockIndex, meta);
+            if (machine != null)
+            {
+                System.out.println("Machine.registerTextures(): " + meta);
+                machine.registerTextures(textureMap);
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void registerModels(int blockIndex, IRegistry modelRegistry, TextureMap textures, Map<ResourceLocation, ModelBlock> models)
+    {
+        for (int meta = 0; meta < 16; ++meta)
+        {
+            Machine machine = getMachine(blockIndex, meta);
+            if (machine != null)
+            {
+                machine.registerModels(modelRegistry, textures, models);
+            }
+        }
+    }
+
+    /**
+     * Register the textures for this block/machine. You are required to register at least three textures
+     * for the front, top and sides, in that order, unless you also override getModel().
+     * @param textureMap
+     */
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap)
+    {
+        int len = this.texture_names.length;
+        this.textures = new TextureAtlasSprite[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            String name = ReferenceTextures.getTileTextureName(this.texture_names[i]);
+            textureMap.registerSprite(new ResourceLocation(name));
+            /*this.textures[i] = textureMap.getTextureExtry(name);
+
+            if (this.textures[i] == null)
+            {
+                textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
+                this.textures[i] = textureMap.getTextureExtry(name);
+            }*/
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerModels(IRegistry modelRegistry, TextureMap textures, Map<ResourceLocation, ModelBlock> models)
+    {
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IFlexibleBakedModel getModel(IBlockState iBlockState)
+    {
+        Map<String, String> map = Maps.newHashMap();
+        map.put("front",   ReferenceTextures.getTileTextureName(this.texture_names[0]));
+        map.put("top",     ReferenceTextures.getTileTextureName(this.texture_names[1]));
+        map.put("side",    ReferenceTextures.getTileTextureName(this.texture_names[2]));
+
+        String modelName = Reference.MOD_ID + ":block/" + this.blockName;
+        ModelBlock modelBlock = EnderUtilitiesModelBlock.cloneModelBlock(EnderUtilitiesModelRegistry.modelBlockBaseBlocks, modelName, map, EnderUtilitiesModelRegistry.models);
+        if (modelBlock != null)
+        {
+            EnderUtilities.logger.info("Machine.getModel(): baking... " + modelName + ":");
+            EnderUtilitiesModelBlock.printModelBlock(modelBlock);
+            IFlexibleBakedModel model = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false);
+            //EnderUtilitiesModelFactory.printModelData(modelName, model);
+            return model;
+        }
+
+        EnderUtilities.logger.info("Machine.getModel(): modelBlock == null; return baseBlockModel");
+        return EnderUtilitiesModelRegistry.baseBlockModel;
     }
 }

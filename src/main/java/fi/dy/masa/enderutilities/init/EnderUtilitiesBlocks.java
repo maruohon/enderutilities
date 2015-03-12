@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.init;
 
-import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.ItemBlockMachine;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -12,7 +12,7 @@ import fi.dy.masa.enderutilities.setup.Configs;
 
 public class EnderUtilitiesBlocks
 {
-    public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceNames.NAME_TILE_MACHINE_0, 1.0f);
+    public static final BlockEnderUtilities machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceNames.NAME_TILE_MACHINE_0, 1.0f);
 
     public static void init()
     {

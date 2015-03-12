@@ -11,6 +11,7 @@ import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilities;
 
 @SideOnly(Side.CLIENT)
 @SuppressWarnings("deprecation")
@@ -34,6 +35,11 @@ public class EnderUtilitiesSmartBlockModel extends EnderUtilitiesFlexibleBakedMo
     @Override
     public IFlexibleBakedModel handleBlockState(IBlockState state)
     {
-        return null;
+        if (state.getBlock() instanceof BlockEnderUtilities)
+        {
+            return ((BlockEnderUtilities)state.getBlock()).getModel(state);
+        }
+
+        return this;
     }
 }
