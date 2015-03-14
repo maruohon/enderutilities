@@ -6,19 +6,30 @@
     },
     "elements": [ 
         {
-            "__comment": "Front",
-            "from": [ 10, 6, 8.02 ],
-            "to": [ 13, 9, 8.52 ],
+            "__comment": "Center",
+            "from": [ 5.9, 2.9, 7.53 ],
+            "to": [ 10.1, 13.1, 8.47 ],
             "faces": {
-                "south": { "uv": [ 12.5, 12.5, 15.5, 15.5 ], "texture": "#texture" }
+                "north": { "uv": [ 6, 0, 2, 10 ], "texture": "#texture" },
+                "south": { "uv": [ 2, 0, 6, 10 ], "texture": "#texture" }
             }
         },
         {
-            "__comment": "Back",
-            "from": [ 3, 6, 7.48 ],
-            "to": [ 6, 9, 7.98 ],
+            "__comment": "Top Left",
+            "from": [ 3.9, 9.9, 7.53 ],
+            "to": [ 6.1, 12.1, 8.47 ],
             "faces": {
-                "north": { "uv": [ 12.5, 12.5, 15.5, 15.5 ], "texture": "#texture" }
+                "north": { "uv": [ 0, 1, 2, 3 ], "texture": "#texture" },
+                "south": { "uv": [ 0, 1, 2, 3 ], "texture": "#texture" }
+            }
+        },
+        {
+            "__comment": "Top Right",
+            "from": [ 9.9, 9.9, 7.53 ],
+            "to": [ 12.1, 12.1, 8.47 ],
+            "faces": {
+                "north": { "uv": [ 6, 1, 8, 3 ], "texture": "#texture" },
+                "south": { "uv": [ 6, 1, 8, 3 ], "texture": "#texture" }
             }
         }
     ],

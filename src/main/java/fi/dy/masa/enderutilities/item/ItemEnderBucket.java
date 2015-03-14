@@ -1304,7 +1304,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // Read the dynamic parts of the bucket's model and store them in the ModelBlock form for later use with fluid rendering
-        modelNames = new String[] { this.name + ".32.fluid", this.name + ".32.normal.inside", this.name + ".32.linked.inside" };
+        //modelNames = new String[] { this.name + ".32.fluid", this.name + ".32.normal.inside", this.name + ".32.linked.inside" };
+        modelNames = new String[] { this.name + ".32.fluid" };
         len = modelNames.length;
         this.modelBlocks = new ModelBlock[len];
 
@@ -1323,10 +1324,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @SideOnly(Side.CLIENT)
     public void registerTextures(TextureMap textureMap)
     {
-        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal.hollow")));
-        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked.hollow")));
-        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal")));
-        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked")));
+        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal.hollow")));
+        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked.hollow")));
+        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal")));
+        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked")));
         textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.parts")));
     }
 
@@ -1358,11 +1359,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         byte op_mode = this.getBucketMode(stack);
         byte link_mode = this.getBucketLinkMode(stack);
 
+        IFlexibleBakedModel model;
         // Get the main part of the bucket
-        IFlexibleBakedModel model = this.models[link_mode == LINK_MODE_ENABLED ? 1 : 0];
+        model = this.models[link_mode == LINK_MODE_ENABLED ? 1 : 0];
 
         // Merge the inside background model
-        //model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[link_mode + 5]);
+        model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[link_mode + 5]);
         //model = this.models[link_mode + 5];
 
         // Merge the operation mode model
@@ -1402,7 +1404,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     {
                     }
 
-                    model = EnderUtilitiesModelFactory.mergeModelsSimple(model, fluidModel);
+                    //model = EnderUtilitiesModelFactory.mergeModelsSimple(model, fluidModel);
                 }
             }
         }
