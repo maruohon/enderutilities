@@ -1,5 +1,5 @@
 {
-    "parent": "builtin/generated",
+    "parent": "minecraft:builtin/generated",
     "textures": {
         "layer0": "enderutilities:items/item.enderpart.enderstick"
     },

@@ -58,8 +58,17 @@ public class EnderUtilitiesModelFactory
                 EnumFacing facing = (EnumFacing)facingIterator.next();
                 BlockPartFace blockPartFace = (BlockPartFace)blockPart.mapFaces.get(facing);
                 //EnderUtilities.logger.info("facing: " + facing + " blockPartFace: " + blockPartFace.toString());
-                textureName = new ResourceLocation(modelBlockIn.resolveTextureName(blockPartFace.texture)).toString();
-                sprite = this.textureMap.getTextureExtry(textureName);
+                textureName = blockPartFace.texture;
+                if (textureName != null && textureName.length() > 0)
+                {
+                    textureName = new ResourceLocation(modelBlockIn.resolveTextureName(textureName)).toString();
+                    sprite = this.textureMap.getTextureExtry(textureName);
+                }
+                else
+                {
+                    sprite = this.textureMap.getMissingSprite();
+                }
+
                 if (sprite == null)
                 {
                     //String bn = modelBlockIn.name;

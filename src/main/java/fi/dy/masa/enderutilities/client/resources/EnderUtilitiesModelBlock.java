@@ -62,10 +62,10 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         //newModelBlock.setParentLocation(base.getParentLocation());
         //newModelBlock.getParentFromMap(models);
         newModelBlock.setParentLocation(base.getParentLocation());
-        newModelBlock.getParentFromMap(models);
 
         if (models != null)
         {
+            newModelBlock.getParentFromMap(models);
             models.put(new ResourceLocation(name), newModelBlock);
         }
 

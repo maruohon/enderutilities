@@ -177,10 +177,10 @@ public class ItemEnderUtilities extends Item
 
         for (int i = 0; i < len; ++i)
         {
-            // Get the name of the model with the correct translation/rotation/scale etc.
-            String name = this.getBaseModelName(this.variants[i]);
             ModelBlock base;
 
+            // Get the name of the model with the correct translation/rotation/scale etc.
+            String name = this.getBaseModelName(this.variants[i]);
             if (name != null)
             {
                 name = Reference.MOD_ID + ":item/" + name;

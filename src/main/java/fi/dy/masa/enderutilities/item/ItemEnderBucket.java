@@ -1,10 +1,15 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.renderer.block.model.ModelBlock;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -15,7 +20,9 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.IRegistry;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
@@ -30,14 +37,22 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.google.common.collect.Maps;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelBlock;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelFactory;
+import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -57,6 +72,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public static final int ENDER_BUCKET_MAX_AMOUNT = 16000; // Can contain 16 buckets
 
     protected int capacity;
+
+    @SideOnly(Side.CLIENT)
+    public ModelBlock modelBlocks[];
 
     public ItemEnderBucket()
     {
@@ -1234,56 +1252,98 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
     }
 
-    /*
-    @Override
     @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
+    public void registerModels(IRegistry modelRegistry, ItemModelMesher itemModelMesher, TextureMap textureMap, Map<ResourceLocation, ModelBlock> modelMap)
     {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.itemIconLinked = iconRegister.registerIcon(this.getIconString() + ".linked");
+        itemModelMesher.register(this, EnderUtilitiesModelRegistry.baseItemMeshDefinition);
+        //ItemModelGenerator itemModelGenerator = new ItemModelGenerator();
 
-        this.iconParts = new IIcon[12];
-        this.iconParts[0] = iconRegister.registerIcon(this.getIconString() + ".main.normal");
-        this.iconParts[1] = iconRegister.registerIcon(this.getIconString() + ".main.fill");
-        this.iconParts[2] = iconRegister.registerIcon(this.getIconString() + ".main.drain");
-        this.iconParts[3] = iconRegister.registerIcon(this.getIconString() + ".main.bind");
-        this.iconParts[4] = iconRegister.registerIcon(this.getIconString() + ".inside");
-        this.iconParts[5] = iconRegister.registerIcon(this.getIconString() + ".window");
-        this.iconParts[6] = iconRegister.registerIcon(this.getIconString() + ".linked.main.normal");
-        this.iconParts[7] = iconRegister.registerIcon(this.getIconString() + ".linked.main.fill");
-        this.iconParts[8] = iconRegister.registerIcon(this.getIconString() + ".linked.main.drain");
-        this.iconParts[9] = iconRegister.registerIcon(this.getIconString() + ".linked.main.bind");
-        this.iconParts[10] = iconRegister.registerIcon(this.getIconString() + ".linked.inside");
-        this.iconParts[11] = iconRegister.registerIcon(this.getIconString() + ".linked.window");
-    }
+        String modelNames[] = new String[] {
+                                    //this.name + ".32.normal.hollow",
+                                    //this.name + ".32.linked.hollow",
+                                    //this.name + ".32.normal.fluid.bg",
+                                    //this.name + ".32.linked.fluid.bg",
+                                    this.name + ".32.normal",
+                                    this.name + ".32.linked",
+                                    this.name + ".32.mode.fill",
+                                    this.name + ".32.mode.drain",
+                                    this.name + ".32.mode.bind",
+                                    this.name + ".32.normal.inside",
+                                    this.name + ".32.linked.inside"
+        };
 
-    @SideOnly(Side.CLIENT)
-    public IIcon getIconPart(int i)
-    {
-        if (i >= this.iconParts.length)
+        int len = modelNames.length;
+        this.models = new IFlexibleBakedModel[len];
+
+        // Read and bake the static parts of the bucket's model
+        for (int i = 0; i < len; ++i)
         {
-            i = 0;
+            // Get the name of the model with the correct translation/rotation/scale etc.
+            String modelName = Reference.MOD_ID + ":item/" + modelNames[i];
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap);
+            if (modelBlock == null)
+            {
+                EnderUtilities.logger.fatal("Failed to read ModelBlock for " + modelName);
+                modelBlock = EnderUtilitiesModelRegistry.modelBlockBaseItems;
+            }
+
+            //EnderUtilitiesModelBlock.printModelBlock(base); // FIXME debug
+            //String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
+            //ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
+            //modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
+
+            if (modelBlock != null)
+            {
+                this.models[i] = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false); // FIXME: rotation and uv-lock ??
+                //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
+            }
+            else
+            {
+                EnderUtilities.logger.fatal("ModelBlock from makeItemModel() was null when trying to bake item model for " + this.variants[i]);
+            }
         }
-        return this.iconParts[i];
+
+        // Read the dynamic parts of the bucket's model and store them in the ModelBlock form for later use with fluid rendering
+        modelNames = new String[] { this.name + ".32.fluid", this.name + ".32.normal.inside", this.name + ".32.linked.inside" };
+        len = modelNames.length;
+        this.modelBlocks = new ModelBlock[len];
+
+        for (int i = 0; i < len; ++i)
+        {
+            String modelName = Reference.MOD_ID + ":item/" + modelNames[i];
+            this.modelBlocks[i] = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap);
+            if (this.modelBlocks[i] == null)
+            {
+                EnderUtilities.logger.fatal("Failed to read ModelBlock for " + modelName);
+                this.modelBlocks[i] = EnderUtilitiesModelRegistry.modelBlockBaseItems;
+            }
+        }
     }
-    */
 
     @SideOnly(Side.CLIENT)
-    @Override
-    public String getBaseModelName(String variant)
+    public void registerTextures(TextureMap textureMap)
     {
-        return ReferenceNames.NAME_ITEM_ENDER_BUCKET;
+        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal.hollow")));
+        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked.hollow")));
+        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal")));
+        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked")));
+        textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.parts")));
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public void registerVariants()
     {
-        this.addVariants(   this.name + ".32.normal",
-                            this.name + ".32.linked",
-                            this.name + ".32.mode.fill",
-                            this.name + ".32.mode.drain",
-                            this.name + ".32.mode.bind");
+        this.addVariants(   this.name + ".32.normal.hollow",
+                            this.name + ".32.linked.hollow"
+                            //this.name + ".32.mode.fill",
+                            //this.name + ".32.mode.drain",
+                            //this.name + ".32.mode.bind",
+                            //this.name + ".32.normal.inside",
+                            //this.name + ".32.linked.inside"
+                            //this.name + ".32.normal",
+                            //this.name + ".32.linked"
+                            );
     }
 
     @SideOnly(Side.CLIENT)
@@ -1298,11 +1358,53 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         byte op_mode = this.getBucketMode(stack);
         byte link_mode = this.getBucketLinkMode(stack);
 
+        // Get the main part of the bucket
         IFlexibleBakedModel model = this.models[link_mode == LINK_MODE_ENABLED ? 1 : 0];
 
+        // Merge the inside background model
+        //model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[link_mode + 5]);
+        //model = this.models[link_mode + 5];
+
+        // Merge the operation mode model
         if (op_mode > OPERATION_MODE_NORMAL && op_mode <= OPERATION_MODE_BINDING)
         {
             model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[op_mode + 1]);
+        }
+
+        FluidStack fluidStack = this.getFluidCached(stack);
+
+        if (fluidStack != null && fluidStack.amount > 0)
+        {
+            Fluid fluid = fluidStack.getFluid();
+            if (fluid != null)
+            {
+                float amount = (float)fluidStack.amount;
+                //System.out.println("fluidTexture: " + fluidTexture);
+                if (fluid.getIcon(fluidStack) != null)
+                {
+                    Map<String, String> map = Maps.newHashMap();
+                    map.put("texture", fluid.getIcon(fluidStack).getIconName());
+
+                    ModelBlock modelBlock = this.modelBlocks[0];
+                    modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTextures(modelBlock, modelBlock.name, map, null);
+                    IFlexibleBakedModel fluidModel = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false);
+
+                    float capacity = (float)this.getCapacityCached(stack, null);
+                    if (capacity == 0.0f)
+                    {
+                        capacity = 1.0f;
+                    }
+
+                    float scale = 1.0f - (amount / capacity);
+
+                    // Render the bucket upside down if the fluid is a gas
+                    if (fluid.isGaseous() == true)
+                    {
+                    }
+
+                    model = EnderUtilitiesModelFactory.mergeModelsSimple(model, fluidModel);
+                }
+            }
         }
 
         return model;

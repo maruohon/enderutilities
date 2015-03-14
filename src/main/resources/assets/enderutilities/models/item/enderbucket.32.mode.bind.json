@@ -1,0 +1,44 @@
+{
+    "__comment": "Designed by Masa with BDcraft Cubik PRO 0.92 Beta - http://bdcraft.net",
+    "ambientocclusion": false,
+    "textures": {
+        "texture": "enderutilities:items/item.enderbucket.32.parts"
+    },
+    "elements": [ 
+        {
+            "from": [ 10.5, 4.5, 7.49 ],
+            "to": [ 12, 9, 8.51 ],
+            "faces": {
+                "north": { "uv": [ 6.5, 11, 8, 15.5 ], "texture": "#texture" },
+                "south": { "uv": [ 6.5, 11, 8, 15.5 ], "texture": "#texture" }
+            }
+        }
+    ],
+    "display": {
+        "thirdperson": {
+            "rotation": [ 270, 0, 0 ],
+            "translation": [ -0.25, 1.25, -3.0 ],
+            "scale": [ 0.5, 0.5, 0.5 ]
+        },
+        "firstperson": {
+            "rotation": [ 350, 257, 15 ],
+            "translation": [ 2.50, 4.50, 0.75 ],
+            "scale": [ 1.60, 1.60, 1.60 ]
+        },
+        "ground": {
+            "rotation": [ 0, 0, 0 ],
+            "translation": [ 0, -5, 0 ],
+            "scale": [ 1.6, 1.6, 1.6 ]
+        },
+        "fixed": {
+            "rotation": [ 0, 0, 0 ],
+            "translation": [ 0, 0, 0 ],
+            "scale": [ 2.5, 2.5, 2.5 ]
+        },
+        "gui": {
+            "rotation": [ -30, 135, 0 ],
+            "translation": [ 0, 0, 0 ],
+            "scale": [ 1.6, 1.6, 1.6 ]
+        }
+    }
+}
