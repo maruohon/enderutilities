@@ -1373,6 +1373,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             model = EnderUtilitiesModelFactory.mergeModelsSimple(model, this.models[op_mode + 1]);
         }
 
+        model = this.mergeFluidModel(model, stack);
+
+        return model;
+    }
+
+    private IFlexibleBakedModel mergeFluidModel(IFlexibleBakedModel modelIn, ItemStack stack)
+    {
+        IFlexibleBakedModel model = modelIn;
         FluidStack fluidStack = this.getFluidCached(stack);
 
         if (fluidStack != null && fluidStack.amount > 0)
@@ -1380,31 +1388,30 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             Fluid fluid = fluidStack.getFluid();
             if (fluid != null)
             {
-                float amount = (float)fluidStack.amount;
-                //System.out.println("fluidTexture: " + fluidTexture);
                 if (fluid.getIcon(fluidStack) != null)
                 {
-                    Map<String, String> map = Maps.newHashMap();
-                    map.put("texture", fluid.getIcon(fluidStack).getIconName());
-
-                    ModelBlock modelBlock = this.modelBlocks[0];
-                    modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTextures(modelBlock, modelBlock.name, map, null);
-                    IFlexibleBakedModel fluidModel = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false);
-
                     float capacity = (float)this.getCapacityCached(stack, null);
                     if (capacity == 0.0f)
                     {
                         capacity = 1.0f;
                     }
 
-                    float scale = 1.0f - (amount / capacity);
+                    float amount = (float)fluidStack.amount;
+                    float scale = Math.min((amount / capacity), 1.0f);
 
-                    // Render the bucket upside down if the fluid is a gas
+                    // TODO: Render the bucket upside down if the fluid is a gas
                     if (fluid.isGaseous() == true)
                     {
                     }
 
-                    //model = EnderUtilitiesModelFactory.mergeModelsSimple(model, fluidModel);
+                    Map<String, String> map = Maps.newHashMap();
+                    map.put("texture", fluid.getIcon(fluidStack).getIconName());
+
+                    ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTextures(this.modelBlocks[0], this.modelBlocks[0].name, map, null, false);
+
+                    modelBlock = EnderUtilitiesModelBlock.scaleModelHeight(modelBlock, scale, null, false);
+                    IFlexibleBakedModel fluidModel = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false);
+                    model = EnderUtilitiesModelFactory.mergeModelsSimple(model, fluidModel);
                 }
             }
         }

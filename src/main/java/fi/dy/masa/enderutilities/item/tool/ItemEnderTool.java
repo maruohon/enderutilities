@@ -1150,7 +1150,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             String modelName = Reference.MOD_ID + ":item/" + this.variants[i];
             String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
-            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap, true);
             modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
 
             if (modelBlock != null)

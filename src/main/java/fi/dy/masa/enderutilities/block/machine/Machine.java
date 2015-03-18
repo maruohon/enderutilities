@@ -255,7 +255,7 @@ public class Machine
         Map<String, String> map = this.getTextureMapping(iBlockState);
 
         String modelName = Reference.MOD_ID + ":block/" + this.blockName;
-        ModelBlock modelBlock = EnderUtilitiesModelBlock.cloneModelBlock(EnderUtilitiesModelRegistry.modelBlockBaseBlocks, modelName, map, EnderUtilitiesModelRegistry.models);
+        ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewModelBlockForTextures(EnderUtilitiesModelRegistry.modelBlockBaseBlocks, modelName, map, EnderUtilitiesModelRegistry.models, false);
         if (modelBlock != null)
         {
             //EnderUtilities.logger.info("Machine.getModel(): baking... " + modelName + ":");
