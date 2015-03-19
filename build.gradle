@@ -78,6 +78,8 @@ processResources
 {
     // Exclude the GIMP image files
     exclude '**/*.xcf'
+    // Exclude the BDCraft Cubik raw model files
+    exclude '**/*.bdc3D'
 
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
