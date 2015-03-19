@@ -46,10 +46,10 @@ public class EnderUtilitiesModelBlock extends ModelBlock
         this.parentLocation = parentLocation;
     }
 
-    public static ModelBlock createNewModelBlock(ModelBlock base, String name, List elements, Map mapTextures, ResourceLocation parentLocation, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
+    public static ModelBlock createNewModelBlock(ModelBlock base, String name, List elements, Map mapTextures, ResourceLocation parentLocation, boolean ambientOcclusion, boolean isGui3d, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
     {
         ItemCameraTransforms ct = new ItemCameraTransforms(base.getThirdPersonTransform(), base.getFirstPersonTransform(), base.getHeadTransform(), base.getInGuiTransform());
-        EnderUtilitiesModelBlock newModelBlock = new EnderUtilitiesModelBlock(elements, mapTextures, base.isAmbientOcclusion(), base.isGui3d(), ct);
+        EnderUtilitiesModelBlock newModelBlock = new EnderUtilitiesModelBlock(elements, mapTextures, ambientOcclusion, isGui3d, ct);
         newModelBlock.name = name;
         newModelBlock.setParentLocation(parentLocation);
 
@@ -76,7 +76,8 @@ public class EnderUtilitiesModelBlock extends ModelBlock
 
     public static ModelBlock cloneModelBlock(ModelBlock base, String name, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
     {
-        return createNewModelBlock(base, name, base.getElements(), base.textures, new ResourceLocation(base.name), models, addToMap);
+        //return createNewModelBlock(base, name, base.getElements(), base.textures, new ResourceLocation(base.name), base.isAmbientOcclusion(), base.isGui3d(), models, addToMap);
+        return createNewModelBlock(base, name, base.getElements(), base.textures, base.getParentLocation(), base.isAmbientOcclusion(), base.isGui3d(), models, addToMap);
     }
 
     /**
@@ -84,15 +85,15 @@ public class EnderUtilitiesModelBlock extends ModelBlock
      */
     public static ModelBlock createNewModelBlockForTextures(ModelBlock base, String name, Map mapTextures, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
     {
-        return createNewModelBlock(base, name, base.getElements(), mapTextures, new ResourceLocation(base.name), models, addToMap);
+        return createNewModelBlock(base, name, base.getElements(), mapTextures, new ResourceLocation(base.name), base.isAmbientOcclusion(), base.isGui3d(), models, addToMap);
     }
 
     public static ModelBlock createNewModelBlockWithElements(ModelBlock base, String name, List elements, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
     {
-        return createNewModelBlock(base, name, elements, base.textures, new ResourceLocation(base.name), models, addToMap);
+        return createNewModelBlock(base, name, elements, base.textures, new ResourceLocation(base.name), base.isAmbientOcclusion(), base.isGui3d(), models, addToMap);
     }
 
-    public static ModelBlock readModel(ResourceLocation location, Map<ResourceLocation, ModelBlock> models)
+    public static ModelBlock readModel(ResourceLocation location, Map<ResourceLocation, ModelBlock> models, boolean addToMap)
     {
         String resourcePath = location.getResourcePath();
 
@@ -117,8 +118,15 @@ public class EnderUtilitiesModelBlock extends ModelBlock
             return null;
         }
 
-        modelBlock.getParentFromMap(models);
-        models.put(location, modelBlock);
+        if (models != null)
+        {
+            modelBlock.getParentFromMap(models);
+
+            if (addToMap == true)
+            {
+                models.put(location, modelBlock);
+            }
+        }
 
         return modelBlock;
     }

@@ -1259,10 +1259,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         //ItemModelGenerator itemModelGenerator = new ItemModelGenerator();
 
         String modelNames[] = new String[] {
-                                    //this.name + ".32.normal.hollow",
-                                    //this.name + ".32.linked.hollow",
-                                    //this.name + ".32.normal.fluid.bg",
-                                    //this.name + ".32.linked.fluid.bg",
                                     this.name + ".32.normal",
                                     this.name + ".32.linked",
                                     this.name + ".32.mode.fill",
@@ -1280,20 +1276,18 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             // Get the name of the model with the correct translation/rotation/scale etc.
             String modelName = Reference.MOD_ID + ":item/" + modelNames[i];
-            ModelBlock modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap);
+            ModelBlock modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap, false);
             if (modelBlock == null)
             {
                 EnderUtilities.logger.fatal("Failed to read ModelBlock for " + modelName);
                 modelBlock = EnderUtilitiesModelRegistry.modelBlockBaseItems;
             }
 
-            //EnderUtilitiesModelBlock.printModelBlock(base); // FIXME debug
-            //String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);
-            //ModelBlock modelBlock = EnderUtilitiesModelBlock.createNewItemModelBlockForTexture(base, modelName, textureName, modelMap);
-            //modelBlock = itemModelGenerator.makeItemModel(textureMap, modelBlock);
-
             if (modelBlock != null)
             {
+                // Create a new version of the ModelBlock with isAmbientOcclusion and isGui3d set to false.
+                // Normally for items they are set to false in the ItemModelGenerator.makeItemModel() method
+                modelBlock = EnderUtilitiesModelBlock.createNewModelBlock(modelBlock, modelBlock.name, modelBlock.getElements(), modelBlock.textures, modelBlock.getParentLocation(), false, false, modelMap, false);
                 this.models[i] = EnderUtilitiesModelFactory.instance.bakeModel(modelBlock, ModelRotation.X0_Y0, false); // FIXME: rotation and uv-lock ??
                 //modelRegistry.putObject(new ModelResourceLocation(Reference.MOD_ID + ":" + this.variants[i], "inventory"), this.models[i]);
             }
@@ -1312,7 +1306,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         for (int i = 0; i < len; ++i)
         {
             String modelName = Reference.MOD_ID + ":item/" + modelNames[i];
-            this.modelBlocks[i] = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap);
+            this.modelBlocks[i] = EnderUtilitiesModelBlock.readModel(new ResourceLocation(modelName), modelMap, false);
+            // Create a new version of the ModelBlock with isAmbientOcclusion and isGui3d set to false.
+            // Normally for items they are set to false in the ItemModelGenerator.makeItemModel() method
+            this.modelBlocks[i] = EnderUtilitiesModelBlock.createNewModelBlock(this.modelBlocks[i], this.modelBlocks[i].name, this.modelBlocks[i].getElements(), this.modelBlocks[i].textures, this.modelBlocks[i].getParentLocation(), false, false, modelMap, false);
             if (this.modelBlocks[i] == null)
             {
                 EnderUtilities.logger.fatal("Failed to read ModelBlock for " + modelName);
@@ -1326,8 +1323,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal.hollow")));
         textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked.hollow")));
-        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.normal")));
-        //textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.linked")));
         textureMap.registerSprite(new ResourceLocation(ReferenceTextures.getItemTextureName(this.name + ".32.parts")));
     }
 
@@ -1337,13 +1332,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         this.addVariants(   this.name + ".32.normal.hollow",
                             this.name + ".32.linked.hollow"
-                            //this.name + ".32.mode.fill",
-                            //this.name + ".32.mode.drain",
-                            //this.name + ".32.mode.bind",
-                            //this.name + ".32.normal.inside",
-                            //this.name + ".32.linked.inside"
-                            //this.name + ".32.normal",
-                            //this.name + ".32.linked"
                             );
     }
 

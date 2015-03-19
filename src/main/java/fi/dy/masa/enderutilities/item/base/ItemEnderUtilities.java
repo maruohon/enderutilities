@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.ModelBlock;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -38,8 +37,6 @@ public class ItemEnderUtilities extends Item
     /** Non-namespaced/non-mod-domain-prepended variant names for this item. */
     @SideOnly(Side.CLIENT)
     public String variants[];
-    @SideOnly(Side.CLIENT)
-    public TextureAtlasSprite textures[];
     @SideOnly(Side.CLIENT)
     public IFlexibleBakedModel models[];
 
@@ -155,13 +152,10 @@ public class ItemEnderUtilities extends Item
     public void registerTextures(TextureMap textureMap)
     {
         int len = this.variants.length;
-        //this.textures = new TextureAtlasSprite[len];
 
         for (int i = 0; i < len; ++i)
         {
             String name = ReferenceTextures.getItemTextureName(this.variants[i]);
-            //textureMap.setTextureEntry(name, new EnderUtilitiesTexture(name));
-            //this.textures[i] = textureMap.getTextureExtry(name);
             textureMap.registerSprite(new ResourceLocation(name));
         }
     }
@@ -184,7 +178,7 @@ public class ItemEnderUtilities extends Item
             if (name != null)
             {
                 name = Reference.MOD_ID + ":item/" + name;
-                base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap);
+                base = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), modelMap, true);
                 if (base == null)
                 {
                     EnderUtilities.logger.fatal("Failed to read ModelBlock for " + name);
@@ -196,8 +190,6 @@ public class ItemEnderUtilities extends Item
             {
                 base = EnderUtilitiesModelRegistry.modelBlockBaseItems;
             }
-
-            //EnderUtilitiesModelBlock.printModelBlock(base); // FIXME debug
 
             String modelName = Reference.MOD_ID + ":item/" + this.variants[i];
             String textureName = ReferenceTextures.getItemTextureName(this.variants[i]);

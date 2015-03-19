@@ -122,13 +122,9 @@ public class EnderUtilitiesModelRegistry
         modelBlock.name = "minecraft:builtin/generated";
         models.put(new ResourceLocation(modelBlock.name), modelBlock);
 
-        // FIXME debugging:
-        //EnderUtilities.logger.info("Generated base ModelBlock: " + modelBlock.name);
-        //EnderUtilitiesModelBlock.printModelBlock(modelBlock);
-
         // enderutilities:item/model_item_base
         String name = Reference.MOD_ID + ":" + "item/" + ReferenceNames.NAME_MODEL_ITEM_BASE;
-        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models, true);
         if (modelBlock == null)
         {
             EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
@@ -138,7 +134,7 @@ public class EnderUtilitiesModelRegistry
 
         // enderutilities:block/cube
         name = Reference.MOD_ID + ":" + "block/cube";
-        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models, true);
         if (modelBlock == null)
         {
             EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
@@ -147,7 +143,7 @@ public class EnderUtilitiesModelRegistry
 
         // enderutilities:block/model_block_base
         name = Reference.MOD_ID + ":" + "block/" + ReferenceNames.NAME_MODEL_BLOCK_BASE;
-        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models);
+        modelBlock = EnderUtilitiesModelBlock.readModel(new ResourceLocation(name), models, true);
         if (modelBlock == null)
         {
             EnderUtilities.logger.fatal("Failed to load the base ModelBlock for " + name);
