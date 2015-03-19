@@ -187,7 +187,7 @@ public class EnderUtilitiesModelBlock extends ModelBlock
                         }
                     }
 
-                    mapFacesNew.put(enumFacing, new BlockPartFace(enumFacing, blockPartFace.tintIndex, blockPartFace.texture, blockFaceUV));
+                    mapFacesNew.put(enumFacing, new BlockPartFace(blockPartFace.cullFace, blockPartFace.tintIndex, blockPartFace.texture, blockFaceUV));
                 }
             }
 
