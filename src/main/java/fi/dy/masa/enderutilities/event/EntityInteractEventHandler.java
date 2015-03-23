@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -48,14 +47,13 @@ public class EntityInteractEventHandler
                     return;
                 }
 
-                Entity entity = TeleportEntity.teleportEntityUsingModularItem(event.target, stack);
-                if (entity != null)
+                if (event.target instanceof EntityLiving && UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    if (entity instanceof EntityLiving && UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
-                    {
-                        EntityUtils.applyMobPersistence((EntityLiving)entity);
-                    }
+                    EntityUtils.applyMobPersistence((EntityLiving)event.target);
+                }
 
+                if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
+                {
                     event.setCanceled(true);
                 }
             }

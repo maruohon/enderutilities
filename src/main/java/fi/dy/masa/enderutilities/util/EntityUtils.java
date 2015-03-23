@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
+import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
@@ -22,6 +23,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
@@ -219,38 +221,42 @@ public class EntityUtils
         EntityLiving living = (EntityLiving) livingBase;
         if (living.isNoDespawnRequired() == false)
         {
-            boolean canDespawn = (living instanceof EntityMob) || (living instanceof EntityWaterMob);
-            canDespawn |= ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
+            boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) || (living instanceof EntityWaterMob) || ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 
-            Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "v", "func_70692_ba"});
-            try
+            if (canDespawn == false)
             {
-                Object o = method.invoke(living);
-                if (o instanceof Boolean)
+                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "v", "func_70692_ba"});
+                try
                 {
-                    canDespawn |= ((Boolean)o).booleanValue();
+                    Object o = method.invoke(living);
+                    if (o instanceof Boolean)
+                    {
+                        canDespawn |= ((Boolean)o).booleanValue();
+                    }
                 }
-            }
-            catch (UnableToFindMethodException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (UnableToFindMethodException)");
-                e.printStackTrace();
-            }
-            catch (InvocationTargetException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (InvocationTargetException)");
-                e.printStackTrace();
-            }
-            catch (IllegalAccessException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (IllegalAccessException)");
-                e.printStackTrace();
+                catch (UnableToFindMethodException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (UnableToFindMethodException)");
+                    e.printStackTrace();
+                }
+                catch (InvocationTargetException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (InvocationTargetException)");
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (IllegalAccessException)");
+                    e.printStackTrace();
+                }
             }
 
             if (canDespawn == true)
             {
                 // Sets the persistenceRequired boolean
                 living.func_110163_bv();
+                livingBase.worldObj.playSoundAtEntity(livingBase, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
+
                 return true;
             }
         }

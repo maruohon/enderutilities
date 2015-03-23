@@ -324,12 +324,14 @@ public class EntityEnderArrow extends EntityArrow
                                     entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);
                                 }
 
-                                e = TeleportEntity.teleportEntity(e, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
                                 if (this.applyPersistence == true && e instanceof EntityLiving)
                                 {
                                     EntityUtils.applyMobPersistence((EntityLiving)e);
                                 }
+
+                                TeleportEntity.teleportEntity(e, this.tpTarget.dPosX, this.tpTarget.dPosY, this.tpTarget.dPosZ, this.tpTarget.dimension, true, true);
                             }
+
                             this.dropAsItem(false);
                             this.setDead();
                         }
