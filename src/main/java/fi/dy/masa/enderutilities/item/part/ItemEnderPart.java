@@ -110,14 +110,14 @@ public class ItemEnderPart extends ItemModule
     @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
+        // Jailer module
         if (stack != null && stack.getItemDamage() == 45)
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
             {
-                if (--stack.stackSize <= 0)
-                {
-                    player.destroyCurrentEquippedItem();
-                }
+                --stack.stackSize;
+
+                return true;
             }
         }
 
