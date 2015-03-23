@@ -32,9 +32,11 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         {
             boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
             this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override

@@ -30,9 +30,11 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         {
             boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
             this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
