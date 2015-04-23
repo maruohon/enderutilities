@@ -211,6 +211,21 @@ public class EntityUtils
     }
 
     /**
+     * Unmounts the riding entity from the passed in entity.
+     * Does not call Entity.mountEntity(null) but rather just sets he references to null.
+     * @param entity
+     */
+    public static void unmountRiderSimple(Entity entity)
+    {
+        if (entity.riddenByEntity != null)
+        {
+            entity.riddenByEntity.ridingEntity = null;
+        }
+
+        entity.riddenByEntity = null;
+    }
+
+    /**
      * Adds the persistenceRequired flag to entities, if they need it in order to not despawn.
      * The checks are probably at most accurate for vanilla entities.
      * @param livingBase
