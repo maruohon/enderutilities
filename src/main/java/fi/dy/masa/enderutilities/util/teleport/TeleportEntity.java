@@ -143,6 +143,7 @@ public class TeleportEntity
         }
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
+        entNew.fallDistance = 0.0f;
 
         if (entNew != null && teleportDamage != 0.0f)
         {
@@ -337,12 +338,7 @@ public class TeleportEntity
             }
             else
             {
-                if (entity instanceof EntityPlayerMP)
-                {
-                    //((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
-                    ((EntityPlayerMP)entity).playerNetServerHandler.setPlayerLocation(x, y, z, entity.rotationYaw, entity.rotationPitch);
-                }
-                else if (entity instanceof EntityPlayer)
+                if (entity instanceof EntityPlayer)
                 {
                     ((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
                 }
@@ -379,20 +375,10 @@ public class TeleportEntity
         }
 
         WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);
-
         if (worldServerDst == null)
         {
             EnderUtilities.logger.warn("reCreateEntity(): worldServerDst == null");
             return null;
-        }
-
-        entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
-        entitySrc.isDead = false;
-
-        entitySrc.mountEntity((Entity)null);
-        if (entitySrc.riddenByEntity != null)
-        {
-            entitySrc.riddenByEntity.mountEntity((Entity)null);
         }
 
         Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
@@ -401,8 +387,19 @@ public class TeleportEntity
             return null;
         }
 
+        entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
+        entitySrc.isDead = false;
+
         entityDst.copyDataFrom(entitySrc, true);
-        entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+        if (entityDst instanceof EntityLivingBase)
+        {
+            ((EntityLivingBase)entityDst).setPositionAndUpdate(x, y, z);
+        }
+        else
+        {
+            entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+        }
+
         worldServerDst.spawnEntityInWorld(entityDst);
         worldServerDst.resetUpdateEntityTick();
         entitySrc.isDead = true;
