@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -338,31 +339,36 @@ public class EntityUtils
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" } )
-    public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class[] afterTasks)
+    public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class... afterTasks)
     {
         if (entity == null)
         {
             return false;
         }
 
+        int priority = -1;
         EntityAITasks tasks = entity.tasks;
-        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
+        Iterator<EntityAITaskEntry> taskEntryIter = tasks.taskEntries.iterator();
+
+        while (taskEntryIter.hasNext() == true)
         {
-            // If this entity already has our AI task, then do nothing
-            if (e.action.getClass() == task.getClass())
+            EntityAITaskEntry taskEntry = taskEntryIter.next();
+
+            // If this entity already has the same AI task, then replace it with the new instance
+            if (taskEntry.action.getClass() == task.getClass())
             {
+                int p = taskEntry.priority;
+                tasks.removeTask(taskEntry.action);
+                tasks.addTask(p, task);
+
                 return true;
             }
-        }
 
-        int priority = -1;
-        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
-        {
             for (Class<? extends EntityAIBase> clazz : afterTasks)
             {
-                if (priority <= e.priority && clazz.isAssignableFrom(e.action.getClass()))
+                if (priority <= taskEntry.priority && clazz == taskEntry.action.getClass())
                 {
-                    priority = e.priority + 1;
+                    priority = taskEntry.priority + 1;
                 }
             }
         }
