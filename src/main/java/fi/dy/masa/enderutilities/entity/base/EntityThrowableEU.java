@@ -208,6 +208,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.setPosition(this.posX, this.posY, this.posZ);
     }
 
+    @Override
     public void writeEntityToNBT(NBTTagCompound nbt)
     {
         nbt.setShort("xTile", (short)this.blockX);
@@ -225,9 +226,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         nbt.setString("ownerName", this.throwerName == null ? "" : this.throwerName);
     }
 
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
+    @Override
     public void readEntityFromNBT(NBTTagCompound nbt)
     {
         this.blockX = nbt.getShort("xTile");

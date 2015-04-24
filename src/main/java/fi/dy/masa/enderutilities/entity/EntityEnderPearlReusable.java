@@ -75,9 +75,6 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         this.dataWatcher.addObject(6, Short.valueOf((short)0));
     }
 
-    /**
-     * Called when this EntityThrowable hits a block or entity.
-     */
     @Override
     protected void onImpact(MovingObjectPosition mop)
     {
