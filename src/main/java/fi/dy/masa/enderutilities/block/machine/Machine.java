@@ -6,6 +6,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -41,6 +42,10 @@ public class Machine
     public static Machine enderFurnace = new MachineEnderFurnace(0, 0, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
     public static Machine toolWorkstation = new MachineToolWorkstation(0, 1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
     public static Machine enderInfuser = new Machine(0, 2, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
+
+    public static Machine energyBridgeTransmitter = new MachineEnergyBridge(1, 0, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
+    public static Machine energyBridgeReceiver = new MachineEnergyBridge(1, 1, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
+    public static Machine energyBridgeResonator = new MachineEnergyBridge(1, 2, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
 
     protected int blockIndex;
     protected int blockMeta;
@@ -83,12 +88,12 @@ public class Machine
         }
         catch (IllegalAccessException e)
         {
-            EnderUtilities.logger.fatal("Unable to create instance of TileEntity from %s (IllegalAccessException)", this.tileEntityClass.getName());
+            EnderUtilities.logger.fatal(String.format("Unable to create instance of TileEntity from %s (IllegalAccessException)", this.tileEntityClass.getName()));
             return null;
         }
         catch (InstantiationException e)
         {
-            EnderUtilities.logger.fatal("Unable to create instance of TileEntity from %s (InstantiationException)", this.tileEntityClass.getName());
+            EnderUtilities.logger.fatal(String.format("Unable to create instance of TileEntity from %s (InstantiationException)", this.tileEntityClass.getName()));
             return null;
         }
     }

@@ -6,6 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.block.ItemBlockMachine;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -13,11 +14,13 @@ import fi.dy.masa.enderutilities.setup.Configs;
 public class EnderUtilitiesBlocks
 {
     public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceNames.NAME_TILE_MACHINE_0, 1.0f);
+    public static final Block machine_1 = new BlockEnderUtilitiesTileEntity(1, ReferenceNames.NAME_TILE_MACHINE_1, 1.0f);
 
     public static void init()
     {
         // Register blocks
         if (Configs.disableBlockMachine_0.getBoolean(false) == false) { GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0); }
+        if (Configs.disableBlockMachine_1.getBoolean(false) == false) { GameRegistry.registerBlock(machine_1, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_1); }
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
@@ -52,6 +55,16 @@ public class EnderUtilitiesBlocks
         if (Configs.disableRecipeEnderInfuser.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(machine_0, 1, 2), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
+        }
+
+        if (Configs.disableRecipeEnergyBridgeTransmitter.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
+        {
+        }
+        if (Configs.disableRecipeEnergyBridgeReceiver.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
+        {
+        }
+        if (Configs.disableRecipeEnergyBridgeResonator.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
+        {
         }
     }
 }

@@ -22,6 +22,9 @@ enderutilities.container.toolworkstation=Tool Workstation
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.toolworkstation.name=Ender Tool Workstation
+tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
+tile.enderutilities.energybridge.receiver.name=Energy Bridge Receiver
+tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
 
 
 #############
@@ -89,9 +92,9 @@ item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainm
 item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Alt + Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
 item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning
 item.enderutilities.enderbucket.tooltips=- Toggle mode key to cycle the operation mode|lf- Sneak + right click binds to tanks (in bind mode)|lf- Ctrl + Toggle mode key to switch between|lf  regular operation and linked to tanks|lf- Tank mode chunk loads for 30 seconds on use|lf- In normal mode: right clicking a tank|lf  takes fluid from the tank and|lf  sneak + right clicking puts fluid to the tank
-item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
+item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
 item.enderutilities.enderlasso.tooltips=- Sneak + right click to bind|lf- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent mobs from despawning
 item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal with inactive version
 item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal with inactive version

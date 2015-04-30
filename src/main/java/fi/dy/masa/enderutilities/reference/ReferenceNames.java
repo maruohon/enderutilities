@@ -9,12 +9,18 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_MACHINE_0              = "enderfurnace"; // Legacy weight name... :p
+    public static final String NAME_TILE_MACHINE_1              = "machine.1";
+
+    public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge.transmitter";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RECEIVER      = "energybridge.receiver";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge.resonator";
 
 
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 
+    public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";
