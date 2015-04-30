@@ -15,12 +15,18 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -158,6 +164,13 @@ public class Machine
     }
 
     /**
+     * The replacement/equivalent of Block.onBlockPlacedBy() for customized per-machine block placing behavior.
+     */
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
+    {
+    }
+
+    /**
      * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)
@@ -165,6 +178,34 @@ public class Machine
     public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
         return false;
+    }
+
+    /**
+     * The replacement/equivalent of Block.onBlockActivated() for customized per-machine block activation behavior.
+     */
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
+    {
+        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, x, y, z, side, world);
+        if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
+        {
+            return false;
+        }
+
+        if (world.isRemote == false)
+        {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te == null || te instanceof TileEntityEnderUtilities == false)
+            {
+                return false;
+            }
+
+            if (this.isTileEntityValid(te) == true)
+            {
+                player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+            }
+        }
+
+        return true;
     }
 
     public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)

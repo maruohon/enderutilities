@@ -18,14 +18,9 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -126,34 +121,24 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
                 ((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
             }
         }
+
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
+        {
+            machine.onBlockPlacedBy(world, x, y, z, livingBase, stack);
+        }
     }
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
     {
-        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, x, y, z, side, world);
-        if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
         {
-            return false;
+            return machine.onBlockActivated(world, x, y, z, player, side, offsetX, offsetY, offsetZ);
         }
 
-        // TODO: Maybe this should be moved into the Machine class?
-        if (world.isRemote == false)
-        {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if (te == null || te instanceof TileEntityEnderUtilities == false)
-            {
-                return false;
-            }
-
-            Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
-            if (machine != null && machine.isTileEntityValid(te) == true)
-            {
-                player.openGui(EnderUtilities.instance, 0, world, x, y, z);
-            }
-        }
-
-        return true;
+        return false;
     }
 
     @Override

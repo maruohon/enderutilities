@@ -64,7 +64,7 @@ public class EnderUtilities
     @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
-        EnderUtilities.logger.info("Clearing chunk loading timeouts");
+        //EnderUtilities.logger.info("Clearing chunk loading timeouts");
         ChunkLoading.getInstance().init();
     }
 }
