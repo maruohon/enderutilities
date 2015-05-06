@@ -176,6 +176,20 @@ public class Machine
     }
 
     /**
+     * The replacement/equivalent of Block.onBlockAdded() for customized per-machine block adding behavior.
+     */
+    public void onBlockAdded(World world, int x, int y, int z)
+    {
+    }
+
+    /**
+     * The replacement/equivalent of Block.onBlockPreDestroy() for customized per-machine pre-block-breaking behavior.
+     */
+    public void onBlockPreDestroy(World world, int x, int y, int z, int oldMeta)
+    {
+    }
+
+    /**
      * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)

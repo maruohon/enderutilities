@@ -74,12 +74,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         if (nbt != null && nbt.hasKey("TileEntityData", Constants.NBT.TAG_COMPOUND) == true)
         {
             teeu.readFromNBTCustom(nbt.getCompoundTag("TileEntityData"));
-
-            // Update the rotation
-            if (yaw < YAW_TO_DIRECTION.length)
-            {
-                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
-            }
         }
         else
         {
@@ -106,11 +100,6 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
                 }*/
             //}
 
-            if (yaw < YAW_TO_DIRECTION.length)
-            {
-                teeu.setRotation(YAW_TO_DIRECTION[yaw]);
-            }
-
             if (livingBase instanceof EntityPlayer)
             {
                 teeu.setOwner((EntityPlayer)livingBase);
@@ -122,10 +111,26 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
             }
         }
 
+        // Update the rotation
+        if (yaw < YAW_TO_DIRECTION.length)
+        {
+            teeu.setRotation(YAW_TO_DIRECTION[yaw]);
+        }
+
         Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
         if (machine != null)
         {
             machine.onBlockPlacedBy(world, x, y, z, livingBase, stack);
+        }
+    }
+
+    @Override
+    public void onBlockAdded(World world, int x, int y, int z)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
+        {
+            machine.onBlockAdded(world, x, y, z);
         }
     }
 
@@ -139,6 +144,16 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         }
 
         return false;
+    }
+
+    @Override
+    public void onBlockPreDestroy(World world, int x, int y, int z, int oldMeta)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
+        {
+            machine.onBlockPreDestroy(world, x, y, z, oldMeta);
+        }
     }
 
     @Override
