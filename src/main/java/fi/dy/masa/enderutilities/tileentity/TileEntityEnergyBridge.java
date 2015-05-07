@@ -75,6 +75,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public void setState(boolean state)
     {
         this.isActive = state;
+        this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
     public void setMaster(boolean isMaster)

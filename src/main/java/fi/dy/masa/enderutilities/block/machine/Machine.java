@@ -245,7 +245,7 @@ public class Machine
     }
 
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side)
+    public IIcon getIcon(int side, int meta)
     {
         // These are for the rendering in ItemBlock form in inventories etc.
 
@@ -262,7 +262,7 @@ public class Machine
     }
 
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(TileEntityEnderUtilities te, int side)
+    public IIcon getIcon(TileEntityEnderUtilities te, int side, int meta)
     {
         // FIXME we should get the proper side (left, right, back) textures based on the TE rotation and the side argument
         if (side == 0 || side == 1)

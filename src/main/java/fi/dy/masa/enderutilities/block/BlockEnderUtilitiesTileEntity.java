@@ -218,7 +218,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            return machine.getIcon(side);
+            return machine.getIcon(side, meta);
         }
 
         return this.blockIcon;
@@ -228,17 +228,18 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     @Override
     public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
     {
+        int meta = blockAccess.getBlockMetadata(x, y, z);
         TileEntity te = blockAccess.getTileEntity(x, y, z);
         if (te != null && te instanceof TileEntityEnderUtilities)
         {
-            Machine machine = Machine.getMachine(this.blockIndex, blockAccess.getBlockMetadata(x, y, z));
+            Machine machine = Machine.getMachine(this.blockIndex, meta);
             if (machine != null)
             {
-                return machine.getIcon((TileEntityEnderUtilities)te, side);
+                return machine.getIcon((TileEntityEnderUtilities)te, side, meta);
             }
         }
 
-        return this.getIcon(side, blockAccess.getBlockMetadata(x, y, z));
+        return this.getIcon(side, meta);
     }
 
     @SideOnly(Side.CLIENT)

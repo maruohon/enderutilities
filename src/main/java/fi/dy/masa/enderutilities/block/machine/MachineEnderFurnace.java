@@ -76,7 +76,7 @@ public class MachineEnderFurnace extends Machine
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IIcon getIcon(int side)
+    public IIcon getIcon(int side, int meta)
     {
         // These are for the rendering in ItemBlock form in inventories etc.
         if (side == 0 || side == 1)
@@ -93,7 +93,7 @@ public class MachineEnderFurnace extends Machine
 
     @SideOnly(Side.CLIENT)
     @Override
-    public IIcon getIcon(TileEntityEnderUtilities te, int side)
+    public IIcon getIcon(TileEntityEnderUtilities te, int side, int meta)
     {
         if (side == 0 || side == 1)
         {
