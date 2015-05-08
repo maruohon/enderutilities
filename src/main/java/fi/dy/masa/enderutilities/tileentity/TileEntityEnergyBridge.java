@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -264,19 +265,20 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             for (int tz = pos.posZ; tz <= pos.posZ + 6; tz++)
             {
                 Block b = world.getBlock(tx, ty, tz);
-                if (b.isAir(world, tx, ty, tz) == false && (b != blockEb || blockPositions.contains(new BlockPos(tx, ty, tz)) == false))
+                if (b.isAir(world, tx, ty, tz) == false && b != Blocks.fire && (b != blockEb || blockPositions.contains(new BlockPos(tx, ty, tz)) == false))
                 {
                     return true;
                 }
             }
         }
 
+        ty = pos.posY + 1;
         pos = new BlockPos(blockPositions.get(0)); // Master block
         // The column under the transmitter must be air
-        for (; ty < pos.posY + height - 1; ty++)
+        for (; ty < pos.posY; ty++)
         {
             Block b = world.getBlock(pos.posX, ty, pos.posZ);
-            if (b.isAir(world, pos.posX, ty, pos.posZ) == false)
+            if (b.isAir(world, pos.posX, ty, pos.posZ) == false && b != Blocks.fire)
             {
                 return true;
             }

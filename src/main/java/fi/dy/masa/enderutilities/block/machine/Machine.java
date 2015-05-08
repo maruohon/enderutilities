@@ -55,6 +55,8 @@ public class Machine
     protected String toolClass;
     protected int harvestLevel;
     protected float blockHardness;
+
+    @SideOnly(Side.CLIENT)
     protected IIcon[] icons;
 
     public Machine(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
