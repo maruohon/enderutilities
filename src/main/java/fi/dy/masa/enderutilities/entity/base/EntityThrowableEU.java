@@ -108,12 +108,13 @@ public abstract class EntityThrowableEU extends EntityThrowable
             vec31 = Vec3.createVectorHelper(mopImpact.hitVec.xCoord, mopImpact.hitVec.yCoord, mopImpact.hitVec.zCoord);
         }
 
-        if (this.worldObj.isRemote == false)
+        EntityLivingBase thrower = this.getThrower();
+
+        if (this.worldObj.isRemote == false && thrower != null)
         {
             Entity entity = null;
             List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
             double distance = 0.0d;
-            EntityLivingBase thrower = this.getThrower();
 
             for (int j = 0; j < list.size(); ++j)
             {
