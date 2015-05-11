@@ -14,6 +14,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockPos;
@@ -24,7 +26,13 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public boolean isActive;
     public boolean isMaster;
     public int timer;
+    public byte meta;
     private List<BlockPos> blockPositions;
+
+    @SideOnly(Side.CLIENT)
+    public int beamYMin;
+    @SideOnly(Side.CLIENT)
+    public int beamYMax;
 
     public TileEntityEnergyBridge()
     {
@@ -59,7 +67,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             nbt = new NBTTagCompound();
         }
 
-        nbt.setBoolean("a", this.isActive);
+        nbt.setByte("f", (byte)((this.isMaster ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
 
         return nbt;
     }
@@ -68,7 +76,14 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        this.setState(nbt.getBoolean("a"));
+        byte f = nbt.getByte("f");
+
+        this.setState((f & 0x01) == 0x01);
+        this.setMaster((f & 0x02) == 0x02);
+
+        // meta is used for TESR rendering, cached for performance
+        this.meta = (byte)this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+        this.getBeamEndPoints();
 
         super.onDataPacket(net, packet);
     }
@@ -360,5 +375,55 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         {
             ((TileEntityEnergyBridge)te).setMaster(state);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void getBeamEndPoints()
+    {
+        // Energy Bridge Transmitter
+        if (this.meta == 0)
+        {
+            this.beamYMin = this.yCoord - 2;
+            this.beamYMax = this.worldObj.getHeight();
+        }
+        // Energy Bridge Receiver
+        else if (this.meta == 1)
+        {
+            int ty = this.yCoord;
+
+            for (; ty >= 0; --ty)
+            {
+                if (this.worldObj.getBlock(this.xCoord, ty, this.zCoord) == Blocks.bedrock)
+                {
+                    break;
+                }
+            }
+
+            this.beamYMin = ty + 1;
+
+            for (ty = this.yCoord; ty < this.worldObj.getHeight(); ++ty)
+            {
+                if (this.worldObj.getBlock(this.xCoord, ty, this.zCoord) == Blocks.bedrock)
+                {
+                    break;
+                }
+            }
+
+            this.beamYMax = ty;
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared()
+    {
+        return 65536.0d;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        return TileEntity.INFINITE_EXTENT_AABB;
     }
 }

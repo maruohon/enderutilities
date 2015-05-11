@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
+import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
@@ -26,6 +27,7 @@ import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.Keybindings;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class ClientProxy extends CommonProxy
 {
@@ -70,6 +72,8 @@ public class ClientProxy extends CommonProxy
 
         MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
         MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
+
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
     }
 
     @Override

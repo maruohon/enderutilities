@@ -62,7 +62,7 @@ public class MachineEnergyBridge extends Machine
     @Override
     public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
     {
-        return 12;
+        return 15;
     }
 
     @Override
