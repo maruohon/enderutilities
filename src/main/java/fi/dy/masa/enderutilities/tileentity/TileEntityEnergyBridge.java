@@ -27,7 +27,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public boolean isMaster;
     public int timer;
     public byte meta;
-    private List<BlockPos> blockPositions;
 
     @SideOnly(Side.CLIENT)
     public int beamYMin;
@@ -114,16 +113,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }*/
     }
 
-    public List<BlockPos> getBlockPositions()
-    {
-        return this.blockPositions;
-    }
-
-    public void setBlockPositions(List<BlockPos> positions)
-    {
-        this.blockPositions = positions;
-    }
-
     public void tryAssembleMultiBlock(World world, int x, int y, int z)
     {
         // The End has the transmitter, and in a slightly different position than the receivers are
@@ -165,13 +154,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             // Master block
             BlockPos pos = positions.get(0);
             this.setMaster(world, pos, true);
-
-            // Store the block position list to the master block's TE
-            TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
-            if (te instanceof TileEntityEnergyBridge)
-            {
-                ((TileEntityEnergyBridge)te).setBlockPositions(positions);
-            }
         }
     }
 
@@ -322,11 +304,13 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
 
         // Get the block position list from the master block
-        te = world.getTileEntity(posMaster.posX, posMaster.posY, posMaster.posZ);
-        if (te != null && te instanceof TileEntityEnergyBridge)
+        List<BlockPos> positions = new ArrayList<BlockPos>();
+        if (this.getBlockPositions(world, x, y, z, height, masterMeta, positions) == false)
         {
-            this.disableMultiBlock(world, masterMeta, ((TileEntityEnergyBridge)te).getBlockPositions(), true);
+            return;
         }
+
+        this.disableMultiBlock(world, masterMeta, positions, true);
     }
 
     public void disableMultiBlock(World world, int masterMeta, List<BlockPos> blockPositions, boolean clearList)
