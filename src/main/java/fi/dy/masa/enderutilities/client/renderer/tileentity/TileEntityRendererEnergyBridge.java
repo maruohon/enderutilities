@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import org.lwjgl.opengl.GL11;
 
@@ -42,7 +43,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
 
         // Beam (inner part)
         tessellator.startDrawingQuads();
-        tessellator.setColorRGBA(150, 255, 220, 200);
+        tessellator.setColorRGBA(160, 240, 255, 200);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -66,7 +67,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
 
         v1 = -rot * flowSpeed * 3.0d;
         v2 = (vScale * 2.0d) + v1;
-        radius = 0.4d;
+        radius *= 2.0d;
         rot = Math.PI / 8.0d;
         tessellator.startDrawingQuads();
         tessellator.setColorRGBA(210, 230, 255, 80);
@@ -100,22 +101,43 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
         }
 
         double rot = (teeb.getWorldObj().getTotalWorldTime() % 100.0d) * Math.PI  / 50.0d + (Math.PI / 50.0d * pTicks);
+        x += 0.5d;
+        z += 0.5d;
 
         // Energy Bridge Transmitter
         if (teeb.meta == 0 && teeb.isMaster == true)
         {
-            this.renderBeamVertical(x + 0.5d, y, z + 0.5d, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot, 1.0d);
-            this.renderBeamVertical(x + 0.5d, y, z + 0.5d, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, 1.0d);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot, 3.0d);
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, 3.0d);
         }
         // Energy Bridge Receiver
         else if (teeb.meta == 1 && teeb.isMaster == true)
         {
-            this.renderBeamVertical(x + 0.5d, y, z + 0.5d, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot,  3.0d);
-            this.renderBeamVertical(x + 0.5d, y, z + 0.5d, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, -3.0d);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot,  3.0d);
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, -3.0d);
         }
         // Energy Bridge Resonator
         else if (teeb.meta == 2)
         {
+            ForgeDirection dirFront = ForgeDirection.getOrientation(teeb.getRotation());
+            ForgeDirection dirSide = dirFront.getRotation(ForgeDirection.UP);
+
+            // From Resonator to Receiver
+            GL11.glPushMatrix();
+            GL11.glTranslated(x + 0.5d * dirFront.offsetX, y + 0.5d, z + 0.5d * dirFront.offsetZ);
+            GL11.glRotated(90, -dirSide.offsetX, 0, -dirSide.offsetZ);
+            GL11.glTranslated(-x, -y, -z);
+            this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d);
+            GL11.glPopMatrix();
+
+            // From resonator to next resonator
+            GL11.glPushMatrix();
+            GL11.glTranslated(x + 0.3d * dirSide.offsetX - 0.2d * dirFront.offsetX, y + 0.5d, z + 0.3d * dirSide.offsetZ - 0.2d * dirFront.offsetZ);
+            GL11.glRotated(90, dirFront.offsetX, 0, dirFront.offsetZ);
+            GL11.glRotated(45, -dirSide.offsetX, 0, -dirSide.offsetZ);
+            GL11.glTranslated(-x, -y, -z);
+            this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d);
+            GL11.glPopMatrix();
         }
     }
 
