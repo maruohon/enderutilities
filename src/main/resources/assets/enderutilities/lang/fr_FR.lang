@@ -3,65 +3,77 @@ language.region=FR
 language.code=fr_FR
 
 category.enderutilities=Ender Utilities
-enderutilities.key.togglemode=Mode basculé
+enderutilities.key.togglemode=Mode bascule
 
 
 ############################
 # Container/inventory names:
 ############################
 
-enderutilities.container.enderfurnace=Four de l'Ender
-enderutilities.container.enderinfuser=Infuseur de l'Ender
-enderutilities.container.toolworkstation=Atelier de l'Ender
+enderutilities.container.enderfurnace=Four du néant
+enderutilities.container.enderinfuser=Infuseur du néant
+enderutilities.container.toolworkstation=Atelier du néant
 
 
 ##############
 # Block names:
 ##############
 
-tile.enderutilities.enderfurnace.name=Four de l'Ender
-tile.enderutilities.enderinfuser.name=Infuseur de l'Ender
-tile.enderutilities.toolworkstation.name=Atelier de l'Ender
+tile.enderutilities.enderfurnace.name=Four du néant
+tile.enderutilities.enderinfuser.name=Infuseur du néant
+tile.enderutilities.toolworkstation.name=Atelier du néant
+tile.enderutilities.energybridge.transmitter.name=Émetteur de pont d'énergie
+tile.enderutilities.energybridge.receiver.name=Récepteur de pont d'énergie
+tile.enderutilities.energybridge.resonator.name=Résonateur de pont d'énergie
+
+
+#############
+# Entities:
+#############
+entity.enderutilities.enderarrow.name=Flèche du néant
+entity.enderutilities.endermanfighter.name=Guerrier du néant
+entity.enderutilities.enderpearlreusable.name=Perle du néant réutilisable
 
 
 #############
 # Item names:
 #############
 
-item.enderutilities.enderarrow.name=Flèche de l'Ender
-item.enderutilities.enderbag.name=Sac de l'Ender
-item.enderutilities.enderbow.name=Arc de l'Ender
-item.enderutilities.enderbucket.name=Sceaude l'Ender
-item.enderutilities.endercapacitor.0.name=Condensateur Ender (Base)
-item.enderutilities.endercapacitor.1.name=Condensateur Ender (Amélioré)
-item.enderutilities.endercapacitor.2.name=Condensateur Ender (Avancé)
-item.enderutilities.enderlasso.name=Lassode l'Ender
-item.enderutilities.enderpart.enderalloy.0.name=Alliage d'Ender (Base)
-item.enderutilities.enderpart.enderalloy.1.name=Alliage d'Ender (Amélioré)
-item.enderutilities.enderpart.enderalloy.2.name=Alliage d'Ender (Avancé)
-item.enderutilities.enderpart.endercore.0.active.name=Coeur d'Ender (Base)
-item.enderutilities.enderpart.endercore.1.active.name=Coeur d'Ender (Amélioré)
-item.enderutilities.enderpart.endercore.2.active.name=Coeur d'Ender (Avancé)
-item.enderutilities.enderpart.endercore.0.inactive.name=Coeur d'Ender inactif (Base)
-item.enderutilities.enderpart.endercore.1.inactive.name=Coeur d'Ender inactif (Amélioré)
-item.enderutilities.enderpart.endercore.2.inactive.name=Coeur d'Ender inactif (Avancé)
-item.enderutilities.enderpart.enderrelic.name=Relique de l'Ender
-item.enderutilities.enderpart.enderrope.name=Corde de l'Ender
-item.enderutilities.enderpart.enderstick.name=Baton infusé d'Ender
+item.enderutilities.enderarrow.name=Flèche du néant
+item.enderutilities.enderbag.name=Sac du néant
+item.enderutilities.enderbow.name=Arc du néant
+item.enderutilities.enderbucket.name=Seau du néant
+item.enderutilities.endercapacitor.0.name=Condensateur du néant (Base)
+item.enderutilities.endercapacitor.1.name=Condensateur du néant (Amélioré)
+item.enderutilities.endercapacitor.2.name=Condensateur du néant (Avancé)
+item.enderutilities.endercapacitor.3.name=Condensateur du néant (Créatif)
+item.enderutilities.enderlasso.name=Lasso du néant
+item.enderutilities.enderpart.enderalloy.0.name=Alliage du néant (Base)
+item.enderutilities.enderpart.enderalloy.1.name=Alliage du néant (Amélioré)
+item.enderutilities.enderpart.enderalloy.2.name=Alliage du néant (Avancé)
+item.enderutilities.enderpart.endercore.0.active.name=Coeur du néant (Base)
+item.enderutilities.enderpart.endercore.1.active.name=Coeur du néant (Amélioré)
+item.enderutilities.enderpart.endercore.2.active.name=Coeur du néant (Avancé)
+item.enderutilities.enderpart.endercore.0.inactive.name=Coeur du néant inactif (Base)
+item.enderutilities.enderpart.endercore.1.inactive.name=Coeur du néant inactif (Amélioré)
+item.enderutilities.enderpart.endercore.2.inactive.name=Coeur du néant inactif (Avancé)
+item.enderutilities.enderpart.enderrelic.name=Relique du néant
+item.enderutilities.enderpart.enderrope.name=Corde du néant
+item.enderutilities.enderpart.enderstick.name=Baton infusé du néant
 item.enderutilities.enderpart.mobpersistence.name=Module du geôlier
-item.enderutilities.enderpearlreusable.name=Perle de l'Ender (réutilisable)
-item.enderutilities.enderpearlreusable.elite.name=Perle élite de l'Ender (réutilisable)
-item.enderutilities.enderporter.name=Porteur de l'Ender
-item.enderutilities.enderporter.advanced.name=Porteur amélioré de l'Ender
-item.enderutilities.endertool.enderpickaxe.name=Pioche d'Ender
-item.enderutilities.endertool.enderaxe.name=Hache d'Ender
-item.enderutilities.endertool.endershovel.name=Pelle d'Ender
-item.enderutilities.endertool.enderhoe.name=Houe d'Ender
-item.enderutilities.endersword.name=Epée d'Ender
+item.enderutilities.enderpearlreusable.name=Perle du néant (réutilisable)
+item.enderutilities.enderpearlreusable.elite.name=Perle élite du néant (réutilisable)
+item.enderutilities.enderporter.name=Porteur du néant
+item.enderutilities.enderporter.advanced.name=Porteur amélioré du néant
+item.enderutilities.endertool.enderpickaxe.name=Pioche du néant
+item.enderutilities.endertool.enderaxe.name=Hache du néant
+item.enderutilities.endertool.endershovel.name=Pelle du néant
+item.enderutilities.endertool.enderhoe.name=Houe du néant
+item.enderutilities.endersword.name=Epée du néant
 item.enderutilities.linkcrystal.0.name=Cristal de lien (lieu)
 item.enderutilities.linkcrystal.1.name=Cristal de lien (bloc)
 item.enderutilities.linkcrystal.2.name=Cristal de lien (portail)
-item.enderutilities.mobharness.name=Harnais de Mob
+item.enderutilities.mobharness.name=Harnais de créature
 
 
 ###################################################
@@ -71,18 +83,18 @@ item.enderutilities.mobharness.name=Harnais de Mob
 ####################
 # All modular items:
 ####################
-enderutilities.tooltips.itemlocationboundmodular=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward or|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
+enderutilities.tooltips.itemlocationboundmodular=- Maj + Touche de bascule pour changer|lf     le lien de cristal sélectionné avec le suivant|lf Maj + Ctrl + Touche de bascule pour changer|lf le lien avec le précédant|lf     - Ctrl + Mollette de souris en tenant|lf l'objet fait de même, plus facilement :)
 
 ###################
 # Individual items:
 ###################
-item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis anyone?)
+item.enderutilities.enderarrow.tooltips=- Touchez les créatures avec la flèche pour jouer !|lf  (tennis de poulet, ça vous dit ?)
 item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Alt + Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
 item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning
 item.enderutilities.enderbucket.tooltips=- Toggle mode key to cycle the operation mode|lf- Sneak + right click binds to tanks (in bind mode)|lf- Ctrl + Toggle mode key to switch between|lf  regular operation and linked to tanks|lf- Tank mode chunk loads for 30 seconds on use|lf- In normal mode: right clicking a tank|lf  takes fluid from the tank and|lf  sneak + right clicking puts fluid to the tank
-item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
+item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
 item.enderutilities.enderlasso.tooltips=- Sneak + right click to bind|lf- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent mobs from despawning
 item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal with inactive version
 item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal with inactive version
@@ -98,8 +110,8 @@ item.enderutilities.enderporter.advanced.tooltips=- Sneak + right click to bind|
 item.enderutilities.endertool.enderpickaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
 item.enderutilities.endertool.enderaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
 item.enderutilities.endertool.endershovel.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
-item.enderutilities.endertool.enderhoe.tooltips=*WIP*
-item.enderutilities.endersword.tooltips=*WIP*
+item.enderutilities.endertool.enderhoe.tooltips=- Can till and plant a 3x3 area in the "Fast" mode|lf- Can plant crops from player or linked inventory|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Toggle mode key: toggle between 1x1/3x3 mode|lf- Ctrl + Toggle mode: cycle the inventory mode|lf  - Normal: No special functionality|lf  - Player: items will be inserted into/taken from the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to/from|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
+item.enderutilities.endersword.tooltips=- The sword will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Ctrl + Toggle mode: cycle the sword mode|lf  - Normal: no special functionality|lf  - Player: drops from killed mobs will be inserted|lf    directly to the player's inventory, if possible.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf  - Summon: Does minimal direct damage, spawns up to 3|lf    new Ender Fighters to attack the target.|lf- The Ender Fighters start to rage and attack players|lf  if there is no player holding an Ender Sword|lf  in the Summon mode within 32 blocks.|lf- Idle Ender Fighters disappear sometime after 10 seconds.|lf- Using a Name Tag on them makes them peaceful.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
 item.enderutilities.linkcrystal.0.tooltips=- Sneak + right click to bind to a location|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
 item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a block|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
 item.enderutilities.linkcrystal.2.tooltips=*WIP*
@@ -114,65 +126,68 @@ tile.enderutilities.toolworkstation.tooltips=- Used to manipulate the modules in
 # GUI and item labels/tooltips etc:
 ###################################
 
-enderutilities.gui.label.outputbuffer=Buffer
-enderutilities.gui.label.modulestorage=Module storage
-enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
-enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
-enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
-enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
+enderutilities.gui.label.outputbuffer=Tampon
+enderutilities.gui.label.modulestorage=Module de stockage
+enderutilities.gui.label.enderinfuser.input=Perles du néant ou oeil du néant
+enderutilities.gui.label.enderinfuser.chargeableinput=Éléments rechargeables
+enderutilities.gui.label.outputtoenderchest=Active/désactive les sorties du coffre du néant
+enderutilities.gui.label.slowfasttoggle=Bascule mode lent/rapide
 
 enderutilities.tooltip.dimension=Dimension
 enderutilities.tooltip.dimension.compact=DIM
-enderutilities.tooltip.durability=Durability
-enderutilities.tooltip.item.advanced=Advanced
-enderutilities.tooltip.item.amount=Amount
-enderutilities.tooltip.item.basic=Basic
+enderutilities.tooltip.durability=Durabilité
+enderutilities.tooltip.item.1x1=1x1
+enderutilities.tooltip.item.3x3=3x3
+enderutilities.tooltip.item.advanced=Avancé
+enderutilities.tooltip.item.amount=Quantité
+enderutilities.tooltip.item.basic=De base
 enderutilities.tooltip.item.bucket.mode.bind=Bind to tanks
-enderutilities.tooltip.item.bucket.mode.fill=Fill bucket
-enderutilities.tooltip.item.bucket.mode.drain=Drain bucket
+enderutilities.tooltip.item.bucket.mode.fill=Rempli les seaux
+enderutilities.tooltip.item.bucket.mode.drain=Vide les seaux
 enderutilities.tooltip.item.bucket.mode.normal=Normal
-enderutilities.tooltip.item.cached.amount=Last seen amount
-enderutilities.tooltip.item.cached.fluid=Last seen fluid
-enderutilities.tooltip.item.cached.fluid.compact=Last
+enderutilities.tooltip.item.cached.amount=Dernière quantité
+enderutilities.tooltip.item.cached.fluid=Dernier fluide
+enderutilities.tooltip.item.cached.fluid.compact=Dernier
 enderutilities.tooltip.item.charge=Charge
-enderutilities.tooltip.item.craftingingredient=Crafting ingredient
-enderutilities.tooltip.item.endercore=Ender Core
+enderutilities.tooltip.item.craftingingredient=Ingrédiant d'artisanat
+enderutilities.tooltip.item.endercore=Coeur du néant
+enderutilities.tooltip.item.endersword.summon=Invoquer
 enderutilities.tooltip.item.endertool.digmode=Dig mode
-enderutilities.tooltip.item.endertool.dropsmode=Drops
-enderutilities.tooltip.item.endertool.playerinv=Player
+enderutilities.tooltip.item.endertool.dropsmode=Butins
+enderutilities.tooltip.item.endertool.playerinv=Joueur
 enderutilities.tooltip.item.endertool.remote=Remote
 enderutilities.tooltip.item.enhanced=Enhanced
-enderutilities.tooltip.item.empty=empty
-enderutilities.tooltip.item.fast=Fast
-enderutilities.tooltip.item.fluid=Fluid
-enderutilities.tooltip.item.holdshift=Hold §e§oShift§7 for more
-enderutilities.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for description
+enderutilities.tooltip.item.empty=vide
+enderutilities.tooltip.item.fast=Rapide
+enderutilities.tooltip.item.fluid=Fluide
+enderutilities.tooltip.item.holdshift=Appuyez §e§oMaj§7 pour plus
+enderutilities.tooltip.item.holdshiftfordescription=Appuyez §e§oMaj§7 pour description
 enderutilities.tooltip.item.jailer=Jailer
-enderutilities.tooltip.item.linked=Linked
-enderutilities.tooltip.item.linkedto=Linked to
+enderutilities.tooltip.item.linked=Lié
+enderutilities.tooltip.item.linkedto=Lié à
 enderutilities.tooltip.item.mode=Mode
-enderutilities.tooltip.item.no=no
-enderutilities.tooltip.item.nolinkcrystals=No Link Crystals installed
+enderutilities.tooltip.item.no=non
+enderutilities.tooltip.item.nolinkcrystals=Aucun cristaux de lien installé
 enderutilities.tooltip.item.none=none
 enderutilities.tooltip.item.normal=Normal
-enderutilities.tooltip.item.notargetset=No target set
-enderutilities.tooltip.item.notlinked=Not linked
-enderutilities.tooltip.item.owner=Owner
-enderutilities.tooltip.item.private=Private
-enderutilities.tooltip.item.public=Public
-enderutilities.tooltip.item.selectedlinkcrystal=Selected Link Crystal:
-enderutilities.tooltip.item.selectedlinkcrystal.short=LC:
-enderutilities.tooltip.item.slots=Slots
-enderutilities.tooltip.item.target=Target
-enderutilities.tooltip.item.tier=Tier
-enderutilities.tooltip.item.tpself=TP self
-enderutilities.tooltip.item.tptarget=TP target
-enderutilities.tooltip.item.usetoolworkstation=Use the Tool Workstation to add or remove modules
-enderutilities.tooltip.item.yes=yes
+enderutilities.tooltip.item.notargetset=Pas de cible
+enderutilities.tooltip.item.notlinked=Non lié
+enderutilities.tooltip.item.owner=Propriétaire
+enderutilities.tooltip.item.private=Privé
+enderutilities.tooltip.item.public=Publique
+enderutilities.tooltip.item.selectedlinkcrystal=Cristal de lien choisi :
+enderutilities.tooltip.item.selectedlinkcrystal.short=CL:
+enderutilities.tooltip.item.slots=Emplacements
+enderutilities.tooltip.item.target=Cible
+enderutilities.tooltip.item.tier=Niveau
+enderutilities.tooltip.item.tpself=TP soi-même
+enderutilities.tooltip.item.tptarget=Cible TP
+enderutilities.tooltip.item.usetoolworkstation=utilisez l'atelier pour ajouter ou retirer des modules
+enderutilities.tooltip.item.yes=oui
 
 
 # Chat messages:
 
-enderutilities.chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
-enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
-enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range
+enderutilities.chat.message.enderbag.blockchanged=Le bloc cible a été changé depuis le liage au sac, suppression du lien.
+enderutilities.chat.message.enderbag.blocknotwhitelisted=Le bloc cible n'est pas autorisé :
+enderutilities.chat.message.enderbag.outofrange=La cible est en dehors de la portée du client
