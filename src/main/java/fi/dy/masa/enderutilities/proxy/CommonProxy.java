@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
 import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.event.TickHandler;
+import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
@@ -59,6 +60,7 @@ public abstract class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
         MinecraftForge.EVENT_BUS.register(new LivingDropsEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+        MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
         FMLCommonHandler.instance().bus().register(new TickHandler());
         FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());

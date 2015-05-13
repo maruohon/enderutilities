@@ -20,6 +20,8 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockPos;
 import fi.dy.masa.enderutilities.util.BlockUtils;
+import fi.dy.masa.enderutilities.util.DimBlockPos;
+import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 {
@@ -28,7 +30,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public int timer;
     public byte meta;
 
+    @SideOnly(Side.CLIENT)
     public int beamYMin;
+    @SideOnly(Side.CLIENT)
     public int beamYMax;
 
     public TileEntityEnergyBridge()
@@ -147,6 +151,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         {
             this.activateMultiBlock(world, positions);
             this.setMaster(world, positions.get(0), true);
+            EnergyBridgeTracker.addBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, positions.get(0)));
         }
         // This gets called from the periodic validation via updateEntity()
         else if (this.isActive == true && isValid == false)
@@ -372,10 +377,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return;
         }
 
-        this.disableMultiBlock(world, masterMeta, positions, true);
+        this.disableMultiBlock(world, masterMeta, positions);
     }
 
-    public void disableMultiBlock(World world, int masterMeta, List<BlockPos> blockPositions, boolean clearList)
+    public void disableMultiBlock(World world, int masterMeta, List<BlockPos> blockPositions)
     {
         if (blockPositions == null || blockPositions.size() != 6)
         {
@@ -391,10 +396,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         this.setStateWithCheck(world, blockPositions.get(3), blockEb, 2, classTEEB, ForgeDirection.WEST, false);
         this.setStateWithCheck(world, blockPositions.get(4), blockEb, 2, classTEEB, ForgeDirection.EAST, false);
 
-        if (clearList)
-        {
-            blockPositions.clear();
-        }
+        EnergyBridgeTracker.removeBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, blockPositions.get(0)));
     }
 
     public void setState(World world, BlockPos pos, boolean state)
@@ -423,6 +425,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
+    @SideOnly(Side.CLIENT)
     public void getBeamEndPoints()
     {
         int ty = this.yCoord;
