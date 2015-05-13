@@ -15,7 +15,7 @@ public class BlockPos
         this.posY = y;
         this.posZ = z;
 
-        this.clampCoords();
+        //this.clampCoords();
     }
 
     public BlockPos(BlockPos old)
@@ -37,7 +37,7 @@ public class BlockPos
         this.posY += y;
         this.posZ += z;
 
-        this.clampCoords();
+        //this.clampCoords();
     }
 
     public void offset(ForgeDirection dir, int distance)

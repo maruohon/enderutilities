@@ -28,14 +28,13 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public int timer;
     public byte meta;
 
-    @SideOnly(Side.CLIENT)
     public int beamYMin;
-    @SideOnly(Side.CLIENT)
     public int beamYMax;
 
     public TileEntityEnergyBridge()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        this.timer = 0;
     }
 
     @Override
@@ -99,18 +98,13 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     }
 
     @Override
-    public boolean canUpdate()
-    {
-        return false;
-    }
-
-    @Override
     public void updateEntity()
     {
-        /*if (this.isMaster == true && ++this.timer >= 20)
+        if (this.worldObj.isRemote == false && this.isMaster == true && ++this.timer >= 40)
         {
+            this.tryAssembleMultiBlock(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
             this.timer = 0;
-        }*/
+        }
     }
 
     public void tryAssembleMultiBlock(World world, int x, int y, int z)
@@ -147,13 +141,17 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return;
         }
 
-        if (this.isStructureValid(world, x, y, z, height, masterMeta, requireEnderCrystal, positions) == true)
+        boolean isValid = this.isStructureValid(world, x, y, z, height, masterMeta, requireEnderCrystal, positions);
+
+        if (this.isActive == false && isValid == true)
         {
             this.activateMultiBlock(world, positions);
-
-            // Master block
-            BlockPos pos = positions.get(0);
-            this.setMaster(world, pos, true);
+            this.setMaster(world, positions.get(0), true);
+        }
+        // This gets called from the periodic validation via updateEntity()
+        else if (this.isActive == true && isValid == false)
+        {
+            this.disassembleMultiblock(world, x, y, z, world.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord));
         }
     }
 
@@ -238,48 +236,112 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         // Our machine blocks are all in the right configuration, now just check that there are no other obstructing blocks in the area
         if (isValid == true)
         {
-            return this.isObstructed(world, blockEb, height, blockPositions) == false;
+            return this.isObstructed(world, blockEb, height, masterMeta, blockPositions) == false;
         }
 
         return false;
     }
 
-    public boolean isObstructed(World world, Block blockEb, int height, List<BlockPos> blockPositions)
+    public boolean isObstructedQuadrant(World world, BlockPos basePosition, ForgeDirection dir, BlockPos ... positions)
+    {
+        ForgeDirection dirNext = dir.getRotation(ForgeDirection.UP); // the direction 90 degrees clock wise
+
+        for (BlockPos pos : positions)
+        {
+            int x = pos.posX * dir.offsetX + pos.posZ * dir.offsetZ;
+            int y = pos.posY;
+            int z = pos.posX * dirNext.offsetX + pos.posZ * dirNext.offsetZ;
+
+            if (basePosition != null)
+            {
+                x += basePosition.posX;
+                y += basePosition.posY;
+                z += basePosition.posZ;
+            }
+
+            if (world.getBlock(x, y, z).isAir(world, x, y, z) == false)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isObstructed(World world, Block blockEb, int height, int masterMeta, List<BlockPos> blockPositions)
     {
         if (blockPositions.size() != 6)
         {
             return true;
         }
 
-        BlockPos pos = new BlockPos(blockPositions.get(1)); // North side resonator
-        pos.add(-3, 0, 0); // move the position to the north-west corner (lower coordinates corner)
+        BlockPos posMaster = new BlockPos(blockPositions.get(0));
+        BlockPos posResonatorMiddle = new BlockPos(blockPositions.get(5));
 
-        int ty = pos.posY;
+        // Block positions in one quadrant of the area that needs to be clear for the resonators, relative to the middle block
+        BlockPos positionsToCheck[] = new BlockPos[] {
+                                                        new BlockPos(1, 0, 0),
+                                                        new BlockPos(2, 0, 0),
+                                                        new BlockPos(1, 0, 3),
+                                                        new BlockPos(1, 0, 2),
+                                                        new BlockPos(2, 0, 2),
+                                                        new BlockPos(2, 0, 1),
+                                                        new BlockPos(3, 0, 1)
+                                                    };
 
-        // The whole box containing the resonators must be air, other than the resonators themselves
-        for (int tx = pos.posX; tx <= pos.posX + 6; tx++)
+        if (this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.EAST, positionsToCheck) == true ||
+            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.SOUTH, positionsToCheck) == true ||
+            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.WEST, positionsToCheck) == true ||
+            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.NORTH, positionsToCheck) == true)
         {
-            for (int tz = pos.posZ; tz <= pos.posZ + 6; tz++)
-            {
-                Block b = world.getBlock(tx, ty, tz);
-                if (b.isAir(world, tx, ty, tz) == false && b != Blocks.fire && (b != blockEb || blockPositions.contains(new BlockPos(tx, ty, tz)) == false))
-                {
-                    return true;
-                }
-            }
+            return true;
         }
 
-        ty = pos.posY + 1;
-        pos = new BlockPos(blockPositions.get(0)); // Master block
-        // The column under the transmitter must be air
-        for (; ty < pos.posY; ty++)
+        // Transmitter
+        if (masterMeta == 0)
         {
-            Block b = world.getBlock(pos.posX, ty, pos.posZ);
-            if (b.isAir(world, pos.posX, ty, pos.posZ) == false && b != Blocks.fire)
+            // Check the two blocks below the transmitter
+            if (this.isObstructedQuadrant(world, posMaster, ForgeDirection.EAST, new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}) == true)
             {
                 return true;
             }
         }
+        // Receiver
+        else
+        {
+            for (int y = posMaster.posY - 1; y >= 0; --y)
+            {
+                Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
+                if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
+                {
+                    if (block != Blocks.bedrock)
+                    {
+                        return true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        for (int y = posMaster.posY + 1; y <= world.getActualHeight(); ++y)
+        {
+            Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
+            if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
+            {
+                if (block != Blocks.bedrock)
+                {
+                    return true;
+                }
+
+                break;
+            }
+        }
+
+        /*if (world.canBlockSeeTheSky(posMaster.posX, posMaster.posY, posMaster.posZ) == false)
+        {
+            return true;
+        }*/
 
         return false;
     }
@@ -361,20 +423,18 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public void getBeamEndPoints()
     {
+        int ty = this.yCoord;
+
         // Energy Bridge Transmitter
         if (this.meta == 0)
         {
             this.beamYMin = this.yCoord - 2;
-            this.beamYMax = this.worldObj.getHeight();
         }
         // Energy Bridge Receiver
         else if (this.meta == 1)
         {
-            int ty = this.yCoord;
-
             for (; ty >= 0; --ty)
             {
                 if (this.worldObj.getBlock(this.xCoord, ty, this.zCoord) == Blocks.bedrock)
@@ -384,28 +444,28 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             }
 
             this.beamYMin = ty + 1;
-
-            for (ty = this.yCoord; ty < this.worldObj.getHeight(); ++ty)
-            {
-                if (this.worldObj.getBlock(this.xCoord, ty, this.zCoord) == Blocks.bedrock)
-                {
-                    break;
-                }
-            }
-
-            this.beamYMax = ty;
         }
+
+        for (ty = this.yCoord; ty < this.worldObj.getHeight(); ++ty)
+        {
+            if (this.worldObj.getBlock(this.xCoord, ty, this.zCoord) == Blocks.bedrock)
+            {
+                break;
+            }
+        }
+
+        this.beamYMax = ty;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public double getMaxRenderDistanceSquared()
     {
         return 65536.0d;
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
         return TileEntity.INFINITE_EXTENT_AABB;
