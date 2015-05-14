@@ -43,7 +43,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
 
         // Beam (inner part)
         tessellator.startDrawingQuads();
-        tessellator.setColorRGBA(160, 240, 255, 200);
+        tessellator.setColorRGBA(160, 255, 230, 200);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -70,7 +70,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
         radius *= 2.0d;
         rot = Math.PI / 8.0d;
         tessellator.startDrawingQuads();
-        tessellator.setColorRGBA(210, 230, 255, 80);
+        tessellator.setColorRGBA(210, 255, 230, 80);
 
         for (int i = 0; i < 8; ++i)
         {
