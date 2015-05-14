@@ -26,9 +26,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 {
     public boolean isActive;
-    public boolean isMaster;
     public int timer;
-    public byte meta;
 
     @SideOnly(Side.CLIENT)
     public int beamYMin;
@@ -48,7 +46,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 
         byte f = nbt.getByte("Flags");
         this.isActive = (f & 0x01) == 0x01;
-        this.isMaster = (f & 0x02) == 0x02;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Flags", (byte)((this.isMaster ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
+        nbt.setByte("Flags", (byte)(this.isActive ? 0x01 : 0x00));
     }
 
     @Override
@@ -69,7 +66,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             nbt = new NBTTagCompound();
         }
 
-        nbt.setByte("f", (byte)((this.isMaster ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
+        nbt.setByte("f", (byte)(this.isActive ? 0x01 : 0x00));
 
         return nbt;
     }
@@ -81,10 +78,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         byte f = nbt.getByte("f");
 
         this.setState((f & 0x01) == 0x01);
-        this.setMaster((f & 0x02) == 0x02);
-
-        // meta is used for TESR rendering, cached for performance
-        this.meta = (byte)this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
         this.getBeamEndPoints();
 
         super.onDataPacket(net, packet);
@@ -96,15 +89,11 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
-    public void setMaster(boolean isMaster)
-    {
-        this.isMaster = isMaster;
-    }
-
     @Override
     public void updateEntity()
     {
-        if (this.worldObj.isRemote == false && this.isMaster == true && ++this.timer >= 40)
+        // Master blocks (Transmitter or Receiver) re-validate the multiblock every 2 seconds
+        if (this.worldObj.isRemote == false && this.getBlockMetadata() < 2 && ++this.timer >= 40)
         {
             this.tryAssembleMultiBlock(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
             this.timer = 0;
@@ -150,7 +139,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         if (this.isActive == false && isValid == true)
         {
             this.activateMultiBlock(world, positions);
-            this.setMaster(world, positions.get(0), true);
             EnergyBridgeTracker.addBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, positions.get(0)));
         }
         // This gets called from the periodic validation via updateEntity()
@@ -416,27 +404,18 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public void setMaster(World world, BlockPos pos, boolean state)
-    {
-        TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
-        if (te instanceof TileEntityEnergyBridge)
-        {
-            ((TileEntityEnergyBridge)te).setMaster(state);
-        }
-    }
-
     @SideOnly(Side.CLIENT)
     public void getBeamEndPoints()
     {
         int ty = this.yCoord;
 
         // Energy Bridge Transmitter
-        if (this.meta == 0)
+        if (this.getBlockMetadata() == 0)
         {
             this.beamYMin = this.yCoord - 2;
         }
         // Energy Bridge Receiver
-        else if (this.meta == 1)
+        else if (this.getBlockMetadata() == 1)
         {
             for (; ty >= 0; --ty)
             {

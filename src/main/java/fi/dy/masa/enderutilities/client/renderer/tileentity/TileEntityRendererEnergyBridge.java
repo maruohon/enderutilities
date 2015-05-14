@@ -100,24 +100,25 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
             return;
         }
 
+        int meta = teeb.getBlockMetadata();
         double rot = (teeb.getWorldObj().getTotalWorldTime() % 100.0d) * Math.PI  / 50.0d + (Math.PI / 50.0d * pTicks);
         x += 0.5d;
         z += 0.5d;
 
         // Energy Bridge Transmitter
-        if (teeb.meta == 0 && teeb.isMaster == true)
+        if (meta == 0)
         {
             this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot, 3.0d);
             this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, 3.0d);
         }
         // Energy Bridge Receiver
-        else if (teeb.meta == 1 && teeb.isMaster == true)
+        else if (meta == 1)
         {
             this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot,  3.0d);
             this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, -3.0d);
         }
         // Energy Bridge Resonator
-        else if (teeb.meta == 2)
+        else if (meta == 2)
         {
             ForgeDirection dirFront = ForgeDirection.getOrientation(teeb.getRotation());
             ForgeDirection dirSide = dirFront.getRotation(ForgeDirection.UP);
