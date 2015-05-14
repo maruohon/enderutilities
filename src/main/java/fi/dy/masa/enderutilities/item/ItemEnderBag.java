@@ -299,6 +299,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
     {
+        super.onUpdate(stack, world, player, slot, isCurrent);
+
         // Ugly workaround to get the bag closing tag update to sync to the client
         // For some reason it won't sync if set directly in the PlayerOpenContainerEvent
         if (stack != null && stack.getTagCompound() != null)

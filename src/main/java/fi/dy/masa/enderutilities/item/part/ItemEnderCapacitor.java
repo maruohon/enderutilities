@@ -22,6 +22,8 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
+    public static final int CHARGE_RATE_FROM_ENERGY_BRIDGE = 100;
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 

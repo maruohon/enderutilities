@@ -23,17 +23,17 @@ public interface IChargeable
      * Adds or simulates adding charge to this item.
      * @param stack The target ItemStack
      * @param amount The amount of charge to add
-     * @param simulate True if we just want to simulate adding charge, and not actually do it
+     * @param doCharge True if we want to actually add charge, false if we want to just simulate it
      * @return The amount of charge that was or would have been successfully added
      */
-    public int addCharge(ItemStack stack, int amount, boolean simulate);
+    public int addCharge(ItemStack stack, int amount, boolean doCharge);
 
     /**
      * Uses or simulates using charge from this item.
      * @param stack The target ItemStack
      * @param amount The amount of charge to use
-     * @param simulate True if we just want to simulate using charge, and not actually do it
+     * @param doUse True if we want to actually use charge, false if we want to just simulate it
      * @return The amount of charge that was or would have been successfully drained from the item
      */
-    public int useCharge(ItemStack stack, int amount, boolean simulate);
+    public int useCharge(ItemStack stack, int amount, boolean doUse);
 }

@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
+import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -351,7 +352,45 @@ public class UtilItemModular
     }
 
     /**
-     * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
+     * If the given modular item has an Ender Capacitor module installed,
+     * then the given amount of charge (or however much can be added) is added to the capacitor.
+     * In case of any errors, no charge will be added.
+     * @param stack
+     * @param amount
+     * @param doCharge True if we want to actually add charge, false if we want to just simulate it
+     * @return The amount of charge that was successfully added to the installed capacitor module
+     */
+    public static int addEnderCharge(ItemStack stack, int amount, boolean doCharge)
+    {
+        if ((stack.getItem() instanceof IModular) == false)
+        {
+            return 0;
+        }
+
+        ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
+        {
+            return 0;
+        }
+
+        IChargeable cap = (IChargeable) moduleStack.getItem();
+        if (cap.addCharge(moduleStack, amount, false) == 0)
+        {
+            return 0;
+        }
+
+        int added = 0;
+        if (doCharge == true)
+        {
+            added = cap.addCharge(moduleStack, amount, true);
+            setSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
+        }
+
+        return added;
+    }
+
+    /**
+     * If the given modular item has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
      * @param stack
