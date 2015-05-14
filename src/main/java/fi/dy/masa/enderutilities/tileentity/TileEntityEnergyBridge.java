@@ -299,13 +299,34 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
                 return true;
             }
         }
-        // Receiver
+        // Receiver: check the column below the Receiver down to bedrock
         else
         {
             for (int y = posMaster.posY - 1; y >= 0; --y)
             {
                 Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
                 if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
+                {
+                    if (block.getLightOpacity(world, posMaster.posX, y, posMaster.posZ) > 3)
+                    {
+                        if (block != Blocks.bedrock)
+                        {
+                            return true;
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check the column above the master block up to world height or first bedrock block
+        for (int y = posMaster.posY + 1; y <= world.getActualHeight(); ++y)
+        {
+            Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
+            if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
+            {
+                if (block.getLightOpacity(world, posMaster.posX, y, posMaster.posZ) > 3)
                 {
                     if (block != Blocks.bedrock)
                     {
@@ -314,20 +335,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 
                     break;
                 }
-            }
-        }
-
-        for (int y = posMaster.posY + 1; y <= world.getActualHeight(); ++y)
-        {
-            Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
-            if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
-            {
-                if (block != Blocks.bedrock)
-                {
-                    return true;
-                }
-
-                break;
             }
         }
 
