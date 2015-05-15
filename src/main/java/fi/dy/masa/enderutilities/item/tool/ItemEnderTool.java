@@ -573,7 +573,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             {
                 // Remove the bind
                 NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
                 return null;
             }
 

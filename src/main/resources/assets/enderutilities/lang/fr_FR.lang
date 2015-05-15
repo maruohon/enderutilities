@@ -188,6 +188,6 @@ enderutilities.tooltip.item.yes=oui
 
 # Chat messages:
 
-enderutilities.chat.message.enderbag.blockchanged=Le bloc cible a été changé depuis le liage au sac, suppression du lien.
+enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=Le bloc cible n'est pas autorisé :
 enderutilities.chat.message.enderbag.outofrange=La cible est en dehors de la portée du client

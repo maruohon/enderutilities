@@ -98,7 +98,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
-            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
 
             return stack;
         }

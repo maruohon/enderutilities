@@ -188,6 +188,6 @@ enderutilities.tooltip.item.yes=yes
 
 # Chat messages:
 
-enderutilities.chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
+enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range
