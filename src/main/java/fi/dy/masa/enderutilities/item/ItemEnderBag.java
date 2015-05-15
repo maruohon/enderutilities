@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,6 +19,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
@@ -168,7 +170,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -218,7 +220,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // We allow a max range of 64 blocks, to hopefully be on the safer side
-        return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
+        //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
+
+        WorldServer world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        return ! (player instanceof EntityPlayerMP && world != null && world.getPlayerManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.posX >> 4, target.posZ >> 4));
     }
 
     public static boolean isTargetBlockWhitelisted(String name, int meta)
