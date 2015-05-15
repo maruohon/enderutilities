@@ -1,11 +1,11 @@
 package fi.dy.masa.enderutilities.entity.base;
 
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,6 +14,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public abstract class EntityThrowableEU extends EntityThrowable
@@ -23,7 +24,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
     public int blockZ;
     public Block inBlock;
     public EntityLivingBase thrower;
-    public String throwerName;
+    public UUID throwerUUID;
     public int ticksInGround;
     public int ticksInAir;
 
@@ -36,9 +37,9 @@ public abstract class EntityThrowableEU extends EntityThrowable
     {
         super(world, entity);
 
-        this.thrower = entity;
-        this.yOffset = 0.0f;
+        this.setThrower(entity);
         this.setSize(0.25F, 0.25F);
+        this.yOffset = 0.0f;
 
         this.setLocationAndAngles(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
 
@@ -73,9 +74,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         {
             if (this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ) == this.inBlock)
             {
-                ++this.ticksInGround;
-
-                if (this.ticksInGround == 1200)
+                if (++this.ticksInGround >= 1200)
                 {
                     this.setDead();
                 }
@@ -108,10 +107,9 @@ public abstract class EntityThrowableEU extends EntityThrowable
             vec31 = Vec3.createVectorHelper(mopImpact.hitVec.xCoord, mopImpact.hitVec.yCoord, mopImpact.hitVec.zCoord);
         }
 
-        EntityLivingBase thrower = this.getThrower();
-
-        if (this.worldObj.isRemote == false && thrower != null)
+        if (this.worldObj.isRemote == false)
         {
+            EntityLivingBase thrower = this.getThrower();
             Entity entity = null;
             List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
             double distance = 0.0d;
@@ -123,9 +121,9 @@ public abstract class EntityThrowableEU extends EntityThrowable
                 // This line fixes the elite pearl going through blocks:
                 // The entity collision with the riding player would override the block collision.
                 // We are ignoring any collisions with any of the entities in the "stack" the player is in, in case he is riding or being ridden by other entities.
-                if (entityIter.canBeCollidedWith() && EntityUtils.doesEntityStackContainEntity(entityIter, thrower) == false)
+                if (entityIter.canBeCollidedWith() && (thrower == null || EntityUtils.doesEntityStackContainEntity(entityIter, thrower) == false))
                 {
-                    double s = 0.3d;
+                    double s = 0.1d;
                     AxisAlignedBB axisalignedbb = entityIter.boundingBox.expand(s, s, s);
                     MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec31);
 
@@ -189,7 +187,6 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
         this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
         float motionFactor = 0.99F;
-        float gravity = this.getGravityVelocity();
 
         if (this.isInWater())
         {
@@ -205,7 +202,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.motionX *= (double)motionFactor;
         this.motionY *= (double)motionFactor;
         this.motionZ *= (double)motionFactor;
-        this.motionY -= (double)gravity;
+        this.motionY -= (double)this.getGravityVelocity();
         this.setPosition(this.posX, this.posY, this.posZ);
     }
 
@@ -219,12 +216,11 @@ public abstract class EntityThrowableEU extends EntityThrowable
         nbt.setByte("shake", (byte)this.throwableShake);
         nbt.setByte("inGround", (byte)(this.inGround ? 1 : 0));
 
-        if ((this.throwerName == null || this.throwerName.length() == 0) && this.thrower != null && this.thrower instanceof EntityPlayer)
+        if (this.throwerUUID != null)
         {
-            this.throwerName = this.thrower.getCommandSenderName();
+            nbt.setLong("ownerUUIDM", this.throwerUUID.getMostSignificantBits());
+            nbt.setLong("ownerUUIDL", this.throwerUUID.getLeastSignificantBits());
         }
-
-        nbt.setString("ownerName", this.throwerName == null ? "" : this.throwerName);
     }
 
     @Override
@@ -236,11 +232,26 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.inBlock = Block.getBlockById(nbt.getByte("inTile") & 255);
         this.throwableShake = nbt.getByte("shake") & 255;
         this.inGround = nbt.getByte("inGround") == 1;
-        this.throwerName = nbt.getString("ownerName");
 
-        if (this.throwerName != null && this.throwerName.length() == 0)
+        if (nbt.hasKey("ownerUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("ownerUUIDL", Constants.NBT.TAG_LONG))
         {
-            this.throwerName = null;
+            this.throwerUUID = new UUID(nbt.getLong("ownerUUIDM"), nbt.getLong("ownerUUIDL"));
         }
+    }
+
+    public void setThrower(EntityLivingBase entity)
+    {
+        this.thrower = entity;
+        this.throwerUUID = entity.getUniqueID();
+    }
+
+    public EntityLivingBase getThrower()
+    {
+        if (this.thrower == null && this.throwerUUID != null)
+        {
+            this.thrower = this.worldObj.func_152378_a(this.throwerUUID); // getPlayerEntityByUUID()
+        }
+
+        return this.thrower;
     }
 }

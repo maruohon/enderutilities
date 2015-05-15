@@ -72,56 +72,45 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     @Override
     protected void entityInit()
     {
-        this.dataWatcher.addObject(6, Short.valueOf((short)0));
+        this.dataWatcher.addObject(6, Short.valueOf((this.isElite ? (short)1 : (short)0)));
     }
 
     @Override
     protected void onImpact(MovingObjectPosition mop)
     {
-        if (this.worldObj.isRemote == false && this.getThrower() != null)
+        if (this.worldObj.isRemote == false)
         {
             Entity thrower = this.getThrower();
 
-            // Don't collide with self or the entities in the 'stack' with self,
-            // this check is needed for Elite pearl, which the thrower is riding
-            if (this.isElite == true && mop.typeOfHit == MovingObjectType.ENTITY
-                && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
+            // Don't collide with self or the entities in the 'stack' with self
+            if (thrower == null || (mop.typeOfHit == MovingObjectType.ENTITY && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true))
             {
                 return;
             }
-
-            /*System.out.println("onImpact(): " + this.worldObj.getTotalWorldTime());
-            System.out.println("typeOfHit: " + mop.typeOfHit.toString());
-            System.out.printf("block: x: %d y: %d z: %d\n", mop.blockX, mop.blockY, mop.blockZ);
-            if (mop.entityHit != null) { System.out.printf("entityHit: x: %f y: %f z: %f\n", mop.entityHit.posX, mop.entityHit.posY, mop.entityHit.posZ); }
-            if (mop.hitVec != null) { System.out.printf("hitVec: x: %f y: %f z: %f\n", mop.hitVec.xCoord, mop.hitVec.yCoord, mop.hitVec.zCoord); }
-            if (mop.hitInfo != null) { System.out.printf("hitInfo: %s\n", mop.hitInfo.toString()); }*/
 
             if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase)
             {
                 mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
             }
 
-            Entity bottom = EntityUtils.getBottomEntity(thrower);
-
-            // When the thrower is riding a pearl, and a non-elite pearl lands, or an elite pearl lands that is being ridden
-            // These checks allow throwing multiple Elite Pearls while mid air, without the previous Elite Pearls dismounting the player when they land.
-            if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null && (this.isElite == false || bottom == this))
-            {
-                // Dismount the thrower from the pearl he is riding
-                EntityUtils.unmountRiderSimple(bottom);
-
-                // Elite pearl teleport needs to check that we are riding the pearl in question, to not dismount while a previous pearl impacts
-                if (this.isElite == true)
-                {
-                    TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
-                }
-            }
-
-            // Regular pearl teleport
+            // A regular pearl lands, teleport the thrower
             if (this.isElite == false)
             {
+                // If the thrower is currently riding an elite pearl, unmount the pearl
+                Entity bottom = EntityUtils.getBottomEntity(thrower);
+                if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null)
+                {
+                    bottom.riddenByEntity.mountEntity(null);
+                }
+
                 TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
+            }
+            // An Elite pearl lands, which is still being ridden by something
+            else if (this.riddenByEntity != null)
+            {
+                Entity entity = this.riddenByEntity;
+                this.riddenByEntity.mountEntity(null);
+                TeleportEntity.entityTeleportWithProjectile(entity, this, mop, this.teleportDamage, true, true);
             }
 
             if (this.canPickUp == true)
@@ -138,9 +127,6 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
                 // Failed to add the pearl straight back to the player's inventory: spawn it in the world
                 if (success == false)
                 {
-                    //PositionHelper pos = new PositionHelper(movingObjectPosition, this);
-                    //EntityItem entityitem = new EntityItem(this.worldObj, pos.posX, pos.posY, pos.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
-
                     EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
 
                     entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
@@ -154,6 +140,23 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
             this.setDead();
         }
+    }
+
+    @Override
+    public void writeEntityToNBT(NBTTagCompound nbt)
+    {
+        super.writeEntityToNBT(nbt);
+
+        nbt.setBoolean("Elite", this.isElite);
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound nbt)
+    {
+        super.readEntityFromNBT(nbt);
+
+        this.isElite = nbt.getBoolean("Elite");
+        this.dataWatcher.updateObject(6, (this.isElite ? (short)1 : (short)0));
     }
 
     @Override
