@@ -11,7 +11,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -39,7 +38,7 @@ public class EntityEnderArrow extends EntityArrow
     public boolean inGround;
     public int canBePickedUp;
     public int arrowShake;
-    public Entity shootingEntity;
+    public EntityLivingBase shootingEntity;
     public int ticksInGround;
     public int ticksInAir;
     // "TP target" mode target location
@@ -71,11 +70,11 @@ public class EntityEnderArrow extends EntityArrow
         super(par1World);
         this.renderDistanceWeight = 10.0D;
         this.shootingEntity = par2EntityLivingBase;
+        this.shooterUUID = par2EntityLivingBase.getUniqueID();
 
         if (par2EntityLivingBase instanceof EntityPlayer)
         {
             this.canBePickedUp = 1;
-            this.shooterUUID = ((EntityPlayer)par2EntityLivingBase).getUniqueID();
 
             if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
             {
@@ -107,11 +106,11 @@ public class EntityEnderArrow extends EntityArrow
         super(par1World);
         this.renderDistanceWeight = 10.0D;
         this.shootingEntity = par2EntityLivingBase;
+        this.shooterUUID = par2EntityLivingBase.getUniqueID();
 
         if (par2EntityLivingBase instanceof EntityPlayer)
         {
             this.canBePickedUp = 1;
-            this.shooterUUID = ((EntityPlayer)par2EntityLivingBase).getUniqueID();
 
             if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
             {
@@ -247,17 +246,18 @@ public class EntityEnderArrow extends EntityArrow
             vec3 = Vec3.createVectorHelper(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
+        Entity shooter = this.getShooter();
         Entity entity = null;
-        List<?> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
 
         for (i = 0; i < list.size(); ++i)
         {
-            Entity entity1 = (Entity)list.get(i);
+            Entity entity1 = list.get(i);
 
-            if (entity1.canBeCollidedWith() && (entity1 != this.shootingEntity || this.ticksInAir >= 5))
+            if (entity1.canBeCollidedWith() && EntityUtils.doesEntityStackContainEntity(shooter, entity1) == false)
             {
                 f1 = 0.3F;
                 AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double)f1, (double)f1, (double)f1);
@@ -291,10 +291,9 @@ public class EntityEnderArrow extends EntityArrow
             if (this.tpMode == ItemEnderBow.BOW_MODE_TP_SELF)
             {
                 // Valid shooter
-                if (this.shootingEntity != null && this.shootingEntity instanceof EntityPlayerMP && this.worldObj.isRemote == false)
+                if (this.worldObj.isRemote == false && shooter != null)
                 {
-                    EntityPlayer player = EntityUtils.findPlayerFromUUID(this.shooterUUID);
-                    if (player != null && TeleportEntity.entityTeleportWithProjectile(player, this, movingobjectposition, this.teleportDamage, true, true) == true)
+                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, movingobjectposition, this.teleportDamage, true, true) == true)
                     {
                         this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
@@ -305,7 +304,7 @@ public class EntityEnderArrow extends EntityArrow
             // TP target mode, hit an entity
             else if (this.tpMode == ItemEnderBow.BOW_MODE_TP_TARGET && movingobjectposition.entityHit != null)
             {
-                if (this.shootingEntity != null && movingobjectposition.entityHit != this.shootingEntity)
+                if (shooter != null && EntityUtils.doesEntityStackContainEntity(movingobjectposition.entityHit, shooter) == false)
                 {
                     this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
@@ -446,6 +445,7 @@ public class EntityEnderArrow extends EntityArrow
             this.tpTarget.writeToNBT(tagCompound);
         }
         tagCompound.setByte("tpMode", this.tpMode);
+        tagCompound.setBoolean("Persistence", this.applyPersistence);
     }
 
     /**
@@ -472,9 +472,11 @@ public class EntityEnderArrow extends EntityArrow
         if (tagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && tagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
         {
             this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
+            this.shootingEntity = this.worldObj.func_152378_a(this.shooterUUID);
         }
         this.tpTarget = NBTHelperTarget.readTargetFromNBT(tagCompound);
         this.tpMode = tagCompound.getByte("tpMode");
+        this.applyPersistence = tagCompound.getBoolean("Persistence");
     }
 
     /**
@@ -501,5 +503,15 @@ public class EntityEnderArrow extends EntityArrow
                 this.setDead();
             }
         }
+    }
+
+    public EntityLivingBase getShooter()
+    {
+        if (this.shootingEntity == null && this.shooterUUID != null)
+        {
+            this.shootingEntity = this.worldObj.func_152378_a(this.shooterUUID);
+        }
+
+        return this.shootingEntity;
     }
 }
