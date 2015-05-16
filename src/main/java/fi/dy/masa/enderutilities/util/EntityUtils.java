@@ -332,33 +332,36 @@ public class EntityUtils
 
     /**
      * Adds the AI task 'task' to 'entity' after all the existing tasks of types in 'afterTasks' 
-     * @param entity
+     * @param living
      * @param task
      * @param afterTasks
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" } )
-    public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class... afterTasks)
+    public static boolean addAITaskAfterTasks(EntityLiving living, EntityAIBase task, boolean replaceMatching, Class<? extends EntityAIBase>[] afterTasks)
     {
-        if (entity == null)
+        if (living == null)
         {
             return false;
         }
 
         int priority = -1;
-        EntityAITasks tasks = entity.tasks;
+        EntityAITasks tasks = living.tasks;
         Iterator<EntityAITaskEntry> taskEntryIter = tasks.taskEntries.iterator();
 
         while (taskEntryIter.hasNext() == true)
         {
             EntityAITaskEntry taskEntry = taskEntryIter.next();
 
-            // If this entity already has the same AI task, then replace it with the new instance
+            // If this entity already has the same AI task
             if (taskEntry.action.getClass() == task.getClass())
             {
-                int p = taskEntry.priority;
-                tasks.removeTask(taskEntry.action);
-                tasks.addTask(p, task);
+                // Replace the old matching task with the new instance
+                if (replaceMatching == true)
+                {
+                    int p = taskEntry.priority;
+                    tasks.removeTask(taskEntry.action);
+                    tasks.addTask(p, task);
+                }
 
                 return true;
             }

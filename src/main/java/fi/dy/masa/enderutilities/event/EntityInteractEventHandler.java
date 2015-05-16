@@ -28,7 +28,7 @@ public class EntityInteractEventHandler
     {
         ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
 
-        if (stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
+        if (event.entityPlayer.worldObj.isRemote == true || stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
         {
             return;
         }
@@ -43,7 +43,7 @@ public class EntityInteractEventHandler
                 event.setCanceled(true);
             }
         }
-        else if (item == EnderUtilitiesItems.enderLasso && event.entityPlayer.worldObj.isRemote == false)
+        else if (item == EnderUtilitiesItems.enderLasso)
         {
             if (event.target instanceof EntityLivingBase &&
                 (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
@@ -63,7 +63,7 @@ public class EntityInteractEventHandler
                 }
             }
         }
-        else if (event.entityPlayer.worldObj.isRemote == false && event.entityPlayer.dimension == 1 && event.target instanceof EntityEnderCrystal)
+        else if (event.entityPlayer.dimension == 1 && event.target instanceof EntityEnderCrystal)
         {
             if (item instanceof IChargeable)
             {

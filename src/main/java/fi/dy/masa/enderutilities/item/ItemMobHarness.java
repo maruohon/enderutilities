@@ -59,19 +59,29 @@ public class ItemMobHarness extends ItemEnderUtilities
         return stack;
     }
 
+    @SuppressWarnings("unchecked")
+    public static boolean addAITask(Entity entity, boolean replaceOld)
+    {
+        Entity bottom = EntityUtils.getBottomEntity(entity);
+        if (bottom instanceof EntityLiving)
+        {
+            ((EntityLiving)bottom).getNavigator().clearPathEntity();
+            // Add a new AI task as the highest priority task after swimming and panic AI tasks
+            EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), replaceOld, new Class[] {EntityAISwimming.class, EntityAIPanic.class});
+
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean handleInteraction(ItemStack stack, EntityPlayer player, Entity entity)
     {
         if (player.isSneaking() == false)
         {
             EntityUtils.unmountRider(entity);
             player.mountEntity(entity);
-
-            Entity bottom = EntityUtils.getBottomEntity(entity);
-            if (bottom instanceof EntityLiving)
-            {
-                // Add a new AI task as the highest priority task after swimming and panic AI tasks
-                EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), new Class[] {EntityAISwimming.class, EntityAIPanic.class});
-            }
+            addAITask(entity, true);
 
             return true;
         }

@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -8,6 +8,8 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.relauncher.Side;
+import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -40,6 +42,8 @@ public class TickHandler
 
             ChunkLoading.getInstance().tickChunkTimeouts();
         }
+
+        ++this.playerTickCounter;
     }
 
     @SubscribeEvent
@@ -51,14 +55,22 @@ public class TickHandler
         }
 
         // Once every second
-        if (++this.playerTickCounter >= 20)
+        if (this.playerTickCounter % 40 == 0)
         {
-            this.playerTickCounter = 0;
+            ItemStack stack = event.player.getCurrentEquippedItem();
+            if (stack == null)
+            {
+                return;
+            }
 
-            EntityPlayer player = event.player;
-            ItemStack stack = player.getCurrentEquippedItem();
+            Item item = stack.getItem();
 
-            if (stack != null && stack.getItem() instanceof IChunkLoadingItem)
+            if (event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)) && event.player.ridingEntity != null)
+            {
+                ItemMobHarness.addAITask(event.player.ridingEntity, false);
+            }
+
+            if (item instanceof IChunkLoadingItem)
             {
                 NBTTagCompound nbt = stack.getTagCompound();
 
