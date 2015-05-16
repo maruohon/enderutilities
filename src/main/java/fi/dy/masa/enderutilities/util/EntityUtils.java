@@ -29,7 +29,7 @@ import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
-    public static EntityPlayer findPlayerFromUUID(UUID uuid)
+    public static EntityPlayer findPlayerByUUID(UUID uuid)
     {
         if (uuid == null)
         {
@@ -232,9 +232,8 @@ public class EntityUtils
      * @param livingBase
      * @return
      */
-    public static boolean applyMobPersistence(EntityLiving livingBase)
+    public static boolean applyMobPersistence(EntityLiving living)
     {
-        EntityLiving living = (EntityLiving) livingBase;
         if (living.isNoDespawnRequired() == false)
         {
             boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) || (living instanceof EntityWaterMob) || ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
@@ -247,7 +246,7 @@ public class EntityUtils
                     Object o = method.invoke(living);
                     if (o instanceof Boolean)
                     {
-                        canDespawn |= ((Boolean)o).booleanValue();
+                        canDespawn = ((Boolean)o).booleanValue();
                     }
                 }
                 catch (UnableToFindMethodException e)
@@ -271,7 +270,7 @@ public class EntityUtils
             {
                 // Sets the persistenceRequired boolean
                 living.func_110163_bv();
-                livingBase.worldObj.playSoundAtEntity(livingBase, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
+                living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
 
                 return true;
             }

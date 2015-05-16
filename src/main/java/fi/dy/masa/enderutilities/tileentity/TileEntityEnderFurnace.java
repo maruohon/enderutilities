@@ -467,7 +467,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return false;
         }
 
-        EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
+        EntityPlayer player = EntityUtils.findPlayerByUUID(this.ownerUUID);
         boolean movedSomething = false;
 
         // Player is online
