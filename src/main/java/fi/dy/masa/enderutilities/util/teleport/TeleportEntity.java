@@ -143,17 +143,20 @@ public class TeleportEntity
         }
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
-        entNew.fallDistance = 0.0f;
 
-        if (entNew != null && teleportDamage != 0.0f)
+        if (entNew != null)
         {
-            // Inflict fall damage to the bottom most entity
-            Entity bottom = EntityUtils.getBottomEntity(entNew);
-            if (bottom instanceof EntityLivingBase)
+            if (teleportDamage != 0.0f)
             {
-                bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
+                // Inflict fall damage to the bottom most entity
+                Entity bottom = EntityUtils.getBottomEntity(entNew);
+                if (bottom instanceof EntityLivingBase)
+                {
+                    bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
+                }
             }
 
+            entNew.fallDistance = 0.0f;
             return true;
         }
 
