@@ -116,29 +116,14 @@ public class TeleportEntity
         // Hit a block, offset the position to not collide with the block
         if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
         {
-            //System.out.println("sideHit: " + mop.sideHit);
             ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-            pos.posX += (dir.offsetX * 0.5d * entity.width);
-            pos.posZ += (dir.offsetZ * 0.5d * entity.width);
+            pos.posX += (dir.offsetX * entity.width / 2);
+            pos.posZ += (dir.offsetZ * entity.width / 2);
 
             // Bottom side
-            if (mop.sideHit == 0)
+            if (dir.equals(ForgeDirection.DOWN))
             {
                 pos.posY -= entity.height;
-            }
-            // FIXME the MovingObjectPosition ray tracing is messed up. It goes inside blocks
-            // if the projectile is moving too fast. At least the Elite Ender Pearl goes inside blocks
-            // when moving too fast down or something. That's why I'm doing the moving out of blocks for
-            // all types of hits atm.
-            //else
-            {
-                int y = (int)pos.posY;
-                while (y < 254 && (entity.worldObj.getBlock((int)pos.posX, y, (int)pos.posZ).getMaterial().isOpaque() == true
-                        || entity.worldObj.getBlock((int)pos.posX, y + 1, (int)pos.posZ).getMaterial().isOpaque() == true))
-                {
-                    pos.posY += 1.0d;
-                    ++y;
-                }
             }
         }
 
@@ -171,27 +156,22 @@ public class TeleportEntity
         }
 
         ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
-        if (entity != null && entity.boundingBox != null)
-        {
-            target.dPosX += dir.offsetX * (entity.width / 2);
-            target.dPosZ += dir.offsetZ * (entity.width / 2);
+        float widthAdj = 0.5f;
+        float heightAdj = 1.0f;
 
-            // Targeting the bottom face of a block, adjust the position lower
-            if (dir.offsetY < 0)
-            {
-                target.dPosY -= entity.height;
-            }
+        if (entity != null)
+        {
+            widthAdj = entity.width / 2;
+            heightAdj = entity.height;
         }
-        else
-        {
-            target.dPosX += dir.offsetX * 0.5d;
-            target.dPosZ += dir.offsetZ * 0.5d;
 
-            // Targeting the bottom face of a block, adjust the position lower
-            if (dir.offsetY < 0)
-            {
-                target.dPosY -= 1.0d;
-            }
+        target.dPosX += dir.offsetX * widthAdj;
+        target.dPosZ += dir.offsetZ * widthAdj;
+
+        // Targeting the bottom face of a block, adjust the position lower
+        if (dir.equals(ForgeDirection.DOWN))
+        {
+            target.dPosY -= heightAdj;
         }
 
         return target;
