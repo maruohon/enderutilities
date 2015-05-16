@@ -122,7 +122,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ARA", "ECE", 'E', eye, 'A', alloy2, 'R', new ItemStack(enderPorter, 1, 0), 'C', active_core2);
+            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ACA", "EAE", 'E', eye, 'A', alloy2, 'C', active_core2);
         }
         if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
         {
