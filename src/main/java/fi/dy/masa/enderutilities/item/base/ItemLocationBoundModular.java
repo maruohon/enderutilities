@@ -166,8 +166,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        addTooltips("enderutilities.tooltips.itemlocationboundmodular", list, verbose);
         super.addTooltips(stack, list, verbose);
+        addTooltips("enderutilities.tooltips.itemlocationboundmodular", list, verbose);
     }
 
     @Override
