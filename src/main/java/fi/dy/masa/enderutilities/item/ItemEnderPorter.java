@@ -131,7 +131,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack stack)
     {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 4;
+            return 9;
         }
 
         return 0;
