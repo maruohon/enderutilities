@@ -36,8 +36,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
-    public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
-                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};
+    public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2", "broken",
+                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2", "mode2.broken"};
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
@@ -46,6 +46,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         super();
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
+        this.setNoRepair();
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
     }
 
@@ -55,6 +56,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
     {
+        if (this.isBroken(stack) == true)
+        {
+            return;
+        }
+
         byte mode = this.getBowMode(stack);
 
         // Do nothing on the client side
@@ -119,6 +125,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
             player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
             stack.damageItem(1, player);
+
+            // Tool just broke FIXME this doesn't work when called for the player, for some reason...
+            if (this.isBroken(stack) == true)
+            {
+                player.renderBrokenItemStack(stack);
+            }
         }
 
         if (f == 1.0F)
@@ -155,6 +167,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
+
+        if (this.isBroken(stack) == true)
+        {
+            return stack;
+        }
 
         // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
@@ -207,6 +224,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return stack;
     }
 
+    public boolean isBroken(ItemStack stack)
+    {
+        return stack.getItemDamage() >= this.getMaxDamage(stack);
+    }
+
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
@@ -235,19 +257,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
         }
-    }
-
-    @Override
-    public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
-    {
-        // TODO: Add a method to get the alloy types/tiers
-        if (stack1 != null && stack1.getItem() == EnderUtilitiesItems.enderBow
-            && stack2 != null && stack2.getItem() == EnderUtilitiesItems.enderPart && stack2.getItemDamage() == 1)
-        {
-            return true;
-        }
-
-        return false;
     }
 
     public byte getBowMode(ItemStack stack)
@@ -388,17 +397,21 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         if (stack.getTagCompound() != null)
         {
             mode = stack.getTagCompound().getByte("Mode");
-            if (mode > 1 || mode < 0) { mode = 0; }
-            index = mode * 4;
+            if (mode > 1 || mode < 0)
+            {
+                mode = 0;
+            }
+            index = mode * 5;
         }
 
-        if (player != null && player.getItemInUse() != null)
+        if (this.isBroken(stack) == true)
+        {
+            index += 4;
+        }
+        else if (player != null && player.getItemInUse() != null)
         {
             int inUse = 0;
-            if (stack != null)
-            {
-                inUse = stack.getMaxItemUseDuration() - useRemaining;
-            }
+            inUse = stack.getMaxItemUseDuration() - useRemaining;
             if (inUse >= 18) { index += 3; }
             else if (inUse >= 13) { index += 2; }
             else if (inUse > 0) { index += 1; }
