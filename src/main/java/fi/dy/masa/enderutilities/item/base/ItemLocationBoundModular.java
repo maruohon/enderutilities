@@ -43,11 +43,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
     {
-        super.onUpdate(stack, world, player, slot, isCurrent);
+        super.onUpdate(stack, world, entity, slot, isCurrent);
 
         if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.dimensionId) == true &&
+            ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isUsingItem() == false || ((EntityPlayer)entity).getCurrentEquippedItem() != stack) &&
             (world.provider.dimensionId == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
