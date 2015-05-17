@@ -28,10 +28,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == false && player != null && player.isSneaking() == true)
+        if (player != null && player.isSneaking() == true)
         {
-            boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-            this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+            if (world.isRemote == false)
+            {
+                boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+                this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+            }
 
             return true;
         }

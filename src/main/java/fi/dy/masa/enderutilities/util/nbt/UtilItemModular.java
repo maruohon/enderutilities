@@ -439,11 +439,6 @@ public class UtilItemModular
      */
     public static void setTarget(ItemStack toolStack, EntityPlayer player, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-        {
-            return;
-        }
-
         int x = (int)player.posX;
         int y = (int)player.posY;
         int z = (int)player.posZ;
@@ -473,6 +468,11 @@ public class UtilItemModular
      */
     public static void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
+        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return;
+        }
+
         NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
