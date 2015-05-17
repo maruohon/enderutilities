@@ -18,7 +18,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/beacon_beam.png");
 
-    public void renderBeamVertical(double x, double y, double z, double yMin, double yMax, double radius, double rot, double flowSpeed)
+    public void renderBeamVertical(double x, double y, double z, double yMin, double yMax, double radius, double rot, double flowSpeed, boolean powered)
     {
         Tessellator tessellator = Tessellator.instance;
         double tx1 = 0.0d, tx2 = 0.0d;
@@ -28,6 +28,13 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
         double vScale = yMax - yMin;
         double v1 = -rot * flowSpeed;
         double v2 = (vScale * 2.0d) + v1;
+
+        int r_i = (powered ? 160 : 255);
+        int g_i = (powered ? 255 : 160);
+        int b_i = (powered ? 230 : 160);
+        int r_o = (powered ? 210 : 255);
+        int g_o = (powered ? 255 : 160);
+        int b_o = (powered ? 230 : 160);
 
         GL11.glPushMatrix();
         GL11.glTranslated(x, y, z);
@@ -43,7 +50,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
 
         // Beam (inner part)
         tessellator.startDrawingQuads();
-        tessellator.setColorRGBA(160, 255, 230, 200);
+        tessellator.setColorRGBA(r_i, g_i, b_i, 200);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -70,7 +77,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
         radius *= 2.0d;
         rot = Math.PI / 8.0d;
         tessellator.startDrawingQuads();
-        tessellator.setColorRGBA(210, 255, 230, 80);
+        tessellator.setColorRGBA(r_o, g_o, b_o, 80);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -108,14 +115,14 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
         // Energy Bridge Transmitter
         if (meta == 0)
         {
-            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot, 3.0d);
-            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, 3.0d);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot, 3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, 3.0d, teeb.isPowered);
         }
         // Energy Bridge Receiver
         else if (meta == 1)
         {
-            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot,  3.0d);
-            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, -3.0d);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - teeb.yCoord, 0.0d, 0.2d, rot,  3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - teeb.yCoord, 0.2d, rot, -3.0d, teeb.isPowered);
         }
         // Energy Bridge Resonator
         else if (meta == 2)
@@ -128,7 +135,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
             GL11.glTranslated(x + 0.5d * dirFront.offsetX, y + 0.5d, z + 0.5d * dirFront.offsetZ);
             GL11.glRotated(90, -dirSide.offsetX, 0, -dirSide.offsetZ);
             GL11.glTranslated(-x, -y, -z);
-            this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d);
+            this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d, teeb.isPowered);
             GL11.glPopMatrix();
 
             // From resonator to next resonator
@@ -137,7 +144,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer
             GL11.glRotated(90, dirFront.offsetX, 0, dirFront.offsetZ);
             GL11.glRotated(45, -dirSide.offsetX, 0, -dirSide.offsetZ);
             GL11.glTranslated(-x, -y, -z);
-            this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d);
+            this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d, teeb.isPowered);
             GL11.glPopMatrix();
         }
     }

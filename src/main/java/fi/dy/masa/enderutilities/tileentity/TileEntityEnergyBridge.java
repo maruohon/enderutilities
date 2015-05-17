@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 {
     public boolean isActive;
+    public boolean isPowered;
     public int timer;
 
     @SideOnly(Side.CLIENT)
@@ -66,7 +67,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             nbt = new NBTTagCompound();
         }
 
-        nbt.setByte("f", (byte)(this.isActive ? 0x01 : 0x00));
+        nbt.setByte("f", (byte)((this.isPowered ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
 
         return nbt;
     }
@@ -77,7 +78,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         NBTTagCompound nbt = packet.func_148857_g();
         byte f = nbt.getByte("f");
 
-        this.setState((f & 0x01) == 0x01);
+        this.isActive = ((f & 0x01) == 0x01);
+        this.isPowered = ((f & 0x02) == 0x02);
         this.getBeamEndPoints();
 
         super.onDataPacket(net, packet);
@@ -87,6 +89,15 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     {
         this.isActive = state;
         this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+    }
+
+    public void setPowered(boolean value)
+    {
+        if (this.isPowered != value)
+        {
+            this.isPowered = value;
+            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+        }
     }
 
     @Override
@@ -136,13 +147,18 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 
         boolean isValid = this.isStructureValid(world, x, y, z, height, masterMeta, requireEnderCrystal, positions);
 
-        if (this.isActive == false && isValid == true)
+        if (isValid == true)
         {
-            this.activateMultiBlock(world, positions);
-            EnergyBridgeTracker.addBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, positions.get(0)));
+            if (this.isActive == false)
+            {
+                this.activateMultiBlock(world, positions);
+                EnergyBridgeTracker.addBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, positions.get(0)));
+            }
+
+            this.updatePoweredState(world, positions);
         }
         // This gets called from the periodic validation via updateEntity()
-        else if (this.isActive == true && isValid == false)
+        else if (this.isActive == true)
         {
             this.disassembleMultiblock(world, x, y, z, world.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord));
         }
@@ -408,6 +424,31 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         if (BlockUtils.blockMatches(world, pos, requiredBlock, requiredMeta, TEClass, requiredDirection) == true)
         {
             ((TileEntityEnergyBridge)world.getTileEntity(pos.posX, pos.posY, pos.posZ)).setState(state);
+        }
+    }
+
+    public void updatePoweredState(World world, List<BlockPos> positions)
+    {
+        if (positions == null || positions.size() != 6)
+        {
+            return;
+        }
+
+        int dim = world.provider.dimensionId;
+        boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) == true && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true);
+
+        for (int i = 0; i < 5; ++i)
+        {
+            this.updatePoweredState(world, positions.get(i), powered);
+        }
+    }
+
+    public void updatePoweredState(World world, BlockPos pos, boolean value)
+    {
+        TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
+        if (te instanceof TileEntityEnergyBridge)
+        {
+            ((TileEntityEnergyBridge)te).setPowered(value);
         }
     }
 
