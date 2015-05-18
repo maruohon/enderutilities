@@ -84,39 +84,6 @@ public class ItemEnderPart extends ItemModule
         return super.getUnlocalizedName();
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        if (Configs.disableItemCraftingPart.getBoolean(false) == false)
-        {
-            // Ender Alloys
-            for (int i = 0; i <= 2; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            // Inactive Ender Cores
-            for (int i = 10; i <= 12; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            // (Active) Ender Cores
-            for (int i = 15; i <= 17; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            list.add(new ItemStack(this, 1, 20)); // Ender Stick
-            list.add(new ItemStack(this, 1, 21)); // Ender Rope
-
-            list.add(new ItemStack(this, 1, 40)); // Ender Relic
-
-            list.add(new ItemStack(this, 1, 45)); // Mob Persistence
-        }
-    }
-
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
@@ -138,16 +105,17 @@ public class ItemEnderPart extends ItemModule
         return false;
     }
 
-    /**
-     * Returns true if the item can be used on the given entity, e.g. shears on sheep.
-     */
+    @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
+        // Jailer module
         if (stack != null && stack.getItemDamage() == 45)
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
             {
                 --stack.stackSize;
+
+                return true;
             }
         }
 
@@ -212,7 +180,6 @@ public class ItemEnderPart extends ItemModule
         return -1; // Invalid item (= non-module)
     }
 
-
     @SideOnly(Side.CLIENT)
     @Override
     public String getBaseModelName(String variant)
@@ -223,6 +190,39 @@ public class ItemEnderPart extends ItemModule
         }
 
         return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        if (Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            // Ender Alloys
+            for (int i = 0; i <= 2; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+
+            // Inactive Ender Cores
+            for (int i = 10; i <= 12; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+
+            // (Active) Ender Cores
+            for (int i = 15; i <= 17; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+
+            list.add(new ItemStack(this, 1, 20)); // Ender Stick
+            list.add(new ItemStack(this, 1, 21)); // Ender Rope
+
+            list.add(new ItemStack(this, 1, 40)); // Ender Relic
+
+            list.add(new ItemStack(this, 1, 45)); // Mob Persistence
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -277,7 +277,7 @@ public class ItemEnderPart extends ItemModule
         // Ender Rope
         if (damage == 21) { index = 10; }
 
-        // Ender Rope
+        // Ender Relic
         if (damage == 40) { index = 11; }
 
         // Mob Persistence

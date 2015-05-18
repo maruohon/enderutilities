@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,12 +15,11 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
 {
     public EntityLiving entity;
     public float maxSpeed;
-    public float currentSpeed;
 
     public EntityAIControlledByPlayerUsingHarness(EntityLiving living, float maxSpeed)
     {
         this.entity = living;
-        this.setMutexBits(7);
+        this.maxSpeed = maxSpeed;
     }
 
     /**
@@ -30,8 +28,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     @Override
     public void startExecuting()
     {
-        this.currentSpeed = this.maxSpeed;
-        this.setMutexBits(7);
+        this.setMutexBits(7); // Block most other AI tasks while riding a mob. Mostly just the swim task is allowed.
     }
 
     /**
@@ -40,8 +37,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     @Override
     public void resetTask()
     {
-        // Don't block other AI tasks when not running
-        this.setMutexBits(0);
+        this.setMutexBits(0); // Don't block other AI tasks when not running
     }
 
     /**
@@ -86,7 +82,9 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
 
         if (entity.worldObj.isRemote == false)
         {
-            entity.setAIMoveSpeed((float)entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
+            //float speed = (float)entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+            float speed = this.maxSpeed;
+            entity.setAIMoveSpeed(speed);
             entity.moveEntityWithHeading(strafe, forward);
         }
 

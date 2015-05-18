@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.block.model.ModelBlock;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -21,6 +23,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -37,6 +43,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 /**
@@ -49,6 +56,10 @@ public class Machine
     protected static Machine enderFurnace = new MachineEnderFurnace(EnumMachine.ENDER_FURNACE, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, TileEntityEnderFurnace.class, "pickaxe", 1, 6.0f);
     protected static Machine toolWorkstation = new MachineToolWorkstation(EnumMachine.TOOL_WORKSTATION, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, TileEntityToolWorkstation.class, "pickaxe", 1, 6.0f);
     protected static Machine enderInfuser = new MachineEnderInfuser(EnumMachine.ENDER_INFUSER, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, TileEntityEnderInfuser.class, "pickaxe", 1, 6.0f);
+
+    public static Machine energyBridgeTransmitter = new MachineEnergyBridge(EnumMachine.ENERGY_BRIDGE_TRANSMITTER, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
+    public static Machine energyBridgeReceiver = new MachineEnergyBridge(EnumMachine.ENERGY_BRIDGE_RECEIVER, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
+    public static Machine energyBridgeResonator = new MachineEnergyBridge(EnumMachine.ENERGY_BRIDGE_RESONATOR, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
 
     protected EnumMachine machineType;
     protected String blockName;
@@ -111,12 +122,12 @@ public class Machine
         }
         catch (IllegalAccessException e)
         {
-            EnderUtilities.logger.fatal("Unable to create instance of TileEntity from %s (IllegalAccessException)", this.tileEntityClass.getName());
+            EnderUtilities.logger.fatal(String.format("Unable to create instance of TileEntity from %s (IllegalAccessException)", this.tileEntityClass.getName()));
             return null;
         }
         catch (InstantiationException e)
         {
-            EnderUtilities.logger.fatal("Unable to create instance of TileEntity from %s (InstantiationException)", this.tileEntityClass.getName());
+            EnderUtilities.logger.fatal(String.format("Unable to create instance of TileEntity from %s (InstantiationException)", this.tileEntityClass.getName()));
             return null;
         }
     }
@@ -192,6 +203,20 @@ public class Machine
     }
 
     /**
+     * The replacement/equivalent of Block.onBlockPlacedBy() for customized per-machine block placing behavior.
+     */
+    public void onBlockPlacedBy(World world, BlockPos pos, EntityLivingBase livingBase, ItemStack stack)
+    {
+    }
+
+    /**
+     * The replacement/equivalent of Block.onBlockAdded() for customized per-machine block adding behavior.
+     */
+    public void onBlockAdded(World world, BlockPos pos, IBlockState iBlockState)
+    {
+    }
+
+    /**
      * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)
@@ -199,6 +224,34 @@ public class Machine
     public boolean breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
         return false;
+    }
+
+    /**
+     * The replacement/equivalent of Block.onBlockActivated() for customized per-machine block activation behavior.
+     */
+    public boolean onBlockActivated(World world, BlockPos pos, EntityPlayer player, EnumFacing face, float offsetX, float offsetY, float offsetZ)
+    {
+        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, pos, face, world);
+        if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
+        {
+            return false;
+        }
+
+        if (world.isRemote == false)
+        {
+            TileEntity te = world.getTileEntity(pos);
+            if (te == null || te instanceof TileEntityEnderUtilities == false)
+            {
+                return false;
+            }
+
+            if (this.isTileEntityValid(te) == true)
+            {
+                player.openGui(EnderUtilities.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+            }
+        }
+
+        return true;
     }
 
     public int getLightValue(IBlockAccess world, BlockPos pos, IBlockState iBlockState)

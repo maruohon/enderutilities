@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 {
+    private ContainerEnderFurnace container;
     private GuiButtonIcon buttonMode;
     private GuiButtonIcon buttonOutput;
     private TileEntityEnderFurnace teef;
@@ -25,6 +26,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
     public GuiEnderFurnace(ContainerEnderFurnace container, TileEntityEnderFurnace te)
     {
         super(container, te);
+        this.container = container;
         this.teef = te;
     }
 
@@ -37,7 +39,7 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 4, 0x404025);
 
-        s = I18n.format("enderutilities.gui.label.outputbuffer", new Object[0]) + ": " + this.teef.getOutputBufferAmount();
+        s = I18n.format("enderutilities.gui.label.outputbuffer", new Object[0]) + ": " + this.container.outputBufferAmount;
         this.fontRendererObj.drawString(s, 60, 58, 0x404025);
 
         if (this.teef.getOwnerName() != null)
@@ -55,42 +57,29 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         int y = (this.height - this.ySize) / 2;
 
         // 1: Outputting to Ender Chest, draw the regular arrow instead of the crossed over arrow
-        if (this.teef.outputMode == 1)
+        if (this.container.outputToEnderChest == true)
         {
             this.drawTexturedModalRect(x + 114, y + 34, 176, 78, 24, 16);
         }
 
         // Draw the burn progress flame
-        if (this.teef.usingFuel == true)
+        if (this.teef.isBurningLast == true)
         {
-            int uOffset = 0;
-            int h = this.teef.getBurnTimeRemainingScaled(13);
-            if (this.teef.operatingMode == 1)
-            {
-                uOffset = 14;
-            }
+            int uOffset = (this.teef.fastMode == true ? 14 : 0);
+            int h = this.container.fuelProgress * 13 / 100;
 
             this.drawTexturedModalRect(x + 34, y + 36 + 12 - h, 176 + uOffset, 12 - h, 14, h + 1);
         }
 
         // Draw the smelting progress arrow
-        if (this.teef.isActive == true)
+        if (this.container.smeltingProgress > 0)
         {
             int vOffset = 0;
-            int w = 0;
+            int w = this.container.smeltingProgress * 24 / 100;
 
-            if (this.teef.cookTimeFresh != 0)
+            if (this.teef.isBurningLast == true)
             {
-                w = this.teef.cookTime * 24 / this.teef.cookTimeFresh;
-            }
-
-            if (this.teef.usingFuel == true)
-            {
-                vOffset = 16;
-                if (this.teef.operatingMode == 1)
-                {
-                    vOffset = 32;
-                }
+                vOffset = (this.teef.fastMode == true ? 32 : 16);
             }
 
             this.drawTexturedModalRect(x + 57, y + 34, 176, 14 + vOffset, w, 16);
@@ -101,8 +90,8 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
 
     protected void createButtons()
     {
-        int modeOffset = (this.teef.operatingMode == 1 ? 16 : 0);
-        int outputOffset = (this.teef.outputMode == 1 ? 16 : 0);
+        int modeOffset = (this.teef.fastMode == true ? 16 : 0);
+        int outputOffset = (this.container.outputToEnderChest == true ? 16 : 0);
 
         this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, this.guiTexture, 200, 14 + modeOffset);
         this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, this.guiTexture, 200, 46 + outputOffset);

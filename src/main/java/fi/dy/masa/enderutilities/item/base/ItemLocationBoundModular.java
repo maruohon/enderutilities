@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,6 +19,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -33,13 +35,31 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == false && player != null && player.isSneaking() == true)
+        if (player != null && player.isSneaking() == true)
         {
-            boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-            this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
+            if (world.isRemote == false)
+            {
+                boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+                this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
+            }
+
+            return true;
         }
 
-        return true;
+        return false;
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
+    {
+        super.onUpdate(stack, world, entity, slot, isCurrent);
+
+        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimensionId()) == true &&
+            ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isUsingItem() == false || ((EntityPlayer)entity).getCurrentEquippedItem() != stack) &&
+            (world.provider.getDimensionId() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
+        {
+            UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
+        }
     }
 
     @Override
@@ -157,8 +177,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        addTooltips("enderutilities.tooltips.itemlocationboundmodular", list, verbose);
         super.addTooltips(stack, list, verbose);
+        addTooltips("enderutilities.tooltips.itemlocationboundmodular", list, verbose);
     }
 
     @Override

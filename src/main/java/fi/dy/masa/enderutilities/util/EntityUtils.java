@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
+import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
@@ -23,11 +25,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
-    public static EntityPlayer findPlayerFromUUID(UUID uuid)
+    public static EntityPlayer findPlayerByUUID(UUID uuid)
     {
         if (uuid == null)
         {
@@ -210,48 +213,66 @@ public class EntityUtils
     }
 
     /**
+     * Unmounts the riding entity from the passed in entity.
+     * Does not call Entity.mountEntity(null) but rather just sets he references to null.
+     * @param entity
+     */
+    public static void unmountRiderSimple(Entity entity)
+    {
+        if (entity.riddenByEntity != null)
+        {
+            entity.riddenByEntity.ridingEntity = null;
+        }
+
+        entity.riddenByEntity = null;
+    }
+
+    /**
      * Adds the persistenceRequired flag to entities, if they need it in order to not despawn.
      * The checks are probably at most accurate for vanilla entities.
      * @param livingBase
      * @return
      */
-    public static boolean applyMobPersistence(EntityLiving livingBase)
+    public static boolean applyMobPersistence(EntityLiving living)
     {
-        EntityLiving living = (EntityLiving) livingBase;
         if (living.isNoDespawnRequired() == false)
         {
-            boolean canDespawn = (living instanceof EntityMob) || (living instanceof EntityWaterMob);
-            canDespawn |= ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
+            boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) || (living instanceof EntityWaterMob) || ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 
-            Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "C", "func_70692_ba"});
-            try
+            if (canDespawn == false)
             {
-                Object o = method.invoke(living);
-                if (o instanceof Boolean)
+                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "C", "func_70692_ba"});
+                try
                 {
-                    canDespawn |= ((Boolean)o).booleanValue();
+                    Object o = method.invoke(living);
+                    if (o instanceof Boolean)
+                    {
+                        canDespawn = ((Boolean)o).booleanValue();
+                    }
                 }
-            }
-            catch (UnableToFindMethodException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (UnableToFindMethodException)");
-                e.printStackTrace();
-            }
-            catch (InvocationTargetException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (InvocationTargetException)");
-                e.printStackTrace();
-            }
-            catch (IllegalAccessException e)
-            {
-                EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (IllegalAccessException)");
-                e.printStackTrace();
+                catch (UnableToFindMethodException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (UnableToFindMethodException)");
+                    e.printStackTrace();
+                }
+                catch (InvocationTargetException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (InvocationTargetException)");
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e)
+                {
+                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (IllegalAccessException)");
+                    e.printStackTrace();
+                }
             }
 
             if (canDespawn == true)
             {
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
+                living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
+
                 return true;
             }
         }
@@ -315,37 +336,45 @@ public class EntityUtils
 
     /**
      * Adds the AI task 'task' to 'entity' after all the existing tasks of types in 'afterTasks' 
-     * @param entity
+     * @param living
      * @param task
      * @param afterTasks
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" } )
-    public static boolean addAITaskAfterTasks(EntityLiving entity, EntityAIBase task, Class[] afterTasks)
+    public static boolean addAITaskAfterTasks(EntityLiving living, EntityAIBase task, boolean replaceMatching, Class<? extends EntityAIBase>[] afterTasks)
     {
-        if (entity == null)
+        if (living == null)
         {
             return false;
         }
 
-        EntityAITasks tasks = entity.tasks;
-        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
+        int priority = -1;
+        EntityAITasks tasks = living.tasks;
+        Iterator<EntityAITaskEntry> taskEntryIter = tasks.taskEntries.iterator();
+
+        while (taskEntryIter.hasNext() == true)
         {
-            // If this entity already has our AI task, then do nothing
-            if (e.action.getClass() == task.getClass())
+            EntityAITaskEntry taskEntry = taskEntryIter.next();
+
+            // If this entity already has the same AI task
+            if (taskEntry.action.getClass() == task.getClass())
             {
+                // Replace the old matching task with the new instance
+                if (replaceMatching == true)
+                {
+                    int p = taskEntry.priority;
+                    tasks.removeTask(taskEntry.action);
+                    tasks.addTask(p, task);
+                }
+
                 return true;
             }
-        }
 
-        int priority = -1;
-        for (EntityAITaskEntry e : (List<EntityAITaskEntry>)tasks.taskEntries)
-        {
             for (Class<? extends EntityAIBase> clazz : afterTasks)
             {
-                if (priority <= e.priority && clazz.isAssignableFrom(e.action.getClass()))
+                if (priority <= taskEntry.priority && clazz == taskEntry.action.getClass())
                 {
-                    priority = e.priority + 1;
+                    priority = taskEntry.priority + 1;
                 }
             }
         }

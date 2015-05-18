@@ -96,9 +96,10 @@ public class EnderUtilitiesItems
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
-        ItemStack diamond_block = new ItemStack(Blocks.diamond_block);
+        //ItemStack diamond_block = new ItemStack(Blocks.diamond_block);
         ItemStack emerald = new ItemStack(Items.emerald);
-        ItemStack emerald_block = new ItemStack(Blocks.emerald_block);
+        //ItemStack emerald_block = new ItemStack(Blocks.emerald_block);
+        ItemStack egg = new ItemStack(Items.egg);
         ItemStack eye = new ItemStack(Items.ender_eye);
         ItemStack feather = new ItemStack(Items.feather);
         ItemStack gold = new ItemStack(Items.gold_ingot);
@@ -160,7 +161,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ARA", "ECE", 'E', eye, 'A', alloy2, 'R', new ItemStack(enderPorter, 1, 0), 'C', active_core2);
+            GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ACA", "EAE", 'E', eye, 'A', alloy2, 'C', active_core2);
         }
         if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
         {
@@ -190,12 +191,11 @@ public class EnderUtilitiesItems
         {
             ItemStack hoe = new ItemStack(enderTool, 1, 0);
             ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
-            //GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
-
         if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
         {
-            //GameRegistry.addRecipe(new ItemStack(enderSword), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderSword, 1, 0), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
         }
 
         // Parts, modules etc.
@@ -217,11 +217,11 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderCore1.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 11), "OAO", "AMA", "OAO", 'O', obsidian, 'A', alloy1, 'M', emerald_block);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 11), "OAO", "AEA", "OAO", 'O', obsidian, 'A', alloy1, 'E', emerald);
         }
         if (Configs.disableRecipePartEnderCore2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "OAO", "ADA", "OAO", 'O', obsidian, 'A', alloy2, 'D', diamond_block);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "OAO", "ADA", "OAO", 'O', obsidian, 'A', alloy2, 'D', diamond);
         }
         if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
@@ -229,7 +229,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderRelic.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 40), "ODO", "DCD", "ODO", 'O', obsidian, 'D', diamond, 'C', core2);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 40), "GEG", "ECE", "GEG", 'G', egg, 'E', emerald, 'C', core2);
         }
         if (Configs.disableRecipePartEnderRope.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {

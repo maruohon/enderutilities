@@ -242,6 +242,10 @@ public class NBTHelperPlayer
         return isOwnerOfItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType), player);
     }
 
+    /**
+     * Check if the given player is allowed to access this item.
+     * Returns true if there is no player information stored yet, or if the privacy mode is set to Public, or if the given player is the owner.
+     */
     public static boolean canAccessItem(ItemStack stack, EntityPlayer player)
     {
         if (stack == null)

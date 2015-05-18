@@ -21,6 +21,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
@@ -38,7 +39,7 @@ public class EnderUtilities
     {
         instance = this;
         logger = event.getModLog();
-        ConfigReader.loadConfigsAll(event.getModConfigurationDirectory());
+        ConfigReader.loadConfigsAll(event.getSuggestedConfigurationFile());
         proxy.registerKeyBindings();
         PacketHandler.init(); // Initialize network stuff
         EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
@@ -66,7 +67,8 @@ public class EnderUtilities
     @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
-        EnderUtilities.logger.info("Clearing chunk loading timeouts");
+        //EnderUtilities.logger.info("Clearing chunk loading timeouts");
         ChunkLoading.getInstance().init();
+        EnergyBridgeTracker.readFromDisk();
     }
 }

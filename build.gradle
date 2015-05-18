@@ -43,7 +43,7 @@ minecraft {
     ext.mod_version = "${config.mod_version}"
 
     if (mod_version.endsWith('-dev')) {
-        mod_version = mod_version + "-" + new Date().format('yyyyMMdd_HHmmss')
+        mod_version = mod_version + "-" + new Date().format('yyyy-MM-dd_HH-mm-ss')
     }
 
     replaceIn "reference/Reference.java"

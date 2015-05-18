@@ -28,14 +28,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.EnumMachine;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.client.resources.EnderUtilitiesModelRegistry;
@@ -145,6 +140,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         return null;
     }
 
+
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState iBlockState, EntityLivingBase placer, ItemStack stack)
     {
@@ -164,10 +160,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         }
         else
         {
-            if (placer instanceof EntityPlayer)
-            {
-                teeu.setOwner((EntityPlayer)placer);
-            }
+            teeu.setOwner(placer);
 
             if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
             {
@@ -177,34 +170,34 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
 
         // Update the rotation
         teeu.setRotation(placer.getHorizontalFacing().getOpposite().getIndex());
+
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
+        if (machine != null)
+        {
+            machine.onBlockPlacedBy(world, pos, placer, stack);
+        }
     }
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState iBlockState, EntityPlayer player, EnumFacing face, float offsetX, float offsetY, float offsetZ)
     {
-        PlayerInteractEvent e = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, pos, face, world);
-        if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
+        if (machine != null)
         {
-            return false;
+            return machine.onBlockActivated(world, pos, player, face, offsetX, offsetY, offsetZ);
         }
 
-        // TODO: Maybe this should be moved into the Machine class?
-        if (world.isRemote == false)
+        return false;
+    }
+
+    @Override
+    public void onBlockAdded(World world, BlockPos pos, IBlockState iBlockState)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
+        if (machine != null)
         {
-            TileEntity te = world.getTileEntity(pos);
-            if (te == null || te instanceof TileEntityEnderUtilities == false)
-            {
-                return false;
-            }
-
-            Machine machine = Machine.getMachine(this.blockIndex, world.getBlockState(pos).getBlock().getMetaFromState(iBlockState));
-            if (machine != null && machine.isTileEntityValid(te) == true)
-            {
-                player.openGui(EnderUtilities.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
-            }
+            machine.onBlockAdded(world, pos, iBlockState);
         }
-
-        return true;
     }
 
     @Override
@@ -238,6 +231,11 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
         }
 
         return super.getLightValue(world, pos);
+    }
+
+    public int getBlockIndex()
+    {
+        return this.blockIndex;
     }
 
     @SideOnly(Side.CLIENT)

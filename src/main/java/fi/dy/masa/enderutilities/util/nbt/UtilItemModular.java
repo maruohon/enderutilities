@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -352,7 +353,45 @@ public class UtilItemModular
     }
 
     /**
-     * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
+     * If the given modular item has an Ender Capacitor module installed,
+     * then the given amount of charge (or however much can be added) is added to the capacitor.
+     * In case of any errors, no charge will be added.
+     * @param stack
+     * @param amount
+     * @param doCharge True if we want to actually add charge, false if we want to just simulate it
+     * @return The amount of charge that was successfully added to the installed capacitor module
+     */
+    public static int addEnderCharge(ItemStack stack, int amount, boolean doCharge)
+    {
+        if ((stack.getItem() instanceof IModular) == false)
+        {
+            return 0;
+        }
+
+        ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
+        {
+            return 0;
+        }
+
+        IChargeable cap = (IChargeable) moduleStack.getItem();
+        if (cap.addCharge(moduleStack, amount, false) == 0)
+        {
+            return 0;
+        }
+
+        int added = 0;
+        if (doCharge == true)
+        {
+            added = cap.addCharge(moduleStack, amount, true);
+            setSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
+        }
+
+        return added;
+    }
+
+    /**
+     * If the given modular item has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
      * @param stack
@@ -394,28 +433,6 @@ public class UtilItemModular
     }
 
     /**
-     * If the player is in creative mode, then no charge will be required or drained, and true will be returned.
-     * Normally:
-     * If the given tool has an Ender Capacitor module installed, and the capacitor has sufficient charge,
-     * then the given amount of charge will be drained from it, and true is returned.
-     * In case of any errors, no charge will be drained and false is returned.
-     * @param stack
-     * @param player
-     * @param amount
-     * @param doUse
-     * @return
-     */
-    public static boolean useEnderCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
-    {
-        if (Configs.valueUseEnderCharge == false || (player != null && player.capabilities.isCreativeMode == true))
-        {
-            return true;
-        }
-
-        return useEnderCharge(stack, amount, doUse);
-    }
-
-    /**
      * Stores the player's current position as the Target tag to the currently selected Link Crystal in the modular item in toolStack.
      * @param stack The ItemStack containing the modular item
      * @param player The player that we get the position from.
@@ -423,11 +440,6 @@ public class UtilItemModular
      */
     public static void setTarget(ItemStack toolStack, EntityPlayer player, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-        {
-            return;
-        }
-
         int x = (int)player.posX;
         int y = (int)player.posY;
         int z = (int)player.posZ;
@@ -455,6 +467,11 @@ public class UtilItemModular
      */
     public static void setTarget(ItemStack toolStack, EntityPlayer player, BlockPos pos, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
+        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return;
+        }
+
         NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, face, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)

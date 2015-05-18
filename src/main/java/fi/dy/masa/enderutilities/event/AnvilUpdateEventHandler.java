@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 
 public class AnvilUpdateEventHandler
 {
@@ -21,33 +20,51 @@ public class AnvilUpdateEventHandler
             // Advanced Ender Alloy
             if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 2)
             {
-                ItemStack repaired = event.left.copy();
-
-                if (event.left.getItemDamage() > 0)
-                {
-                    event.materialCost = 1;
-                    event.cost = 15;
-                    int repairAmount = Math.min(ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED.getMaxUses(), event.left.getItemDamage());
-                    repaired.setItemDamage(event.left.getItemDamage() - repairAmount);
-
-                    if (StringUtils.isBlank(event.name) == false)
-                    {
-                        repaired.setStackDisplayName(event.name);
-                    }
-                    else if (StringUtils.isBlank(event.name) == true && repaired.hasDisplayName() == true)
-                    {
-                        // Remove the custom name
-                        repaired.clearCustomName();
-                    }
-
-                    event.output = repaired;
-                }
+                fullyRepairItem(event, 1, 15);
             }
             else if (event.right.getItem() != Items.enchanted_book)
             {
                 // Cancel vanilla behaviour, otherwise it would allow repairing tools with different types of tools (and lose the modules)
                 event.setCanceled(true);
             }
+        }
+        else if (event.left.getItem() == EnderUtilitiesItems.enderBow)
+        {
+            // Enhanced Ender Alloy
+            if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 1)
+            {
+                fullyRepairItem(event, 1, 15);
+            }
+            else if (event.right.getItem() != Items.enchanted_book)
+            {
+                // Cancel vanilla behaviour, otherwise it would allow repairing the bow with another bow (and lose the modules)
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    private static void fullyRepairItem(AnvilUpdateEvent event, int materialCost, int xpCost)
+    {
+        ItemStack repaired = event.left.copy();
+
+        if (event.left.getItemDamage() > 0)
+        {
+            event.materialCost = materialCost;
+            event.cost = xpCost;
+            int repairAmount = Math.min(event.left.getMaxDamage(), event.left.getItemDamage());
+            repaired.setItemDamage(event.left.getItemDamage() - repairAmount);
+
+            if (StringUtils.isBlank(event.name) == false)
+            {
+                repaired.setStackDisplayName(event.name);
+            }
+            else if (StringUtils.isBlank(event.name) == true && repaired.hasDisplayName() == true)
+            {
+                // Remove the custom name
+                repaired.clearCustomName();
+            }
+
+            event.output = repaired;
         }
     }
 }

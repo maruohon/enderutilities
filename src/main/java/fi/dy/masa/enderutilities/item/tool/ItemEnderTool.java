@@ -20,6 +20,7 @@ import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -28,6 +29,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -42,11 +44,17 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IRegistry;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
+import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -78,6 +86,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -140,8 +149,28 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             UtilItemModular.setTarget(stack, player, pos, face, hitX, hitY, hitZ, false, false);
         }
+        // Hoe
+        else if (this.getToolType(stack).equals(ToolType.HOE) == true)
+        {
+            if (this.isToolPowered(stack) == true)
+            {
+                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                if (this.useHoeArea(stack, player, world, pos, face, 1, 1) == false)
+                {
+                    this.useHoeToPlantArea(stack, player, world, pos, face, hitX, hitY, hitZ, 1, 1);
+                }
+            }
+            else
+            {
+                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                if (this.useHoe(stack, player, world, pos, face) == false)
+                {
+                    this.useHoeToPlant(stack, player, world, pos, face, hitX, hitY, hitZ);
+                }
+            }
+        }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (player != null)
+        else if (player != null && (player instanceof FakePlayer) == false)
         {
             int origSlot = player.inventory.currentItem;
             int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
@@ -168,139 +197,185 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return true;
     }
 
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
     {
-        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
-        String preBlue = EnumChatFormatting.BLUE.toString();
+        super.onUpdate(stack, world, player, slot, isCurrent);
 
-        // Drops mode
-        byte mode = this.getToolModeByName(stack, "DropsMode");
-        String str = (mode == 0 ? "enderutilities.tooltip.item.normal" : mode == 1 ? "enderutilities.tooltip.item.endertool.playerinv" : "enderutilities.tooltip.item.endertool.remote");
-        str = StatCollector.translateToLocal(str);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
-
-        // Dig mode (normal/fast)
-        mode = this.getToolModeByName(stack, "DigMode");
-        str = (mode == 0 ? "enderutilities.tooltip.item.normal" : "enderutilities.tooltip.item.fast");
-        str = StatCollector.translateToLocal(str);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
-
-        // Installed Ender Core type
-        str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
-        if (coreTier >= 0)
+        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimensionId()) == true &&
+            (world.provider.getDimensionId() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
         {
-            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
-            coreType = StatCollector.translateToLocal(coreType);
-            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+            UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
         }
-        else
-        {
-            String preRed = EnumChatFormatting.RED.toString();
-            str += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.none") + rst;
-        }
-        list.add(str);
+    }
 
-        // Link Crystals installed
-        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+    public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, int rWidth, int rHeight)
+    {
+        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean retValue = false;
+
+        if (northSouth == false)
         {
-            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-            // Valid target set in the currently selected Link Crystal
-            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            int tmp = rWidth;
+            rWidth = rHeight;
+            rHeight = tmp;
+        }
+
+        for (int x = pos.getX() - rWidth; x <= (pos.getX() + rWidth); ++x)
+        {
+            for (int z = pos.getZ() - rHeight; z <= (pos.getZ() + rHeight); ++z)
             {
-                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+                retValue |= this.useHoe(stack, player, world, new BlockPos(x, pos.getY(), z), face);
+            }
+        }
+
+        return retValue;
+    }
+
+    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face)
+    {
+        if (player.canPlayerEdit(pos, face, stack) == false)
+        {
+            return false;
+        }
+
+        UseHoeEvent event = new UseHoeEvent(player, stack, world, pos);
+        if (MinecraftForge.EVENT_BUS.post(event))
+        {
+            return false;
+        }
+
+        if (event.getResult() == Result.ALLOW)
+        {
+            this.addToolDamage(stack, 1, player, player);
+            return true;
+        }
+
+        Block block = world.getBlockState(pos).getBlock();
+        if (face.equals(EnumFacing.DOWN) == false && world.isAirBlock(pos.up()) && (block == Blocks.grass || block == Blocks.dirt))
+        {
+            if (world.isRemote == false)
+            {
+                Block blockFarmland = Blocks.farmland;
+                world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, blockFarmland.stepSound.getStepSound(), (blockFarmland.stepSound.getVolume() + 1.0f) / 2.0f, blockFarmland.stepSound.getFrequency() * 0.8f);
+
+                world.setBlockState(pos, blockFarmland.getDefaultState());
+                this.addToolDamage(stack, 1, player, player);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
+    {
+        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean retValue = false;
+
+        if (northSouth == false)
+        {
+            int tmp = rWidth;
+            rWidth = rHeight;
+            rHeight = tmp;
+        }
+
+        for (int x = pos.getX() - rWidth; x <= (pos.getX() + rWidth); ++x)
+        {
+            for (int z = pos.getZ() - rHeight; z <= (pos.getZ() + rHeight); ++z)
+            {
+                retValue |= this.useHoeToPlant(stack, player, world, new BlockPos(x, pos.getY(), z), face, hitX, hitY, hitZ);
+            }
+        }
+
+        return retValue;
+    }
+
+    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
+    {
+        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == false)
+        {
+            return false;
+        }
+
+        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+
+        if (inv != null)
+        {
+            if (inv instanceof ISidedInventory)
+            {
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                ISidedInventory sided = (ISidedInventory) inv;
+                int[] slots = sided.getSlotsForFace(target.facing);
+                for (int slotNum : slots)
+                {
+                    if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.facing) == true
+                        && this.plantItemFromInventorySlot(world, player, sided, slotNum, pos, face, hitX, hitY, hitZ) == true)
+                    {
+                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+
+                        PacketHandler.INSTANCE.sendToAllAround(
+                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                                new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+                    }
+                }
             }
             else
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+                int size = inv.getSizeInventory();
+                for (int slotNum = 0; slotNum < size; ++slotNum)
+                {
+                    if (this.plantItemFromInventorySlot(world, player, inv, slotNum, pos, face, hitX, hitY, hitZ) == true)
+                    {
+                        // Use Ender Charge if planting from a remote inventory
+                        if (this.getToolModeByName(toolStack, "DropsMode") == 2)
+                        {
+                            UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                        }
+
+                        PacketHandler.INSTANCE.sendToAllAround(
+                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                                new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+                    }
+                }
             }
-
-            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
-            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
-            String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
-        }
-        else
-        {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
-        // Capacitor installed
-        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
-        {
-            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
-        }
+        return false;
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IInventory inv, int slotNum, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
-        ArrayList<String> tmpList = new ArrayList<String>();
-        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
-
-        // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
-        // We check for the ench and Items tags so that creative spawned items won't show the tooltip
-        // once they have some other NBT data on them
-        if (stack != null && stack.getTagCompound() != null && stack.getTagCompound().getBoolean("AddTooltips")
-            && stack.getTagCompound().hasKey("ench") == false && stack.getTagCompound().hasKey("Items") == false)
+        ItemStack plantStack = inv.getStackInSlot(slotNum);
+        if (plantStack != null && plantStack.getItem() instanceof IPlantable)
         {
-            this.addTooltips(stack, tmpList, verbose);
-
-            if (verbose == false && tmpList.size() > 1)
+            ItemStack newStack = plantStack.copy();
+            if (newStack.onItemUse(player, world, pos, face, hitX, hitY, hitZ) == true)
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
-            }
-            else
-            {
-                list.addAll(tmpList);
-            }
-            return;
-        }
+                if (newStack.stackSize > 0)
+                {
+                    inv.setInventorySlotContents(slotNum, newStack);
+                }
+                else
+                {
+                    inv.setInventorySlotContents(slotNum, null);
+                }
 
-        tmpList.clear();
-        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+                inv.markDirty();
 
-        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
-        // plus the "Hold Shift for more" tooltip.
-        if (verbose == false && tmpList.size() > 2)
-        {
-            tmpList.clear();
-            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
-            list.add(tmpList.get(0));
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
-        }
-        else
-        {
-            list.addAll(tmpList);
-        }
-        //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
-    }
+                if (inv instanceof InventoryPlayer)
+                {
+                    player.inventoryContainer.detectAndSendChanges();
+                }
 
-    @SideOnly(Side.CLIENT)
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        ItemStack stack;
-        if (Configs.disableItemEnderTools.getBoolean(false) == false)
-        {
-            for (int i = 0; i <= 3; i++)
-            {
-                stack = new ItemStack(this, 1, 0);
-                this.setToolType(stack, ToolType.valueOf(i));
-                stack.getTagCompound().setBoolean("AddTooltips", true);
-                list.add(stack);
+                return true;
             }
         }
+
+        return false;
     }
 
     @Override
@@ -394,22 +469,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
 
-    /**
-     * Return the maxDamage for this ItemStack. Defaults to the maxDamage field in this item, 
-     * but can be overridden here for other sources such as NBT.
-     *
-     * @param stack The itemstack that is damaged
-     * @return the damage value
-     */
     @Override
     public int getMaxDamage(ItemStack stack)
     {
-        /**
-         * Returns the maximum damage an item can take.
-         */
-        //return this.func_150913_i().getMaxUses();
         return this.material.getMaxUses();
-        //return 5;
     }
 
     public boolean isToolBroken(ItemStack stack)
@@ -422,8 +485,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    @Override
-    public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
+    public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
@@ -431,7 +493,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return false;
         }
 
-        int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
+        amount = Math.min(amount, this.getMaxDamage(stack) - stack.getItemDamage());
         stack.damageItem(amount, living2);
 
         // Tool just broke
@@ -441,6 +503,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         return true;
+    }
+
+    @Override
+    public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
+    {
+        return this.addToolDamage(stack, 2, living1, living2);
     }
 
     @Override
@@ -457,32 +525,84 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
         if (this.isToolBroken(stack) == false && block.getBlockHardness(world, pos) > 0.0f)
         {
-            int dmg = 1;
-
             // Fast mode uses double the durability
-            if (this.getToolModeByName(stack, "DigMode") == 1)
-            {
-                dmg = 2;
-            }
+            int dmg = (this.getToolModeByName(stack, "Powered") == 1 ? 2 : 1);
 
-            dmg = Math.min(dmg, this.getMaxDamage(stack) - stack.getItemDamage());
-            stack.damageItem(dmg, living);
-
-            // Tool just broke
-            if (this.isToolBroken(stack) == true)
-            {
-                living.renderBrokenItemStack(stack);
-            }
-
-            return true;
+            return this.addToolDamage(stack, dmg, living, living);
         }
 
         return false;
     }
 
+    private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
+    {
+        byte mode = this.getToolModeByName(toolStack, "DropsMode");
+        // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
+
+        // 0: normal mode; do nothing
+        if (mode == 0)
+        {
+            return null;
+        }
+
+        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
+        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        {
+            return player.inventory;
+        }
+
+        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
+        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
+                && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
+            {
+                return null;
+            }
+
+            // Bound to a vanilla Ender Chest
+            if ("minecraft:ender_chest".equals(target.blockName) == true)
+            {
+                return player.getInventoryEnderChest();
+            }
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return null;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return null;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            TileEntity te = targetWorld.getTileEntity(new BlockPos(target.posX, target.posY, target.posZ));
+            // Block has changed since binding, or does not implement IInventory, abort
+            if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+            {
+                // Remove the bind
+                NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+                return null;
+            }
+
+            return (IInventory) te;
+        }
+
+        return null;
+    }
+
     public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
     {
-        if (event.world == null || event.world.isRemote == true)
+        if (this.isToolBroken(toolStack) == true || event.world == null || event.world.isRemote == true)
         {
             return;
         }
@@ -500,114 +620,77 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         boolean isSilk = event.isSilkTouching;
         int numDropsOriginal = event.drops.size();
 
-        // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == 1 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        if (inv != null)
         {
             Iterator<ItemStack> iter = event.drops.iterator();
-            while (iter.hasNext() == true)
-            {
-                ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                {
-                    if (player.inventory.addItemStackToInventory(stack.copy()) == true)
-                    {
-                        iter.remove();
-                    }
-                }
-            }
-        }
 
-        // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
-        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, false) == true)
-        {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-            // Bound to a vanilla Ender Chest
-            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK
-                && target != null && "minecraft:ender_chest".equals(target.blockName) == true)
+            if (inv instanceof InventoryPlayer)
             {
-                Iterator<ItemStack> iter = event.drops.iterator();
                 while (iter.hasNext() == true)
                 {
                     ItemStack stack = iter.next();
                     if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        if (InventoryUtils.tryInsertItemStackToInventory(player.getInventoryEnderChest(), stack.copy(), target.facing) == true)
+                        if (player.inventory.addItemStackToInventory(stack.copy()) == true)
                         {
                             iter.remove();
                         }
                     }
                 }
             }
-            // Bound to regular inventories
             else
             {
-                // For cross-dimensional item teleport we require the third tier of active Ender Core
-                if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                    || target == null || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+                while (iter.hasNext() == true)
                 {
-                    return;
-                }
-
-                World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-                if (targetWorld == null)
-                {
-                    return;
-                }
-
-                // Chunk load the target for 30 seconds
-                ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
-
-                // Block/inventory type link crystal
-                if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
-                {
-                    TileEntity te = targetWorld.getTileEntity(target.pos);
-
-                    // Block has changed since binding, or does not implement IInventory, abort
-                    if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+                    ItemStack stack = iter.next();
+                    if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        // Remove the bind
-                        NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                        player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
-                        return;
-                    }
-
-                    if (te instanceof IInventory)
-                    {
-                        Iterator<ItemStack> iter = event.drops.iterator();
-                        while (iter.hasNext() == true)
+                        if (InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.facing) == true)
                         {
-                            ItemStack stack = iter.next();
-                            if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                            {
-                                if (InventoryUtils.tryInsertItemStackToInventory((IInventory) te, stack.copy(), target.facing) == true)
-                                {
-                                    iter.remove();
-                                }
-                            }
+                            iter.remove();
                         }
                     }
                 }
-                // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-                else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
-                {
-                    Iterator<ItemStack> iter = event.drops.iterator();
-                    while (iter.hasNext() == true)
-                    {
-                        ItemStack stack = iter.next();
-                        if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
-                        {
-                            EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
-                            entityItem.motionX = entityItem.motionZ = 0.0d;
-                            entityItem.motionY = 0.15d;
+            }
+        }
+        // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+        else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+        {
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
-                            if (targetWorld.spawnEntityInWorld(entityItem) == true)
-                            {
-                                Particles.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
-                                iter.remove();
-                            }
-                        }
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            {
+                return;
+            }
+
+            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (targetWorld == null)
+            {
+                return;
+            }
+
+            // Chunk load the target for 30 seconds
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+
+            Iterator<ItemStack> iter = event.drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                ItemStack stack = iter.next();
+                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                {
+                    EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
+                    entityItem.motionX = entityItem.motionZ = 0.0d;
+                    entityItem.motionY = 0.15d;
+
+                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                    {
+                        Particles.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        iter.remove();
                     }
                 }
             }
@@ -619,7 +702,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             // Transported the drops to somewhere remote
             if (mode == 2)
             {
-                UtilItemModular.useEnderCharge(toolStack, player, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
             double x = event.pos.getX();
@@ -627,7 +710,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             double z = event.pos.getZ();
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), x, y, z, 24.0d));
+                    x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d),
+                        new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), x, y, z, 24.0d));
         }
 
         // All items successfully transported somewhere, cancel the drops
@@ -635,6 +719,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             event.dropChance = 0.0f;
         }
+    }
+
+    @Override
+    public boolean canHarvestBlock(Block block)
+    {
+        return false;
     }
 
     @Override
@@ -654,18 +744,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return 1.0f;
     }
 
-    @Override
-    public boolean canHarvestBlock(Block block)
-    {
-        return false;
-    }
-
-    /**
-     * ItemStack sensitive version of {@link #canHarvestBlock(Block)}
-     * @param par1Block The block trying to harvest
-     * @param itemStack The itemstack used to harvest the block
-     * @return true if can harvest the block
-     */
     @Override
     public boolean canHarvestBlock(Block block, ItemStack stack)
     {
@@ -717,16 +795,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         //System.out.println("canHarvestBlock(): false");
+        //return func_150897_b(block);
         return false;
     }
 
-    /**
-     * Metadata-sensitive version of getStrVsBlock
-     * @param itemstack The Item Stack
-     * @param block The block the item is trying to break
-     * @param metadata The items current metadata
-     * @return The damage strength
-     */
     @Override
     public float getDigSpeed(ItemStack stack, IBlockState iBlockState)
     {
@@ -747,7 +819,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // 34 is the minimum to allow instant mining with just Efficiency V (= no beacon/haste) on cobble,
         // 124 is the minimum for iron blocks @ hardness 5.0f (which is about the highest of "normal" blocks), 1474 on obsidian.
         // So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
-        if (this.getToolModeByName(stack, "DigMode") == 1)
+        if (this.getToolModeByName(stack, "Powered") == 1)
         {
             if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
             {
@@ -760,14 +832,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
         }
 
-        //if (ForgeHooks.isToolEffective(stack) == true) // FIXME 1.8 update wtf, how can we use this anymore without world and BlockPos?
+        //if (ForgeHooks.isToolEffective(stack, block, meta))
         if (block.isToolEffective(this.getToolClass(stack), iBlockState) == true)
         {
             //System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
             return eff;
         }
 
-        if (this.canHarvestBlock(block, stack) == true)
+        if (this.canHarvestBlock(block, stack))
         {
             //System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
             return eff;
@@ -777,31 +849,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return super.getDigSpeed(stack, iBlockState);
     }
 
-    /**
-     * Queries the harvest level of this item stack for the specified tool class,
-     * Returns -1 if this tool is not of the specified type
-     * 
-     * @param stack This item stack instance
-     * @param toolClass Tool Class
-     * @return Harvest level, or -1 if not the specified tool type.
-     */
     @Override
     public int getHarvestLevel(ItemStack stack, String toolClass)
     {
         //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
-        if (stack == null)
+        if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(this.getToolClass(stack)) == true)
         {
-            return -1;
-        }
-
-        if (this.isToolBroken(stack) == true)
-        {
-            return -1;
-        }
-
-        if (toolClass.equals(this.getToolClass(stack)) == true)
-        {
-            return this.getToolMaterial().getHarvestLevel();
+            return this.material.getHarvestLevel();
         }
 
         return -1;
@@ -834,14 +888,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return multimap;
     }
 
-    public void changeDigMode(ItemStack stack)
+    public boolean isToolPowered(ItemStack stack)
     {
-        byte mode = this.getToolModeByName(stack, "DigMode");
+        return this.getToolModeByName(stack, "Powered") == 1;
+    }
+
+    public void changePoweredMode(ItemStack stack)
+    {
+        byte mode = this.getToolModeByName(stack, "Powered");
         if (++mode > 1)
         {
             mode = 0;
         }
-        this.setToolModeByName(stack, "DigMode", mode);
+        this.setToolModeByName(stack, "Powered", mode);
     }
 
     public void changeDropsMode(ItemStack stack)
@@ -875,7 +934,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Just Toggle mode key: Change the dig mode
         if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            this.changeDigMode(stack);
+            this.changePoweredMode(stack);
         }
         // Shift + (Ctrl + ) Toggle mode
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
@@ -1087,6 +1146,150 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
 
             return INVALID;
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
+
+        // Drops mode
+        byte mode = this.getToolModeByName(stack, "DropsMode");
+        String str = (mode == 0 ? "enderutilities.tooltip.item.normal" : mode == 1 ? "enderutilities.tooltip.item.endertool.playerinv" : "enderutilities.tooltip.item.endertool.remote");
+        str = StatCollector.translateToLocal(str);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
+
+        if (this.getToolType(stack).equals(ToolType.HOE) == true)
+        {
+            str = (this.isToolPowered(stack) ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
+            str = StatCollector.translateToLocal(str);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
+        }
+        else
+        {
+            // Dig mode (normal/fast)
+            str = (this.isToolPowered(stack) ? "enderutilities.tooltip.item.fast" : "enderutilities.tooltip.item.normal");
+            str = StatCollector.translateToLocal(str);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
+        }
+
+        // Installed Ender Core type
+        str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
+        if (coreTier >= 0)
+        {
+            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            coreType = StatCollector.translateToLocal(coreType);
+            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+        }
+        else
+        {
+            String preRed = EnumChatFormatting.RED.toString();
+            str += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.none") + rst;
+        }
+        list.add(str);
+
+        // Link Crystals installed
+        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+        {
+            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+            // Valid target set in the currently selected Link Crystal
+            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            {
+                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+            }
+            else
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+            }
+
+            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+            int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+            String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+        }
+
+        // Capacitor installed
+        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        {
+            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    {
+        ArrayList<String> tmpList = new ArrayList<String>();
+        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
+
+        // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
+        // We check for the ench and Items tags so that creative spawned items won't show the tooltip
+        // once they have some other NBT data on them
+        if (stack != null && stack.getTagCompound() != null && stack.getTagCompound().getBoolean("AddTooltips")
+            && stack.getTagCompound().hasKey("ench") == false && stack.getTagCompound().hasKey("Items") == false)
+        {
+            this.addTooltips(stack, tmpList, verbose);
+
+            if (verbose == false && tmpList.size() > 1)
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+            }
+            else
+            {
+                list.addAll(tmpList);
+            }
+            return;
+        }
+
+        tmpList.clear();
+        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
+        // plus the "Hold Shift for more" tooltip.
+        if (verbose == false && tmpList.size() > 2)
+        {
+            tmpList.clear();
+            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            list.add(tmpList.get(0));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
+        }
+        else
+        {
+            list.addAll(tmpList);
+        }
+        //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        ItemStack stack;
+        if (Configs.disableItemEnderTools.getBoolean(false) == false)
+        {
+            for (int i = 0; i <= 3; i++)
+            {
+                stack = new ItemStack(this, 1, 0);
+                this.setToolType(stack, ToolType.valueOf(i));
+                stack.getTagCompound().setBoolean("AddTooltips", true);
+                list.add(stack);
+            }
         }
     }
 

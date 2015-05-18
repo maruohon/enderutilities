@@ -21,6 +21,8 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
+    public static final int CHARGE_RATE_FROM_ENERGY_BRIDGE = 100;
+
     public ItemEnderCapacitor()
     {
         super();
@@ -36,7 +38,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         // Damage 0: Ender Capacitor (Basic)
         // Damage 1: Ender Capacitor (Enhanced)
         // Damage 2: Ender Capacitor (Advanced)
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        // Damage 3: Ender Capacitor (Creative)
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
         {
             return super.getUnlocalizedName() + "." + stack.getItemDamage();
         }
@@ -44,33 +47,18 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return super.getUnlocalizedName();
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        for (int i = 0; i <= 2; i++)
-        {
-            list.add(new ItemStack(this, 1, i));
-
-            // Add a fully charged version for creative tab and NEI
-            ItemStack tmp = new ItemStack(this, 1, i);
-            this.addCharge(tmp, this.getCapacityFromItemType(tmp), true);
-            list.add(tmp);
-        }
-    }
-
     public int getCapacityFromItemType(ItemStack stack)
     {
-        if (stack.getItemDamage() == 0) { return 10000; } // Basic
-        if (stack.getItemDamage() == 1) { return 100000; } // Enhanced
-        if (stack.getItemDamage() == 2) { return 500000; } // Advanced
+        int dmg = stack.getItemDamage();
+        if (dmg == 0) { return 10000; } // Basic
+        if (dmg == 1) { return 100000; } // Enhanced
+        if (dmg == 2) { return 500000; } // Advanced
+        if (dmg == 3) { return 1000000000; } // Creative
         return 10000; // Basic
     }
 
-    @Override
-    public int getCapacity(ItemStack stack)
+    private int getCapacity(ItemStack stack, NBTTagCompound nbt)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null || nbt.hasKey("EnderChargeCapacity", Constants.NBT.TAG_INT) == false)
         {
             return this.getCapacityFromItemType(stack);
@@ -80,16 +68,32 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @Override
+    public int getCapacity(ItemStack stack)
+    {
+        return this.getCapacity(stack, stack.getTagCompound());
+    }
+
+    private void setCapacity(NBTTagCompound nbt, int capacity)
+    {
+        nbt.setInteger("EnderChargeCapacity", capacity);
+    }
+
+    @Override
     public void setCapacity(ItemStack stack, int capacity)
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
         }
 
-        nbt.setInteger("EnderChargeCapacity", capacity);
-        stack.setTagCompound(nbt);
+        this.setCapacity(nbt, capacity);
+    }
+
+    private int getCharge(NBTTagCompound nbt)
+    {
+        return nbt.getInteger("EnderChargeAmount");
     }
 
     @Override
@@ -101,14 +105,32 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return 0;
         }
 
-        return nbt.getInteger("EnderChargeAmount");
+        return this.getCharge(nbt);
+    }
+
+    private void setCharge(NBTTagCompound nbt, int value)
+    {
+        nbt.setInteger("EnderChargeAmount", value);
     }
 
     @Override
     public int addCharge(ItemStack stack, int amount, boolean doCharge)
     {
-        int charge = this.getCharge(stack);
-        int capacity = this.getCapacity(stack);
+       // Creative capacitor, don't allow actually re-charging (but accept infinite charge)
+        if (stack.getItemDamage() == 3)
+        {
+            return amount;
+        }
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            stack.setTagCompound(nbt);
+        }
+
+        int charge = this.getCharge(nbt);
+        int capacity = this.getCapacity(stack, nbt);
 
         if ((capacity - charge) < amount)
         {
@@ -117,14 +139,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
         if (doCharge == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt == null)
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            nbt.setInteger("EnderChargeAmount", charge + amount);
-            stack.setTagCompound(nbt);
+            this.setCharge(nbt, charge + amount);
         }
 
         return amount;
@@ -133,7 +148,19 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public int useCharge(ItemStack stack, int amount, boolean doUse)
     {
-        int charge = this.getCharge(stack);
+        // Creative capacitor, allow using however much is charge is requested, unless this is a completely empty capacitor
+        if (stack.getItemDamage() == 3 && this.getCharge(stack) > 0)
+        {
+            return amount;
+        }
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null)
+        {
+            return 0;
+        }
+
+        int charge = this.getCharge(nbt);
 
         if (charge < amount)
         {
@@ -142,29 +169,10 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
         if (doUse == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt == null)
-            {
-                nbt = new NBTTagCompound();
-            }
-
-            nbt.setInteger("EnderChargeAmount", charge - amount);
-            stack.setTagCompound(nbt);
+            this.setCharge(nbt, charge - amount);
         }
 
         return amount;
-    }
-
-    @Override
-    public int useCharge(ItemStack stack, EntityPlayer player, int amount, boolean doUse)
-    {
-        // Don't use or require charge in creative mode
-        if (player.capabilities.isCreativeMode == true)
-        {
-            return amount;
-        }
-
-        return this.useCharge(stack, amount, doUse);
     }
 
     @Override
@@ -187,7 +195,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
         {
             return ModuleType.TYPE_ENDERCAPACITOR;
         }
@@ -198,7 +206,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public int getModuleTier(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
         {
             return stack.getItemDamage();
         }
@@ -208,15 +216,32 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     @SideOnly(Side.CLIENT)
     @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        for (int i = 0; i <= 3; i++)
+        {
+            list.add(new ItemStack(this, 1, i));
+
+            // Add a fully charged version for creative tab and NEI
+            ItemStack tmp = new ItemStack(this, 1, i);
+            tmp.setTagCompound(new NBTTagCompound());
+            this.setCharge(tmp.getTagCompound(), this.getCapacityFromItemType(tmp));
+            list.add(tmp);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
     public void registerVariants()
     {
-        // TODO add locked textures
         this.addVariants(   this.name + ".empty.0",
                             this.name + ".empty.1",
                             this.name + ".empty.2",
+                            this.name + ".empty.3",
                             this.name + ".charged.0",
                             this.name + ".charged.1",
-                            this.name + ".charged.2");
+                            this.name + ".charged.2",
+                            this.name + ".charged.3");
     }
 
     @SideOnly(Side.CLIENT)
@@ -225,11 +250,11 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     {
         int index = stack.getItemDamage();
 
-        if (index >= 0 && index <= 2)
+        if (index >= 0 && index <= 3)
         {
             if (this.getCharge(stack) > 0)
             {
-                index += 3;
+                index += 4;
             }
         }
 

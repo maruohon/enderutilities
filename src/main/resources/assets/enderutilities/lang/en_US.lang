@@ -22,6 +22,17 @@ enderutilities.container.toolworkstation=Tool Workstation
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.toolworkstation.name=Ender Tool Workstation
+tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
+tile.enderutilities.energybridge.receiver.name=Energy Bridge Receiver
+tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
+
+
+#############
+# Entities:
+#############
+entity.enderutilities.enderarrow.name=Ender Arrow
+entity.enderutilities.endermanfighter.name=Ender Fighter
+entity.enderutilities.enderpearlreusable.name=Reusable Ender Pearl
 
 
 #############
@@ -35,6 +46,7 @@ item.enderutilities.enderbucket.name=Ender Bucket
 item.enderutilities.endercapacitor.0.name=Ender Capacitor (Basic)
 item.enderutilities.endercapacitor.1.name=Ender Capacitor (Enhanced)
 item.enderutilities.endercapacitor.2.name=Ender Capacitor (Advanced)
+item.enderutilities.endercapacitor.3.name=Ender Capacitor (Creative)
 item.enderutilities.enderlasso.name=Ender Lasso
 item.enderutilities.enderpart.enderalloy.0.name=Ender Alloy (Basic)
 item.enderutilities.enderpart.enderalloy.1.name=Ender Alloy (Enhanced)
@@ -71,19 +83,19 @@ item.enderutilities.mobharness.name=Mob Harness
 ####################
 # All modular items:
 ####################
-enderutilities.tooltips.itemlocationboundmodular=- Shift + Toggle mode key to cycle|lf  the selected link crystal forward or|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Ctrl + mouse wheel while|lf  holding the item does the same, easier :)
+enderutilities.tooltips.itemlocationboundmodular=- Sneak + right click to bind|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Shift + Toggle mode key to cycle|lf  the selected link crystal forward or|lf  Shift + Ctrl + Toggle mode key to cycle backwards|lf- Ctrl + mouse wheel while|lf  holding the item does the same, easier :)|lf- Alt + Toggle mode to toggle public/private|lf  Note: privacy is stored per Link Crystal!
 
 ###################
 # Individual items:
 ###################
-item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis anyone?)
-item.enderutilities.enderbag.tooltips=- Sneak + right click to bind|lf- Alt + Toggle mode key to toggle Public/Private|lf- Only properly works with some vanilla blocks atm
-item.enderutilities.enderbow.tooltips=- Sneak + right click to bind|lf- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning
+item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis maybe?)
+item.enderutilities.enderbag.tooltips=- Only properly works with some vanilla blocks atm
+item.enderutilities.enderbow.tooltips=- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning|lf- Repair in an Anvil with Enhanced Ender Alloy
 item.enderutilities.enderbucket.tooltips=- Toggle mode key to cycle the operation mode|lf- Sneak + right click binds to tanks (in bind mode)|lf- Ctrl + Toggle mode key to switch between|lf  regular operation and linked to tanks|lf- Tank mode chunk loads for 30 seconds on use|lf- In normal mode: right clicking a tank|lf  takes fluid from the tank and|lf  sneak + right clicking puts fluid to the tank
-item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Ender Dimensional Anchor *WIP*
-item.enderutilities.enderlasso.tooltips=- Sneak + right click to bind|lf- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent mobs from despawning
+item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.enderlasso.tooltips=- Right click to teleport mobs|lf- Add a mob persistence module|lf  to prevent mobs from despawning
 item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal with inactive version
 item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal with inactive version
 item.enderutilities.enderpart.endercore.2.active.tooltips=- Right click an Ender Crystal with inactive version
@@ -93,22 +105,25 @@ item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an End
 item.enderutilities.enderpart.enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on the Bedrock block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires a least a 3x3x6 base|lf  of Obsidian under a block of Bedrock|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals elsewhere
 item.enderutilities.enderpart.mobpersistence.tooltips=- Right click on a mob to prevent it from despawning|lf- Install to an Ender Bow or Lasso to achieve the same|lf- Right clicking uses the item, Bow and Lasso don't
 item.enderutilities.enderpearlreusable.elite.tooltips=Lets you fly! w00t!
-item.enderutilities.enderporter.tooltips=- Sneak + right click to bind|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Player teleportation inside the same dimension|lf- Not single-use anymore!
-item.enderutilities.enderporter.advanced.tooltips=- Sneak + right click to bind|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Player teleportation cross-dimensionally
+item.enderutilities.enderporter.tooltips=- Player teleportation inside the same dimension|lf- Not single-use anymore!|lf- Hold right click until "charged" and then release
+item.enderutilities.enderporter.advanced.tooltips=- Player teleportation cross-dimensionally|lf- Hold right click until "charged" and then release
 item.enderutilities.endertool.enderpickaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
 item.enderutilities.endertool.enderaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
 item.enderutilities.endertool.endershovel.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Ctrl + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
-item.enderutilities.endertool.enderhoe.tooltips=*WIP*
-item.enderutilities.endersword.tooltips=*WIP*
-item.enderutilities.linkcrystal.0.tooltips=- Sneak + right click to bind to a location|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
-item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a block|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
+item.enderutilities.endertool.enderhoe.tooltips=- Can till and plant a 3x3 area in the "Fast" mode|lf- Can plant crops from player or linked inventory|lf  (to plant right click on the farmland|lf  and have something to plant in your|lf  inventory or the linked inventory)|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Toggle mode key: toggle between 1x1 and 3x3 mode|lf- Ctrl + Toggle mode: cycle the inventory mode|lf  - Normal: No special functionality|lf  - Player: items will be inserted into/taken from the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to/from|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
+item.enderutilities.endersword.tooltips=- The sword will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Ctrl + Toggle mode: cycle the sword mode|lf  - Normal: no special functionality|lf  - Player: drops from killed mobs will be inserted|lf    directly to the player's inventory, if possible.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf  - Summon: Does minimal direct damage, spawns up to 3|lf    new Ender Fighters to attack the target.|lf- The Ender Fighters start to rage and attack players|lf  if there is no player holding an Ender Sword|lf  in the Summon mode within 32 blocks.|lf- Idle Ender Fighters disappear sometime after 10 seconds.|lf- Using a Name Tag on them makes them peaceful.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)|lf- Sneak + right click to bind to inventories|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position
+item.enderutilities.linkcrystal.0.tooltips=- Sneak + right click to bind to a location|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
+item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a block|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
 item.enderutilities.linkcrystal.2.tooltips=*WIP*
 item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you|lf- Tip: If riding a Creeper, don't|lf  let it see you before mounting it!
 
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
-tile.enderutilities.toolworkstation.tooltips=- Used to manipulate the modules in modular items
+tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items
 
+tile.enderutilities.energybridge.transmitter.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Transmitter in The End|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Build the Transmitter around an Ender Crystal|lf  (on top of the Obsidian pillars in The End)|lf- Leave two blocks of air above the Crystal|lf  and then place the Transmitter|lf- Place four Resonators on the same level as|lf  the Ender Crystal, two blocks of air between them|lf- The Resonators must face the Crystal|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  the Transmitter all the way up to the sky
+tile.enderutilities.energybridge.receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
+tile.enderutilities.energybridge.resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
 
 ###################################
 # GUI and item labels/tooltips etc:
@@ -124,6 +139,8 @@ enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.tooltip.dimension=Dimension
 enderutilities.tooltip.dimension.compact=DIM
 enderutilities.tooltip.durability=Durability
+enderutilities.tooltip.item.1x1=1x1
+enderutilities.tooltip.item.3x3=3x3
 enderutilities.tooltip.item.advanced=Advanced
 enderutilities.tooltip.item.amount=Amount
 enderutilities.tooltip.item.basic=Basic
@@ -137,6 +154,7 @@ enderutilities.tooltip.item.cached.fluid.compact=Last
 enderutilities.tooltip.item.charge=Charge
 enderutilities.tooltip.item.craftingingredient=Crafting ingredient
 enderutilities.tooltip.item.endercore=Ender Core
+enderutilities.tooltip.item.endersword.summon=Summon
 enderutilities.tooltip.item.endertool.digmode=Dig mode
 enderutilities.tooltip.item.endertool.dropsmode=Drops
 enderutilities.tooltip.item.endertool.playerinv=Player
@@ -173,6 +191,6 @@ enderutilities.tooltip.item.yes=yes
 
 # Chat messages:
 
-enderutilities.chat.message.enderbag.blockchanged=The target block has changed since binding the bag, removing the bind.
+enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range

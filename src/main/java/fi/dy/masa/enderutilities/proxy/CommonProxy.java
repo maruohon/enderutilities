@@ -10,16 +10,20 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
 import fi.dy.masa.enderutilities.event.AttackEntityEventHandler;
 import fi.dy.masa.enderutilities.event.BlockEventHandler;
 import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
 import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
+import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.event.TickHandler;
+import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -47,8 +51,9 @@ public abstract class CommonProxy implements IProxy
     public void registerEntities()
     {
         int id = 0;
-        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_ARROW), id++, EnderUtilities.instance, 64, 3, true);
-        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE), id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 3, true);
+        EntityRegistry.registerModEntity(EntityEndermanFighter.class, ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER, id++, EnderUtilities.instance, 64, 3, true);
     }
 
     @Override
@@ -58,7 +63,9 @@ public abstract class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new AttackEntityEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockEventHandler());
         MinecraftForge.EVENT_BUS.register(new EntityInteractEventHandler());
+        MinecraftForge.EVENT_BUS.register(new LivingDropsEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+        MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
         FMLCommonHandler.instance().bus().register(new TickHandler());
         FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
@@ -77,6 +84,7 @@ public abstract class CommonProxy implements IProxy
         GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE));
         GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION));
         GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
+        GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
     }
 
     @Override

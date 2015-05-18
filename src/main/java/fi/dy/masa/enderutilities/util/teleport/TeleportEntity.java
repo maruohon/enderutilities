@@ -15,7 +15,6 @@ import net.minecraft.network.play.server.S1DPacketEntityEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
@@ -117,43 +116,32 @@ public class TeleportEntity
         // Hit a block, offset the position to not collide with the block
         if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
         {
-            //System.out.println("sideHit: " + mop.sideHit);
             EnumFacing dir = mop.sideHit;
             pos.posX += (dir.getFrontOffsetX() * entity.width / 2);
             pos.posZ += (dir.getFrontOffsetZ() * entity.width / 2);
 
             // Bottom side
-            if (mop.sideHit.equals(EnumFacing.DOWN) == true)
+            if (dir.equals(EnumFacing.DOWN))
             {
                 pos.posY -= entity.height;
-            }
-            // FIXME the MovingObjectPosition ray tracing is messed up. It goes inside blocks
-            // if the projectile is moving too fast. At least the Elite Ender Pearl goes inside blocks
-            // when moving too fast down or something. That's why I'm doing the moving out of blocks for
-            // all types of hits atm.
-            //else
-            {
-                int y = (int)pos.posY;
-                while (y < 254 && (entity.worldObj.getBlockState(new BlockPos(pos.posX, y, pos.posZ)).getBlock().getMaterial().isOpaque() == true
-                        || entity.worldObj.getBlockState(new BlockPos(pos.posX, y + 1, pos.posZ)).getBlock().getMaterial().isOpaque() == true))
-                {
-                    pos.posY += 1.0d;
-                    ++y;
-                }
             }
         }
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
 
-        if (entNew != null && teleportDamage != 0.0f)
+        if (entNew != null)
         {
-            // Inflict fall damage to the bottom most entity
-            Entity bottom = EntityUtils.getBottomEntity(entNew);
-            if (bottom instanceof EntityLivingBase)
+            if (teleportDamage != 0.0f)
             {
-                bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
+                // Inflict fall damage to the bottom most entity
+                Entity bottom = EntityUtils.getBottomEntity(entNew);
+                if (bottom instanceof EntityLivingBase)
+                {
+                    bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
+                }
             }
 
+            entNew.fallDistance = 0.0f;
             return true;
         }
 
@@ -167,23 +155,23 @@ public class TeleportEntity
             return target;
         }
 
-        double offsetHoriz = 0.5d;
-        double offsetY = 1.0d;
-
         EnumFacing dir = EnumFacing.getFront(target.blockFace);
-        if (entity != null && entity.getEntityBoundingBox() != null)
+        float widthAdj = 0.5f;
+        float heightAdj = 1.0f;
+
+        if (entity != null)
         {
-            offsetHoriz = entity.width / 2;
-            offsetY = entity.height;
+            widthAdj = entity.width / 2;
+            heightAdj = entity.height;
         }
 
-        target.dPosX += dir.getFrontOffsetX() * offsetHoriz;
-        target.dPosZ += dir.getFrontOffsetZ() * offsetHoriz;
+        target.dPosX += dir.getFrontOffsetX() * widthAdj;
+        target.dPosZ += dir.getFrontOffsetZ() * widthAdj;
 
         // Targeting the bottom face of a block, adjust the position lower
-        if (dir.getFrontOffsetY() < 0)
+        if (dir.equals(EnumFacing.DOWN))
         {
-            target.dPosY -= offsetY;
+            target.dPosY -= heightAdj;
         }
 
         return target;
@@ -327,12 +315,7 @@ public class TeleportEntity
             }
             else
             {
-                if (entity instanceof EntityPlayerMP)
-                {
-                    //((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
-                    ((EntityPlayerMP)entity).playerNetServerHandler.setPlayerLocation(x, y, z, entity.rotationYaw, entity.rotationPitch);
-                }
-                else if (entity instanceof EntityPlayer)
+                if (entity instanceof EntityPlayer)
                 {
                     ((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
                 }
@@ -369,20 +352,10 @@ public class TeleportEntity
         }
 
         WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);
-
         if (worldServerDst == null)
         {
             EnderUtilities.logger.warn("reCreateEntity(): worldServerDst == null");
             return null;
-        }
-
-        entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
-        entitySrc.isDead = false;
-
-        entitySrc.mountEntity((Entity)null);
-        if (entitySrc.riddenByEntity != null)
-        {
-            entitySrc.riddenByEntity.mountEntity((Entity)null);
         }
 
         Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
@@ -391,8 +364,19 @@ public class TeleportEntity
             return null;
         }
 
-        entityDst.copyDataFromOld(entitySrc); // TODO: 1.8: what was the last boolean parameter in 1.7?
-        entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+        entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
+        entitySrc.isDead = false;
+
+        entityDst.copyDataFromOld(entitySrc);
+        if (entityDst instanceof EntityLivingBase)
+        {
+            ((EntityLivingBase)entityDst).setPositionAndUpdate(x, y, z);
+        }
+        else
+        {
+            entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+        }
+
         worldServerDst.spawnEntityInWorld(entityDst);
         worldServerDst.resetUpdateEntityTick();
         entitySrc.isDead = true;

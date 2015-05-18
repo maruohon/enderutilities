@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -44,12 +44,12 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.rotation;
     }
 
-    public void setOwner(EntityPlayer player)
+    public void setOwner(Entity entity)
     {
-        if (player != null)
+        if (entity != null)
         {
-            this.ownerName = player.getName();
-            this.ownerUUID = player.getUniqueID();
+            this.ownerName = entity.getName();
+            this.ownerUUID = entity.getUniqueID();
         }
         else
         {

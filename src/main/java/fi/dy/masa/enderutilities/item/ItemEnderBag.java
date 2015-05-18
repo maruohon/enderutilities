@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +20,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,7 +69,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Access is allowed for everyone to a vanilla Ender Chest
         if (targetData.blockName.equals("minecraft:ender_chest") == true)
         {
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
                 return stack;
             }
@@ -98,13 +100,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
-            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.enderbag.blockchanged"));
+            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
 
             return stack;
         }
 
         // Check that we have sufficient charge left to use the bag.
-        if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
         {
             return stack;
         }
@@ -125,7 +127,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
 
             // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
-            if (UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
                 // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
                 //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);
@@ -169,7 +171,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return super.onItemUse(stack, player, world, pos, face, hitX, hitY, hitZ);
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -219,7 +221,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // We allow a max range of 64 blocks, to hopefully be on the safer side
-        return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
+        //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
+
+        WorldServer world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        return ! (player instanceof EntityPlayerMP && world != null && world.getPlayerManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.posX >> 4, target.posZ >> 4));
     }
 
     public static boolean isTargetBlockWhitelisted(String name, int meta)
@@ -300,6 +305,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
     {
+        super.onUpdate(stack, world, player, slot, isCurrent);
+
         // Ugly workaround to get the bag closing tag update to sync to the client
         // For some reason it won't sync if set directly in the PlayerOpenContainerEvent
         if (stack != null && stack.getTagCompound() != null)

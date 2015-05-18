@@ -2,6 +2,7 @@
 * text=auto
 *.java text eol=crlf
 *.json text eol=crlf
+*.mcmeta text eol=crlf
 *.groovy text eol=lf
 *.scala text eol=lf
 *.sh text eol=lf

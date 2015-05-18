@@ -36,18 +36,14 @@ public class MachineEnderFurnace extends Machine
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             //iBlockState = super.getActualState(iBlockState, worldIn, pos);
-            // TODO fast mode
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
             int mode = 0;
-            if (teef.isActive == true)
+
+            if (teef.isCookingLast == true)
             {
-                if (teef.operatingMode == 1)
+                if (teef.isBurningLast == true)
                 {
-                    mode = 3;
-                }
-                else if (teef.usingFuel == true)
-                {
-                    mode = 2;
+                    mode = (teef.fastMode == true ? 3 : 2);
                 }
                 else
                 {
@@ -84,12 +80,12 @@ public class MachineEnderFurnace extends Machine
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-            if (teef.isBurning() == true)
+            if (teef.isBurningLast == true)
             {
                 return 15;
             }
             // No-fuel mode
-            else if (teef.burnTimeFresh != 0)
+            else if (teef.isCookingLast == true)
             {
                 return 7;
             }
@@ -105,7 +101,7 @@ public class MachineEnderFurnace extends Machine
         TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderFurnace)
         {
-            if (((TileEntityEnderFurnace)te).isActive == true)
+            if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
                 Particles.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
             }

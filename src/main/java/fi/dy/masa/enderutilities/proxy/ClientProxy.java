@@ -17,9 +17,12 @@ import org.lwjgl.input.Keyboard;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
+import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
+import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.event.ModelEventHandler;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
@@ -28,6 +31,7 @@ import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Keybindings;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class ClientProxy extends CommonProxy
 {
@@ -71,6 +75,9 @@ public class ClientProxy extends CommonProxy
         RenderItem ri = Minecraft.getMinecraft().getRenderItem();
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow(rm));
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderEntityProjectile(rm, EnderUtilitiesItems.enderPearlReusable, ri));
+        RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter(rm));
+
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
     }
 
     @Override

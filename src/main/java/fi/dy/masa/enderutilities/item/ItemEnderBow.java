@@ -35,14 +35,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
 
-    /*public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2",
-                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2"};*/
-
     public ItemEnderBow()
     {
         super();
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
+        this.setNoRepair();
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
     }
 
@@ -59,6 +57,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             {
                 stack.getTagCompound().removeTag("useCount");
             }
+            return;
+        }
+
+        if (this.isBroken(stack) == true)
+        {
             return;
         }
 
@@ -116,13 +119,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (player.capabilities.isCreativeMode == false)
         {
-            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, true) == false)
+            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
             {
                 return;
             }
 
             player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
             stack.damageItem(1, player);
+
+            // Tool just broke FIXME this doesn't work when called for the player, for some reason...
+            if (this.isBroken(stack) == true)
+            {
+                player.renderBrokenItemStack(stack);
+            }
         }
 
         if (f == 1.0F)
@@ -160,9 +169,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     {
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
 
+        if (this.isBroken(stack) == true)
+        {
+            return stack;
+        }
+
         // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, player, ENDER_CHARGE_COST_MOB_TP, false) == false)
+            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, false) == false)
         {
             return stack;
         }
@@ -211,6 +225,11 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return stack;
     }
 
+    public boolean isBroken(ItemStack stack)
+    {
+        return stack.getItemDamage() >= this.getMaxDamage(stack);
+    }
+
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
@@ -239,19 +258,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
         }
-    }
-
-    @Override
-    public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
-    {
-        // TODO: Add a method to get the alloy types/tiers
-        if (stack1 != null && stack1.getItem() == EnderUtilitiesItems.enderBow
-            && stack2 != null && stack2.getItem() == EnderUtilitiesItems.enderPart && stack2.getItemDamage() == 1)
-        {
-            return true;
-        }
-
-        return false;
     }
 
     public byte getBowMode(ItemStack stack)
@@ -369,10 +375,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                             this.name + ".pulling.0",
                             this.name + ".pulling.1",
                             this.name + ".pulling.2",
+                            this.name + ".broken",
                             this.name + ".mode2.standby",
                             this.name + ".mode2.pulling.0",
                             this.name + ".mode2.pulling.1",
-                            this.name + ".mode2.pulling.2");
+                            this.name + ".mode2.pulling.2",
+                            this.name + ".mode.2.broken");
     }
 
     @SideOnly(Side.CLIENT)
@@ -385,22 +393,28 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         {
             if (stack.getTagCompound().getByte("Mode") == 1)
             {
-                index = 4;
+                index = 5;
             }
 
-            int inUse = stack.getTagCompound().getInteger("useCount");
-
-            if (inUse >= 18)
+            if (this.isBroken(stack) == true)
             {
-                index += 3;
+                index += 4;
             }
-            else if (inUse >= 13)
+            else
             {
-                index += 2;
-            }
-            else if (inUse > 0)
-            {
-                index += 1;
+                int inUse = stack.getTagCompound().getInteger("useCount");
+                if (inUse >= 18)
+                {
+                    index += 3;
+                }
+                else if (inUse >= 13)
+                {
+                    index += 2;
+                }
+                else if (inUse > 0)
+                {
+                    index += 1;
+                }
             }
         }
 

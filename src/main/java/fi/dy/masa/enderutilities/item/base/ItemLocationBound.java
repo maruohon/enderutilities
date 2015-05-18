@@ -29,13 +29,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing face, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == false && player != null && player.isSneaking() == true)
+        if (player != null && player.isSneaking() == true)
         {
-            boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
-            this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
+            if (world.isRemote == false)
+            {
+                boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+                this.setTarget(stack, player, pos, face, hitX, hitY, hitZ, adjustPosHit, false);
+            }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -215,11 +220,6 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
 
     public void setTarget(ItemStack stack, EntityPlayer player, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessItem(stack, player) == false)
-        {
-            return;
-        }
-
         int x = (int)player.posX;
         int y = (int)player.posY;
         int z = (int)player.posZ;
@@ -234,6 +234,11 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing face, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
+        if (NBTHelperPlayer.canAccessItem(stack, player) == false)
+        {
+            return;
+        }
+
         NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, face, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)

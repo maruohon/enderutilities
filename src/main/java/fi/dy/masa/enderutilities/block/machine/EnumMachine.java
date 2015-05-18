@@ -8,7 +8,10 @@ public enum EnumMachine implements IStringSerializable
 {
     ENDER_FURNACE       (0, 0, ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE),
     TOOL_WORKSTATION    (0, 1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
-    ENDER_INFUSER       (0, 2, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+    ENDER_INFUSER       (0, 2, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
+    ENERGY_BRIDGE_TRANSMITTER   (1, 0, ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE + ".transmitter"),
+    ENERGY_BRIDGE_RECEIVER      (1, 1, ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE + ".receiver"),
+    ENERGY_BRIDGE_RESONATOR     (1, 2, ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE + ".resonator");
 
     private static final TIntObjectHashMap<EnumMachine> MACHINE_LOOKUP = new TIntObjectHashMap<EnumMachine>();
     //private static final Map<EnumMachine, Byte> META_LOOKUP = new HashMap<EnumMachine, Byte>();

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
@@ -56,33 +55,42 @@ public class ItemMobHarness extends ItemEnderUtilities
         return stack;
     }
 
-    public boolean handleInteraction(ItemStack stack, EntityPlayer player, Entity entity)
+    @SuppressWarnings("unchecked")
+    public static boolean addAITask(Entity entity, boolean replaceOld)
     {
-        if (player == null || entity == null)
+        Entity bottom = EntityUtils.getBottomEntity(entity);
+        if (bottom instanceof EntityLiving)
         {
-            return false;
-        }
-
-        boolean hasTarget = this.hasTarget(stack);
-
-        if (player.isSneaking() == false)
-        {
-            EntityUtils.unmountRider(entity);
-            player.mountEntity(entity);
-            Entity bottom = EntityUtils.getBottomEntity(entity);
-
-            if (bottom instanceof EntityLiving)
-            {
-                // Add a new AI task as the highest priority task after swimming and panic AI tasks
-                EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), new Class[] {EntityAISwimming.class, EntityAIPanic.class});
-            }
+            ((EntityLiving)bottom).getNavigator().clearPathEntity();
+            // Add a new AI task as the highest priority task after swimming and panic AI tasks
+            EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), replaceOld, new Class[] {EntityAISwimming.class, EntityAIPanic.class});
 
             return true;
         }
 
-        if (hasTarget == false)
+        return false;
+    }
+
+    public boolean handleInteraction(ItemStack stack, EntityPlayer player, Entity entity)
+    {
+        if (player.isSneaking() == false)
         {
-            // Looking up, player ridden by something and harness empty: dismount the rider
+            EntityUtils.unmountRider(entity);
+            player.mountEntity(entity);
+            addAITask(entity, true);
+
+            return true;
+        }
+
+        // Harness bound to something, mount the entity
+        if (this.hasTarget(stack) == true)
+        {
+            this.mountTarget(stack, player.worldObj, player, entity);
+        }
+        // Empty harness
+        else
+        {
+            // Empty harness, player looking up and ridden by something: dismount the rider
             if (player.rotationPitch < -80.0f && player.riddenByEntity != null)
             {
                 player.riddenByEntity.mountEntity(null);
@@ -97,11 +105,6 @@ public class ItemMobHarness extends ItemEnderUtilities
             {
                 this.storeTarget(stack, entity);
             }
-        }
-        // Harness bound to something, mount the entity
-        else
-        {
-            this.mountTarget(stack, player.worldObj, player, entity);
         }
 
         return true;
@@ -118,14 +121,12 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         byte mode = nbt.getByte("Mode");
 
-        if (mode == (byte)1 || mode == (byte)2)
+        if (mode >= 1 && mode <= 2 &&
+            nbt.hasKey("TargetUUIDMost", Constants.NBT.TAG_LONG) == true &&
+            nbt.hasKey("TargetUUIDLeast", Constants.NBT.TAG_LONG) == true &&
+            nbt.hasKey("TargetName", Constants.NBT.TAG_STRING) == true)
         {
-            if (nbt.hasKey("TargetUUIDMost", Constants.NBT.TAG_LONG) == true &&
-                nbt.hasKey("TargetUUIDLeast", Constants.NBT.TAG_LONG) == true &&
-                nbt.hasKey("TargetName", Constants.NBT.TAG_STRING) == true)
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -134,26 +135,13 @@ public class ItemMobHarness extends ItemEnderUtilities
     public ItemStack storeTarget(ItemStack stack, Entity entity)
     {
         NBTTagCompound nbt = stack.getTagCompound();
-
-        if (entity == null) { return stack; }
-
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
         }
 
-        byte mode = (byte)1;
-
-        if (entity instanceof EntityPlayer)
-        {
-            mode = (byte)2;
-            nbt.setString("TargetName", ((EntityPlayer)entity).getName());
-        }
-        else
-        {
-            nbt.setString("TargetName", EntityList.getEntityString(entity));
-        }
-
+        byte mode = (byte)(entity instanceof EntityPlayer ? 2 : 1);
+        nbt.setString("TargetName", entity.getName());
         nbt.setLong("TargetUUIDMost", entity.getUniqueID().getMostSignificantBits());
         nbt.setLong("TargetUUIDLeast", entity.getUniqueID().getLeastSignificantBits());
         nbt.setByte("Mode", mode);
@@ -165,72 +153,49 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     public boolean mountTarget(ItemStack stack, World world, EntityPlayer player, Entity targetEntity)
     {
-        if (stack == null || world == null || player == null || targetEntity == null || stack.getTagCompound() == null || this.hasTarget(stack) == false)
+        if (stack == null || stack.getTagCompound() == null || targetEntity == null)
         {
             return false;
         }
 
         NBTTagCompound nbt = stack.getTagCompound();
         byte mode = nbt.getByte("Mode");
-        double radius = 32.0d;
+        UUID storedUUID = new UUID(nbt.getLong("TargetUUIDMost"), nbt.getLong("TargetUUIDLeast"));
+        Entity storedEntity = null;
+        double r = 64.0d;
 
-        long most = nbt.getLong("TargetUUIDMost");
-        long least = nbt.getLong("TargetUUIDLeast");
-
-        // Mode 1: mount non-player living mobs to eachother or to the player
-        if (mode == (byte)1)
+        // The harness was clicked twice on the same entity, mount that entity on top of the player
+        if (storedUUID.equals(targetEntity.getUniqueID()))
         {
-            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(player,
-                    new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
-                        player.posX + radius, player.posY + radius, player.posZ + radius));
+            EntityUtils.unmountRider(player);
+            targetEntity.mountEntity(player);
+            this.clearData(stack);
 
-            for (Entity entity : list)
-            {
-                // Matching entity found
-                if (entity.getUniqueID().getMostSignificantBits() == most && entity.getUniqueID().getLeastSignificantBits() == least)
-                {
-                    // The harness was clicked twice on the same mob, mount that mob on top of the player
-                    if (targetEntity.getUniqueID().getMostSignificantBits() == most && targetEntity.getUniqueID().getLeastSignificantBits() == least)
-                    {
-                        EntityUtils.unmountRider(player);
-                        targetEntity.mountEntity(player);
-                        this.clearData(stack);
-                    }
-                    // The harness was clicked on two separate mobs, mount the stored/first one on top of the current one
-                    else
-                    {
-                        EntityUtils.unmountRidden(entity);
-                        EntityUtils.unmountRider(targetEntity);
-                        entity.mountEntity(targetEntity);
-                        this.clearData(stack);
-                    }
-
-                    break;
-                }
-            }
+            return true;
         }
-        // Mode 2: mount a player
-        else if (mode == (byte)2)
+        // The harness was clicked on two separate entities, mount the stored/first one on top of the currently targeted one
+        else
         {
-            EntityPlayer targetPlayer = EntityUtils.findPlayerFromUUID(new UUID(most, least));
-            if (targetPlayer == null)
+            // Mode 1: mount non-player entities to each other or to the player
+            if (mode == 1)
             {
-                return false;
+                List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player, AxisAlignedBB.fromBounds(player.posX - r, player.posY - r, player.posZ - r, player.posX + r, player.posY + r, player.posZ + r));
+                storedEntity = EntityUtils.findEntityByUUID(entities, storedUUID);
+            }
+            // Mode 2: mount a player
+            else if (mode == 2)
+            {
+                storedEntity = world.getPlayerEntityByUUID(storedUUID);
             }
 
-            // The harness was clicked twice on the same player, mount that player on top of the this player
-            if (targetEntity == targetPlayer) // && entity.getDistanceToEntity(player) <= radius)
+            // Matching (stored) entity found
+            if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-                EntityUtils.unmountRidden(player);
-                targetPlayer.mountEntity(player);
+                EntityUtils.unmountRider(targetEntity);
+                storedEntity.mountEntity(targetEntity);
                 this.clearData(stack);
-            }
-            // Mount the target player on top of an entity
-            else if (targetEntity.getDistanceToEntity(player) <= radius && targetPlayer.getDistanceToEntity(player) <= radius)
-            {
-                EntityUtils.unmountRidden(targetEntity);
-                targetPlayer.mountEntity(targetEntity);
-                this.clearData(stack);
+
+                return true;
             }
         }
 
@@ -241,10 +206,10 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         if (stack == null || stack.getTagCompound() == null)
         {
-            return true;
+            return false;
         }
 
-        stack.getTagCompound().removeTag("Mode");
+        stack.setTagCompound(null);
 
         return true;
     }
@@ -274,7 +239,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + StatCollector.translateToLocal("entity." + target + ".name") + rst);
     }
 
-
     @SideOnly(Side.CLIENT)
     @Override
     public String getBaseModelName(String variant)
@@ -286,7 +250,6 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     public void registerVariants()
     {
-        // TODO add locked textures
         this.addVariants(   this.name,
                             this.name + ".active");
     }

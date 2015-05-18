@@ -994,7 +994,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                if (UtilItemModular.useEnderCharge(stack, player, (int)(ENDER_CHARGE_COST * maxDrain), doDrain) == false)
+                if (UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * maxDrain), doDrain) == false)
                 {
                     return null;
                 }
@@ -1075,7 +1075,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                if (fluidStackIn != null && UtilItemModular.useEnderCharge(stack, player, (int)(ENDER_CHARGE_COST * fluidStackIn.amount), doFill) == false)
+                if (fluidStackIn != null && UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * fluidStackIn.amount), doFill) == false)
                 {
                     return 0;
                 }

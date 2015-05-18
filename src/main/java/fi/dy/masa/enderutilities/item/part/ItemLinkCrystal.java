@@ -43,21 +43,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         return super.getUnlocalizedName();
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
-    {
-        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
-        {
-            // FIXME Disabled the Portal type Link Crystal until it is actually used
-            for (int i = 0; i <= 1; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-        }
-    }
-
-
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
@@ -78,6 +63,20 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         }
 
         return -1;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    {
+        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
+        {
+            // FIXME Disabled the Portal type Link Crystal until it is actually used
+            for (int i = 0; i <= 1; i++)
+            {
+                list.add(new ItemStack(this, 1, i));
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)

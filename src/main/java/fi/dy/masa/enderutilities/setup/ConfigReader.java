@@ -5,33 +5,29 @@ import java.io.File;
 import net.minecraftforge.common.config.Configuration;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ConfigReader
 {
-    public static final int CURRENT_CONFIG_VERSION = 40;
+    public static final int CURRENT_CONFIG_VERSION = 4000;
     public static int confVersion = 0;
 
-    public static void loadConfigsAll(File baseConfigDir)
+    public static void loadConfigsAll(File configFile)
     {
-        // minecraft/config/enderutilities/something.cfg
-        File configDir = new File(baseConfigDir.getAbsolutePath().concat("/").concat(Reference.MOD_ID));
-        configDir.mkdirs();
-
         EnderUtilities.logger.info("Loading configuration...");
-        ConfigReader.loadConfigGeneric(new File(configDir, Reference.MOD_ID + "_main.cfg"));
-        ConfigReader.loadConfigItemControl(new File(configDir, Reference.MOD_ID + "_itemcontrol.cfg"));
-        ConfigReader.loadConfigLists(new File(configDir, Reference.MOD_ID + "_lists.cfg"));
-    }
 
-    public static void loadConfigGeneric(File configFile)
-    {
-        String category;
         Configuration conf = new Configuration(configFile);
         conf.load();
 
-        category = "Generic";
+        ConfigReader.loadConfigGeneric(conf);
+        ConfigReader.loadConfigItemControl(conf);
+        ConfigReader.loadConfigLists(conf);
+    }
 
+    public static void loadConfigGeneric(Configuration conf)
+    {
+        String category;
+
+        category = "Generic";
         Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
@@ -49,6 +45,8 @@ public class ConfigReader
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
 
         category = "Client";
+        conf.addCustomCategoryComment(category, "Client side configs");
+
         Configs.useToolParticles = conf.get(category, "UseToolParticles", true).setRequiresMcRestart(false);
         Configs.useToolParticles.comment = "Does the block drops teleporting by Ender tools cause particle effects";
 
@@ -70,78 +68,21 @@ public class ConfigReader
         }
     }
 
-    public static void loadConfigLists(File configFile)
+    public static void loadConfigItemControl(Configuration conf)
     {
         String category;
-        Configuration conf = new Configuration(configFile);
-        conf.load();
-
-        category = "EnderBag";
-        Configs.enderBagListType = conf.get(category, "ListType", "whitelist").setRequiresMcRestart(false);
-        Configs.enderBagListType.comment = "Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.";
-
-        Configs.enderBagBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(false);
-        Configs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
-
-        Configs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(false);
-        Configs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with.";
-
-        category = "Teleporting";
-        Configs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(false);
-        Configs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
-
-        updateConfigLists(conf);
-
-        if (conf.hasChanged() == true)
-        {
-            conf.save();
-        }
-    }
-
-    public static void updateConfigLists(Configuration conf)
-    {
-        boolean found = false;
-        int i = 0;
-
-        // 0.3.2: Add EntityEnderCrystal to teleport blacklist
-        if (confVersion < 32)
-        {
-            EnderUtilities.logger.info("Updating configuration lists to 32");
-
-            String[] strs = Configs.teleportBlacklist.getStringList();
-            String[] strsNew = new String[strs.length + 1];
-            for (i = 0; i < strs.length; ++i)
-            {
-                strsNew[i] = strs[i];
-                if (strs[i].equals("EntityEnderCrystal") == true)
-                {
-                    found = true;
-                }
-            }
-
-            if (found == false)
-            {
-                strsNew[i] = "EntityEnderCrystal";
-                Configs.teleportBlacklist.setValues(strsNew);
-            }
-        }
-    }
-
-    public static void loadConfigItemControl(File configFile)
-    {
-        String category;
-        Configuration conf = new Configuration(configFile);
-        conf.load();
 
         category = "DisableBlocks";
-        conf.addCustomCategoryComment(category, "Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
+        conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
         Configs.disableBlockMachine_0             = conf.get(category, "DisableBlockMachine_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_0.comment = "0: Ender Furnace; 1: Tool Workstation";
+        Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser";
+        Configs.disableBlockMachine_1             = conf.get(category, "DisableBlockMachine_1", false).setRequiresMcRestart(true);
+        Configs.disableBlockMachine_1.comment = "Info: Machine 1 meta values: 0 = Energy Bridge Transmitter; 1 = Energy Bridge Receiver; 2 = Energy Bridge Resonator";
 
         category = "DisableItems";
-        conf.addCustomCategoryComment(category, "Note that some items are grouped together using the damage value to identify them. You can't completely disable a specific damage value (so that existing items would vanish).");
+        conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");
 
         // Item disable
         Configs.disableItemCraftingPart           = conf.get(category, "DisableItemCraftingPart", false).setRequiresMcRestart(true);
@@ -159,12 +100,18 @@ public class ConfigReader
         Configs.disableItemEnderTools             = conf.get(category, "DisableItemEnderTools", false).setRequiresMcRestart(true);
         Configs.disableItemMobHarness             = conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
 
-        category = "DisableRecipies";
         // Recipe disable
+        category = "DisableRecipies";
+        conf.addCustomCategoryComment(category, "Disable block or item recipies");
+
         // Blocks
         Configs.disableRecipeEnderFurnace         = conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnderInfuser         = conf.get(category, "DisableRecipeEnderInfuser", false).setRequiresMcRestart(true);
         Configs.disableRecipeToolWorkstation      = conf.get(category, "DisableRecipeToolWorkstation", false).setRequiresMcRestart(true);
+
+        Configs.disableRecipeEnergyBridgeTransmitter    = conf.get(category, "DisableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "DisableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "DisableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
 
         // Items
         Configs.disableRecipeEnderArrow           = conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
@@ -207,6 +154,61 @@ public class ConfigReader
         if (conf.hasChanged() == true)
         {
             conf.save();
+        }
+    }
+
+    public static void loadConfigLists(Configuration conf)
+    {
+        String category;
+
+        category = "EnderBag";
+        Configs.enderBagListType = conf.get(category, "ListType", "whitelist").setRequiresMcRestart(false);
+        Configs.enderBagListType.comment = "Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.";
+
+        Configs.enderBagBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(false);
+        Configs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
+
+        Configs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(false);
+        Configs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!";
+
+        category = "Teleporting";
+        Configs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(false);
+        Configs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
+
+        //updateConfigs(conf);
+
+        if (conf.hasChanged() == true)
+        {
+            conf.save();
+        }
+    }
+
+    public static void updateConfigs(Configuration conf)
+    {
+        boolean found = false;
+        int i = 0;
+
+        // 0.3.2: Add EntityEnderCrystal to teleport blacklist
+        if (confVersion < 32)
+        {
+            EnderUtilities.logger.info("Updating configuration lists to 32");
+
+            String[] strs = Configs.teleportBlacklist.getStringList();
+            String[] strsNew = new String[strs.length + 1];
+            for (i = 0; i < strs.length; ++i)
+            {
+                strsNew[i] = strs[i];
+                if (strs[i].equals("EntityEnderCrystal") == true)
+                {
+                    found = true;
+                }
+            }
+
+            if (found == false)
+            {
+                strsNew[i] = "EntityEnderCrystal";
+                Configs.teleportBlacklist.setValues(strsNew);
+            }
         }
     }
 }

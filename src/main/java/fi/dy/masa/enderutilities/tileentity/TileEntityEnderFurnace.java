@@ -31,6 +31,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implements IUpdatePlayerListBox
 {
@@ -52,21 +53,20 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_OUTPUT = 2;
 
-    public boolean isActive;
-    public boolean usingFuel;
-
-    public byte operatingMode;
-    public byte outputMode;
-    private int outputBufferAmount;
+    public boolean fastMode;
+    public boolean outputToEnderChest;
     private ItemStack outputBufferStack;
+    private ItemStack smeltingResultCache;
+
+    private boolean inputDirty;
+    //private boolean fuelDirty;
 
     public int burnTimeRemaining;   // Remaining burn time from the currently burning fuel
     public int burnTimeFresh;       // The time the currently burning fuel will burn in total
     public int cookTime;            // The time the currently cooking item has been cooking for
-    public int cookTimeFresh;       // The total time the currently cooking item will take to finish
 
-    private boolean isBurningLast;
-    private boolean isCookingLast;
+    public boolean isBurningLast;
+    public boolean isCookingLast;
 
     private int timer;
 
@@ -74,12 +74,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.itemStacks = new ItemStack[3];
-        this.operatingMode = 0;
-        this.outputMode = 0;
+        this.smeltingResultCache = null;
+        this.inputDirty = true;
+        //this.fuelDirty = true;
+        this.fastMode = false;
+        this.outputToEnderChest = false;
         this.burnTimeRemaining = 0;
         this.cookTime = 0;
         this.timer = 0;
-        this.outputBufferAmount = 0;
     }
 
     @Override
@@ -88,18 +90,19 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         super.readFromNBTCustom(nbt);
 
         byte flags              = nbt.getByte("Flags"); // Flags
-        this.operatingMode      = (byte)(flags & 0x01);
-        this.outputMode         = (byte)((flags >> 1) & 0x01);
+        this.fastMode           = (flags & 0x01) == 0x01;
+        this.outputToEnderChest = (flags & 0x02) == 0x02;
         this.burnTimeRemaining  = nbt.getInteger("BurnTimeRemaining");
         this.burnTimeFresh      = nbt.getInteger("BurnTimeFresh");
         this.cookTime           = nbt.getInteger("CookTime");
-        this.cookTimeFresh      = nbt.getInteger("CookTimeFresh");
 
         if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
         {
-            this.outputBufferAmount = nbt.getInteger("OutputBufferAmount");
             this.outputBufferStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
+            this.outputBufferStack.stackSize = nbt.getInteger("OutputBufferAmount");
         }
+
+        this.inputDirty = true;
     }
 
     @Override
@@ -108,18 +111,24 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         super.writeToNBT(nbt);
 
         byte flags = 0;
-        flags |= (this.operatingMode & 0x01);
-        flags |= ((this.outputMode & 0x01) << 1);
+        if (this.fastMode == true)
+        {
+            flags |= 0x01;
+        }
+        if (this.outputToEnderChest == true)
+        {
+            flags |= 0x02;
+        }
+
         nbt.setByte("Flags", flags);
         nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
         nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
         nbt.setShort("CookTime", (short)this.cookTime);
-        nbt.setShort("CookTimeFresh", (short)this.cookTimeFresh);
 
         if (this.outputBufferStack != null)
         {
             nbt.setTag("OutputBufferStack", this.outputBufferStack.writeToNBT(new NBTTagCompound()));
-            nbt.setInteger("OutputBufferAmount", this.outputBufferAmount);
+            nbt.setInteger("OutputBufferAmount", this.outputBufferStack.stackSize);
         }
     }
 
@@ -134,15 +143,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         }
 
         byte flags = (byte)(this.getRotation() & 0x07);
-        // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active, 0x80: output to ender chest enabled
+        // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active
         if (canSmelt() == true) { flags |= 0x10; }
         if (isBurning() == true) { flags |= 0x20; }
-        if (this.operatingMode == 1) { flags |= 0x40; }
-        if (this.outputMode == 1) { flags |= 0x80; }
+        if (this.fastMode == true) { flags |= 0x40; }
         nbt.setByte("f", flags);
-        nbt.setInteger("b", this.outputBufferAmount);
-        nbt.setShort("btr", (short)this.burnTimeRemaining);
-        nbt.setBoolean("cs", this.canSmelt());
 
         return nbt;
     }
@@ -153,45 +158,28 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         NBTTagCompound nbt = packet.getNbtCompound();
         byte flags = nbt.getByte("f");
         this.setRotation((byte)(flags & 0x07));
-        this.isActive = (flags & 0x10) == 0x10;
-        this.usingFuel = (flags & 0x20) == 0x20;
-        this.operatingMode = (byte)((flags & 0x40) >> 6);
-        this.outputMode = (byte)((flags & 0x80) >> 7);
-        this.outputBufferAmount = nbt.getInteger("b");
-        this.burnTimeRemaining = nbt.getShort("btr");
-        this.burnTimeFresh = nbt.getBoolean("cs") ? 1 : 0; // abusing this variable on the client side for light updates
+        this.isCookingLast = (flags & 0x10) == 0x10;
+        this.isBurningLast = (flags & 0x20) == 0x20;
+        this.fastMode = (flags & 0x40) == 0x40;
 
         super.onDataPacket(net, packet);
 
         this.worldObj.checkLightFor(EnumSkyBlock.BLOCK, this.getPos());
     }
 
-    /**
-     * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
-     * @param i
-     * @return
-     */
-    @SideOnly(Side.CLIENT)
-    public int getCookProgressScaled(int i)
+    public int getOutputBufferAmount()
     {
-        return this.cookTime * i / this.cookTimeFresh;
-    }
-
-    /**
-     * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
-     * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
-     * @param i
-     * @return
-     */
-    @SideOnly(Side.CLIENT)
-    public int getBurnTimeRemainingScaled(int i)
-    {
-        if (this.burnTimeFresh == 0)
+        if (this.outputBufferStack == null)
         {
             return 0;
         }
 
-        return this.burnTimeRemaining * i / this.burnTimeFresh;
+        return this.outputBufferStack.stackSize;
+    }
+
+    public ItemStack getOutputBufferStack()
+    {
+        return this.outputBufferStack;
     }
 
     public boolean isBurning()
@@ -199,6 +187,46 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         // This returns if the furnace is actually burning fuel at the moment
         return this.burnTimeRemaining > 0;
     }
+
+    /**
+     * Updates the cached smelting result for the current input item, if the input has changed since last caching the result.
+     */
+    private void updateSmeltingResult()
+    {
+        if (this.inputDirty == true)
+        {
+            if (this.itemStacks[SLOT_INPUT] != null)
+            {
+                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
+            }
+            else
+            {
+                this.smeltingResultCache = null;
+            }
+
+            this.inputDirty = false;
+        }
+    }
+
+    /**
+     * Updates the cached fuel value for the current item in the fuel slot, if it has changed since last caching it.
+     */
+    /*private void updateFuelCache()
+    {
+        if (this.fuelDirty == true)
+        {
+            if (this.itemStacks[SLOT_FUEL] != null)
+            {
+                this.fuelBurnTimeCache = 0;
+            }
+            else
+            {
+                this.fuelBurnTimeCache = 0;
+            }
+
+            this.fuelDirty = false;
+        }
+    }*/
 
     @Override
     public void update()
@@ -208,20 +236,18 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             return;
         }
 
-        boolean needsSync = false;
-        boolean dirty = false;
+        this.updateSmeltingResult();
 
-        if (this.fillOutputSlotFromBuffer() == true)
-        {
-            needsSync = true;
-        }
+        boolean dirty = false;
+        boolean canSmelt = this.canSmelt();
+        boolean hasFuel = this.hasFuelAvailable();
 
         int cookTimeIncrement = COOKTIME_INC_SLOW;
-        if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == false)
+        if (this.burnTimeRemaining == 0 && hasFuel == false)
         {
             cookTimeIncrement = COOKTIME_INC_NOFUEL;
         }
-        else if (this.operatingMode == 1) // Fast mode
+        else if (this.fastMode == true)
         {
             cookTimeIncrement = COOKTIME_INC_FAST;
         }
@@ -229,18 +255,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         // The furnace is currently burning fuel
         if (this.burnTimeRemaining > 0)
         {
-            int btUse = BURNTIME_USAGE_SLOW;
-            if (this.operatingMode == 1) // Fast mode
-            {
-                btUse = BURNTIME_USAGE_FAST;
-            }
+            int btUse = (this.fastMode == true ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
 
             // Not enough fuel burn time remaining for the elapsed tick
             if (btUse > this.burnTimeRemaining)
             {
-                if (this.hasFuelAvailable() == true && this.canSmelt() == true)
+                if (hasFuel == true && canSmelt == true)
                 {
                     this.burnTimeRemaining += consumeFuelItem();
+                    hasFuel = this.hasFuelAvailable();
                 }
                 // Running out of fuel, scale the cook progress according to the elapsed burn time
                 else
@@ -253,65 +276,65 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             this.burnTimeRemaining -= btUse;
             dirty = true;
         }
-        else if (this.canSmelt() == true && this.hasFuelAvailable() == true)
+        // Furnace wasn't burning, but it now has fuel and smeltable items, start burning/smelting
+        else if (canSmelt == true && hasFuel == true)
         {
             this.burnTimeRemaining += this.consumeFuelItem();
+            hasFuel = this.hasFuelAvailable();
             dirty = true;
         }
 
         // Valid items to smelt, room in output
-        if (this.canSmelt() == true)
+        if (canSmelt == true)
         {
-            this.cookTimeFresh = COOKTIME_DEFAULT; // TODO: per-item cook times?
             this.cookTime += cookTimeIncrement;
 
             // One item done smelting
-            if (this.cookTime >= this.cookTimeFresh)
+            if (this.cookTime >= COOKTIME_DEFAULT)
             {
                 this.smeltItem();
-                needsSync = true;
+                canSmelt = this.canSmelt();
 
                 // We can smelt the next item and we "overcooked" the last one, carry over the extra progress
-                if (this.canSmelt() == true && this.cookTime > this.cookTimeFresh)
+                if (canSmelt == true && this.cookTime > COOKTIME_DEFAULT)
                 {
-                    this.cookTime -= this.cookTimeFresh;
+                    this.cookTime -= COOKTIME_DEFAULT;
                 }
                 else // No more items to smelt or didn't overcook
                 {
                     this.cookTime = 0;
                 }
             }
+
             // If the current fuel ran out and we still have items to cook, consume the next fuel item
-            if (this.burnTimeRemaining == 0 && this.hasFuelAvailable() == true && this.canSmelt() == true)
+            if (this.burnTimeRemaining == 0 && hasFuel == true && canSmelt == true)
             {
                 this.burnTimeRemaining += consumeFuelItem();
             }
+
             dirty = true;
         }
-        else
+        // Can't smelt anything at the moment, rewind the cooking progress at half the speed of normal cooking
+        else if (this.cookTime > 0)
         {
-            if (this.cookTime != 0)
+            this.cookTime -= Math.min(this.cookTime, COOKTIME_INC_SLOW / 2);
+            dirty = true;
+        }
+
+        // Output to Ender Chest enabled
+        if (this.outputToEnderChest == true && this.itemStacks[SLOT_OUTPUT] != null && ++this.timer >= OUTPUT_INTERVAL)
+        {
+            if (this.moveItemsToEnderChest() == true)
             {
                 dirty = true;
             }
 
-            this.cookTime = 0;
-            this.cookTimeFresh = 0;
+            this.timer = 0;
         }
 
-        // Output to Ender Chest enabled
-        if (this.outputMode == 1 && this.itemStacks[SLOT_OUTPUT] != null && this.itemStacks[SLOT_OUTPUT].stackSize > 0)
+        if (this.fillOutputSlotFromBuffer() == true)
         {
-            if (++this.timer >= OUTPUT_INTERVAL)
-            {
-                this.timer = 0;
-
-                if (this.moveItemsToEnderChest() == true)
-                {
-                    dirty = true;
-                    needsSync = true;
-                }
-            }
+            dirty = true;
         }
 
         if (dirty == true)
@@ -320,18 +343,85 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         }
 
         // Check if we need to sync some stuff to the clients
-        if (needsSync == true || this.isBurningLast != this.isBurning() || this.isCookingLast != this.canSmelt())
+        if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
             this.worldObj.markBlockForUpdate(this.getPos());
         }
 
         this.isBurningLast = this.isBurning();
-        this.isCookingLast = this.canSmelt();
+        this.isCookingLast = canSmelt;
     }
 
+    /**
+     * Turn one item from the furnace input slot into a smelted item in the furnace output buffer.
+     */
+    public void smeltItem()
+    {
+        if (this.canSmelt() == true)
+        {
+            if (this.outputBufferStack == null)
+            {
+                this.outputBufferStack = this.smeltingResultCache.copy();
+            }
+            else
+            {
+                this.outputBufferStack.stackSize += this.smeltingResultCache.stackSize;
+            }
+
+            if (--this.itemStacks[SLOT_INPUT].stackSize <= 0)
+            {
+                this.itemStacks[SLOT_INPUT] = null;
+                this.inputDirty = true;
+            }
+        }
+    }
+
+    /**
+     * Consumes one fuel item or one dose of fluid fuel. Sets the burnTimeFresh field to the amount of burn time gained.
+     * @return returns the amount of furnace burn time that was gained from the fuel
+     */
+    public int consumeFuelItem()
+    {
+        if (this.itemStacks[SLOT_FUEL] == null)
+        {
+            return 0;
+        }
+
+        int burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
+
+        // IFluidContainerItem items with lava
+        if (burnTime > 0)
+        {
+            this.burnTimeFresh = burnTime;
+            //this.fuelDirty = true;
+        }
+        // Regular solid fuels
+        else
+        {
+            burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL]);
+
+            if (burnTime > 0)
+            {
+                if (--this.itemStacks[SLOT_FUEL].stackSize <= 0)
+                {
+                    this.itemStacks[SLOT_FUEL] = this.itemStacks[SLOT_FUEL].getItem().getContainerItem(this.itemStacks[SLOT_FUEL]);
+                    //this.fuelDirty = true;
+                }
+
+                this.burnTimeFresh = burnTime;
+            }
+        }
+
+        return burnTime;
+    }
+
+    /**
+     * Transfers items from the output buffer to the output slot.
+     * @return true if some items were moved
+     */
     private boolean fillOutputSlotFromBuffer()
     {
-        if (this.outputBufferAmount == 0 || this.outputBufferStack == null)
+        if (this.outputBufferStack == null)
         {
             return false;
         }
@@ -340,6 +430,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         {
             this.itemStacks[SLOT_OUTPUT] = this.outputBufferStack.copy();
             this.itemStacks[SLOT_OUTPUT].stackSize = 0;
+        }
+        else if (InventoryUtils.areItemStacksEqual(this.itemStacks[SLOT_OUTPUT], this.outputBufferStack) == false)
+        {
+            return false;
         }
 
         int size = this.itemStacks[SLOT_OUTPUT].stackSize;
@@ -350,10 +444,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             return false;
         }
 
-        int amount = Math.min(max - size, this.outputBufferAmount);
+        int amount = Math.min(max - size, this.outputBufferStack.stackSize);
         this.itemStacks[SLOT_OUTPUT].stackSize += amount;
-        this.outputBufferAmount -= amount;
-        if (this.outputBufferAmount <= 0)
+        this.outputBufferStack.stackSize -= amount;
+
+        if (this.outputBufferStack.stackSize <= 0)
         {
             this.outputBufferStack = null;
         }
@@ -361,6 +456,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         return true;
     }
 
+    /**
+     * Moves as many items from the output slot to the owner's vanilla Ender Chest as possible.
+     * Tries to first fill matching stacks to their max, then puts items into the first empty slot.
+     * @return true if some items were moved
+     */
     private boolean moveItemsToEnderChest()
     {
         if (this.itemStacks[SLOT_OUTPUT] == null)
@@ -368,48 +468,73 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             return false;
         }
 
-        EntityPlayer player = EntityUtils.findPlayerFromUUID(this.ownerUUID);
+        EntityPlayer player = EntityUtils.findPlayerByUUID(this.ownerUUID);
         boolean movedSomething = false;
 
         // Player is online
         if (player != null)
         {
-            ItemStack enderChestStack;
             InventoryEnderChest invEnderChest = player.getInventoryEnderChest();
+            ItemStack enderChestStack;
 
-            for (int i = 0, size = 0; i < invEnderChest.getSizeInventory(); ++i)
+            int invSize = invEnderChest.getSizeInventory();
+            int amount = 0;
+
+            // First loop through the Ender Chest: fill matching stacks
+            for (int i = 0; i < invSize; ++i)
             {
-                size = 0;
+                enderChestStack = invEnderChest.getStackInSlot(i);
+
+                if (enderChestStack == null)
+                {
+                    continue;
+                }
+
+                if (InventoryUtils.areItemStacksEqual(this.itemStacks[SLOT_OUTPUT], enderChestStack) == true)
+                {
+                    amount = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit() - enderChestStack.stackSize);
+                    amount = Math.min(amount, this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
+
+                    if (amount > 0)
+                    {
+                        enderChestStack.stackSize += amount;
+                        this.itemStacks[SLOT_OUTPUT].stackSize -= amount;
+                        movedSomething = true;
+
+                        if (this.itemStacks[SLOT_OUTPUT].stackSize <= 0)
+                        {
+                            this.itemStacks[SLOT_OUTPUT] = null;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // Second loop (if we still have more items): move items to an empty slot
+            for (int i = 0; i < invSize; ++i)
+            {
                 enderChestStack = invEnderChest.getStackInSlot(i);
 
                 if (enderChestStack != null)
                 {
-                    enderChestStack = enderChestStack.copy();
-                    size = enderChestStack.stackSize;
+                    continue;
                 }
 
-                // Check that the target stack either is empty, or has the same item, same damage and same NBT
-                if (enderChestStack == null ||
-                        ((invEnderChest.getInventoryStackLimit() - size) > 0 &&
-                        this.itemStacks[SLOT_OUTPUT].isItemEqual(enderChestStack) &&
-                        ItemStack.areItemStackTagsEqual(this.itemStacks[SLOT_OUTPUT], enderChestStack)))
+                amount = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit());
+                amount = Math.min(amount, this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
+
+                if (amount > 0)
                 {
-                    if (enderChestStack == null)
-                    {
-                        enderChestStack = this.itemStacks[SLOT_OUTPUT].copy();
-                    }
-
-                    int moved = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit() - size);
-                    enderChestStack.stackSize = size + moved;
-
-                    invEnderChest.setInventorySlotContents(i, enderChestStack);
-                    this.itemStacks[SLOT_OUTPUT].stackSize -= moved;
+                    ItemStack newStack = this.itemStacks[SLOT_OUTPUT].copy();
+                    newStack.stackSize = amount;
+                    this.itemStacks[SLOT_OUTPUT].stackSize -= amount;
+                    invEnderChest.setInventorySlotContents(i, newStack);
                     movedSomething = true;
 
                     if (this.itemStacks[SLOT_OUTPUT].stackSize <= 0)
                     {
                         this.itemStacks[SLOT_OUTPUT] = null;
-                        break;
+                        return true;
                     }
                 }
             }
@@ -418,16 +543,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         return movedSomething;
     }
 
-    public int getOutputBufferAmount()
-    {
-        return this.outputBufferAmount;
-    }
-
-    public ItemStack getOutputBufferStack()
-    {
-        return this.outputBufferStack;
-    }
-
+    /**
+     * Checks if there is a valid fuel item in the fuel slot.
+     * @return true if the fuel slot has an item that can be used as fuel
+     */
     public boolean hasFuelAvailable()
     {
         if (this.itemStacks[SLOT_FUEL] == null)
@@ -435,129 +554,38 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             return false;
         }
 
-        return (getItemBurnTime(this.itemStacks[SLOT_FUEL]) > 0 || itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]));
+        return (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true || getItemBurnTime(this.itemStacks[SLOT_FUEL]) > 0);
     }
 
     /**
-     * Consumes one fuel item or one dose of fluid fuel.
-     * @return returns the amount of furnace burn time that was gained from the fuel
-     */
-    public int consumeFuelItem()
-    {
-        if (this.itemStacks[SLOT_FUEL] == null)
-        {
-            return 0;
-        }
-
-        int burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL]);
-
-        // Regular solid fuels
-        if (burnTime > 0)
-        {
-            if (--this.itemStacks[SLOT_FUEL].stackSize <= 0)
-            {
-                this.itemStacks[SLOT_FUEL] = this.itemStacks[SLOT_FUEL].getItem().getContainerItem(this.itemStacks[SLOT_FUEL]);
-            }
-            this.burnTimeFresh = burnTime;
-        }
-        // IFluidContainerItem items with lava
-        else if (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true)
-        {
-            burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
-            this.burnTimeFresh = burnTime;
-        }
-
-        return burnTime;
-    }
-
-    /**
-     * Returns true if the furnace can smelt an item. Checks the input slot for valid smeltable items and the output slots and buffer
-     * for stackable items and free space. Does not check the fuel.
+     * Returns true if the furnace can smelt an item. Checks the input slot for valid smeltable items and the output buffer
+     * for an equal item and free space or empty buffer. Does not check the fuel.
      * @return true if input and output item stacks allow the current item to be smelted
      */
     public boolean canSmelt()
     {
-        if (this.itemStacks[SLOT_INPUT] == null)
+        if (this.itemStacks[SLOT_INPUT] == null || this.smeltingResultCache == null)
         {
             return false;
         }
-        else
+
+        int amount = 0;
+        if (this.outputBufferStack != null)
         {
-            ItemStack resultStack = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
-            if (resultStack == null)
+            if (InventoryUtils.areItemStacksEqual(this.smeltingResultCache, this.outputBufferStack) == false)
             {
                 return false;
             }
 
-            if (this.itemStacks[SLOT_OUTPUT] == null && this.outputBufferAmount == 0)
-            {
-                return true;
-            }
-
-            if (this.itemStacks[SLOT_OUTPUT] != null &&
-                (this.itemStacks[SLOT_OUTPUT].isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.itemStacks[SLOT_OUTPUT], resultStack) == false))
-            {
-                return false;
-            }
-
-            if (this.outputBufferStack != null &&
-                (this.outputBufferStack.isItemEqual(resultStack) == false || ItemStack.areItemStackTagsEqual(this.outputBufferStack, resultStack) == false))
-            {
-                return false;
-            }
-
-            int amount = 0;
-            int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
-            if (this.itemStacks[SLOT_OUTPUT] != null)
-            {
-                amount = this.itemStacks[SLOT_OUTPUT].stackSize;
-            }
-            amount = amount + this.outputBufferAmount + resultStack.stackSize;
-
-            return amount <= (OUTPUT_BUFFER_SIZE + stackLimit);
+            amount = this.outputBufferStack.stackSize;
         }
-    }
 
-    /**
-     * Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
-     */
-    public void smeltItem()
-    {
-        if (this.canSmelt() == true)
+        if ((OUTPUT_BUFFER_SIZE - amount) < this.smeltingResultCache.stackSize)
         {
-            ItemStack resultStack = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
-            int stackLimit = Math.min(this.getInventoryStackLimit(), resultStack.getMaxStackSize());
-
-            if (this.itemStacks[SLOT_OUTPUT] == null)
-            {
-                this.itemStacks[SLOT_OUTPUT] = resultStack.copy();
-                this.itemStacks[SLOT_OUTPUT].stackSize = 0;
-            }
-
-            int resultAmount = resultStack.stackSize;
-
-            if ((this.itemStacks[SLOT_OUTPUT].stackSize + resultAmount) <= stackLimit)
-            {
-                this.itemStacks[SLOT_OUTPUT].stackSize += resultAmount;
-            }
-            else
-            {
-                int max = stackLimit - this.itemStacks[SLOT_OUTPUT].stackSize;
-                this.itemStacks[SLOT_OUTPUT].stackSize += max;
-                this.outputBufferAmount += (resultAmount - max);
-
-                if (this.outputBufferStack == null)
-                {
-                    this.outputBufferStack = resultStack.copy();
-                    this.outputBufferStack.stackSize = 1;
-                }
-            }
-
-            if (--this.itemStacks[SLOT_INPUT].stackSize <= 0)
-            {
-                this.itemStacks[SLOT_INPUT] = null;
-            }
+            return false;
         }
+
+        return true;
     }
 
     /**
@@ -580,6 +608,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
             if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 120; }
             if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 45 / 40; }
+            if (block == Blocks.sapling) return COOKTIME_DEFAULT * 3 / 4;
         }
         else
         {
@@ -593,7 +622,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
 
             if (item == Items.lava_bucket) return COOKTIME_DEFAULT * 150;
             if (item == Items.stick) return COOKTIME_DEFAULT * 3 / 4;
-            if (item == Item.getItemFromBlock(Blocks.sapling)) return COOKTIME_DEFAULT * 3 / 4;
             if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
             if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
             //if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10; // FIXME 1.8 update
@@ -644,7 +672,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
      */
     public static boolean itemContainsFluidFuel(ItemStack stack)
     {
-        if (stack == null || stack.getItem() == null || (stack.getItem() instanceof IFluidContainerItem) == false)
+        if (stack == null || (stack.getItem() instanceof IFluidContainerItem) == false)
         {
             return false;
         }
@@ -665,8 +693,57 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     }
 
     @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
+    public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
+        //System.out.println("decrStackSize(slot: " + slotNum + " maxAmount: " + maxAmount + ")");
+        if (slotNum == SLOT_INPUT)
+        {
+            this.inputDirty = true;
+        }
+        /*else if (slotNum == SLOT_FUEL)
+        {
+            this.fuelDirty = true;
+        }*/
+
+        return super.decrStackSize(slotNum, maxAmount);
+    }
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int slotNum)
+    {
+        //System.out.println("getStackInSlotOnClosing(slot: " + slotNum + ")");
+        if (slotNum == SLOT_INPUT)
+        {
+            this.inputDirty = true;
+        }
+        /*else if (slotNum == SLOT_FUEL)
+        {
+            this.fuelDirty = true;
+        }*/
+
+        return super.getStackInSlotOnClosing(slotNum);
+    }
+
+    @Override
+    public void setInventorySlotContents(int slotNum, ItemStack stack)
+    {
+        //System.out.println("setInventorySlotContents(slot: " + slotNum + ", " + stack + ")");
+        if (slotNum == SLOT_INPUT && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == false)
+        {
+            this.inputDirty = true;
+        }
+        /*else if (slotNum == SLOT_FUEL && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == false)
+        {
+            this.fuelDirty = true;
+        }*/
+
+        super.setInventorySlotContents(slotNum, stack);
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
+    {
+        //System.out.println("isItemvalidForSlot(slot: " + slotNum + ", " + stack + ")");
         // Don't allow inserting anything to the output slot
         if (slotNum == 2)
         {
@@ -676,28 +753,24 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         // Only accept fuels into the fuel slot
         if (slotNum == 1)
         {
-            return isItemFuel(itemStack);
+            return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || isItemFuel(stack) == true;
         }
 
-        return FurnaceRecipes.instance().getSmeltingResult(itemStack) != null;
+        return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || FurnaceRecipes.instance().getSmeltingResult(stack) != null;
     }
 
     @Override
     public int[] getSlotsForFace(EnumFacing face)
     {
+        //System.out.println("getAccessibleSlotsFromSide(side: " + side + ")");
         // Allow access to all slots from all sides
         return SLOTS_SIDES;
     }
 
     @Override
-    public boolean canInsertItem(int slot, ItemStack stack, EnumFacing face)
-    {
-        return this.isItemValidForSlot(slot, stack);
-    }
-
-    @Override
     public boolean canExtractItem(int slot, ItemStack stack, EnumFacing face)
     {
+        //System.out.println("canExtractItem(slot: " + slot + ", " + stack + " side: " + side + ")");
         // Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
         if (slot == 1)
         {
@@ -705,7 +778,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         }
 
         // Allow pulling out output items from any side, but only when not outputting to Ender Chest
-        if (slot == 2 && (this.outputMode & 0x01) == 0)
+        if (slot == 2 && this.outputToEnderChest == false)
         {
             return true;
         }
@@ -733,22 +806,43 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         // 0: Operating mode (slow/eco vs. fast)
         if (element == 0)
         {
-            if (++this.operatingMode > 1)
-            {
-                this.operatingMode = 0;
-            }
-            this.markDirty();
+            this.fastMode = ! this.fastMode;
             this.worldObj.markBlockForUpdate(this.getPos());
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (element == 1)
         {
-            if (++this.outputMode > 1)
-            {
-                this.outputMode = 0;
-            }
-            this.markDirty();
-            this.worldObj.markBlockForUpdate(this.getPos());
+            this.outputToEnderChest = ! this.outputToEnderChest;
         }
+
+        this.markDirty();
+    }
+
+    /**
+     * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
+     * @param i
+     * @return
+     */
+    @SideOnly(Side.CLIENT)
+    public int getCookProgressScaled(int i)
+    {
+        return this.cookTime * i / COOKTIME_DEFAULT;
+    }
+
+    /**
+     * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
+     * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
+     * @param i
+     * @return
+     */
+    @SideOnly(Side.CLIENT)
+    public int getBurnTimeRemainingScaled(int i)
+    {
+        if (this.burnTimeFresh == 0)
+        {
+            return 0;
+        }
+
+        return this.burnTimeRemaining * i / this.burnTimeFresh;
     }
 }

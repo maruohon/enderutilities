@@ -5,13 +5,21 @@ public class ReferenceNames
     public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
 
+    public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
+
 
     public static final String NAME_TILE_MACHINE_0              = "machine.0";
+    public static final String NAME_TILE_MACHINE_1              = "machine.1";
+
+    public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge.transmitter";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RECEIVER      = "energybridge.receiver";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge.resonator";
 
 
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
+    public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
 
     public static final String NAME_MODEL_ITEM_BASE                 = "model_item_base";
     public static final String NAME_MODEL_BLOCK_BASE                = "model_block_base";

@@ -1,0 +1,6 @@
+{
+    "jailer":
+    {
+        "category": "master", "sounds": [{"name": "jailer", "stream": false}]
+    }
+}

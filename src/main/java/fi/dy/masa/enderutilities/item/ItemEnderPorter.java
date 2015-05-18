@@ -50,9 +50,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return super.getUnlocalizedName();
     }
 
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
@@ -80,7 +77,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
         {
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, player, cost, false) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
             {
                 return stack;
             }
@@ -130,7 +127,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
 
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, player, cost, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
             {
                 return;
             }
@@ -142,7 +139,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack stack)
     {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -155,15 +152,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 4;
+            return 9;
         }
 
         return 0;
     }
 
-    /**
-     * How long it takes to use or consume an item
-     */
     @Override
     public int getMaxItemUseDuration(ItemStack stack)
     {
