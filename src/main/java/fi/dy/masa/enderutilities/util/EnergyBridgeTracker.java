@@ -18,10 +18,16 @@ import net.minecraftforge.common.util.Constants;
 
 public class EnergyBridgeTracker
 {
+    private static boolean dirty = false;
     private static List<DimBlockPos> bridgeLocations = new ArrayList<DimBlockPos>();
     private static TIntObjectHashMap<Integer> bridgeCounts = new TIntObjectHashMap<Integer>();
 
     public static void addBridgeLocation(DimBlockPos pos)
+    {
+        addBridgeLocation(pos, true);
+    }
+
+    private static void addBridgeLocation(DimBlockPos pos, boolean markDirty)
     {
         Integer count = bridgeCounts.get(pos.dimension);
         if (count == null)
@@ -34,6 +40,11 @@ public class EnergyBridgeTracker
         if (bridgeLocations.contains(pos) == false)
         {
             bridgeLocations.add(pos);
+        }
+
+        if (markDirty == true)
+        {
+            dirty = true;
         }
     }
 
@@ -49,6 +60,8 @@ public class EnergyBridgeTracker
         {
             bridgeCounts.put(pos.dimension, Integer.valueOf(count.intValue() - 1));
         }
+
+        dirty = true;
     }
 
     public static boolean dimensionHasEnergyBridge(int dimension)
@@ -74,7 +87,7 @@ public class EnergyBridgeTracker
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
             if (tag.hasKey("Dim", Constants.NBT.TAG_INT) && tag.hasKey("posX", Constants.NBT.TAG_INT) && tag.hasKey("posY", Constants.NBT.TAG_INT) && tag.hasKey("posZ", Constants.NBT.TAG_INT))
             {
-                addBridgeLocation(new DimBlockPos(tag.getInteger("Dim"), tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ")));
+                addBridgeLocation(new DimBlockPos(tag.getInteger("Dim"), tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ")), false);
             }
         }
     }
@@ -137,6 +150,11 @@ public class EnergyBridgeTracker
 
     public static void writeToDisk()
     {
+        if (dirty == false)
+        {
+            return;
+        }
+
         try
         {
             File saveDir = DimensionManager.getCurrentSaveRootDirectory();
@@ -164,6 +182,7 @@ public class EnergyBridgeTracker
             }
 
             fileTmp.renameTo(fileReal);
+            dirty = false;
         }
         catch (Exception e)
         {
