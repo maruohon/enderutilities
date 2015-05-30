@@ -70,15 +70,17 @@ public class EnergyBridgeTracker
         return count != null && count.intValue() > 0;
     }
 
+    /**
+     * Reads the Energy Bridge locations from NBT and adds them to the list.
+     * NOTE: Does NOT clear the list before adding the new locations to it.
+     * @param nbt
+     */
     public static void readFromNBT(NBTTagCompound nbt)
     {
         if (nbt == null || nbt.hasKey("EnergyBridges", Constants.NBT.TAG_LIST) == false)
         {
             return;
         }
-
-        bridgeLocations.clear();
-        bridgeCounts.clear();
 
         NBTTagList tagList = nbt.getTagList("EnergyBridges", Constants.NBT.TAG_COMPOUND);
         int count = tagList.tagCount();
@@ -128,6 +130,11 @@ public class EnergyBridgeTracker
 
     public static void readFromDisk()
     {
+        // Clear the data structures when reading the data for a world/save, so that valid Energy Bridges
+        // from another world won't carry over to a world/save that doesn't have the file yet.
+        bridgeLocations.clear();
+        bridgeCounts.clear();
+
         try
         {
             File saveDir = DimensionManager.getCurrentSaveRootDirectory();
