@@ -22,27 +22,24 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         this.maxSpeed = maxSpeed;
     }
 
-    /**
-     * Execute a one shot task or start executing a continuous task
-     */
+    @Override
+    public boolean isInterruptible()
+    {
+        return false;
+    }
+
     @Override
     public void startExecuting()
     {
         this.setMutexBits(7); // Block most other AI tasks while riding a mob. Mostly just the swim task is allowed.
     }
 
-    /**
-     * Resets the task
-     */
     @Override
     public void resetTask()
     {
         this.setMutexBits(0); // Don't block other AI tasks when not running
     }
 
-    /**
-     * Updates the task
-     */
     @Override
     public void updateTask()
     {

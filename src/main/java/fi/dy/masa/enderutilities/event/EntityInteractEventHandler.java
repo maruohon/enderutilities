@@ -37,7 +37,7 @@ public class EntityInteractEventHandler
 
         if (item == EnderUtilitiesItems.mobHarness)
         {
-            if (event.target instanceof EntityLivingBase)
+            if (event.entityPlayer.worldObj.isRemote == false && event.target instanceof EntityLivingBase)
             {
                 ((ItemMobHarness)stack.getItem()).handleInteraction(stack, event.entityPlayer, event.target);
                 event.setCanceled(true);

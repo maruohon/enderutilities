@@ -9,7 +9,6 @@ import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -345,22 +344,21 @@ public class EntityUtils
         }
 
         int priority = -1;
-        EntityAITasks tasks = living.tasks;
-        Iterator<EntityAITaskEntry> taskEntryIter = tasks.taskEntries.iterator();
+        Iterator<EntityAITaskEntry> taskEntryIter = living.tasks.taskEntries.iterator();
 
         while (taskEntryIter.hasNext() == true)
         {
             EntityAITaskEntry taskEntry = taskEntryIter.next();
 
             // If this entity already has the same AI task
-            if (taskEntry.action.getClass() == task.getClass())
+            if (taskEntry.action.getClass().equals(task.getClass()))
             {
                 // Replace the old matching task with the new instance
                 if (replaceMatching == true)
                 {
                     int p = taskEntry.priority;
-                    tasks.removeTask(taskEntry.action);
-                    tasks.addTask(p, task);
+                    living.tasks.removeTask(taskEntry.action);
+                    living.tasks.addTask(p, task);
                 }
 
                 return true;
@@ -368,7 +366,7 @@ public class EntityUtils
 
             for (Class<? extends EntityAIBase> clazz : afterTasks)
             {
-                if (priority <= taskEntry.priority && clazz == taskEntry.action.getClass())
+                if (priority <= taskEntry.priority && clazz.equals(taskEntry.action.getClass()))
                 {
                     priority = taskEntry.priority + 1;
                 }
@@ -381,7 +379,7 @@ public class EntityUtils
             priority = 0;
         }
 
-        tasks.addTask(priority, task);
+        living.tasks.addTask(priority, task);
 
         return true;
     }
