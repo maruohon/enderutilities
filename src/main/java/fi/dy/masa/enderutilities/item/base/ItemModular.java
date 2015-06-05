@@ -22,6 +22,12 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     }
 
     @Override
+    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    {
+        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
+    }
+
+    @Override
     public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleStack(stack, moduleType);

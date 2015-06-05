@@ -9,7 +9,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -62,23 +61,18 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
         {
             String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
-            NBTTagCompound nbt = moduleStack.getTagCompound();
-            String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
-            if (nbt != null && nbt.hasKey("display", Constants.NBT.TAG_COMPOUND) == true)
+            if (moduleStack.hasDisplayName() == true)
             {
-                NBTTagCompound tagDisplay = nbt.getCompoundTag("display");
-                if (tagDisplay.hasKey("Name", Constants.NBT.TAG_STRING) == true)
+                String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+                if (itemName.length() >= 14)
                 {
-                    if (itemName.length() >= 14)
-                    {
-                        return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + tagDisplay.getString("Name") + rst;
-                    }
-
-                    return itemName + " " + pre + tagDisplay.getString("Name") + rst;
+                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
                 }
+
+                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
             }
 
             NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
@@ -90,8 +84,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 }
 
                 String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-                pre = EnumChatFormatting.GREEN.toString();
-                return itemName + " " + pre + dimName + rst;
+                return itemName + " " + EnumChatFormatting.GREEN.toString() + dimName + rst;
             }
         }
 
@@ -270,6 +263,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return UtilItemModular.getMaxModuleTier(stack, moduleType);
     }
 
+    @Override
     public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
     {
         return UtilItemModular.getSelectedModuleTier(stack, moduleType);

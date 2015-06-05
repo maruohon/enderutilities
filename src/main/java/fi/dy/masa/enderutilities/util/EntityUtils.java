@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -19,7 +20,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -28,6 +31,23 @@ import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
+    public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+
+    public static ForgeDirection getLookingDirection(Entity entity)
+    {
+        if (entity.rotationPitch < -45)
+        {
+            return ForgeDirection.UP;
+        }
+
+        if (entity.rotationPitch > 45)
+        {
+            return ForgeDirection.DOWN;
+        }
+
+        return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+    }
+
     public static EntityPlayer findPlayerByUUID(UUID uuid)
     {
         if (uuid == null)
@@ -223,6 +243,38 @@ public class EntityUtils
         }
 
         entity.riddenByEntity = null;
+    }
+
+    /**
+     * Returns true if the given entity's bounding box is inside the block space of a block
+     * of the given type.
+     * @param world
+     * @param entity
+     * @param block
+     * @return true if the entity is inside the given block type
+     */
+    public static boolean isEntityCollidingWithBlockSpace(World world, Entity entity, Block block)
+    {
+        AxisAlignedBB bb = entity.boundingBox;
+        int mX = MathHelper.floor_double(bb.minX);
+        int mY = MathHelper.floor_double(bb.minY);
+        int mZ = MathHelper.floor_double(bb.minZ);
+
+        for (int y2 = mY; y2 < bb.maxY; y2++)
+        {
+            for (int x2 = mX; x2 < bb.maxX; x2++)
+            {
+                for (int z2 = mZ; z2 < bb.maxZ; z2++)
+                {
+                    if (world.getBlock(x2, y2, z2) == block)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

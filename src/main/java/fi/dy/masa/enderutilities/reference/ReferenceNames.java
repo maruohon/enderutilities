@@ -31,6 +31,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL      = "linkcrystal";
     public static final String NAME_ITEM_ENDERPART_MOBPERSISTENCE   = "mobpersistence";
     public static final String NAME_ITEM_ENDERPART_ENDERRELIC       = "enderrelic";
+    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard.misc";
 
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
     public static final String NAME_ITEM_ENDER_PICKAXE          = "enderpickaxe";
@@ -48,6 +49,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDER_PEARL_REUSABLE   = "enderpearlreusable";
     public static final String NAME_ITEM_ENDER_PORTER           = "enderporter";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
+    public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";
 
 
     public static String getPrefixedName(String name)

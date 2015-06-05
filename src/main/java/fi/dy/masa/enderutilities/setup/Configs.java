@@ -46,6 +46,7 @@ public class Configs
     public static Property disableItemEnderSword;
     public static Property disableItemEnderTools;
     public static Property disableItemMobHarness;
+    public static Property disableItemPortalScaler;
 
     // Recipe disable
     // Blocks
@@ -68,6 +69,7 @@ public class Configs
     public static Property disableRecipeEnderPorterBasic;
     public static Property disableRecipeEnderPorterAdvanced;
     public static Property disableRecipeMobHarness;
+    public static Property disableRecipePortalScaler;
     public static Property disableRecipeEnderSword;
     public static Property disableRecipeEnderPickaxe;
     public static Property disableRecipeEnderAxe;
@@ -94,3 +96,4 @@ public class Configs
     public static Property disableRecipeModuleLinkCrystalBlock;
     public static Property disableRecipeModuleLinkCrystalPortal;
 }
+

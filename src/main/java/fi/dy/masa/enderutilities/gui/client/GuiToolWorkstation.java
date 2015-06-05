@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -24,12 +27,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
             return -1;
         }
 
-        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE)) { return 0; }
-        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR)) { return 18; }
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL)) { return 36; }
-        if (moduleType.equals(ModuleType.TYPE_MOBPERSISTENCE)) { return 54; }
-
-        return -1;
+        return moduleType.getOrdinal() * 18;
     }
 
     @Override
@@ -60,7 +58,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
         // No tool in the tool slot, draw the background
         else
         {
-            this.drawTexturedModalRect(x + 7, y + 18, 176, 18, 18, 18);
+            this.drawTexturedModalRect(x + 7, y + 18, 230, 18, 18, 18);
         }
 
         // Module slots
@@ -71,7 +69,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
             // Draw a darker background over the disabled slots
             if (this.inventorySlots.getSlot(0).getHasStack() == false || i > maxModules)
             {
-                this.drawTexturedModalRect(x + dx, y + dy, 176, 0, 18, 18);
+                this.drawTexturedModalRect(x + dx, y + dy, 230, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
             else if (slot instanceof SlotUpgradeModule && slot.getHasStack() == false)
@@ -80,7 +78,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
                 // Only one type of module is allowed in this slot
                 if (offset >= 0)
                 {
-                    this.drawTexturedModalRect(x + dx, y + dy, 176, 36 + offset, 18, 18);
+                    this.drawTexturedModalRect(x + dx, y + dy, 176, offset, 18, 18);
                 }
             }
 
@@ -96,6 +94,16 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        // Hovering over the tool slot
+        if (mouseX >= x + 7 && mouseX <= x + 22 && mouseY >= y + 18 && mouseY <= y + 33 && this.inventorySlots.getSlot(0).getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool", new Object[0]));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
     }
 
     @Override

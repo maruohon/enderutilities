@@ -20,6 +20,8 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPart extends ItemModule
 {
+    public static final int MEMORY_CARD_TYPE_MISC = 0;
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
@@ -83,6 +85,12 @@ public class ItemEnderPart extends ItemModule
             return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE;
         }
 
+        // Damage 50: Memory Card (misc)
+        if (stack.getItemDamage() == 50)
+        {
+            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
+        }
+
         return super.getUnlocalizedName();
     }
 
@@ -111,7 +119,7 @@ public class ItemEnderPart extends ItemModule
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
         // Jailer module
-        if (stack != null && stack.getItemDamage() == 45)
+        if (stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
             {
@@ -155,6 +163,12 @@ public class ItemEnderPart extends ItemModule
             return ModuleType.TYPE_MOBPERSISTENCE;
         }
 
+        // Memory Card
+        if (stack.getItemDamage() == 50)
+        {
+            return ModuleType.TYPE_MEMORY_CARD;
+        }
+
         return ModuleType.TYPE_INVALID;
     }
 
@@ -162,19 +176,25 @@ public class ItemEnderPart extends ItemModule
     public int getModuleTier(ItemStack stack)
     {
         // Inactive Ender Cores
-        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_INACTIVE))
         {
             return stack.getItemDamage() - 10;
         }
 
         // Active Ender Cores
-        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
         {
             return stack.getItemDamage() - 15;
         }
 
         // Mob Persistence
-        if (stack.getItemDamage() == 45)
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
+        {
+            return 0;
+        }
+
+        // Memory Card
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD))
         {
             return 0;
         }
@@ -208,10 +228,9 @@ public class ItemEnderPart extends ItemModule
 
             list.add(new ItemStack(this, 1, 20)); // Ender Stick
             list.add(new ItemStack(this, 1, 21)); // Ender Rope
-
             list.add(new ItemStack(this, 1, 40)); // Ender Relic
-
             list.add(new ItemStack(this, 1, 45)); // Mob Persistence
+            list.add(new ItemStack(this, 1, 50)); // Memory Card
         }
     }
 
@@ -220,7 +239,7 @@ public class ItemEnderPart extends ItemModule
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-        this.iconArray = new IIcon[13];
+        this.iconArray = new IIcon[14];
 
         int i = 0, j;
 
@@ -243,6 +262,7 @@ public class ItemEnderPart extends ItemModule
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC);
     }
 
     @SideOnly(Side.CLIENT)
@@ -258,17 +278,11 @@ public class ItemEnderPart extends ItemModule
         // Ender Core (active)
         if (damage >= 15 && damage <= 17) { return this.iconArray[damage - 9]; }
 
-        // Ender Stick
-        if (damage == 20) { return this.iconArray[9]; }
-
-        // Ender Rope
-        if (damage == 21) { return this.iconArray[10]; }
-
-        // Ender Rope
-        if (damage == 40) { return this.iconArray[11]; }
-
-        // Mob Persistence
-        if (damage == 45) { return this.iconArray[12]; }
+        if (damage == 20) { return this.iconArray[9]; } // Ender Stick
+        if (damage == 21) { return this.iconArray[10]; } // Ender Rope
+        if (damage == 40) { return this.iconArray[11]; } // Ender Relic
+        if (damage == 45) { return this.iconArray[12]; } // Mob Persistence
+        if (damage == 50) { return this.iconArray[13]; } // Memory Card
 
         return this.itemIcon;
     }

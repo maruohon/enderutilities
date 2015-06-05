@@ -60,6 +60,7 @@ item.enderutilities.enderpart.endercore.2.inactive.name=Inactive Ender Core (Adv
 item.enderutilities.enderpart.enderrelic.name=Ender Relic
 item.enderutilities.enderpart.enderrope.name=Ender Rope
 item.enderutilities.enderpart.enderstick.name=Ender Infused Stick
+item.enderutilities.enderpart.memorycard.misc.name=Memory Card (misc)
 item.enderutilities.enderpart.mobpersistence.name=Jailer module
 item.enderutilities.enderpearlreusable.name=Ender Pearl (reusable)
 item.enderutilities.enderpearlreusable.elite.name=Elite Ender Pearl (reusable)
@@ -74,6 +75,7 @@ item.enderutilities.linkcrystal.0.name=Link Crystal (location)
 item.enderutilities.linkcrystal.1.name=Link Crystal (block)
 item.enderutilities.linkcrystal.2.name=Link Crystal (portal)
 item.enderutilities.mobharness.name=Mob Harness
+item.enderutilities.portalscaler.name=Portal Scaler
 
 
 ###################################################
@@ -116,6 +118,7 @@ item.enderutilities.linkcrystal.0.tooltips=- Sneak + right click to bind to a lo
 item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a block|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
 item.enderutilities.linkcrystal.2.tooltips=*WIP*
 item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you|lf- Tip: If riding a Creeper, don't|lf  let it see you before mounting it!
+item.enderutilities.portalscaler.tooltips=- Will change the Nether Portal teleportation scale factor,|lf  if you hold the item while going to the portal.|lf- To change the scaling factor:|lf  - First select the item in your hotbar|lf  - Look at the direction of the axis you want to change (x/y/z)|lf  - Then press and hold Alt + Shift and use the mouse wheel
 
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
@@ -135,6 +138,7 @@ enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
 enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
+enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 
 enderutilities.tooltip.dimension=Dimension
 enderutilities.tooltip.dimension.compact=DIM
@@ -170,7 +174,9 @@ enderutilities.tooltip.item.linked=Linked
 enderutilities.tooltip.item.linkedto=Linked to
 enderutilities.tooltip.item.mode=Mode
 enderutilities.tooltip.item.no=no
+enderutilities.tooltip.item.nodata=No data
 enderutilities.tooltip.item.nolinkcrystals=No Link Crystals installed
+enderutilities.tooltip.item.nomemorycards=No Memory Cards installed
 enderutilities.tooltip.item.none=none
 enderutilities.tooltip.item.normal=Normal
 enderutilities.tooltip.item.notargetset=No target set
@@ -179,7 +185,9 @@ enderutilities.tooltip.item.owner=Owner
 enderutilities.tooltip.item.private=Private
 enderutilities.tooltip.item.public=Public
 enderutilities.tooltip.item.selectedlinkcrystal=Selected Link Crystal:
+enderutilities.tooltip.item.selectedmemorycard=Selected Memory Card:
 enderutilities.tooltip.item.selectedlinkcrystal.short=LC:
+enderutilities.tooltip.item.selectedmemorycard.short=MC:
 enderutilities.tooltip.item.slots=Slots
 enderutilities.tooltip.item.target=Target
 enderutilities.tooltip.item.tier=Tier

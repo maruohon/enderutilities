@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -38,6 +39,7 @@ public class EnderUtilitiesItems
     public static final Item enderSword = new ItemEnderSword();
     public static final Item enderTool = new ItemEnderTool();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
+    public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
 
     public static void init()
     {
@@ -54,6 +56,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemEnderSword.getBoolean(false) == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
         if (Configs.disableItemEnderTools.getBoolean(false) == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
         if (Configs.disableItemMobHarness.getBoolean(false) == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }
+        if (Configs.disableItemPortalScaler.getBoolean(false) == false) { GameRegistry.registerItem(portalScaler, ReferenceNames.NAME_ITEM_PORTAL_SCALER); }
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
@@ -127,6 +130,11 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(mobHarness), "RLR", "ACA", "RLR", 'R', rope, 'L', leather, 'A', alloy0, 'C', core0);
+        }
+        if (Configs.disableRecipePortalScaler.getBoolean(false) == false && Configs.disableItemPortalScaler.getBoolean(false) == false)
+        {
+            // Purple Stained Glass
+            GameRegistry.addRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', new ItemStack(Blocks.stained_glass, 1, 10), 'C', core0, 'A', alloy0);
         }
 
         // Tools and weapons
