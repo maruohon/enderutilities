@@ -198,10 +198,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             return;
         }
 
-        // Shift + (Ctrl + ) Toggle mode
-        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
+        // Ctrl + (Shift + ) Toggle mode
+        if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         else
         {

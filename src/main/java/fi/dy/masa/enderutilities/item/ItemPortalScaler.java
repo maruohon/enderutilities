@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -126,15 +127,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return;
         }
 
-        // Shift + (Ctrl + ) Toggle mode: Change selected Memory Card
-        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
+        // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
+        if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressContainsControl(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + (Ctrl + ) Alt + Toggle Mode: Change scaling factor
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            int amount = ReferenceKeys.keypressContainsControl(key) ? -1 : 1;
+            int amount = ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsControl(key) ? -1 : 1;
             this.changeCoordinateScaleFactor(stack, player, amount);
         }
     }
@@ -183,6 +184,10 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             x += Math.abs(dir.offsetX) * amount;
             y += Math.abs(dir.offsetY) * amount;
             z += Math.abs(dir.offsetZ) * amount;
+
+            x = MathHelper.clamp_int(x, 1, 64);
+            y = MathHelper.clamp_int(y, 1, 64);
+            z = MathHelper.clamp_int(z, 1, 64);
 
             tag.setByte("scaleX", (byte)x);
             tag.setByte("scaleY", (byte)y);

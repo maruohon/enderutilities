@@ -1220,15 +1220,15 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             this.changeOperationMode(stack);
         }
-        // Control + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-                && ReferenceKeys.keypressContainsShift(key) == false
+        // Shift + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
+        else if (ReferenceKeys.keypressContainsShift(key) == true
+                && ReferenceKeys.keypressContainsControl(key) == false
                 && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeLinkMode(stack);
         }
-        // Shift + (Control +) Toggle mode: Change the selected link crystal, if we are in tank mode
-        else if (ReferenceKeys.keypressContainsShift(key) == true)
+        // Ctrl + (Shift +) Toggle mode: Change the selected link crystal, if we are in tank mode
+        else if (ReferenceKeys.keypressContainsControl(key) == true)
         {
             if (ReferenceKeys.keypressContainsAlt(key) == false && this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
             {

@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.setup.Keybindings;
 
 public class InputEventHandler
 {
-    public static boolean scrollingActive = false;
+    public static int scrollingMode = 0;
 
     public InputEventHandler()
     {
@@ -70,16 +70,41 @@ public class InputEventHandler
                 return;
             }
 
-            // Activate and deactivate the scroll-mouse-to-change-selected-module mode
-            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)
+            // Activate or deactivate the scroll-mouse-wheel-to-change-stuff modes
+
+            if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT || Keyboard.getEventKey() == Keyboard.KEY_RSHIFT)
             {
-                if ((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && isHoldingKeyboundItem(player) == true)
+                if (EnderUtilities.proxy.isShiftKeyDown() == true && isHoldingKeyboundItem(player) == true)
                 {
-                    scrollingActive = true;
+                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
                 }
                 else
                 {
-                    scrollingActive = false;
+                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
+                }
+            }
+
+            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)
+            {
+                if (EnderUtilities.proxy.isControlKeyDown() == true && isHoldingKeyboundItem(player) == true)
+                {
+                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+                }
+                else
+                {
+                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+                }
+            }
+
+            if (Keyboard.getEventKey() == Keyboard.KEY_LMENU || Keyboard.getEventKey() == Keyboard.KEY_RMENU)
+            {
+                if (EnderUtilities.proxy.isAltKeyDown() == true && isHoldingKeyboundItem(player) == true)
+                {
+                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_ALT;
+                }
+                else
+                {
+                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_ALT;
                 }
             }
         }
@@ -94,23 +119,21 @@ public class InputEventHandler
         {
             dWheel /= 120;
 
-            // If the player pressed down a shift or control key while holding a IKeyBound item
-            // (note: this means it specifically WON'T work if the player started pressing shift or
-            // control while holding something else, for example when scrolling through the hotbar!!),
-            // then we allow easily scrolling through the installed modules using the mouse wheel.
-            if (scrollingActive == true)
+            // If the player pressed down a modifier key while holding an IKeyBound item
+            // (note: this means it specifically WON'T work if the player started pressing a modifier
+            // key while holding something else, for example when scrolling through the hotbar!!),
+            // then we allow for easily scrolling through the changeable stuff using the mouse wheel.
+            if (scrollingMode != 0)
             {
                 EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
                 if (isHoldingKeyboundItem(player) == true)
                 {
-                    // Currently the "change selected link crystal" functionality is done when holding shift
-                    // and pressing the toggle mode hotkey.
-                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
+                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | scrollingMode;
 
-                    // Scrolling up, reverse the direction. Reverse direction is normally shift + control + toggle mode key
+                    // Scrolling up, reverse the direction.
                     if (dWheel > 0)
                     {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
+                        key |= ReferenceKeys.KEYBIND_MODIFIER_REVERSE;
                     }
 
                     if (event.isCancelable() == true)

@@ -16,6 +16,7 @@ public class ReferenceKeys
     public static final int KEYBIND_MODIFIER_SHIFT      = 0x00010000;
     public static final int KEYBIND_MODIFIER_CONTROL    = 0x00020000;
     public static final int KEYBIND_MODIFIER_ALT        = 0x00040000;
+    public static final int KEYBIND_MODIFIER_REVERSE    = 0x00080000;
 
     public static int getBaseKey(int key)
     {
@@ -24,16 +25,21 @@ public class ReferenceKeys
 
     public static boolean keypressContainsShift(int key)
     {
-        return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_SHIFT) != 0;
+        return (key & KEYBIND_MODIFIER_SHIFT) != 0;
     }
 
     public static boolean keypressContainsControl(int key)
     {
-        return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_CONTROL) != 0;
+        return (key & KEYBIND_MODIFIER_CONTROL) != 0;
     }
 
     public static boolean keypressContainsAlt(int key)
     {
-        return ((key & 0xFFFF0000) & KEYBIND_MODIFIER_ALT) != 0;
+        return (key & KEYBIND_MODIFIER_ALT) != 0;
+    }
+
+    public static boolean keypressActionIsReversed(int key)
+    {
+        return (key & KEYBIND_MODIFIER_REVERSE) != 0;
     }
 }

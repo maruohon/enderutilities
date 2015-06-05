@@ -915,10 +915,10 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             this.changePoweredMode(stack);
         }
-        // Shift + (Ctrl + ) Toggle mode
-        else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
+        // Ctrl + (Shift + ) Toggle mode
+        else if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + Alt + Toggle mode: Store the player's current location
         else if (ReferenceKeys.keypressContainsShift(key) == true
@@ -927,9 +927,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         {
             UtilItemModular.setTarget(stack, player, true);
         }
-        // Ctrl + Toggle mode: Toggle the block drops handling mode: normal, player, remote
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-                && ReferenceKeys.keypressContainsShift(key) == false
+        // Shift + Toggle mode: Toggle the block drops handling mode: normal, player, remote
+        else if (ReferenceKeys.keypressContainsShift(key) == true
+                && ReferenceKeys.keypressContainsControl(key) == false
                 && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeDropsMode(stack);

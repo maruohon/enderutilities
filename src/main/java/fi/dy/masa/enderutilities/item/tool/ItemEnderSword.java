@@ -591,10 +591,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             return;
         }
 
-        // Shift + (Ctrl + ) Toggle mode
-        if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
+        // Ctrl + (Shift + ) Toggle mode
+        if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressContainsControl(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + Alt + Toggle mode: Store the player's current location
         else if (ReferenceKeys.keypressContainsShift(key) == true
@@ -603,9 +603,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         {
             UtilItemModular.setTarget(stack, player, true);
         }
-        // Ctrl + Toggle mode: Toggle the sword mode: normal, drops to player, drops tp remote, summon fighters
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-                && ReferenceKeys.keypressContainsShift(key) == false
+        // Shift + Toggle mode: Toggle the sword mode: normal, drops to player, drops tp remote, summon fighters
+        else if (ReferenceKeys.keypressContainsShift(key) == true
+                && ReferenceKeys.keypressContainsControl(key) == false
                 && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.changeSwordMode(stack);
