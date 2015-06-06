@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -24,14 +25,18 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.BlockPos;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
 
 public class ItemPortalScaler extends ItemModular implements IKeyBound
 {
     public static final int ENDER_CHARGE_COST_PORTAL_ACTIVATION = 500;
     // Ender Charge cost per block of distance change compared to a vanilla portal use at the same location
-    public static final float TELEPORTATION_EC_COST = 0.01f; // 1 EC per 100 blocks "saved"
+    // 1 EC per ~77 blocks "saved". This should just about allow for the maximum distance at scale 64 at x and z axis
+    // at the world's edge, with the Advanced capacitor (500k EC).
+    public static final float TELEPORTATION_EC_COST = 0.013f;
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -89,7 +94,96 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
+        if (world.isRemote == true || (player.dimension != 0 && player.dimension != -1) || this.itemHasScaleFactor(stack) == false)
+        {
+            return stack;
+        }
+
+        int dim = player.dimension == 0 ? -1 : 0;
+        BlockPos normalDest = this.getNormalDestinationPosition(player, dim);
+        BlockPos posDest = this.getDestinationPosition(stack, player, dim);
+        int cost = this.getTeleportCost(player, posDest, dim);
+
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true
+            && UtilItemModular.useEnderCharge(stack, cost, false) == true)
+        {
+            TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
+            Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
+            if (entity != null)
+            {
+                cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
+                UtilItemModular.useEnderCharge(stack, cost, true);
+            }
+        }
+
         return stack;
+    }
+
+    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
+    {
+        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        NBTTagCompound moduleNbt = cardStack.getTagCompound();
+        NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
+        int scaleX = tag.getByte("scaleX");
+        int scaleY = tag.getByte("scaleY");
+        int scaleZ = tag.getByte("scaleZ");
+
+        // Don't divide by zero on accident!!
+        if (scaleX == 0) { scaleX = 8; }
+        if (scaleY == 0) { scaleY = 1; }
+        if (scaleZ == 0) { scaleZ = 8; }
+
+        // Going from Nether to Overworld
+        if (dimension == 0)
+        {
+            return new BlockPos((int)(player.posX * scaleX), (int)(player.posY * scaleY), (int)(player.posZ * scaleZ));
+        }
+        // Going from Overworld to Nether
+        else
+        {
+            return new BlockPos((int)(player.posX / scaleX), (int)(player.posY / scaleY), (int)(player.posZ / scaleZ));
+        }
+    }
+
+    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDim)
+    {
+        double x;
+        double y;
+        double z;
+
+        // Going from Nether to Overworld
+        if (destDim == 0)
+        {
+            x = player.posX * 8;
+            y = player.posY;
+            z = player.posZ * 8;
+        }
+        // Going from Overworld to Nether
+        else
+        {
+            x = player.posX / 8;
+            y = player.posY;
+            z = player.posZ / 8;
+        }
+
+        return new BlockPos((int)x, (int)y, (int)z);
+    }
+
+    public int getTeleportCost(double x1, double y1, double z1, double x2, double y2, double z2)
+    {
+        x1 = x1 - x2;
+        y1 = y1 - y2;
+        z1 = z1 - z2;
+        double distDiff = Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+
+        return (int)(TELEPORTATION_EC_COST * distDiff);
+    }
+
+    public int getTeleportCost(EntityPlayer player, BlockPos dest, int destDim)
+    {
+        BlockPos normalDest = this.getNormalDestinationPosition(player, destDim);
+
+        return this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, dest.posX, dest.posY, dest.posZ);
     }
 
     @Override
@@ -108,7 +202,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             }
 
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-            if (memoryCardHasScaleFactor(moduleStack) == true)
+            if (this.memoryCardHasScaleFactor(moduleStack) == true)
             {
                 NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
                 str = str + String.format(" (x: %d y: %d z: %d)", tag.getByte("scaleX"), tag.getByte("scaleY"), tag.getByte("scaleZ"));
@@ -137,7 +231,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Memory Cards installed
         if (memoryCardStack != null)
         {
-            if (memoryCardHasScaleFactor(memoryCardStack) == true)
+            if (this.memoryCardHasScaleFactor(memoryCardStack) == true)
             {
                 NBTTagCompound tag = memoryCardStack.getTagCompound().getCompoundTag("PortalScaler");
                 int x = tag.getByte("scaleX");
@@ -195,7 +289,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
     }
 
-    public static boolean memoryCardHasScaleFactor(ItemStack cardStack)
+    public boolean memoryCardHasScaleFactor(ItemStack cardStack)
     {
         NBTTagCompound nbt = cardStack.getTagCompound();
         if (nbt != null && nbt.hasKey("PortalScaler", Constants.NBT.TAG_COMPOUND))
@@ -208,6 +302,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         return false;
+    }
+
+    public boolean itemHasScaleFactor(ItemStack stack)
+    {
+        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+
+        return cardStack != null && this.memoryCardHasScaleFactor(cardStack);
     }
 
     public void changeCoordinateScaleFactor(ItemStack stack, EntityPlayer player, int amount)
