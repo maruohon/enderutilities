@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.util;
 
-public class DimBlockPos extends BlockPos
+public class DimBlockPos extends BlockPosEU
 {
     public int dimension;
 
@@ -10,7 +10,7 @@ public class DimBlockPos extends BlockPos
         this.dimension = dim;
     }
 
-    public DimBlockPos(int dim, BlockPos pos)
+    public DimBlockPos(int dim, BlockPosEU pos)
     {
         super(pos);
         this.dimension = dim;

@@ -8,7 +8,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
 {
-    public static boolean blockMatches(World world, BlockPos pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, ForgeDirection requiredOrientation)
+    public static boolean blockMatches(World world, BlockPosEU pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, ForgeDirection requiredOrientation)
     {
         Block block = world.getBlock(pos.posX, pos.posY, pos.posZ);
         int meta = world.getBlockMetadata(pos.posX, pos.posY, pos.posZ);

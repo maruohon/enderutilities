@@ -3,13 +3,13 @@ package fi.dy.masa.enderutilities.util;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class BlockPos
+public class BlockPosEU
 {
     public int posX;
     public int posY;
     public int posZ;
 
-    public BlockPos(int x, int y, int z)
+    public BlockPosEU(int x, int y, int z)
     {
         this.posX = x;
         this.posY = y;
@@ -18,14 +18,14 @@ public class BlockPos
         //this.clampCoords();
     }
 
-    public BlockPos(BlockPos old)
+    public BlockPosEU(BlockPosEU old)
     {
         this.posX = old.posX;
         this.posY = old.posY;
         this.posZ = old.posZ;
     }
 
-    public BlockPos(BlockPos old, ForgeDirection dir, int distance)
+    public BlockPosEU(BlockPosEU old, ForgeDirection dir, int distance)
     {
         this(old);
         this.offset(dir, distance);
@@ -71,7 +71,7 @@ public class BlockPos
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        BlockPos other = (BlockPos) obj;
+        BlockPosEU other = (BlockPosEU) obj;
         if (posX != other.posX) return false;
         if (posY != other.posY) return false;
         if (posZ != other.posZ) return false;

@@ -25,7 +25,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.BlockPos;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
@@ -100,8 +100,8 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         int dim = player.dimension == 0 ? -1 : 0;
-        BlockPos normalDest = this.getNormalDestinationPosition(player, dim);
-        BlockPos posDest = this.getDestinationPosition(stack, player, dim);
+        BlockPosEU normalDest = this.getNormalDestinationPosition(player, dim);
+        BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
         int cost = this.getTeleportCost(player, posDest, dim);
 
         if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true
@@ -119,7 +119,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return stack;
     }
 
-    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
+    public BlockPosEU getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
@@ -136,16 +136,16 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Going from Nether to Overworld
         if (dimension == 0)
         {
-            return new BlockPos((int)(player.posX * scaleX), (int)(player.posY * scaleY), (int)(player.posZ * scaleZ));
+            return new BlockPosEU((int)(player.posX * scaleX), (int)(player.posY * scaleY), (int)(player.posZ * scaleZ));
         }
         // Going from Overworld to Nether
         else
         {
-            return new BlockPos((int)(player.posX / scaleX), (int)(player.posY / scaleY), (int)(player.posZ / scaleZ));
+            return new BlockPosEU((int)(player.posX / scaleX), (int)(player.posY / scaleY), (int)(player.posZ / scaleZ));
         }
     }
 
-    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDim)
+    public BlockPosEU getNormalDestinationPosition(EntityPlayer player, int destDim)
     {
         double x;
         double y;
@@ -166,7 +166,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             z = player.posZ / 8;
         }
 
-        return new BlockPos((int)x, (int)y, (int)z);
+        return new BlockPosEU((int)x, (int)y, (int)z);
     }
 
     public int getTeleportCost(double x1, double y1, double z1, double x2, double y2, double z2)
@@ -179,9 +179,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return (int)(TELEPORTATION_EC_COST * distDiff);
     }
 
-    public int getTeleportCost(EntityPlayer player, BlockPos dest, int destDim)
+    public int getTeleportCost(EntityPlayer player, BlockPosEU dest, int destDim)
     {
-        BlockPos normalDest = this.getNormalDestinationPosition(player, destDim);
+        BlockPosEU normalDest = this.getNormalDestinationPosition(player, destDim);
 
         return this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, dest.posX, dest.posY, dest.posZ);
     }

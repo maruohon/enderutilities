@@ -18,7 +18,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.init.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.BlockPos;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.DimBlockPos;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
@@ -139,7 +139,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
 
     public void tryAssembleMultiBlock(World world, int x, int y, int z, int height, int masterMeta, boolean requireEnderCrystal)
     {
-        List<BlockPos> positions = new ArrayList<BlockPos>();
+        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
         if (this.getBlockPositions(world, x, y, z, height, masterMeta, positions) == false || positions.size() != 6)
         {
             return;
@@ -164,7 +164,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public void activateMultiBlock(World world, List<BlockPos> blockPositions)
+    public void activateMultiBlock(World world, List<BlockPosEU> blockPositions)
     {
         for (int i = 0; i < 5; i++)
         {
@@ -172,7 +172,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public boolean getBlockPositions(World world, int x, int y, int z, int height, int masterMeta, List<BlockPos> blockPositions)
+    public boolean getBlockPositions(World world, int x, int y, int z, int height, int masterMeta, List<BlockPosEU> blockPositions)
     {
         blockPositions.clear();
 
@@ -185,8 +185,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return false;
         }
 
-        BlockPos posMaster = new BlockPos(x, y, z);
-        BlockPos posResonatorBase = new BlockPos(x, y, z); // position of the middle block in the y-plane of the resonators
+        BlockPosEU posMaster = new BlockPosEU(x, y, z);
+        BlockPosEU posResonatorBase = new BlockPosEU(x, y, z); // position of the middle block in the y-plane of the resonators
         ForgeDirection dir = ForgeDirection.getOrientation(((TileEntityEnergyBridge)te).getRotation());
 
         // The given location is a resonator, not the master block; get the master block's location
@@ -202,16 +202,16 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
 
         blockPositions.add(posMaster);
-        blockPositions.add(new BlockPos(posResonatorBase, ForgeDirection.NORTH, 3));
-        blockPositions.add(new BlockPos(posResonatorBase, ForgeDirection.SOUTH, 3));
-        blockPositions.add(new BlockPos(posResonatorBase, ForgeDirection.EAST, 3));
-        blockPositions.add(new BlockPos(posResonatorBase, ForgeDirection.WEST, 3));
+        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.NORTH, 3));
+        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.SOUTH, 3));
+        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.EAST, 3));
+        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.WEST, 3));
         blockPositions.add(posResonatorBase);
 
         return true;
     }
 
-    public boolean isStructureValid(World world, int x, int y, int z, int height, int masterMeta, boolean requireEnderCrystal, List<BlockPos> blockPositions)
+    public boolean isStructureValid(World world, int x, int y, int z, int height, int masterMeta, boolean requireEnderCrystal, List<BlockPosEU> blockPositions)
     {
         Block blockEb = EnderUtilitiesBlocks.machine_1;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
@@ -251,11 +251,11 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         return false;
     }
 
-    public boolean isObstructedQuadrant(World world, BlockPos basePosition, ForgeDirection dir, BlockPos ... positions)
+    public boolean isObstructedQuadrant(World world, BlockPosEU basePosition, ForgeDirection dir, BlockPosEU ... positions)
     {
         ForgeDirection dirNext = dir.getRotation(ForgeDirection.UP); // the direction 90 degrees clock wise
 
-        for (BlockPos pos : positions)
+        for (BlockPosEU pos : positions)
         {
             int x = pos.posX * dir.offsetX + pos.posZ * dir.offsetZ;
             int y = pos.posY;
@@ -277,25 +277,25 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         return false;
     }
 
-    public boolean isObstructed(World world, Block blockEb, int height, int masterMeta, List<BlockPos> blockPositions)
+    public boolean isObstructed(World world, Block blockEb, int height, int masterMeta, List<BlockPosEU> blockPositions)
     {
         if (blockPositions.size() != 6)
         {
             return true;
         }
 
-        BlockPos posMaster = new BlockPos(blockPositions.get(0));
-        BlockPos posResonatorMiddle = new BlockPos(blockPositions.get(5));
+        BlockPosEU posMaster = new BlockPosEU(blockPositions.get(0));
+        BlockPosEU posResonatorMiddle = new BlockPosEU(blockPositions.get(5));
 
         // Block positions in one quadrant of the area that needs to be clear for the resonators, relative to the middle block
-        BlockPos positionsToCheck[] = new BlockPos[] {
-                                                        new BlockPos(1, 0, 0),
-                                                        new BlockPos(2, 0, 0),
-                                                        new BlockPos(1, 0, 3),
-                                                        new BlockPos(1, 0, 2),
-                                                        new BlockPos(2, 0, 2),
-                                                        new BlockPos(2, 0, 1),
-                                                        new BlockPos(3, 0, 1)
+        BlockPosEU positionsToCheck[] = new BlockPosEU[] {
+                                                        new BlockPosEU(1, 0, 0),
+                                                        new BlockPosEU(2, 0, 0),
+                                                        new BlockPosEU(1, 0, 3),
+                                                        new BlockPosEU(1, 0, 2),
+                                                        new BlockPosEU(2, 0, 2),
+                                                        new BlockPosEU(2, 0, 1),
+                                                        new BlockPosEU(3, 0, 1)
                                                     };
 
         if (this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.EAST, positionsToCheck) == true ||
@@ -310,7 +310,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         if (masterMeta == 0)
         {
             // Check the two blocks below the transmitter
-            if (this.isObstructedQuadrant(world, posMaster, ForgeDirection.EAST, new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}) == true)
+            if (this.isObstructedQuadrant(world, posMaster, ForgeDirection.EAST, new BlockPosEU[] {new BlockPosEU(0, -1, 0), new BlockPosEU(0, -2, 0)}) == true)
             {
                 return true;
             }
@@ -371,7 +371,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return;
         }
 
-        BlockPos posMaster = new BlockPos(x, y, z); // position of the master block (the transmitter or the receiver)
+        BlockPosEU posMaster = new BlockPosEU(x, y, z); // position of the master block (the transmitter or the receiver)
 
         // The given location is a resonator, not the master block; get the master block's location
         if (oldMeta == 2)
@@ -382,7 +382,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
 
         // Get the block position list from the master block
-        List<BlockPos> positions = new ArrayList<BlockPos>();
+        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
         if (this.getBlockPositions(world, x, y, z, height, masterMeta, positions) == false)
         {
             return;
@@ -391,7 +391,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         this.disableMultiBlock(world, masterMeta, positions);
     }
 
-    public void disableMultiBlock(World world, int masterMeta, List<BlockPos> blockPositions)
+    public void disableMultiBlock(World world, int masterMeta, List<BlockPosEU> blockPositions)
     {
         if (blockPositions == null || blockPositions.size() != 6)
         {
@@ -410,7 +410,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         EnergyBridgeTracker.removeBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, blockPositions.get(0)));
     }
 
-    public void setState(World world, BlockPos pos, boolean state)
+    public void setState(World world, BlockPosEU pos, boolean state)
     {
         TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
         if (te instanceof TileEntityEnergyBridge)
@@ -419,7 +419,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public void setStateWithCheck(World world, BlockPos pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, ForgeDirection requiredDirection, boolean state)
+    public void setStateWithCheck(World world, BlockPosEU pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, ForgeDirection requiredDirection, boolean state)
     {
         if (BlockUtils.blockMatches(world, pos, requiredBlock, requiredMeta, TEClass, requiredDirection) == true)
         {
@@ -427,7 +427,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public void updatePoweredState(World world, List<BlockPos> positions)
+    public void updatePoweredState(World world, List<BlockPosEU> positions)
     {
         if (positions == null || positions.size() != 6)
         {
@@ -443,7 +443,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
     }
 
-    public void updatePoweredState(World world, BlockPos pos, boolean value)
+    public void updatePoweredState(World world, BlockPosEU pos, boolean value)
     {
         TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
         if (te instanceof TileEntityEnergyBridge)

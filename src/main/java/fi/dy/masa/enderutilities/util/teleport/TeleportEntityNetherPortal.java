@@ -9,7 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.ForgeDirection;
-import fi.dy.masa.enderutilities.util.BlockPos;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
 
 public class TeleportEntityNetherPortal
 {
@@ -166,18 +166,18 @@ public class TeleportEntityNetherPortal
                 dirPortal = dirPortal.getOpposite();
             }
 
-            List<BlockPos> list = new ArrayList<BlockPos>(8);
-            list.add(new BlockPos(this.portalPosX + dirSide.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ));
-            list.add(new BlockPos(this.portalPosX + dirSide.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ));
-            list.add(new BlockPos(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPos(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPos(this.portalPosX - dirSide.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ));
-            list.add(new BlockPos(this.portalPosX - dirSide.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ));
-            list.add(new BlockPos(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPos(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
+            List<BlockPosEU> list = new ArrayList<BlockPosEU>(8);
+            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
+            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
 
             // Try to find a suitable position on either side of the portal
-            for (BlockPos pos : list)
+            for (BlockPosEU pos : list)
             {
                 if (World.doesBlockHaveSolidTopSurface(world, pos.posX, pos.posY, pos.posZ) == true
                     && world.isAirBlock(pos.posX, pos.posY + 1, pos.posZ) && world.isAirBlock(pos.posX, pos.posY + 2, pos.posZ))
@@ -190,7 +190,7 @@ public class TeleportEntityNetherPortal
             }
 
             // No suitable positions found, try to add a solid block to teleport to
-            for (BlockPos pos : list)
+            for (BlockPosEU pos : list)
             {
                 if (world.isAirBlock(pos.posX, pos.posY, pos.posZ) == true
                     && world.isAirBlock(pos.posX, pos.posY + 1, pos.posZ) && world.isAirBlock(pos.posX, pos.posY + 2, pos.posZ))
