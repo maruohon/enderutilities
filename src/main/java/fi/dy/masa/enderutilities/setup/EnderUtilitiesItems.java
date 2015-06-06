@@ -133,7 +133,7 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePortalScaler.getBoolean(false) == false && Configs.disableItemPortalScaler.getBoolean(false) == false)
         {
             // Purple Stained Glass
-            GameRegistry.addRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', new ItemStack(Blocks.stained_glass, 1, 10), 'C', core0, 'A', alloy0);
+            GameRegistry.addRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', new ItemStack(Blocks.stained_glass, 1, 10), 'C', active_core1, 'A', alloy2);
         }
 
         // Tools and weapons
@@ -190,6 +190,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePartEnderCore2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "OAO", "ADA", "OAO", 'O', obsidian, 'A', alloy2, 'D', diamond);
+        }
+        if (Configs.disableRecipePartMemoryCardMisc.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 4, 50), "AGA", "ARA", "AEA", 'A', alloy0, 'G', gold, 'R', new ItemStack(Items.repeater), 'E', redstone);
         }
         if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
