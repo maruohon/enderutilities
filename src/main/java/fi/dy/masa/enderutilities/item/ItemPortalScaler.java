@@ -2,13 +2,16 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
@@ -26,6 +29,10 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemPortalScaler extends ItemModular implements IKeyBound
 {
+    public static final int ENDER_CHARGE_COST_PORTAL_ACTIVATION = 500;
+    // Ender Charge cost per block of distance change compared to a vanilla portal use at the same location
+    public static final float TELEPORTATION_EC_COST = 0.01f; // 1 EC per 100 blocks "saved"
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
@@ -35,6 +42,54 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_PORTAL_SCALER);
+    }
+
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true)
+        {
+            return false;
+        }
+
+        Block block = world.getBlock(x, y, z);
+        // When right clicking on a Nether Portal block, shut down the portal
+        if (block == Blocks.portal)
+        {
+            if (world.isRemote == false)
+            {
+                world.setBlockToAir(x, y, z);
+                world.playSoundEffect(x + 0.5d, y + 0.5d, z + 0.5d, block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.getPitch() * 0.8f);
+            }
+
+            return true;
+        }
+
+        ForgeDirection dir = ForgeDirection.getOrientation(side);
+        x += dir.offsetX;
+        y += dir.offsetY;
+        z += dir.offsetZ;
+
+        // When right clicking on Obsidian, try to light a Nether Portal
+        if (block == Blocks.obsidian && world.isAirBlock(x, y, z) == true && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true)
+        {
+            if (world.isRemote == false && Blocks.portal.func_150000_e(world, x, y, z) == true)
+            {
+                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
+                world.playAuxSFXAtEntity((EntityPlayer)null, 1009, x, y, z, 0); // Blaze fireball shooting sound
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    {
+        return stack;
     }
 
     @Override
@@ -177,7 +232,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             }
 
             int x = tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleX") : 8;
-            int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 8;
+            int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;
             int z = tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleZ") : 8;
 
             ForgeDirection dir = EntityUtils.getLookingDirection(player);
