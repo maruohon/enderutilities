@@ -8,11 +8,11 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.relauncher.Side;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 

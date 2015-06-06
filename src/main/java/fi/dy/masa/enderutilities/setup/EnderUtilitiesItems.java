@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.init;
+package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -21,7 +21,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 
 public class EnderUtilitiesItems
 {

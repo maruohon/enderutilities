@@ -12,7 +12,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.entity.base.EntityThrowableEU;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 

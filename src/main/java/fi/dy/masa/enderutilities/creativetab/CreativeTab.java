@@ -4,8 +4,8 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class CreativeTab
 {

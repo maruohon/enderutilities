@@ -7,7 +7,7 @@ import net.minecraftforge.event.AnvilUpdateEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class AnvilUpdateEventHandler
 {

@@ -24,8 +24,8 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 

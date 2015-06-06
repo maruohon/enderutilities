@@ -7,8 +7,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class PlayerEventHandler
 {

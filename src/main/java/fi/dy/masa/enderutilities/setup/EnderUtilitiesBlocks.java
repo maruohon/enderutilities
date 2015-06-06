@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.init;
+package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -9,7 +9,6 @@ import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.block.ItemBlockMachine;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 
 public class EnderUtilitiesBlocks
 {

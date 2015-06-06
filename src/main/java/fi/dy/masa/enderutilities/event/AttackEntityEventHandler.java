@@ -4,7 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class AttackEntityEventHandler

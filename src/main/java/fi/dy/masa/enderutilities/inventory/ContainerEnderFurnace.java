@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
