@@ -124,25 +124,32 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
         NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
-        int scaleX = tag.getByte("scaleX");
-        int scaleY = tag.getByte("scaleY");
-        int scaleZ = tag.getByte("scaleZ");
+        byte scaleX = tag.getByte("scaleX");
+        byte scaleY = tag.getByte("scaleY");
+        byte scaleZ = tag.getByte("scaleZ");
 
         // Don't divide by zero on accident!!
         if (scaleX == 0) { scaleX = 8; }
         if (scaleY == 0) { scaleY = 1; }
         if (scaleZ == 0) { scaleZ = 8; }
 
-        // Going from Nether to Overworld
-        if (dimension == 0)
+        double dScaleX = scaleX;
+        double dScaleY = scaleY;
+        double dScaleZ = scaleZ;
+
+        if (scaleX < 0) { dScaleX = -1.0d / (double)scaleX; }
+        if (scaleY < 0) { dScaleY = -1.0d / (double)scaleY; }
+        if (scaleZ < 0) { dScaleZ = -1.0d / (double)scaleZ; }
+
+        // Going from the Overworld to the Nether
+        if (dimension == -1)
         {
-            return new BlockPosEU((int)(player.posX * scaleX), (int)(player.posY * scaleY), (int)(player.posZ * scaleZ));
+            dScaleX = 1.0d / dScaleX;
+            dScaleY = 1.0d / dScaleY;
+            dScaleZ = 1.0d / dScaleZ;
         }
-        // Going from Overworld to Nether
-        else
-        {
-            return new BlockPosEU((int)(player.posX / scaleX), (int)(player.posY / scaleY), (int)(player.posZ / scaleZ));
-        }
+
+        return new BlockPosEU((int)(player.posX * dScaleX), (int)(player.posY * dScaleY), (int)(player.posZ * dScaleZ));
     }
 
     public BlockPosEU getNormalDestinationPosition(EntityPlayer player, int destDim)
@@ -205,7 +212,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             if (this.memoryCardHasScaleFactor(moduleStack) == true)
             {
                 NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
-                str = str + String.format(" (x: %d y: %d z: %d)", tag.getByte("scaleX"), tag.getByte("scaleY"), tag.getByte("scaleZ"));
+                byte x = tag.getByte("scaleX");
+                byte y = tag.getByte("scaleY");
+                byte z = tag.getByte("scaleZ");
+                String sx = x < 0 ? "1/" + (-x) : String.valueOf(x);
+                String sy = y < 0 ? "1/" + (-y) : String.valueOf(y);
+                String sz = z < 0 ? "1/" + (-z) : String.valueOf(z);
+                str = str + String.format(" (x: %s y: %s z: %s)", sx, sy, sz);
                 return super.getItemStackDisplayName(stack) + str + rst;
             }
         }
@@ -234,10 +247,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             if (this.memoryCardHasScaleFactor(memoryCardStack) == true)
             {
                 NBTTagCompound tag = memoryCardStack.getTagCompound().getCompoundTag("PortalScaler");
-                int x = tag.getByte("scaleX");
-                int y = tag.getByte("scaleY");
-                int z = tag.getByte("scaleZ");
-                list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s", preBlue, x, rst, preBlue, y, rst, preBlue, z, rst));
+                byte x = tag.getByte("scaleX");
+                byte y = tag.getByte("scaleY");
+                byte z = tag.getByte("scaleZ");
+                String sx = x < 0 ? "1/" + (-x) : String.valueOf(x);
+                String sy = y < 0 ? "1/" + (-y) : String.valueOf(y);
+                String sz = z < 0 ? "1/" + (-z) : String.valueOf(z);
+                list.add(String.format("x: %s%s%s y: %s%s%s z: %s%s%s", preBlue, sx, rst, preBlue, sy, rst, preBlue, sz, rst));
             }
             else
             {
@@ -279,7 +295,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
         if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + (Ctrl + ) Alt + Toggle Mode: Change scaling factor
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == true)
@@ -341,9 +357,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             y += Math.abs(dir.offsetY) * amount;
             z += Math.abs(dir.offsetZ) * amount;
 
-            x = MathHelper.clamp_int(x, 1, 64);
-            y = MathHelper.clamp_int(y, 1, 64);
-            z = MathHelper.clamp_int(z, 1, 64);
+            // Hop over zero
+            if (x == 0) { x += Math.abs(dir.offsetX) * amount; }
+            if (y == 0) { y += Math.abs(dir.offsetY) * amount; }
+            if (z == 0) { z += Math.abs(dir.offsetZ) * amount; }
+
+            x = MathHelper.clamp_int(x, -64, 64);
+            y = MathHelper.clamp_int(y, -64, 64);
+            z = MathHelper.clamp_int(z, -64, 64);
 
             tag.setByte("scaleX", (byte)x);
             tag.setByte("scaleY", (byte)y);
