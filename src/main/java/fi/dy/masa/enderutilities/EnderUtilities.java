@@ -6,7 +6,6 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -39,19 +38,16 @@ public class EnderUtilities
         instance = this;
         logger = event.getModLog();
         ConfigReader.loadConfigsAll(event.getSuggestedConfigurationFile());
-        proxy.registerKeyBindings();
-        PacketHandler.init(); // Initialize network stuff
+
         EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
         EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
-    }
+        PacketHandler.init(); // Initialize network stuff
 
-    @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
         proxy.registerEntities();
-        proxy.registerEventHandlers();
-        proxy.registerRenderers();
         proxy.registerTileEntities();
+        proxy.registerEventHandlers();
+        proxy.registerKeyBindings();
+        proxy.registerRenderers();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 
