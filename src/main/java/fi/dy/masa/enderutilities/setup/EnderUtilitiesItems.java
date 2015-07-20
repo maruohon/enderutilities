@@ -4,6 +4,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.item.ItemEnderArrow;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
@@ -59,23 +61,15 @@ public class EnderUtilitiesItems
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
-        //ItemStack diamond_block = new ItemStack(Blocks.diamond_block);
         ItemStack emerald = new ItemStack(Items.emerald);
-        //ItemStack emerald_block = new ItemStack(Blocks.emerald_block);
         ItemStack egg = new ItemStack(Items.egg);
         ItemStack eye = new ItemStack(Items.ender_eye);
         ItemStack feather = new ItemStack(Items.feather);
-        ItemStack gold = new ItemStack(Items.gold_ingot);
-        ItemStack gold_nugget = new ItemStack(Items.gold_nugget);
-        ItemStack iron = new ItemStack(Items.iron_ingot);
         ItemStack leather = new ItemStack(Items.leather);
         ItemStack obsidian = new ItemStack(Blocks.obsidian);
         ItemStack pearl = new ItemStack(Items.ender_pearl);
-        ItemStack redstone = new ItemStack(Items.redstone);
-        ItemStack redstone_block = new ItemStack(Blocks.redstone_block);
-        ItemStack stick = new ItemStack(Items.stick);
         ItemStack string = new ItemStack(Items.string);
-        ItemStack wool = new ItemStack(Blocks.wool);
+        ItemStack wool = new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE);
 
         ItemStack alloy0 = new ItemStack(enderPart, 1, 0);
         ItemStack alloy1 = new ItemStack(enderPart, 1, 1);
@@ -92,7 +86,7 @@ public class EnderUtilitiesItems
         // "Usable" items
         if (Configs.disableRecipeEnderArrow.getBoolean(false) == false && Configs.disableItemEnderArrow.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', gold_nugget, 'P', pearl, 'A', new ItemStack(Items.arrow));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', "nuggetGold", 'P', pearl, 'A', new ItemStack(Items.arrow)));
         }
         if (Configs.disableRecipeEnderBag.getBoolean(false) == false && Configs.disableItemEnderBag.getBoolean(false) == false)
         {
@@ -112,7 +106,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderPearl.getBoolean(false) == false && Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPearlReusable), "GPG", "PRP", "GPG", 'G', gold_nugget, 'P', pearl, 'R', redstone_block); // Regular version
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPearlReusable), "GPG", "PRP", "GPG", 'G', "nuggetGold", 'P', pearl, 'R', "blockRedstone"));
         }
         if (Configs.disableRecipeEnderPearlElite.getBoolean(false) == false && Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
@@ -132,8 +126,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePortalScaler.getBoolean(false) == false && Configs.disableItemPortalScaler.getBoolean(false) == false)
         {
-            // Purple Stained Glass
-            GameRegistry.addRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', new ItemStack(Blocks.stained_glass, 1, 10), 'C', active_core1, 'A', alloy2);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', "blockGlassPurple", 'C', active_core1, 'A', alloy2));
         }
 
         // Tools and weapons
@@ -169,19 +162,19 @@ public class EnderUtilitiesItems
         // Parts, modules etc.
         if (Configs.disableRecipePartEnderAlloy0.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 3, 0), "III", "PPP", "III", 'I', iron, 'P', pearl);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 3, 0), "III", "PPP", "III", 'I', "ingotIron", 'P', pearl));
         }
         if (Configs.disableRecipePartEnderAlloy1.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 3, 1), "GGG", "PPP", "III", 'G', gold, 'P', pearl, 'I', iron);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 3, 1), "GGG", "PPP", "III", 'G', "ingotGold", 'P', pearl, 'I', "ingotIron"));
         }
         if (Configs.disableRecipePartEnderAlloy2.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 2), "IEI", "GDG", "OEO", 'I', iron, 'E', eye, 'G', gold, 'D', diamond, 'O', obsidian);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 2), "IEI", "GDG", "OEO", 'I', "ingotIron", 'E', eye, 'G', "ingotGold", 'D', diamond, 'O', obsidian));
         }
         if (Configs.disableRecipePartEnderCore0.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 10), "OAO", "ARA", "OAO", 'O', obsidian, 'A', alloy0, 'R', redstone_block);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 10), "OAO", "ARA", "OAO", 'O', obsidian, 'A', alloy0, 'R', "blockRedstone"));
         }
         if (Configs.disableRecipePartEnderCore1.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
@@ -193,7 +186,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartMemoryCardMisc.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 4, 50), "AGA", "ARA", "AEA", 'A', alloy0, 'G', gold, 'R', new ItemStack(Items.repeater), 'E', redstone);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 4, 50), "AGA", "ARA", "AEA", 'A', alloy0, 'G', "ingotGold", 'R', new ItemStack(Items.repeater), 'E', "dustRedstone"));
         }
         if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
@@ -209,12 +202,12 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderStick.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 3, 20), "SSS", "PPP", "SSS", 'S', stick, 'P', pearl);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 3, 20), "SSS", "PPP", "SSS", 'S', "stickWood", 'P', pearl));
         }
 
         if (Configs.disableRecipeModuleEnderCapacitor0.getBoolean(false) == false && Configs.disableItemEnderCapacitor.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderCapacitor, 1, 0), " P ", "ARA", "OAO", 'P', pearl, 'A', alloy0, 'R', redstone, 'O', obsidian);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderCapacitor, 1, 0), " P ", "ARA", "OAO", 'P', pearl, 'A', alloy0, 'R', "dustRedstone", 'O', obsidian));
         }
         if (Configs.disableRecipeModuleEnderCapacitor1.getBoolean(false) == false && Configs.disableItemEnderCapacitor.getBoolean(false) == false)
         {
@@ -227,15 +220,15 @@ public class EnderUtilitiesItems
 
         if (Configs.disableRecipeModuleLinkCrystalLocation.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 0), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.stained_glass, 1, 13), 'A', alloy0);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(linkCrystal, 1, 0), "RGR", "GAG", "RGR", 'R', "dustRedstone", 'G', "blockGlassGreen", 'A', alloy0));
         }
         if (Configs.disableRecipeModuleLinkCrystalBlock.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 1), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.stained_glass, 1, 11), 'A', alloy0);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(linkCrystal, 1, 1), "RGR", "GAG", "RGR", 'R', "dustRedstone", 'G', "blockGlassBlue", 'A', alloy0));
         }
         if (Configs.disableRecipeModuleLinkCrystalPortal.getBoolean(false) == false && Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
-            //GameRegistry.addRecipe(new ItemStack(linkCrystal, 1, 2), "RGR", "GAG", "RGR", 'R', redstone, 'G', new ItemStack(Blocks.glass, 1, 10), 'A', alloy0);
+            //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(linkCrystal, 1, 2), "RGR", "GAG", "RGR", 'R', "dustRedstone", 'G', "blockGlassPurple", 'A', alloy0));
         }
     }
 }
