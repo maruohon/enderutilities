@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
 
@@ -23,22 +22,10 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
     }
 
     @Override
-    public void initGui()
-    {
-        super.initGui();
-    }
-
-    @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         super.drawScreen(mouseX, mouseY, gameTicks);
         this.drawTooltips(mouseX, mouseY);
-    }
-
-    @Override
-    protected void actionPerformed(GuiButton btn)
-    {
-        super.actionPerformed(btn);
     }
 
     @Override

@@ -105,12 +105,4 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        super.drawScreen(mouseX, mouseY, gameTicks);
-
-        this.drawTooltips(mouseX, mouseY);
-    }
 }
