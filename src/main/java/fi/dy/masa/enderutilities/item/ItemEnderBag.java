@@ -152,13 +152,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true || player.isSneaking() == false)
-        {
-            return true;
-        }
-
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
+        if (world.isRemote == false && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
             /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
             {

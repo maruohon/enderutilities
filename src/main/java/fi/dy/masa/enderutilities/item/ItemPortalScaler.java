@@ -77,14 +77,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         z += dir.offsetZ;
 
         // When right clicking on Obsidian, try to light a Nether Portal
-        if (block == Blocks.obsidian && world.isAirBlock(x, y, z) == true && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true)
+        if (block == Blocks.obsidian && world.isAirBlock(x, y, z) == true &&
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true && Blocks.portal.func_150000_e(world, x, y, z) == true)
         {
-            if (world.isRemote == false && Blocks.portal.func_150000_e(world, x, y, z) == true)
+            if (world.isRemote == false)
             {
                 UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
                 world.playAuxSFXAtEntity((EntityPlayer)null, 1009, x, y, z, 0); // Blaze fireball shooting sound
             }
-
             return true;
         }
 
