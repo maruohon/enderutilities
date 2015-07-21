@@ -388,15 +388,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         y += dir.offsetY;
         z += dir.offsetZ;
 
-        // Get the stored fluid, if any
-        FluidStack storedFluidStack = this.getFluidWorker(stack, player);
-        int storedFluidAmount = 0;
-
-        if (storedFluidStack != null)
-        {
-            storedFluidAmount = storedFluidStack.amount;
-        }
-
         if (world.getBlock(x, y, z).getMaterial().isLiquid() == true)
         {
             // Note: the side is technically wrong unless we ray trace it again, but it won't matter with fluid blocks... right?
@@ -404,6 +395,15 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         else
         {
+            // Get the stored fluid, if any
+            FluidStack storedFluidStack = this.getFluidWorker(stack, player);
+            int storedFluidAmount = 0;
+
+            if (storedFluidStack != null)
+            {
+                storedFluidAmount = storedFluidStack.amount;
+            }
+
             // target block is not fluid, try to place a fluid block in world in the adjusted block position
             if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME && bucketMode != OPERATION_MODE_FILL_BUCKET)
             {
