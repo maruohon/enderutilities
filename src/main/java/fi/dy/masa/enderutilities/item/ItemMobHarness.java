@@ -239,8 +239,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         String pre = "" + EnumChatFormatting.BLUE;
         String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
         String target = nbt.getString("TargetName");
-
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + StatCollector.translateToLocal("entity." + target + ".name") + rst);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + target + rst);
     }
 
     @SideOnly(Side.CLIENT)
