@@ -7,6 +7,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIAttackOnCollide;
+import net.minecraft.entity.ai.EntityAIHurtByTarget;
+import net.minecraft.entity.ai.EntityAILookIdle;
+import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAIWander;
+import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.monster.EntityMob;
@@ -29,19 +35,20 @@ import fi.dy.masa.enderutilities.init.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class EntityEndermanFighter extends EntityMob
+public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting
 {
     private static final UUID attackingSpeedBoostModifierUUID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
-    private static final AttributeModifier attackingSpeedBoostModifier = (new AttributeModifier(attackingSpeedBoostModifierUUID, "Attacking speed boost", 6.199999809265137D, 0)).setSaved(false);
+    private static final AttributeModifier attackingSpeedBoostModifier = (new AttributeModifier(attackingSpeedBoostModifierUUID, "Attacking speed boost", 0.15d, 0)).setSaved(false);
     /** Counter to delay the teleportation of an enderman towards the currently attacked target */
     private int teleportDelay;
     private Entity lastEntityToAttack;
-    /** The target entity set by a Summon item */
-    private EntityLivingBase attackTargetCommanded;
-    private UUID attackTargetUUID;
+    /** The primary target entity, set by a Summon item */
+    private EntityLivingBase primaryTarget;
     /** The revenge target, if someone has attacked this entity */
-    private EntityLivingBase revengeTarget;
-    private UUID revengeTargetUUID;
+    private EntityLivingBase secondaryTarget;
+    private UUID primaryTargetUUID;
+    private UUID secondaryTargetUUID;
+    private boolean activeTargetIsPrimary;
     private boolean isAggressive;
     private boolean isBeingControlled;
     private int timer;
@@ -52,11 +59,18 @@ public class EntityEndermanFighter extends EntityMob
         super(world);
         this.setSize(0.6f, 2.9f);
         this.stepHeight = 1.0f;
-        this.attackTargetCommanded = null;
-        this.attackTargetUUID = null;
-        this.revengeTarget = null;
-        this.revengeTargetUUID = null;
+        this.primaryTarget = null;
+        this.secondaryTarget = null;
+        this.primaryTargetUUID = null;
+        this.secondaryTargetUUID = null;
         this.isBeingControlled = false;
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(2, new EntityAIAttackOnCollide(this, 1.0D, false));
+        this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
+        this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        //this.targetTasks.addTask(2, new EntityEnderman.AIFindPlayer());
     }
 
     @Override
@@ -64,8 +78,9 @@ public class EntityEndermanFighter extends EntityMob
     {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(40.0d);
-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.4d);
-        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(5.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.35d);
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(7.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(64.0d);
     }
 
     @Override
@@ -77,20 +92,26 @@ public class EntityEndermanFighter extends EntityMob
     }
 
     @Override
+    public float getEyeHeight()
+    {
+        return 2.55f;
+    }
+
+    @Override
     public void writeEntityToNBT(NBTTagCompound nbt)
     {
         super.writeEntityToNBT(nbt);
 
-        if (this.revengeTargetUUID != null)
+        if (this.primaryTargetUUID != null)
         {
-            nbt.setLong("RTUUIDM", this.revengeTargetUUID.getMostSignificantBits());
-            nbt.setLong("RTUUIDL", this.revengeTargetUUID.getLeastSignificantBits());
+            nbt.setLong("PTUUIDM", this.primaryTargetUUID.getMostSignificantBits());
+            nbt.setLong("PTUUIDL", this.primaryTargetUUID.getLeastSignificantBits());
         }
 
-        if (this.attackTargetUUID != null)
+        if (this.secondaryTargetUUID != null)
         {
-            nbt.setLong("ATUUIDM", this.attackTargetUUID.getMostSignificantBits());
-            nbt.setLong("ATUUIDL", this.attackTargetUUID.getLeastSignificantBits());
+            nbt.setLong("STUUIDM", this.secondaryTargetUUID.getMostSignificantBits());
+            nbt.setLong("STUUIDL", this.secondaryTargetUUID.getLeastSignificantBits());
         }
     }
 
@@ -99,14 +120,14 @@ public class EntityEndermanFighter extends EntityMob
     {
         super.readEntityFromNBT(nbt);
 
-        if (nbt.hasKey("RTUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("RTUUIDL", Constants.NBT.TAG_LONG))
+        if (nbt.hasKey("PTUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("PTUUIDL", Constants.NBT.TAG_LONG))
         {
-            this.revengeTargetUUID = new UUID(nbt.getLong("RTUUIDM"), nbt.getLong("RTUUIDL"));
+            this.primaryTargetUUID = new UUID(nbt.getLong("PTUUIDM"), nbt.getLong("PTUUIDL"));
         }
 
-        if (nbt.hasKey("ATUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("ATUUIDL", Constants.NBT.TAG_LONG))
+        if (nbt.hasKey("STUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("STUUIDL", Constants.NBT.TAG_LONG))
         {
-            this.attackTargetUUID = new UUID(nbt.getLong("ATUUIDM"), nbt.getLong("ATUUIDL"));
+            this.secondaryTargetUUID = new UUID(nbt.getLong("STUUIDM"), nbt.getLong("STUUIDL"));
         }
     }
 
@@ -125,21 +146,72 @@ public class EntityEndermanFighter extends EntityMob
         return false;
     }
 
-    public void setTargetCommanded(EntityLivingBase entity)
+    @Override
+    public void setPrimaryTarget(EntityLivingBase livingBase)
     {
-        //System.out.println("setTargetCommanded(): " + entity);
-        this.attackTargetCommanded = entity;
+        //System.out.println("setPrimaryTarget(): " + livingBase);
+        this.primaryTarget = livingBase;
 
-        if (entity != null)
+        if (livingBase != null)
         {
-            this.attackTargetUUID = entity.getUniqueID();
+            this.primaryTargetUUID = livingBase.getUniqueID();
         }
+        else
+        {
+            this.primaryTargetUUID = null;
+        }
+    }
+
+    @Override
+    public void setSecondaryTarget(EntityLivingBase livingBase)
+    {
+        //System.out.println("setSecondaryTarget(): " + livingBase);
+        this.secondaryTarget = livingBase;
+
+        if (livingBase != null)
+        {
+            this.secondaryTargetUUID = livingBase.getUniqueID();
+        }
+        else
+        {
+            this.secondaryTargetUUID = null;
+        }
+    }
+
+    @Override
+    public EntityLivingBase getPrimaryTarget()
+    {
+        return this.primaryTarget;
+    }
+
+    @Override
+    public EntityLivingBase getSecondaryTarget()
+    {
+        return this.secondaryTarget;
+    }
+
+    @Override
+    public void setActiveTarget(boolean primaryIsActive)
+    {
+        this.activeTargetIsPrimary = primaryIsActive;
+    }
+
+    @Override
+    public boolean getPrimaryTargetIsActive()
+    {
+        return this.activeTargetIsPrimary;
+    }
+
+    @Override
+    public EntityLivingBase getActiveTargetEntity()
+    {
+        return this.activeTargetIsPrimary == true ? this.primaryTarget : this.secondaryTarget;
     }
 
     @Override
     public void setAttackTarget(EntityLivingBase livingBase)
     {
-        //System.out.println("setTarget(): " + entity);
+        //System.out.println("setAttackTarget(): " + livingBase);
         super.setAttackTarget(livingBase);
 
         if (livingBase == null)
@@ -153,17 +225,14 @@ public class EntityEndermanFighter extends EntityMob
         }
     }
 
-    protected Entity findPlayerToAttack()
+    protected EntityPlayer findPlayerToAttack()
     {
-        if (this.timer == 0)
+        //if (this.timer == 0)
         {
             EntityPlayer player = this.getClosestVulnerablePlayer(this.posX, this.posY, this.posZ, 64.0d);
 
             if (player != null && this.shouldAttackPlayer(player) == true)
             {
-                this.isAggressive = true;
-                this.setAttackTarget(player);
-
                 return player;
             }
         }
@@ -218,13 +287,13 @@ public class EntityEndermanFighter extends EntityMob
     {
         // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
         // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
-        if (this.hasCustomName() == true || player.isEntityAlive() == false
-            || this.isPlayerHoldingSummonItem(player) == true || player.capabilities.disableDamage == true)
+        if (this.isBeingControlled == true || this.hasCustomName() == true || player.isEntityAlive() == false
+            || player.capabilities.disableDamage == true || this.isPlayerHoldingSummonItem(player) == true)
         {
             return false;
         }
 
-        return this.isBeingControlled == false;
+        return true;
     }
 
     private void updateIsBeingControlled()
@@ -245,7 +314,7 @@ public class EntityEndermanFighter extends EntityMob
         this.isBeingControlled = false;
     }
 
-    private EntityLivingBase getLivingEntityNearbyByUUID(UUID uuid, double bbRadius)
+    public EntityLivingBase getLivingEntityNearbyByUUID(UUID uuid, double bbRadius)
     {
         double r = bbRadius;
         AxisAlignedBB bb = AxisAlignedBB.fromBounds(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
@@ -256,28 +325,28 @@ public class EntityEndermanFighter extends EntityMob
 
     private void checkTargetsNotDead()
     {
-        if (this.revengeTarget != null && this.revengeTarget.isEntityAlive() == false)
+        EntityLivingBase primary = this.getPrimaryTarget();
+        if (primary != null && primary.isEntityAlive() == false)
         {
-            if (this.getAttackTarget() == this.revengeTarget)
+            //System.out.println("primary target is dead, clearing...");
+            this.setPrimaryTarget(null);
+
+            if (this.getAttackTarget() == primary)
             {
                 this.setAttackTarget(null);
             }
-
-            //System.out.println("clearing revenge target");
-            this.revengeTarget = null;
-            this.revengeTargetUUID = null;
         }
 
-        if (this.attackTargetCommanded != null && this.attackTargetCommanded.isEntityAlive() == false)
+        EntityLivingBase secondary = this.getSecondaryTarget();
+        if (secondary != null && secondary.isEntityAlive() == false)
         {
-            if (this.getAttackTarget() == this.attackTargetCommanded)
+            //System.out.println("secondary target is dead, clearing...");
+            this.setSecondaryTarget(null);
+
+            if (this.getAttackTarget() == secondary)
             {
                 this.setAttackTarget(null);
             }
-
-            //System.out.println("clearing commanded target");
-            this.attackTargetCommanded = null;
-            this.attackTargetUUID = null;
         }
     }
 
@@ -285,39 +354,44 @@ public class EntityEndermanFighter extends EntityMob
     {
         if (this.isBeingControlled == true)
         {
-            if (this.attackTargetCommanded == null && this.attackTargetUUID != null)
+            if (this.getPrimaryTarget() == null && this.primaryTargetUUID != null)
             {
-                this.attackTargetCommanded = this.getLivingEntityNearbyByUUID(this.attackTargetUUID, 64.0d);
+                this.setPrimaryTarget(this.getLivingEntityNearbyByUUID(this.primaryTargetUUID, 64.0d));
             }
 
             // This entity is being controlled and is currently attacking something other than the commanded target,
             // switch to the commanded target.
-            if (this.attackTargetCommanded != null && this.getAttackTarget() != this.attackTargetCommanded)
+            if (this.getPrimaryTarget() != null && this.getAttackTarget() != this.getPrimaryTarget())
             {
-                //System.out.println("is controlled, switching to commanded target");
-                this.setAttackTarget(this.attackTargetCommanded);
+                //System.out.println("is being controlled, switching to primary target");
+                this.setAttackTarget(this.getPrimaryTarget());
             }
         }
         // Not controlled by a Summon item
         else
         {
-            if (this.revengeTarget == null && this.revengeTargetUUID != null)
+            if (this.getSecondaryTarget() == null && this.secondaryTargetUUID != null)
             {
-                this.revengeTarget = this.getLivingEntityNearbyByUUID(this.revengeTargetUUID, 64.0d);
+                this.setSecondaryTarget(this.getLivingEntityNearbyByUUID(this.secondaryTargetUUID, 64.0d));
             }
 
             // This entity is NOT being controlled at the moment, has a revenge target but is not currently attacking it,
             // switch to the revenge target.
-            if (this.revengeTarget != null && this.getAttackTarget() != this.revengeTarget)
+            if (this.getSecondaryTarget() != null && this.getAttackTarget() != this.getSecondaryTarget())
             {
-                //System.out.println("not controlled, switching to revenge target");
-                this.setAttackTarget(this.revengeTarget);
+                //System.out.println("not being controlled, switching to secondary target");
+                this.setAttackTarget(this.getSecondaryTarget());
             }
             // Not controlled, has no revenge target and is attacking a commanded target, switch to the closest player. 
-            else if (this.revengeTarget == null && this.getAttackTarget() == this.attackTargetCommanded)
+            else if (this.getSecondaryTarget() == null && this.getAttackTarget() == this.getPrimaryTarget())
             {
-                //System.out.println("not controlled, switching to player");
-                this.findPlayerToAttack();
+                //System.out.println("not being controlled, switching to closest player");
+                EntityPlayer player = this.findPlayerToAttack();
+                if (player != null)
+                {
+                    this.isAggressive = true;
+                    this.setAttackTarget(player);
+                }
             }
         }
     }
@@ -337,6 +411,7 @@ public class EntityEndermanFighter extends EntityMob
                 this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, -this.rand.nextDouble(), vz);
             }
 
+            this.isJumping = false;
             super.onLivingUpdate();
             return;
         }
@@ -597,9 +672,8 @@ public class EntityEndermanFighter extends EntityMob
 
         if (source instanceof EntityDamageSource && source.getEntity() instanceof EntityLivingBase)
         {
-            //System.out.println("setting revenge target");
-            this.revengeTarget = (EntityLivingBase)source.getEntity();
-            this.revengeTargetUUID = this.revengeTarget.getUniqueID();
+            System.out.println("setting secondary target");
+            this.setSecondaryTarget((EntityLivingBase)source.getEntity());
             this.isAggressive = true;
         }
 

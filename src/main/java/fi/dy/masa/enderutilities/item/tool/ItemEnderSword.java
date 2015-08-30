@@ -404,7 +404,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         {
             if (fighter.getAttackTarget() == null && fighter.hasCustomName() == false)
             {
-                fighter.setTargetCommanded(targetEntity);
+                fighter.setPrimaryTarget(targetEntity);
                 numReTargeted++;
             }
         }
@@ -439,7 +439,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 world.playSoundEffect(x, y, z, "mob.endermen.portal", 1.0F, 1.0F);
 
                 world.spawnEntityInWorld(fighter);
-                fighter.setTargetCommanded(targetEntity);
+                fighter.setPrimaryTarget(targetEntity);
 
                 if (++count >= amount)
                 {
