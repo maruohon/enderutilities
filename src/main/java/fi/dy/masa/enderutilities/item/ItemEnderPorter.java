@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -50,6 +51,39 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
 
         return super.getUnlocalizedName();
+    }
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
+    {
+        if (player == null || player.worldObj.isRemote == true || player.isSneaking() == false
+            || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        {
+            return false;
+        }
+
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
+        // The basic version can only teleport inside the same dimension
+        if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false
+            && (stack.getItemDamage() == 1 || target.dimension == entity.dimension))
+        {
+            int cost = (target.dimension == entity.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
+            {
+                return false;
+            }
+
+            // If the target entity is a player, then they have to be sneaking too
+            if ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isSneaking() == true)
+            {
+                UtilItemModular.useEnderCharge(stack, cost, true);
+                TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
