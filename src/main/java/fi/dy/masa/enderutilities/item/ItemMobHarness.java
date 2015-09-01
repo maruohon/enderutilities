@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -200,6 +201,10 @@ public class ItemMobHarness extends ItemEnderUtilities
                 this.clearData(stack);
 
                 return true;
+            }
+            else if (storedEntity == null)
+            {
+                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.mobharness.targetnotfoundoroutofrange"));
             }
         }
 
