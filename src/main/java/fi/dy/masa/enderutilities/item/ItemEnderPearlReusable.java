@@ -65,10 +65,10 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             // Dismount the previous pearl if we are already riding one
             if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.riddenByEntity != null)
             {
-                bottomEntity.riddenByEntity.mountEntity(null);
+                bottomEntity = bottomEntity.riddenByEntity;
             }
 
-            EntityUtils.getBottomEntity(player).mountEntity(pearl);
+            bottomEntity.mountEntity(pearl);
         }
 
         --stack.stackSize;

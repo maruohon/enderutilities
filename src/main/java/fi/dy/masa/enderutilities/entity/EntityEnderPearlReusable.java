@@ -76,14 +76,47 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     }
 
     @Override
+    public void onUpdate()
+    {
+        // The pearl has been dismounted, try to return the item to the thrower's inventory, or drop it as an item
+        if (this.worldObj.isRemote == false && this.isElite == true && this.riddenByEntity == null)
+        {
+            Entity thrower = this.getThrower();
+
+            // Failed to add the pearl straight back to the thrower's inventory: spawn it in the world
+            if (this.canPickUp == true && ((thrower instanceof EntityPlayer) == false || ((EntityPlayer)thrower).inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 1)) == false))
+            {
+                this.dropAsItem();
+            }
+
+            this.setDead();
+            return;
+        }
+
+        super.onUpdate();
+    }
+
+    @Override
     protected void onImpact(MovingObjectPosition mop)
     {
         if (this.worldObj.isRemote == false)
         {
             Entity thrower = this.getThrower();
 
-            // Don't collide with self or the entities in the 'stack' with self
-            if (thrower == null || (mop.typeOfHit == MovingObjectType.ENTITY && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true))
+            // Thrower not found, drop the item if applicable and bail out
+            if (thrower == null)
+            {
+                if (this.canPickUp == true)
+                {
+                    this.dropAsItem();
+                }
+
+                this.setDead();
+                return;
+            }
+
+            // Don't collide with the thrower or the entities in the 'stack' with the thrower
+            if (mop.typeOfHit == MovingObjectType.ENTITY && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
             {
                 return;
             }
@@ -105,41 +138,40 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
                 TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
             }
-            // An Elite pearl lands, which is still being ridden by something
-            else if (this.riddenByEntity != null)
+            // An Elite pearl lands, which is still being ridden by something (see above)
+            else //if (this.riddenByEntity != null)
             {
                 Entity entity = this.riddenByEntity;
-                this.riddenByEntity.mountEntity(null);
+                entity.mountEntity(null);
                 TeleportEntity.entityTeleportWithProjectile(entity, this, mop, this.teleportDamage, true, true);
             }
 
+            // Try to add the pearl straight back to the player's inventory
             if (this.canPickUp == true)
             {
                 int damage = (this.isElite == true ? 1 : 0);
-
-                boolean success = false;
-                // If the teleport was successful, try to add the pearl straight to the player's inventory
-                if (thrower instanceof EntityPlayer)
+                // Failed to add the pearl straight back to the thrower's inventory, drop it as an item
+                if ((thrower instanceof EntityPlayer) == false || ((EntityPlayer)thrower).inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage)) == false)
                 {
-                    success = ((EntityPlayer)thrower).inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
-                }
-
-                // Failed to add the pearl straight back to the player's inventory: spawn it in the world
-                if (success == false)
-                {
-                    EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
-
-                    entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
-                    entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
-                    entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
-                    entityitem.delayBeforeCanPickup = 0;
-
-                    this.worldObj.spawnEntityInWorld(entityitem);
+                    this.dropAsItem();
                 }
             }
 
             this.setDead();
         }
+    }
+
+    public void dropAsItem()
+    {
+        int damage = (this.isElite == true ? 1 : 0);
+        EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
+
+        entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
+        entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
+        entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
+        entityitem.delayBeforeCanPickup = 0;
+
+        this.worldObj.spawnEntityInWorld(entityitem);
     }
 
     @Override
