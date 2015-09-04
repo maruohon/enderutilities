@@ -53,11 +53,11 @@ public class TeleportEntity
         return ! EntityUtils.doesEntityStackHaveBlacklistedEntities(entity);
     }
 
-    public static void teleportEntityRandomly(EntityLivingBase entity, double maxDist)
+    public static boolean teleportEntityRandomly(Entity entity, double maxDist)
     {
         if (entity == null || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
         {
-            return;
+            return false;
         }
 
         // Sound and particles on the original location
@@ -66,7 +66,7 @@ public class TeleportEntity
         // Do the actual teleportation only on the server side
         if (entity.worldObj.isRemote == true)
         {
-            return;
+            return false;
         }
 
         double deltaYaw = 0.0d;
@@ -90,18 +90,17 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            //if (entity.worldObj.isAirBlock((int)x, (int)y, (int)z) == true &&
-            //    entity.worldObj.isAirBlock((int)x, (int)y + 1, (int)z) == true)
-            if (entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
+            if (entity.boundingBox != null && entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
             {
-                //entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-                entity.setPositionAndUpdate(x, y, z);
+                entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
                 // Sound and particles on the new, destination location.
                 TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     public static boolean entityTeleportWithProjectile(Entity entity, Entity projectile, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
