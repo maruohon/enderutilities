@@ -37,16 +37,18 @@ public class EntityInteractEventHandler
 
         if (item == EnderUtilitiesItems.mobHarness)
         {
-            if (event.entityPlayer.worldObj.isRemote == false && event.target instanceof EntityLivingBase)
+            if (event.target instanceof EntityLivingBase)
             {
-                ((ItemMobHarness)stack.getItem()).handleInteraction(stack, event.entityPlayer, event.target);
+                if (event.entityPlayer.worldObj.isRemote == false)
+                {
+                    ((ItemMobHarness)stack.getItem()).handleInteraction(stack, event.entityPlayer, event.target);
+                }
                 event.setCanceled(true);
             }
         }
-        else if (item == EnderUtilitiesItems.enderLasso && event.entityPlayer.worldObj.isRemote == false)
+        else if (item == EnderUtilitiesItems.enderLasso && event.target instanceof EntityLivingBase)
         {
-            if (event.target instanceof EntityLivingBase &&
-                (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false))
+            if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
                     UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
@@ -56,7 +58,7 @@ public class EntityInteractEventHandler
                         EntityUtils.applyMobPersistence((EntityLiving)event.target);
                     }
 
-                    if (TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
+                    if (event.entityPlayer.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
                     {
                         event.setCanceled(true);
                     }
