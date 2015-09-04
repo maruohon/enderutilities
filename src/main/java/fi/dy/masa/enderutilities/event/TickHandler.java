@@ -54,7 +54,7 @@ public class TickHandler
             return;
         }
 
-        // Once every second
+        // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
             ItemStack stack = event.player.getCurrentEquippedItem();

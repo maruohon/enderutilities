@@ -96,11 +96,6 @@ public class EnergyBridgeTracker
 
     public static NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
         int count = bridgeLocations.size();
         if (count > 0)
         {
@@ -176,6 +171,7 @@ public class EnergyBridgeTracker
                 if (saveDir.mkdirs() == false)
                 {
                     EnderUtilities.logger.warn("Failed to create the save directory '" + saveDir + "'");
+                    return;
                 }
             }
 

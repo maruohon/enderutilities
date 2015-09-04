@@ -27,17 +27,12 @@ public class InputEventHandler
 
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
     {
-        if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound)
-        {
-            return true;
-        }
-
-        return false;
+        return player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound;
     }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onInput(InputEvent.KeyInputEvent event)
+    public void onKeyInputEvent(InputEvent.KeyInputEvent event)
     {
         // In-game (no GUI open)
         if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
@@ -112,7 +107,7 @@ public class InputEventHandler
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onInput(MouseEvent event)
+    public void onMouseEvent(MouseEvent event)
     {
         int dWheel = event.dwheel;
         if (dWheel != 0)
