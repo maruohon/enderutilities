@@ -1,7 +1,11 @@
 package fi.dy.masa.enderutilities.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class InventoryUtils
@@ -153,24 +157,226 @@ public class InventoryUtils
         }
 
         return stack1.isItemEqual(stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
+    }
 
-        /*
-        if (stack1.getItem() != stack2.getItem() || stack1.getItemDamage() != stack2.getItemDamage())
-        {
-            return false;
-        }
+    /**
+     * Returns the slot number of the first empty slot in the given inventory.
+     * @param inv
+     * @return The slot number of the first empty slot, or -1 if there are no empty slots.
+     */
+    public static int getFirstEmptySlot(IInventory inv)
+    {
+        return getSlotOfFirstMatchingItemStack(inv, null);
+    }
 
-        if (stack1.getTagCompound() == null || stack2.getTagCompound() == null)
+    /**
+     * Returns the slot number of the last empty slot in the given inventory.
+     * @param inv
+     * @return The slot number of the last empty slot, or -1 if there are no empty slots.
+     */
+    public static int getLastEmptySlot(IInventory inv)
+    {
+        return getSlotOfLastMatchingItemStack(inv, null);
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching item.
+     * @param inv
+     * @param item
+     * @return The slot number of the first slot with a matching item, or -1 if there are no such items in the inventory.
+     */
+    public static int getSlotOfFirstMatchingItem(IInventory inv, Item item)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = 0; i < size; ++i)
         {
-            if (stack1.getTagCompound() == stack2.getTagCompound())
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item)
             {
-                return true;
+                return i;
             }
-
-            return false;
         }
 
-        return stack1.getTagCompound().equals(stack2.getTagCompound());
-        */
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the last slot containing a matching item.
+     * @param inv
+     * @param item
+     * @return The slot number of the last slot with a matching item, or -1 if there are no such items in the inventory.
+     */
+    public static int getSlotOfLastMatchingItem(IInventory inv, Item item)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = size - 1; i >= 0; --i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching item and damage value.
+     * @param inv
+     * @param item
+     * @return The slot number of the first slot with a matching item and damage value, or -1 if there are no such items in the inventory.
+     */
+    public static int getSlotOfFirstMatchingItem(IInventory inv, Item item, int damage)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = 0; i < size; ++i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item && stack.getItemDamage() == damage)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the last slot containing a matching item and damage value.
+     * @param inv
+     * @param item
+     * @return The slot number of the last slot with a matching item and damage value, or -1 if there are no such items in the inventory.
+     */
+    public static int getSlotOfLastMatchingItem(IInventory inv, Item item, int damage)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = size - 1; i >= 0; --i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item && stack.getItemDamage() == damage)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize).
+     * Note: stackIn can be null.
+     * @param inv
+     * @param item
+     * @return The slot number of the first slot with a matching ItemStack, or -1 if there are no matching ItemStacks in the inventory.
+     */
+    public static int getSlotOfFirstMatchingItemStack(IInventory inv, ItemStack stackIn)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = 0; i < size; ++i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if ((stack == null && stackIn == null)
+                || (stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the last slot containing a matching ItemStack (including NBT, ignoring stackSize).
+     * Note: stackIn can be null.
+     * @param inv
+     * @param item
+     * @return The slot number of the last slot with a matching ItemStack, or -1 if there are no matching ItemStacks in the inventory.
+     */
+    public static int getSlotOfLastMatchingItemStack(IInventory inv, ItemStack stackIn)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = size - 1; i >= 0; --i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if ((stack == null && stackIn == null)
+                || (stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get all the slot numbers that have matching items in the given inventory.
+     * @param inv
+     * @param item
+     * @return an ArrayList containing the slot numbers of the slots with matching items
+     */
+    public static List<Integer> getSlotNumbersOfMatchingItems(IInventory inv, Item item)
+    {
+        List<Integer> slots = new ArrayList<Integer>();
+        int size = inv.getSizeInventory();
+
+        for (int i = 0; i < size; ++i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item)
+            {
+                slots.add(Integer.valueOf(i));
+            }
+        }
+
+        return slots;
+    }
+
+    /**
+     * Get all the slot numbers that have matching items in the given inventory.
+     * @param inv
+     * @param item
+     * @return an ArrayList containing the slot numbers of the slots with matching items
+     */
+    public static List<Integer> getSlotNumbersOfMatchingItems(IInventory inv, Item item, int damage)
+    {
+        List<Integer> slots = new ArrayList<Integer>();
+        int size = inv.getSizeInventory();
+
+        for (int i = 0; i < size; ++i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.getItem() == item && stack.getItemDamage() == damage)
+            {
+                slots.add(Integer.valueOf(i));
+            }
+        }
+
+        return slots;
+    }
+
+    /**
+     * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize).
+     * Note: stackIn can be null.
+     * @param inv
+     * @param item
+     * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
+     */
+    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IInventory inv, ItemStack stackIn)
+    {
+        List<Integer> slots = new ArrayList<Integer>();
+        int size = inv.getSizeInventory();
+
+        for (int i = 0; i < size; ++i)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if ((stack == null && stackIn == null)
+                || (stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true))
+            {
+                slots.add(Integer.valueOf(i));
+            }
+        }
+
+        return slots;
     }
 }
