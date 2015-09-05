@@ -55,6 +55,7 @@ public class InventoryUtils
      * If none or only some of the items were inserted, false is returned.
      * If only some of the items were inserted, then the stackSize of stackIn will be subtracted from
      * accordingly (ie. the stack contains the remaining items after the method returns).
+     * NOTE: Do NOT call this method with a null stackIn!
      * @param inv
      * @param stackIn
      * @param slotNum
@@ -81,12 +82,12 @@ public class InventoryUtils
             // The target slot can take the whole stack
             else if (num >= stackIn.stackSize)
             {
-                inv.setInventorySlotContents(slotNum, stackIn);
+                inv.setInventorySlotContents(slotNum, stackIn.copy());
                 return true;
             }
         }
         // The target slot has identical item
-        else if (stackIn != null && stackIn.isItemEqual(targetStack) == true && ItemStack.areItemStackTagsEqual(stackIn, targetStack) == true)
+        else if (stackIn.isItemEqual(targetStack) == true && ItemStack.areItemStackTagsEqual(stackIn, targetStack) == true)
         {
             // How much more can the target stack take
             int num = Math.min(inv.getInventoryStackLimit(), targetStack.getMaxStackSize()) - targetStack.stackSize;
@@ -95,6 +96,7 @@ public class InventoryUtils
 
             if (num > 0)
             {
+                targetStack = targetStack.copy();
                 targetStack.stackSize += num;
                 // Call the method just in case something uses it to do other stuff
                 inv.setInventorySlotContents(slotNum, targetStack);
@@ -138,22 +140,21 @@ public class InventoryUtils
 
     /**
      * Checks if the given ItemStacks have the same item, damage and NBT. Ignores stack sizes.
+     * Can be given null ItemStacks as input.
      * @param stack1
      * @param stack2
-     * @return Returns true if the ItemStacks have the same item, damage and NBT.
+     * @return Returns true if the ItemStacks have the same item, damage and NBT tags.
      */
     public static boolean areItemStacksEqual(ItemStack stack1, ItemStack stack2)
     {
         if (stack1 == null || stack2 == null)
         {
-            if (stack1 == stack2)
-            {
-                return true;
-            }
-
-            return false;
+            return stack1 == stack2;
         }
 
+        return stack1.isItemEqual(stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
+
+        /*
         if (stack1.getItem() != stack2.getItem() || stack1.getItemDamage() != stack2.getItemDamage())
         {
             return false;
@@ -170,5 +171,6 @@ public class InventoryUtils
         }
 
         return stack1.getTagCompound().equals(stack2.getTagCompound());
+        */
     }
 }
