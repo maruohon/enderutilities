@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.network.message;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesSided;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -65,7 +65,6 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
     public IMessage onMessage(MessageGuiAction message, MessageContext ctx)
     {
         EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
-        //World world = player.worldObj;
         World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
 
         if (player != null && world != null)
@@ -74,9 +73,9 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
             {
                 case ReferenceGuiIds.GUI_ID_ENDER_FURNACE:
                     TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
-                    if (te != null && te instanceof TileEntityEnderUtilitiesSided)
+                    if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {
-                        ((TileEntityEnderUtilitiesSided)te).performGuiAction(message.elementId, message.action);
+                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.elementId, message.action);
                     }
                     break;
                 default:

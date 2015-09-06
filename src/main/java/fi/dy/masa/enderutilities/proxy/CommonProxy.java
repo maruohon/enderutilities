@@ -37,7 +37,7 @@ public abstract class CommonProxy implements IProxy
             case SERVER:
                 return ctx.getServerHandler().playerEntity;
             default:
-                EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext()");
+                EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
         }
     }
