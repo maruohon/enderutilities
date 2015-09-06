@@ -11,7 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
@@ -204,7 +204,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return true;
     }
 
-    public ContainerEnderUtilitiesInventory getContainer(InventoryPlayer inventory)
+    public ContainerTileEntityInventory getContainer(InventoryPlayer inventory)
     {
         return null;
     }

@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 
-public class ContainerEnderInfuser extends ContainerEnderUtilitiesInventory
+public class ContainerEnderInfuser extends ContainerTileEntityInventory
 {
     private TileEntityEnderInfuser teef;
     public int amountStored;

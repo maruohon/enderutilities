@@ -71,7 +71,7 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
         {
             switch(message.guiId)
             {
-                case ReferenceGuiIds.GUI_ID_ENDER_FURNACE:
+                case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
                     TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
                     if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {

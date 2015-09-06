@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block.machine;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -222,7 +223,7 @@ public class Machine
 
             if (this.isTileEntityValid(te) == true)
             {
-                player.openGui(EnderUtilities.instance, 0, world, x, y, z);
+                player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, x, y, z);
             }
         }
 

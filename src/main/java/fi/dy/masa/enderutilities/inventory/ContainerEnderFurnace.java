@@ -12,7 +12,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
-public class ContainerEnderFurnace extends ContainerEnderUtilitiesInventory
+public class ContainerEnderFurnace extends ContainerTileEntityInventory
 {
     private TileEntityEnderFurnace teef;
     public int burnTimeRemaining;

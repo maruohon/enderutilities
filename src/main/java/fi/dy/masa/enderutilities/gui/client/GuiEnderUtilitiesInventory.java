@@ -5,7 +5,7 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
@@ -14,7 +14,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
     protected TileEntityEnderUtilitiesInventory te;
     protected ResourceLocation guiTexture;
 
-    public GuiEnderUtilitiesInventory(ContainerEnderUtilitiesInventory container, TileEntityEnderUtilitiesInventory te)
+    public GuiEnderUtilitiesInventory(ContainerTileEntityInventory container, TileEntityEnderUtilitiesInventory te)
     {
         super(container);
         this.te = te;

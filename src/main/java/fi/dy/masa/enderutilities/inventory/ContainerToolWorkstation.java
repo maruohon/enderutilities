@@ -8,7 +8,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class ContainerToolWorkstation extends ContainerEnderUtilitiesInventory
+public class ContainerToolWorkstation extends ContainerTileEntityInventory
 {
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;

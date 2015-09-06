@@ -140,6 +140,6 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         super.actionPerformed(btn);
 
         PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
-                ReferenceGuiIds.GUI_ID_ENDER_FURNACE, btn.id, (short)0));
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, (short)0));
     }
 }

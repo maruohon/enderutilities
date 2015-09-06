@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class EnderUtilitiesGUIHandler implements IGuiHandler
@@ -17,17 +18,19 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
             return null;
         }
 
-        if (id == 0)
+        switch (id)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if (te != null )
-            {
-                if (te instanceof TileEntityEnderUtilitiesInventory)
+            case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
+                TileEntity te = world.getTileEntity(x, y, z);
+                if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
                     return ((TileEntityEnderUtilitiesInventory)te).getContainer(player.inventory);
                 }
-            }
+                break;
+
+            default:
         }
+
         return null;
     }
 
@@ -39,17 +42,19 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
             return null;
         }
 
-        if (id == 0)
+        switch (id)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if (te != null )
-            {
-                if (te instanceof TileEntityEnderUtilitiesInventory)
+            case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
+                TileEntity te = world.getTileEntity(x, y, z);
+                if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
                     return ((TileEntityEnderUtilitiesInventory)te).getGui(player.inventory);
                 }
-            }
+                break;
+
+            default:
         }
+
         return null;
     }
 

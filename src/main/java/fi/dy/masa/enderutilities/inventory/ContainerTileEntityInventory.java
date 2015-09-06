@@ -8,12 +8,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class ContainerEnderUtilitiesInventory extends Container
+public class ContainerTileEntityInventory extends Container
 {
     protected TileEntityEnderUtilitiesInventory te;
     protected InventoryPlayer inventoryPlayer;
 
-    public ContainerEnderUtilitiesInventory(TileEntityEnderUtilitiesInventory te, InventoryPlayer inventory)
+    public ContainerTileEntityInventory(TileEntityEnderUtilitiesInventory te, InventoryPlayer inventory)
     {
         this.te = te;
         this.inventoryPlayer = inventory;
@@ -64,7 +64,7 @@ public class ContainerEnderUtilitiesInventory extends Container
     @Override
     public boolean canInteractWith(EntityPlayer player)
     {
-        return te.isInvalid() == false && te.isUseableByPlayer(player);
+        return this.te.isInvalid() == false && this.te.isUseableByPlayer(player);
     }
 
     @Override
