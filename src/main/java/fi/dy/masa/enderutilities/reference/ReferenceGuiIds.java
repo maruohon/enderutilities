@@ -9,4 +9,5 @@ public class ReferenceGuiIds
     //public static final int GUI_ID_ENDER_INFUSER = 3;
 
     //public static final int GUI_ID_ENDER_BAG = 1000;
+    public static final int GUI_ID_HANDY_BAG = 1001;
 }

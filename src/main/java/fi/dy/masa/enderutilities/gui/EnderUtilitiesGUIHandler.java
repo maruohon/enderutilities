@@ -4,6 +4,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
+import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
+import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
+import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
@@ -28,6 +32,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 }
                 break;
 
+            case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                int slotNum = ItemHandyBag.getSlotContainingEnabledBag(player);
+                if (slotNum != -1)
+                {
+                    return new ContainerHandyBag(player, new InventoryItemModular(player.inventory.getStackInSlot(slotNum)));
+                }
+                break;
+
             default:
         }
 
@@ -49,6 +61,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
                     return ((TileEntityEnderUtilitiesInventory)te).getGui(player.inventory);
+                }
+                break;
+
+            case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                int slotNum = ItemHandyBag.getSlotContainingEnabledBag(player);
+                if (slotNum != -1)
+                {
+                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(player.inventory.getStackInSlot(slotNum))));
                 }
                 break;
 

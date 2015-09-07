@@ -7,6 +7,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
 
 public class InventoryUtils
 {
@@ -378,5 +381,87 @@ public class InventoryUtils
         }
 
         return slots;
+    }
+
+    /**
+     * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
+     * them in the array <b>items</b>. <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
+     * @param containerStack
+     * @param items
+     */
+    public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
+    {
+        NBTTagCompound nbt = containerStack.getTagCompound();
+        if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        {
+            return;
+        }
+
+        NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        int num = nbtTagList.tagCount();
+        // Read all the ItemStacks from the storage module
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            byte slotNum = tag.getByte("Slot");
+
+            if (slotNum >= 0 && slotNum < items.length)
+            {
+                items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
+
+                if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+                {
+                    items[slotNum].stackSize = tag.getInteger("CountReal");
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>.
+     * The items will be written inside a TAG_Compound named "Items".
+     * @param containerStack
+     * @param items
+     */
+    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items)
+    {
+        NBTTagList nbtTagList = new NBTTagList();
+        int invSlots = items.length;
+        // Write all the ItemStacks into a TAG_List
+        for (int slotNum = 0; slotNum < invSlots; ++slotNum)
+        {
+            if (items[slotNum] != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte("Slot", (byte)slotNum);
+                tag.setInteger("CountReal", items[slotNum].stackSize);
+                items[slotNum].writeToNBT(tag);
+                nbtTagList.appendTag(tag);
+            }
+        }
+
+        // Write the module list to the tool
+        NBTTagCompound nbt = containerStack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        if (nbtTagList.tagCount() > 0)
+        {
+            nbt.setTag("Items", nbtTagList);
+        }
+        else
+        {
+            nbt.removeTag("Items");
+        }
+
+        // Strip empty compound tags
+        if (nbt.hasNoTags() == true)
+        {
+            nbt = null;
+        }
+
+        containerStack.setTagCompound(nbt);
     }
 }

@@ -101,12 +101,10 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     public void clearModulesFromItem()
     {
         NBTTagCompound nbt = this.itemStacks[SLOT_TOOL].getTagCompound();
-        if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        if (nbt != null)
         {
-            return;
+            nbt.removeTag("Items");
         }
-
-        nbt.removeTag("Items");
     }
 
     public void readModulesFromItem()

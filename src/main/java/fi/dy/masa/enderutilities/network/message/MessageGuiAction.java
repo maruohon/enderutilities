@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -76,6 +78,14 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                     if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {
                         ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.elementId, message.action);
+                    }
+                    break;
+                case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                    int slot = ItemHandyBag.getSlotContainingEnabledBag(player);
+                    if (slot != -1)
+                    {
+                        ItemStack stack = player.inventory.getStackInSlot(slot);
+                        ItemHandyBag.performGuiAction(stack, player, message.elementId, message.action);
                     }
                     break;
                 default:
