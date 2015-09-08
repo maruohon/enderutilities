@@ -31,7 +31,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL      = "linkcrystal";
     public static final String NAME_ITEM_ENDERPART_MOBPERSISTENCE   = "mobpersistence";
     public static final String NAME_ITEM_ENDERPART_ENDERRELIC       = "enderrelic";
-    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard.misc";
+    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD      = "memorycard";
 
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
     public static final String NAME_ITEM_ENDER_PICKAXE          = "enderpickaxe";

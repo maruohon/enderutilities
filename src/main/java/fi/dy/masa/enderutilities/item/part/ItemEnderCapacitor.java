@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 
@@ -245,6 +246,9 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
             this.iconArray[i + 4] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
         }
+
+        // The background icon for empty slots for this item type
+        this.slotBackground = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(this.name));
     }
 
     @SideOnly(Side.CLIENT)

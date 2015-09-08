@@ -22,6 +22,8 @@ public class InventoryItemModular implements IInventory
     /** The ItemStacks containing the storage modules themselves */
     private ItemStack[] moduleStacks;
 
+    private boolean dirty;
+
     public InventoryItemModular(ItemStack containerStack)
     {
         this.updateContainerItems(containerStack);
@@ -285,6 +287,7 @@ public class InventoryItemModular implements IInventory
     @Override
     public void markDirty()
     {
+        this.dirty = true;
     }
 
     @Override

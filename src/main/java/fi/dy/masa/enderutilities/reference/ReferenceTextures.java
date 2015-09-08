@@ -30,4 +30,9 @@ public class ReferenceTextures
     {
         return Reference.MOD_ID + ":tile." + name;
     }
+
+    public static String getSlotBackgroundName(String itemName)
+    {
+        return Reference.MOD_ID + ":gui/gui.slot.background." + itemName;
+    }
 }

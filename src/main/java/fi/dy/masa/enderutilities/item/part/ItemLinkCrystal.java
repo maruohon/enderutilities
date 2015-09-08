@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
@@ -93,6 +94,9 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
         this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
+
+        // The background icon for empty slots for this item type
+        this.slotBackground = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(this.name));
     }
 
     @SideOnly(Side.CLIENT)

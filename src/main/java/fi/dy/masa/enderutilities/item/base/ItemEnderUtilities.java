@@ -7,17 +7,21 @@ import java.util.regex.Pattern;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
     public String name;
+    @SideOnly(Side.CLIENT)
+    protected IIcon slotBackground;
 
     public ItemEnderUtilities()
     {
@@ -108,5 +112,28 @@ public class ItemEnderUtilities extends Item
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    /**
+     * Return the slot background icon of empty slots that are meant for only this type of module.
+     */
+    @SideOnly(Side.CLIENT)
+    public IIcon getGuiSlotBackgroundIconIndex(ModuleType moduleType)
+    {
+        return this.slotBackground;
+    }
+
+    /**
+     * Return the slot background icon of empty slots that are meant for only this type of item.
+     */
+    @SideOnly(Side.CLIENT)
+    public IIcon getGuiSlotBackgroundIconIndex(ItemStack stack)
+    {
+        if (stack.getItem() instanceof IModule)
+        {
+            return this.getGuiSlotBackgroundIconIndex(((IModule)stack.getItem()).getModuleType(stack));
+        }
+
+        return null;
     }
 }

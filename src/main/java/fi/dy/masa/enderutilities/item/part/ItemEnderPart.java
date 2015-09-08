@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -24,6 +25,8 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
+    @SideOnly(Side.CLIENT)
+    private IIcon[] slotBackgrounds;
 
     public ItemEnderPart()
     {
@@ -88,7 +91,7 @@ public class ItemEnderPart extends ItemModule
         // Damage 50: Memory Card (misc)
         if (stack.getItemDamage() == 50)
         {
-            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
+            return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD;
         }
 
         return super.getUnlocalizedName();
@@ -262,7 +265,13 @@ public class ItemEnderPart extends ItemModule
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD + ".misc");
+
+        // The background icon for empty slots for this item type
+        this.slotBackgrounds = new IIcon[3];
+        this.slotBackgrounds[0] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE));
+        this.slotBackgrounds[1] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE));
+        this.slotBackgrounds[2] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD));
     }
 
     @SideOnly(Side.CLIENT)
@@ -285,5 +294,21 @@ public class ItemEnderPart extends ItemModule
         if (damage == 50) { return this.iconArray[13]; } // Memory Card
 
         return this.itemIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public IIcon getGuiSlotBackgroundIconIndex(ModuleType moduleType)
+    {
+        // Ender Cores
+        if (ModuleType.TYPE_ENDERCORE_ACTIVE.equals(moduleType) || ModuleType.TYPE_ENDERCORE_ACTIVE.equals(moduleType)) { return this.slotBackgrounds[0]; }
+
+        // Jailer module
+        if (ModuleType.TYPE_MOBPERSISTENCE.equals(moduleType)) { return this.slotBackgrounds[1]; }
+
+        // Memory Cards
+        if (ModuleType.TYPE_MEMORY_CARD.equals(moduleType)) { return this.slotBackgrounds[2]; }
+
+        return null;
     }
 }
