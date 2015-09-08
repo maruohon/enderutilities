@@ -40,6 +40,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -230,16 +231,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public byte getBucketMode(ItemStack stack)
     {
-        if (stack != null)
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt != null && nbt.hasKey("Mode") == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null && nbt.hasKey("Mode") == true)
+            byte mode = nbt.getByte("Mode");
+            if (mode >= OPERATION_MODE_NORMAL && mode <= OPERATION_MODE_BINDING)
             {
-                byte mode = nbt.getByte("Mode");
-                if (mode >= OPERATION_MODE_NORMAL && mode <= OPERATION_MODE_BINDING)
-                {
-                    return mode;
-                }
+                return mode;
             }
         }
 
@@ -251,16 +249,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     public byte getBucketLinkMode(ItemStack stack)
     {
-        if (stack != null)
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt != null && nbt.hasKey("Linked") == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null && nbt.hasKey("Linked") == true)
+            byte mode = nbt.getByte("Linked");
+            if (mode == LINK_MODE_DISABLED || mode == LINK_MODE_ENABLED)
             {
-                byte mode = nbt.getByte("Linked");
-                if (mode == LINK_MODE_DISABLED || mode == LINK_MODE_ENABLED)
-                {
-                    return mode;
-                }
+                return mode;
             }
         }
 
@@ -1175,14 +1170,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeLinkMode(ItemStack stack)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        nbt.setBoolean("Linked", ! nbt.getBoolean("Linked"));
-        stack.setTagCompound(nbt);
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTHelper.toggleBoolean(nbt, "Linked");
     }
 
     /**
@@ -1190,11 +1179,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeOperationMode(ItemStack stack)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
 
         // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
         byte val = (byte)(nbt.getByte("Mode") + 1);
@@ -1204,7 +1189,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         nbt.setByte("Mode", val);
-        stack.setTagCompound(nbt);
     }
 
     @Override

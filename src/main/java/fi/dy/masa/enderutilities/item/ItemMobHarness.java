@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarnes
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 
 public class ItemMobHarness extends ItemEnderUtilities
 {
@@ -151,19 +152,13 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     public ItemStack storeTarget(ItemStack stack, Entity entity)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
 
         byte mode = (byte)(entity instanceof EntityPlayer ? 2 : 1);
         nbt.setString("TargetName", entity.getCommandSenderName());
         nbt.setLong("TargetUUIDMost", entity.getUniqueID().getMostSignificantBits());
         nbt.setLong("TargetUUIDLeast", entity.getUniqueID().getLeastSignificantBits());
         nbt.setByte("Mode", mode);
-
-        stack.setTagCompound(nbt);
 
         return stack;
     }
@@ -225,11 +220,6 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     public boolean clearData(ItemStack stack)
     {
-        if (stack == null || stack.getTagCompound() == null)
-        {
-            return false;
-        }
-
         stack.setTagCompound(null);
 
         return true;

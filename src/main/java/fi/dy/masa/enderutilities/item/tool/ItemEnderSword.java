@@ -61,6 +61,7 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -591,27 +592,11 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return 0;
     }
 
-    public void setSwordMode(ItemStack stack,byte value)
+    public void cycleSwordMode(ItemStack stack)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-            stack.setTagCompound(nbt);
-        }
-
-        nbt.setByte("Mode", value);
-    }
-
-    public void changeSwordMode(ItemStack stack)
-    {
-        byte mode = this.getSwordMode(stack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
-        if (++mode > MODE_SUMMON)
-        {
-            mode = 0;
-        }
-        this.setSwordMode(stack, mode);
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTHelper.cycleByteValue(nbt, "Mode", MODE_SUMMON);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
@@ -649,7 +634,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 && ReferenceKeys.keypressContainsControl(key) == false
                 && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSwordMode(stack);
+            this.cycleSwordMode(stack);
         }
         // Alt + Toggle mode: Toggle the private/public mode
         else if (ReferenceKeys.keypressContainsAlt(key) == true

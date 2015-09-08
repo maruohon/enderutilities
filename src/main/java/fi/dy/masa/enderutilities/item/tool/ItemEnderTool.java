@@ -76,6 +76,7 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -930,24 +931,16 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return this.getToolModeByName(stack, "Powered") == 1;
     }
 
-    public void changePoweredMode(ItemStack stack)
+    public void cyclePoweredMode(ItemStack stack)
     {
-        byte mode = this.getToolModeByName(stack, "Powered");
-        if (++mode > 1)
-        {
-            mode = 0;
-        }
-        this.setToolModeByName(stack, "Powered", mode);
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTHelper.cycleByteValue(nbt, "Powered", 1);
     }
 
-    public void changeDropsMode(ItemStack stack)
+    public void cycleDropsMode(ItemStack stack)
     {
-        byte mode = this.getToolModeByName(stack, "DropsMode");
-        if (++mode > 2)
-        {
-            mode = 0;
-        }
-        this.setToolModeByName(stack, "DropsMode", mode);
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTHelper.cycleByteValue(nbt, "DropsMode", 2);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
@@ -971,7 +964,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // Just Toggle mode key: Change the dig mode
         if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            this.changePoweredMode(stack);
+            this.cyclePoweredMode(stack);
         }
         // Ctrl + (Shift + ) Toggle mode
         else if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
@@ -990,7 +983,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 && ReferenceKeys.keypressContainsControl(key) == false
                 && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeDropsMode(stack);
+            this.cycleDropsMode(stack);
         }
         // Alt + Toggle mode: Toggle the private/public mode
         else if (ReferenceKeys.keypressContainsAlt(key) == true

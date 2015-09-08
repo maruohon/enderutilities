@@ -12,7 +12,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public abstract class ItemModular extends ItemEnderUtilities implements IModular
+public abstract class ItemModular extends ItemEnderUtilities implements IModular, IKeyBound
 {
     @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)

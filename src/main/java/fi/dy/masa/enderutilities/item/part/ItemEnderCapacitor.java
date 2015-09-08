@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
@@ -77,22 +78,11 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return this.getCapacity(stack, stack.getTagCompound());
     }
 
-    private void setCapacity(NBTTagCompound nbt, int capacity)
-    {
-        nbt.setInteger("EnderChargeCapacity", capacity);
-    }
-
     @Override
     public void setCapacity(ItemStack stack, int capacity)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-            stack.setTagCompound(nbt);
-        }
-
-        this.setCapacity(nbt, capacity);
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        nbt.setInteger("EnderChargeCapacity", capacity);
     }
 
     private int getCharge(NBTTagCompound nbt)
@@ -126,12 +116,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return amount;
         }
 
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-            stack.setTagCompound(nbt);
-        }
+        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
 
         int charge = this.getCharge(nbt);
         int capacity = this.getCapacity(stack, nbt);
