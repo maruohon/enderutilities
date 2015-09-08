@@ -81,10 +81,9 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                     }
                     break;
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                    int slot = ItemHandyBag.getSlotContainingEnabledBag(player);
-                    if (slot != -1)
+                    ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                    if (stack != null)
                     {
-                        ItemStack stack = player.inventory.getStackInSlot(slot);
                         ItemHandyBag.performGuiAction(stack, player, message.elementId, message.action);
                     }
                     break;

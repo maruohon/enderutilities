@@ -5,6 +5,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -63,8 +64,8 @@ public class MessageOpenGui implements IMessage, IMessageHandler<MessageOpenGui,
             switch(message.guiId)
             {
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                    int slot = ItemHandyBag.getSlotContainingEnabledBag(player);
-                    if (slot != -1)
+                    ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                    if (stack != null)
                     {
                         player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
                     }

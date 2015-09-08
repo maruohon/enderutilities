@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
@@ -33,10 +34,10 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                int slotNum = ItemHandyBag.getSlotContainingEnabledBag(player);
-                if (slotNum != -1)
+                ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                if (stack != null)
                 {
-                    return new ContainerHandyBag(player, new InventoryItemModular(player.inventory.getStackInSlot(slotNum)));
+                    return new ContainerHandyBag(player, new InventoryItemModular(stack));
                 }
                 break;
 
@@ -65,10 +66,10 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                int slotNum = ItemHandyBag.getSlotContainingEnabledBag(player);
-                if (slotNum != -1)
+                ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                if (stack != null)
                 {
-                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(player.inventory.getStackInSlot(slotNum))));
+                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(stack)));
                 }
                 break;
 

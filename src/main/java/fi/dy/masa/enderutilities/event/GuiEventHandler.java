@@ -32,7 +32,7 @@ public class GuiEventHandler
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
             if (player.isSneaking() == false && player.inventory.hasItem(EnderUtilitiesItems.handyBag) == true)
             {
-                if (ItemHandyBag.getSlotContainingEnabledBag(player) != -1)
+                if (ItemHandyBag.getOpenableBag(player) != null)
                 {
                     if (event.isCancelable() == true)
                     {
