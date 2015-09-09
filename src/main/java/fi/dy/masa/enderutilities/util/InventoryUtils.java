@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
@@ -384,6 +385,66 @@ public class InventoryUtils
     }
 
     /**
+     * Returns the total number of stored items in the containerStack.
+     * @param containerStack
+     * @return
+     */
+    public static int getTotalNumberOfStoredItems(ItemStack containerStack)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+        int num = nbtTagList.tagCount();
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+
+            if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+            {
+                count += tag.getInteger("CountReal");
+            }
+            else
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+                if (stack != null)
+                {
+                    count += stack.stackSize;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Reads the display names of all the stored items in <b>containerStack</b>.
+     */
+    public static void readItemNamesFromContainerItem(ItemStack containerStack, List<String> listNames)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            return;
+        }
+
+        int num = nbtTagList.tagCount();
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+
+            if (stack != null)
+            {
+                listNames.add(stack.getDisplayName());
+            }
+        }
+    }
+
+    /**
      * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
      * them in the array <b>items</b>. <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
      * @param containerStack
@@ -391,15 +452,13 @@ public class InventoryUtils
      */
     public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
     {
-        NBTTagCompound nbt = containerStack.getTagCompound();
-        if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
         {
             return;
         }
 
-        NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         int num = nbtTagList.tagCount();
-        // Read all the ItemStacks from the storage module
         for (int i = 0; i < num; ++i)
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);

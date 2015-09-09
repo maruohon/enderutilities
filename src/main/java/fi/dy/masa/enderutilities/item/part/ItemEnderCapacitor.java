@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
@@ -82,7 +82,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public void setCapacity(ItemStack stack, int capacity)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
         nbt.setInteger("EnderChargeCapacity", capacity);
     }
 
@@ -117,7 +117,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return amount;
         }
 
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
 
         int charge = this.getCharge(nbt);
         int capacity = this.getCapacity(stack, nbt);

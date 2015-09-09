@@ -61,7 +61,7 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -595,8 +595,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     public void cycleSwordMode(ItemStack stack)
     {
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
-        NBTHelper.cycleByteValue(nbt, "Mode", MODE_SUMMON);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTUtils.cycleByteValue(nbt, "Mode", MODE_SUMMON);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)

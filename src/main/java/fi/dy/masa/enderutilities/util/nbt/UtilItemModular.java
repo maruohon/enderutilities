@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -36,26 +35,7 @@ public class UtilItemModular
         return false;
     }
 
-    /**
-     * Returns the NBTTagList containing all the modules in containerStack, or null in case it fails.
-     * @param containerStack
-     * @return
-     */
-    public static NBTTagList getInstalledModules(ItemStack containerStack)
-    {
-        if (containerStack == null || (containerStack.getItem() instanceof IModular) == false)
-        {
-            return null;
-        }
 
-        NBTTagCompound nbt = containerStack.getTagCompound();
-        if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
-        {
-            return null;
-        }
-
-        return nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-    }
 
     /**
      * Returns the number of installed modules in containerStack of the type moduleType.
@@ -65,7 +45,7 @@ public class UtilItemModular
      */
     public static int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = getInstalledModules(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
             return 0;
@@ -97,7 +77,7 @@ public class UtilItemModular
     public static int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
         int tier = -1;
-        NBTTagList nbtTagList = getInstalledModules(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
             return tier;
@@ -172,7 +152,7 @@ public class UtilItemModular
      */
     public static NBTTagCompound getSelectedModuleTagCompound(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = getInstalledModules(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
             return null;
@@ -224,7 +204,7 @@ public class UtilItemModular
      */
     public static ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
-        NBTTagList nbtTagList = getInstalledModules(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
             return null;

@@ -40,7 +40,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -1170,8 +1170,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeLinkMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
-        NBTHelper.toggleBoolean(nbt, "Linked");
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTUtils.toggleBoolean(nbt, "Linked");
     }
 
     /**
@@ -1179,7 +1179,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeOperationMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
 
         // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
         byte val = (byte)(nbt.getByte("Mode") + 1);

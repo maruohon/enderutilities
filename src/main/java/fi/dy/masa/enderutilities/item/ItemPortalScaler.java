@@ -27,7 +27,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
 
@@ -333,7 +333,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null)
         {
-            NBTTagCompound tag = NBTHelper.getOrCreateCompoundTag(moduleStack, "PortalScaler");
+            NBTTagCompound tag = NBTUtils.getOrCreateCompoundTag(moduleStack, "PortalScaler");
 
             int x = tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleX") : 8;
             int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;

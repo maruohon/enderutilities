@@ -3,9 +3,10 @@ package fi.dy.masa.enderutilities.util.nbt;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 
-public class NBTHelper
+public class NBTUtils
 {
     public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTBase tag)
     {
@@ -79,5 +80,36 @@ public class NBTHelper
     {
         byte mode = nbt.getByte(tagName);
         nbt.setByte(tagName, ++mode > maxValue ? 0 : mode);
+    }
+
+    /**
+     * Returns the number of stored ItemStacks in the <b>containerStack</b>.
+     * If containerStack is missing the NBT data completely, then -1 is returned.
+     * @param containerStack
+     * @return the number of tags in the NBTTagList, or -1 of the TagList doesn't exist
+     */
+    public static int getNumberOfStoredItemStacks(ItemStack containerStack)
+    {
+        if (containerStack.getTagCompound() == null || containerStack.getTagCompound().hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        {
+            return -1;
+        }
+
+        return containerStack.getTagCompound().getTagList("Items", Constants.NBT.TAG_COMPOUND).tagCount();
+    }
+
+    /**
+     * Returns the NBTTagList containing all the stored ItemStacks in the containerStack, or null in case it fails.
+     * @param containerStack
+     * @return the NBTTagList holding the stored items
+     */
+    public static NBTTagList getStoredItemsList(ItemStack containerStack)
+    {
+        if (getNumberOfStoredItemStacks(containerStack) <= 0)
+        {
+            return null;
+        }
+
+        return containerStack.getTagCompound().getTagList("Items", Constants.NBT.TAG_COMPOUND);
     }
 }

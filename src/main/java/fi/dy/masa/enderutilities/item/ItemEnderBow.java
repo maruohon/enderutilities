@@ -26,7 +26,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -272,8 +272,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
     public void toggleBowMode(EntityPlayer player, ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
-        NBTHelper.cycleByteValue(nbt, "Mode", 1);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTUtils.cycleByteValue(nbt, "Mode", 1);
 
         // If self teleporting is disabled in the configs, always set the mode to TP target
         if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)

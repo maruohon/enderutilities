@@ -230,7 +230,7 @@ public class NBTHelperTarget
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
     {
-        return NBTHelper.writeTagToNBT(nbt, "Target", null);
+        return NBTUtils.writeTagToNBT(nbt, "Target", null);
     }
 
     public static void removeTargetTagFromItem(ItemStack stack)

@@ -76,7 +76,7 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -933,14 +933,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public void cyclePoweredMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
-        NBTHelper.cycleByteValue(nbt, "Powered", 1);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTUtils.cycleByteValue(nbt, "Powered", 1);
     }
 
     public void cycleDropsMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, null);
-        NBTHelper.cycleByteValue(nbt, "DropsMode", 2);
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTUtils.cycleByteValue(nbt, "DropsMode", 2);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
