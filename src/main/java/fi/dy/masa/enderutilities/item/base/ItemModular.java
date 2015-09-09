@@ -28,56 +28,56 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     }
 
     @Override
-    public int getModuleCount(ItemStack stack, ModuleType moduleType)
+    public int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getModuleCount(stack, moduleType);
+        return UtilItemModular.getInstalledModuleCount(containerStack, moduleType);
     }
 
     @Override
-    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
+    public int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getMaxModuleTier(stack, moduleType);
+        return UtilItemModular.getMaxModuleTier(containerStack, moduleType);
     }
 
     @Override
-    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
+        return UtilItemModular.getSelectedModuleTier(containerStack, moduleType);
     }
 
     @Override
-    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
+    public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getSelectedModuleStack(stack, moduleType);
+        return UtilItemModular.getSelectedModuleStack(containerStack, moduleType);
     }
 
     @Override
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
+    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
-        return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+        return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
     }
 
     @Override
-    public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
+    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
+        return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
 
     @Override
-    public List<NBTTagCompound> getAllModules(ItemStack stack)
+    public List<NBTTagCompound> getAllModules(ItemStack containerStack)
     {
-        return UtilItemModular.getAllModules(stack);
+        return UtilItemModular.getAllModules(containerStack);
     }
 
     @Override
-    public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
+    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
-        return UtilItemModular.setAllModules(stack, modules);
+        return UtilItemModular.setAllModules(containerStack, modules);
     }
 
     @Override
-    public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
+    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
     {
-        return UtilItemModular.setModule(stack, index, nbt);
+        return UtilItemModular.setModule(containerStack, index, nbt);
     }
 }

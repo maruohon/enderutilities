@@ -224,7 +224,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
         // Only accept chargeable items to the item input slot
         if (slotNum == 1)
         {
-            return (item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0));
+            return (item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getInstalledModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0));
         }
 
         return false;

@@ -263,7 +263,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
             if (verbose == true)
             {
-                int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MEMORY_CARD);
+                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
@@ -362,13 +362,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public int getMaxModules(ItemStack stack)
+    public int getMaxModules(ItemStack containerStack)
     {
         return 5;
     }
 
     @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
         if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {
@@ -384,7 +384,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
@@ -400,6 +400,6 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return 0;
         }
 
-        return this.getMaxModules(toolStack, moduleType);
+        return this.getMaxModules(containerStack, moduleType);
     }
 }

@@ -163,13 +163,13 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     }
 
     @Override
-    public int getMaxModules(ItemStack stack)
+    public int getMaxModules(ItemStack containerStack)
     {
         return 10;
     }
 
     @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
         if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {

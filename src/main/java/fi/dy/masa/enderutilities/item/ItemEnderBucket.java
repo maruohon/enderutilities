@@ -1146,7 +1146,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
@@ -1159,7 +1159,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         // Only allow the block/inventory type Link Crystals
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            return this.getMaxModules(toolStack, moduleType);
+            return this.getMaxModules(containerStack, moduleType);
         }
 
         return 0;

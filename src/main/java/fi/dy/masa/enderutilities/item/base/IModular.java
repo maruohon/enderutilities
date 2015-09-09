@@ -10,99 +10,99 @@ public interface IModular
 {
     /**
      * Returns the number of installed modules of the given type.
-     * @param stack
+     * @param containerStack
      * @param moduleType
-     * @return
+     * @return number of installed modules of the given type
      */
-    public int getModuleCount(ItemStack stack, ModuleType moduleType);
+    public int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType);
 
     /**
      * Returns the maximum number of modules that can be installed on this item.
-     * @param stack
-     * @return
+     * @param containerStack
+     * @return maximum number of modules that can be installed on this item
      */
-    public int getMaxModules(ItemStack stack);
+    public int getMaxModules(ItemStack containerStack);
 
     /**
      * Returns the maximum number of modules of the given type that can be installed on this item.
-     * @param stack
+     * @param containerStack
      * @param moduleType
-     * @return
+     * @return maximum number of modules of the given type
      */
-    public int getMaxModules(ItemStack stack, ModuleType moduleType);
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType);
 
     /**
      * Returns the maximum number of the given module type that can be installed on this item.
      * This is for exact module checking (module tier or sub-type), instead of the generic module type.
-     * @param toolStack
+     * @param containerStack
      * @param moduleStack
-     * @return
+     * @return maximum number of the given module type
      */
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack);
+    public int getMaxModules(ItemStack containerStack, ItemStack moduleStack);
 
     /**
      * Returns the (maximum, if multiple) tier of the installed module of the given type.
-     * @param stack
+     * @param containerStack
      * @param moduleType
-     * @return
+     * @return (maximum, if multiple) tier of the installed module of the given type
      */
-    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType);
+    public int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType);
 
     /**
      * Returns the tier of the selected module of the given type.
-     * @param stack
+     * @param containerStack
      * @param type
-     * @return
+     * @return the tier of the selected module of the given type
      */
-    public int getSelectedModuleTier(ItemStack stack, ModuleType type);
+    public int getSelectedModuleTier(ItemStack containerStack, ModuleType type);
 
     /**
      * Returns the ItemStack of the (selected, if multiple) given module type.
-     * @param stack
+     * @param containerStack
      * @param moduleType
-     * @return
+     * @return the ItemStack of the selected module of the given module type, or null
      */
-    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType);
+    public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType);
 
     /**
      * Sets the currently selected module's ItemStack of the given module type to the one provided.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @param moduleStack
      * @return
      */
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack);
+    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack);
 
     /**
      * Change the currently selected module to the next one, if any.
-     * @param stack
+     * @param containerStack
      * @param moduleType
      * @param reverse
      * @return
      */
-    public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse);
+    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse);
 
     /**
      * Returns a list of all the installed modules.
-     * @param stack
+     * @param containerStack
      * @return
      */
-    public List<NBTTagCompound> getAllModules(ItemStack stack);
+    public List<NBTTagCompound> getAllModules(ItemStack containerStack);
 
     /**
      * Sets the modules to the ones provided in the list.
-     * @param stack
+     * @param containerStack
      * @param modules
      * @return
      */
-    public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules);
+    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules);
 
     /**
      * Sets the module indicated by the position in 'index' to the one provided in moduleStack.
-     * @param stack
+     * @param containerStack
      * @param index
      * @param moduleStack
      * @return
      */
-    public ItemStack setModule(ItemStack stack, int index, NBTTagCompound moduleStack);
+    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound moduleStack);
 }

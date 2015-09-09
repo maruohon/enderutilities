@@ -346,7 +346,7 @@ public class NBTHelperTarget
         }
 
         // See how many link crystals are installed
-        if (item.getModuleCount(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
+        if (item.getInstalledModuleCount(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
         {
             return false;
         }

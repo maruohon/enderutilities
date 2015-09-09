@@ -37,18 +37,18 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the NBTTagList containing all the modules in toolStack, or null in case it fails.
-     * @param toolStack
+     * Returns the NBTTagList containing all the modules in containerStack, or null in case it fails.
+     * @param containerStack
      * @return
      */
-    public static NBTTagList getInstalledModules(ItemStack toolStack)
+    public static NBTTagList getInstalledModules(ItemStack containerStack)
     {
-        if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
+        if (containerStack == null || (containerStack.getItem() instanceof IModular) == false)
         {
             return null;
         }
 
-        NBTTagCompound nbt = toolStack.getTagCompound();
+        NBTTagCompound nbt = containerStack.getTagCompound();
         if (nbt == null || nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
         {
             return null;
@@ -58,14 +58,14 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the number of installed modules in toolStack of the type moduleType.
-     * @param toolStack
+     * Returns the number of installed modules in containerStack of the type moduleType.
+     * @param containerStack
      * @param moduleType
      * @return
      */
-    public static int getModuleCount(ItemStack toolStack, ModuleType moduleType)
+    public static int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = getInstalledModules(toolStack);
+        NBTTagList nbtTagList = getInstalledModules(containerStack);
         if (nbtTagList == null)
         {
             return 0;
@@ -88,16 +88,16 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the (maximum, if multiple) tier of the installed module in toolStack of the type moduleType.
+     * Returns the (maximum, if multiple) tier of the installed module in containerStack of the type moduleType.
      * Valid tiers are in the range of 0..n. Invalid tier/module returns -1.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @return
      */
-    public static int getMaxModuleTier(ItemStack toolStack, ModuleType moduleType)
+    public static int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
         int tier = -1;
-        NBTTagList nbtTagList = getInstalledModules(toolStack);
+        NBTTagList nbtTagList = getInstalledModules(containerStack);
         if (nbtTagList == null)
         {
             return tier;
@@ -122,15 +122,15 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the tier of the currently selected module of type moduleType in toolStack,
+     * Returns the tier of the currently selected module of type moduleType in containerStack,
      * or -1 for invalid or missing modules.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @return 0..n for valid modules, -1 for invalid or missing modules
      */
-    public static int getSelectedModuleTier(ItemStack toolStack, ModuleType moduleType)
+    public static int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        ItemStack moduleStack = getSelectedModuleStack(toolStack, moduleType);
+        ItemStack moduleStack = getSelectedModuleStack(containerStack, moduleType);
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
             return -1;
@@ -140,20 +140,20 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the index (0..num-1) of the currently selected module of type moduleType in toolStack.
-     * @param toolStack
+     * Returns the index (0..num-1) of the currently selected module of type moduleType in containerStack.
+     * @param containerStack
      * @param moduleType
      * @return
      */
-    public static int getClampedModuleSelection(ItemStack toolStack, ModuleType moduleType)
+    public static int getClampedModuleSelection(ItemStack containerStack, ModuleType moduleType)
     {
-        if (toolStack == null || toolStack.getTagCompound() == null)
+        if (containerStack == null || containerStack.getTagCompound() == null)
         {
             return 0;
         }
 
-        int selected = toolStack.getTagCompound().getByte("Selected_" + moduleType.getName());
-        int num = UtilItemModular.getModuleCount(toolStack, moduleType);
+        int selected = containerStack.getTagCompound().getByte("Selected_" + moduleType.getName());
+        int num = getInstalledModuleCount(containerStack, moduleType);
         if (selected >= num)
         {
             // If the selected module number is larger than the current number of installed modules of that type, then select the last one
@@ -166,20 +166,20 @@ public class UtilItemModular
     /**
      * Returns the TAG_Compound containing the (currently selected, if multiple) installed module of type moduleType.
      * The tag contains the Slot and the ItemStack data.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @return
      */
-    public static NBTTagCompound getSelectedModuleTagCompound(ItemStack toolStack, ModuleType moduleType)
+    public static NBTTagCompound getSelectedModuleTagCompound(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = getInstalledModules(toolStack);
+        NBTTagList nbtTagList = getInstalledModules(containerStack);
         if (nbtTagList == null)
         {
             return null;
         }
 
         int listNumStacks = nbtTagList.tagCount();
-        int selected = UtilItemModular.getClampedModuleSelection(toolStack, moduleType);
+        int selected = getClampedModuleSelection(containerStack, moduleType);
 
         // Get the selected-th TAG_Compound of the given module type
         for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
@@ -200,13 +200,13 @@ public class UtilItemModular
 
     /**
      * Returns the ItemStack of the (currently selected, if multiple) installed module of type moduleType.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @return
      */
-    public static ItemStack getSelectedModuleStack(ItemStack toolStack, ModuleType moduleType)
+    public static ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagCompound tag = UtilItemModular.getSelectedModuleTagCompound(toolStack, moduleType);
+        NBTTagCompound tag = getSelectedModuleTagCompound(containerStack, moduleType);
         if (tag != null)
         {
             return ItemStack.loadItemStackFromNBT(tag);
@@ -217,27 +217,27 @@ public class UtilItemModular
 
     /**
      * Sets the currently selected module's ItemStack of type moduleStack to the one provided in newModuleStack.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @param newModuleStack
      * @return
      */
-    public static ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack newModuleStack)
+    public static ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
-        NBTTagList nbtTagList = getInstalledModules(toolStack);
+        NBTTagList nbtTagList = getInstalledModules(containerStack);
         if (nbtTagList == null)
         {
             return null;
         }
 
-        NBTTagCompound nbt = toolStack.getTagCompound();
+        NBTTagCompound nbt = containerStack.getTagCompound();
         if (nbt == null) // Redundant check at this point, but whatever
         {
             return null;
         }
 
         int listNumStacks = nbtTagList.tagCount();
-        int selected = getClampedModuleSelection(toolStack, moduleType);
+        int selected = getClampedModuleSelection(containerStack, moduleType);
 
         // Replace the module ItemStack of the selected-th TAG_Compound of the given module type
         for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
@@ -250,22 +250,22 @@ public class UtilItemModular
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
                     nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
-                    return toolStack;
+                    return containerStack;
                 }
             }
         }
 
-        return toolStack;
+        return containerStack;
     }
 
     /**
      * Returns a list of all the installed modules. UNIMPLEMENTED ATM
-     * @param stack
+     * @param containerStack
      * @return
      */
-    public static List<NBTTagCompound> getAllModules(ItemStack stack)
+    public static List<NBTTagCompound> getAllModules(ItemStack containerStack)
     {
-        if (stack == null)
+        if (containerStack == null)
         {
             return null;
         }
@@ -277,59 +277,59 @@ public class UtilItemModular
 
     /**
      * Sets the modules to the ones provided in the list. UNIMPLEMENTED ATM
-     * @param stack
+     * @param containerStack
      * @param modules
      * @return
      */
-    public static ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
+    public static ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
-        if (stack == null)
+        if (containerStack == null)
         {
             return null;
         }
 
         // TODO
 
-        return stack;
+        return containerStack;
     }
 
     /**
      * Sets the module indicated by the position to the one provided in the compound tag.
      * UNIMPLEMENTED ATM
-     * @param stack
+     * @param containerStack
      * @param index
      * @param nbt
      * @return
      */
-    public static ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
+    public static ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
     {
-        if (stack == null)
+        if (containerStack == null)
         {
             return null;
         }
 
         // TODO
 
-        return stack;
+        return containerStack;
     }
 
     /**
      * Change the currently selected module of type moduleType to the next one, if any.
-     * @param toolStack
+     * @param containerStack
      * @param moduleType
      * @param reverse True if we want to change to the previous module instead of the next module
      * @return
      */
-    public static ItemStack changeSelectedModule(ItemStack toolStack, ModuleType moduleType, boolean reverse)
+    public static ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        int moduleCount = UtilItemModular.getModuleCount(toolStack, moduleType);
-        NBTTagCompound nbt = toolStack.getTagCompound();
+        int moduleCount = getInstalledModuleCount(containerStack, moduleType);
+        NBTTagCompound nbt = containerStack.getTagCompound();
         if (moduleCount == 0 || nbt == null)
         {
-            return toolStack;
+            return containerStack;
         }
 
-        int selected = getClampedModuleSelection(toolStack, moduleType);
+        int selected = getClampedModuleSelection(containerStack, moduleType);
 
         if (reverse == true)
         {
@@ -348,26 +348,26 @@ public class UtilItemModular
 
         nbt.setByte("Selected_" + moduleType.getName(), (byte)selected);
 
-        return toolStack;
+        return containerStack;
     }
 
     /**
      * If the given modular item has an Ender Capacitor module installed,
      * then the given amount of charge (or however much can be added) is added to the capacitor.
      * In case of any errors, no charge will be added.
-     * @param stack
+     * @param containerStack
      * @param amount
      * @param doCharge True if we want to actually add charge, false if we want to just simulate it
      * @return The amount of charge that was successfully added to the installed capacitor module
      */
-    public static int addEnderCharge(ItemStack stack, int amount, boolean doCharge)
+    public static int addEnderCharge(ItemStack containerStack, int amount, boolean doCharge)
     {
-        if ((stack.getItem() instanceof IModular) == false)
+        if ((containerStack.getItem() instanceof IModular) == false)
         {
             return 0;
         }
 
-        ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
         if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
         {
             return 0;
@@ -383,7 +383,7 @@ public class UtilItemModular
         if (doCharge == true)
         {
             added = cap.addCharge(moduleStack, amount, true);
-            setSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
+            setSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
         }
 
         return added;
@@ -393,24 +393,24 @@ public class UtilItemModular
      * If the given modular item has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
-     * @param stack
+     * @param containerStack
      * @param amount
      * @param doUse True to actually drain, false to simulate
      * @return false if the requested amount of charge could not be drained
      */
-    public static boolean useEnderCharge(ItemStack stack, int amount, boolean doUse)
+    public static boolean useEnderCharge(ItemStack containerStack, int amount, boolean doUse)
     {
         if (Configs.valueUseEnderCharge == false)
         {
             return true;
         }
 
-        if ((stack.getItem() instanceof IModular) == false)
+        if ((containerStack.getItem() instanceof IModular) == false)
         {
             return false;
         }
 
-        ItemStack moduleStack = getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+        ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
         if (moduleStack == null || (moduleStack.getItem() instanceof ItemEnderCapacitor) == false)
         {
             return false;
@@ -425,19 +425,19 @@ public class UtilItemModular
         if (doUse == true)
         {
             cap.useCharge(moduleStack, amount, true);
-            setSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
+            setSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
         }
 
         return true;
     }
 
     /**
-     * Stores the player's current position as the Target tag to the currently selected Link Crystal in the modular item in toolStack.
-     * @param stack The ItemStack containing the modular item
+     * Stores the player's current position as the Target tag to the currently selected Link Crystal in the modular item in containerStack.
+     * @param containerStack The ItemStack containing the modular item
      * @param player The player that we get the position from.
      * @param storeRotation true if we also want to store the player's yaw and pitch rotations
      */
-    public static void setTarget(ItemStack toolStack, EntityPlayer player, boolean storeRotation)
+    public static void setTarget(ItemStack containerStack, EntityPlayer player, boolean storeRotation)
     {
         int x = (int)player.posX;
         int y = (int)player.posY;
@@ -446,14 +446,14 @@ public class UtilItemModular
         double hitY = player.posY - y;
         double hitZ = player.posZ - z;
         // Don't adjust the target position for uses that are targeting the block, not the in-world location
-        boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+        boolean adjustPosHit = getSelectedModuleTier(containerStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
 
-        setTarget(toolStack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        setTarget(containerStack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     /**
-     * Store a new target tag to the currently selected Link Crystal in the modular item in toolStack.
-     * @param toolStack
+     * Store a new target tag to the currently selected Link Crystal in the modular item in containerStack.
+     * @param containerStack
      * @param player
      * @param x
      * @param y
@@ -466,18 +466,18 @@ public class UtilItemModular
      * using the integer position. This is normally true for location type Link Crystals, and false for block type Link Crystals.
      * @param storeRotation true if we also want to store the player's yaw and pitch rotations
      */
-    public static void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public static void setTarget(ItemStack containerStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (NBTHelperPlayer.canAccessSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (NBTHelperPlayer.selectedModuleHasPlayerTag(toolStack, ModuleType.TYPE_LINKCRYSTAL) == false)
+        if (NBTHelperPlayer.selectedModuleHasPlayerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
         {
-            NBTHelperPlayer.writePlayerTagToSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
+            NBTHelperPlayer.writePlayerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
         }
     }
 }

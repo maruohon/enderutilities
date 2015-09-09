@@ -646,19 +646,19 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public int getModuleCount(ItemStack stack, ModuleType moduleType)
+    public int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getModuleCount(stack, moduleType);
+        return UtilItemModular.getInstalledModuleCount(containerStack, moduleType);
     }
 
     @Override
-    public int getMaxModules(ItemStack stack)
+    public int getMaxModules(ItemStack containerStack)
     {
         return 5;
     }
 
     @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
         if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
         {
@@ -679,7 +679,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
@@ -694,56 +694,56 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
             || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            return this.getMaxModules(toolStack, moduleType);
+            return this.getMaxModules(containerStack, moduleType);
         }
 
         return 0;
     }
 
     @Override
-    public int getMaxModuleTier(ItemStack stack, ModuleType moduleType)
+    public int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getMaxModuleTier(stack, moduleType);
+        return UtilItemModular.getMaxModuleTier(containerStack, moduleType);
     }
 
-    public int getSelectedModuleTier(ItemStack stack, ModuleType moduleType)
+    public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.getSelectedModuleTier(stack, moduleType);
-    }
-
-    @Override
-    public ItemStack getSelectedModuleStack(ItemStack stack, ModuleType moduleType)
-    {
-        return UtilItemModular.getSelectedModuleStack(stack, moduleType);
-    }
-
-    public ItemStack setSelectedModuleStack(ItemStack toolStack, ModuleType moduleType, ItemStack moduleStack)
-    {
-        return UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+        return UtilItemModular.getSelectedModuleTier(containerStack, moduleType);
     }
 
     @Override
-    public ItemStack changeSelectedModule(ItemStack stack, ModuleType moduleType, boolean reverse)
+    public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        return UtilItemModular.changeSelectedModule(stack, moduleType, reverse);
+        return UtilItemModular.getSelectedModuleStack(containerStack, moduleType);
+    }
+
+    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
+    {
+        return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
     }
 
     @Override
-    public List<NBTTagCompound> getAllModules(ItemStack stack)
+    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        return UtilItemModular.getAllModules(stack);
+        return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
 
     @Override
-    public ItemStack setAllModules(ItemStack stack, List<NBTTagCompound> modules)
+    public List<NBTTagCompound> getAllModules(ItemStack containerStack)
     {
-        return UtilItemModular.setAllModules(stack, modules);
+        return UtilItemModular.getAllModules(containerStack);
     }
 
     @Override
-    public ItemStack setModule(ItemStack stack, int index, NBTTagCompound nbt)
+    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
-        return UtilItemModular.setModule(stack, index, nbt);
+        return UtilItemModular.setAllModules(containerStack, modules);
+    }
+
+    @Override
+    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
+    {
+        return UtilItemModular.setModule(containerStack, index, nbt);
     }
 
     @SideOnly(Side.CLIENT)
@@ -791,7 +791,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
             }
 
-            int num = UtilItemModular.getModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+            int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));

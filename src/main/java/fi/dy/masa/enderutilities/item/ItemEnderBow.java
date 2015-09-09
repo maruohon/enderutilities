@@ -111,7 +111,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             entityenderarrow.setTpTarget(target);
 
             // If there is a mob persistence module installed, mark that flag on the arrow entity
-            if (UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+            if (UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
             {
                 entityenderarrow.setPersistence(true);
             }
@@ -297,13 +297,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     }
 
     @Override
-    public int getMaxModules(ItemStack stack)
+    public int getMaxModules(ItemStack containerStack)
     {
         return 5;
     }
 
     @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
         if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
         {

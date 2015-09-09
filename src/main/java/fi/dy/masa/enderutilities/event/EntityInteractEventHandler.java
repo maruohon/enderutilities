@@ -53,7 +53,7 @@ public class EntityInteractEventHandler
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
                     UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
                 {
-                    if (event.target instanceof EntityLiving && UtilItemModular.getModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                    if (event.target instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {
                         EntityUtils.applyMobPersistence((EntityLiving)event.target);
                     }
