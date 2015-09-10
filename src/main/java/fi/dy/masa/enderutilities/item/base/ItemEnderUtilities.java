@@ -76,7 +76,10 @@ public class ItemEnderUtilities extends Item
         {
             tmpList.clear();
             this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
-            list.add(tmpList.get(0));
+            if (tmpList.size() > 0)
+            {
+                list.add(tmpList.get(0));
+            }
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
         }
         else
