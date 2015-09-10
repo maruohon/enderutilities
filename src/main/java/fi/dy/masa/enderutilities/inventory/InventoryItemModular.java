@@ -71,7 +71,7 @@ public class InventoryItemModular implements IInventory
      */
     private void writeStorageModulesToContainerItem()
     {
-        System.out.println("writeStorageModulesToContainerItem()");
+        //System.out.println("writeStorageModulesToContainerItem()");
         if (this.containerStack != null)
         {
             InventoryUtils.writeItemsToContainerItem(this.containerStack, this.moduleStacks);
@@ -98,7 +98,7 @@ public class InventoryItemModular implements IInventory
     {
         if (this.storageStack != null)
         {
-            System.out.println("writeItemsToStorageModule()");
+            //System.out.println("writeItemsToStorageModule()");
             InventoryUtils.writeItemsToContainerItem(this.storageStack, this.itemStacks);
         }
 
@@ -304,7 +304,7 @@ public class InventoryItemModular implements IInventory
     @Override
     public void closeInventory()
     {
-        System.out.println("closeInventory()");
+        //System.out.println("closeInventory()");
         this.writeItemsToStorageModule();
         this.writeStorageModulesToContainerItem();
     }

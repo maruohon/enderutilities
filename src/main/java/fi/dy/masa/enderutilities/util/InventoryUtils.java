@@ -9,7 +9,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.util.Constants;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
@@ -442,6 +445,51 @@ public class InventoryUtils
                 listNames.add(stack.getDisplayName());
             }
         }
+    }
+
+    /**
+     * Adds a formatted list of ItemStack sizes and the display names of the ItemStacks
+     * to the <b>listLines</b> list. Returns the total number of items stored.
+     * @param containerStack
+     * @param listLines
+     * @return total number of items stored
+     */
+    @SideOnly(Side.CLIENT)
+    public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines)
+    {
+        int itemCount = 0;
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+
+        if (nbtTagList != null && nbtTagList.tagCount() > 0)
+        {
+            int num = nbtTagList.tagCount();
+            for (int i = 0; i < num; ++i)
+            {
+                NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+                if (tag != null)
+                {
+                    ItemStack tmpStack = ItemStack.loadItemStackFromNBT(tag);
+
+                    if (tmpStack != null)
+                    {
+                        if (tag.hasKey("CountReal", Constants.NBT.TAG_INT) == true)
+                        {
+                            itemCount += tag.getInteger("CountReal");
+                        }
+                        else
+                        {
+                            itemCount += tmpStack.stackSize;
+                        }
+
+                        String preWhite = EnumChatFormatting.WHITE.toString();
+                        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+                        listLines.add(String.format("  %s%4d%s %s", preWhite, tmpStack.stackSize, rst, tmpStack.getDisplayName()));
+                    }
+                }
+            }
+        }
+
+        return itemCount;
     }
 
     /**

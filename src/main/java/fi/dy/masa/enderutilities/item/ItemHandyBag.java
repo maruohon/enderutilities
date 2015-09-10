@@ -4,29 +4,40 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
+    public static final int DAMAGE_TIER_1 = 0;
+    public static final int DAMAGE_TIER_2 = 1;
+
+    public static final int INV_SIZE_TIER_1 = 27;
+    public static final int INV_SIZE_TIER_2 = 59;
+
+    public static final int MAX_STACKSIZE_TIER_1 =   256;
+    public static final int MAX_STACKSIZE_TIER_2 =  4096;
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
@@ -46,8 +57,45 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
+    public String getItemStackDisplayName(ItemStack stack)
     {
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        if (moduleStack != null && moduleStack.getTagCompound() != null)
+        {
+            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+
+            // If the currently selected module has been renamed, show that name
+            if (moduleStack.hasDisplayName() == true)
+            {
+                String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+                if (itemName.length() >= 14)
+                {
+                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
+                }
+
+                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
+            }
+
+            return itemName + ": foo"; // FIXME
+        }
+
+        return super.getItemStackDisplayName(stack);
+    }
+
+    @Override
+    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+        {
+            ItemEnderPart module = (ItemEnderPart)moduleStack.getItem();
+            module.addInformationSelective(moduleStack, player, list, advancedTooltips, verbose);
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+        }
     }
 
     public static boolean bagIsOpenable(ItemStack stack)
@@ -90,13 +138,13 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getSizeInventory(ItemStack containerStack)
     {
-        return containerStack.getItemDamage() == 1 ? 59 : 27;
+        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? INV_SIZE_TIER_2 : INV_SIZE_TIER_1;
     }
 
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        return containerStack.getItemDamage() == 1 ? 64 : 16; // FIXME testing, change to 1000 : 64 or whatever
+        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? 64 : 16; // FIXME testing, MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
     }
 
     public static void performGuiAction(ItemStack stack, EntityPlayer player, int element, int action)
@@ -105,6 +153,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static int getPickupMode(ItemStack stack)
     {
+        // 0: None, 1: Matching, 2: All
         if (stack.getTagCompound() == null || stack.getTagCompound().hasKey("HandyBag", Constants.NBT.TAG_COMPOUND) == false)
         {
             return 0;
@@ -115,14 +164,15 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public void cyclePickupMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, "HandyBag");
-        NBTHelper.cycleByteValue(nbt, "PickupMode", 2);
+        // 0: None, 1: Matching, 2: All
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, "HandyBag");
+        NBTUtils.cycleByteValue(nbt, "PickupMode", 2);
     }
 
     public void toggleLockedMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTHelper.getOrCreateCompoundTag(stack, "HandyBag");
-        NBTHelper.toggleBoolean(nbt, "DisableOpen");
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, "HandyBag");
+        NBTUtils.toggleBoolean(nbt, "DisableOpen");
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
@@ -180,23 +230,34 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public int getMaxModules(ItemStack stack)
+    public int getMaxModules(ItemStack containerStack)
     {
         return 4;
     }
 
     @Override
-    public int getMaxModules(ItemStack stack, ModuleType moduleType)
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
         return moduleType.equals(ModuleType.TYPE_MEMORY_CARD) ? 4 : 0;
     }
 
     @Override
-    public int getMaxModules(ItemStack toolStack, ItemStack moduleStack)
+    public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack.getItem() instanceof IModule && ((IModule)moduleStack.getItem()).getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD))
+        if (moduleStack.getItem() instanceof IModule)
         {
-            return 4;
+            IModule imodule = (IModule)moduleStack.getItem();
+
+            if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD))
+            {
+                int tier = imodule.getModuleTier(moduleStack);
+                if (tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_8B ||
+                    tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_10B ||
+                    tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B)
+                {
+                    return 4;
+                }
+            }
         }
 
         return 0;
@@ -252,7 +313,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 return this.iconArray[damage <= 1 ? damage : 0];
             case 1: // Locked icon
                 return bagIsOpenable(stack) ? this.iconArray[2] : this.iconArray[3];
-            case 2: // Pickup mode
+            case 2: // Pickup mode; 0: None, 1: Matching, 2: All
                 int index = getPickupMode(stack);
                 if (index == 1 || index == 2)
                 {

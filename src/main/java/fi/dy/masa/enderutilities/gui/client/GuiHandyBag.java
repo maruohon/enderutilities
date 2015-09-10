@@ -1,7 +1,8 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.renderer.InventoryEffectRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.IInventory;
@@ -16,7 +17,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
-public class GuiHandyBag extends GuiContainer
+public class GuiHandyBag extends InventoryEffectRenderer
 {
     private ContainerHandyBag container;
     protected ResourceLocation guiTexture;
@@ -35,7 +36,14 @@ public class GuiHandyBag extends GuiContainer
     @Override
     public void initGui()
     {
+        this.buttonList.clear();
         super.initGui();
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        super.updateScreen();
     }
 
     @Override
@@ -113,5 +121,10 @@ public class GuiHandyBag extends GuiContainer
     protected void bindTexture(ResourceLocation rl)
     {
         this.mc.renderEngine.bindTexture(rl);
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button)
+    {
     }
 }

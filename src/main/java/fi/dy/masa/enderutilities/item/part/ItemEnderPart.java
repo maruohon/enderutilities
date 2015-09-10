@@ -12,12 +12,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
@@ -25,7 +22,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -135,19 +132,14 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        if (stack.getTagCompound() == null || stack.getTagCompound().hasNoTags() == true)
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt == null || nbt.hasNoTags() == true)
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             return;
         }
 
-        String preWhite = EnumChatFormatting.WHITE.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-
-        NBTTagCompound nbt = stack.getTagCompound();
-        //int damage = stack.getItemDamage();
-
-        List<String> listDataTypes = new ArrayList<String>();
+        ArrayList<String> listDataTypes = new ArrayList<String>();
         Iterator<String> iter = nbt.func_150296_c().iterator();
         while (iter.hasNext())
         {
@@ -158,19 +150,14 @@ public class ItemEnderPart extends ItemModule
             }
         }
 
-        list.add(StatCollector.translateToLocalFormatted("enderutilities.tooltip.item.memorycard.datatypecount", listDataTypes.size()));
-
-        if (verbose == false)
-        {
-            return;
-        }
-
-        // Memory Card (misc)
-        //if (damage == 50)
+        int damage = stack.getItemDamage();
+        if (damage == 50) // Memory Card (misc)
         {
             if (listDataTypes.size() > 0)
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.misc.currently.storing"));
+                String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.1");
+                String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.2");
+                list.add(String.format("%s %d %s", str1, listDataTypes.size(), str2));
                 list.addAll(listDataTypes);
             }
             else
@@ -178,47 +165,21 @@ public class ItemEnderPart extends ItemModule
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
-        //else if (damage >= MEMORY_CARD_TYPE_ITEMS_8B && damage <= MEMORY_CARD_TYPE_ITEMS_12B)
+
+        ArrayList<String> lines = new ArrayList<String>();
+        int itemCount = InventoryUtils.getFormattedItemListFromContainerItem(stack, lines);
+        //else if (damage >= 51 && damage <= 53) // Memory Card (items)
+        if (lines.size() > 0)
         {
-            int stackCount = 0;
-            int itemCount = 0;
-            ArrayList<String> lines = new ArrayList<String>();
-            NBTTagList nbtTagList = NBTUtils.getStoredItemsList(stack);
-
-            if (nbtTagList != null)
-            {
-                int num = nbtTagList.tagCount();
-                for (int i = 0; i < num; ++i)
-                {
-                    NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-                    ItemStack tmpStack = ItemStack.loadItemStackFromNBT(tag);
-
-                    if (tmpStack != null)
-                    {
-                        stackCount++;
-                        if (tag.hasKey("CountReal", Constants.NBT.TAG_INT) == true)
-                        {
-                            itemCount += tag.getInteger("CountReal");
-                        }
-                        else
-                        {
-                            itemCount += tmpStack.stackSize;
-                        }
-
-                        lines.add(String.format("  %s%4d%s %s", preWhite, tmpStack.stackSize, rst, tmpStack.getDisplayName()));
-                    }
-                }
-            }
-
-            if (stackCount > 0)
-            {
-                list.add(StatCollector.translateToLocalFormatted("enderutilities.tooltip.item.memorycard.items.stackcount", stackCount, itemCount));
-                list.addAll(lines);
-            }
-            else
-            {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
-            }
+            String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
+            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
+            String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
+            list.add(String.format("%s %d %s %d %s:", str1, lines.size(), str2, itemCount, str3));
+            list.addAll(lines);
+        }
+        else if (damage != 50)
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
         }
     }
 

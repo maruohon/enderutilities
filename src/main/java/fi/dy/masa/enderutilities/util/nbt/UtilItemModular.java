@@ -127,12 +127,7 @@ public class UtilItemModular
      */
     public static int getClampedModuleSelection(ItemStack containerStack, ModuleType moduleType)
     {
-        if (containerStack == null || containerStack.getTagCompound() == null)
-        {
-            return 0;
-        }
-
-        int selected = containerStack.getTagCompound().getByte("Selected_" + moduleType.getName());
+        int selected = getStoredModuleSelection(containerStack, moduleType);
         int num = getInstalledModuleCount(containerStack, moduleType);
         if (selected >= num)
         {
@@ -141,6 +136,27 @@ public class UtilItemModular
         }
 
         return selected;
+    }
+
+    /**
+     * Return the stored module selection position/index of the given module type.
+     * It is not clamped to the range of installed modules, but it is clamped to the range of
+     * the maximum number of modules of that type.
+     * @param containerStack
+     * @param moduleType
+     * @return the stored selection index (clamped to 0 .. (max - 1), but not clamped to installed modules range)
+     */
+    public static int getStoredModuleSelection(ItemStack containerStack, ModuleType moduleType)
+    {
+        if (containerStack == null || containerStack.getTagCompound() == null || (containerStack.getItem() instanceof IModular) == false)
+        {
+            return 0;
+        }
+
+        int selected = containerStack.getTagCompound().getByte("Selected_" + moduleType.getName());
+        int max = ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType);
+
+        return selected < max ? selected : max - 1;
     }
 
     /**

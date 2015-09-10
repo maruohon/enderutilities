@@ -90,12 +90,8 @@ public class NBTUtils
      */
     public static int getNumberOfStoredItemStacks(ItemStack containerStack)
     {
-        if (containerStack.getTagCompound() == null || containerStack.getTagCompound().hasKey("Items", Constants.NBT.TAG_LIST) == false)
-        {
-            return -1;
-        }
-
-        return containerStack.getTagCompound().getTagList("Items", Constants.NBT.TAG_COMPOUND).tagCount();
+        NBTTagList list = getStoredItemsList(containerStack);
+        return list != null ? list.tagCount() : -1;
     }
 
     /**
@@ -105,7 +101,7 @@ public class NBTUtils
      */
     public static NBTTagList getStoredItemsList(ItemStack containerStack)
     {
-        if (getNumberOfStoredItemStacks(containerStack) <= 0)
+        if (containerStack.getTagCompound() == null || containerStack.getTagCompound().hasKey("Items", Constants.NBT.TAG_LIST) == false)
         {
             return null;
         }
