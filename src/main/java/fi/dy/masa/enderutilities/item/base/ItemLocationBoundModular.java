@@ -292,13 +292,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
+    public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
     }
 
     @Override
-    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
+    public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
@@ -310,13 +310,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
+    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
         return UtilItemModular.setAllModules(containerStack, modules);
     }
 
     @Override
-    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
+    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
     {
         return UtilItemModular.setModule(containerStack, index, nbt);
     }

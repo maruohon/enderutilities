@@ -6,7 +6,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -160,13 +164,11 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the TAG_Compound containing the (currently selected, if multiple) installed module of type moduleType.
-     * The tag contains the Slot and the ItemStack data.
-     * @param containerStack
-     * @param moduleType
-     * @return
+     * Returns the ItemStack of the installed module of type <b>moduleType</b> in the given <b>slotNum</b>.
+     * If installed module in the given <b>slotNum</b> is not of type <b>moduleType</b> (and moduleType is not ModuleType.TYPE_ANY)
+     * then null is returned.
      */
-    public static NBTTagCompound getSelectedModuleTagCompound(ItemStack containerStack, ModuleType moduleType)
+    public static ItemStack getModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ModuleType moduleType)
     {
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
@@ -175,18 +177,19 @@ public class UtilItemModular
         }
 
         int listNumStacks = nbtTagList.tagCount();
-        int selected = getClampedModuleSelection(containerStack, moduleType);
-
-        // Get the selected-th TAG_Compound of the given module type
-        for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
+        for (int i = 0; i < listNumStacks; ++i)
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
-            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(moduleTag);
-            if (moduleTypeEquals(moduleStack, moduleType) == true)
+            if (moduleTag.getByte("Slot") == slotNum)
             {
-                if (++count >= selected)
+                ItemStack moduleStack = ItemStack.loadItemStackFromNBT(moduleTag);
+                if (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType) == true)
                 {
-                    return moduleTag;
+                    return moduleStack;
+                }
+                else
+                {
+                    return null;
                 }
             }
         }
@@ -202,10 +205,26 @@ public class UtilItemModular
      */
     public static ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagCompound tag = getSelectedModuleTagCompound(containerStack, moduleType);
-        if (tag != null)
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
         {
-            return ItemStack.loadItemStackFromNBT(tag);
+            return null;
+        }
+
+        int listNumStacks = nbtTagList.tagCount();
+        int selected = getClampedModuleSelection(containerStack, moduleType);
+
+        // Get the selected-th TAG_Compound of the given module type
+        for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
+        {
+            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
+            if (moduleTypeEquals(moduleStack, moduleType) == true)
+            {
+                if (++count >= selected)
+                {
+                    return moduleStack;
+                }
+            }
         }
 
         return null;
@@ -218,18 +237,12 @@ public class UtilItemModular
      * @param newModuleStack
      * @return
      */
-    public static ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
+    public static boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
-            return null;
-        }
-
-        NBTTagCompound nbt = containerStack.getTagCompound();
-        if (nbt == null) // Redundant check at this point, but whatever
-        {
-            return null;
+            return false;
         }
 
         int listNumStacks = nbtTagList.tagCount();
@@ -246,12 +259,51 @@ public class UtilItemModular
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
                     nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
-                    return containerStack;
+                    return true;
                 }
             }
         }
 
-        return containerStack;
+        return false;
+    }
+
+    /**
+     * Sets the module ItemStack in the given slot number <b>slotNum</b> to the one provided in newModuleStack.
+     * @param containerStack
+     * @param moduleType
+     * @param newModuleStack
+     * @return
+     */
+    public static boolean setModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ItemStack newModuleStack)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            nbtTagList = new NBTTagList();
+        }
+
+        int listNumStacks = nbtTagList.tagCount();
+
+        // Replace the module ItemStack with slot number slotNum, or add it if it doesn't exist
+        for (int i = 0; i < listNumStacks; ++i)
+        {
+            NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
+            if (moduleTag.hasKey("Slot", Constants.NBT.TAG_BYTE) == true && moduleTag.getByte("Slot") == slotNum)
+            {
+                // Write the new module ItemStack to the compound tag of the old one, so that we
+                // preserve the Slot tag and any other non-ItemStack tags of the old one.
+                nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
+                return true;
+            }
+        }
+
+        // No ItemStack found with slot number slotNum, appending a new tag
+        NBTTagCompound moduleTag = new NBTTagCompound();
+        moduleTag.setByte("Slot", (byte)slotNum);
+        newModuleStack.writeToNBT(moduleTag);
+        nbtTagList.appendTag(moduleTag);
+
+        return false;
     }
 
     /**
@@ -272,41 +324,41 @@ public class UtilItemModular
     }
 
     /**
-     * Sets the modules to the ones provided in the list. UNIMPLEMENTED ATM
+     * Sets the modules to the ones provided in the list. <b>UNIMPLEMENTED ATM</b>
      * @param containerStack
      * @param modules
      * @return
      */
-    public static ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
+    public static boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
         if (containerStack == null)
         {
-            return null;
+            return false;
         }
 
         // TODO
 
-        return containerStack;
+        return false;
     }
 
     /**
      * Sets the module indicated by the position to the one provided in the compound tag.
-     * UNIMPLEMENTED ATM
+     * <b>UNIMPLEMENTED ATM</b>
      * @param containerStack
      * @param index
      * @param nbt
      * @return
      */
-    public static ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
+    public static boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
     {
         if (containerStack == null)
         {
-            return null;
+            return false;
         }
 
         // TODO
 
-        return containerStack;
+        return false;
     }
 
     /**
@@ -316,13 +368,13 @@ public class UtilItemModular
      * @param reverse True if we want to change to the previous module instead of the next module
      * @return
      */
-    public static ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
+    public static boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
         int moduleCount = getInstalledModuleCount(containerStack, moduleType);
         NBTTagCompound nbt = containerStack.getTagCompound();
         if (moduleCount == 0 || nbt == null)
         {
-            return containerStack;
+            return false;
         }
 
         int selected = getClampedModuleSelection(containerStack, moduleType);
@@ -344,7 +396,192 @@ public class UtilItemModular
 
         nbt.setByte("Selected_" + moduleType.getName(), (byte)selected);
 
-        return containerStack;
+        return true;
+    }
+
+    /**
+     * Returns the total number of stored items in the containerStack.
+     * @param containerStack
+     * @return
+     */
+    public static int getTotalNumberOfStoredItems(ItemStack containerStack)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+        int num = nbtTagList.tagCount();
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+
+            if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+            {
+                count += tag.getInteger("CountReal");
+            }
+            else
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+                if (stack != null)
+                {
+                    count += stack.stackSize;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Reads the display names of all the stored items in <b>containerStack</b>.
+     */
+    public static void readItemNamesFromContainerItem(ItemStack containerStack, List<String> listNames)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            return;
+        }
+
+        int num = nbtTagList.tagCount();
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+
+            if (stack != null)
+            {
+                listNames.add(stack.getDisplayName());
+            }
+        }
+    }
+
+    /**
+     * Adds a formatted list of ItemStack sizes and the display names of the ItemStacks
+     * to the <b>listLines</b> list. Returns the total number of items stored.
+     * @param containerStack
+     * @param listLines
+     * @return total number of items stored
+     */
+    @SideOnly(Side.CLIENT)
+    public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines)
+    {
+        int itemCount = 0;
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+
+        if (nbtTagList != null && nbtTagList.tagCount() > 0)
+        {
+            int num = nbtTagList.tagCount();
+            for (int i = 0; i < num; ++i)
+            {
+                NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+                if (tag != null)
+                {
+                    ItemStack tmpStack = ItemStack.loadItemStackFromNBT(tag);
+
+                    if (tmpStack != null)
+                    {
+                        if (tag.hasKey("CountReal", Constants.NBT.TAG_INT) == true)
+                        {
+                            itemCount += tag.getInteger("CountReal");
+                        }
+                        else
+                        {
+                            itemCount += tmpStack.stackSize;
+                        }
+
+                        String preWhite = EnumChatFormatting.WHITE.toString();
+                        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+                        listLines.add(String.format("  %s%4d%s %s", preWhite, tmpStack.stackSize, rst, tmpStack.getDisplayName()));
+                    }
+                }
+            }
+        }
+
+        return itemCount;
+    }
+
+    /**
+     * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
+     * them in the array <b>items</b>. <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
+     * @param containerStack
+     * @param items
+     */
+    public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
+    {
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        if (nbtTagList == null)
+        {
+            return;
+        }
+
+        int num = nbtTagList.tagCount();
+        for (int i = 0; i < num; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            byte slotNum = tag.getByte("Slot");
+
+            if (slotNum >= 0 && slotNum < items.length)
+            {
+                items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
+
+                if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+                {
+                    items[slotNum].stackSize = tag.getInteger("CountReal");
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>.
+     * The items will be written inside a TAG_Compound named "Items".
+     * @param containerStack
+     * @param items
+     */
+    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items)
+    {
+        NBTTagList nbtTagList = new NBTTagList();
+        int invSlots = items.length;
+        // Write all the ItemStacks into a TAG_List
+        for (int slotNum = 0; slotNum < invSlots && slotNum <= 127; ++slotNum)
+        {
+            if (items[slotNum] != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte("Slot", (byte)slotNum);
+                tag.setInteger("CountReal", items[slotNum].stackSize);
+                items[slotNum].writeToNBT(tag);
+                nbtTagList.appendTag(tag);
+            }
+        }
+
+        // Write the module list to the tool
+        NBTTagCompound nbt = containerStack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        if (nbtTagList.tagCount() > 0)
+        {
+            nbt.setTag("Items", nbtTagList);
+        }
+        else
+        {
+            nbt.removeTag("Items");
+        }
+
+        // Strip empty compound tags
+        if (nbt.hasNoTags() == true)
+        {
+            nbt = null;
+        }
+
+        containerStack.setTagCompound(nbt);
     }
 
     /**

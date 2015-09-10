@@ -71,7 +71,7 @@ public interface IModular
      * @param moduleStack
      * @return
      */
-    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack);
+    public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack);
 
     /**
      * Change the currently selected module to the next one, if any.
@@ -80,7 +80,7 @@ public interface IModular
      * @param reverse
      * @return
      */
-    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse);
+    public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse);
 
     /**
      * Returns a list of all the installed modules.
@@ -95,7 +95,7 @@ public interface IModular
      * @param modules
      * @return
      */
-    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules);
+    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules);
 
     /**
      * Sets the module indicated by the position in 'index' to the one provided in moduleStack.
@@ -104,5 +104,5 @@ public interface IModular
      * @param moduleStack
      * @return
      */
-    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound moduleStack);
+    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound moduleStack);
 }

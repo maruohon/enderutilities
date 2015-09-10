@@ -61,9 +61,9 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
@@ -717,13 +717,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return UtilItemModular.getSelectedModuleStack(containerStack, moduleType);
     }
 
-    public ItemStack setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
+    public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
         return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
     }
 
     @Override
-    public ItemStack changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
+    public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
@@ -735,13 +735,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public ItemStack setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
+    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
     {
         return UtilItemModular.setAllModules(containerStack, modules);
     }
 
     @Override
-    public ItemStack setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
+    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
     {
         return UtilItemModular.setModule(containerStack, index, nbt);
     }

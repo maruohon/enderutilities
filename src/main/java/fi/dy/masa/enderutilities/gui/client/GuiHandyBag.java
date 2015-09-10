@@ -19,10 +19,12 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class GuiHandyBag extends InventoryEffectRenderer
 {
-    private ContainerHandyBag container;
+    protected ContainerHandyBag container;
     protected ResourceLocation guiTexture;
-    private float mouseXFloat;
-    private float mouseYFloat;
+    protected float mouseXFloat;
+    protected float mouseYFloat;
+    protected int backgroundU;
+    protected int backgroundV;
 
     public GuiHandyBag(ContainerHandyBag container)
     {
@@ -31,6 +33,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.handybag." + container.getBagTier());
         this.xSize = 176;
         this.ySize = 256;
+        this.backgroundU = 40;
+        this.backgroundV = 0;
     }
 
     @Override
@@ -60,10 +64,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
     {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         this.bindTexture(this.guiTexture);
-        int startX = 40;
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-        this.drawTexturedModalRect(x, y, startX, 0, this.xSize, this.ySize);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render

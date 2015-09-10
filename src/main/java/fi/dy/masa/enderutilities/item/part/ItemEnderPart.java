@@ -22,7 +22,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -132,27 +132,27 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
+        int damage = stack.getItemDamage();
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null || nbt.hasNoTags() == true)
+        if (damage >= 50 && damage <= 53 && (nbt == null || nbt.hasNoTags() == true))
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             return;
         }
 
-        ArrayList<String> listDataTypes = new ArrayList<String>();
-        Iterator<String> iter = nbt.func_150296_c().iterator();
-        while (iter.hasNext())
-        {
-            String key = iter.next();
-            if (key != null && key.equals("display") == false && key.equals("RepairCost") == false)
-            {
-                listDataTypes.add("  " + key);
-            }
-        }
-
-        int damage = stack.getItemDamage();
         if (damage == 50) // Memory Card (misc)
         {
+            ArrayList<String> listDataTypes = new ArrayList<String>();
+            Iterator<String> iter = nbt.func_150296_c().iterator();
+            while (iter.hasNext())
+            {
+                String key = iter.next();
+                if (key != null && key.equals("display") == false && key.equals("RepairCost") == false)
+                {
+                    listDataTypes.add("  " + key);
+                }
+            }
+
             if (listDataTypes.size() > 0)
             {
                 String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.1");
@@ -165,21 +165,23 @@ public class ItemEnderPart extends ItemModule
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
-
-        ArrayList<String> lines = new ArrayList<String>();
-        int itemCount = InventoryUtils.getFormattedItemListFromContainerItem(stack, lines);
-        //else if (damage >= 51 && damage <= 53) // Memory Card (items)
-        if (lines.size() > 0)
+        else if (damage >= 51 && damage <= 53) // Memory Card (items)
         {
-            String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
-            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
-            String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
-            list.add(String.format("%s %d %s %d %s:", str1, lines.size(), str2, itemCount, str3));
-            list.addAll(lines);
-        }
-        else if (damage != 50)
-        {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+            ArrayList<String> lines = new ArrayList<String>();
+            int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines);
+            //else if (damage >= 51 && damage <= 53) // Memory Card (items)
+            if (lines.size() > 0)
+            {
+                String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
+                String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
+                String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
+                list.add(String.format("%s %d %s %d %s:", str1, lines.size(), str2, itemCount, str3));
+                list.addAll(lines);
+            }
+            else if (damage != 50)
+            {
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+            }
         }
     }
 

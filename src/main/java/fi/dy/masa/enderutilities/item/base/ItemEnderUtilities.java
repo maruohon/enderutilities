@@ -53,7 +53,7 @@ public class ItemEnderUtilities extends Item
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
         // "Fresh" items without NBT data: display the tips before the usual tooltip data
-        if (stack != null && stack.getTagCompound() == null)
+        if (stack.getTagCompound() == null)
         {
             this.addTooltips(stack, tmpList, verbose);
 

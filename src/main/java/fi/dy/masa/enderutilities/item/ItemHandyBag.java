@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
@@ -62,7 +63,7 @@ public class ItemHandyBag extends ItemInventoryModular
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
-            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String itemName = super.getItemStackDisplayName(stack); //StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
@@ -77,7 +78,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 return itemName + " " + pre + moduleStack.getDisplayName() + rst;
             }
 
-            return itemName + ": foo"; // FIXME
+            return itemName;
         }
 
         return super.getItemStackDisplayName(stack);
@@ -86,16 +87,44 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
-        if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        if (installed > 0)
         {
-            ItemEnderPart module = (ItemEnderPart)moduleStack.getItem();
-            module.addInformationSelective(moduleStack, player, list, advancedTooltips, verbose);
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            String preBlue = EnumChatFormatting.BLUE.toString();
+            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+            String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            //list.add(String.format("%s %s%s%s (%d / %d)%s", str, preWhite, name, rst, slotNum, max, strNo));
+
+            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+            {
+                String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
+                list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
+
+                ItemEnderPart module = (ItemEnderPart)moduleStack.getItem();
+                module.addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+            }
+            else
+            {
+                String strNo = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
+            }
         }
         else
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
     public static boolean bagIsOpenable(ItemStack stack)
@@ -221,7 +250,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             this.toggleLockedMode(stack);
         }
-        // Ctrl (+ Shift) + Toggle mode:  Change the selected Memory Card
+        // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {

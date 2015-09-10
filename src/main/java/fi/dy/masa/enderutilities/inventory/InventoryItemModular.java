@@ -7,22 +7,23 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular implements IInventory
 {
     /** The ItemStack of the actual modular item */ 
-    private ItemStack containerStack;
-    private ItemInventoryModular containerItem;
+    protected ItemStack containerStack;
+    protected ItemInventoryModular containerItem;
     /** The ItemStack of the selected storage module inside the containerStack. Can be null! */
-    private ItemStack storageStack;
+    protected ItemStack storageStack;
+    protected int storageModuleNumber;
 
     /** The ItemStacks containing the stored items inside the selected storage module */
-    private ItemStack[] itemStacks;
+    protected ItemStack[] itemStacks;
     /** The ItemStacks containing the storage modules themselves */
-    private ItemStack[] moduleStacks;
+    protected ItemStack[] moduleStacks;
 
-    private boolean dirty;
+    protected boolean dirty;
 
     public InventoryItemModular(ItemStack containerStack)
     {
@@ -37,7 +38,8 @@ public class InventoryItemModular implements IInventory
         {
             this.containerItem = (ItemInventoryModular)containerStack.getItem();
 
-            this.storageStack = this.containerItem.getSelectedModuleStack(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
+            this.storageModuleNumber = UtilItemModular.getStoredModuleSelection(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
+            this.storageStack = UtilItemModular.getModuleStackBySlotNumber(this.containerStack, this.storageModuleNumber, ModuleType.TYPE_MEMORY_CARD);
             this.readItemsFromStorageModule();
             this.readStorageModulesFromContainerItem();
         }
@@ -45,12 +47,22 @@ public class InventoryItemModular implements IInventory
         {
             this.containerItem = null;
             this.storageStack = null;
+            this.storageModuleNumber = -1;
         }
     }
 
     public int getStorageModuleCount()
     {
         return this.moduleStacks.length;
+    }
+
+    /**
+     * Returns the index (0..n) of the currently selected storage module.
+     * Will return -1 if there is currently no container item present.
+     */
+    public int getSelectedStorageModule()
+    {
+        return this.storageModuleNumber;
     }
 
     /**
@@ -62,7 +74,7 @@ public class InventoryItemModular implements IInventory
 
         if (this.containerStack != null)
         {
-            InventoryUtils.readItemsFromContainerItem(this.containerStack, this.moduleStacks);
+            UtilItemModular.readItemsFromContainerItem(this.containerStack, this.moduleStacks);
         }
     }
 
@@ -74,7 +86,7 @@ public class InventoryItemModular implements IInventory
         //System.out.println("writeStorageModulesToContainerItem()");
         if (this.containerStack != null)
         {
-            InventoryUtils.writeItemsToContainerItem(this.containerStack, this.moduleStacks);
+            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.moduleStacks);
         }
     }
 
@@ -87,7 +99,7 @@ public class InventoryItemModular implements IInventory
 
         if (this.storageStack != null)
         {
-            InventoryUtils.readItemsFromContainerItem(this.storageStack, this.itemStacks);
+            UtilItemModular.readItemsFromContainerItem(this.storageStack, this.itemStacks);
         }
     }
 
@@ -99,7 +111,7 @@ public class InventoryItemModular implements IInventory
         if (this.storageStack != null)
         {
             //System.out.println("writeItemsToStorageModule()");
-            InventoryUtils.writeItemsToContainerItem(this.storageStack, this.itemStacks);
+            UtilItemModular.writeItemsToContainerItem(this.storageStack, this.itemStacks);
         }
 
         //this.containerItem.setSelectedModuleStack(this.containerStack, ModuleType.TYPE_MEMORY_CARD, this.storageStack);
@@ -225,7 +237,7 @@ public class InventoryItemModular implements IInventory
                 stacks[slotNum] = null;
             }
 
-            //this.writeItemsToStorageModule();
+            this.writeItemsToStorageModule();
             return stack;
         }
 
@@ -281,7 +293,7 @@ public class InventoryItemModular implements IInventory
             }
         }
 
-        //this.writeItemsToStorageModule();
+        this.writeItemsToStorageModule();
     }
 
     @Override
