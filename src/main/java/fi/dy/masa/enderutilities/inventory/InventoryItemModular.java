@@ -5,6 +5,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -111,7 +112,7 @@ public class InventoryItemModular implements IInventory
     /**
      * Returns the number of storage module slots
      */
-    public int getStorageModuleCount()
+    public int getStorageModuleSlotCount()
     {
         return this.storageModules.length;
     }
@@ -139,6 +140,15 @@ public class InventoryItemModular implements IInventory
     public boolean slotIsItemInventory(int slotNum)
     {
         return slotNum < this.storedItems.length;
+    }
+
+    /**
+     * Returns whether the item inventory is accessible.
+     * Used in rendering the slots as darker when there is no valid memory card selected.
+     */
+    public boolean isItemInventoryAccessible()
+    {
+        return this.getStorageModuleStack() != null;
     }
 
     protected ItemStack getStorageModuleStack()
@@ -395,7 +405,18 @@ public class InventoryItemModular implements IInventory
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        // Can only store items when there is a valid storage module (= Memory Card) installed and currently selected
+        if (stack == null)
+        {
+            return true;
+        }
+
+        // If the given slot is a storage module slot, check that the item is a valid Memory Card module
+        if (this.slotIsStorageModule(slotNum) == true)
+        {
+            return (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD));
+        }
+
+        // Regular item storage slot; Can only store items when there is a valid storage module (= Memory Card) installed and currently selected
         return this.getStorageModuleStack() != null;
     }
 

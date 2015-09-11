@@ -66,6 +66,23 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.bindTexture(this.guiTexture);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
 
+        int xOff = this.guiLeft;
+        int yOff = this.guiTop;
+        // The inventory is not accessible (because there is no valid Memory Card selected)
+        if (this.container.inventory.isItemInventoryAccessible() == false)
+        {
+            // Draw the dark background icon over the inventory slots
+            xOff = this.guiLeft + this.container.getSlot(0).xDisplayPosition - 1;
+            yOff = this.guiTop + this.container.getSlot(0).yDisplayPosition - 1;
+            for (int row = 0; row < 3; row++)
+            {
+                for (int column = 0; column < 9; column++)
+                {
+                    this.drawTexturedModalRect(xOff + column * 18, yOff + row * 18, 0, 0, 18, 18);
+                }
+            }
+        }
+
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
@@ -75,8 +92,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
 
         // Draw the background icon for empty player armor slots
         IInventory inv = this.container.player.inventory;
-        int xOff = this.guiLeft + 8;
-        int yOff = this.guiTop + 15;
+        xOff = this.guiLeft + 8;
+        yOff = this.guiTop + 15;
         IIcon icon;
         for (int i = 0; i < 4; i++)
         {

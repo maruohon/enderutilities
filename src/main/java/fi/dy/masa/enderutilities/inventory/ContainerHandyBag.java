@@ -10,8 +10,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class ContainerHandyBag extends Container
 {
@@ -108,7 +106,7 @@ public class ContainerHandyBag extends Container
 
     protected void addSlots()
     {
-        int moduleSlots = this.inventory.getStorageModuleCount();
+        int moduleSlots = this.inventory.getStorageModuleSlotCount();
         int xOff = 8;
         int yOff = 100;
 
@@ -117,7 +115,7 @@ public class ContainerHandyBag extends Container
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new Slot(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotModularInventory(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
             }
         }
 
@@ -128,29 +126,7 @@ public class ContainerHandyBag extends Container
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new Slot(this.inventory, i + 27, xOff + i * 18, yOff)
-            {
-                public int getSlotStackLimit()
-                {
-                    return 1;
-                }
-
-                public boolean isItemValid(ItemStack stack)
-                {
-                    if (stack == null) return true;
-                    return (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD));
-                }
-
-                /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-                 * these background icons to render incorrectly if there is an item with the glint effect
-                 * before the slot with the background icon.
-                @SideOnly(Side.CLIENT)
-                public IIcon getBackgroundIconIndex()
-                {
-                    return EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-                }
-                */
-            });
+            this.addSlotToContainer(new SlotModularInventory(this.inventory, i + 27, xOff + i * 18, yOff));
         }
     }
 
