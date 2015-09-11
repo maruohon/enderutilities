@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -11,58 +12,62 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular implements IInventory
 {
-    /** The ItemStack of the actual modular item */ 
+    /** The ItemStack of the item that is hosting this inventory */ 
     protected ItemStack containerStack;
     protected ItemInventoryModular containerItem;
-    /** The ItemStack of the selected storage module inside the containerStack. Can be null! */
-    protected ItemStack storageStack;
-    protected int storageModuleNumber;
 
     /** The ItemStacks containing the stored items inside the selected storage module */
-    protected ItemStack[] itemStacks;
+    protected ItemStack[] storedItems;
     /** The ItemStacks containing the storage modules themselves */
-    protected ItemStack[] moduleStacks;
+    protected ItemStack[] storageModules;
+    /** The index of the currently selected storage module */
+    protected int selectedModule;
 
-    protected boolean dirty;
+    //protected boolean dirty;
+    public boolean isRemote;
 
-    public InventoryItemModular(ItemStack containerStack)
+    public InventoryItemModular(ItemStack containerStack, World world)
     {
+        this.isRemote = world.isRemote;
         this.updateContainerItems(containerStack);
     }
 
-    private void updateContainerItems(ItemStack containerStack)
+    public void updateContainerItems(ItemStack containerStack)
     {
         this.containerStack = containerStack;
 
         if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
         {
             this.containerItem = (ItemInventoryModular)containerStack.getItem();
-
-            this.storageModuleNumber = UtilItemModular.getStoredModuleSelection(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
-            this.storageStack = UtilItemModular.getModuleStackBySlotNumber(this.containerStack, this.storageModuleNumber, ModuleType.TYPE_MEMORY_CARD);
-            this.readItemsFromStorageModule();
-            this.readStorageModulesFromContainerItem();
+            this.selectedModule = UtilItemModular.getStoredModuleSelection(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
         }
         else
         {
             this.containerItem = null;
-            this.storageStack = null;
-            this.storageModuleNumber = -1;
+            this.selectedModule = -1;
         }
-    }
 
-    public int getStorageModuleCount()
-    {
-        return this.moduleStacks.length;
+        this.readStorageModulesFromContainerItem();
+        this.readItemsFromStorageModule();
     }
 
     /**
-     * Returns the index (0..n) of the currently selected storage module.
-     * Will return -1 if there is currently no container item present.
+     * Saves the inventory and/or the storage modules to the container item
+     * and then updates the inventory contents depending on which slot was changed.
      */
-    public int getSelectedStorageModule()
+    protected void saveInventoryAndUpdate(int slotNum)
     {
-        return this.storageModuleNumber;
+        EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")"); // FIXME debug
+        if (this.slotIsItemInventory(slotNum) == true)
+        {
+            this.writeItemsToStorageModule();
+            this.writeStorageModulesToContainerItem();
+        }
+        else if (this.slotIsStorageModule(slotNum) == true)
+        {
+            this.writeStorageModulesToContainerItem();
+            this.readItemsFromStorageModule();
+        }
     }
 
     /**
@@ -70,23 +75,15 @@ public class InventoryItemModular implements IInventory
      */
     private void readStorageModulesFromContainerItem()
     {
-        this.moduleStacks = new ItemStack[this.containerItem.getMaxModules(this.containerStack, ModuleType.TYPE_MEMORY_CARD)];
-
+        EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()"); // FIXME debug
         if (this.containerStack != null)
         {
-            UtilItemModular.readItemsFromContainerItem(this.containerStack, this.moduleStacks);
+            this.storageModules = new ItemStack[this.containerItem.getMaxModules(this.containerStack, ModuleType.TYPE_MEMORY_CARD)];
+            UtilItemModular.readItemsFromContainerItem(this.containerStack, this.storageModules);
         }
-    }
-
-    /**
-     * Writes the inventory contents to the selected storage module, and then writes that updated storage module to the container item
-     */
-    private void writeStorageModulesToContainerItem()
-    {
-        //System.out.println("writeStorageModulesToContainerItem()");
-        if (this.containerStack != null)
+        else
         {
-            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.moduleStacks);
+            this.storageModules = new ItemStack[0];
         }
     }
 
@@ -95,26 +92,93 @@ public class InventoryItemModular implements IInventory
      */
     private void readItemsFromStorageModule()
     {
-        this.itemStacks = new ItemStack[this.containerItem.getSizeInventory(this.containerStack)];
-
-        if (this.storageStack != null)
+        EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()"); // FIXME debug
+        if (this.containerStack != null && this.containerItem != null)
         {
-            UtilItemModular.readItemsFromContainerItem(this.storageStack, this.itemStacks);
+            this.storedItems = new ItemStack[this.containerItem.getSizeInventory(this.containerStack)];
+        }
+        else
+        {
+            this.storedItems = new ItemStack[0];
+        }
+
+        if (this.getStorageModuleStack() != null)
+        {
+            UtilItemModular.readItemsFromContainerItem(this.getStorageModuleStack(), this.storedItems);
+        }
+    }
+
+    /**
+     * Returns the number of storage module slots
+     */
+    public int getStorageModuleCount()
+    {
+        return this.storageModules.length;
+    }
+
+    /**
+     * Returns the index (0..n) of the currently selected storage module.
+     * Will return -1 if there is currently no container item present.
+     */
+    public int getSelectedStorageModule()
+    {
+        return this.selectedModule;
+    }
+
+    /**
+     * Returns whether the given slotNum belongs to a storage module slot
+     */
+    public boolean slotIsStorageModule(int slotNum)
+    {
+        return slotNum >= this.storedItems.length && (slotNum - this.storedItems.length) < this.storageModules.length;
+    }
+
+    /**
+     * Returns whether the given slotNum belongs to a slot inside the regular item inventory
+     */
+    public boolean slotIsItemInventory(int slotNum)
+    {
+        return slotNum < this.storedItems.length;
+    }
+
+    protected ItemStack getStorageModuleStack()
+    {
+        if (this.storageModules != null && this.selectedModule < this.storageModules.length)
+        {
+            return this.storageModules[this.selectedModule];
+        }
+        return null;
+    }
+
+    /**
+     * Writes the inventory contents to the selected storage module, and then writes that updated storage module to the container item
+     */
+    protected void writeStorageModulesToContainerItem()
+    {
+        if (this.containerStack != null)
+        {
+            EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag..."); // FIXME debug
+            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.storageModules);
         }
     }
 
     /**
      * Writes the inventory contents to the selected storage module, and then writes that updated storage module to the container item
      */
-    private void writeItemsToStorageModule()
+    protected void writeItemsToStorageModule()
     {
-        if (this.storageStack != null)
+        if (this.getStorageModuleStack() != null)
         {
-            //System.out.println("writeItemsToStorageModule()");
-            UtilItemModular.writeItemsToContainerItem(this.storageStack, this.itemStacks);
+            EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module..."); // FIXME debug
+            UtilItemModular.writeItemsToContainerItem(this.getStorageModuleStack(), this.storedItems);
+            //UtilItemModular.setModuleStackBySlotNumber(this.containerStack, this.selectedModule, this.getStorageModuleStack());
         }
 
-        //this.containerItem.setSelectedModuleStack(this.containerStack, ModuleType.TYPE_MEMORY_CARD, this.storageStack);
+        /*if (this.containerStack != null)
+        {
+            EnderUtilities.logger.info("writeItemsToStorageModule(): writing modules to bag..."); // FIXME debug
+            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.storageModules);
+        }*/
     }
 
     /**
@@ -128,7 +192,7 @@ public class InventoryItemModular implements IInventory
     @Override
     public boolean hasCustomInventoryName()
     {
-        if (this.storageStack != null && this.storageStack.hasDisplayName())
+        if (this.getStorageModuleStack() != null && this.getStorageModuleStack().hasDisplayName())
         {
             return true;
         }
@@ -140,9 +204,9 @@ public class InventoryItemModular implements IInventory
     public String getInventoryName()
     {
         // First check if the selected storage module has been named, and use that name
-        if (this.storageStack != null && this.storageStack.hasDisplayName())
+        if (this.getStorageModuleStack() != null && this.getStorageModuleStack().hasDisplayName())
         {
-            return this.storageStack.getDisplayName();
+            return this.getStorageModuleStack().getDisplayName();
         }
 
         // If the storage module didn't have a name, but the item itself does, then use that name
@@ -175,18 +239,47 @@ public class InventoryItemModular implements IInventory
     }
 
     @Override
-    public ItemStack getStackInSlot(int slotNum)
+    public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        if (slotNum < this.itemStacks.length)
+        EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")"); // FIXME debug
+        ItemStack stack;
+        if (slotNum < this.storedItems.length)
         {
-            return this.itemStacks[slotNum];
+            stack = this.storedItems[slotNum];
+            this.storedItems[slotNum] = null;
+        }
+        else
+        {
+            slotNum -= this.storedItems.length;
+            if (slotNum < this.storageModules.length)
+            {
+                stack = this.storageModules[slotNum];
+                this.storageModules[slotNum] = null;
+            }
+            else
+            {
+                EnderUtilities.logger.warn("InventoryItemModular.getStackInSlotOnClosing(): Invalid slot number: " + slotNum);
+                return null;
+            }
         }
 
-        slotNum -= this.itemStacks.length;
+        //this.writeItemsToStorageModule();
+        return stack;
+    }
 
-        if (slotNum < this.moduleStacks.length)
+    @Override
+    public ItemStack getStackInSlot(int slotNum)
+    {
+        if (slotNum < this.storedItems.length)
         {
-            return this.moduleStacks[slotNum];
+            return this.storedItems[slotNum];
+        }
+
+        slotNum -= this.storedItems.length;
+
+        if (slotNum < this.storageModules.length)
+        {
+            return this.storageModules[slotNum];
         }
         else
         {
@@ -199,17 +292,21 @@ public class InventoryItemModular implements IInventory
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
+        int origSlotNum = slotNum;
+        EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")"); // FIXME debug
         ItemStack[] stacks;
-        if (slotNum < this.itemStacks.length)
+        ItemStack stack = null;
+
+        if (slotNum < this.storedItems.length)
         {
-            stacks = this.itemStacks;
+            stacks = this.storedItems;
         }
         else
         {
-            if ((slotNum - this.itemStacks.length) < this.moduleStacks.length)
+            if ((slotNum - this.storedItems.length) < this.storageModules.length)
             {
-                stacks = this.moduleStacks;
-                slotNum -= this.itemStacks.length;
+                stacks = this.storageModules;
+                slotNum -= this.storedItems.length;
             }
             else
             {
@@ -220,8 +317,6 @@ public class InventoryItemModular implements IInventory
 
         if (stacks[slotNum] != null)
         {
-            ItemStack stack;
-
             if (stacks[slotNum].stackSize >= maxAmount)
             {
                 stack = stacks[slotNum].splitStack(maxAmount);
@@ -236,56 +331,29 @@ public class InventoryItemModular implements IInventory
                 stack = stacks[slotNum];
                 stacks[slotNum] = null;
             }
-
-            this.writeItemsToStorageModule();
-            return stack;
         }
 
-        return null;
-    }
+        this.saveInventoryAndUpdate(origSlotNum);
 
-    @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
-    {
-        ItemStack stack;
-        if (slotNum < this.itemStacks.length)
-        {
-            stack = this.itemStacks[slotNum];
-            this.itemStacks[slotNum] = null;
-        }
-        else
-        {
-            slotNum -= this.itemStacks.length;
-            if (slotNum < this.moduleStacks.length)
-            {
-                stack = this.moduleStacks[slotNum];
-                this.moduleStacks[slotNum] = null;
-            }
-            else
-            {
-                EnderUtilities.logger.warn("InventoryItemModular.getStackInSlotOnClosing(): Invalid slot number: " + slotNum);
-                return null;
-            }
-        }
-
-        //this.writeItemsToStorageModule();
         return stack;
     }
 
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
-        if (slotNum < this.itemStacks.length)
+        int origSlotNum = slotNum;
+        EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")"); // FIXME debug
+        if (slotNum < this.storedItems.length)
         {
-            this.itemStacks[slotNum] = newStack;
+            this.storedItems[slotNum] = newStack;
         }
         else
         {
-            slotNum -= this.itemStacks.length;
+            slotNum -= this.storedItems.length;
 
-            if (slotNum < this.moduleStacks.length)
+            if (slotNum < this.storageModules.length)
             {
-                this.moduleStacks[slotNum] = newStack;
+                this.storageModules[slotNum] = newStack;
             }
             else
             {
@@ -293,13 +361,15 @@ public class InventoryItemModular implements IInventory
             }
         }
 
-        this.writeItemsToStorageModule();
+        this.saveInventoryAndUpdate(origSlotNum);
     }
 
     @Override
     public void markDirty()
     {
-        this.dirty = true;
+        //EnderUtilities.logger.info("InventoryItemModular.markDirty()"); // FIXME debug
+        //this.dirty = true;
+        //this.writeItemsToStorageModule();
     }
 
     @Override
@@ -311,21 +381,22 @@ public class InventoryItemModular implements IInventory
     @Override
     public void openInventory()
     {
+        EnderUtilities.logger.info("InventoryItemModular.openInventory()"); // FIXME debug
     }
 
     @Override
     public void closeInventory()
     {
-        //System.out.println("closeInventory()");
-        this.writeItemsToStorageModule();
-        this.writeStorageModulesToContainerItem();
+        EnderUtilities.logger.info("InventoryItemModular.closeInventory()"); // FIXME debug
+        //this.writeItemsToStorageModule();
+        //this.writeStorageModulesToContainerItem();
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
         // Can only store items when there is a valid storage module (= Memory Card) installed and currently selected
-        return this.storageStack != null;
+        return this.getStorageModuleStack() != null;
     }
 
 }

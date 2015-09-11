@@ -356,4 +356,14 @@ public class ContainerHandyBag extends Container
 
         return successful;
     }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
+    {
+        //EnderUtilities.logger.info("slotClick(" + slotNum + ")"); // FIXME debug
+        //ItemStack stack = super.slotClick(slotNum, i1, i2, player);
+        //this.inventory.updateContainerItems(ItemHandyBag.getOpenableBag(player));
+        //return stack;
+        return super.slotClick(slotNum, i1, i2, player);
+    }
 }

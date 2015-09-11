@@ -175,7 +175,7 @@ public class ItemEnderPart extends ItemModule
                 String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
                 String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
                 String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
-                list.add(String.format("%s %d %s %d %s:", str1, lines.size(), str2, itemCount, str3));
+                list.add(String.format("%s %d %s %d %s", str1, lines.size(), str2, itemCount, str3));
                 list.addAll(lines);
             }
             else if (damage != 50)
