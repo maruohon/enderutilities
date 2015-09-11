@@ -215,7 +215,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return null;
     }
 
-    public void performGuiAction(int element, short action)
+    public void performGuiAction(int action, int element)
     {
     }
 }

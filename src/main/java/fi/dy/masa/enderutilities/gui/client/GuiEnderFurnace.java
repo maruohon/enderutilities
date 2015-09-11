@@ -91,8 +91,8 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         int modeOffset = (this.teef.fastMode == true ? 16 : 0);
         int outputOffset = (this.container.outputToEnderChest == true ? 16 : 0);
 
-        this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, this.guiTexture, 200, 14 + modeOffset);
-        this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, this.guiTexture, 200, 46 + outputOffset);
+        this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, 200, 14 + modeOffset, this.guiTexture);
+        this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, 200, 46 + outputOffset, this.guiTexture);
         this.buttonList.clear();
         this.buttonList.add(this.buttonMode);
         this.buttonList.add(this.buttonOutput);
@@ -140,6 +140,6 @@ public class GuiEnderFurnace extends GuiEnderUtilitiesInventory
         super.actionPerformed(btn);
 
         PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, (short)0));
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, 0));
     }
 }

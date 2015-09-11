@@ -800,16 +800,16 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void performGuiAction(int element, short action)
+    public void performGuiAction(int action, int element)
     {
         // 0: Operating mode (slow/eco vs. fast)
-        if (element == 0)
+        if (action == 0)
         {
             this.fastMode = ! this.fastMode;
             this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
-        else if (element == 1)
+        else if (action == 1)
         {
             this.outputToEnderChest = ! this.outputToEnderChest;
         }

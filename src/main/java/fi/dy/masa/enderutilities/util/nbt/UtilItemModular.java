@@ -400,6 +400,35 @@ public class UtilItemModular
     }
 
     /**
+     * Sets the module selection index of the module type <b>moduleType</b> to the one given in <b>index</b>.
+     * The value is clamped to be between 0..(max - 1) if the item is of type IModular.
+     * @param containerStack
+     * @param moduleType
+     * @param index
+     */
+    public static void setModuleSelection(ItemStack containerStack, ModuleType moduleType, int index)
+    {
+        NBTTagCompound nbt = containerStack.getTagCompound();
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+            containerStack.setTagCompound(nbt);
+        }
+
+        if (index < 0)
+        {
+            index = 0;
+        }
+
+        if (containerStack.getItem() instanceof IModular)
+        {
+            index = Math.min(index, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) - 1);
+        }
+
+        nbt.setByte("Selected_" + moduleType.getName(), (byte)index);
+    }
+
+    /**
      * Returns the total number of stored items in the containerStack.
      * @param containerStack
      * @return

@@ -14,6 +14,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -38,6 +39,9 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static final int MAX_STACKSIZE_TIER_1 =   256;
     public static final int MAX_STACKSIZE_TIER_2 =  4096;
+
+    public static final int GUI_ACTION_SELECT_MODULE = 0;
+    public static final int GUI_ACTION_QUICK_STACK   = 1;
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -176,8 +180,27 @@ public class ItemHandyBag extends ItemInventoryModular
         return containerStack.getItemDamage() == DAMAGE_TIER_2 ? 64 : 16; // FIXME testing, MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
     }
 
-    public static void performGuiAction(ItemStack stack, EntityPlayer player, int element, int action)
+    public static void performGuiAction(EntityPlayer player, int action, int element)
     {
+        if (player.openContainer instanceof ContainerHandyBag)
+        {
+            ContainerHandyBag container = (ContainerHandyBag)player.openContainer;
+            ItemStack containerStack = container.inventory.getContainerItemStack();
+            if (containerStack != null && containerStack.getItem() == EnderUtilitiesItems.handyBag)
+            {
+                int max = ((ItemHandyBag)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+                // Changing the selected module via the GUI buttons
+                if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
+                {
+                    System.out.println("selection: " + element);
+                    UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
+                    container.inventory.updateContainerItems();
+                }
+                else if (action == GUI_ACTION_QUICK_STACK)
+                {
+                }
+            }
+        }
     }
 
     public static int getPickupMode(ItemStack stack)

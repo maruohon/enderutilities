@@ -6,7 +6,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -17,8 +16,8 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAction, IMessage>
 {
     private int guiId;
+    private int action;
     private int elementId;
-    private short action;
     private int dimension;
     private int posX;
     private int posY;
@@ -28,15 +27,15 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
     {
     }
 
-    public MessageGuiAction(int dim, int x, int y, int z, int guiId, int element, short action)
+    public MessageGuiAction(int dim, int x, int y, int z, int guiId, int action, int elementId)
     {
-        this.guiId = guiId;
-        this.elementId = element;
-        this.action = action;
         this.dimension = dim;
         this.posX = x;
         this.posY = y;
         this.posZ = z;
+        this.guiId = guiId;
+        this.action = action;
+        this.elementId = elementId;
     }
 
     @Override
@@ -47,8 +46,8 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
         this.posY = buf.readInt();
         this.posZ = buf.readInt();
         this.guiId = buf.readInt();
-        this.elementId = buf.readInt();
         this.action = buf.readShort();
+        this.elementId = buf.readShort();
     }
 
     @Override
@@ -59,8 +58,8 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
         buf.writeInt(this.posY);
         buf.writeInt(this.posZ);
         buf.writeInt(this.guiId);
-        buf.writeInt(this.elementId);
         buf.writeShort(this.action);
+        buf.writeShort(this.elementId);
     }
 
     @Override
@@ -77,15 +76,11 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                     TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
                     if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {
-                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.elementId, message.action);
+                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.action, message.elementId);
                     }
                     break;
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                    ItemStack stack = ItemHandyBag.getOpenableBag(player);
-                    if (stack != null)
-                    {
-                        ItemHandyBag.performGuiAction(stack, player, message.elementId, message.action);
-                    }
+                    ItemHandyBag.performGuiAction(player, message.action, message.elementId);
                     break;
                 default:
             }

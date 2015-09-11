@@ -24,20 +24,18 @@ public class InventoryItemModular implements IInventory
     /** The index of the currently selected storage module */
     protected int selectedModule;
 
-    //protected boolean dirty;
     public boolean isRemote;
 
     public InventoryItemModular(ItemStack containerStack, World world)
     {
         this.isRemote = world.isRemote;
-        this.updateContainerItems(containerStack);
+        this.containerStack = containerStack;
+        this.updateContainerItems();
     }
 
-    public void updateContainerItems(ItemStack containerStack)
+    public void updateContainerItems()
     {
-        this.containerStack = containerStack;
-
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        if (this.containerStack != null && this.containerStack.getItem() instanceof ItemInventoryModular)
         {
             this.containerItem = (ItemInventoryModular)containerStack.getItem();
             this.selectedModule = UtilItemModular.getStoredModuleSelection(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
@@ -58,7 +56,7 @@ public class InventoryItemModular implements IInventory
      */
     protected void saveInventoryAndUpdate(int slotNum)
     {
-        EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")"); // FIXME debug
         if (this.slotIsItemInventory(slotNum) == true)
         {
             this.writeItemsToStorageModule();
@@ -76,7 +74,7 @@ public class InventoryItemModular implements IInventory
      */
     private void readStorageModulesFromContainerItem()
     {
-        EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()"); // FIXME debug
         if (this.containerStack != null)
         {
             this.storageModules = new ItemStack[this.containerItem.getMaxModules(this.containerStack, ModuleType.TYPE_MEMORY_CARD)];
@@ -93,7 +91,7 @@ public class InventoryItemModular implements IInventory
      */
     private void readItemsFromStorageModule()
     {
-        EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()"); // FIXME debug
         if (this.containerStack != null && this.containerItem != null)
         {
             this.storedItems = new ItemStack[this.containerItem.getSizeInventory(this.containerStack)];
@@ -167,7 +165,7 @@ public class InventoryItemModular implements IInventory
     {
         if (this.containerStack != null)
         {
-            EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag..."); // FIXME debug
+            //EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag..."); // FIXME debug
             UtilItemModular.writeItemsToContainerItem(this.containerStack, this.storageModules);
         }
     }
@@ -179,16 +177,10 @@ public class InventoryItemModular implements IInventory
     {
         if (this.getStorageModuleStack() != null)
         {
-            EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module..."); // FIXME debug
+            //EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module..."); // FIXME debug
             UtilItemModular.writeItemsToContainerItem(this.getStorageModuleStack(), this.storedItems);
             //UtilItemModular.setModuleStackBySlotNumber(this.containerStack, this.selectedModule, this.getStorageModuleStack());
         }
-
-        /*if (this.containerStack != null)
-        {
-            EnderUtilities.logger.info("writeItemsToStorageModule(): writing modules to bag..."); // FIXME debug
-            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.storageModules);
-        }*/
     }
 
     /**
@@ -251,7 +243,7 @@ public class InventoryItemModular implements IInventory
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")"); // FIXME debug
         ItemStack stack;
         if (slotNum < this.storedItems.length)
         {
@@ -303,7 +295,7 @@ public class InventoryItemModular implements IInventory
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
         int origSlotNum = slotNum;
-        EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")"); // FIXME debug
         ItemStack[] stacks;
         ItemStack stack = null;
 
@@ -352,7 +344,7 @@ public class InventoryItemModular implements IInventory
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
         int origSlotNum = slotNum;
-        EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")"); // FIXME debug
         if (slotNum < this.storedItems.length)
         {
             this.storedItems[slotNum] = newStack;
@@ -378,7 +370,6 @@ public class InventoryItemModular implements IInventory
     public void markDirty()
     {
         //EnderUtilities.logger.info("InventoryItemModular.markDirty()"); // FIXME debug
-        //this.dirty = true;
         //this.writeItemsToStorageModule();
     }
 
@@ -391,13 +382,13 @@ public class InventoryItemModular implements IInventory
     @Override
     public void openInventory()
     {
-        EnderUtilities.logger.info("InventoryItemModular.openInventory()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.openInventory()"); // FIXME debug
     }
 
     @Override
     public void closeInventory()
     {
-        EnderUtilities.logger.info("InventoryItemModular.closeInventory()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.closeInventory()"); // FIXME debug
         //this.writeItemsToStorageModule();
         //this.writeStorageModulesToContainerItem();
     }
