@@ -12,7 +12,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerHandyBag extends Container
@@ -340,28 +340,34 @@ public class ContainerHandyBag extends Container
     @Override
     public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
     {
-        //EnderUtilities.logger.info(String.format("(%s) slotNum: %d i1: %d i2: %d", this.player.worldObj.isRemote ? "client" : "server", slotNum, key, type));
+        EnderUtilities.logger.info(String.format("(%s) slotNum: %d i1: %d i2: %d", this.player.worldObj.isRemote ? "client" : "server", slotNum, key, type));
         ItemStack containerStackPre = this.inventory.getContainerItemStack();
         ItemStack slotStackPre = null;
-
+        ItemStack slotStackPost = null;
         UUID uuid = this.inventory.getContainerUUID();
-        ItemStack stack = null;
+
         if (slotNum >= 0)
         {
-            stack = this.getSlot(slotNum).getStack();
-            slotStackPre = stack;
+            slotStackPre = this.getSlot(slotNum).getStack();
 
             // Clicking on a slot that has our container item
             //if (containerStackPre != null && slotNum >= 0 && this.getSlot(slotNum).getStack() == containerStackPre)
-            if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+            if (slotStackPre != null && uuid.equals(NBTUtils.getUUIDFromItemStack(slotStackPre, "UUID")))
             {
                 //System.out.println("plop 1: " + containerStackPre);
-                this.inventory.updateContainerItems();
+                //this.inventory.updateContainerItems();
             }
         }
 
-        stack = super.slotClick(slotNum, key, type, player);
+        ItemStack stack = super.slotClick(slotNum, key, type, player);
+        ItemStack containerStackPost = this.inventory.getContainerItemStack();
         //System.out.println("slotClick() = " + stack);
+
+        /*
+        if (slotNum >= 0)
+        {
+            slotStackPost = this.getSlot(slotNum).getStack();
+        }
 
         // The container item was just dropped via the drop item key
         if (containerStackPre != null && slotStackPre == containerStackPre && key == 0 && type == 4)
@@ -376,8 +382,7 @@ public class ContainerHandyBag extends Container
             this.inventory.updateContainerItems();
         }
         // Our container item was just put to the slot
-        else if (slotNum >= 0 && this.getSlot(slotNum).getStack() != null &&
-                 this.inventory.getContainerUUID().equals(NBTUtils.getUUIDFromItemStack(this.getSlot(slotNum).getStack(), "UUID")))
+        else if (slotNum >= 0 && slotStackPost != null && uuid.equals(NBTUtils.getUUIDFromItemStack(slotStackPost, "UUID")))
         {
             //System.out.println("plop 4 - pre: " + containerStackPre + ", slotClick(): " + stack);
             this.inventory.updateContainerItems();
@@ -386,6 +391,18 @@ public class ContainerHandyBag extends Container
         else if (slotNum == -999 & key == 2 && containerStackPre == null && InventoryUtils.getItemStackByUUID(this.player.inventory, uuid, "UUID") != null)
         {
             //System.out.println("plop 5 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+        // The container item was put into the inventory via a hotbar hotkey (from the crafting grid... :D)
+        else if (slotNum >= 0 && key == 1 && type == 2 && slotStackPost != null && containerStackPre == null && uuid.equals(NBTUtils.getUUIDFromItemStack(slotStackPost, "UUID")))
+        {
+            System.out.println("plop 6 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+        */
+        if (containerStackPre != containerStackPost)
+        {
+            //System.out.println("plop 7");
             this.inventory.updateContainerItems();
         }
 

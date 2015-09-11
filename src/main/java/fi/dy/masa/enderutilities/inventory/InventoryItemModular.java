@@ -451,6 +451,11 @@ public class InventoryItemModular implements IInventory
             return (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD));
         }
 
+        if (this.containerItemUUID.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+        {
+            return false;
+        }
+
         // Regular item storage slot; Can only store items when there is a valid storage module (= Memory Card) installed and currently selected
         return this.getStorageModuleStack() != null;
     }
