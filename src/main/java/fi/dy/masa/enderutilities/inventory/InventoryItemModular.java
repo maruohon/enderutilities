@@ -17,15 +17,12 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular implements IInventory
 {
-    //protected ItemInventoryModular containerItem;
     protected UUID containerItemUUID;
     protected EntityPlayer player;
     /** The ItemStacks containing the stored items inside the selected storage module */
     protected ItemStack[] storedItems;
     /** The ItemStacks containing the storage modules themselves */
     protected ItemStack[] storageModules;
-    /** The index of the currently selected storage module */
-    //protected int selectedModule;
 
     public boolean isRemote;
 
@@ -37,20 +34,11 @@ public class InventoryItemModular implements IInventory
         this.updateContainerItems();
     }
 
+    /**
+     * (Re-)reads all the inventory contents from the container item and storage module
+     */
     public void updateContainerItems()
     {
-        /*ItemStack containerStack = this.getContainerItemStack();
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
-        {
-            this.containerItem = (ItemInventoryModular)containerStack.getItem();
-            //this.selectedModule = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
-        }
-        else
-        {
-            this.containerItem = null;
-            //this.selectedModule = -1;
-        }*/
-
         this.readStorageModulesFromContainerItem();
         this.readItemsFromStorageModule();
     }
@@ -66,7 +54,6 @@ public class InventoryItemModular implements IInventory
      */
     protected void saveInventoryAndUpdate(int slotNum)
     {
-        //EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")");
         if (this.slotIsItemInventory(slotNum) == true)
         {
             this.writeItemsToStorageModule();
@@ -85,7 +72,6 @@ public class InventoryItemModular implements IInventory
     private void readStorageModulesFromContainerItem()
     {
         ItemStack containerStack = this.getContainerItemStack();
-        //EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()");
         if (containerStack != null && containerStack.getItem() instanceof IModular)
         {
             this.storageModules = new ItemStack[((IModular)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD)];
@@ -103,7 +89,6 @@ public class InventoryItemModular implements IInventory
     private void readItemsFromStorageModule()
     {
         ItemStack containerStack = this.getContainerItemStack();
-        //EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()");
         if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
         {
             this.storedItems = new ItemStack[((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack)];
@@ -195,7 +180,6 @@ public class InventoryItemModular implements IInventory
         ItemStack containerStack = this.getContainerItemStack();
         if (containerStack != null)
         {
-            //EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag...");
             UtilItemModular.writeItemsToContainerItem(containerStack, this.storageModules);
         }
     }
@@ -207,9 +191,7 @@ public class InventoryItemModular implements IInventory
     {
         if (this.getStorageModuleStack() != null)
         {
-            //EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module...");
             UtilItemModular.writeItemsToContainerItem(this.getStorageModuleStack(), this.storedItems);
-            //UtilItemModular.setModuleStackBySlotNumber(this.containerStack, this.selectedModule, this.getStorageModuleStack());
         }
     }
 
@@ -287,7 +269,6 @@ public class InventoryItemModular implements IInventory
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        //EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")");
         ItemStack stack;
         if (slotNum < this.storedItems.length)
         {
@@ -388,7 +369,7 @@ public class InventoryItemModular implements IInventory
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
         int origSlotNum = slotNum;
-        //EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")");
+
         if (slotNum < this.storedItems.length)
         {
             this.storedItems[slotNum] = newStack;
@@ -413,8 +394,6 @@ public class InventoryItemModular implements IInventory
     @Override
     public void markDirty()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.markDirty()");
-        //this.writeItemsToStorageModule();
     }
 
     @Override
@@ -426,15 +405,11 @@ public class InventoryItemModular implements IInventory
     @Override
     public void openInventory()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.openInventory()");
     }
 
     @Override
     public void closeInventory()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.closeInventory()");
-        //this.writeItemsToStorageModule();
-        //this.writeStorageModulesToContainerItem();
     }
 
     @Override
@@ -451,6 +426,7 @@ public class InventoryItemModular implements IInventory
             return (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD));
         }
 
+        // Don't allow putting the bag inside itself
         if (this.containerItemUUID.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
         {
             return false;
