@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -10,6 +12,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerHandyBag extends Container
 {
@@ -334,12 +338,57 @@ public class ContainerHandyBag extends Container
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
     {
-        //EnderUtilities.logger.info("slotClick(" + slotNum + ")"); // FIXME debug
-        //ItemStack stack = super.slotClick(slotNum, i1, i2, player);
-        //this.inventory.updateContainerItems(ItemHandyBag.getOpenableBag(player));
-        //return stack;
-        return super.slotClick(slotNum, i1, i2, player);
+        //EnderUtilities.logger.info(String.format("(%s) slotNum: %d i1: %d i2: %d", this.player.worldObj.isRemote ? "client" : "server", slotNum, key, type));
+        ItemStack containerStackPre = this.inventory.getContainerItemStack();
+        ItemStack slotStackPre = null;
+
+        UUID uuid = this.inventory.getContainerUUID();
+        ItemStack stack = null;
+        if (slotNum >= 0)
+        {
+            stack = this.getSlot(slotNum).getStack();
+            slotStackPre = stack;
+
+            // Clicking on a slot that has our container item
+            //if (containerStackPre != null && slotNum >= 0 && this.getSlot(slotNum).getStack() == containerStackPre)
+            if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+            {
+                //System.out.println("plop 1: " + containerStackPre);
+                this.inventory.updateContainerItems();
+            }
+        }
+
+        stack = super.slotClick(slotNum, key, type, player);
+        //System.out.println("slotClick() = " + stack);
+
+        // The container item was just dropped via the drop item key
+        if (containerStackPre != null && slotStackPre == containerStackPre && key == 0 && type == 4)
+        {
+            //System.out.println("plop 2 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+        // The stack taken from the slot is our container item
+        else if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+        {
+            //System.out.println("plop 3 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+        // Our container item was just put to the slot
+        else if (slotNum >= 0 && this.getSlot(slotNum).getStack() != null &&
+                 this.inventory.getContainerUUID().equals(NBTUtils.getUUIDFromItemStack(this.getSlot(slotNum).getStack(), "UUID")))
+        {
+            //System.out.println("plop 4 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+        // Ending a slot drag with the container item
+        else if (slotNum == -999 & key == 2 && containerStackPre == null && InventoryUtils.getItemStackByUUID(this.player.inventory, uuid, "UUID") != null)
+        {
+            //System.out.println("plop 5 - pre: " + containerStackPre + ", slotClick(): " + stack);
+            this.inventory.updateContainerItems();
+        }
+
+        return stack;
     }
 }

@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import java.util.UUID;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,11 +46,10 @@ public class NBTUtils
     }
 
     /**
-     * Returns a compound tag by the name <b>tagName</b> from the given ItemStack's root compound tag.
-     * If such tag doesn't exist, it will be created and added.
-     * If <b>tagName</b> is null, then the root tag will be returned and created if necessary.
+     * Returns the root compound tag of the given ItemStack.
+     * If the tag is null, then a new tag will be created and written to the ItemStack.
      */
-    public static NBTTagCompound getOrCreateCompoundTag(ItemStack stack, String tagName)
+    public static NBTTagCompound getOrCreateRootCompoundTag(ItemStack stack)
     {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null)
@@ -56,6 +57,18 @@ public class NBTUtils
             nbt = new NBTTagCompound();
             stack.setTagCompound(nbt);
         }
+
+        return nbt;
+    }
+
+    /**
+     * Returns a compound tag by the name <b>tagName</b> from the given ItemStack's root compound tag.
+     * If such tag doesn't exist, it will be created and added.
+     * If <b>tagName</b> is null, then the root tag will be returned and created if necessary.
+     */
+    public static NBTTagCompound getOrCreateCompoundTag(ItemStack stack, String tagName)
+    {
+        NBTTagCompound nbt = getOrCreateRootCompoundTag(stack);
 
         if (tagName != null)
         {
@@ -69,6 +82,93 @@ public class NBTUtils
         }
 
         return nbt;
+    }
+
+    /**
+     * Get a compound tag by the given name. If the tag doesn't exist, null is returned
+     * and the tag is NOT created. If <b>tagName</b> is null, then the root tag is returned.
+     */
+    public static NBTTagCompound getCompoundTag(ItemStack stack, String tagName)
+    {
+        if (tagName == null)
+        {
+            return stack.getTagCompound();
+        }
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        return nbt != null && nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) ? nbt.getCompoundTag(tagName) : null;
+    }
+
+    /**
+     * Gets the stored UUID from the given ItemStack. If <b>containerTagName</b> is not null,
+     * then the UUID is read from a compound tag by that name.
+     * If the ItemStack doesn't yet have an UUID, then a new random UUID will be created and stored.
+     */
+    public static UUID getOrCreateUUIDFromItemStack(ItemStack stack, String containerTagName)
+    {
+        NBTTagCompound nbt;
+        if (containerTagName != null)
+        {
+            nbt = getOrCreateCompoundTag(stack, containerTagName);
+        }
+        else
+        {
+            nbt = getOrCreateRootCompoundTag(stack);
+        }
+
+        if (nbt.hasKey("UUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("UUIDL", Constants.NBT.TAG_LONG))
+        {
+            return new UUID(nbt.getLong("UUIDM"), nbt.getLong("UUIDL"));
+        }
+
+        UUID uuid = UUID.randomUUID();
+        nbt.setLong("UUIDM", uuid.getMostSignificantBits());
+        nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
+        return uuid;
+    }
+
+    /**
+     * Gets the stored UUID from the given compound tag. If one isn't found, null is returned.
+     */
+    public static UUID getUUIDFromNBT(NBTTagCompound nbt)
+    {
+        if (nbt != null && nbt.hasKey("UUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("UUIDL", Constants.NBT.TAG_LONG))
+        {
+            return new UUID(nbt.getLong("UUIDM"), nbt.getLong("UUIDL"));
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the stored UUID from the given ItemStack. If containerTagName is not null, then
+     * the UUID is read from a compound tag by that name. If there is no stored UUID, null is returned.
+     */
+    public static UUID getUUIDFromItemStack(ItemStack stack, String containerTagName)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName);
+        return getUUIDFromNBT(nbt);
+    }
+
+    /**
+     * Stores the given UUID to the given ItemStack. If <b>containerTagName</b> is not null,
+     * then the UUID is stored inside a compound tag by that name. Otherwise it is stored
+     * directly inside the root compound tag.
+     */
+    public static void setUUID(ItemStack stack, UUID uuid, String containerTagName)
+    {
+        NBTTagCompound nbt;
+        if (containerTagName != null)
+        {
+            nbt = getOrCreateCompoundTag(stack, containerTagName);
+        }
+        else
+        {
+            nbt = getOrCreateRootCompoundTag(stack);
+        }
+
+        nbt.setLong("UUIDM", uuid.getMostSignificantBits());
+        nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
     }
 
     public static void toggleBoolean(NBTTagCompound nbt, String tagName)

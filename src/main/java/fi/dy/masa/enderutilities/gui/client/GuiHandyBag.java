@@ -58,8 +58,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
     public void initGui()
     {
         super.initGui();
-        this.firstModuleSlotX = this.guiLeft + this.container.getSlot(this.invSize - this.numModuleSlots).xDisplayPosition;
-        this.firstModuleSlotY = this.guiTop + this.container.getSlot(this.invSize - this.numModuleSlots).yDisplayPosition;
+        this.firstModuleSlotX = this.guiLeft + this.container.getSlot(this.inventory.getSizeInventory() - this.inventory.getStorageModuleSlotCount()).xDisplayPosition;
+        this.firstModuleSlotY = this.guiTop + this.container.getSlot(this.inventory.getSizeInventory() - this.inventory.getStorageModuleSlotCount()).yDisplayPosition;
         this.createButtons();
     }
 
@@ -104,8 +104,21 @@ public class GuiHandyBag extends InventoryEffectRenderer
             }
         }
 
+        // Memory Card slots are not accessible, because the opened bag isn't currently available
+        if (this.inventory.isModuleInventoryAccessible() == false)
+        {
+            for (int i = 0; i < this.numModuleSlots; i++)
+            {
+                this.drawTexturedModalRect(this.firstModuleSlotX - 1 + i * 18, this.firstModuleSlotY - 1, 0, 0, 18, 18);
+            }
+        }
+
         // Draw the colored background for the selected module slot
-        this.drawTexturedModalRect(this.firstModuleSlotX + this.inventory.getSelectedStorageModule() * 18, this.firstModuleSlotY, 1, 19, 16, 16);
+        int index = this.inventory.getSelectedStorageModuleIndex();
+        if (index >= 0)
+        {
+            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
+        }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
@@ -126,6 +139,9 @@ public class GuiHandyBag extends InventoryEffectRenderer
 
         // Draw the background icon for empty player armor slots
         IInventory inv = this.player.inventory;
+        // Note: We use the original actual inventory size for these!
+        // Otherwise stuff would mess up when the bag is picked up with the cursor, since
+        // the number of slots in the container doesn't change.
         xOff = this.guiLeft + this.container.getSlot(this.invSize + 36).xDisplayPosition;
         yOff = this.guiTop + this.container.getSlot(this.invSize + 36).yDisplayPosition;
         for (int i = 0; i < 4; i++)
@@ -158,7 +174,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.buttonList.clear();
 
         // Add the Memory Card selection buttons
-        for (int i = 0; i < this.inventory.getStorageModuleSlotCount(); i++)
+        int numModules = this.inventory.getStorageModuleSlotCount();
+        for (int i = 0; i < numModules; i++)
         {
             this.buttonList.add(new GuiButtonIcon(i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.guiTexture, 0, 10));
         }

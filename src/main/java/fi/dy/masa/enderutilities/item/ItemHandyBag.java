@@ -192,7 +192,6 @@ public class ItemHandyBag extends ItemInventoryModular
                 // Changing the selected module via the GUI buttons
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
-                    System.out.println("selection: " + element);
                     UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
                     container.inventory.updateContainerItems();
                 }

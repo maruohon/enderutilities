@@ -1,53 +1,63 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular implements IInventory
 {
-    /** The ItemStack of the item that is hosting this inventory */ 
-    protected ItemStack containerStack;
-    protected ItemInventoryModular containerItem;
-
+    //protected ItemInventoryModular containerItem;
+    protected UUID containerItemUUID;
+    protected EntityPlayer player;
     /** The ItemStacks containing the stored items inside the selected storage module */
     protected ItemStack[] storedItems;
     /** The ItemStacks containing the storage modules themselves */
     protected ItemStack[] storageModules;
     /** The index of the currently selected storage module */
-    protected int selectedModule;
+    //protected int selectedModule;
 
     public boolean isRemote;
 
-    public InventoryItemModular(ItemStack containerStack, World world)
+    public InventoryItemModular(ItemStack containerStack, EntityPlayer player)
     {
-        this.isRemote = world.isRemote;
-        this.containerStack = containerStack;
+        this.player = player;
+        this.isRemote = player.worldObj.isRemote;
+        this.containerItemUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
         this.updateContainerItems();
     }
 
     public void updateContainerItems()
     {
-        if (this.containerStack != null && this.containerStack.getItem() instanceof ItemInventoryModular)
+        /*ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
         {
             this.containerItem = (ItemInventoryModular)containerStack.getItem();
-            this.selectedModule = UtilItemModular.getStoredModuleSelection(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
+            //this.selectedModule = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
         }
         else
         {
             this.containerItem = null;
-            this.selectedModule = -1;
-        }
+            //this.selectedModule = -1;
+        }*/
 
         this.readStorageModulesFromContainerItem();
         this.readItemsFromStorageModule();
+    }
+
+    public UUID getContainerUUID()
+    {
+        return this.containerItemUUID;
     }
 
     /**
@@ -56,7 +66,7 @@ public class InventoryItemModular implements IInventory
      */
     protected void saveInventoryAndUpdate(int slotNum)
     {
-        //EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.saveInventoryAndUpdate(" + slotNum + ")");
         if (this.slotIsItemInventory(slotNum) == true)
         {
             this.writeItemsToStorageModule();
@@ -74,11 +84,12 @@ public class InventoryItemModular implements IInventory
      */
     private void readStorageModulesFromContainerItem()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()"); // FIXME debug
-        if (this.containerStack != null)
+        ItemStack containerStack = this.getContainerItemStack();
+        //EnderUtilities.logger.info("InventoryItemModular.readStorageModulesFromContainerItem()");
+        if (containerStack != null && containerStack.getItem() instanceof IModular)
         {
-            this.storageModules = new ItemStack[this.containerItem.getMaxModules(this.containerStack, ModuleType.TYPE_MEMORY_CARD)];
-            UtilItemModular.readItemsFromContainerItem(this.containerStack, this.storageModules);
+            this.storageModules = new ItemStack[((IModular)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD)];
+            UtilItemModular.readItemsFromContainerItem(containerStack, this.storageModules);
         }
         else
         {
@@ -91,10 +102,11 @@ public class InventoryItemModular implements IInventory
      */
     private void readItemsFromStorageModule()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()"); // FIXME debug
-        if (this.containerStack != null && this.containerItem != null)
+        ItemStack containerStack = this.getContainerItemStack();
+        //EnderUtilities.logger.info("InventoryItemModular.readItemsFromStorageModule()");
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
         {
-            this.storedItems = new ItemStack[this.containerItem.getSizeInventory(this.containerStack)];
+            this.storedItems = new ItemStack[((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack)];
         }
         else
         {
@@ -119,9 +131,15 @@ public class InventoryItemModular implements IInventory
      * Returns the index (0..n) of the currently selected storage module.
      * Will return -1 if there is currently no container item present.
      */
-    public int getSelectedStorageModule()
+    public int getSelectedStorageModuleIndex()
     {
-        return this.selectedModule;
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        {
+            return UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        }
+
+        return -1;
     }
 
     /**
@@ -142,19 +160,30 @@ public class InventoryItemModular implements IInventory
 
     /**
      * Returns whether the item inventory is accessible.
-     * Used in rendering the slots as darker when there is no valid memory card selected.
+     * Used while rendering to render the slots as darker when there is no valid memory card selected.
      */
     public boolean isItemInventoryAccessible()
     {
         return this.getStorageModuleStack() != null;
     }
 
+    /**
+     * Returns whether the storage module slots are accessible.
+     * Used while rendering to render the slots as darker when the opened bag is not accessible.
+     */
+    public boolean isModuleInventoryAccessible()
+    {
+        return this.getContainerItemStack() != null;
+    }
+
     protected ItemStack getStorageModuleStack()
     {
-        if (this.storageModules != null && this.selectedModule < this.storageModules.length)
+        int index = this.getSelectedStorageModuleIndex();
+        if (this.storageModules != null && index >= 0 && index < this.storageModules.length)
         {
-            return this.storageModules[this.selectedModule];
+            return this.storageModules[index];
         }
+
         return null;
     }
 
@@ -163,10 +192,11 @@ public class InventoryItemModular implements IInventory
      */
     protected void writeStorageModulesToContainerItem()
     {
-        if (this.containerStack != null)
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null)
         {
-            //EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag..."); // FIXME debug
-            UtilItemModular.writeItemsToContainerItem(this.containerStack, this.storageModules);
+            //EnderUtilities.logger.info("InventoryItemModular.writeStorageModulesToContainerItem(): writing modules to bag...");
+            UtilItemModular.writeItemsToContainerItem(containerStack, this.storageModules);
         }
     }
 
@@ -177,7 +207,7 @@ public class InventoryItemModular implements IInventory
     {
         if (this.getStorageModuleStack() != null)
         {
-            //EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module..."); // FIXME debug
+            //EnderUtilities.logger.info("InventoryItemModular.writeItemsToStorageModule(): writing items to module...");
             UtilItemModular.writeItemsToContainerItem(this.getStorageModuleStack(), this.storedItems);
             //UtilItemModular.setModuleStackBySlotNumber(this.containerStack, this.selectedModule, this.getStorageModuleStack());
         }
@@ -188,7 +218,7 @@ public class InventoryItemModular implements IInventory
      */
     public ItemStack getContainerItemStack()
     {
-        return this.containerStack;
+        return InventoryUtils.getItemStackByUUID(this.player.inventory, this.containerItemUUID, "UUID");
     }
 
     @Override
@@ -199,7 +229,8 @@ public class InventoryItemModular implements IInventory
             return true;
         }
 
-        return this.containerStack != null ? this.containerStack.hasDisplayName() : false;
+        ItemStack containerStack = this.getContainerItemStack();
+        return containerStack != null ? containerStack.hasDisplayName() : false;
     }
 
     @Override
@@ -211,25 +242,32 @@ public class InventoryItemModular implements IInventory
             return this.getStorageModuleStack().getDisplayName();
         }
 
+        ItemStack containerStack = this.getContainerItemStack();
         // If the storage module didn't have a name, but the item itself does, then use that name
-        if (this.containerStack != null && this.containerStack.hasDisplayName())
+        if (containerStack != null && containerStack.hasDisplayName())
         {
-            return this.containerStack.getDisplayName();
+            return containerStack.getDisplayName();
         }
 
-        return Reference.MOD_ID + "container." + this.containerItem != null ? this.containerItem.name : "null";
+        if (containerStack.getItem() instanceof ItemEnderUtilities)
+        {
+            return Reference.MOD_ID + ".container." + ((ItemEnderUtilities)containerStack.getItem()).name;
+        }
+
+        return Reference.MOD_ID + ".container.null";
     }
 
     @Override
     public int getSizeInventory()
     {
         int size = 0;
-        if (this.containerItem != null)
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular && containerStack.getItem() instanceof IModular)
         {
             // The actual inventory size for stored items
-            size += this.containerItem.getSizeInventory(this.containerStack);
+            size += ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack);
             // The number of slots for the storage modules (= Memory Cards)
-            size += this.containerItem.getMaxModules(this.containerStack, ModuleType.TYPE_MEMORY_CARD);
+            size += ((IModular)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
         }
         return size;
     }
@@ -237,13 +275,19 @@ public class InventoryItemModular implements IInventory
     @Override
     public int getInventoryStackLimit()
     {
-        return this.containerItem != null ? this.containerItem.getInventoryStackLimit(this.containerStack) : 64;
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        {
+            return ((ItemInventoryModular)containerStack.getItem()).getInventoryStackLimit(containerStack);
+        }
+
+        return 64;
     }
 
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        //EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.getStackInSlotOnClosing(" + slotNum + ")");
         ItemStack stack;
         if (slotNum < this.storedItems.length)
         {
@@ -260,7 +304,7 @@ public class InventoryItemModular implements IInventory
             }
             else
             {
-                EnderUtilities.logger.warn("InventoryItemModular.getStackInSlotOnClosing(): Invalid slot number: " + slotNum);
+                //EnderUtilities.logger.warn("InventoryItemModular.getStackInSlotOnClosing(): Invalid slot number: " + slotNum);
                 return null;
             }
         }
@@ -285,7 +329,7 @@ public class InventoryItemModular implements IInventory
         }
         else
         {
-            EnderUtilities.logger.warn("InventoryItemModular.getStackInSlot(): Invalid slot number: " + slotNum);
+            //EnderUtilities.logger.warn("InventoryItemModular.getStackInSlot(): Invalid slot number: " + slotNum);
         }
 
         return null;
@@ -295,7 +339,7 @@ public class InventoryItemModular implements IInventory
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
         int origSlotNum = slotNum;
-        //EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")");
         ItemStack[] stacks;
         ItemStack stack = null;
 
@@ -312,7 +356,7 @@ public class InventoryItemModular implements IInventory
             }
             else
             {
-                EnderUtilities.logger.warn("InventoryItemModular.decrStackSize(): Invalid slot number: " + slotNum);
+                //EnderUtilities.logger.warn("InventoryItemModular.decrStackSize(): Invalid slot number: " + slotNum);
                 return null;
             }
         }
@@ -344,7 +388,7 @@ public class InventoryItemModular implements IInventory
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
         int origSlotNum = slotNum;
-        //EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.setInventorySlotContents(" + slotNum + ", " + newStack + ")");
         if (slotNum < this.storedItems.length)
         {
             this.storedItems[slotNum] = newStack;
@@ -359,7 +403,7 @@ public class InventoryItemModular implements IInventory
             }
             else
             {
-                EnderUtilities.logger.warn("InventoryItemModular.setInventorySlotContents(): Invalid slot number: " + slotNum);
+                //EnderUtilities.logger.warn("InventoryItemModular.setInventorySlotContents(): Invalid slot number: " + slotNum);
             }
         }
 
@@ -369,7 +413,7 @@ public class InventoryItemModular implements IInventory
     @Override
     public void markDirty()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.markDirty()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.markDirty()");
         //this.writeItemsToStorageModule();
     }
 
@@ -382,13 +426,13 @@ public class InventoryItemModular implements IInventory
     @Override
     public void openInventory()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.openInventory()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.openInventory()");
     }
 
     @Override
     public void closeInventory()
     {
-        //EnderUtilities.logger.info("InventoryItemModular.closeInventory()"); // FIXME debug
+        //EnderUtilities.logger.info("InventoryItemModular.closeInventory()");
         //this.writeItemsToStorageModule();
         //this.writeStorageModulesToContainerItem();
     }

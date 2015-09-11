@@ -37,7 +37,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 ItemStack stack = ItemHandyBag.getOpenableBag(player);
                 if (stack != null)
                 {
-                    return new ContainerHandyBag(player, new InventoryItemModular(stack, world));
+                    return new ContainerHandyBag(player, new InventoryItemModular(stack, player));
                 }
                 break;
 
@@ -69,7 +69,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 ItemStack stack = ItemHandyBag.getOpenableBag(player);
                 if (stack != null)
                 {
-                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(stack, world)));
+                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(stack, player)));
                 }
                 break;
 

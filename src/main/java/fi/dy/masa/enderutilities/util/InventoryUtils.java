@@ -2,11 +2,13 @@ package fi.dy.masa.enderutilities.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
@@ -378,5 +380,24 @@ public class InventoryUtils
         }
 
         return slots;
+    }
+
+    /**
+     * Get the ItemStack that has the given UUID stored in its NBT. If <b>containerTagName</b>
+     * is not null, then the UUID is read from a compound tag by that name.
+     */
+    public static ItemStack getItemStackByUUID(IInventory inv, UUID uuid, String containerTagName)
+    {
+        int size = inv.getSizeInventory();
+        for (int i = 0; i < size; i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, containerTagName)))
+            {
+                return stack;
+            }
+        }
+
+        return null;
     }
 }
