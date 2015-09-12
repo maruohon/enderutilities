@@ -17,21 +17,24 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular implements IInventory
 {
-    protected UUID containerItemUUID;
     protected EntityPlayer player;
+    public boolean isRemote;
+
+    protected UUID containerItemUUID;
     /** The ItemStacks containing the stored items inside the selected storage module */
     protected ItemStack[] storedItems;
     /** The ItemStacks containing the storage modules themselves */
     protected ItemStack[] storageModules;
-
-    public boolean isRemote;
 
     public InventoryItemModular(ItemStack containerStack, EntityPlayer player)
     {
         this.player = player;
         this.isRemote = player.worldObj.isRemote;
         this.containerItemUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
-        this.updateContainerItems();
+
+        // Call these directly here so that the ItemStack arrays get created on the client side
+        this.readStorageModulesFromContainerItem();
+        this.readItemsFromStorageModule();
     }
 
     /**
@@ -39,6 +42,11 @@ public class InventoryItemModular implements IInventory
      */
     public void updateContainerItems()
     {
+        if (this.isRemote == true)
+        {
+            return;
+        }
+
         this.readStorageModulesFromContainerItem();
         this.readItemsFromStorageModule();
     }
@@ -54,6 +62,11 @@ public class InventoryItemModular implements IInventory
      */
     protected void saveInventoryAndUpdate(int slotNum)
     {
+        if (this.isRemote == true)
+        {
+            return;
+        }
+
         if (this.slotIsItemInventory(slotNum) == true)
         {
             this.writeItemsToStorageModule();

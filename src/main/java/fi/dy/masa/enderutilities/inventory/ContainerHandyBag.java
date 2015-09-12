@@ -345,6 +345,8 @@ public class ContainerHandyBag extends Container
             this.inventory.updateContainerItems();
         }
 
+        this.detectAndSendChanges();
+
         return stack;
     }
 }
