@@ -1,5 +1,11 @@
 package fi.dy.masa.enderutilities.event;
 
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.Keybindings;
+import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.MouseEvent;
 
@@ -10,16 +16,14 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.setup.Keybindings;
 
 public class InputEventHandler
 {
-    public static int scrollingMode = 0;
+    public static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
+    /** Has the active mouse scroll modifier mask, if any */
+    private static int scrollingMask = 0;
+    /** Has the currently active/pressed mask of supported modifier keys */
+    private static int modifierMask = 0;
 
     public InputEventHandler()
     {
@@ -34,72 +38,42 @@ public class InputEventHandler
     @SubscribeEvent
     public void onKeyInputEvent(InputEvent.KeyInputEvent event)
     {
-        // In-game (no GUI open)
-        if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
-        {
-            EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+        EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+        int eventKey = Keyboard.getEventKey();
 
-            if (Keybindings.keyToggleMode.isPressed() == true) // or this? Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode()
+        // One of our supported modifier keys was pressed or released
+        if (KEY_CODE_MAPPINGS.containsKey(eventKey) == true)
+        {
+            int mask = KEY_CODE_MAPPINGS.get(eventKey);
+
+            // Key was pressed
+            if (Keyboard.getEventKeyState() == true)
+            {
+                modifierMask |= mask;
+
+                // Only add scrolling mode mask if the currently selected item is one of our IKeyBound items
+                if (isHoldingKeyboundItem(player) == true)
+                {
+                    scrollingMask |= mask;
+                }
+            }
+            // Key was released
+            else
+            {
+                modifierMask &= ~mask;
+                scrollingMask &= ~mask;
+            }
+        }
+        // In-game (no GUI open)
+        else if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
+        {
+            // or this?: Keybindings.keyToggleMode.isPressed() == true
+            if (Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
             {
                 if (isHoldingKeyboundItem(player) == true)
                 {
-                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE;
-
-                    if (EnderUtilities.proxy.isShiftKeyDown() == true)
-                    {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
-                    }
-
-                    if (EnderUtilities.proxy.isControlKeyDown() == true)
-                    {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
-                    }
-
-                    if (EnderUtilities.proxy.isAltKeyDown() == true)
-                    {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_ALT;
-                    }
-
-                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
-                }
-                return;
-            }
-
-            // Activate or deactivate the scroll-mouse-wheel-to-change-stuff modes
-
-            if (Keyboard.getEventKey() == Keyboard.KEY_LSHIFT || Keyboard.getEventKey() == Keyboard.KEY_RSHIFT)
-            {
-                if (EnderUtilities.proxy.isShiftKeyDown() == true && isHoldingKeyboundItem(player) == true)
-                {
-                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
-                }
-                else
-                {
-                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_SHIFT;
-                }
-            }
-
-            if (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)
-            {
-                if (EnderUtilities.proxy.isControlKeyDown() == true && isHoldingKeyboundItem(player) == true)
-                {
-                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
-                }
-                else
-                {
-                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_CONTROL;
-                }
-            }
-
-            if (Keyboard.getEventKey() == Keyboard.KEY_LMENU || Keyboard.getEventKey() == Keyboard.KEY_RMENU)
-            {
-                if (EnderUtilities.proxy.isAltKeyDown() == true && isHoldingKeyboundItem(player) == true)
-                {
-                    scrollingMode |= ReferenceKeys.KEYBIND_MODIFIER_ALT;
-                }
-                else
-                {
-                    scrollingMode &= ~ReferenceKeys.KEYBIND_MODIFIER_ALT;
+                    int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
                 }
             }
         }
@@ -118,12 +92,12 @@ public class InputEventHandler
             // (note: this means it specifically WON'T work if the player started pressing a modifier
             // key while holding something else, for example when scrolling through the hotbar!!),
             // then we allow for easily scrolling through the changeable stuff using the mouse wheel.
-            if (scrollingMode != 0)
+            if (scrollingMask != 0)
             {
                 EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
                 if (isHoldingKeyboundItem(player) == true)
                 {
-                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | scrollingMode;
+                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | scrollingMask;
 
                     // Scrolling up, reverse the direction.
                     if (dWheel > 0)
@@ -140,5 +114,15 @@ public class InputEventHandler
                 }
             }
         }
+    }
+
+    static
+    {
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LSHIFT,      ReferenceKeys.KEYBIND_MODIFIER_SHIFT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RSHIFT,      ReferenceKeys.KEYBIND_MODIFIER_SHIFT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LCONTROL,    ReferenceKeys.KEYBIND_MODIFIER_CONTROL);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RCONTROL,    ReferenceKeys.KEYBIND_MODIFIER_CONTROL);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LMENU,       ReferenceKeys.KEYBIND_MODIFIER_ALT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RMENU,       ReferenceKeys.KEYBIND_MODIFIER_ALT);
     }
 }
