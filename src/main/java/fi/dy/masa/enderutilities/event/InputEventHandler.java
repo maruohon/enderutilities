@@ -29,6 +29,18 @@ public class InputEventHandler
     {
     }
 
+    /**
+     * Reset the modifiers externally. This is to fix the stuck modifier keys
+     * if a GUI is opened while the modifiers are active.
+     * FIXME Apparently there are key input events for GUI screens in 1.8,
+     * so this probably can be removed then.
+     */
+    public static void resetModifiers()
+    {
+        scrollingMask = 0;
+        modifierMask = 0;
+    }
+
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
     {
         return player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound;
