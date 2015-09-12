@@ -12,6 +12,7 @@ import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -111,9 +112,14 @@ public class InventoryItemModular implements IInventory
             this.storedItems = new ItemStack[0];
         }
 
-        if (this.getStorageModuleStack() != null)
+        ItemStack storageStack = this.getStorageModuleStack();
+        if (storageStack != null)
         {
-            UtilItemModular.readItemsFromContainerItem(this.getStorageModuleStack(), this.storedItems);
+            NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(storageStack);
+            if (ownerData == null || ownerData.canAccess(this.player) == true)
+            {
+                UtilItemModular.readItemsFromContainerItem(storageStack, this.storedItems);
+            }
         }
     }
 
@@ -158,11 +164,19 @@ public class InventoryItemModular implements IInventory
 
     /**
      * Returns whether the item inventory is accessible.
-     * Used while rendering to render the slots as darker when there is no valid memory card selected.
      */
     public boolean isItemInventoryAccessible()
     {
-        return this.getStorageModuleStack() != null;
+        // Can only store items when there is a valid storage module (= Memory Card) installed
+        // and currently selected and the player has access rights to it.
+        ItemStack storageStack = this.getStorageModuleStack();
+        if (storageStack == null)
+        {
+            return false;
+        }
+
+        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(storageStack);
+        return ownerData == null || ownerData.canAccess(this.player) == true;
     }
 
     /**
@@ -430,7 +444,7 @@ public class InventoryItemModular implements IInventory
     {
         if (stack == null)
         {
-            return true;
+            return false;
         }
 
         // If the given slot is a storage module slot, check that the item is a valid Memory Card module
@@ -445,8 +459,8 @@ public class InventoryItemModular implements IInventory
             return false;
         }
 
-        // Regular item storage slot; Can only store items when there is a valid storage module (= Memory Card) installed and currently selected
-        return this.getStorageModuleStack() != null;
+        // Item inventory slots, check if the inventory can be accessed
+        return this.isItemInventoryAccessible();
     }
 
 }

@@ -133,13 +133,19 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static boolean bagIsOpenable(ItemStack stack)
     {
-        if (stack.getTagCompound() == null || stack.getTagCompound().hasKey("HandyBag", Constants.NBT.TAG_COMPOUND) == false
-                || stack.getTagCompound().getCompoundTag("HandyBag").getBoolean("DisableOpen") == false)
+        // Can open a fresh bag with no data
+        if (stack.getTagCompound() == null)
         {
             return true;
         }
 
-        return false;
+        // If the bag is locked from opening
+        if (stack.getTagCompound().getCompoundTag("HandyBag").getBoolean("DisableOpen") == true)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**

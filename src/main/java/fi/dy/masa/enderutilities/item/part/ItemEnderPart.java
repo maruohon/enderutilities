@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -22,6 +23,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderPart extends ItemModule
@@ -132,6 +134,19 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
+        String preWh = EnumChatFormatting.WHITE.toString();
+        String preRed = EnumChatFormatting.RED.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String strOwner = StatCollector.translateToLocal("enderutilities.tooltip.item.owner");
+
+        // Set to private and not the owner
+        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        if (ownerData != null && ownerData.canAccess(player) == false)
+        {
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, preRed, StatCollector.translateToLocal("enderutilities.tooltip.item.private"), rst));
+            return;
+        }
+
         int damage = stack.getItemDamage();
         NBTTagCompound nbt = stack.getTagCompound();
         if (damage >= 50 && damage <= 53 && (nbt == null || nbt.hasNoTags() == true))
@@ -182,6 +197,14 @@ public class ItemEnderPart extends ItemModule
             {
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
+        }
+
+        // Print the owner data after the contents if the player can access/see the contents
+        if (ownerData != null)
+        {
+            String mode = ownerData.isPublic ? StatCollector.translateToLocal("enderutilities.tooltip.item.public") : StatCollector.translateToLocal("enderutilities.tooltip.item.private");
+            String modeColor = ownerData.isPublic ? EnumChatFormatting.GREEN.toString() : preRed;
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, modeColor, mode, rst));
         }
     }
 
