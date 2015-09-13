@@ -44,6 +44,7 @@ import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -57,6 +58,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -88,6 +90,47 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
         this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
+    }
+
+    @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
+        if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
+        {
+            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+
+            // If the currently selected module has been renamed, show that name
+            if (moduleStack.hasDisplayName() == true)
+            {
+                String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+                if (itemName.length() >= 14)
+                {
+                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
+                }
+
+                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
+            }
+
+            // Link Crystal not named
+            NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
+            if (target != null && moduleStack.getItem() instanceof IModule)
+            {
+                // Display the target block name if it's a Block type Link Crystal
+                if (((IModule)moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+                {
+                    Block block = Block.getBlockFromName(target.blockName);
+                    ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
+                    if (targetStack != null && targetStack.getItem() != null)
+                    {
+                        return itemName + " " + EnumChatFormatting.GREEN.toString() + targetStack.getDisplayName() + rst;
+                    }
+                }
+            }
+        }
+
+        return super.getItemStackDisplayName(stack);
     }
 
     // This is used for determining which weapon is better when mobs pick up items

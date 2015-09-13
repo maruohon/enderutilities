@@ -36,6 +36,7 @@ public class ItemEnderUtilities extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
+    @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }

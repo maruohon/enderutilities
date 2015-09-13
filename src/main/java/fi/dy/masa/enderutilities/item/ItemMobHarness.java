@@ -40,6 +40,18 @@ public class ItemMobHarness extends ItemEnderUtilities
     }
 
     @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        if (stack.getTagCompound() == null || this.hasTarget(stack) == false)
+        {
+            return super.getItemStackDisplayName(stack);
+        }
+
+        String target = stack.getTagCompound().getString("TargetName");
+        return super.getItemStackDisplayName(stack) + " " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.WHITE;
+    }
+
+    @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         if (world.isRemote == true)
@@ -225,26 +237,16 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-
-        if (nbt == null)
-        {
-            super.addInformation(stack, player, list, advancedTooltips);
-            return;
-        }
-
-        if (this.hasTarget(stack) == false)
+        if (stack.getTagCompound() == null || this.hasTarget(stack) == false)
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notlinked"));
             return;
         }
 
-        String pre = "" + EnumChatFormatting.BLUE;
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
-        String target = nbt.getString("TargetName");
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + pre + target + rst);
+        String target = stack.getTagCompound().getString("TargetName");
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.GRAY);
     }
 
     @SideOnly(Side.CLIENT)

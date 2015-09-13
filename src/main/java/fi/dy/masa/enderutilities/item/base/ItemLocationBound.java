@@ -61,6 +61,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         {
             String pre = EnumChatFormatting.GREEN.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+
+            // Display the target block name if it's a Block type Link Crystal
+            if (((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
+            {
+                Block block = Block.getBlockFromName(target.blockName);
+                ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
+                if (targetStack != null && targetStack.getItem() != null)
+                {
+                    return super.getItemStackDisplayName(stack) + " " + pre + targetStack.getDisplayName() + rst;
+                }
+            }
+
             String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
             return super.getItemStackDisplayName(stack) + " " + pre + dimName + rst;
         }
@@ -92,8 +104,8 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             // Show the target block info for block type link crystals
             if (item instanceof IModule && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_LINKCRYSTAL) && ((IModule)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
             {
-                // FIXME this may not be accurate if the damage is different than the meta! See util.BlockInfo.getBasicBlockInfo() in the TellMe mod.
-                ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
+                Block block = Block.getBlockFromName(target.blockName);
+                ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
                 if (targetStack != null && targetStack.getItem() != null)
                 {
                     blockName = targetStack.getDisplayName();
@@ -117,7 +129,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                     list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
                     if (advancedTooltips == true)
                     {
-                        list.add("(" + target.blockName + "#" + target.blockMeta + " side: " + ForgeDirection.getOrientation(target.blockFace) + ")");
+                        list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, ForgeDirection.getOrientation(target.blockFace).toString(), target.blockFace));
                     }
                 }
             }
