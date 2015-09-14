@@ -9,19 +9,36 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
 {
+    /**
+     * Check if the block in the world matches the one asked for.
+     * Use OreDictionary.WILDCARD_VALUE for the requiredMeta to ignore block meta.
+     * Use null for the TEClass if the block doesn't have a TileEntity.
+     * If the block has a TE of type TileEntityEnderUtilities but the orientation doesn't matter,
+     * then give ForgeDirection.UNKNOWN as the requiredOrientation.
+     */
     public static boolean blockMatches(World world, BlockPosEU pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, ForgeDirection requiredOrientation)
     {
         Block block = world.getBlock(pos.posX, pos.posY, pos.posZ);
         int meta = world.getBlockMetadata(pos.posX, pos.posY, pos.posZ);
         TileEntity te = world.getTileEntity(pos.posX, pos.posY, pos.posZ);
 
-        if (block == requiredBlock && meta == requiredMeta && te != null && TEClass.isAssignableFrom(te.getClass()) == true
-            && (requiredOrientation == ForgeDirection.UNKNOWN
-                || (te instanceof TileEntityEnderUtilities && ForgeDirection.getOrientation(((TileEntityEnderUtilities)te).getRotation()).equals(requiredOrientation))))
+        if (block != requiredBlock || (meta != requiredMeta && requiredMeta != OreDictionary.WILDCARD_VALUE))
+        {
+            return false;
+        }
+
+        if (te == null && TEClass == null)
+        {
+            return true;
+        }
+
+        if (te != null && TEClass != null && TEClass.isAssignableFrom(te.getClass()) == true && (requiredOrientation == ForgeDirection.UNKNOWN
+            || (te instanceof TileEntityEnderUtilities && ForgeDirection.getOrientation(((TileEntityEnderUtilities)te).getRotation()).equals(requiredOrientation))))
         {
             return true;
         }
