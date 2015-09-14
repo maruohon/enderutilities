@@ -301,7 +301,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 Block blockFarmland = Blocks.farmland;
                 world.playSoundEffect(x + 0.5d, y + 0.5d, z + 0.5d, blockFarmland.stepSound.getStepResourcePath(), (blockFarmland.stepSound.getVolume() + 1.0f) / 2.0f, blockFarmland.stepSound.getPitch() * 0.8f);
 
-                world.setBlock(x, y, z, blockFarmland);
+                world.setBlock(x, y, z, blockFarmland, 0, 3);
+                world.markBlockForUpdate(x, y, z);  // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
                 this.addToolDamage(stack, 1, player, player);
             }
 
