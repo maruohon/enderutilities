@@ -525,18 +525,16 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true)
-        {
-            return true;
-        }
-
         TileEntity te = world.getTileEntity(x, y, z);
         // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
         if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+            if (world.isRemote == false)
+            {
+                UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+            }
             return true;
         }
 
