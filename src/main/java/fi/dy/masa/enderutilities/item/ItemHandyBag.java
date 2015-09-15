@@ -5,15 +5,19 @@ import java.util.List;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
+import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -127,6 +131,51 @@ public class ItemHandyBag extends ItemInventoryModular
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    public static boolean onItemPickupEvent(EntityItemPickupEvent event)
+    {
+        EntityPlayer player = event.entityPlayer;
+        ItemStack bagStack = null;
+        int origStackSize = event.item.getEntityItem().stackSize;
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+
+        for (int slot : slots)
+        {
+            bagStack = player.inventory.getStackInSlot(slot);
+            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag)
+            {
+                // Bag is not locked, and the pickup mode is enabled
+                if (ItemHandyBag.bagIsOpenable(bagStack) == true)
+                {
+                    IInventory inv = new InventoryItemModular(bagStack, player);
+                    int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
+
+                    // Pickup mode is All, or Matching and the bag already contains the same item type
+                    if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                    {
+                        // All items successfully inserted
+                        if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0) == true)
+                        {
+                            event.item.setDead();
+                            event.setCanceled(true);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // At least some items were picked up
+        if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead)
+        {
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.onItemPickup(event.item, origStackSize - event.item.getEntityItem().stackSize);
+            return true;
+        }
+
+        return false;
     }
 
     public static boolean bagIsOpenable(ItemStack stack)
