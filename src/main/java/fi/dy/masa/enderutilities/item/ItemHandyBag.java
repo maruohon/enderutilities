@@ -315,7 +315,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getRenderPasses(int metadata)
     {
-        return 3;
+        return 4;
     }
 
     @SideOnly(Side.CLIENT)
@@ -323,7 +323,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".0");
-        this.iconArray = new IIcon[6];
+        this.iconArray = new IIcon[7];
 
         this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".0");
         this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".1");
@@ -333,6 +333,7 @@ public class ItemHandyBag extends ItemInventoryModular
         this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".overlay.locked");
         this.iconArray[4] = iconRegister.registerIcon(this.getIconString() + ".overlay.pickup.matching");
         this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".overlay.pickup.all");
+        this.iconArray[6] = iconRegister.registerIcon(this.getIconString() + ".overlay.restock");
     }
 
     @SideOnly(Side.CLIENT)
@@ -353,6 +354,8 @@ public class ItemHandyBag extends ItemInventoryModular
                     return this.iconArray[index - 1 + 4];
                 }
                 return this.iconArray[2]; // empty
+            case 3:
+                return this.getModeByName(stack, "RestockMode") != 0 ? this.iconArray[6] : this.iconArray[2];
         }
 
         return this.itemIcon;
