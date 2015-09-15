@@ -23,6 +23,7 @@ import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEn
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
+import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -53,6 +54,7 @@ public class ClientProxy extends CommonProxy
         InputEventHandler ieh = new InputEventHandler();
         FMLCommonHandler.instance().bus().register(ieh);
         MinecraftForge.EVENT_BUS.register(ieh);
+        MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
     }
 
     @Override

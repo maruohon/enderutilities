@@ -45,6 +45,7 @@ public class Configs
     public static Property disableItemEnderPorter;
     public static Property disableItemEnderSword;
     public static Property disableItemEnderTools;
+    public static Property disableItemHandyBag;
     public static Property disableItemMobHarness;
     public static Property disableItemPortalScaler;
 
@@ -68,6 +69,7 @@ public class Configs
     public static Property disableRecipeEnderPearlElite;
     public static Property disableRecipeEnderPorterBasic;
     public static Property disableRecipeEnderPorterAdvanced;
+    public static Property disableRecipeHandyBag;
     public static Property disableRecipeMobHarness;
     public static Property disableRecipePortalScaler;
     public static Property disableRecipeEnderSword;
