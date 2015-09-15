@@ -7,7 +7,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
@@ -25,7 +24,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -208,45 +206,14 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public static int getPickupMode(ItemStack stack)
+    public int getModeByName(ItemStack stack, String name)
     {
-        // 0: None, 1: Matching, 2: All
         if (stack.getTagCompound() == null || stack.getTagCompound().hasKey("HandyBag", Constants.NBT.TAG_COMPOUND) == false)
         {
             return 0;
         }
 
-        return stack.getTagCompound().getCompoundTag("HandyBag").getByte("PickupMode");
-    }
-
-    public void cyclePickupMode(ItemStack stack)
-    {
-        // 0: None, 1: Matching, 2: All
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, "HandyBag");
-        NBTUtils.cycleByteValue(nbt, "PickupMode", 2);
-    }
-
-    public void toggleLockedMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, "HandyBag");
-        NBTUtils.toggleBoolean(nbt, "DisableOpen");
-    }
-
-    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
-    {
-        if (NBTHelperPlayer.selectedModuleHasPlayerTag(stack, ModuleType.TYPE_MEMORY_CARD) == false)
-        {
-            NBTHelperPlayer.writePlayerTagToSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, player, false);
-        }
-        else
-        {
-            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD);
-            if (data != null && data.isOwner(player) == true)
-            {
-                data.isPublic = ! data.isPublic;
-                data.writeToSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD);
-            }
-        }
+        return stack.getTagCompound().getCompoundTag("HandyBag").getByte(name);
     }
 
     @Override
@@ -262,21 +229,30 @@ public class ItemHandyBag extends ItemInventoryModular
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            this.changePrivacyMode(stack, player);
+            UtilItemModular.changePrivacyModeOnSelectedModule(stack, player, ModuleType.TYPE_MEMORY_CARD);
         }
         // Just Toggle mode: Cycle Pickup Mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.cyclePickupMode(stack);
+            // 0: None, 1: Matching, 2: All
+            NBTUtils.cycleByteValue(stack, "HandyBag", "PickupMode", 2);
         }
         // Shift + Toggle mode: Toggle Locked Mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
             && ReferenceKeys.keypressContainsShift(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.toggleLockedMode(stack);
+            NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
+        }
+        // Alt + Shift + Toggle mode: Toggle Restock mode
+        else if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == true
+            && ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            // 0: None, 1: Matching, 2: All
+            NBTUtils.cycleByteValue(stack, "HandyBag", "RestockMode", 1);
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (ReferenceKeys.keypressContainsControl(key) == true
@@ -371,7 +347,7 @@ public class ItemHandyBag extends ItemInventoryModular
             case 1: // Locked icon
                 return bagIsOpenable(stack) ? this.iconArray[2] : this.iconArray[3];
             case 2: // Pickup mode; 0: None, 1: Matching, 2: All
-                int index = getPickupMode(stack);
+                int index = this.getModeByName(stack, "PickupMode");
                 if (index == 1 || index == 2)
                 {
                     return this.iconArray[index - 1 + 4];

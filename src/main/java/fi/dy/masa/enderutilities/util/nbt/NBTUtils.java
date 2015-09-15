@@ -176,10 +176,34 @@ public class NBTUtils
         nbt.setBoolean(tagName, ! nbt.getBoolean(tagName));
     }
 
+    /**
+     * Toggle a boolean value in the given ItemStack's NBT. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void toggleBoolean(ItemStack stack, String containerTagName, String tagName)
+    {
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        toggleBoolean(nbt, tagName);
+    }
+
+    /**
+     * Cycle a byte value in the given NBT. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
     public static void cycleByteValue(NBTTagCompound nbt, String tagName, int maxValue)
     {
-        byte mode = nbt.getByte(tagName);
-        nbt.setByte(tagName, ++mode > maxValue ? 0 : mode);
+        byte value = nbt.getByte(tagName);
+        nbt.setByte(tagName, ++value > maxValue ? 0 : value);
+    }
+
+    /**
+     * Cycle a byte value in the given ItemStack's NBT. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue)
+    {
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        cycleByteValue(nbt, tagName, maxValue);
     }
 
     /**

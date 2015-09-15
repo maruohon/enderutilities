@@ -191,11 +191,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
      */
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(stack);
-        if (data != null && data.isOwner(player) == true)
+        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
         {
-            data.isPublic = ! data.isPublic;
-            data.writeToItem(stack);
+            NBTHelperPlayer.writePlayerTagToItem(stack, player, false);
+        }
+        else
+        {
+            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(stack);
+            if (data != null && data.isOwner(player) == true)
+            {
+                data.isPublic = ! data.isPublic;
+                data.writeToItem(stack);
+            }
         }
     }
 

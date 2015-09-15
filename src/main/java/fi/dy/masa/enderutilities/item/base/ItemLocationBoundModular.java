@@ -19,7 +19,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -196,14 +195,9 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
+    public void changePrivacyMode(ItemStack containerStack, EntityPlayer player)
     {
-        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (data != null && data.isOwner(player) == true)
-        {
-            data.isPublic = ! data.isPublic;
-            data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        }
+        UtilItemModular.changePrivacyModeOnSelectedModule(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
     }
 
     @Override

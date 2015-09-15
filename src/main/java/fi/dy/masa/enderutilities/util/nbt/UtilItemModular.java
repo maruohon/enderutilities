@@ -742,4 +742,28 @@ public class UtilItemModular
             NBTHelperPlayer.writePlayerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
         }
     }
+
+    /**
+     * Toggle the Public/Private mode on the selected module of the given type.
+     * If the module doesn't have the Player tag yet, it will be created and set to Private.
+     * @param containerStack
+     * @param player
+     * @param moduleType
+     */
+    public static void changePrivacyModeOnSelectedModule(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
+    {
+        if (NBTHelperPlayer.selectedModuleHasPlayerTag(containerStack, moduleType) == false)
+        {
+            NBTHelperPlayer.writePlayerTagToSelectedModule(containerStack, moduleType, player, false);
+        }
+        else
+        {
+            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(containerStack, moduleType);
+            if (data != null && data.isOwner(player) == true)
+            {
+                data.isPublic = ! data.isPublic;
+                data.writeToSelectedModule(containerStack, moduleType);
+            }
+        }
+    }
 }
