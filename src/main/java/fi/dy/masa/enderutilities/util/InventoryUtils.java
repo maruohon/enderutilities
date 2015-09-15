@@ -13,6 +13,237 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class InventoryUtils
 {
     /**
+     * Tries to move all items from the inventory invSrc into invDst within the provided slot range.
+     * @return true if all items were successfully moved, false if none or just some were moved
+     */
+    public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, int srcMinSlot, int srcMaxSlot, int dstMinSlot, int dstMaxSlot)
+    {
+        boolean movedAll = true;
+
+        if (invSrc instanceof ISidedInventory)
+        {
+            ISidedInventory sidedSrc = (ISidedInventory) invSrc;
+            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+
+            for (int i : slotsSrc)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null)
+                    {
+                        if (sidedSrc.canExtractItem(i, stack, sideSrc) == true)
+                        {
+                            if (tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, dstMinSlot, dstMaxSlot) == true)
+                            {
+                                invSrc.setInventorySlotContents(i, null);
+                            }
+                            else
+                            {
+                                movedAll = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < invSrc.getSizeInventory(); i++)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null)
+                    {
+                        if (tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, dstMinSlot, dstMaxSlot) == true)
+                        {
+                            invSrc.setInventorySlotContents(i, null);
+                        }
+                        else
+                        {
+                            movedAll = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return movedAll;
+    }
+
+    /**
+     * Tries to move all items from the inventory invSrc into invDst.
+     * @return true if all items were successfully moved, false if none or just some were moved
+     */
+    public static boolean tryMoveAllItems(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst)
+    {
+        return tryMoveAllItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1);
+    }
+
+    /**
+     * Tries to move matching/existing items from the inventory invSrc into invDst within the provided slot range.
+     * @return true if all items were successfully moved, false if none or just some were moved
+     */
+    public static boolean tryMoveMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, int srcMinSlot, int srcMaxSlot, int dstMinSlot, int dstMaxSlot)
+    {
+        boolean movedAll = true;
+
+        if (invSrc instanceof ISidedInventory)
+        {
+            ISidedInventory sidedSrc = (ISidedInventory) invSrc;
+            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+
+            for (int i : slotsSrc)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null && getSlotOfFirstMatchingItemStackWithinSlotRange(invDst, stack, dstMinSlot, dstMaxSlot) != -1 && sidedSrc.canExtractItem(i, stack, sideSrc) == true)
+                    {
+                        if (tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, dstMinSlot, dstMaxSlot) == true)
+                        {
+                            invSrc.setInventorySlotContents(i, null);
+                        }
+                        else
+                        {
+                            movedAll = false;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < invSrc.getSizeInventory(); i++)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null)
+                    {
+                        if (getSlotOfFirstMatchingItemStackWithinSlotRange(invDst, stack, dstMinSlot, dstMaxSlot) != -1 && tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, dstMinSlot, dstMaxSlot) == true)
+                        {
+                            invSrc.setInventorySlotContents(i, null);
+                        }
+                        else
+                        {
+                            movedAll = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return movedAll;
+    }
+
+    /**
+     * Tries to fill all the existing stacks in invDst from invSrc within the provided slot range.
+     */
+    public static void fillStacksOfMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, int srcMinSlot, int srcMaxSlot, int dstMinSlot, int dstMaxSlot)
+    {
+        if (invSrc instanceof ISidedInventory)
+        {
+            ISidedInventory sidedSrc = (ISidedInventory) invSrc;
+            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+
+            for (int i : slotsSrc)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null && sidedSrc.canExtractItem(i, stack, sideSrc) == true)
+                    {
+                        List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacksWithinSlotRange(invDst, stack, dstMinSlot, dstMaxSlot);
+                        for (int dstSlot : matchingSlots)
+                        {
+                            if (dstSlot >= dstMinSlot && dstSlot <= dstMaxSlot && tryInsertItemStackToSlot(invDst, stack, dstSlot) == true)
+                            {
+                                invSrc.setInventorySlotContents(i, null);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < invSrc.getSizeInventory(); i++)
+            {
+                if (i >= srcMinSlot && i <= srcMaxSlot)
+                {
+                    ItemStack stack = invSrc.getStackInSlot(i);
+                    if (stack != null)
+                    {
+                        List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacksWithinSlotRange(invDst, stack, dstMinSlot, dstMaxSlot);
+                        for (int dstSlot : matchingSlots)
+                        {
+                            if (dstSlot >= dstMinSlot && dstSlot <= dstMaxSlot && tryInsertItemStackToSlot(invDst, stack, dstSlot) == true)
+                            {
+                                invSrc.setInventorySlotContents(i, null);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static boolean tryInsertItemStackToInventoryWithinSlotRange(IInventory inv, ItemStack stackIn, int side, int minSlot, int maxSlot)
+    {
+        if (inv instanceof ISidedInventory)
+        {
+            ISidedInventory sided = (ISidedInventory) inv;
+            int[] slots = sided.getAccessibleSlotsFromSide(side);
+
+            // First try to add to existing stacks
+            for (int i : slots)
+            {
+                if (i >= minSlot && i <= maxSlot && sided.getStackInSlot(i) != null &&
+                    isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+
+            // Second round, try to add to any slot
+            for (int i : slots)
+            {
+                if (i >= minSlot && i <= maxSlot && isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+        }
+        // IInventory
+        else
+        {
+            int size = inv.getSizeInventory();
+            // First try to add to existing stacks
+            for (int i = 0; i < size; ++i)
+            {
+                if (i >= minSlot && i <= maxSlot && inv.getStackInSlot(i) != null &&
+                    isItemStackValidForSlot(inv, stackIn, i) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+
+            // Second round, try to add to any slot
+            for (int i = 0; i < size; ++i)
+            {
+                if (i >= minSlot && i <= maxSlot && isItemStackValidForSlot(inv, stackIn, i) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Tries to insert the given ItemStack stack to the target inventory.
      * The method first checks for ISidedInventory and falls back to IInventory.
      * If the whole stack was successfully inserted into the inventory, true
@@ -286,26 +517,34 @@ public class InventoryUtils
     }
 
     /**
-     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize).
+     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize) within the given slot range.
      * Note: stackIn can be null.
-     * @param inv
-     * @param item
-     * @return The slot number of the first slot with a matching ItemStack, or -1 if there are no matching ItemStacks in the inventory.
+     * @return The slot number of the first slot with a matching ItemStack, or -1 if there were no matches.
      */
-    public static int getSlotOfFirstMatchingItemStack(IInventory inv, ItemStack stackIn)
+    public static int getSlotOfFirstMatchingItemStackWithinSlotRange(IInventory inv, ItemStack stackIn, int slotMin, int slotMax)
     {
-        int size = inv.getSizeInventory();
-        for (int i = 0; i < size; ++i)
+        int max = Math.min(inv.getSizeInventory() - 1, slotMax);
+        for (int i = slotMin; i <= max; ++i)
         {
             ItemStack stack = inv.getStackInSlot(i);
-            if ((stack == null && stackIn == null)
-                || (stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true))
+            if ((stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true)
+                || (stack == null && stackIn == null))
             {
                 return i;
             }
         }
 
         return -1;
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize).
+     * Note: stackIn can be null.
+     * @return The slot number of the first slot with a matching ItemStack, or -1 if there are no matching ItemStacks in the inventory.
+     */
+    public static int getSlotOfFirstMatchingItemStack(IInventory inv, ItemStack stackIn)
+    {
+        return getSlotOfFirstMatchingItemStackWithinSlotRange(inv, stackIn, 0, inv.getSizeInventory() - 1);
     }
 
     /**
@@ -378,28 +617,36 @@ public class InventoryUtils
     }
 
     /**
-     * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize).
+     * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize) within the given slot range.
      * Note: stackIn can be null.
-     * @param inv
-     * @param item
      * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
      */
-    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IInventory inv, ItemStack stackIn)
+    public static List<Integer> getSlotNumbersOfMatchingItemStacksWithinSlotRange(IInventory inv, ItemStack stackIn, int slotMin, int slotMax)
     {
         List<Integer> slots = new ArrayList<Integer>();
-        int size = inv.getSizeInventory();
+        int max = Math.min(inv.getSizeInventory() - 1, slotMax);
 
-        for (int i = 0; i < size; ++i)
+        for (int i = slotMin; i <= max; ++i)
         {
             ItemStack stack = inv.getStackInSlot(i);
-            if ((stack == null && stackIn == null)
-                || (stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true))
+            if ((stack != null && stackIn != null && stack.isItemEqual(stackIn) == true && ItemStack.areItemStackTagsEqual(stack, stackIn) == true)
+                || (stack == null && stackIn == null))
             {
                 slots.add(Integer.valueOf(i));
             }
         }
 
         return slots;
+    }
+
+    /**
+     * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize).
+     * Note: stackIn can be null.
+     * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
+     */
+    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IInventory inv, ItemStack stackIn)
+    {
+        return getSlotNumbersOfMatchingItemStacksWithinSlotRange(inv, stackIn, 0, inv.getSizeInventory() - 1);
     }
 
     /**

@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -454,7 +455,9 @@ public class InventoryItemModular implements IInventory
         }
 
         // Don't allow putting the bag inside itself
-        if (this.containerItemUUID.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+        //if (this.containerItemUUID.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
+        // Don't allow putting any Handy Bags inside other Handy Bags
+        if (stack.getItem() == EnderUtilitiesItems.handyBag)
         {
             return false;
         }

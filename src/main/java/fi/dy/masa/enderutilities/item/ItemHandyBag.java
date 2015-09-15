@@ -43,7 +43,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int MAX_STACKSIZE_TIER_2 =  4096;
 
     public static final int GUI_ACTION_SELECT_MODULE = 0;
-    public static final int GUI_ACTION_QUICK_STACK   = 1;
+    public static final int GUI_ACTION_MOVE_ITEMS    = 1;
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -248,8 +248,29 @@ public class ItemHandyBag extends ItemInventoryModular
                     UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
                     container.inventory.updateContainerItems();
                 }
-                else if (action == GUI_ACTION_QUICK_STACK)
+                else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 5)
                 {
+                    int bagMaxSlot = container.inventory.getSizeInventory() - container.inventory.getStorageModuleSlotCount() - 1;
+                    System.out.println("max slot: " + bagMaxSlot);
+                    int playerMaxSlot = player.inventory.getSizeInventory() - 4;
+                    switch(element)
+                    {
+                        case 0: // Move all items to Bag
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, container.inventory, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot);
+                            break;
+                        case 1: // Move matching items to Bag
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventory, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot);
+                            break;
+                        case 2: // Fill stacks in player inventory from bag
+                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventory, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            break;
+                        case 3: // Move matching items to player inventory
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventory, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            break;
+                        case 4: // Move all items to player inventory
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventory, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            break;
+                    }
                 }
             }
         }

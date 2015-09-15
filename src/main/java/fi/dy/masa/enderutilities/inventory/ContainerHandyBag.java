@@ -108,7 +108,7 @@ public class ContainerHandyBag extends Container
     {
         int moduleSlots = this.inventory.getStorageModuleSlotCount();
         int xOff = 8;
-        int yOff = 100;
+        int yOff = 102;
 
         // The top/middle section of the bag inventory
         for (int i = 0; i < 3; i++)
