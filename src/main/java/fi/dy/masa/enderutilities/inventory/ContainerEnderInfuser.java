@@ -32,8 +32,8 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
 
     protected void addSlots()
     {
-        this.addSlotToContainer(new SlotItemInput(this.te, 0, 44, 24));
-        this.addSlotToContainer(new SlotItemInput(this.te, 1, 134, 8));
+        this.addSlotToContainer(new SlotGeneric(this.te, 0, 44, 24));
+        this.addSlotToContainer(new SlotGeneric(this.te, 1, 134, 8));
         this.addSlotToContainer(new SlotOutput(this.te, 2, 134, 66));
     }
 

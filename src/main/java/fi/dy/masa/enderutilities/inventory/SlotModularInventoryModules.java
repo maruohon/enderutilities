@@ -3,20 +3,20 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-public class SlotModularInventory extends Slot
+public class SlotModularInventoryModules extends Slot
 {
-    protected InventoryItemModular inventoryModular;
+    protected InventoryItemModularModules inventoryModules;
 
-    public SlotModularInventory(InventoryItemModular inventory, int slot, int posX, int posY)
+    public SlotModularInventoryModules(InventoryItemModularModules inventory, int slot, int posX, int posY)
     {
         super(inventory, slot, posX, posY);
-        this.inventoryModular = inventory;
+        this.inventoryModules = inventory;
     }
 
     @Override
     public int getSlotStackLimit()
     {
-        return this.inventoryModular.slotIsStorageModule(this.slotNumber) ? 1 : this.inventoryModular.getInventoryStackLimit();
+        return 1;
     }
 
     /**
@@ -26,7 +26,7 @@ public class SlotModularInventory extends Slot
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return this.inventoryModular.isItemValidForSlot(this.slotNumber, stack);
+        return this.inventoryModules.isItemValidForSlot(this.slotNumber, stack);
     }
 
     /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes

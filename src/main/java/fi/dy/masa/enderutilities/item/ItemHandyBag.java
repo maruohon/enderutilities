@@ -250,9 +250,8 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 5)
                 {
-                    int bagMaxSlot = container.inventory.getSizeInventory() - container.inventory.getStorageModuleSlotCount() - 1;
-                    System.out.println("max slot: " + bagMaxSlot);
-                    int playerMaxSlot = player.inventory.getSizeInventory() - 4;
+                    int bagMaxSlot = container.inventory.getSizeInventory() - 1;
+                    int playerMaxSlot = player.inventory.getSizeInventory() - 5;
                     switch(element)
                     {
                         case 0: // Move all items to Bag

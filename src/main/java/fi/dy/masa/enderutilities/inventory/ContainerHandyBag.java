@@ -106,7 +106,6 @@ public class ContainerHandyBag extends Container
 
     protected void addSlots()
     {
-        int moduleSlots = this.inventory.getStorageModuleSlotCount();
         int xOff = 8;
         int yOff = 102;
 
@@ -115,7 +114,7 @@ public class ContainerHandyBag extends Container
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotModularInventory(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
             }
         }
 
@@ -123,10 +122,11 @@ public class ContainerHandyBag extends Container
 
         xOff = 98;
         yOff = 69;
+        int moduleSlots = this.inventory.getModuleInventory().getSizeInventory();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new SlotModularInventory(this.inventory, i + 27, xOff + i * 18, yOff));
+            this.addSlotToContainer(new SlotModularInventoryModules(this.inventory.getModuleInventory(), i, xOff + i * 18, yOff));
         }
     }
 

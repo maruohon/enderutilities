@@ -41,8 +41,12 @@ public class GuiHandyBag extends InventoryEffectRenderer
     protected int backgroundV;
     protected int invSize;
     protected int numModuleSlots;
+    protected int firstStorageSlotX;
+    protected int firstStorageSlotY;
     protected int firstModuleSlotX;
     protected int firstModuleSlotY;
+    protected int firstArmorSlotX;
+    protected int firstArmorSlotY;
 
     public GuiHandyBag(ContainerHandyBag container)
     {
@@ -51,7 +55,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.container = container;
         this.inventory = container.inventory;
         this.invSize = this.inventory.getSizeInventory();
-        this.numModuleSlots = this.inventory.getStorageModuleSlotCount();
+        this.numModuleSlots = this.inventory.getModuleInventory().getSizeInventory();
 
         this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.handybag." + container.getBagTier());
         this.xSize = 176;
@@ -64,8 +68,12 @@ public class GuiHandyBag extends InventoryEffectRenderer
     public void initGui()
     {
         super.initGui();
-        this.firstModuleSlotX = this.guiLeft + this.container.getSlot(this.inventory.getSizeInventory() - this.inventory.getStorageModuleSlotCount()).xDisplayPosition;
-        this.firstModuleSlotY = this.guiTop + this.container.getSlot(this.inventory.getSizeInventory() - this.inventory.getStorageModuleSlotCount()).yDisplayPosition;
+        this.firstStorageSlotX = this.guiLeft + this.container.getSlot(0).xDisplayPosition;
+        this.firstStorageSlotY = this.guiTop  + this.container.getSlot(0).yDisplayPosition;
+        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(this.inventory.getSizeInventory()).xDisplayPosition;
+        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(this.inventory.getSizeInventory()).yDisplayPosition;
+        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
+        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
         this.createButtons();
     }
 
@@ -85,20 +93,15 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.bindTexture(this.guiTexture);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
 
-        int xOff = this.guiLeft;
-        int yOff = this.guiTop;
-
         // The inventory is not accessible (because there is no valid Memory Card selected)
         if (this.inventory.isItemInventoryAccessible() == false)
         {
             // Draw the dark background icon over the inventory slots
-            xOff = this.guiLeft + this.container.getSlot(0).xDisplayPosition - 1;
-            yOff = this.guiTop + this.container.getSlot(0).yDisplayPosition - 1;
             for (int row = 0; row < 3; row++)
             {
                 for (int column = 0; column < 9; column++)
                 {
-                    this.drawTexturedModalRect(xOff + column * 18, yOff + row * 18, 0, 0, 18, 18);
+                    this.drawTexturedModalRect(this.firstStorageSlotX - 1 + column * 18, this.firstStorageSlotY - 1 + row * 18, 0, 0, 18, 18);
                 }
             }
         }
@@ -128,9 +131,9 @@ public class GuiHandyBag extends InventoryEffectRenderer
 
         // Draw the background icon over empty storage module slots
         IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-        for (int i = 0, slotNum = this.invSize - this.numModuleSlots; icon != null && i < this.numModuleSlots; i++, slotNum++)
+        for (int i = 0; icon != null && i < this.numModuleSlots; i++)
         {
-            if (this.inventory.getStackInSlot(slotNum) == null)
+            if (this.inventory.getModuleInventory().getStackInSlot(i) == null)
             {
                 this.drawTexturedModelRectFromIcon(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, icon, 16, 16);
             }
@@ -141,14 +144,12 @@ public class GuiHandyBag extends InventoryEffectRenderer
         // Note: We use the original actual inventory size for these!
         // Otherwise stuff would mess up when the bag is picked up with the cursor, since
         // the number of slots in the container doesn't change.
-        xOff = this.guiLeft + this.container.getSlot(this.invSize + 36).xDisplayPosition;
-        yOff = this.guiTop + this.container.getSlot(this.invSize + 36).yDisplayPosition;
         for (int i = 0; i < 4; i++)
         {
             if (inv.getStackInSlot(39 - i) == null)
             {
                 icon = ItemArmor.func_94602_b(i);
-                this.drawTexturedModelRectFromIcon(xOff, yOff + i * 18, icon, 16, 16);
+                this.drawTexturedModelRectFromIcon(this.firstArmorSlotX, this.firstArmorSlotY + i * 18, icon, 16, 16);
             }
         }
 
@@ -173,14 +174,14 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.buttonList.clear();
 
         // Add the Memory Card selection buttons
-        int numModules = this.inventory.getStorageModuleSlotCount();
+        int numModules = this.inventory.getModuleInventory().getSizeInventory();
         for (int i = 0; i < numModules; i++)
         {
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.guiTexture, 0, 10));
         }
 
-        int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 1;
-        int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 54;
+        int x = this.firstStorageSlotX + 1;
+        int y = this.firstStorageSlotY + 54;
         this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.guiTexture, 14, 0));
         this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.guiTexture, 14, 0));
         this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 2, x + 108, y + 0, 14, 14, 214, 28, this.guiTexture, 14, 0));
@@ -233,7 +234,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
     {
         super.actionPerformed(button);
 
-        if (button.id >= BTN_ID_FIRST_SELECT_MODULE && button.id < (BTN_ID_FIRST_SELECT_MODULE + this.inventory.getStorageModuleSlotCount()))
+        if (button.id >= BTN_ID_FIRST_SELECT_MODULE && button.id < (BTN_ID_FIRST_SELECT_MODULE + this.numModuleSlots))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_SELECT_MODULE, button.id - BTN_ID_FIRST_SELECT_MODULE));
