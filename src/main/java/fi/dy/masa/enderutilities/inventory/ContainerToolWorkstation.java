@@ -13,16 +13,17 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
 
-    public ContainerToolWorkstation(TileEntityToolWorkstation te, InventoryPlayer inventory)
+    public ContainerToolWorkstation(InventoryPlayer inventoryPlayer, TileEntityToolWorkstation te)
     {
-        super(te, inventory);
+        super(inventoryPlayer, te);
+        this.addPlayerInventorySlots(8, 94);
     }
 
     @Override
-    protected void addSlots()
+    protected void addCustomInventorySlots()
     {
         // Item slot
-        this.addSlotToContainer(new SlotGeneric(this.te, 0, 8, 19));
+        this.addSlotToContainer(new SlotGeneric(this.inventory, 0, 8, 19));
 
         // Module slots
         int x = 80, y = 19;
@@ -30,7 +31,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
         {
             // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
-            this.addSlotToContainer(new SlotUpgradeModule(this.te, i, x, y, ModuleType.TYPE_ANY));
+            this.addSlotToContainer(new SlotUpgradeModule(this.inventory, i, x, y, ModuleType.TYPE_ANY));
 
             // First row done
             if (i == 5)
@@ -44,16 +45,10 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
         x = 8; y = 66;
         for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
         {
-            this.addSlotToContainer(new SlotGeneric(this.te, i + 11, x, y));
+            this.addSlotToContainer(new SlotGeneric(this.inventory, i + 11, x, y));
         }
 
         this.setUpgradeSlotTypes();
-    }
-
-    @Override
-    protected int getPlayerInventoryVerticalOffset()
-    {
-        return 94;
     }
 
     @Override

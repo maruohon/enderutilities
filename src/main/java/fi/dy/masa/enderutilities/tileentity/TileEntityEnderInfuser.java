@@ -257,9 +257,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerEnderInfuser getContainer(InventoryPlayer inventory)
+    public ContainerEnderInfuser getContainer(InventoryPlayer inventoryPlayer)
     {
-        return new ContainerEnderInfuser(this, inventory);
+        return new ContainerEnderInfuser(inventoryPlayer, this);
     }
 
     @Override

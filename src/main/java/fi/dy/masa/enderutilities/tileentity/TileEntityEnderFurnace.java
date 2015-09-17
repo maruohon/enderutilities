@@ -787,9 +787,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerEnderFurnace getContainer(InventoryPlayer inventory)
+    public ContainerEnderFurnace getContainer(InventoryPlayer inventoryPlayer)
     {
-        return new ContainerEnderFurnace(this, inventory);
+        return new ContainerEnderFurnace(inventoryPlayer, this);
     }
 
     @Override

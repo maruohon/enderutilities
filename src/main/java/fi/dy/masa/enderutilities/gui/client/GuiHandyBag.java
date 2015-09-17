@@ -53,7 +53,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
         super(container);
         this.player = container.player;
         this.container = container;
-        this.inventory = container.inventory;
+        this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSizeInventory();
         this.numModuleSlots = this.inventory.getModuleInventory().getSizeInventory();
 

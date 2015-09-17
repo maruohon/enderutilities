@@ -244,9 +244,9 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerToolWorkstation getContainer(InventoryPlayer inventory)
+    public ContainerToolWorkstation getContainer(InventoryPlayer inventoryPlayer)
     {
-        return new ContainerToolWorkstation(this, inventory);
+        return new ContainerToolWorkstation(inventoryPlayer, this);
     }
 
     @Override

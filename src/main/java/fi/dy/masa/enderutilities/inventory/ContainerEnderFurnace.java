@@ -24,17 +24,19 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
     public int outputBufferAmount;
     public boolean outputToEnderChest;
 
-    public ContainerEnderFurnace(TileEntityEnderFurnace te, InventoryPlayer inventory)
+    public ContainerEnderFurnace(InventoryPlayer inventoryPlayer, TileEntityEnderFurnace te)
     {
-        super(te, inventory);
+        super(inventoryPlayer, te);
         this.teef = te;
+        this.addPlayerInventorySlots(8, 84);
     }
 
-    protected void addSlots()
+    @Override
+    protected void addCustomInventorySlots()
     {
-        this.addSlotToContainer(new SlotGeneric(this.te, 0, 34, 17));
-        this.addSlotToContainer(new SlotGeneric(this.te, 1, 34, 53));
-        this.addSlotToContainer(new SlotFurnace(this.inventoryPlayer.player, this.te, 2, 88, 35));
+        this.addSlotToContainer(new SlotGeneric(this.inventory, 0, 34, 17));
+        this.addSlotToContainer(new SlotGeneric(this.inventory, 1, 34, 53));
+        this.addSlotToContainer(new SlotFurnace(this.inventoryPlayer.player, this.inventory, 2, 88, 35));
     }
 
     @Override

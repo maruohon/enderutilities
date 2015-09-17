@@ -24,23 +24,19 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
     public int ciCurrent; // chargeableItemCurrentCharge
     public int ciCurrentLast;
 
-    public ContainerEnderInfuser(TileEntityEnderInfuser te, InventoryPlayer inventory)
+    public ContainerEnderInfuser(InventoryPlayer inventoryPlayer, TileEntityEnderInfuser te)
     {
-        super(te, inventory);
+        super(inventoryPlayer, te);
         this.teef = te;
-    }
-
-    protected void addSlots()
-    {
-        this.addSlotToContainer(new SlotGeneric(this.te, 0, 44, 24));
-        this.addSlotToContainer(new SlotGeneric(this.te, 1, 134, 8));
-        this.addSlotToContainer(new SlotOutput(this.te, 2, 134, 66));
+        this.addPlayerInventorySlots(8, 94);
     }
 
     @Override
-    protected int getPlayerInventoryVerticalOffset()
+    protected void addCustomInventorySlots()
     {
-        return 94;
+        this.addSlotToContainer(new SlotGeneric(this.inventory, 0, 44, 24));
+        this.addSlotToContainer(new SlotGeneric(this.inventory, 1, 134, 8));
+        this.addSlotToContainer(new SlotOutput(this.inventory, 2, 134, 66));
     }
 
     @Override
