@@ -25,7 +25,7 @@ public class InventoryUtils
             ISidedInventory sided = (ISidedInventory) inv;
             int[] slots = sided.getAccessibleSlotsFromSide(side);
 
-            for (int i = 0; i < slots.length; ++i)
+            for (int i : slots)
             {
                 if (isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
                 {
