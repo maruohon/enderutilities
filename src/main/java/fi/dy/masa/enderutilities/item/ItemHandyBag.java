@@ -37,7 +37,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int DAMAGE_TIER_2 = 1;
 
     public static final int INV_SIZE_TIER_1 = 27;
-    public static final int INV_SIZE_TIER_2 = 59;
+    public static final int INV_SIZE_TIER_2 = 55;
 
     public static final int MAX_STACKSIZE_TIER_1 =   256;
     public static final int MAX_STACKSIZE_TIER_2 =  4096;

@@ -117,12 +117,20 @@ public class ContainerEnderUtilities extends Container
         return stack;
     }
 
+    /**
+     * Returns the maximum allowed stack size, based on the given ItemStack and the inventory's max stack size.
+     */
+    protected int getMaxStackSizeFromStackAndInventory(ItemStack stack)
+    {
+        return stack != null ? Math.min(stack.getMaxStackSize(), this.inventory.getInventoryStackLimit()) : this.inventory.getInventoryStackLimit();
+    }
+
     @Override
     protected boolean mergeItemStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse)
     {
         boolean successful = false;
         int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-        int maxSizeStackInv = Math.min(stack.getMaxStackSize(), this.inventory.getInventoryStackLimit());
+        int maxSizeStackInv = this.getMaxStackSizeFromStackAndInventory(stack);
         int maxSizeTmp = maxSizeStackInv;
 
         Slot slot;

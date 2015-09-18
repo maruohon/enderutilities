@@ -29,6 +29,11 @@ public class ContainerHandyBag extends ContainerEnderUtilities
     @Override
     protected void addPlayerInventorySlots(int posX, int posY)
     {
+        if (this.getBagTier() == 1)
+        {
+            posX += 40;
+        }
+
         super.addPlayerInventorySlots(posX, posY);
 
         // Player armor slots
@@ -62,7 +67,7 @@ public class ContainerHandyBag extends ContainerEnderUtilities
         }
 
         // Player crafting slots
-        posX = 98;
+        posX += 90;
         posY = 15;
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10));
 
@@ -83,6 +88,11 @@ public class ContainerHandyBag extends ContainerEnderUtilities
         int xOff = 8;
         int yOff = 102;
 
+        if (this.getBagTier() == 1)
+        {
+            xOff += 40;
+        }
+
         // The top/middle section of the bag inventory
         for (int i = 0; i < 3; i++)
         {
@@ -92,9 +102,28 @@ public class ContainerHandyBag extends ContainerEnderUtilities
             }
         }
 
-        // TODO: Add second tier bag extra slots here
+        if (this.getBagTier() == 1)
+        {
+            int xOffXtra = 8;
+            yOff = 102;
 
-        xOff = 98;
+            // Left side extra slots
+            for(int i = 0; i < 7; i++)
+            {
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 27 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 28 + i * 2, xOffXtra + 18, yOff + i * 18));
+            }
+
+            xOffXtra = 214;
+            // Right side extra slots
+            for(int i = 0; i < 7; i++)
+            {
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 41 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 42 + i * 2, xOffXtra + 18, yOff + i * 18));
+            }
+        }
+
+        xOff += 90;
         yOff = 69;
         // Note: We have to use the super class's inventory here, because this method gets called from the
         // super class constructor before our this.inventoryItemModular is assigned.
@@ -136,9 +165,11 @@ public class ContainerHandyBag extends ContainerEnderUtilities
 
     public int getBagTier()
     {
-        if (this.inventoryItemModular.getContainerItemStack() != null)
+        // We have to use the super class's inventory reference here, because this method
+        // gets called via the super class constructor.
+        if (((InventoryItemModular)this.inventory).getContainerItemStack() != null)
         {
-            return this.inventoryItemModular.getContainerItemStack().getItemDamage();
+            return ((InventoryItemModular)this.inventory).getContainerItemStack().getItemDamage() == 1 ? 1 : 0;
         }
 
         return 0;

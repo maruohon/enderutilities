@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
@@ -34,15 +35,15 @@ public class GuiHandyBag extends InventoryEffectRenderer
     protected EntityPlayer player;
     protected ContainerHandyBag container;
     protected InventoryItemModular inventory;
-    protected ResourceLocation guiTexture;
+    protected ResourceLocation textureGuiBackground;
+    protected ResourceLocation textureGuiWidgets;
     protected float mouseXFloat;
     protected float mouseYFloat;
     protected int backgroundU;
     protected int backgroundV;
     protected int invSize;
     protected int numModuleSlots;
-    protected int firstStorageSlotX;
-    protected int firstStorageSlotY;
+    protected int bagTier;
     protected int firstModuleSlotX;
     protected int firstModuleSlotY;
     protected int firstArmorSlotX;
@@ -56,11 +57,13 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSizeInventory();
         this.numModuleSlots = this.inventory.getModuleInventory().getSizeInventory();
+        this.bagTier = this.container.getBagTier();
 
-        this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.handybag." + container.getBagTier());
-        this.xSize = 176;
+        this.textureGuiBackground = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
+        this.textureGuiWidgets = ReferenceTextures.getGuiTexture("gui.container.handybag.0");
+        this.xSize = this.bagTier == 1 ? 256 : 176;
         this.ySize = 256;
-        this.backgroundU = 40;
+        this.backgroundU = this.bagTier == 1 ? 0 : 40;
         this.backgroundV = 0;
     }
 
@@ -68,8 +71,6 @@ public class GuiHandyBag extends InventoryEffectRenderer
     public void initGui()
     {
         super.initGui();
-        this.firstStorageSlotX = this.guiLeft + this.container.getSlot(0).xDisplayPosition;
-        this.firstStorageSlotY = this.guiTop  + this.container.getSlot(0).yDisplayPosition;
         this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(this.inventory.getSizeInventory()).xDisplayPosition;
         this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(this.inventory.getSizeInventory()).yDisplayPosition;
         this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
@@ -90,23 +91,24 @@ public class GuiHandyBag extends InventoryEffectRenderer
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        this.bindTexture(this.guiTexture);
+        this.bindTexture(this.textureGuiBackground);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
+
+        this.bindTexture(this.textureGuiWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected)
         if (this.inventory.isItemInventoryAccessible() == false)
         {
-            // Draw the dark background icon over the inventory slots
-            for (int row = 0; row < 3; row++)
+            // Draw the dark background icon over the disabled inventory slots
+            for (int i = 0; i < this.invSize; i++)
             {
-                for (int column = 0; column < 9; column++)
-                {
-                    this.drawTexturedModalRect(this.firstStorageSlotX - 1 + column * 18, this.firstStorageSlotY - 1 + row * 18, 0, 0, 18, 18);
-                }
+                Slot slot = this.container.getSlot(i);
+                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 0, 0, 18, 18);
             }
         }
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
+        // Draw the dark background icon over the disabled slots
         if (this.inventory.isModuleInventoryAccessible() == false)
         {
             for (int i = 0; i < this.numModuleSlots; i++)
@@ -157,16 +159,18 @@ public class GuiHandyBag extends InventoryEffectRenderer
         //GL11.glDisable(GL11.GL_LIGHTING);
         // TODO end of to-be-removed code in 1.8
 
+        int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
         // Draw the player model
-        GuiInventory.func_147046_a(this.guiLeft + 51, this.guiTop + 82, 30, this.guiLeft + 51 - this.mouseXFloat, this.guiTop + 25 - this.mouseYFloat, this.mc.thePlayer);
+        GuiInventory.func_147046_a(xOff, this.guiTop + 82, 30, xOff - this.mouseXFloat, this.guiTop + 25 - this.mouseYFloat, this.mc.thePlayer);
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("container.crafting", new Object[0]), 97, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag.storagemodules", new Object[0]), 97, 59, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag", new Object[0]), 8, 90, 0x404040);
+        int xOff = this.bagTier == 1 ? 40 : 0;
+        this.fontRendererObj.drawString(I18n.format("container.crafting", new Object[0]), xOff + 97, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag.storagemodules", new Object[0]), xOff + 97, 59, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag", new Object[0]), xOff + 8, 90, 0x404040);
     }
 
     protected void createButtons()
@@ -177,16 +181,16 @@ public class GuiHandyBag extends InventoryEffectRenderer
         int numModules = this.inventory.getModuleInventory().getSizeInventory();
         for (int i = 0; i < numModules; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.guiTexture, 0, 10));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.textureGuiWidgets, 0, 10));
         }
 
-        int x = this.firstStorageSlotX + 1;
-        int y = this.firstStorageSlotY + 54;
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.guiTexture, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.guiTexture, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 2, x + 108, y + 0, 14, 14, 214, 28, this.guiTexture, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 126, y + 0, 14, 14, 214, 42, this.guiTexture, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 144, y + 0, 14, 14, 214, 56, this.guiTexture, 14, 0));
+        int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 1;
+        int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 54;
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.textureGuiWidgets, 14, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.textureGuiWidgets, 14, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 2, x + 108, y + 0, 14, 14, 214, 28, this.textureGuiWidgets, 14, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 126, y + 0, 14, 14, 214, 42, this.textureGuiWidgets, 14, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 144, y + 0, 14, 14, 214, 56, this.textureGuiWidgets, 14, 0));
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
@@ -226,7 +230,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
 
     protected void bindTexture(ResourceLocation rl)
     {
-        this.mc.renderEngine.bindTexture(rl);
+        this.mc.getTextureManager().bindTexture(rl);
     }
 
     @Override
