@@ -31,6 +31,16 @@ public class InventoryUtils
             ISidedInventory sided = (ISidedInventory) inv;
             int[] slots = sided.getAccessibleSlotsFromSide(side);
 
+            // First try to add to existing stacks
+            for (int i : slots)
+            {
+                if (sided.getStackInSlot(i) != null && isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+
+            // Second round, try to add to any slot
             for (int i : slots)
             {
                 if (isItemStackValidForSlot(sided, stackIn, i, side) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
@@ -43,6 +53,16 @@ public class InventoryUtils
         else
         {
             int size = inv.getSizeInventory();
+            // First try to add to existing stacks
+            for (int i = 0; i < size; ++i)
+            {
+                if (inv.getStackInSlot(i) != null && isItemStackValidForSlot(inv, stackIn, i) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
+                {
+                    return true;
+                }
+            }
+
+            // Second round, try to add to any slot
             for (int i = 0; i < size; ++i)
             {
                 if (isItemStackValidForSlot(inv, stackIn, i) && tryInsertItemStackToSlot(inv, stackIn, i) == true)
