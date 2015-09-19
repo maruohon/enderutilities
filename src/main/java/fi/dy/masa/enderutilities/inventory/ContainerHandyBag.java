@@ -9,7 +9,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
-public class ContainerHandyBag extends ContainerEnderUtilities
+public class ContainerHandyBag extends ContainerLargeStacks
 {
     public final EntityPlayer player;
     public final InventoryItemModular inventoryItemModular;

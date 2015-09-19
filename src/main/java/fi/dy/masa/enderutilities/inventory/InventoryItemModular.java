@@ -333,7 +333,7 @@ public class InventoryItemModular implements IInventory
     {
         if (stack == null)
         {
-            return false;
+            return true;
         }
 
         // Don't allow putting the bag inside itself

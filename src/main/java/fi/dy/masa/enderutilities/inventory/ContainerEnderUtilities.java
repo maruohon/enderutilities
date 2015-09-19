@@ -70,7 +70,7 @@ public class ContainerEnderUtilities extends Container
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {
         ItemStack stack = null;
-        Slot slot = (Slot)this.inventorySlots.get(slotNum);
+        Slot slot = (Slot)this.getSlot(slotNum);
         int invSize = this.inventory.getSizeInventory();
 
         // Slot clicked on has items
@@ -120,9 +120,9 @@ public class ContainerEnderUtilities extends Container
     /**
      * Returns the maximum allowed stack size, based on the given ItemStack and the inventory's max stack size.
      */
-    protected int getMaxStackSizeFromStackAndInventory(ItemStack stack)
+    protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        return stack != null ? Math.min(stack.getMaxStackSize(), this.inventory.getInventoryStackLimit()) : this.inventory.getInventoryStackLimit();
+        return Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize());
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ContainerEnderUtilities extends Container
     {
         boolean successful = false;
         int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-        int maxSizeStackInv = this.getMaxStackSizeFromStackAndInventory(stack);
+        int maxSizeStackInv = 1;
         int maxSizeTmp = maxSizeStackInv;
 
         Slot slot;
@@ -141,7 +141,8 @@ public class ContainerEnderUtilities extends Container
         {
             while (stack.stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
-                slot = (Slot)this.inventorySlots.get(slotIndex);
+                slot = (Slot)this.getSlot(slotIndex);
+                maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
                 maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
                 existingStack = slot.getStack();
 
@@ -178,6 +179,7 @@ public class ContainerEnderUtilities extends Container
             while (slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
                 slot = (Slot)this.inventorySlots.get(slotIndex);
+                maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
                 maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
                 existingStack = slot.getStack();
 
