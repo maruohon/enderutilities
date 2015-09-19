@@ -607,4 +607,28 @@ public class InventoryUtils
 
         return null;
     }
+
+    /**
+     * Collects items from the inventory that are identical to stackTemplate and makes a new ItemStack
+     * out of them, up to stackSize = maxAmount. The items are collected starting from the end of the given inventory.
+     * If no matching items are found, a null ItemStack is returned.
+     */
+    public static ItemStack collectItemsFromInventory(IInventory inv, ItemStack stackTemplate, int maxAmount)
+    {
+        ItemStack stack = stackTemplate.copy();
+        stack.stackSize = 0;
+        for (int i = inv.getSizeInventory() - 1; i >= 0 && stack.stackSize < maxAmount; i--)
+        {
+            ItemStack stackTmp = inv.getStackInSlot(i);
+            if (areItemStacksEqual(stackTmp, stackTemplate) == true)
+            {
+                int num = Math.min(maxAmount - stack.stackSize, stackTmp.stackSize);
+                stack.stackSize += num;
+                stackTmp.stackSize -= num;
+                inv.setInventorySlotContents(i, stackTmp.stackSize > 0 ? stackTmp : null);
+            }
+        }
+
+        return stack.stackSize > 0 ? stack : null;
+    }
 }

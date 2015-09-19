@@ -58,7 +58,7 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
 
         // slotNum: real button: 0..8 type: 2 - hotbar number key over slot - on button down, only with empty cursor
 
-        // slotNum: -999 button: 0 type: 6 - left double-click with an empty cursor on a slot with items
+        // slotNum: real button: 0 type: 6 - left double-click with an empty cursor on a slot with items
 
         // slotNum: -999 button: 0 type: 5 - left click drag with stack in cursor start - after drag ends, as the first call
         // slotNum: real button: 1 type: 5 - left click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
@@ -340,6 +340,19 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
             {
                 slot.putStack(stackHotbar);
                 this.inventoryPlayer.setInventorySlotContents(button, stackSlot);
+            }
+        }
+        // Left double-click with an empty cursor over a slot with items
+        else if (button == 0 && type == 6)
+        {
+            if (stackCursor != null)
+            {
+                ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.inventory, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize);
+                if (stackTmp != null)
+                {
+                    stackCursor.stackSize += stackTmp.stackSize;
+                    this.inventoryPlayer.setItemStack(stackCursor);
+                }
             }
         }
         // Middle click on a slot - if the cursor is empty, take the full stack out of the slot
