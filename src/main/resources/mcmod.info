@@ -5,12 +5,14 @@
   "description": "Some random, hopefully fun, and possibly even useful utilities (Modjam 4)",
   "version": "${mod_version}",
   "mcversion": "${minecraft_version}",
-  "url": "",
+  "url": "http://minecraft.curseforge.com/mc-mods/224320-ender-utilities",
   "updateUrl": "",
   "authorList": ["masa"],
-  "credits": "",
-  "logoFile": "",
+  "credits": "masa",
+  "logoFile": "assets/enderutilities/textures/logo.png",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": [
+    "MinecraftForge"
+  ]
 }
 ]

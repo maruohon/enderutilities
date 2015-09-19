@@ -230,7 +230,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? 128 : 16; // FIXME testing, MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
+        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)

@@ -6,17 +6,21 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import codechicken.nei.guihook.IGuiSlotDraw;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -27,11 +31,12 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
-public class GuiHandyBag extends InventoryEffectRenderer
+public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
 
+    protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected EntityPlayer player;
     protected ContainerHandyBag container;
     protected InventoryItemModular inventory;
@@ -81,7 +86,11 @@ public class GuiHandyBag extends InventoryEffectRenderer
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
+        // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
+        //RenderItem ri = this.setItemRender(itemRenderCustom);
         super.drawScreen(mouseX, mouseY, gameTicks);
+        //this.setItemRender(ri);
+
         this.drawTooltips(mouseX, mouseY);
         this.mouseXFloat = (float)mouseX;
         this.mouseYFloat = (float)mouseY;
@@ -247,6 +256,28 @@ public class GuiHandyBag extends InventoryEffectRenderer
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
                     ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
+        }
+    }
+
+    protected RenderItem setItemRender(RenderItem itemRenderIn)
+    {
+        RenderItem ri = itemRender;
+        itemRender = itemRenderIn;
+        return ri;
+    }
+
+    @Override
+    public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
+    {
+        if (slot.inventory == this.inventory)
+        {
+            itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
+        }
+        else
+        {
+            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
         }
     }
 }
