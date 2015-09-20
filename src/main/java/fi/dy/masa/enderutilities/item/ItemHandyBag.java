@@ -255,19 +255,19 @@ public class ItemHandyBag extends ItemInventoryModular
                     switch(element)
                     {
                         case 0: // Move all items to Bag
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 2: // Fill stacks in player inventory from bag
-                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 3: // Move matching items to player inventory
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 4: // Move all items to player inventory
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                     }
                 }
