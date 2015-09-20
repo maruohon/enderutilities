@@ -76,16 +76,17 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     public void initGui()
     {
         super.initGui();
-        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(this.inventory.getSizeInventory()).xDisplayPosition;
-        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(this.inventory.getSizeInventory()).yDisplayPosition;
-        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
-        this.createButtons();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
+        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 5 * 18;
+        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(0).yDisplayPosition - 33;
+        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
+        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
+        this.createButtons();
+
         // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
         //RenderItem ri = this.setItemRender(itemRenderCustom);
         super.drawScreen(mouseX, mouseY, gameTicks);
