@@ -191,21 +191,27 @@ public class EnderUtilitiesItems
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 4, 50), "AGA", "ARA", "AEA", 'A', alloy0, 'G', "ingotGold", 'R', new ItemStack(Items.repeater), 'E', "dustRedstone"));
         }
-        if (Configs.disableRecipePartMemoryCardItems8b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        if (Configs.disableRecipePartMemoryCardItems6b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 51), "AGA", "ACA", "AEA", 'A', alloy1, 'G', "ingotGold", 'R', new ItemStack(Items.repeater), 'C', new ItemStack(Blocks.chest), 'E', "dustRedstone"));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 51), "AGA", "ACA", "ARA", 'A', alloy1, 'G', "ingotGold", 'C', new ItemStack(Blocks.chest), 'R', new ItemStack(Items.repeater)));
         }
-        if (Configs.disableRecipePartMemoryCardItems10b.getBoolean(false) == false
-            && Configs.disableRecipePartMemoryCardItems8b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        if (Configs.disableRecipePartMemoryCardItems8b.getBoolean(false) == false
+            && Configs.disableRecipePartMemoryCardItems6b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 52), "MM", "MM", "SS", 'M', new ItemStack(enderPart, 1, 51), 'S', "slimeball"));
             GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 51), new ItemStack(enderPart, 1, 52));
         }
-        if (Configs.disableRecipePartMemoryCardItems12b.getBoolean(false) == false
-            && Configs.disableRecipePartMemoryCardItems10b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        if (Configs.disableRecipePartMemoryCardItems10b.getBoolean(false) == false
+            && Configs.disableRecipePartMemoryCardItems8b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 53), "MM", "MM", "SS", 'M', new ItemStack(enderPart, 1, 52), 'S', "slimeball"));
             GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 52), new ItemStack(enderPart, 1, 53));
+        }
+        if (Configs.disableRecipePartMemoryCardItems12b.getBoolean(false) == false
+            && Configs.disableRecipePartMemoryCardItems10b.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 54), "MM", "MM", "SS", 'M', new ItemStack(enderPart, 1, 53), 'S', "slimeball"));
+            GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 53), new ItemStack(enderPart, 1, 54));
         }
         if (Configs.disableRecipePartMobPersistence.getBoolean(false) == false && Configs.disableItemCraftingPart.getBoolean(false) == false)
         {

@@ -29,9 +29,10 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemEnderPart extends ItemModule
 {
     public static final int MEMORY_CARD_TYPE_MISC = 0;
-    public static final int MEMORY_CARD_TYPE_ITEMS_8B  = 1;
-    public static final int MEMORY_CARD_TYPE_ITEMS_10B = 2;
-    public static final int MEMORY_CARD_TYPE_ITEMS_12B = 3;
+    public static final int MEMORY_CARD_TYPE_ITEMS_6B  = 6;
+    public static final int MEMORY_CARD_TYPE_ITEMS_8B  = 8;
+    public static final int MEMORY_CARD_TYPE_ITEMS_10B = 10;
+    public static final int MEMORY_CARD_TYPE_ITEMS_12B = 12;
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -84,9 +85,10 @@ public class ItemEnderPart extends ItemModule
             case 50: // Damage 50: Memory Card (misc)
                 return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
 
-            case 51: // Damage 51: Memory Card (items) 8 B
-            case 52: // Damage 52: Memory Card (items) 10 B
-            case 53: // Damage 53: Memory Card (items) 12 B
+            case 51: // Damage 51: Memory Card (items) 6 B
+            case 52: // Damage 52: Memory Card (items) 8 B
+            case 53: // Damage 53: Memory Card (items) 10 B
+            case 54: // Damage 54: Memory Card (items) 12 B
                 return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "." + (damage - 51);
         }
 
@@ -149,7 +151,7 @@ public class ItemEnderPart extends ItemModule
 
         int damage = stack.getItemDamage();
         NBTTagCompound nbt = stack.getTagCompound();
-        if (damage >= 50 && damage <= 53 && (nbt == null || nbt.hasNoTags() == true))
+        if (damage >= 50 && damage <= 54 && (nbt == null || nbt.hasNoTags() == true))
         {
             list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             return;
@@ -180,11 +182,10 @@ public class ItemEnderPart extends ItemModule
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
-        else if (damage >= 51 && damage <= 53) // Memory Card (items)
+        else if (damage >= 51 && damage <= 54) // Memory Card (items)
         {
             ArrayList<String> lines = new ArrayList<String>();
             int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines);
-            //else if (damage >= 51 && damage <= 53) // Memory Card (items)
             if (lines.size() > 0)
             {
                 String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
@@ -240,7 +241,7 @@ public class ItemEnderPart extends ItemModule
         }
 
         // Memory Card
-        if (stack.getItemDamage() >= 50 && stack.getItemDamage() <= 53)
+        if (stack.getItemDamage() >= 50 && stack.getItemDamage() <= 54)
         {
             return ModuleType.TYPE_MEMORY_CARD;
         }
@@ -269,10 +270,23 @@ public class ItemEnderPart extends ItemModule
             return 0;
         }
 
-        // Memory Card
+        // Memory Card (misc)
+        if (stack.getItemDamage() == 50)
+        {
+            return MEMORY_CARD_TYPE_MISC;
+        }
+
+        // Memory Card (items)
         if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD))
         {
-            return stack.getItemDamage() - 50;
+            int tier = stack.getItemDamage() - 51;
+            switch (tier)
+            {
+                case 0: return MEMORY_CARD_TYPE_ITEMS_6B;
+                case 1: return MEMORY_CARD_TYPE_ITEMS_8B;
+                case 2: return MEMORY_CARD_TYPE_ITEMS_10B;
+                case 3: return MEMORY_CARD_TYPE_ITEMS_12B;
+            }
         }
 
         return -1; // Invalid item (= non-module)
@@ -307,9 +321,10 @@ public class ItemEnderPart extends ItemModule
             list.add(new ItemStack(this, 1, 40)); // Ender Relic
             list.add(new ItemStack(this, 1, 45)); // Mob Persistence
             list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
-            list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 8 B
-            list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 10 B
-            list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 12 B
+            list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 6 B
+            list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
+            list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
+            list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
         }
     }
 
@@ -318,7 +333,7 @@ public class ItemEnderPart extends ItemModule
     public void registerIcons(IIconRegister iconRegister)
     {
         this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-        this.iconArray = new IIcon[17];
+        this.iconArray = new IIcon[18];
 
         int i = 0, j;
 
@@ -342,6 +357,7 @@ public class ItemEnderPart extends ItemModule
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC);
+        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".6b");
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".8b");
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".10b");
         this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".12b");
@@ -370,7 +386,7 @@ public class ItemEnderPart extends ItemModule
         if (damage == 21) { return this.iconArray[10]; } // Ender Rope
         if (damage == 40) { return this.iconArray[11]; } // Ender Relic
         if (damage == 45) { return this.iconArray[12]; } // Mob Persistence
-        if (damage >= 50 && damage <= 53) { return this.iconArray[damage - 37]; } // Memory Card
+        if (damage >= 50 && damage <= 54) { return this.iconArray[damage - 37]; } // Memory Card
 
         return this.itemIcon;
     }

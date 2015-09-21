@@ -4,13 +4,16 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -58,6 +61,55 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
+    {
+        super.onUpdate(stack, world, entity, slot, isCurrent);
+
+        // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
+        if (world.isRemote == false && entity instanceof EntityPlayer && this.getModeByName(stack, "RestockMode") == 1)
+        {
+            EntityPlayer player = (EntityPlayer)entity;
+            InventoryItemModular inv;
+            if (player.openContainer instanceof ContainerHandyBag)
+            {
+                inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+            }
+            else
+            {
+                inv = new InventoryItemModular(stack, (EntityPlayer)entity);
+            }
+
+            InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
+            inv.saveInventory();
+
+            //if (player.openContainer instanceof ContainerHandyBag)
+            {
+                player.openContainer.detectAndSendChanges();
+            }
+        }
+    }
+
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
+        if (player.isSneaking() == true)
+        {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (world.isRemote == false && te != null && te instanceof IInventory)
+            {
+                InventoryItemModular inv = new InventoryItemModular(stack, player);
+                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
+                inv.saveInventory();
+            }
+
+            return true;
+        }
+
+        return super.onItemUse(stack, player,world, x, y, z, side, hitX, hitY, hitZ);
+    }
+
+    @Override
     public String getUnlocalizedName(ItemStack stack)
     {
         return super.getUnlocalizedName() + "." + stack.getItemDamage();
@@ -93,26 +145,55 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
+        String preGreen = EnumChatFormatting.GREEN.toString();
+        String preYellow = EnumChatFormatting.YELLOW.toString();
+        String preRed = EnumChatFormatting.RED.toString();
+        String preWhite = EnumChatFormatting.WHITE.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+
+        String strPickupMode = StatCollector.translateToLocal("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
+        String strRestockMode = StatCollector.translateToLocal("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
+        int mode = this.getModeByName(containerStack, "PickupMode");
+        if (mode == 0)
+            strPickupMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
+        else if (mode == 1)
+            strPickupMode += preYellow + StatCollector.translateToLocal("enderutilities.tooltip.item.matching") + rst;
+        else// if (mode == 2)
+            strPickupMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.all") + rst;
+
+        mode = this.getModeByName(containerStack, "RestockMode");
+        if (mode == 0)
+            strRestockMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
+        else
+            strRestockMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + rst;
+
+        if (verbose == true)
+        {
+            list.add(strPickupMode);
+            list.add(strRestockMode);
+        }
+        else
+        {
+            list.add(strPickupMode + " / " + strRestockMode);
+        }
+
         int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
         if (installed > 0)
         {
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
             String preBlue = EnumChatFormatting.BLUE.toString();
-            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+            String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
-
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
-            //list.add(String.format("%s %s%s%s (%d / %d)%s", str, preWhite, name, rst, slotNum, max, strNo));
 
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
                 list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
 
-                ItemEnderPart module = (ItemEnderPart)moduleStack.getItem();
-                module.addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                ((ItemEnderPart)moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                return;
             }
             else
             {
@@ -138,40 +219,73 @@ public class ItemHandyBag extends ItemInventoryModular
         EntityPlayer player = event.entityPlayer;
         ItemStack bagStack = null;
         int origStackSize = event.item.getEntityItem().stackSize;
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        int numCanFit = 0;
 
+        // First check if all the items can fit into existing stacks in the player's inventory
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItemStacks(player.inventory, event.item.getEntityItem());
+        for (int slot : slots)
+        {
+            ItemStack stackTmp = player.inventory.getStackInSlot(slot);
+            int tmp = Math.min(player.inventory.getInventoryStackLimit(), stackTmp.getMaxStackSize()) - stackTmp.stackSize;
+
+            // Protect against over-full stacks messing up stuff
+            if (tmp >= 0)
+            {
+                numCanFit += tmp;
+            }
+
+            // If all the items can fit into existing stacks, then we do nothing more here
+            if (numCanFit >= origStackSize)
+            {
+                return false;
+            }
+        }
+
+        // Some items can fit to the player's inventory, but not all of them
+        if (numCanFit > 0)
+        {
+            ItemStack stackTmp = event.item.getEntityItem().copy();
+            int amount = Math.min(numCanFit, origStackSize);
+            stackTmp.stackSize = amount;
+            if (player.inventory.addItemStackToInventory(stackTmp) == false)
+            {
+                amount -= stackTmp.stackSize;
+            }
+            event.item.getEntityItem().stackSize -= amount;
+        }
+
+        // At least not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
+        slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
             bagStack = player.inventory.getStackInSlot(slot);
-            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag)
+            // Bag is not locked
+            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                // Bag is not locked, and the pickup mode is enabled
-                if (ItemHandyBag.bagIsOpenable(bagStack) == true)
-                {
-                    IInventory inv = new InventoryItemModular(bagStack, player);
-                    int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
+                IInventory inv = new InventoryItemModular(bagStack, player);
+                int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
 
-                    // Pickup mode is All, or Matching and the bag already contains the same item type
-                    if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                // Pickup mode is All, or Matching and the bag already contains the same item type
+                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                {
+                    // All items successfully inserted
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == true)
                     {
-                        // All items successfully inserted
-                        if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0) == true)
-                        {
-                            event.item.setDead();
-                            event.setCanceled(true);
-                            break;
-                        }
+                        event.item.getEntityItem().stackSize = 0;
+                        event.item.setDead();
+                        event.setCanceled(true);
+                        break;
                     }
                 }
             }
         }
 
         // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead)
+        if (event.item.getEntityItem().stackSize != origStackSize)
         {
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
             player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-            player.onItemPickup(event.item, origStackSize - event.item.getEntityItem().stackSize);
+            player.onItemPickup(event.item, origStackSize);
             return true;
         }
 
@@ -230,7 +344,19 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
+        int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+        if (moduleStack != null && moduleStack.getItem() instanceof IModule)
+        {
+            int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
+            if (tier >= 6 && tier <= 12)
+            {
+                return (int)Math.pow(2, tier);
+            }
+        }
+
+        //return containerStack.getItemDamage() == DAMAGE_TIER_2 ? MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
+        return 0;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)
@@ -353,9 +479,8 @@ public class ItemHandyBag extends ItemInventoryModular
             if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD))
             {
                 int tier = imodule.getModuleTier(moduleStack);
-                if (tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_8B ||
-                    tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_10B ||
-                    tier == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B)
+                if (tier >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
+                    tier <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B)
                 {
                     return 4;
                 }

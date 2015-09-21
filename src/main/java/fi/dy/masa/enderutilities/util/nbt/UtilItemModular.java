@@ -513,18 +513,17 @@ public class UtilItemModular
 
                     if (tmpStack != null)
                     {
+                        int stackSize = tmpStack.stackSize;
+
                         if (tag.hasKey("CountReal", Constants.NBT.TAG_INT) == true)
                         {
-                            itemCount += tag.getInteger("CountReal");
+                            stackSize = tag.getInteger("CountReal");
                         }
-                        else
-                        {
-                            itemCount += tmpStack.stackSize;
-                        }
+                        itemCount += stackSize;
 
                         String preWhite = EnumChatFormatting.WHITE.toString();
                         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-                        listLines.add(String.format("  %s%4d%s %s", preWhite, tmpStack.stackSize, rst, tmpStack.getDisplayName()));
+                        listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
                     }
                 }
             }

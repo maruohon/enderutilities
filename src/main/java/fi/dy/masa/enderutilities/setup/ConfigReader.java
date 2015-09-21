@@ -151,6 +151,7 @@ public class ConfigReader
         Configs.disableRecipePartEnderCore1       = conf.get(category, "DisableRecipePartEnderCore1", false).setRequiresMcRestart(true);
         Configs.disableRecipePartEnderCore2       = conf.get(category, "DisableRecipePartEnderCore2", false).setRequiresMcRestart(true);
         Configs.disableRecipePartMemoryCardMisc   = conf.get(category, "DisableRecipePartMemoryCardMisc", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardItems6b  = conf.get(category, "DisableRecipePartMemoryCardItems6b", false).setRequiresMcRestart(true);
         Configs.disableRecipePartMemoryCardItems8b  = conf.get(category, "DisableRecipePartMemoryCardItems8b", false).setRequiresMcRestart(true);
         Configs.disableRecipePartMemoryCardItems10b = conf.get(category, "DisableRecipePartMemoryCardItems10b", false).setRequiresMcRestart(true);
         Configs.disableRecipePartMemoryCardItems12b = conf.get(category, "DisableRecipePartMemoryCardItems12b", false).setRequiresMcRestart(true);

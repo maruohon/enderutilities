@@ -178,6 +178,14 @@ public class InventoryUtils
     }
 
     /**
+     * Tries to fill all the existing stacks in invDst from invSrc.
+     */
+    public static void fillStacksOfMatchingItems(IInventory invSrc, IInventory invDst)
+    {
+        fillStacksOfMatchingItemsWithinSlotRange(invSrc, invDst, 0, 0, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, false);
+    }
+
+    /**
      * Tries to fill all the existing stacks in invDst from invSrc within the provided slot ranges.
      */
     public static void fillStacksOfMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
@@ -329,6 +337,24 @@ public class InventoryUtils
     public static boolean tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, int side)
     {
         return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, side, 0, inv.getSizeInventory() - 1);
+    }
+
+    /**
+     * Tries to insert the given ItemStack stack to the target inventory.
+     * The method first checks for ISidedInventory and falls back to IInventory.
+     * If the whole stack was successfully inserted into the inventory, true
+     * is returned. If only some or if none of the items were inserted, false is returned.
+     * If only some of the items were inserted, then the stackSize of stackIn will be subtracted from
+     * accordingly (ie. the stack contains the remaining items after the method returns).
+     * @param inv The instance of IInventory or ISidedInventory
+     * @param stackIn The ItemStack to try and insert into the inventory
+     * @param side The side of the block we try to insert from, in case of ISidedInventory
+     * @param ignoreStackLimit Ignore the stack limit of the item, only use the inventory stack limit
+     * @return true if all items were successfully inserted, false if none or only some were
+     */
+    public static boolean tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, int side, boolean ignoreStackLimit)
+    {
+        return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, side, 0, inv.getSizeInventory() - 1, ignoreStackLimit);
     }
 
     /**

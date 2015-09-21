@@ -86,6 +86,7 @@ public class Configs
     public static Property disableRecipePartEnderCore1;
     public static Property disableRecipePartEnderCore2;
     public static Property disableRecipePartMemoryCardMisc;
+    public static Property disableRecipePartMemoryCardItems6b;
     public static Property disableRecipePartMemoryCardItems8b;
     public static Property disableRecipePartMemoryCardItems10b;
     public static Property disableRecipePartMemoryCardItems12b;
