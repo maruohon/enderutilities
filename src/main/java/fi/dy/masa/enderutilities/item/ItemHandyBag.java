@@ -70,21 +70,26 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             EntityPlayer player = (EntityPlayer)entity;
             InventoryItemModular inv;
-            if (player.openContainer instanceof ContainerHandyBag)
+            // Only re-stock stacks when the player doesn't have a GUI open
+            //if (player.openContainer == player.inventoryContainer)
             {
-                inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
-            }
-            else
-            {
-                inv = new InventoryItemModular(stack, (EntityPlayer)entity);
-            }
+                if (player.openContainer instanceof ContainerHandyBag)
+                {
+                    inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+                }
+                else
+                {
+                    inv = new InventoryItemModular(stack, (EntityPlayer)entity);
+                }
 
-            InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
-            inv.saveInventory();
+                InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
+                inv.saveInventory();
 
-            //if (player.openContainer instanceof ContainerHandyBag)
-            {
-                player.openContainer.detectAndSendChanges();
+                //if (player.openContainer instanceof ContainerHandyBag)
+                {
+                    player.openContainer.detectAndSendChanges();
+                    player.inventory.markDirty();
+                }
             }
         }
     }
@@ -216,53 +221,24 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static boolean onItemPickupEvent(EntityItemPickupEvent event)
     {
-        EntityPlayer player = event.entityPlayer;
-        ItemStack bagStack = null;
         int origStackSize = event.item.getEntityItem().stackSize;
-        int numCanFit = 0;
+        EntityPlayer player = event.entityPlayer;
 
-        // First check if all the items can fit into existing stacks in the player's inventory
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItemStacks(player.inventory, event.item.getEntityItem());
-        for (int slot : slots)
+        // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
+        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), 0, false) == 0)
         {
-            ItemStack stackTmp = player.inventory.getStackInSlot(slot);
-            int tmp = Math.min(player.inventory.getInventoryStackLimit(), stackTmp.getMaxStackSize()) - stackTmp.stackSize;
-
-            // Protect against over-full stacks messing up stuff
-            if (tmp >= 0)
-            {
-                numCanFit += tmp;
-            }
-
-            // If all the items can fit into existing stacks, then we do nothing more here
-            if (numCanFit >= origStackSize)
-            {
-                return false;
-            }
+            return false;
         }
 
-        // Some items can fit to the player's inventory, but not all of them
-        if (numCanFit > 0)
-        {
-            ItemStack stackTmp = event.item.getEntityItem().copy();
-            int amount = Math.min(numCanFit, origStackSize);
-            stackTmp.stackSize = amount;
-            if (player.inventory.addItemStackToInventory(stackTmp) == false)
-            {
-                amount -= stackTmp.stackSize;
-            }
-            event.item.getEntityItem().stackSize -= amount;
-        }
-
-        // At least not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
-        slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
-            bagStack = player.inventory.getStackInSlot(slot);
+            ItemStack bagStack = player.inventory.getStackInSlot(slot);
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                IInventory inv = new InventoryItemModular(bagStack, player);
+                InventoryItemModular inv = new InventoryItemModular(bagStack, player);
                 int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
@@ -276,6 +252,7 @@ public class ItemHandyBag extends ItemInventoryModular
                         event.setCanceled(true);
                         break;
                     }
+                    inv.saveInventory();
                 }
             }
         }
