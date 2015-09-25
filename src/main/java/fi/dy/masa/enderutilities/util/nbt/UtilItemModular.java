@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
@@ -499,6 +500,9 @@ public class UtilItemModular
     public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines)
     {
         int itemCount = 0;
+        int overflow = 0;
+        String preWhite = EnumChatFormatting.WHITE.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
 
         if (nbtTagList != null && nbtTagList.tagCount() > 0)
@@ -521,12 +525,24 @@ public class UtilItemModular
                         }
                         itemCount += stackSize;
 
-                        String preWhite = EnumChatFormatting.WHITE.toString();
-                        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-                        listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
+                        if (i < 27)
+                        {
+                            listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
+                        }
+                        else
+                        {
+                            overflow++;
+                        }
                     }
                 }
             }
+        }
+
+        if (overflow > 0)
+        {
+            String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.and");
+            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.morenotlisted");
+            listLines.add(String.format("     ... %s %s%d%s %s", str1, preWhite, overflow, rst, str2));
         }
 
         return itemCount;

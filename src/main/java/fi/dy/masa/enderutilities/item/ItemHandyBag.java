@@ -150,6 +150,11 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
+        if (containerStack.getTagCompound() == null)
+        {
+            return;
+        }
+
         String preGreen = EnumChatFormatting.GREEN.toString();
         String preYellow = EnumChatFormatting.YELLOW.toString();
         String preRed = EnumChatFormatting.RED.toString();

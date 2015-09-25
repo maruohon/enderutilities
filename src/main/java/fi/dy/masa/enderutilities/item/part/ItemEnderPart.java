@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
@@ -24,6 +25,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderPart extends ItemModule
@@ -188,10 +190,12 @@ public class ItemEnderPart extends ItemModule
             int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines);
             if (lines.size() > 0)
             {
+                NBTTagList tagList = NBTUtils.getStoredItemsList(stack);
+                int stackCount = tagList != null ? tagList.tagCount() : 0;
                 String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
                 String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
                 String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
-                list.add(String.format("%s %d %s %d %s", str1, lines.size(), str2, itemCount, str3));
+                list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
             }
             else if (damage != 50)
