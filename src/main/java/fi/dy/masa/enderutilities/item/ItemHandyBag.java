@@ -363,13 +363,16 @@ public class ItemHandyBag extends ItemInventoryModular
                         case 1: // Move matching items to Bag
                             InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
-                        case 2: // Fill stacks in player inventory from bag
+                        case 2: // Leave one stack of each item type and fill that stack
+                            InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, container.inventoryItemModular, false, false, true);
+                            break;
+                        case 3: // Fill stacks in player inventory from bag
                             InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
-                        case 3: // Move matching items to player inventory
+                        case 4: // Move matching items to player inventory
                             InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
-                        case 4: // Move all items to player inventory
+                        case 5: // Move all items to player inventory
                             InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                     }

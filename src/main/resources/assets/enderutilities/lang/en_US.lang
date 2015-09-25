@@ -150,6 +150,7 @@ enderutilities.gui.label.modulestorage=Module storage
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
 enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
 enderutilities.gui.label.fillstacks=Fill all existing stacks
+enderutilities.gui.label.leaveonefilledstack=Leave one filled stack
 enderutilities.gui.label.moveallitems= Move all items
 enderutilities.gui.label.movematchingitems=Move matching/existing items
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest

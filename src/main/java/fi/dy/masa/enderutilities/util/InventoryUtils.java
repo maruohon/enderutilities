@@ -785,4 +785,94 @@ public class InventoryUtils
 
         return stack.stackSize > 0 ? stack : null;
     }
+
+    /**
+     * Collects one stack of items that are identical to stackTemplate, and fills that stack as full as possible
+     * first from invTarget and if it's still not full, then also from invStorage.
+     * @param invTarget
+     * @param invStorage
+     * @param stackTemplate
+     * @param ignoreStackLimitOnTarget
+     * @param ignoreStackLimitOnStorage
+     * @return
+     */
+    public static ItemStack collectOneStackAndMoveOthers(IInventory invTarget, IInventory invStorage, ItemStack stackTemplate,
+        boolean ignoreStackLimitOnTarget, boolean ignoreStackLimitOnStorage)
+    {
+        int maxStackSize = invTarget.getInventoryStackLimit();
+
+        if (ignoreStackLimitOnTarget == false)
+        {
+            Math.min(maxStackSize, stackTemplate.getMaxStackSize());
+        }
+
+        // Get our initial collected stack from the target inventory
+        ItemStack stack = collectItemsFromInventory(invTarget, stackTemplate, maxStackSize);
+
+        // Move all the remaining identical items to the storage inventory
+        List<Integer> slots = getSlotNumbersOfMatchingItemStacks(invTarget, stack);
+        for (int slot : slots)
+        {
+            ItemStack stackTmp = invTarget.getStackInSlot(slot);
+            if (tryInsertItemStackToInventory(invStorage, stackTmp, 0, ignoreStackLimitOnStorage) == true)
+            {
+                invTarget.setInventorySlotContents(slot, null);
+            }
+            else
+            {
+                invTarget.setInventorySlotContents(slot, stackTmp);
+            }
+        }
+
+        // If the initial collected stack wasn't full, try to fill it from the storage inventory
+        if (stack != null && stack.stackSize < maxStackSize)
+        {
+            ItemStack stackTmp = collectItemsFromInventory(invStorage, stack, maxStackSize - stack.stackSize);
+            if (stackTmp != null)
+            {
+                stack.stackSize += stackTmp.stackSize;
+            }
+        }
+
+        return stack;
+    }
+
+    /**
+     * Loops through the invTarget inventory and leaves one stack of every item type found
+     * and moves the rest to invStorage. The stacks are also first collected from invTarget
+     * and filled as full as possible and if it's still not full, then more items are moved from invStorage.
+     * @param invTarget the target inventory that will be cleaned up and where the filled stacks are left in
+     * @param invStorage the "external" inventory where the excess items are moved to
+     * @param reverse set to true to start the looping from the end of invTarget and thus leave the last stack of each item
+     * @param ignoreStackLimitOnTarget set to true to ignore the ItemStack's stack limit and only use the inventory stack limit
+     * @param ignoreStackLimitOnSTorage set to true to ignore the ItemStack's stack limit and only use the inventory stack limit
+     */
+    public static void leaveOneFullStackOfEveryItem(IInventory invTarget, IInventory invStorage, boolean reverse,
+        boolean ignoreStackLimitOnTarget, boolean ignoreStackLimitOnStorage)
+    {
+        if (reverse == false)
+        {
+            for (int i = 0; i < invTarget.getSizeInventory(); i++)
+            {
+                ItemStack stack = invTarget.getStackInSlot(i);
+                if (stack != null)
+                {
+                    stack = collectOneStackAndMoveOthers(invTarget, invStorage, stack, ignoreStackLimitOnTarget, ignoreStackLimitOnStorage);
+                    invTarget.setInventorySlotContents(i, stack);
+                }
+            }
+        }
+        else
+        {
+            for (int i = invTarget.getSizeInventory() - 1; i >= 0; i--)
+            {
+                ItemStack stack = invTarget.getStackInSlot(i);
+                if (stack != null)
+                {
+                    stack = collectOneStackAndMoveOthers(invTarget, invStorage, stack, ignoreStackLimitOnTarget, ignoreStackLimitOnStorage);
+                    invTarget.setInventorySlotContents(i, stack);
+                }
+            }
+        }
+    }
 }
