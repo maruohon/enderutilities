@@ -137,38 +137,35 @@ public class ContainerEnderUtilities extends Container
         ItemStack existingStack;
 
         // First try to merge the stack into existing stacks in the container
-        if (stack.isStackable() == true)
+        while (stack.stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
         {
-            while (stack.stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
+            slot = (Slot)this.getSlot(slotIndex);
+            maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
+            maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
+            existingStack = slot.getStack();
+
+            if (slot.isItemValid(stack) == true && existingStack != null
+                && existingStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stack, existingStack))
             {
-                slot = (Slot)this.getSlot(slotIndex);
-                maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
-                maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
-                existingStack = slot.getStack();
+                int combinedSize = existingStack.stackSize + stack.stackSize;
 
-                if (slot.isItemValid(stack) == true && existingStack != null
-                    && existingStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stack, existingStack))
+                if (combinedSize <= maxSizeTmp)
                 {
-                    int combinedSize = existingStack.stackSize + stack.stackSize;
-
-                    if (combinedSize <= maxSizeTmp)
-                    {
-                        stack.stackSize = 0;
-                        existingStack.stackSize = combinedSize;
-                        slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
-                        return true;
-                    }
-                    else if (existingStack.stackSize < maxSizeTmp)
-                    {
-                        stack.stackSize -= maxSizeTmp - existingStack.stackSize;
-                        existingStack.stackSize = maxSizeTmp;
-                        slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
-                        successful = true;
-                    }
+                    stack.stackSize = 0;
+                    existingStack.stackSize = combinedSize;
+                    slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
+                    return true;
                 }
-
-                slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
+                else if (existingStack.stackSize < maxSizeTmp)
+                {
+                    stack.stackSize -= maxSizeTmp - existingStack.stackSize;
+                    existingStack.stackSize = maxSizeTmp;
+                    slot.putStack(existingStack); // Needed to call the setInventorySlotContents() method, which does special things on some machines
+                    successful = true;
+                }
             }
+
+            slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
         }
 
         // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
