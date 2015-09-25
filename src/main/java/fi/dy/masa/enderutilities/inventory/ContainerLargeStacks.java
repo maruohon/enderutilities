@@ -288,10 +288,10 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
         // Shift left click or shift right click, they both do the same
         else if (type == 1 && (button == 0 || button == 1))
         {
-            int max = stackSlot.getMaxStackSize();
             // Only transfer a maximum of one regular stack
-            if (stackSlot != null && stackSlot.stackSize > max)
+            if (stackSlot != null && stackSlot.stackSize > stackSlot.getMaxStackSize())
             {
+                int max = stackSlot.getMaxStackSize();
                 int sizeOrig = stackSlot.stackSize;
                 ItemStack stackTmp = stackSlot.copy();
                 stackSlot.stackSize = max;
