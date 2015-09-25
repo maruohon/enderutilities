@@ -116,6 +116,12 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
                 this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 0, 0, 18, 18);
             }
         }
+        // Draw the colored background for the selected slot (for swapping), if any
+        else if (this.container.getSelectedSlot() != -1)
+        {
+            Slot slot = this.container.getSlot(this.container.getSelectedSlot());
+            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 0, 18, 18, 18);
+        }
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
         // Draw the dark background icon over the disabled slots

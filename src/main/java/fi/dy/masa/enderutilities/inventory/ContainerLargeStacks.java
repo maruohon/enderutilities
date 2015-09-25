@@ -15,10 +15,16 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
     protected boolean isDragging;
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
+    protected int selectedSlot = -1;
 
     public ContainerLargeStacks(InventoryPlayer inventoryPlayer, IInventory inventory)
     {
         super(inventoryPlayer, inventory);
+    }
+
+    public int getSelectedSlot()
+    {
+        return this.selectedSlot;
     }
 
     @Override
@@ -389,9 +395,30 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
                 }
             }
         }
-        // Middle click on a slot - if the cursor is empty, take the full stack out of the slot
+        // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
         else if (button == 2 && type == 3)
         {
+            // Only allow swapping in the "this" inventory (that supports the large stacks)
+            if (slotNum >= 0 && slotNum < this.inventorySlots.size() && this.getSlot(slotNum).isSlotInInventory(this.inventory, slotNum) == true)
+            {
+                if (this.selectedSlot != -1)
+                {
+                    // Don't swap with self
+                    if (this.selectedSlot != slotNum)
+                    {
+                        ItemStack stackTmp = this.getSlot(slotNum).getStack();
+                        this.getSlot(slotNum).putStack(this.getSlot(this.selectedSlot).getStack());
+                        this.getSlot(this.selectedSlot).putStack(stackTmp);
+                    }
+                    this.selectedSlot = -1;
+                }
+                else
+                {
+                    this.selectedSlot = slotNum;
+                }
+            }
+
+            // Middle click on a slot - if the cursor is empty, take the full stack out of the slot
             // FIXME: Stacks with stackSize > 100 reset to stackSize = 1 when picked up
             /*if (stackCursor == null)
             {
