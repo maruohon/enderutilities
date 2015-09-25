@@ -803,7 +803,7 @@ public class InventoryUtils
 
         if (ignoreStackLimitOnTarget == false)
         {
-            Math.min(maxStackSize, stackTemplate.getMaxStackSize());
+            maxStackSize = Math.min(maxStackSize, stackTemplate.getMaxStackSize());
         }
 
         // Get our initial collected stack from the target inventory
