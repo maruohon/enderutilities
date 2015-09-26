@@ -587,7 +587,7 @@ public class UtilItemModular
      * @param slotNum
      * @return the position of the stack in slot slotNum in the list, or -1 if it doesn't exist in the list
      */
-    public static int getPositionOfStackInSlot(NBTTagList nbtTagList, int slotNum)
+    public static int getListPositionOfStackInSlot(NBTTagList nbtTagList, int slotNum)
     {
         int size = nbtTagList.tagCount();
         for (int i = 0; i < size; i++)
@@ -607,43 +607,41 @@ public class UtilItemModular
      * The items will be written inside a TAG_Compound named "Items".
      * @param containerStack
      * @param items
+     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
-    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items)
+    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, boolean keepExtraSlots)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
-        if (nbtTagList == null)
-        {
-            nbtTagList = new NBTTagList();
-        }
+        NBTTagList nbtTagList = new NBTTagList();
 
         int invSlots = items.length;
         // Write all the ItemStacks into a TAG_List
         for (int slotNum = 0; slotNum < invSlots && slotNum <= 127; ++slotNum)
         {
-            int pos = getPositionOfStackInSlot(nbtTagList, slotNum);
-
             if (items[slotNum] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setByte("Slot", (byte)slotNum);
                 tag.setInteger("CountReal", items[slotNum].stackSize);
                 items[slotNum].writeToNBT(tag);
-
-                // No ItemStack exists with the same slot number, append a new tag
-                if (pos == -1)
-                {
-                    nbtTagList.appendTag(tag);
-                }
-                // Existing stack found with the same slot number, replace the old
-                else
-                {
-                    nbtTagList.func_150304_a(pos, tag);
-                }
+                nbtTagList.appendTag(tag);
             }
-            // There was previously a stack in the current slot but not anymore, remove the old stack
-            else if (pos >= 0 && pos < nbtTagList.tagCount())
+        }
+
+        if (keepExtraSlots == true)
+        {
+            // Read the old items and append any existing items that are outside the current written slot range
+            NBTTagList nbtTagListExisting = NBTUtils.getStoredItemsList(containerStack);
+            if (nbtTagListExisting != null)
             {
-                nbtTagList.removeTag(pos);
+                for (int i = 0; i < nbtTagListExisting.tagCount(); i++)
+                {
+                    NBTTagCompound tag = nbtTagListExisting.getCompoundTagAt(i);
+                    byte slotNum = tag.getByte("Slot");
+                    if (slotNum >= invSlots && slotNum <= 127)
+                    {
+                        nbtTagList.appendTag(tag);
+                    }
+                }
             }
         }
 

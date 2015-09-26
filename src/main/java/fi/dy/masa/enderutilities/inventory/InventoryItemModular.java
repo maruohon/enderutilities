@@ -152,7 +152,7 @@ public class InventoryItemModular implements IInventory
     {
         if (this.getSelectedStorageModuleStack() != null)
         {
-            UtilItemModular.writeItemsToContainerItem(this.getSelectedStorageModuleStack(), this.storedItems);
+            UtilItemModular.writeItemsToContainerItem(this.getSelectedStorageModuleStack(), this.storedItems, true);
         }
     }
 

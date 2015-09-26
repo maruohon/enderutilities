@@ -61,7 +61,7 @@ public class InventoryItemModularModules implements IInventory
         ItemStack containerStack = this.containerInventory.getContainerItemStack();
         if (containerStack != null)
         {
-            UtilItemModular.writeItemsToContainerItem(containerStack, this.storageModules);
+            UtilItemModular.writeItemsToContainerItem(containerStack, this.storageModules, true);
         }
     }
 
