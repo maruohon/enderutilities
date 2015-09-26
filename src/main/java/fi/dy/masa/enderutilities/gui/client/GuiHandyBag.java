@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import codechicken.nei.guihook.IGuiSlotDraw;
+import cpw.mods.fml.common.Optional;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
@@ -30,7 +31,9 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.ModRegistry;
 
+@Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
 public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
@@ -87,10 +90,17 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
         this.createButtons();
 
-        // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
-        //RenderItem ri = this.setItemRender(itemRenderCustom);
-        super.drawScreen(mouseX, mouseY, gameTicks);
-        //this.setItemRender(ri);
+        if (ModRegistry.isModLoadedNEI() == false)
+        {
+            // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
+            RenderItem ri = this.setItemRender(itemRenderCustom);
+            super.drawScreen(mouseX, mouseY, gameTicks);
+            this.setItemRender(ri);
+        }
+        else
+        {
+            super.drawScreen(mouseX, mouseY, gameTicks);
+        }
 
         this.drawTooltips(mouseX, mouseY);
         this.mouseXFloat = (float)mouseX;
@@ -279,6 +289,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         return ri;
     }
 
+    @Optional.Method(modid = "NotEnoughItems")
     @Override
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {

@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
@@ -49,6 +50,7 @@ public class EnderUtilities
         proxy.registerKeyBindings();
         proxy.registerRenderers();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
+        ModRegistry.checkLoadedMods();
     }
 
     @EventHandler
