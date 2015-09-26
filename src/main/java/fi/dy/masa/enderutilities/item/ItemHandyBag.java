@@ -356,7 +356,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
                     container.inventoryItemModular.updateContainerItems();
                 }
-                else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 5)
+                else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {
                     int bagMaxSlot = container.inventoryItemModular.getSizeInventory() - 1;
                     int playerMaxSlot = player.inventory.getSizeInventory() - 5;
