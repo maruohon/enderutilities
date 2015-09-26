@@ -162,8 +162,21 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
                 // Trying to put items to the slot
                 if (stackCursor != null)
                 {
+                    // Putting items into an empty slot
+                    if (stackSlot == null)
+                    {
+                        if (slot.isItemValid(stackCursor) == true)
+                        {
+                            int num = Math.min(stackCursor.stackSize, slot.getSlotStackLimit());
+                            ItemStack stackTmp = stackCursor.copy();
+                            stackTmp.stackSize = num;
+                            stackCursor.stackSize -= num;
+                            slot.putStack(stackTmp);
+                            this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
+                        }
+                    }
                     // Matching items in cursor and the clicked on slot
-                    if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
+                    else if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
                     {
                         int num = Math.min(slot.getSlotStackLimit() - stackSlot.stackSize, stackCursor.stackSize);
                         if (num > 0)
