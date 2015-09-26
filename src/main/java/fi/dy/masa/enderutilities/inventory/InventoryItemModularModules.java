@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModularModules implements IInventory
@@ -165,7 +166,13 @@ public class InventoryItemModularModules implements IInventory
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        return (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD));
+        if (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD))
+        {
+            IModule module = (IModule)stack.getItem();
+            return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B && module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
+        }
+
+        return false;
     }
 
     @Override
