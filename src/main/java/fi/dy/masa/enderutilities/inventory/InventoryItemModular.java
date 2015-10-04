@@ -3,56 +3,41 @@ package fi.dy.masa.enderutilities.inventory;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class InventoryItemModular implements IInventory
+public class InventoryItemModular extends InventoryItem
 {
     protected EntityPlayer player;
-    public boolean isRemote;
-
     protected UUID containerItemUUID;
-    /** The ItemStacks containing the stored items inside the selected storage module */
-    protected ItemStack[] storedItems;
-    protected InventoryItemModularModules moduleInventory;
+    protected InventoryItem moduleInventory;
+    protected int moduleInvSize;
+    protected ModuleType moduleType;
 
-    public InventoryItemModular(ItemStack containerStack, EntityPlayer player)
+    public InventoryItemModular(ItemStack stack, EntityPlayer player)
     {
+        this(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), player, ((IModular)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD), ModuleType.TYPE_MEMORY_CARD);
+    }
+
+    public InventoryItemModular(ItemStack stack, int invSize, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
+    {
+        super(stack, invSize, player.worldObj, player);
         this.player = player;
-        this.isRemote = player.worldObj.isRemote;
-        this.containerItemUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
-        this.moduleInventory = new InventoryItemModularModules(this, player);
+        this.moduleInvSize = moduleInvSize;
+        this.moduleType = moduleType;
 
-        // Call these directly here so that the ItemStack arrays get created on the client side
-        this.moduleInventory.readStorageModulesFromContainerItem();
-        this.readItemsFromStorageModule();
-    }
+        this.containerItemUUID = NBTUtils.getOrCreateUUIDFromItemStack(stack, "UUID");
+        this.moduleInventory = new InventoryItemMemoryCard(this, moduleInvSize, player.worldObj, player);
 
-    public InventoryItemModularModules getModuleInventory()
-    {
-        return this.moduleInventory;
-    }
-
-    /**
-     * (Re-)reads all the storage modules from the container item and then the inventory contents
-     * from the selected storage module.
-     */
-    public void updateContainerItems()
-    {
-        if (this.isRemote == false)
-        {
-            this.moduleInventory.readStorageModulesFromContainerItem();
-            this.readItemsFromStorageModule();
-        }
+        this.readFromItem();
     }
 
     public UUID getContainerUUID()
@@ -60,42 +45,44 @@ public class InventoryItemModular implements IInventory
         return this.containerItemUUID;
     }
 
-    /**
-     * Saves the inventory to the storage module and then the storage modules to the container item
-     */
-    public void saveInventory()
+    public InventoryItem getModuleInventory()
     {
-        if (this.isRemote == false)
-        {
-            this.writeItemsToStorageModule();
-            this.moduleInventory.writeStorageModulesToContainerItem();
-        }
+        return this.moduleInventory;
     }
 
     /**
-     * Initializes the inventory's ItemStack storage and reads the ItemStacks from the selected storage module
+     * Returns the ItemStack of the modular item (ie. not the stack that actually stores the items,
+     * in this inventory, that stack is stored as a module inside the modular item)
      */
-    public void readItemsFromStorageModule()
+    public ItemStack getModularItemStack()
     {
-        ItemStack containerStack = this.getContainerItemStack();
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        return InventoryUtils.getItemStackByUUID(this.player.inventory, this.containerItemUUID, "UUID");
+    }
+
+    @Override
+    protected ItemStack getContainerItemStack()
+    {
+        ItemStack modularStack = this.getModularItemStack();
+        if (modularStack != null)
         {
-            this.storedItems = new ItemStack[((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack)];
-        }
-        else
-        {
-            this.storedItems = new ItemStack[0];
+            return this.moduleInventory.getStackInSlot(UtilItemModular.getStoredModuleSelection(modularStack, this.moduleType));
         }
 
-        ItemStack storageStack = this.getSelectedStorageModuleStack();
-        if (storageStack != null)
-        {
-            NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(storageStack);
-            if (ownerData == null || ownerData.canAccess(this.player) == true)
-            {
-                UtilItemModular.readItemsFromContainerItem(storageStack, this.storedItems);
-            }
-        }
+        return null;
+    }
+
+    @Override
+    public void readFromItem()
+    {
+        this.moduleInventory.readFromItem();
+        super.readFromItem();
+    }
+
+    @Override
+    public void writeToItem()
+    {
+        super.writeToItem();
+        this.moduleInventory.writeToItem();
     }
 
     /**
@@ -104,10 +91,10 @@ public class InventoryItemModular implements IInventory
      */
     public int getSelectedStorageModuleIndex()
     {
-        ItemStack containerStack = this.getContainerItemStack();
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        ItemStack modularStack = this.getModularItemStack();
+        if (modularStack != null && modularStack.getItem() instanceof ItemInventoryModular)
         {
-            return UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            return UtilItemModular.getStoredModuleSelection(modularStack, this.moduleType);
         }
 
         return -1;
@@ -126,13 +113,13 @@ public class InventoryItemModular implements IInventory
     {
         // Can only store items when there is a valid storage module (= Memory Card) installed
         // and currently selected and the player has access rights to it.
-        ItemStack storageStack = this.getSelectedStorageModuleStack();
-        if (storageStack == null)
+        ItemStack moduleStack = this.getSelectedStorageModuleStack();
+        if (moduleStack == null)
         {
             return false;
         }
 
-        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(storageStack);
+        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
         return ownerData == null || ownerData.canAccess(this.player) == true;
     }
 
@@ -142,178 +129,63 @@ public class InventoryItemModular implements IInventory
      */
     public boolean isModuleInventoryAccessible()
     {
-        return this.getContainerItemStack() != null;
-    }
-
-    /**
-     * Writes the inventory contents to the selected storage module, and then writes that updated storage module to the container item
-     */
-    protected void writeItemsToStorageModule()
-    {
-        if (this.getSelectedStorageModuleStack() != null)
-        {
-            UtilItemModular.writeItemsToContainerItem(this.getSelectedStorageModuleStack(), this.storedItems, true);
-        }
-    }
-
-    /**
-     * Returns the ItemStack holding the container item
-     */
-    public ItemStack getContainerItemStack()
-    {
-        return InventoryUtils.getItemStackByUUID(this.player.inventory, this.containerItemUUID, "UUID");
+        return this.getModularItemStack() != null;
     }
 
     @Override
     public boolean hasCustomInventoryName()
     {
-        if (this.getSelectedStorageModuleStack() != null && this.getSelectedStorageModuleStack().hasDisplayName())
+        ItemStack moduleStack = this.getSelectedStorageModuleStack();
+        if (moduleStack != null && moduleStack.hasDisplayName())
         {
             return true;
         }
 
-        ItemStack containerStack = this.getContainerItemStack();
-        return containerStack != null ? containerStack.hasDisplayName() : false;
+        ItemStack modularStack = this.getModularItemStack();
+        return modularStack != null ? modularStack.hasDisplayName() : false;
     }
 
     @Override
     public String getInventoryName()
     {
+        ItemStack moduleStack = this.getSelectedStorageModuleStack();
         // First check if the selected storage module has been named, and use that name
-        if (this.getSelectedStorageModuleStack() != null && this.getSelectedStorageModuleStack().hasDisplayName())
+        if (moduleStack != null && moduleStack.hasDisplayName())
         {
-            return this.getSelectedStorageModuleStack().getDisplayName();
+            return moduleStack.getDisplayName();
         }
 
-        ItemStack containerStack = this.getContainerItemStack();
+        ItemStack modularStack = this.getModularItemStack();
         // If the storage module didn't have a name, but the item itself does, then use that name
-        if (containerStack != null && containerStack.hasDisplayName())
+        if (modularStack != null && modularStack.hasDisplayName())
         {
-            return containerStack.getDisplayName();
+            return modularStack.getDisplayName();
         }
 
-        if (containerStack.getItem() instanceof ItemEnderUtilities)
+        if (modularStack.getItem() instanceof ItemEnderUtilities)
         {
-            return Reference.MOD_ID + ".container." + ((ItemEnderUtilities)containerStack.getItem()).name;
+            return Reference.MOD_ID + ".container." + ((ItemEnderUtilities)modularStack.getItem()).name;
         }
 
         return Reference.MOD_ID + ".container.null";
     }
 
     @Override
-    public int getSizeInventory()
-    {
-        ItemStack containerStack = this.getContainerItemStack();
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
-        {
-            // The actual inventory size for stored items
-            return ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack);
-        }
-        return 0;
-    }
-
-    @Override
     public int getInventoryStackLimit()
     {
-        ItemStack containerStack = this.getContainerItemStack();
-        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
+        ItemStack modularStack = this.getModularItemStack();
+        if (modularStack != null && modularStack.getItem() instanceof ItemInventoryModular)
         {
-            return ((ItemInventoryModular)containerStack.getItem()).getInventoryStackLimit(containerStack);
+            return ((ItemInventoryModular)modularStack.getItem()).getInventoryStackLimit(modularStack);
         }
 
         return 64;
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
-    {
-        ItemStack stack = null;
-        if (slotNum < this.storedItems.length)
-        {
-            stack = this.storedItems[slotNum];
-            this.storedItems[slotNum] = null;
-        }
-
-        //this.writeItemsToStorageModule();
-        return stack;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slotNum)
-    {
-        if (slotNum < this.storedItems.length)
-        {
-            return this.storedItems[slotNum];
-        }
-        else
-        {
-            //EnderUtilities.logger.warn("InventoryItemModular.getStackInSlot(): Invalid slot number: " + slotNum);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ItemStack decrStackSize(int slotNum, int maxAmount)
-    {
-        //EnderUtilities.logger.info("InventoryItemModular.decrStackSize(" + slotNum + ", " + maxAmount + ")");
-        ItemStack stack = null;
-
-        if (slotNum < this.storedItems.length)
-        {
-            if (this.storedItems[slotNum] != null)
-            {
-                if (this.storedItems[slotNum].stackSize >= maxAmount)
-                {
-                    stack = this.storedItems[slotNum].splitStack(maxAmount);
-
-                    if (this.storedItems[slotNum].stackSize <= 0)
-                    {
-                        this.storedItems[slotNum] = null;
-                    }
-                }
-                else
-                {
-                    stack = this.storedItems[slotNum];
-                    this.storedItems[slotNum] = null;
-                }
-            }
-        }
-        else
-        {
-            //EnderUtilities.logger.warn("InventoryItemModular.decrStackSize(): Invalid slot number: " + slotNum);
-        }
-
-        this.saveInventory();
-
-        return stack;
-    }
-
-    @Override
-    public void setInventorySlotContents(int slotNum, ItemStack newStack)
-    {
-        if (slotNum < this.storedItems.length)
-        {
-            this.storedItems[slotNum] = newStack;
-        }
-        else
-        {
-            //EnderUtilities.logger.warn("InventoryItemModular.setInventorySlotContents(): Invalid slot number: " + slotNum);
-        }
-
-        this.saveInventory();
-    }
-
-    @Override
     public void markDirty()
     {
         this.moduleInventory.markDirty();
-    }
-
-    @Override
-    public boolean isUseableByPlayer(EntityPlayer player)
-    {
-        return true;
     }
 
     @Override
@@ -336,10 +208,9 @@ public class InventoryItemModular implements IInventory
             return true;
         }
 
-        // Don't allow putting the bag inside itself
-        //if (this.containerItemUUID.equals(NBTUtils.getUUIDFromItemStack(stack, "UUID")))
-        // Don't allow putting any Handy Bags inside other Handy Bags
-        if (stack.getItem() == EnderUtilitiesItems.handyBag)
+        ItemStack modularStack = this.getModularItemStack();
+        // Don't allow nesting the same type of items as the container item inside itself
+        if (modularStack != null && modularStack.getItem() == stack.getItem())
         {
             return false;
         }

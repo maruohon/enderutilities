@@ -167,9 +167,9 @@ public class ContainerHandyBag extends ContainerLargeStacks
     {
         // We have to use the super class's inventory reference here, because this method
         // gets called via the super class constructor.
-        if (((InventoryItemModular)this.inventory).getContainerItemStack() != null)
+        if (((InventoryItemModular)this.inventory).getModularItemStack() != null)
         {
-            return ((InventoryItemModular)this.inventory).getContainerItemStack().getItemDamage() == 1 ? 1 : 0;
+            return ((InventoryItemModular)this.inventory).getModularItemStack().getItemDamage() == 1 ? 1 : 0;
         }
 
         return 0;
@@ -201,13 +201,14 @@ public class ContainerHandyBag extends ContainerLargeStacks
     @Override
     public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
     {
-        ItemStack containerStackPre = this.inventoryItemModular.getContainerItemStack();
+        ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
 
         ItemStack stack = super.slotClick(slotNum, key, type, player);
 
-        if (containerStackPre != this.inventoryItemModular.getContainerItemStack())
+        // The Bag's stack changed to or from null, re-read the inventory contents.
+        if (modularStackPre != this.inventoryItemModular.getModularItemStack())
         {
-            this.inventoryItemModular.updateContainerItems();
+            this.inventoryItemModular.readFromItem();
         }
 
         this.detectAndSendChanges();

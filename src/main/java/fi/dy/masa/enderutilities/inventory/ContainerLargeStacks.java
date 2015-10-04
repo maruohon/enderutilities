@@ -430,23 +430,6 @@ public abstract class ContainerLargeStacks extends ContainerEnderUtilities
                     this.selectedSlot = slotNum;
                 }
             }
-
-            // Middle click on a slot - if the cursor is empty, take the full stack out of the slot
-            // FIXME: Stacks with stackSize > 100 reset to stackSize = 1 when picked up
-            /*if (stackCursor == null)
-            {
-                if (this.inventoryPlayer.player.capabilities.isCreativeMode == true)
-                {
-                    stackCursor = stackSlot.copy();
-                    stackCursor.stackSize = stackCursor.getMaxStackSize();
-                    this.inventoryPlayer.setItemStack(stackCursor);
-                }
-                else if (stackSlot != null)
-                {
-                    this.inventoryPlayer.setItemStack(stackSlot);
-                    slot.putStack(null);
-                }
-            }*/
         }
 
         return null;

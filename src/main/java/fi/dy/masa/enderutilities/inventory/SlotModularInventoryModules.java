@@ -1,16 +1,14 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 public class SlotModularInventoryModules extends Slot
 {
-    protected InventoryItemModularModules inventoryModules;
-
-    public SlotModularInventoryModules(InventoryItemModularModules inventory, int slot, int posX, int posY)
+    public SlotModularInventoryModules(IInventory inventory, int slot, int posX, int posY)
     {
         super(inventory, slot, posX, posY);
-        this.inventoryModules = inventory;
     }
 
     @Override
@@ -26,7 +24,7 @@ public class SlotModularInventoryModules extends Slot
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return this.inventoryModules.isItemValidForSlot(this.slotNumber, stack);
+        return this.inventory.isItemValidForSlot(this.slotNumber, stack);
     }
 
     /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes

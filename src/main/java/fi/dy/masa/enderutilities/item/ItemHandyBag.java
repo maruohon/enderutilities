@@ -83,7 +83,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
 
                 InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
-                inv.saveInventory();
+                inv.writeToItem();
 
                 //if (player.openContainer instanceof ContainerHandyBag)
                 {
@@ -105,7 +105,7 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 InventoryItemModular inv = new InventoryItemModular(stack, player);
                 InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
-                inv.saveInventory();
+                inv.writeToItem();
             }
 
             return true;
@@ -257,7 +257,7 @@ public class ItemHandyBag extends ItemInventoryModular
                         event.setCanceled(true);
                         break;
                     }
-                    inv.saveInventory();
+                    inv.writeToItem();
                 }
             }
         }
@@ -346,7 +346,7 @@ public class ItemHandyBag extends ItemInventoryModular
         if (player.openContainer instanceof ContainerHandyBag)
         {
             ContainerHandyBag container = (ContainerHandyBag)player.openContainer;
-            ItemStack containerStack = container.inventoryItemModular.getContainerItemStack();
+            ItemStack containerStack = container.inventoryItemModular.getModularItemStack();
             if (containerStack != null && containerStack.getItem() == EnderUtilitiesItems.handyBag)
             {
                 int max = ((ItemHandyBag)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
@@ -354,7 +354,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
                     UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
-                    container.inventoryItemModular.updateContainerItems();
+                    container.inventoryItemModular.readFromItem();
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {
@@ -451,7 +451,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD) ? 4 : 0;
+        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD) ? this.getMaxModules(containerStack) : 0;
     }
 
     @Override

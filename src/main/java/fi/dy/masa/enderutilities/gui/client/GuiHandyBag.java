@@ -293,6 +293,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     @Override
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
+        // Slot is in the bag's inventory, render using the smaller font for stack size
         if (slot.inventory == this.inventory)
         {
             itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
