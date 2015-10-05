@@ -24,7 +24,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     public static final int SLOT_MODULE_STORAGE_START = 11;
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
-    private static final int[] SLOTS = new int[0];
 
     public TileEntityToolWorkstation()
     {
@@ -226,19 +225,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
-    {
-        return SLOTS;
-    }
-
-    @Override
     public boolean canInsertItem(int slotNum, ItemStack itemStack, int side)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean canExtractItem(int slotNum, ItemStack itemStack, int side)
     {
         return false;
     }

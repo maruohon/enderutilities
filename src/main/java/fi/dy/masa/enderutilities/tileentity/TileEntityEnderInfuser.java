@@ -238,18 +238,6 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public boolean canInsertItem(int slot, ItemStack stack, int side)
-    {
-        // Not allowed to insert into the output slot
-        if (slot == 2)
-        {
-            return false;
-        }
-
-        return this.isItemValidForSlot(slot, stack);
-    }
-
-    @Override
     public boolean canExtractItem(int slot, ItemStack stack, int side)
     {
         // Only allow pulling out items from the output slot
