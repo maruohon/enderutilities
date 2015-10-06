@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -25,7 +24,7 @@ import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implements ITileEntityProvider
+public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
     public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
     public int blockIndex;
@@ -44,12 +43,18 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities implement
     }
 
     @Override
-    public TileEntity createNewTileEntity(World world, int meta)
+    public boolean hasTileEntity(int metadata)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, meta);
+        return true;
+    }
+
+    @Override
+    public TileEntity createTileEntity(World world, int metadata)
+    {
+        Machine machine = Machine.getMachine(this.blockIndex, metadata);
         if (machine != null)
         {
-            return machine.createNewTileEntity();
+            return machine.createTileEntity();
         }
 
         return null;

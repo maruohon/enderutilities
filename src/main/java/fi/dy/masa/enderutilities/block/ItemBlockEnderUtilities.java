@@ -12,7 +12,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemBlockEnderUtilities extends ItemBlock
 {
@@ -41,7 +41,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
     {
         if (this.blockNames != null && stack.getItemDamage() < this.blockNames.length)
         {
-            return "tile." + Reference.MOD_ID + "." + this.blockNames[stack.getItemDamage()];
+            return "tile." + ReferenceNames.getPrefixedName(this.blockNames[stack.getItemDamage()]);
         }
 
         return super.getUnlocalizedName(stack);

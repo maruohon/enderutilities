@@ -82,7 +82,7 @@ public class Machine
         return machines.get((blockIndex << 4) | (meta & 0x0F));
     }
 
-    public TileEntity createNewTileEntity()
+    public TileEntity createTileEntity()
     {
         try
         {
@@ -107,12 +107,7 @@ public class Machine
      */
     public boolean isTileEntityValid(TileEntity te)
     {
-        if (te != null && te.getClass() == this.tileEntityClass)
-        {
-            return true;
-        }
-
-        return false;
+        return te != null && te.getClass() == this.tileEntityClass;
     }
 
     /**
