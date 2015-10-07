@@ -278,7 +278,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         else if (button.id >= BTN_ID_FIRST_MOVE_ITEMS && button.id <= (BTN_ID_FIRST_MOVE_ITEMS + 5))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
-                    ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
         }
     }
 

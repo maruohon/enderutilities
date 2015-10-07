@@ -8,8 +8,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class ContainerHandyBag extends ContainerLargeStacks
+public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
     public final EntityPlayer player;
     public final InventoryItemModular inventoryItemModular;
@@ -23,6 +24,7 @@ public class ContainerHandyBag extends ContainerLargeStacks
         this.player = player;
         this.inventoryItemModular = inventory;
 
+        this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);
     }
 
@@ -125,21 +127,25 @@ public class ContainerHandyBag extends ContainerLargeStacks
 
         xOff += 90;
         yOff = 69;
-        // Note: We have to use the super class's inventory here, because this method gets called from the
-        // super class constructor before our this.inventoryItemModular is assigned.
-        int moduleSlots = ((InventoryItemModular)this.inventory).getModuleInventory().getSizeInventory();
+        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSizeInventory();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new SlotModularInventoryModules(((InventoryItemModular)this.inventory).getModuleInventory(), i, xOff + i * 18, yOff));
+            this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
         }
     }
 
     @Override
-    protected int getNumMergableSlots()
+    public ItemStack getModularItem()
+    {
+        return this.inventoryItemModular.getModularItemStack();
+    }
+
+    @Override
+    protected int getNumMergableSlots(int invSize)
     {
         // Our inventory, player item inventory and armor slots
-        return this.inventory.getSizeInventory() + 40;
+        return invSize + this.inventoryPlayer.getSizeInventory();
     }
 
     @Override
@@ -167,9 +173,9 @@ public class ContainerHandyBag extends ContainerLargeStacks
     {
         // We have to use the super class's inventory reference here, because this method
         // gets called via the super class constructor.
-        if (((InventoryItemModular)this.inventory).getModularItemStack() != null)
+        if (this.inventoryItemModular.getModularItemStack() != null)
         {
-            return ((InventoryItemModular)this.inventory).getModularItemStack().getItemDamage() == 1 ? 1 : 0;
+            return this.inventoryItemModular.getModularItemStack().getItemDamage() == 1 ? 1 : 0;
         }
 
         return 0;

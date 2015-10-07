@@ -7,7 +7,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.SlotUpgradeModule;
+import fi.dy.masa.enderutilities.inventory.SlotModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
@@ -22,7 +22,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
 
     protected int getModuleBackgroundOffset(ModuleType moduleType)
     {
-        if (moduleType == null)
+        if (moduleType.equals(ModuleType.TYPE_INVALID) || moduleType.equals(ModuleType.TYPE_ANY))
         {
             return -1;
         }
@@ -50,10 +50,10 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
         int y = (this.height - this.ySize) / 2;
         int maxModules = 0;
 
-        ItemStack toolStack = this.inventorySlots.getSlot(0).getStack();
+        ItemStack toolStack = this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM).getStack();
         if (toolStack != null && toolStack.getItem() instanceof IModular)
         {
-            maxModules = ((IModular) toolStack.getItem()).getMaxModules(toolStack);
+            maxModules = ((IModular)toolStack.getItem()).getMaxModules(toolStack);
         }
         // No tool in the tool slot, draw the background
         else
@@ -62,19 +62,19 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
         }
 
         // Module slots
-        for (int i = 1, dx = 79, dy = 18; i <= 10; dx += 18, i++)
+        for (int i = 0, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
         {
             Slot slot = this.inventorySlots.getSlot(i);
 
             // Draw a darker background over the disabled slots
-            if (this.inventorySlots.getSlot(0).getHasStack() == false || i > maxModules)
+            if (toolStack == null || i >= maxModules)
             {
                 this.drawTexturedModalRect(x + dx, y + dy, 230, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
-            else if (slot instanceof SlotUpgradeModule && slot.getHasStack() == false)
+            else if (slot instanceof SlotModule && slot.getHasStack() == false)
             {
-                int offset = this.getModuleBackgroundOffset(((SlotUpgradeModule) slot).getModuleType());
+                int offset = this.getModuleBackgroundOffset(((SlotModule)slot).getModuleType());
                 // Only one type of module is allowed in this slot
                 if (offset >= 0)
                 {
@@ -83,7 +83,7 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
             }
 
             // First row done
-            if (i == 5)
+            if (i == 4)
             {
                 dy += 18;
                 dx -= 5 * 18;
@@ -94,11 +94,9 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
+        Slot slot = this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM);
         // Hovering over the tool slot
-        if (mouseX >= x + 7 && mouseX <= x + 22 && mouseY >= y + 18 && mouseY <= y + 33 && this.inventorySlots.getSlot(0).getHasStack() == false)
+        if (slot != null && this.theSlot == slot && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool", new Object[0]));

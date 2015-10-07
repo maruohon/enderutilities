@@ -8,44 +8,54 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class ContainerToolWorkstation extends ContainerTileEntityInventory
+public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
 {
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
+    public static final int SLOT_MODULAR_ITEM = NUM_MODULE_SLOTS;
+    public InventoryItem inventoryItem;
+    protected boolean isRemote;
 
     public ContainerToolWorkstation(InventoryPlayer inventoryPlayer, TileEntityToolWorkstation te)
     {
         super(inventoryPlayer, te);
+        this.inventoryItem = new InventoryItem(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj(), inventoryPlayer.player);
+        this.inventoryItem.readFromItem();
+        this.isRemote = this.te.getWorldObj().isRemote;
+        this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
-        // Item slot
-        this.addSlotToContainer(new SlotGeneric(this.inventory, 0, 8, 19));
-
-        // Module slots
+        // Item's module slots
         int x = 80, y = 19;
-        for (int i = 1; i <= NUM_MODULE_SLOTS; x += 18, ++i)
+        for (int i = 0; i < NUM_MODULE_SLOTS; x += 18, i++)
         {
             // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
-            this.addSlotToContainer(new SlotUpgradeModule(this.inventory, i, x, y, ModuleType.TYPE_ANY));
+            this.addSlotToContainer(new SlotModule(this.inventoryItem, i, x, y, ModuleType.TYPE_ANY, this));
 
             // First row done
-            if (i == 5)
+            if (i == 4)
             {
                 y += 18;
                 x -= 5 * 18;
             }
         }
 
+        // NOTE: The following slots are in the TileEntity's inventory and not in the modular item's inventory,
+        // thus the slot numbering starts from 0 here again.
+
+        // The modular item's slot
+        this.addSlotToContainer(new SlotGeneric(this.inventory, TileEntityToolWorkstation.SLOT_TOOL, 8, 19));
+
         // Module storage inventory slots
         x = 8; y = 66;
         for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
         {
-            this.addSlotToContainer(new SlotGeneric(this.inventory, i + 11, x, y));
+            this.addSlotToContainer(new SlotGeneric(this.inventory, TileEntityToolWorkstation.SLOT_MODULES_START + i, x, y));
         }
 
         this.setUpgradeSlotTypes();
@@ -56,7 +66,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
     {
         super.putStackInSlot(slotNum, stack);
 
-        if (slotNum == 0)
+        if (slotNum == SLOT_MODULAR_ITEM)
         {
             // This is to get rid of the minor annoyance of the slot types/backgrounds not updating when you
             // open the workstation for the first time after loading a world, if there is a tool in there.
@@ -65,16 +75,21 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
         }
     }
 
+    @Override
+    public ItemStack getModularItem()
+    {
+        return this.getSlot(SLOT_MODULAR_ITEM).getStack();
+    }
+
     private void setUpgradeSlotTypes()
     {
-        Slot slot = (Slot) this.inventorySlots.get(0);
+        int slotNum = 0;
+        Slot slot = this.getSlot(SLOT_MODULAR_ITEM);
         if (slot != null && slot.getHasStack() == true && slot.getStack().getItem() instanceof IModular)
         {
             ItemStack toolStack = slot.getStack();
-            IModular imodular = (IModular) toolStack.getItem();
-            int slots = this.inventorySlots.size();
-
-            int slotNum = 1;
+            IModular imodular = (IModular)toolStack.getItem();
+            int numSlots = this.inventorySlots.size();
 
             // Set the upgrade slot types according to how many of each type of upgrade the current tool supports.
             for (ModuleType moduleType : ModuleType.values())
@@ -85,37 +100,38 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
                     continue;
                 }
 
-                int max = imodular.getMaxModules(toolStack, moduleType);
+                int maxOfType = imodular.getMaxModules(toolStack, moduleType);
 
-                // 10: The Tool Workstation supports a maximum of 10 upgrade modules for a tool
-                for (int i = 0; i < max && slotNum <= NUM_MODULE_SLOTS && slotNum < slots; ++i, ++slotNum)
+                for (int i = 0; i < maxOfType && slotNum < NUM_MODULE_SLOTS && slotNum < numSlots; i++, slotNum++)
                 {
-                    slot = (Slot) this.inventorySlots.get(slotNum);
-                    if (slot instanceof SlotUpgradeModule)
+                    slot = this.getSlot(slotNum);
+                    if (slot instanceof SlotModule)
                     {
-                        ((SlotUpgradeModule) slot).setModuleType(moduleType);
+                        ((SlotModule)slot).setModuleType(moduleType);
                     }
                 }
 
-                if (slotNum > NUM_MODULE_SLOTS || slotNum >= slots)
+                if (slotNum >= NUM_MODULE_SLOTS || slotNum >= numSlots)
                 {
-                    return;
+                    break;
                 }
             }
         }
-        // No tool, reset all slot types
-        /*else
+
+        for ( ; slotNum < NUM_MODULE_SLOTS; slotNum++)
         {
-            int slots = this.inventorySlots.size();
-            for (int i = 0; i < 10 && i < slots; ++i)
+            slot = this.getSlot(slotNum);
+            if (slot instanceof SlotModule)
             {
-                slot = (Slot)this.inventorySlots.get(i + 1);
-                if (slot instanceof SlotUpgradeModule)
-                {
-                    ((SlotUpgradeModule)slot).setModuleType(UtilItemModular.ModuleType.TYPE_ANY);
-                }
+                ((SlotModule)slot).setModuleType(ModuleType.TYPE_INVALID);
             }
-        }*/
+        }
+    }
+
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
+    {
+        return this.transferStackInSlot(player, slotNum, this.inventory.getSizeInventory() + this.inventoryItem.getSizeInventory());
     }
 
     @Override
@@ -123,20 +139,22 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory
     {
         //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", ); isRemote: " + this.te.getWorldObj().isRemote);
 
-        if (this.te instanceof TileEntityToolWorkstation)
-        {
-            // This is to force the modules to be written to the tool before the transferStackInSlot/mergeItemStack
-            // methods get a hold of the tool stack.
-            ((TileEntityToolWorkstation) this.te).writeModulesToItem();
-        }
-
+        Slot slot = slotNum >= 0 && slotNum <= this.inventorySlots.size() ? this.getSlot(slotNum) : null;
         ItemStack stack = super.slotClick(slotNum, i1, i2, player);
 
-        if (this.te instanceof TileEntityToolWorkstation)
+        if (this.isRemote == false && this.te instanceof TileEntityToolWorkstation)
         {
-            // This is to write the changes to the tool if the player manually clicks an item into the module slots
-            // (the above write call in that case happened before the item was added to the slot).
-            ((TileEntityToolWorkstation) this.te).writeModulesToItem();
+            // The clicked on slot is inside the modular item's inventory
+            if (slot != null && slot.inventory == this.inventoryItem)
+            {
+                this.inventoryItem.writeToItem();
+            }
+            // Changing the item in the tool slot, update the InventoryItem
+            //else if (slot != null && slot.inventory == this.inventory && slotNum == SLOT_MODULAR_ITEM)
+            else if (this.inventoryItem.getContainerItemStack() != this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL))
+            {
+                this.inventoryItem.setContainerItemStack(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL));
+            }
         }
 
         this.setUpgradeSlotTypes();

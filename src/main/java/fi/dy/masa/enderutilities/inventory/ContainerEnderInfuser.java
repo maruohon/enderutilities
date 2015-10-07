@@ -21,6 +21,7 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
     {
         super(inventoryPlayer, te);
         this.teef = te;
+        this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
     }
 

@@ -823,4 +823,36 @@ public class UtilItemModular
             }
         }
     }
+
+    /**
+     * This method is for compatibility adjustment of the installed modules on modular items,
+     * after the inventory/container change to the Tool Workstation.
+     * It will check if slot 0 is empty, and if there is an installed module at the position
+     * that is now one slot after the last available slot.
+     * If so, then it will move all the modules by one slot, so that they start from slot 0
+     * instead of slot 1 like they did before.
+     * @param containerStack the ItemStack of the modular item
+     */
+    public static void compatibilityAdjustInstalledModulePositions(ItemStack containerStack)
+    {
+        if (containerStack == null || (containerStack.getItem() instanceof IModular) == false)
+        {
+            return;
+        }
+
+        ItemStack items[] = new ItemStack[11];
+        UtilItemModular.readItemsFromContainerItem(containerStack, items);
+        int max = ((IModular)containerStack.getItem()).getMaxModules(containerStack);
+        if (max <= 10 && items[0] == null && items[max] != null)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                items[i] = items[i + 1] != null ? items[i + 1] : null;
+            }
+
+            items[10] = null;
+
+            UtilItemModular.writeItemsToContainerItem(containerStack, items, false);
+        }
+    }
 }

@@ -18,6 +18,6 @@ public class SlotGeneric extends Slot
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return this.inventory.isItemValidForSlot(this.slotNumber, stack);
+        return this.inventory.isItemValidForSlot(this.getSlotIndex(), stack);
     }
 }

@@ -16,11 +16,6 @@ public class ContainerEnderUtilities extends Container
     {
         this.inventoryPlayer = inventoryPlayer;
         this.inventory = inventory;
-
-        if (this.inventory.getSizeInventory() > 0)
-        {
-            this.addCustomInventorySlots();
-        }
     }
 
     /**
@@ -55,9 +50,10 @@ public class ContainerEnderUtilities extends Container
     /**
      * Returns the number of inventory slots that are used when merging stacks when shift-clicking
      */
-    protected int getNumMergableSlots()
+    protected int getNumMergableSlots(int invSize)
     {
-        return this.inventory.getSizeInventory() + 36;
+        // Our inventory plus the player's inventory
+        return invSize + 36;
     }
 
     @Override
@@ -69,9 +65,13 @@ public class ContainerEnderUtilities extends Container
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {
+        return this.transferStackInSlot(player, slotNum, this.inventory.getSizeInventory());
+    }
+
+    public ItemStack transferStackInSlot(EntityPlayer player, int slotNum, int invSize)
+    {
         ItemStack stack = null;
-        Slot slot = (Slot)this.getSlot(slotNum);
-        int invSize = this.inventory.getSizeInventory();
+        Slot slot = this.getSlot(slotNum);
 
         // Slot clicked on has items
         if (slot != null && slot.getHasStack() == true)
@@ -83,7 +83,7 @@ public class ContainerEnderUtilities extends Container
             if (slotNum < invSize)
             {
                 // Try to merge the stack into the player inventory
-                if (this.mergeItemStack(stackInSlot, invSize, this.getNumMergableSlots(), true) == false)
+                if (this.mergeItemStack(stackInSlot, invSize, this.getNumMergableSlots(invSize), true) == false)
                 {
                     return null;
                 }
@@ -139,7 +139,7 @@ public class ContainerEnderUtilities extends Container
         // First try to merge the stack into existing stacks in the container
         while (stack.stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
         {
-            slot = (Slot)this.getSlot(slotIndex);
+            slot = this.getSlot(slotIndex);
             maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
             maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
             existingStack = slot.getStack();
@@ -175,7 +175,7 @@ public class ContainerEnderUtilities extends Container
 
             while (slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
-                slot = (Slot)this.inventorySlots.get(slotIndex);
+                slot = this.getSlot(slotIndex);
                 maxSizeStackInv = this.getMaxStackSizeFromSlotAndStack(slot, stack);
                 maxSizeTmp = Math.min(slot.getSlotStackLimit(), maxSizeStackInv);
                 existingStack = slot.getStack();

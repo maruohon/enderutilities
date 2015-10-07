@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -37,6 +38,7 @@ public class InventoryItem implements IInventory
     public void setContainerItemStack(ItemStack stack)
     {
         this.containerStack = stack;
+        this.readFromItem();
     }
 
     /**
@@ -84,7 +86,7 @@ public class InventoryItem implements IInventory
         }
         else
         {
-            //EnderUtilities.logger.warn("InventoryItem.getStackInSlot(): Invalid slot number: " + slotNum);
+            EnderUtilities.logger.warn("InventoryItem.getStackInSlot(): Invalid slot number: " + slotNum);
         }
 
         return null;
@@ -101,7 +103,7 @@ public class InventoryItem implements IInventory
         }
         else
         {
-            //EnderUtilities.logger.warn("InventoryItem.setInventorySlotContents(): Invalid slot number: " + slotNum);
+            EnderUtilities.logger.warn("InventoryItem.setInventorySlotContents(): Invalid slot number: " + slotNum);
         }
     }
 
@@ -133,7 +135,7 @@ public class InventoryItem implements IInventory
         }
         else
         {
-            //EnderUtilities.logger.warn("InventoryItem.decrStackSize(): Invalid slot number: " + slotNum);
+            EnderUtilities.logger.warn("InventoryItem.decrStackSize(): Invalid slot number: " + slotNum);
             return null;
         }
 
