@@ -95,6 +95,11 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
+    public void setupReflection()
+    {
+    }
+
+    @Override
     public boolean isShiftKeyDown()
     {
         return false;

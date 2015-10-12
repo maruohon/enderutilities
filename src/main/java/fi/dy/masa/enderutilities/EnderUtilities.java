@@ -49,6 +49,7 @@ public class EnderUtilities
         proxy.registerEventHandlers();
         proxy.registerKeyBindings();
         proxy.registerRenderers();
+        proxy.setupReflection();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
         ModRegistry.checkLoadedMods();
     }

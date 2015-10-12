@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Util;
@@ -13,6 +14,7 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
@@ -26,6 +28,7 @@ import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
@@ -76,6 +79,12 @@ public class ClientProxy extends CommonProxy
         MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
+    }
+
+    @Override
+    public void setupReflection()
+    {
+        ReferenceReflection.fieldGuiContainerTheSlot = ReflectionHelper.findField(GuiContainer.class, "u", "field_147006_u", "theSlot");
     }
 
     @Override

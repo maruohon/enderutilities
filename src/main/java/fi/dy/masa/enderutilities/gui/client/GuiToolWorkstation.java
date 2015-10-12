@@ -10,6 +10,7 @@ import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.SlotModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
@@ -94,9 +95,16 @@ public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        Slot slot = this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM);
+        Slot slot = null;
+        try {
+            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
+        }
+        catch (IllegalAccessException e) {
+            return;
+        }
+
         // Hovering over the tool slot
-        if (slot != null && this.theSlot == slot && slot.getHasStack() == false)
+        if (slot != null && slot == this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool", new Object[0]));
