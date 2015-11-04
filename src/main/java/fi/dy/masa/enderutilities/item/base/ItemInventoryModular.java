@@ -11,10 +11,9 @@ public abstract class ItemInventoryModular extends ItemModular
     {
     }
 
-    public int getSizeInventory(ItemStack containerStack)
-    {
-        return 0;
-    }
+    public abstract int getSizeModuleInventory(ItemStack containerStack);
+
+    public abstract int getSizeInventory(ItemStack containerStack);
 
     public int getInventoryStackLimit(ItemStack containerStack)
     {

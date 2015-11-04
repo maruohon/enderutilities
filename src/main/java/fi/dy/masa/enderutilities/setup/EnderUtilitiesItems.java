@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.ItemEnderPorter;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -41,6 +42,7 @@ public class EnderUtilitiesItems
     public static final Item enderSword = new ItemEnderSword();
     public static final Item enderTool = new ItemEnderTool();
     public static final ItemEnderUtilities handyBag = new ItemHandyBag();
+    public static final ItemEnderUtilities inventorySwapper = new ItemInventorySwapper();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
 
@@ -59,6 +61,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemEnderSword.getBoolean(false) == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
         if (Configs.disableItemEnderTools.getBoolean(false) == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
         if (Configs.disableItemHandyBag.getBoolean(false) == false) { GameRegistry.registerItem(handyBag, ReferenceNames.NAME_ITEM_HANDY_BAG); }
+        if (Configs.disableItemInventorySwapper.getBoolean(false) == false) { GameRegistry.registerItem(inventorySwapper, ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER); }
         if (Configs.disableItemMobHarness.getBoolean(false) == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }
         if (Configs.disableItemPortalScaler.getBoolean(false) == false) { GameRegistry.registerItem(portalScaler, ReferenceNames.NAME_ITEM_PORTAL_SCALER); }
 

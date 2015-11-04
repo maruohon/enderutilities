@@ -4,7 +4,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -74,7 +74,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiToolWorkstation(getContainer(inventoryPlayer), this);
     }

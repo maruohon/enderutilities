@@ -8,15 +8,14 @@ import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
-public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
+public class GuiEnderInfuser extends GuiTileEntityInventory
 {
-    private TileEntityEnderInfuser teef;
+    public TileEntityEnderInfuser teei;
 
     public GuiEnderInfuser(ContainerEnderInfuser container, TileEntityEnderInfuser te)
     {
-        super(container, te);
-        this.teef = te;
-        this.ySize = 176;
+        super(container, 176, 176, "gui.container." + te.getTEName(), te);
+        this.teei = te;
     }
 
     @Override
@@ -49,17 +48,17 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         }
 
         // Some charge stored, draw the "fluid" into the tank
-        if (this.teef.amountStored > 0)
+        if (this.teei.amountStored > 0)
         {
             int h = 48;
-            int t = this.teef.amountStored * h / TileEntityEnderInfuser.MAX_AMOUNT;
+            int t = this.teei.amountStored * h / TileEntityEnderInfuser.MAX_AMOUNT;
             this.drawTexturedModalRect(x + 87, y + 23 + h - t, 176, 18 + h - t, 28, t);
         }
 
         // Currently melting an input item, draw the melting progress bar
-        if (this.teef.meltingProgress > 0)
+        if (this.teei.meltingProgress > 0)
         {
-            int t = this.teef.meltingProgress * 15 / 100;
+            int t = this.teei.meltingProgress * 15 / 100;
             this.drawTexturedModalRect(x + 66, y + 26, 204, 18, t, 11);
         }
 
@@ -83,10 +82,10 @@ public class GuiEnderInfuser extends GuiEnderUtilitiesInventory
         if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 68)
         {
             List<String> list = new ArrayList<String>();
-            int ec = this.teef.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
+            int ec = this.teei.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
             int ec_capacity = TileEntityEnderInfuser.MAX_AMOUNT * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
             list.add(EUStringUtils.formatNumberWithKSeparators(ec) + " / " + EUStringUtils.formatNumberWithKSeparators(ec_capacity) + " EC");
-            list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teef.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
+            list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teei.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         // Hovering over an empty material slot

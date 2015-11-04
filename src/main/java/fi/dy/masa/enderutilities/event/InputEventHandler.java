@@ -4,6 +4,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,7 +83,7 @@ public class InputEventHandler
             // or this?: Keybindings.keyToggleMode.isPressed() == true
             if (Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
             {
-                if (isHoldingKeyboundItem(player) == true)
+                if (isHoldingKeyboundItem(player) == true || player.inventory.hasItem(EnderUtilitiesItems.inventorySwapper) == true)
                 {
                     int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));

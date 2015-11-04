@@ -51,6 +51,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDER_PEARL_REUSABLE   = "enderpearlreusable";
     public static final String NAME_ITEM_ENDER_PORTER           = "enderporter";
     public static final String NAME_ITEM_HANDY_BAG              = "handybag";
+    public static final String NAME_ITEM_INVENTORY_SWAPPER      = "inventoryswapper";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
     public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";
 

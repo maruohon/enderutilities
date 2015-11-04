@@ -581,6 +581,15 @@ public class InventoryUtils
     }
 
     /**
+     * Returns the first ItemStack from the inventory that has the given Item in it, or null.
+     */
+    public static ItemStack getFirstMatchingItem(IInventory inv, Item item)
+    {
+        int slot = getSlotOfFirstMatchingItem(inv, item);
+        return slot != -1 ? inv.getStackInSlot(slot) : null;
+    }
+
+    /**
      * Get the slot number of the last slot containing a matching item.
      * @param inv
      * @param item

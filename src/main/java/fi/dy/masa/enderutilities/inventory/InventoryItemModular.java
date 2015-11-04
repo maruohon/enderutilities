@@ -9,40 +9,36 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular extends InventoryItem
 {
-    protected EntityPlayer player;
-    protected UUID containerItemUUID;
+    protected ItemStack modularItemStack;
+    protected UUID containerUUID;
     protected InventoryItem moduleInventory;
-    protected int moduleInvSize;
     protected ModuleType moduleType;
 
-    public InventoryItemModular(ItemStack stack, EntityPlayer player)
+    public InventoryItemModular(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
     {
-        this(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), player, ((IModular)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD), ModuleType.TYPE_MEMORY_CARD);
+        this(containerStack, ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack), player, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType), moduleType);
     }
 
-    public InventoryItemModular(ItemStack stack, int invSize, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
+    public InventoryItemModular(ItemStack containerStack, int mainInvSize, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
     {
-        super(stack, invSize, player.worldObj, player);
-        this.player = player;
-        this.moduleInvSize = moduleInvSize;
+        super(containerStack, mainInvSize, player.worldObj, player);
+
+        this.modularItemStack = containerStack;
+        this.containerUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
         this.moduleType = moduleType;
 
-        this.containerItemUUID = NBTUtils.getOrCreateUUIDFromItemStack(stack, "UUID");
-        this.moduleInventory = new InventoryItemMemoryCard(this, moduleInvSize, player.worldObj, player);
-
-        this.readFromItem();
+        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj, player);
+        this.setContainerItemStack(this.getSelectedModuleStack()); // this also calls readFromContainerItemStack()
     }
 
     public UUID getContainerUUID()
     {
-        return this.containerItemUUID;
+        return this.containerUUID;
     }
 
     public InventoryItem getModuleInventory()
@@ -50,136 +46,95 @@ public class InventoryItemModular extends InventoryItem
         return this.moduleInventory;
     }
 
-    /**
-     * Returns the ItemStack of the modular item (ie. not the stack that actually stores the items,
-     * in this inventory, that stack is stored as a module inside the modular item)
-     */
     public ItemStack getModularItemStack()
     {
-        return InventoryUtils.getItemStackByUUID(this.player.inventory, this.containerItemUUID, "UUID");
+        return this.modularItemStack;
     }
 
     @Override
-    protected ItemStack getContainerItemStack()
+    public void readFromContainerItemStack()
     {
-        ItemStack modularStack = this.getModularItemStack();
-        if (modularStack != null)
-        {
-            return this.moduleInventory.getStackInSlot(UtilItemModular.getStoredModuleSelection(modularStack, this.moduleType));
-        }
-
-        return null;
+        this.moduleInventory.setContainerItemStack(this.getModularItemStack());
+        this.moduleInventory.readFromContainerItemStack();
+        super.readFromContainerItemStack();
+        this.setMainInventoryStackLimit();
     }
 
     @Override
-    public void readFromItem()
+    public void writeToContainerItemStack()
     {
-        this.moduleInventory.readFromItem();
-        super.readFromItem();
-    }
-
-    @Override
-    public void writeToItem()
-    {
-        super.writeToItem();
-        this.moduleInventory.writeToItem();
+        super.writeToContainerItemStack();
+        this.moduleInventory.writeToContainerItemStack();
     }
 
     /**
      * Returns the index (0..n) of the currently selected storage module.
      * Will return -1 if there is currently no container item present.
      */
-    public int getSelectedStorageModuleIndex()
+    public int getSelectedModuleIndex()
     {
-        ItemStack modularStack = this.getModularItemStack();
-        if (modularStack != null && modularStack.getItem() instanceof ItemInventoryModular)
-        {
-            return UtilItemModular.getStoredModuleSelection(modularStack, this.moduleType);
-        }
-
-        return -1;
+        return UtilItemModular.getStoredModuleSelection(this.getModularItemStack(), this.moduleType);
     }
 
-    protected ItemStack getSelectedStorageModuleStack()
+    protected ItemStack getSelectedModuleStack()
     {
-        int index = this.getSelectedStorageModuleIndex();
-        return index >= 0 && index < this.moduleInventory.getSizeInventory() ? this.moduleInventory.getStackInSlot(index) : null;
+        /*int index = this.getSelectedModuleIndex();
+        return index >= 0 && index < this.moduleInventory.getSizeInventory() ? this.moduleInventory.getStackInSlot(index) : null;*/
+        return UtilItemModular.getModuleStackBySlotNumber(this.modularItemStack, this.getSelectedModuleIndex(), this.moduleType);
     }
 
     /**
-     * Returns whether the item inventory is accessible.
+     * Set the stack limit of the main inventory based on the container ItemStack
      */
-    public boolean isItemInventoryAccessible()
+    public void setMainInventoryStackLimit()
     {
-        // Can only store items when there is a valid storage module (= Memory Card) installed
-        // and currently selected and the player has access rights to it.
-        ItemStack moduleStack = this.getSelectedStorageModuleStack();
-        if (moduleStack == null)
+        int limit = 64;
+
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null && containerStack.getItem() instanceof ItemInventoryModular)
         {
-            return false;
+            limit = ((ItemInventoryModular)containerStack.getItem()).getInventoryStackLimit(containerStack);
         }
 
-        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
-        return ownerData == null || ownerData.canAccess(this.player) == true;
-    }
-
-    /**
-     * Returns whether the storage module slots are accessible.
-     * Used while rendering to render the slots as darker when the opened bag is not accessible.
-     */
-    public boolean isModuleInventoryAccessible()
-    {
-        return this.getModularItemStack() != null;
+        this.setInventoryStackLimit(limit);
     }
 
     @Override
     public boolean hasCustomInventoryName()
     {
-        ItemStack moduleStack = this.getSelectedStorageModuleStack();
+        ItemStack moduleStack = this.getSelectedModuleStack();
         if (moduleStack != null && moduleStack.hasDisplayName())
         {
             return true;
         }
 
-        ItemStack modularStack = this.getModularItemStack();
-        return modularStack != null ? modularStack.hasDisplayName() : false;
+        ItemStack containerStack = this.getContainerItemStack();
+        return containerStack != null && containerStack.hasDisplayName();
     }
 
     @Override
     public String getInventoryName()
     {
-        ItemStack moduleStack = this.getSelectedStorageModuleStack();
+        ItemStack moduleStack = this.getSelectedModuleStack();
         // First check if the selected storage module has been named, and use that name
         if (moduleStack != null && moduleStack.hasDisplayName())
         {
             return moduleStack.getDisplayName();
         }
 
-        ItemStack modularStack = this.getModularItemStack();
+        ItemStack containerStack = this.getContainerItemStack();
         // If the storage module didn't have a name, but the item itself does, then use that name
-        if (modularStack != null && modularStack.hasDisplayName())
+        if (containerStack != null && containerStack.hasDisplayName())
         {
-            return modularStack.getDisplayName();
+            return containerStack.getDisplayName();
         }
 
-        if (modularStack.getItem() instanceof ItemEnderUtilities)
+        if (containerStack.getItem() instanceof ItemEnderUtilities)
         {
-            return Reference.MOD_ID + ".container." + ((ItemEnderUtilities)modularStack.getItem()).name;
+            return Reference.MOD_ID + ".container." + ((ItemEnderUtilities)containerStack.getItem()).name;
         }
 
-        return Reference.MOD_ID + ".container.null";
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        ItemStack modularStack = this.getModularItemStack();
-        if (modularStack != null && modularStack.getItem() instanceof ItemInventoryModular)
-        {
-            return ((ItemInventoryModular)modularStack.getItem()).getInventoryStackLimit(modularStack);
-        }
-
-        return 64;
+        return containerStack.getItem().getUnlocalizedName(containerStack);
     }
 
     @Override
@@ -198,24 +153,5 @@ public class InventoryItemModular extends InventoryItem
     public void closeInventory()
     {
         this.moduleInventory.closeInventory();
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
-    {
-        if (stack == null)
-        {
-            return true;
-        }
-
-        ItemStack modularStack = this.getModularItemStack();
-        // Don't allow nesting the same type of items as the container item inside itself
-        if (modularStack != null && modularStack.getItem() == stack.getItem())
-        {
-            return false;
-        }
-
-        // Item inventory slots, check if the inventory can be accessed
-        return this.isItemInventoryAccessible();
     }
 }

@@ -42,9 +42,6 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int INV_SIZE_TIER_1 = 27;
     public static final int INV_SIZE_TIER_2 = 55;
 
-    public static final int MAX_STACKSIZE_TIER_1 =   256;
-    public static final int MAX_STACKSIZE_TIER_2 =  4096;
-
     public static final int GUI_ACTION_SELECT_MODULE = 0;
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
 
@@ -79,11 +76,11 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else
                 {
-                    inv = new InventoryItemModular(stack, (EntityPlayer)entity);
+                    inv = new InventoryItemModular(stack, (EntityPlayer)entity, ModuleType.TYPE_MEMORY_CARD);
                 }
 
-                InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
-                inv.writeToItem();
+                InventoryUtils.fillStacksOfMatchingItems(inv.getMainInventory(), player.inventory);
+                inv.writeToContainerItemStack();
 
                 //if (player.openContainer instanceof ContainerHandyBag)
                 {
@@ -103,9 +100,9 @@ public class ItemHandyBag extends ItemInventoryModular
             TileEntity te = world.getTileEntity(x, y, z);
             if (world.isRemote == false && te != null && te instanceof IInventory)
             {
-                InventoryItemModular inv = new InventoryItemModular(stack, player);
-                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
-                inv.writeToItem();
+                InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
+                InventoryUtils.tryMoveAllItems(inv.getMainInventory(), (IInventory)te, 0, side);
+                inv.writeToContainerItemStack();
             }
 
             return true;
@@ -243,21 +240,21 @@ public class ItemHandyBag extends ItemInventoryModular
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                InventoryItemModular inv = new InventoryItemModular(bagStack, player);
+                InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
                 int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == true)
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv.getMainInventory(), event.item.getEntityItem(), 0, true) == true)
                     {
                         event.item.getEntityItem().stackSize = 0;
                         event.item.setDead();
                         event.setCanceled(true);
                         break;
                     }
-                    inv.writeToItem();
+                    inv.writeToContainerItemStack();
                 }
             }
         }
@@ -318,6 +315,12 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
+    public int getSizeModuleInventory(ItemStack containerStack)
+    {
+        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+    }
+
+    @Override
     public int getSizeInventory(ItemStack containerStack)
     {
         return containerStack.getItemDamage() == DAMAGE_TIER_2 ? INV_SIZE_TIER_2 : INV_SIZE_TIER_1;
@@ -337,7 +340,6 @@ public class ItemHandyBag extends ItemInventoryModular
             }
         }
 
-        //return containerStack.getItemDamage() == DAMAGE_TIER_2 ? MAX_STACKSIZE_TIER_2 : MAX_STACKSIZE_TIER_1;
         return 0;
     }
 
@@ -346,7 +348,7 @@ public class ItemHandyBag extends ItemInventoryModular
         if (player.openContainer instanceof ContainerHandyBag)
         {
             ContainerHandyBag container = (ContainerHandyBag)player.openContainer;
-            ItemStack containerStack = container.inventoryItemModular.getModularItemStack();
+            ItemStack containerStack = container.inventoryItemModular.getContainerItemStack();
             if (containerStack != null && containerStack.getItem() == EnderUtilitiesItems.handyBag)
             {
                 int max = ((ItemHandyBag)containerStack.getItem()).getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
@@ -354,31 +356,32 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
                     UtilItemModular.setModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD, element);
-                    container.inventoryItemModular.readFromItem();
+                    container.inventoryItemModular.setContainerItemStack(containerStack);
+                    //container.inventoryItemModular.readFromContainerItemStack();
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {
-                    int bagMaxSlot = container.inventoryItemModular.getSizeInventory() - 1;
+                    int bagMaxSlot = container.inventoryItemModular.getMainInventory().getSizeInventory() - 1;
                     int playerMaxSlot = player.inventory.getSizeInventory() - 5;
                     switch(element)
                     {
                         case 0: // Move all items to Bag
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, container.inventoryItemModular.getMainInventory(), 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventoryItemModular, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, container.inventoryItemModular.getMainInventory(), 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 2: // Leave one stack of each item type and fill that stack
-                            InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, container.inventoryItemModular, false, false, true);
+                            InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, container.inventoryItemModular.getMainInventory(), false, false, true);
                             break;
                         case 3: // Fill stacks in player inventory from bag
-                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(container.inventoryItemModular.getMainInventory(), player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 4: // Move matching items to player inventory
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(container.inventoryItemModular.getMainInventory(), player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 5: // Move all items to player inventory
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventoryItemModular, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(container.inventoryItemModular.getMainInventory(), player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                     }
                 }
@@ -467,7 +470,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (tier >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
                     tier <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B)
                 {
-                    return 4;
+                    return this.getMaxModules(containerStack);
                 }
             }
         }

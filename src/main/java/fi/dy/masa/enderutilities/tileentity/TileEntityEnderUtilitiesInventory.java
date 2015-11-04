@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
 import fi.dy.masa.enderutilities.reference.Reference;
 
@@ -210,7 +210,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
     {
         return null;
     }

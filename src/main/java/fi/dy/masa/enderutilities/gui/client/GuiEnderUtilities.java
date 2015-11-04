@@ -5,20 +5,21 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class GuiEnderUtilitiesInventory extends GuiContainer
+public class GuiEnderUtilities extends GuiContainer
 {
-    protected TileEntityEnderUtilitiesInventory te;
-    protected ResourceLocation guiTexture;
+    public ResourceLocation guiTexture;
+    public int backgroundU;
+    public int backgroundV;
 
-    public GuiEnderUtilitiesInventory(ContainerTileEntityInventory container, TileEntityEnderUtilitiesInventory te)
+    public GuiEnderUtilities(ContainerEnderUtilities container, int xSize, int ySize, String textureName)
     {
         super(container);
-        this.te = te;
-        this.guiTexture = ReferenceTextures.getGuiTexture("gui.container." + te.getTEName());
+        this.xSize = xSize;
+        this.ySize = ySize;
+        this.guiTexture = ReferenceTextures.getGuiTexture(textureName);
     }
 
     @Override
@@ -33,9 +34,7 @@ public class GuiEnderUtilitiesInventory extends GuiContainer
     {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         this.bindTexture(this.guiTexture);
-        int x = (width - xSize) / 2;
-        int y = (height - ySize) / 2;
-        this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
     }
 
     protected void drawTooltips(int mouseX, int mouseY)

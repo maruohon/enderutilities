@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.network.message;
 
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,12 +42,16 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
         EntityPlayer player = ctx.getServerHandler().playerEntity;
         ItemStack stack = player.getCurrentEquippedItem();
 
-        if (player != null && stack != null && stack.getItem() instanceof IKeyBound)
+        if (stack != null && stack.getItem() instanceof IKeyBound)
         {
             if ((message.keyPressed & ReferenceKeys.KEYBIND_ID_TOGGLE_MODE) != 0)
             {
                 ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
             }
+        }
+        else if (player.inventory.hasItem(EnderUtilitiesItems.inventorySwapper) == true)
+        {
+            ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
         }
 
         return null;

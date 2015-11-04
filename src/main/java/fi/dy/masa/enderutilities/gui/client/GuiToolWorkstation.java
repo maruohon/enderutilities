@@ -13,12 +13,11 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class GuiToolWorkstation extends GuiEnderUtilitiesInventory
+public class GuiToolWorkstation extends GuiTileEntityInventory
 {
     public GuiToolWorkstation(ContainerToolWorkstation container, TileEntityToolWorkstation te)
     {
-        super(container, te);
-        this.ySize = 176;
+        super(container, 176, 176, "gui.container." + te.getTEName(), te);
     }
 
     protected int getModuleBackgroundOffset(ModuleType moduleType)

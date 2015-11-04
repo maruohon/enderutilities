@@ -15,57 +15,69 @@ public class InventoryItem implements IInventory
     protected ItemStack[] items;
     protected EntityPlayer player;
     protected boolean isRemote;
+    protected String customInventoryName;
+    protected int stackLimit;
 
-    public InventoryItem(ItemStack stack, int invSize, World world, EntityPlayer player)
+    public InventoryItem(ItemStack containerStack, int invSize, World world, EntityPlayer player)
     {
-        this.containerStack = stack;
+        this.containerStack = containerStack;
         this.invSize = invSize;
         this.player = player;
         this.isRemote = world.isRemote;
+        this.stackLimit = 64;
     }
 
     /**
-     * Returns the ItemStack holding the container item
+     * Returns the ItemStack storing the contents of this inventory
      */
-    protected ItemStack getContainerItemStack()
+    public ItemStack getContainerItemStack()
     {
         return this.containerStack;
     }
 
     /**
-     * Sets the ItemStack that holds this inventory. Set to null to indicate the inventory is invalid/not accessible.
+     * Sets the ItemStack that stores the contents of this inventory.
+     * NOTE: You MUST set it to null when the inventory is invalid/not accessible
+     * ie. when the container ItemStack reference isn't valid anymore!!
      */
     public void setContainerItemStack(ItemStack stack)
     {
         this.containerStack = stack;
-        this.readFromItem();
+        this.readFromContainerItemStack();
+    }
+
+    public void setCustomInventoryName(String name)
+    {
+        this.customInventoryName = name;
+    }
+
+    public void setInventoryStackLimit(int stackLimit)
+    {
+        this.stackLimit = stackLimit;
     }
 
     /**
      * Read the inventory contents from the container ItemStack
      */
-    public void readFromItem()
+    public void readFromContainerItemStack()
     {
-        this.items = new ItemStack[this.invSize];
+        this.items = new ItemStack[this.getSizeInventory()]; // This obviously also needs to happen on the client side
 
+        // Only read the contents on the server side, they get synced to the client via the open Container
         ItemStack containerStack = this.getContainerItemStack();
-        if (this.isRemote == false && containerStack != null)
+        if (this.isRemote == false && containerStack != null && this.isUseableByPlayer(this.player) == true)
         {
-            NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(containerStack);
-            if (ownerData == null || ownerData.canAccess(this.player) == true)
-            {
-                UtilItemModular.readItemsFromContainerItem(containerStack, this.items);
-            }
+            UtilItemModular.readItemsFromContainerItem(containerStack, this.items);
         }
     }
 
     /**
      * Writes the inventory contents to the container ItemStack
      */
-    public void writeToItem()
+    public void writeToContainerItemStack()
     {
         ItemStack containerStack = this.getContainerItemStack();
-        if (this.isRemote == false && containerStack != null)
+        if (this.isRemote == false && containerStack != null && this.isUseableByPlayer(this.player) == true)
         {
             UtilItemModular.writeItemsToContainerItem(containerStack, this.items, true);
         }
@@ -99,7 +111,7 @@ public class InventoryItem implements IInventory
         if (slotNum < this.items.length)
         {
             this.items[slotNum] = newStack;
-            this.writeToItem();
+            this.writeToContainerItemStack();
         }
         else
         {
@@ -139,7 +151,7 @@ public class InventoryItem implements IInventory
             return null;
         }
 
-        this.writeToItem();
+        this.writeToContainerItemStack();
 
         return stack;
     }
@@ -160,18 +172,23 @@ public class InventoryItem implements IInventory
     @Override
     public int getInventoryStackLimit()
     {
-        return 64;
+        return this.stackLimit;
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        return true;
+        return this.getContainerItemStack() != null;
     }
 
     @Override
     public String getInventoryName()
     {
+        if (this.customInventoryName != null)
+        {
+            return this.customInventoryName;
+        }
+
         ItemStack containerStack = this.getContainerItemStack();
         if (containerStack != null)
         {
@@ -184,13 +201,32 @@ public class InventoryItem implements IInventory
     @Override
     public boolean hasCustomInventoryName()
     {
-        return true;
+        if (this.customInventoryName != null)
+        {
+            return true;
+        }
+
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack != null)
+        {
+            return containerStack.hasDisplayName();
+        }
+
+        return false;
     }
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        return true;
+        ItemStack containerStack = this.getContainerItemStack();
+        if (containerStack == null)
+        {
+            System.out.println("false - null");
+            return false;
+        }
+
+        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(containerStack);
+        return ownerData == null || ownerData.canAccess(player) == true;
     }
 
     @Override
@@ -206,6 +242,6 @@ public class InventoryItem implements IInventory
     @Override
     public void closeInventory()
     {
-        this.writeToItem();
+        this.writeToContainerItemStack();
     }
 }

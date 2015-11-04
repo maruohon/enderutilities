@@ -26,7 +26,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -794,7 +794,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiEnderFurnace(this.getContainer(inventoryPlayer), this);
     }

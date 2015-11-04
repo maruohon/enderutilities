@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.reference;
 
 import net.minecraft.util.ResourceLocation;
-import fi.dy.masa.enderutilities.util.ResourceLocationHelper;
 
 public class ReferenceTextures
 {
@@ -13,7 +12,7 @@ public class ReferenceTextures
 
     public static ResourceLocation getGuiTexture(String name)
     {
-        return ResourceLocationHelper.getResourceLocation(GUI_SHEET_LOCATION + name + ".png");
+        return getResourceLocation(GUI_SHEET_LOCATION + name + ".png");
     }
 
     public static String getItemTextureName(String name)
@@ -34,5 +33,15 @@ public class ReferenceTextures
     public static String getSlotBackgroundName(String itemName)
     {
         return Reference.MOD_ID + ":gui/gui.slot.background." + itemName;
+    }
+
+    public static ResourceLocation getResourceLocation(String modId, String path)
+    {
+        return new ResourceLocation(modId, path);
+    }
+
+    public static ResourceLocation getResourceLocation(String path)
+    {
+        return getResourceLocation(Reference.MOD_ID.toLowerCase(), path);
     }
 }

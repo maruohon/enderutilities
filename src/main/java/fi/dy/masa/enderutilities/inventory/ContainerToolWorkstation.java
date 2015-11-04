@@ -20,7 +20,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         super(inventoryPlayer, te);
         this.inventoryItem = new InventoryItem(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj(), inventoryPlayer.player);
-        this.inventoryItem.readFromItem();
+        this.inventoryItem.readFromContainerItemStack();
         this.isRemote = this.te.getWorldObj().isRemote;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
@@ -147,7 +147,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
             // The clicked on slot is inside the modular item's inventory
             if (slot != null && slot.inventory == this.inventoryItem)
             {
-                this.inventoryItem.writeToItem();
+                this.inventoryItem.writeToContainerItemStack();
             }
             // Changing the item in the tool slot, update the InventoryItem
             //else if (slot != null && slot.inventory == this.inventory && slotNum == SLOT_MODULAR_ITEM)

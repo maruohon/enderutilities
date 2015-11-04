@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -252,7 +252,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilitiesInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiEnderInfuser(this.getContainer(inventoryPlayer), this);
     }
