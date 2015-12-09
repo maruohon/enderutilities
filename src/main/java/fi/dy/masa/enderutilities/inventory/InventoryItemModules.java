@@ -2,17 +2,17 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.item.base.IModule;
 
 public class InventoryItemModules extends InventoryItem
 {
     protected InventoryItemModular inventoryItemModular;
 
-    public InventoryItemModules(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, World world, EntityPlayer player)
+    public InventoryItemModules(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
-        super(containerStack, invSize, world, player);
+        super(containerStack, invSize, isRemote, player);
         this.inventoryItemModular = modularInventory;
+        this.stackLimit = 1;
     }
 
     /*@Override
@@ -21,7 +21,7 @@ public class InventoryItemModules extends InventoryItem
         return this.inventoryItemModular.getModularItemStack();
     }*/
 
-    @Override
+    /*@Override
     public void writeToContainerItemStack()
     {
         super.writeToContainerItemStack();
@@ -30,13 +30,7 @@ public class InventoryItemModules extends InventoryItem
         {
             this.inventoryItemModular.readFromContainerItemStack();
         }
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        return 1;
-    }
+    }*/
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)

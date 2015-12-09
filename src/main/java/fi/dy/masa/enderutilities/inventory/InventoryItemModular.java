@@ -26,13 +26,13 @@ public class InventoryItemModular extends InventoryItem
 
     public InventoryItemModular(ItemStack containerStack, int mainInvSize, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
     {
-        super(containerStack, mainInvSize, player.worldObj, player);
+        super(containerStack, mainInvSize, player.worldObj.isRemote, player);
 
         this.modularItemStack = containerStack;
         this.containerUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
         this.moduleType = moduleType;
 
-        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj, player);
+        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj.isRemote, player);
         this.setContainerItemStack(this.getSelectedModuleStack()); // this also calls readFromContainerItemStack()
     }
 

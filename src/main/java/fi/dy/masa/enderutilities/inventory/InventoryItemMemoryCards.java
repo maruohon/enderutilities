@@ -2,16 +2,15 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 
 public class InventoryItemMemoryCards extends InventoryItemModules
 {
-    public InventoryItemMemoryCards(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, World world, EntityPlayer player)
+    public InventoryItemMemoryCards(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
-        super(modularInventory, containerStack, invSize, world, player);
+        super(modularInventory, containerStack, invSize, isRemote, player);
     }
 
     @Override

@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -17,13 +16,14 @@ public class InventoryItem implements IInventory
     protected boolean isRemote;
     protected String customInventoryName;
     protected int stackLimit;
+    protected boolean allowCustomStackSizes;
 
-    public InventoryItem(ItemStack containerStack, int invSize, World world, EntityPlayer player)
+    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
         this.containerStack = containerStack;
         this.invSize = invSize;
         this.player = player;
-        this.isRemote = world.isRemote;
+        this.isRemote = isRemote;
         this.stackLimit = 64;
     }
 
@@ -54,6 +54,16 @@ public class InventoryItem implements IInventory
     public void setInventoryStackLimit(int stackLimit)
     {
         this.stackLimit = stackLimit;
+    }
+
+    public boolean getAllowCustomStackSize()
+    {
+        return this.allowCustomStackSizes;
+    }
+
+    public void setAllowCustomStackSizes(boolean allow)
+    {
+        this.allowCustomStackSizes = allow;
     }
 
     /**
@@ -111,7 +121,8 @@ public class InventoryItem implements IInventory
         if (slotNum < this.items.length)
         {
             this.items[slotNum] = newStack;
-            this.writeToContainerItemStack();
+
+            this.markDirty();
         }
         else
         {
@@ -144,14 +155,14 @@ public class InventoryItem implements IInventory
                     this.items[slotNum] = null;
                 }
             }
+
+            this.markDirty();
         }
         else
         {
             EnderUtilities.logger.warn("InventoryItem.decrStackSize(): Invalid slot number: " + slotNum);
             return null;
         }
-
-        this.writeToContainerItemStack();
 
         return stack;
     }
@@ -164,6 +175,8 @@ public class InventoryItem implements IInventory
         {
             stack = this.items[slotNum];
             this.items[slotNum] = null;
+
+            this.markDirty();
         }
 
         return stack;
@@ -232,6 +245,7 @@ public class InventoryItem implements IInventory
     @Override
     public void markDirty()
     {
+        this.writeToContainerItemStack();
     }
 
     @Override
