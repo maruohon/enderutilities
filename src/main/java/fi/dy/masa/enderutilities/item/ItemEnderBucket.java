@@ -654,7 +654,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         fs = fluidStack.copy();
                     }
 
-                    if (info != null && info[0] != null)
+                    if (info != null && info.length > 0 && info[0] != null)
                     {
                         return info[0].capacity - fluidStack.amount;
                     }
@@ -666,7 +666,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 // Tank has no fluid
                 else
                 {
-                    if (info != null && info[0] != null)
+                    if (info != null && info.length > 0 && info[0] != null)
                     {
                         return info[0].capacity;
                     }
@@ -750,7 +750,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 if (tank != null && targetData != null)
                 {
                     FluidTankInfo[] info = tank.getTankInfo(targetData.forgeDir);
-                    if (info != null && info[0] != null)
+                    if (info != null && info.length > 0 && info[0] != null)
                     {
                         moduleNbt.setInteger("CapacityCached", info[0].capacity);
                     }
@@ -879,7 +879,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             FluidTankInfo[] info = tank.getTankInfo(targetData.forgeDir);
 
             // If we have tank info, it is the easiest and simplest way to get the tank capacity
-            if (info != null && info[0] != null)
+            if (info != null && info.length > 0 && info[0] != null)
             {
                 return info[0].capacity;
             }
