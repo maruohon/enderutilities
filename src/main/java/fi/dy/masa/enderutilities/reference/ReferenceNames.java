@@ -51,6 +51,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
     public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";
 
+    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + ".enderalloy.advanced";
 
     public static String getPrefixedName(String name)
     {

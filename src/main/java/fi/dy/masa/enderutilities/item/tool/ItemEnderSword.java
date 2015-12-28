@@ -30,6 +30,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 
@@ -54,7 +55,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -81,8 +81,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     public ItemEnderSword()
     {
-        super(ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED);
-        this.material = ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED;
+        super(ItemEnderTool.ENDER_ALLOY_ADVANCED);
+        this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();

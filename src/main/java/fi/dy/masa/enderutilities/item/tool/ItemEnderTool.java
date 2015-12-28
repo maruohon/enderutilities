@@ -37,9 +37,11 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -67,7 +69,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.reference.ReferenceMaterial;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -82,6 +83,10 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 {
+    public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
+        EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
+            Configs.harvestLevelEnderAlloyAdvanced.getInt(3), 2560, 12.0f, 4.0f, 15);
+
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
     public float damageVsEntity;
@@ -97,8 +102,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public ItemEnderTool()
     {
         // The Set is not actually used for anything!
-        super(2.0f, ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED, Sets.newHashSet(new Block[]{Blocks.torch}));
-        this.material = ReferenceMaterial.Tool.ENDER_ALLOY_ADVANCED;
+        super(2.0f, ENDER_ALLOY_ADVANCED, Sets.newHashSet(new Block[]{Blocks.torch}));
+        this.material = ENDER_ALLOY_ADVANCED;
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
