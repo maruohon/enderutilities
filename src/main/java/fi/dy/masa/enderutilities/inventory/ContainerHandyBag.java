@@ -1,16 +1,8 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.UUID;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import invtweaks.api.container.ContainerSection;
-import invtweaks.api.container.ContainerSectionCallback;
-import invtweaks.api.container.InventoryContainer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -20,9 +12,6 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
-import com.google.common.collect.Maps;
-
-@InventoryContainer
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
     public final EntityPlayer player;
@@ -31,14 +20,11 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
     public IInventory craftResult = new InventoryCraftResult();
 
-    protected Map<ContainerSection, List<Slot>> invTweaksSections;
-
     public ContainerHandyBag(EntityPlayer player, InventoryItemModular inventory)
     {
         super(player.inventory, inventory);
         this.player = player;
         this.inventoryItemModular = inventory;
-        this.invTweaksSections = Maps.newHashMap();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);
@@ -52,19 +38,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             posX += 40;
         }
 
-        int playerInvStart = this.inventorySlots.size();
-
         super.addPlayerInventorySlots(posX, posY);
-
-        // Set up the Inventory Tweaks container sections.
-        // We only enable Inventory Tweaks sorting for the player inventory part of the container.
-        int playerInvEnd = this.inventorySlots.size();
-        List<Slot> playerInvSlots = new ArrayList<Slot>();
-        for (int i = playerInvStart; i < playerInvEnd; i++)
-        {
-            playerInvSlots.add(this.getSlot(i));
-        }
-        this.invTweaksSections.put(ContainerSection.INVENTORY, playerInvSlots);
 
         // Player armor slots
         posY = 15;
@@ -253,16 +227,5 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         this.detectAndSendChanges();
 
         return stack;
-    }
-
-    /**
-     * Inventory Tweaks callback method to get the container sections.
-     * We only enable Inventory Tweaks sorting for the player inventory part
-     * of the container.
-     */
-    @ContainerSectionCallback
-    public Map<ContainerSection, List<Slot>> getContainerSections()
-    {
-        return this.invTweaksSections;
     }
 }
