@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
@@ -16,9 +15,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-
 import org.lwjgl.opengl.GL11;
-
 import codechicken.nei.guihook.IGuiSlotDraw;
 import cpw.mods.fml.common.Optional;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
@@ -42,7 +39,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected EntityPlayer player;
     protected ContainerHandyBag container;
-    protected InventoryItemModular inventory;
+    protected InventoryItemModular invModular;
     protected ResourceLocation textureGuiBackground;
     protected ResourceLocation textureGuiWidgets;
     protected float mouseXFloat;
@@ -62,9 +59,9 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         super(container);
         this.player = container.player;
         this.container = container;
-        this.inventory = container.inventoryItemModular;
-        this.invSize = this.inventory.getMainInventory().getSizeInventory();
-        this.numModuleSlots = this.inventory.getSizeInventory();
+        this.invModular = container.inventoryItemModular;
+        this.invSize = this.invModular.getSizeInventory();
+        this.numModuleSlots = this.invModular.getSizeInventory();
         this.bagTier = this.container.getBagTier();
 
         this.textureGuiBackground = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
@@ -117,7 +114,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.bindTexture(this.textureGuiWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected)
-        if (this.inventory.getMainInventory().isUseableByPlayer(this.player) == false)
+        if (this.invModular.isUseableByPlayer(this.player) == false)
         {
             // Draw the dark background icon over the disabled inventory slots
             for (int i = 0; i < this.invSize; i++)
@@ -135,7 +132,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
         // Draw the dark background icon over the disabled slots
-        if (this.inventory.isUseableByPlayer(this.player) == false)
+        if (this.invModular.getModuleInventory().isUseableByPlayer(this.player) == false)
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {
@@ -144,7 +141,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         }
 
         // Draw the colored background for the selected module slot
-        int index = this.inventory.getSelectedModuleIndex();
+        int index = this.invModular.getSelectedModuleIndex();
         this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -158,7 +155,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
         for (int i = 0; icon != null && i < this.numModuleSlots; i++)
         {
-            if (this.inventory.getStackInSlot(i) == null)
+            if (this.invModular.getModuleInventory().getStackInSlot(i) == null)
             {
                 this.drawTexturedModelRectFromIcon(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, icon, 16, 16);
             }
@@ -201,7 +198,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.buttonList.clear();
 
         // Add the Memory Card selection buttons
-        int numModules = this.inventory.getSizeInventory();
+        int numModules = this.invModular.getModuleInventory().getSizeInventory();
         for (int i = 0; i < numModules; i++)
         {
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.textureGuiWidgets, 0, 10));
@@ -291,7 +288,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
         // Slot is in the bag's inventory, render using the smaller font for stack size
-        if (slot.inventory == this.inventory.getMainInventory())
+        if (slot.inventory == this.invModular)
         {
             itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
             itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);

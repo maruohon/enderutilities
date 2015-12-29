@@ -6,17 +6,17 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 
-public class InventoryItemMemoryCards extends InventoryItemModules
+public class InventoryItemMemoryCards extends InventoryItemModularModules
 {
-    public InventoryItemMemoryCards(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    public InventoryItemMemoryCards(InventoryItemModular invModular, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
-        super(modularInventory, containerStack, invSize, isRemote, player);
+        super(invModular, containerStack, invSize, isRemote, player);
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        if (this.inventoryItemModular.getContainerItemStack() == null)
+        if (super.isItemValidForSlot(slotNum, stack) == false)
         {
             return false;
         }

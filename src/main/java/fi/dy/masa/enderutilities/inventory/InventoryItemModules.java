@@ -6,12 +6,9 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 
 public class InventoryItemModules extends InventoryItem
 {
-    protected InventoryItemModular inventoryItemModular;
-
-    public InventoryItemModules(InventoryItemModular modularInventory, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    public InventoryItemModules(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
         super(containerStack, invSize, isRemote, player);
-        this.inventoryItemModular = modularInventory;
         this.stackLimit = 1;
     }
 
@@ -35,7 +32,7 @@ public class InventoryItemModules extends InventoryItem
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        if (this.inventoryItemModular.getContainerItemStack() == null)
+        if (super.isItemValidForSlot(slotNum, stack) == false)
         {
             return false;
         }

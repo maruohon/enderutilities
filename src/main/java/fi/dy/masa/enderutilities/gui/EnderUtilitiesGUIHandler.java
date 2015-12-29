@@ -53,7 +53,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
-                    return new ContainerInventorySwapper(player, new InventoryItem(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), world, player));
+                    return new ContainerInventorySwapper(player, new InventoryItem(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), world.isRemote, player));
                 }
                 break;
 
@@ -93,7 +93,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
-                    return new GuiInventorySwapper(new ContainerInventorySwapper(player, new InventoryItem(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), world, player)));
+                    return new GuiInventorySwapper(new ContainerInventorySwapper(player, new InventoryItem(stack, ((ItemInventoryModular)stack.getItem()).getSizeInventory(stack), world.isRemote, player)));
                 }
                 break;
 

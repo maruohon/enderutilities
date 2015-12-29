@@ -13,13 +13,13 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
     public static final int SLOT_MODULAR_ITEM = NUM_MODULE_SLOTS;
-    public InventoryItem inventoryItem;
+    public InventoryItemModules inventoryItem;
     protected boolean isRemote;
 
     public ContainerToolWorkstation(InventoryPlayer inventoryPlayer, TileEntityToolWorkstation te)
     {
         super(inventoryPlayer, te);
-        this.inventoryItem = new InventoryItem(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj(), inventoryPlayer.player);
+        this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj().isRemote, inventoryPlayer.player);
         this.inventoryItem.readFromContainerItemStack();
         this.isRemote = this.te.getWorldObj().isRemote;
         this.addCustomInventorySlots();
@@ -142,7 +142,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         Slot slot = slotNum >= 0 && slotNum <= this.inventorySlots.size() ? this.getSlot(slotNum) : null;
         ItemStack stack = super.slotClick(slotNum, i1, i2, player);
 
-        if (this.isRemote == false && this.te instanceof TileEntityToolWorkstation)
+        if (this.isRemote == false)
         {
             // The clicked on slot is inside the modular item's inventory
             if (slot != null && slot.inventory == this.inventoryItem)

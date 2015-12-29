@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -11,6 +9,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -102,7 +102,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemModular.getMainInventory(), i * 9 + j, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
             }
         }
 
@@ -114,33 +114,33 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             // Left side extra slots
             for(int i = 0; i < 7; i++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemModular.getMainInventory(), 27 + i * 2, xOffXtra +  0, yOff + i * 18));
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemModular.getMainInventory(), 28 + i * 2, xOffXtra + 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 27 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 28 + i * 2, xOffXtra + 18, yOff + i * 18));
             }
 
             xOffXtra = 214;
             // Right side extra slots
             for(int i = 0; i < 7; i++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemModular.getMainInventory(), 41 + i * 2, xOffXtra +  0, yOff + i * 18));
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemModular.getMainInventory(), 42 + i * 2, xOffXtra + 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 41 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, 42 + i * 2, xOffXtra + 18, yOff + i * 18));
             }
         }
 
         xOff += 90;
         yOff = 69;
-        int moduleSlots = this.inventory.getSizeInventory();
+        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSizeInventory();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.inventory, i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
+            this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
         }
     }
 
     @Override
     public ItemStack getModularItem()
     {
-        return this.inventoryItemModular.getContainerItemStack();
+        return this.inventoryItemModular.getModularItemStack();
     }
 
     @Override
@@ -173,9 +173,9 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
     public int getBagTier()
     {
-        if (this.inventoryItemModular.getContainerItemStack() != null)
+        if (this.inventoryItemModular.getModularItemStack() != null)
         {
-            return this.inventoryItemModular.getContainerItemStack().getItemDamage() == 1 ? 1 : 0;
+            return this.inventoryItemModular.getModularItemStack().getItemDamage() == 1 ? 1 : 0;
         }
 
         return 0;
@@ -207,7 +207,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
     {
-        ItemStack containerStack = this.inventoryItemModular.getContainerItemStack();
+        ItemStack containerStack = this.inventoryItemModular.getModularItemStack();
         ItemStack stackPre = slotNum >= 0 && slotNum < this.inventorySlots.size() ? this.getSlot(slotNum).getStack() : null;
 
         ItemStack stack = super.slotClick(slotNum, key, type, player);
