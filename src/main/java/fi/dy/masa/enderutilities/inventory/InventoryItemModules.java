@@ -12,26 +12,10 @@ public class InventoryItemModules extends InventoryItem
         this.stackLimit = 1;
     }
 
-    /*@Override
-    public ItemStack getContainerItemStack()
-    {
-        return this.inventoryItemModular.getModularItemStack();
-    }*/
-
-    /*@Override
-    public void writeToContainerItemStack()
-    {
-        super.writeToContainerItemStack();
-
-        if (this.isRemote == false)
-        {
-            this.inventoryItemModular.readFromContainerItemStack();
-        }
-    }*/
-
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
+        //System.out.println("InventoryItemModules#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
         if (super.isItemValidForSlot(slotNum, stack) == false)
         {
             return false;

@@ -25,6 +25,12 @@ public class InventoryItem implements IInventory
         this.player = player;
         this.isRemote = isRemote;
         this.stackLimit = 64;
+        this.initInventory();
+    }
+
+    protected void initInventory()
+    {
+        this.items = new ItemStack[this.getSizeInventory()]; // This obviously also needs to happen on the client side
     }
 
     /**
@@ -32,6 +38,7 @@ public class InventoryItem implements IInventory
      */
     public ItemStack getContainerItemStack()
     {
+        //System.out.println("InventoryItem#getContainerItemStack() - " + (this.isRemote ? "client" : "server"));
         return this.containerStack;
     }
 
@@ -71,25 +78,33 @@ public class InventoryItem implements IInventory
      */
     public void readFromContainerItemStack()
     {
-        this.items = new ItemStack[this.getSizeInventory()]; // This obviously also needs to happen on the client side
+        //System.out.println("InventoryItem#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+        this.initInventory();
 
         // Only read the contents on the server side, they get synced to the client via the open Container
-        ItemStack stack = this.getContainerItemStack();
-        if (this.isRemote == false && stack != null && this.isUseableByPlayer(this.player) == true)
+        if (this.isRemote == false)
         {
-            UtilItemModular.readItemsFromContainerItem(stack, this.items);
+            ItemStack stack = this.getContainerItemStack();
+            if (stack != null && this.isUseableByPlayer(this.player) == true)
+            {
+                UtilItemModular.readItemsFromContainerItem(stack, this.items);
+            }
         }
     }
 
     /**
      * Writes the inventory contents to the container ItemStack
      */
-    public void writeToContainerItemStack()
+    protected void writeToContainerItemStack()
     {
-        ItemStack stack = this.getContainerItemStack();
-        if (this.isRemote == false && stack != null && this.isUseableByPlayer(this.player) == true)
+        if (this.isRemote == false)
         {
-            UtilItemModular.writeItemsToContainerItem(stack, this.items, true);
+            //System.out.println("InventoryItem#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+            ItemStack stack = this.getContainerItemStack();
+            if (stack != null && this.isUseableByPlayer(this.player) == true)
+            {
+                UtilItemModular.writeItemsToContainerItem(stack, this.items, true);
+            }
         }
     }
 
@@ -102,6 +117,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {
+        //System.out.println("InventoryItem#getStackInSlot(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         if (slotNum < this.items.length)
         {
             return this.items[slotNum];
@@ -117,7 +133,7 @@ public class InventoryItem implements IInventory
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
-        //EnderUtilities.logger.info("InventoryItem.setInventorySlotContents(" + slotNum + ", " + newStack + ")");
+        //System.out.println("InventoryItem#setInventorySlotContents(" + slotNum + ", " + newStack + ") - " + (this.isRemote ? "client" : "server"));
         if (slotNum < this.items.length)
         {
             this.items[slotNum] = newStack;
@@ -133,7 +149,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
-        //EnderUtilities.logger.info("InventoryItem.decrStackSize(" + slotNum + ", " + maxAmount + ")");
+        //System.out.println("InventoryItem#decrStackSize(" + slotNum + ", " + maxAmount + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
 
         if (slotNum < this.items.length)
@@ -170,6 +186,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
+        //System.out.println("InventoryItem#getStackInSlotOnClosing(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
         if (slotNum < this.items.length)
         {
@@ -185,12 +202,14 @@ public class InventoryItem implements IInventory
     @Override
     public int getInventoryStackLimit()
     {
+        //System.out.println("InventoryItem#getInventoryStackLimit() - " + (this.isRemote ? "client" : "server"));
         return this.stackLimit;
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
+        //System.out.println("InventoryItem#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
         return this.getContainerItemStack() != null;
     }
 
@@ -231,10 +250,11 @@ public class InventoryItem implements IInventory
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
+        //System.out.println("InventoryItem#isUseableByPlayer() - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = this.getContainerItemStack();
         if (stack == null)
         {
-            System.out.println("isUseableByPlayer(): false - containerStack == null");
+            //System.out.println("isUseableByPlayer(): false - containerStack == null");
             return false;
         }
 
@@ -245,17 +265,23 @@ public class InventoryItem implements IInventory
     @Override
     public void markDirty()
     {
-        this.writeToContainerItemStack();
+        if (this.isRemote == false)
+        {
+            //System.out.println("InventoryItem#markDirty() - " + (this.isRemote ? "client" : "server"));
+            this.writeToContainerItemStack();
+        }
     }
 
     @Override
     public void openInventory()
     {
+        //System.out.println("InventoryItem#openInventory() - " + (this.isRemote ? "client" : "server"));
     }
 
     @Override
     public void closeInventory()
     {
+        //System.out.println("InventoryItem#closeInventory() - " + (this.isRemote ? "client" : "server"));
         //this.writeToContainerItemStack();
     }
 }

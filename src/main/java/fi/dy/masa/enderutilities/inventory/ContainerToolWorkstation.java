@@ -147,7 +147,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
             // The clicked on slot is inside the modular item's inventory
             if (slot != null && slot.inventory == this.inventoryItem)
             {
-                this.inventoryItem.writeToContainerItemStack();
+                this.inventoryItem.markDirty();
             }
             // Changing the item in the tool slot, update the InventoryItem
             //else if (slot != null && slot.inventory == this.inventory && slotNum == SLOT_MODULAR_ITEM)

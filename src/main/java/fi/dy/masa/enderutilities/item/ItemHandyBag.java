@@ -356,8 +356,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
                     UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD, element);
-                    inv.setModularItemStack(stack);
-                    //container.inventoryItemModular.readFromContainerItemStack();
+                    inv.readFromContainerItemStack();
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {

@@ -61,7 +61,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.container = container;
         this.invModular = container.inventoryItemModular;
         this.invSize = this.invModular.getSizeInventory();
-        this.numModuleSlots = this.invModular.getSizeInventory();
+        this.numModuleSlots = this.invModular.getModuleInventory().getSizeInventory();
         this.bagTier = this.container.getBagTier();
 
         this.textureGuiBackground = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
@@ -142,7 +142,10 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 
         // Draw the colored background for the selected module slot
         int index = this.invModular.getSelectedModuleIndex();
-        this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
+        if (index >= 0)
+        {
+            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
+        }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render

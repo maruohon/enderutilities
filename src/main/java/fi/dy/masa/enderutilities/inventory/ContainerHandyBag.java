@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -10,7 +9,6 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -25,6 +23,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         super(player.inventory, inventory);
         this.player = player;
         this.inventoryItemModular = inventory;
+        this.inventoryItemModular.setHostInventory(player.inventory);
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);
@@ -207,21 +206,17 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
     {
-        ItemStack containerStack = this.inventoryItemModular.getModularItemStack();
-        ItemStack stackPre = slotNum >= 0 && slotNum < this.inventorySlots.size() ? this.getSlot(slotNum).getStack() : null;
+        ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
 
         ItemStack stack = super.slotClick(slotNum, key, type, player);
 
-        ItemStack stackPost = slotNum >= 0 && slotNum < this.inventorySlots.size() ? this.getSlot(slotNum).getStack() : null;
+        ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
 
-        // FIXME BROKEN AFTER THE REFACTORING !!!!!
-        // The Bag's stack changed to or from null, re-read the inventory contents.
-        if ((containerStack == stackPre || containerStack == stackPost) && stackPre != stackPost)
+        // The Bag's stack changed after the click, re-read the inventory contents.
+        if (modularStackPre != modularStackPost)
         {
-            System.out.println("slotClick() - updating container");
-            UUID uuid = this.inventoryItemModular.getContainerUUID();
-            this.inventoryItemModular.setContainerItemStack(InventoryUtils.getItemStackByUUID(this.inventoryPlayer, uuid, "UUID"));
-            //this.inventoryItemModular.readFromContainerItemStack();
+            //System.out.println("slotClick() - updating container");
+            this.inventoryItemModular.readFromContainerItemStack();
         }
 
         this.detectAndSendChanges();

@@ -2,12 +2,14 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -17,6 +19,7 @@ public class InventoryItemModular extends InventoryItem
     protected UUID containerUUID;
     protected InventoryItemMemoryCards moduleInventory;
     protected ModuleType moduleType;
+    protected IInventory hostInventory;
 
     public InventoryItemModular(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
     {
@@ -28,11 +31,19 @@ public class InventoryItemModular extends InventoryItem
         super(containerStack, mainInvSize, player.worldObj.isRemote, player);
 
         this.modularItemStack = containerStack;
-        this.containerUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
         this.moduleType = moduleType;
+        this.containerUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
+        this.hostInventory = null;
 
         this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj.isRemote, player);
-        this.setContainerItemStack(this.getSelectedModuleStack()); // this also calls readFromContainerItemStack()
+        this.moduleInventory.readFromContainerItemStack();
+
+        this.readFromContainerItemStack();
+    }
+
+    public void setHostInventory(IInventory inv)
+    {
+        this.hostInventory = inv;
     }
 
     public UUID getContainerUUID()
@@ -47,7 +58,12 @@ public class InventoryItemModular extends InventoryItem
 
     public ItemStack getModularItemStack()
     {
-        // TODO add host inventory callback, ie. getting the stack by the UUID
+        //System.out.println("InventoryItemModular#getModularItemStack() - " + (this.isRemote ? "client" : "server"));
+        if (this.hostInventory != null)
+        {
+            return InventoryUtils.getItemStackByUUID(this.hostInventory, this.containerUUID, "UUID");
+        }
+
         return this.modularItemStack;
     }
 
@@ -59,21 +75,32 @@ public class InventoryItemModular extends InventoryItem
     @Override
     public ItemStack getContainerItemStack()
     {
+        //System.out.println("InventoryItemModular#getContainerItemStack() - " + (this.isRemote ? "client" : "server"));
         return this.getSelectedModuleStack();
+    }
+
+    public void readFromSelectedModuleStack()
+    {
+        super.readFromContainerItemStack();
     }
 
     @Override
     public void readFromContainerItemStack()
     {
-        this.moduleInventory.setContainerItemStack(this.getModularItemStack());
-        //this.moduleInventory.readFromContainerItemStack(); // done above
-        this.setMainInventoryStackLimit();
-        super.readFromContainerItemStack();
+        //System.out.println("InventoryItemModular#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+        //this.setMainInventoryStackLimit();
+
+        // This also does "this.moduleInventory.readFromContainerItemStack();"
+        //this.moduleInventory.setContainerItemStack(this.getModularItemStack());
+
+        this.moduleInventory.readFromContainerItemStack();
+        this.readFromSelectedModuleStack();
     }
 
     @Override
-    public void writeToContainerItemStack()
+    protected void writeToContainerItemStack()
     {
+        //System.out.println("InventoryItemModular#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
         super.writeToContainerItemStack();
         this.moduleInventory.writeToContainerItemStack();
     }
@@ -84,30 +111,32 @@ public class InventoryItemModular extends InventoryItem
      */
     public int getSelectedModuleIndex()
     {
+        if (this.getModularItemStack() == null)
+        {
+            return -1;
+        }
+
         return UtilItemModular.getStoredModuleSelection(this.getModularItemStack(), this.moduleType);
     }
 
     protected ItemStack getSelectedModuleStack()
     {
-        /*int index = this.getSelectedModuleIndex();
-        return index >= 0 && index < this.moduleInventory.getSizeInventory() ? this.moduleInventory.getStackInSlot(index) : null;*/
-        return UtilItemModular.getModuleStackBySlotNumber(this.getModularItemStack(), this.getSelectedModuleIndex(), this.moduleType);
+        //System.out.println("InventoryItemModular#getSelectedModuleStack() - " + (this.isRemote ? "client" : "server"));
+        //return UtilItemModular.getModuleStackBySlotNumber(this.getModularItemStack(), this.getSelectedModuleIndex(), this.moduleType);
+        int index = this.getSelectedModuleIndex();
+        return index >= 0 && index < this.moduleInventory.getSizeInventory() ? this.moduleInventory.getStackInSlot(index) : null;
     }
 
-    /**
-     * Set the stack limit of the main inventory based on the container ItemStack
-     */
-    public void setMainInventoryStackLimit()
+    @Override
+    public int getInventoryStackLimit()
     {
-        int limit = 64;
-
         ItemStack stack = this.getModularItemStack();
         if (stack != null && stack.getItem() instanceof ItemInventoryModular)
         {
-            limit = ((ItemInventoryModular)stack.getItem()).getInventoryStackLimit(stack);
+            return ((ItemInventoryModular)stack.getItem()).getInventoryStackLimit(stack);
         }
 
-        this.setInventoryStackLimit(limit);
+        return 64;
     }
 
     @Override
@@ -149,11 +178,44 @@ public class InventoryItemModular extends InventoryItem
     }
 
     @Override
+    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
+    {
+        if (stack == null)
+        {
+            return super.isItemValidForSlot(slotNum, stack);
+        }
+
+        ItemStack modularStack = this.getModularItemStack();
+        // Don't allow nesting the same type of items as the container item inside itself
+        if (modularStack != null && modularStack.getItem() == stack.getItem())
+        {
+            return false;
+        }
+
+        return super.isItemValidForSlot(slotNum, stack);
+    }
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer player)
+    {
+        ItemStack stack = this.getModularItemStack();
+        if (stack == null)
+        {
+            //System.out.println("isUseableByPlayer(): false - containerStack == null");
+            return false;
+        }
+
+        return super.isUseableByPlayer(player);
+    }
+
+    /*@Override
     public void markDirty()
     {
+        //System.out.println("InventoryItemModular#markDirty() - " + (this.isRemote ? "client" : "server"));
         super.markDirty();
-        this.moduleInventory.markDirty();
-    }
+        //this.moduleInventory.writeToContainerItemStack();
+        //this.moduleInventory.markDirty();
+    }*/
 
     @Override
     public void openInventory()

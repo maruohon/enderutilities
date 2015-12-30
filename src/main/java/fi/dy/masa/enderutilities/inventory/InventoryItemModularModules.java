@@ -14,9 +14,19 @@ public class InventoryItemModularModules extends InventoryItemModules
     }
 
     @Override
+    public ItemStack getContainerItemStack()
+    {
+        return this.inventoryItemModular.getModularItemStack();
+    }
+
+    @Override
     public void markDirty()
     {
-        super.markDirty();
-        this.inventoryItemModular.readFromContainerItemStack();
+        if (this.isRemote == false)
+        {
+            //System.out.println("InventoryItemModularModules#markDirty() - " + (this.isRemote ? "client" : "server"));
+            super.markDirty();
+            this.inventoryItemModular.readFromContainerItemStack();
+        }
     }
 }
