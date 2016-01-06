@@ -20,7 +20,7 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
         this.inventoryItemModular.setHostInventory(player.inventory);
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(24, 117);
+        this.addPlayerInventorySlots(36, 163);
     }
 
     @Override
@@ -29,7 +29,8 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
         super.addPlayerInventorySlots(posX, posY);
 
         // Player armor slots
-        posY = 10;
+        posX = 13;
+        posY = 53;
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
@@ -62,14 +63,38 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
     @Override
     protected void addCustomInventorySlots()
     {
-        int xOff = 114;
-        int yOff = 46;
+        int posX = 36;
+        int posY = 53;
 
+        // Inventory Swapper's player inventory
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j + 9, posX + j * 18, posY + i * 18));
+            }
+        }
+
+        // Inventory Swapper's player inventory hotbar
+        for (int i = 0; i < 9; i++)
+        {
+            this.addSlotToContainer(new SlotGeneric(this.inventory, i, posX + i * 18, posY + 58));
+        }
+
+        posY = 33;
+        // Inventory Swapper's armor slots
+        for (int i = 0; i < 4; i++)
+        {
+            this.addSlotToContainer(new SlotGeneric(this.inventory, 39 - i, posX + i * 18, posY));
+        }
+
+        posX = 126;
+        posY = 18;
         int moduleSlots = this.inventoryItemModular.getModuleInventory().getSizeInventory();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
+            this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD, this));
         }
     }
 
@@ -106,12 +131,12 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
         ItemStack stack = this.getModularItem();
 
         // Middle click
-        if (button == 2 && type == 3 && stack != null && slotNum >= 4 && slotNum < 44)
+        if (button == 2 && type == 3 && stack != null && slotNum >= 44 && slotNum < (44 + 40))
         {
             // Damn armor slots being reversed ;_;
-            if (slotNum >= 40)
+            if (slotNum >= 80)
             {
-                slotNum = 43 - slotNum + 40;
+                slotNum = 83 - slotNum + 80;
             }
 
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
@@ -124,9 +149,25 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
             long mask = NBTUtils.getLong(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET + selected);
             mask ^= (0x1L << invSlotNum);
             NBTUtils.setLong(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET + selected, mask);
+
             return null;
         }
 
-        return super.slotClick(slotNum, button, type, player);
+        ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
+
+        stack = super.slotClick(slotNum, button, type, player);
+
+        ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
+
+        // The Bag's stack changed after the click, re-read the inventory contents.
+        if (modularStackPre != modularStackPost)
+        {
+            //System.out.println("slotClick() - updating container");
+            this.inventoryItemModular.readFromContainerItemStack();
+        }
+
+        this.detectAndSendChanges();
+
+        return stack;
     }
 }

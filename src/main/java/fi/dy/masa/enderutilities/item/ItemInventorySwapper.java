@@ -71,13 +71,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public int getSizeInventory(ItemStack containerStack)
     {
-        return 0;
+        return 40;
     }
 
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        return 1;
+        return 64;
     }
 
     public static void handleKeyPressUnselected(EntityPlayer player, int key)
@@ -139,6 +139,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
                     UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD, element);
+                    ((ContainerInventorySwapper)player.openContainer).inventoryItemModular.readFromContainerItemStack();
                 }
                 else if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
                 {
