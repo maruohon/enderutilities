@@ -171,6 +171,15 @@ public class NBTUtils
         nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
     }
 
+    /**
+     * Return the boolean value from a tag <b>tagName</b>, or false if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static boolean getBoolean(ItemStack stack, String containerTagName, String tagName)
+    {
+        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getBoolean(tagName) : false;
+    }
+
     public static void toggleBoolean(NBTTagCompound nbt, String tagName)
     {
         nbt.setBoolean(tagName, ! nbt.getBoolean(tagName));
@@ -187,6 +196,25 @@ public class NBTUtils
     }
 
     /**
+     * Return the byte value from a tag <b>tagName</b>, or 0 if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static byte getByte(ItemStack stack, String containerTagName, String tagName)
+    {
+        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getByte(tagName) : 0;
+    }
+
+    /**
+     * Set a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void setByte(ItemStack stack, String containerTagName, String tagName, byte value)
+    {
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        nbt.setByte(tagName, value);
+    }
+
+    /**
      * Cycle a byte value in the given NBT. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
      */
@@ -197,13 +225,32 @@ public class NBTUtils
     }
 
     /**
-     * Cycle a byte value in the given ItemStack's NBT. If <b>containerTagName</b>
+     * Cycle a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
      */
     public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue)
     {
         NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
         cycleByteValue(nbt, tagName, maxValue);
+    }
+
+    /**
+     * Return the long value from a tag <b>tagName</b>, or 0 if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static long getLong(ItemStack stack, String containerTagName, String tagName)
+    {
+        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getLong(tagName) : 0;
+    }
+
+    /**
+     * Set a long value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void setLong(ItemStack stack, String containerTagName, String tagName, long value)
+    {
+        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        nbt.setLong(tagName, value);
     }
 
     /**

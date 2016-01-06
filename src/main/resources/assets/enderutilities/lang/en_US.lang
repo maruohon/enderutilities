@@ -15,6 +15,7 @@ enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
 enderutilities.container.handybag.storagemodules=Memory Cards
 enderutilities.container.inventoryswapper=Inventory Swapper
+enderutilities.container.inventoryswapper.presets=Slot presets
 enderutilities.container.inventoryswapper.storagemodules=Memory Cards
 enderutilities.container.toolworkstation=Tool Workstation
 
