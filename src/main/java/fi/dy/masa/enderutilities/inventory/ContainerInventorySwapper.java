@@ -133,12 +133,6 @@ public class ContainerInventorySwapper extends ContainerEnderUtilities implement
         // Middle click
         if (button == 2 && type == 3 && stack != null && slotNum >= 44 && slotNum < (44 + 40))
         {
-            // Damn armor slots being reversed ;_;
-            if (slotNum >= 80)
-            {
-                slotNum = 83 - slotNum + 80;
-            }
-
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)
             {

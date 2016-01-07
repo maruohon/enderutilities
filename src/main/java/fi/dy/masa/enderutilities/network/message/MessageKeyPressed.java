@@ -1,15 +1,14 @@
 package fi.dy.masa.enderutilities.network.message;
 
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 
 public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPressed, IMessage>
 {
@@ -49,7 +48,7 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
                 ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
             }
         }
-        else if (player.inventory.hasItem(EnderUtilitiesItems.inventorySwapper) == true)
+        else if (ItemInventorySwapper.getSlotContainingEnabledItem(player) != -1)
         {
             ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
         }

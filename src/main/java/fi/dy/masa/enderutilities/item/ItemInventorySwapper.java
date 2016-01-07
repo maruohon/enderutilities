@@ -1,9 +1,12 @@
 package fi.dy.masa.enderutilities.item;
 
+import java.util.List;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
+import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
@@ -14,14 +17,18 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBound
@@ -63,6 +70,89 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        String itemName = super.getItemStackDisplayName(stack); //StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+        String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+
+        int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+        if (moduleStack != null && moduleStack.getTagCompound() != null)
+        {
+            // If the currently selected module has been renamed, show that name
+            if (moduleStack.hasDisplayName() == true)
+            {
+                if (itemName.length() >= 14)
+                {
+                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
+                }
+
+                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
+            }
+
+            //return itemName + " " + pre + (NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1) + rst;
+        }
+
+        // Module not renamed, show the module index instead
+        return itemName + " " + pre + (slotNum + 1) + rst;
+    }
+
+    @Override
+    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        if (containerStack.getTagCompound() == null)
+        {
+            return;
+        }
+
+        String preGreen = EnumChatFormatting.GREEN.toString();
+        String preRed = EnumChatFormatting.RED.toString();
+        String preWhite = EnumChatFormatting.WHITE.toString();
+        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+
+        String str;
+        if (isEnabled(containerStack) == true)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+        }
+        else
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+        }
+        list.add(str);
+
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        if (installed > 0)
+        {
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            String preBlue = EnumChatFormatting.BLUE.toString();
+            String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
+            String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+
+            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+            {
+                String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
+                list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
+
+                ((ItemEnderPart)moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                return;
+            }
+            else
+            {
+                String strNo = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
+            }
+        }
+        else
+        {
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+        }
+    }
+
+    @Override
     public int getSizeModuleInventory(ItemStack containerStack)
     {
         return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
@@ -80,13 +170,122 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return 64;
     }
 
+    public static boolean isEnabled(ItemStack stack)
+    {
+        return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED) == false;
+    }
+
+    /**
+     * Returns the slot number of the first enabled/usable Inventory Swapper in the player's inventory, or -1 if none is found.
+     */
+    public static int getSlotContainingEnabledItem(EntityPlayer player)
+    {
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.inventorySwapper);
+        for (int slot : slots)
+        {
+            if (isEnabled(player.inventory.getStackInSlot(slot)) == true)
+            {
+                return slot;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Returns an ItemStack containing an enabled Inventory Swapper in the player's inventory, or null if none is found.
+     */
+    public static ItemStack getEnabledItem(EntityPlayer player)
+    {
+        int slotNum = getSlotContainingEnabledItem(player);
+        return slotNum != -1 ? player.inventory.getStackInSlot(slotNum) : null;
+    }
+
+    public static long getEnabledSlotsMask(ItemStack stack)
+    {
+        byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
+    }
+
+    public static void swapInventory(final int swapperSlot, EntityPlayer player)
+    {
+        ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
+        ItemStack tmpStack;
+        if (swapperStack == null)
+        {
+            return;
+        }
+
+        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
+        if (inv.getModuleInventory().getStackInSlot(UtilItemModular.getStoredModuleSelection(swapperStack, ModuleType.TYPE_MEMORY_CARD)) == null)
+        {
+            return;
+        }
+
+        final long mask = getEnabledSlotsMask(swapperStack);
+        final int invMax = player.inventory.getInventoryStackLimit();
+        final int invSize = player.inventory.getSizeInventory();
+        final int mainInvSize = player.inventory.mainInventory.length;
+
+        long bit = 0x1;
+        for (int i = 0; i < invSize; i++)
+        {
+            // Don't swap the swapper itself, and only swap slots that have been enabled
+            if (i != swapperSlot && (mask & bit) != 0)
+            {
+                tmpStack = inv.getStackInSlot(i);
+
+                // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
+                if (tmpStack == null ||
+                    (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
+                        player.inventory.isItemValidForSlot(i, tmpStack)))
+                {
+                    // Armor slots
+                    if (i >= mainInvSize)
+                    {
+                        int pos = tmpStack != null ? EntityLiving.getArmorPosition(tmpStack) : (i - mainInvSize + 1);
+                        if (pos > 0 && pos == (i - mainInvSize + 1))
+                        {
+                            inv.setInventorySlotContents(i, player.inventory.getStackInSlot(i));
+                            player.inventory.setInventorySlotContents(i, tmpStack);
+                        }
+                    }
+                    else
+                    {
+                        inv.setInventorySlotContents(i, player.inventory.getStackInSlot(i));
+                        player.inventory.setInventorySlotContents(i, tmpStack);
+                    }
+                }
+            }
+            bit <<= 1;
+        }
+
+        player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+    }
+
+    public static void swapInventory(EntityPlayer player)
+    {
+        int slot = getSlotContainingEnabledItem(player);
+        if (slot != -1)
+        {
+            swapInventory(slot, player);
+        }
+    }
+
     public static void handleKeyPressUnselected(EntityPlayer player, int key)
     {
-        ItemInventorySwapper item = (ItemInventorySwapper)EnderUtilitiesItems.inventorySwapper;
-        int slotNum = InventoryUtils.getSlotOfFirstMatchingItem(player.inventory, item);
-        if (slotNum >= 0)
+        // Just Toggle mode: Fire the swapping action
+        /*if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == false
+            && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            //ItemStack stack = player.inventory.getStackInSlot(slotNum);
+            swapInventory(player);
+        }*/
+
+        ItemStack stack = getEnabledItem(player);
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+        {
+            ((ItemInventorySwapper)stack.getItem()).doKeyBindingAction(player, stack, key);
         }
     }
 
@@ -110,7 +309,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            handleKeyPressUnselected(player, key);
+            swapInventory(player);
+        }
+        // Alt + Shift + Toggle mode: Toggle the locked mode
+        else if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == true
+            && ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
         }
         // Shift + Toggle mode: Cycle the slot mask preset
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -147,15 +353,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 }
                 else if (action == GUI_ACTION_TOGGLE_ROWS && element >= 0 && element < 4)
                 {
-                    byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-                    long mask = NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
+                    long mask = getEnabledSlotsMask(stack);
                     mask ^= (0x1FFL << (element * 9));
-                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected, mask);
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
                 }
                 else if (action == GUI_ACTION_TOGGLE_COLUMNS)
                 {
-                    byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-                    long mask = NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
+                    long mask = getEnabledSlotsMask(stack);
 
                     // Player inventory
                     if (element >= 0 && element < 9)
@@ -168,7 +372,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                         mask ^= 0xF000000000L; // toggle bits 39..36
                     }
 
-                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected, mask);
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
                 }
             }
         }

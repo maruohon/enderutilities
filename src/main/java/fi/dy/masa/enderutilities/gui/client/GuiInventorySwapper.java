@@ -148,8 +148,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         if (stack != null)
         {
             // Draw the colored background for the selected/enabled inventory slots
-            byte selected = NBTUtils.getByte(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET_SELECTION);
-            long mask = NBTUtils.getLong(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET + selected);
+            final long mask = ItemInventorySwapper.getEnabledSlotsMask(stack);
             long bit = 0x1;
             // Hotbar
             for (int c = 0; c < 9; c++)
@@ -179,7 +178,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             {
                 if ((mask & bit) != 0)
                 {
-                    this.drawTexturedModalRect(this.firstArmorSlotX - 1, this.firstArmorSlotY - 1 + r * 18, 204, 18, 18, 18);
+                    this.drawTexturedModalRect(this.firstArmorSlotX - 1, this.firstArmorSlotY - 1 + (3 - r) * 18, 204, 18, 18, 18);
                 }
                 bit <<= 1;
             }
@@ -213,6 +212,17 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             {
                 icon = ItemArmor.func_94602_b(i);
                 this.drawTexturedModelRectFromIcon(this.firstArmorSlotX, this.firstArmorSlotY + i * 18, icon, 16, 16);
+            }
+        }
+
+        // Draw the background icon for empty armor slots in the swapper's inventory
+        for (int i = 0; i < 4; i++)
+        {
+            if (this.inventory.getStackInSlot(39 - i) == null)
+            {
+                //System.out.println("plop");
+                icon = ItemArmor.func_94602_b(i);
+                this.drawTexturedModelRectFromIcon(this.firstArmorSlotX + 23 + i * 18, this.firstArmorSlotY - 20, icon, 16, 16);
             }
         }
 
