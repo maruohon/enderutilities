@@ -6,6 +6,7 @@ import java.util.List;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -242,7 +243,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         if (mouseX >= x + 6 && mouseX <= x + 23 && mouseY >= y + 20 && mouseY <= y + 37)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.inventoryswapper.info", new Object[0]));
+            ItemEnderUtilities.addTooltips("enderutilities.gui.label.inventoryswapper.info", list, false);
+            //list.add(I18n.format("enderutilities.gui.label.inventoryswapper.info", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }

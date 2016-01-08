@@ -122,7 +122,7 @@ public class ContainerEnderUtilities extends Container
      */
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        return Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize());
+        return stack != null ? Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
     @Override

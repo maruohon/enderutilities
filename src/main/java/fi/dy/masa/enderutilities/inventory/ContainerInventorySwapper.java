@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-public class ContainerInventorySwapper extends ContainerEnderUtilities implements IContainerModularItem
+public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlotClick implements IContainerModularItem
 {
     public InventoryItemModular inventoryItemModular;
     public EntityPlayer player;
