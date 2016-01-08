@@ -217,7 +217,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
-        if (inv.getModuleInventory().getStackInSlot(UtilItemModular.getStoredModuleSelection(swapperStack, ModuleType.TYPE_MEMORY_CARD)) == null)
+        int slotNum = UtilItemModular.getStoredModuleSelection(swapperStack, ModuleType.TYPE_MEMORY_CARD);
+        if (inv.getModuleInventory().getStackInSlot(slotNum) == null || inv.isUseableByPlayer(player) == false)
         {
             return;
         }
