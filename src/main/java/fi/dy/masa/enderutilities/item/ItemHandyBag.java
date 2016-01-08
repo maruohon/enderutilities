@@ -411,7 +411,7 @@ public class ItemHandyBag extends ItemInventoryModular
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            UtilItemModular.changePrivacyModeOnSelectedModule(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD);
         }
         // Just Toggle mode: Cycle Pickup Mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -440,7 +440,7 @@ public class ItemHandyBag extends ItemInventoryModular
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            UtilItemModular.changeSelectedModuleAbs(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 

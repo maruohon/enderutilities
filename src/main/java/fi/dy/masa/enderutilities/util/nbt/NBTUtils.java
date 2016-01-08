@@ -39,8 +39,13 @@ public class NBTUtils
         return nbt;
     }
 
-    public static ItemStack writeNBTToItemStack(ItemStack stack, NBTTagCompound nbt)
+    public static ItemStack setRootCompoundTag(ItemStack stack, NBTTagCompound nbt)
     {
+        if (nbt.hasNoTags() == true)
+        {
+            nbt = null;
+        }
+
         stack.setTagCompound(nbt);
         return stack;
     }
@@ -278,5 +283,49 @@ public class NBTUtils
         }
 
         return containerStack.getTagCompound().getTagList("Items", Constants.NBT.TAG_COMPOUND);
+    }
+
+    /**
+     * Returns the NBTTagList containing all the stored ItemStacks in the containerStack.
+     * If the list doesn't exist, it will be created and added.
+     * @param containerStack
+     * @return the NBTTagList holding the stored items
+     */
+    public static NBTTagList getOrCreateStoredItemsList(ItemStack containerStack)
+    {
+        NBTTagCompound nbt = getOrCreateRootCompoundTag(containerStack);
+        if (nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        {
+            nbt.setTag("Items", new NBTTagList());
+        }
+
+        return nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+    }
+
+    /**
+     * Sets the NBTTagList storing the items in the containerStack. If <b>tagList</b> is null, then the existing
+     * list (if any) is removed.
+     * @param containerStack
+     * @param tagList
+     */
+    public static void setStoredItemsList(ItemStack containerStack, NBTTagList tagList)
+    {
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null);
+        if (tagList == null)
+        {
+            if (nbt != null)
+            {
+                nbt.removeTag("Items");
+            }
+
+            return;
+        }
+
+        if (nbt == null)
+        {
+            nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
+        }
+
+        nbt.setTag("Items", tagList);
     }
 }

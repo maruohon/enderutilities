@@ -2,14 +2,6 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
@@ -19,6 +11,14 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.setup.Configs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class UtilItemModular
 {
@@ -240,7 +240,7 @@ public class UtilItemModular
      */
     public static boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getOrCreateStoredItemsList(containerStack);
         if (nbtTagList == null)
         {
             return false;
@@ -269,20 +269,15 @@ public class UtilItemModular
     }
 
     /**
-     * Sets the module ItemStack in the given slot number <b>slotNum</b> to the one provided in newModuleStack.
+     * Sets the module ItemStack in the given slot number <b>slotNum</b> to the one provided in moduleStack.
      * @param containerStack
      * @param moduleType
      * @param newModuleStack
      * @return
      */
-    public static boolean setModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ItemStack newModuleStack)
+    public static boolean setModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ItemStack moduleStack)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
-        if (nbtTagList == null)
-        {
-            nbtTagList = new NBTTagList();
-        }
-
+        NBTTagList nbtTagList = NBTUtils.getOrCreateStoredItemsList(containerStack);
         int listNumStacks = nbtTagList.tagCount();
 
         // Replace the module ItemStack with slot number slotNum, or add it if it doesn't exist
@@ -293,7 +288,7 @@ public class UtilItemModular
             {
                 // Write the new module ItemStack to the compound tag of the old one, so that we
                 // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
+                nbtTagList.func_150304_a(i, moduleStack.writeToNBT(moduleTag));
                 return true;
             }
         }
@@ -301,7 +296,7 @@ public class UtilItemModular
         // No ItemStack found with slot number slotNum, appending a new tag
         NBTTagCompound moduleTag = new NBTTagCompound();
         moduleTag.setByte("Slot", (byte)slotNum);
-        newModuleStack.writeToNBT(moduleTag);
+        moduleStack.writeToNBT(moduleTag);
         nbtTagList.appendTag(moduleTag);
 
         return false;
@@ -401,6 +396,58 @@ public class UtilItemModular
     }
 
     /**
+     * Change the currently selected module of type <b>moduleType</b> to the next one (if any),
+     * on a modular item that uses absolute module selection index (ie. not empty slot skipping).
+     * @param containerStack
+     * @param moduleType
+     * @param reverse True if we want to change to the previous module instead of the next module
+     * @return
+     */
+    public static boolean changeSelectedModuleAbs(ItemStack containerStack, ModuleType moduleType, boolean reverse)
+    {
+        if ((containerStack.getItem() instanceof IModular) == false)
+        {
+            return false;
+        }
+
+        int maxModules = ((IModular)containerStack.getItem()).getMaxModules(containerStack);
+        if (maxModules <= 0)
+        {
+            return false;
+        }
+
+        ItemStack modules[] = new ItemStack[maxModules];
+        readItemsFromContainerItem(containerStack, modules);
+        int current = getStoredModuleSelection(containerStack, moduleType);
+
+        for (int i = 0; i < maxModules; i++)
+        {
+            if (reverse == true)
+            {
+                if (--current < 0)
+                {
+                    current = maxModules - 1;
+                }
+            }
+            else
+            {
+                if (++current >= maxModules)
+                {
+                    current = 0;
+                }
+            }
+
+            if (modules[current] != null && moduleTypeEquals(modules[current], moduleType) == true)
+            {
+                setModuleSelection(containerStack, moduleType, current);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Sets the module selection index of the module type <b>moduleType</b> to the one given in <b>index</b>.
      * The value is clamped to be between 0..(max - 1) if the item is of type IModular.
      * @param containerStack
@@ -409,12 +456,7 @@ public class UtilItemModular
      */
     public static void setModuleSelection(ItemStack containerStack, ModuleType moduleType, int index)
     {
-        NBTTagCompound nbt = containerStack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-            containerStack.setTagCompound(nbt);
-        }
+        NBTTagCompound nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
 
         if (index < 0)
         {
@@ -646,11 +688,7 @@ public class UtilItemModular
         }
 
         // Write the module list to the tool
-        NBTTagCompound nbt = containerStack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
+        NBTTagCompound nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
 
         if (nbtTagList.tagCount() > 0)
         {
@@ -661,13 +699,7 @@ public class UtilItemModular
             nbt.removeTag("Items");
         }
 
-        // Strip empty compound tags
-        if (nbt.hasNoTags() == true)
-        {
-            nbt = null;
-        }
-
-        containerStack.setTagCompound(nbt);
+        NBTUtils.setRootCompoundTag(containerStack, nbt);
     }
 
     /**
@@ -825,6 +857,40 @@ public class UtilItemModular
     }
 
     /**
+     * Toggle the Public/Private mode on the selected module of the given type
+     * on a modular item that uses absolute module selection index (ie. not empty slot skipping).
+     * If the module doesn't have the Player tag yet, it will be created and set to Private.
+     * @param containerStack
+     * @param player
+     * @param moduleType
+     */
+    public static void changePrivacyModeOnSelectedModuleAbs(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
+    {
+        int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        ItemStack moduleStack = getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
+        if (moduleStack == null)
+        {
+            return;
+        }
+
+        if (NBTHelperPlayer.itemHasPlayerTag(moduleStack) == false)
+        {
+            NBTHelperPlayer.writePlayerTagToItem(moduleStack, player, false);
+            setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
+        }
+        else
+        {
+            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
+            if (data != null && data.isOwner(player) == true)
+            {
+                data.isPublic = ! data.isPublic;
+                data.writeToItem(moduleStack);
+                setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
+            }
+        }
+    }
+
+    /**
      * This method is for compatibility adjustment of the installed modules on modular items,
      * after the inventory/container change to the Tool Workstation.
      * It will check if slot 0 is empty, and if there is an installed module at the position
@@ -847,7 +913,7 @@ public class UtilItemModular
         {
             for (int i = 0; i < 10; i++)
             {
-                items[i] = items[i + 1] != null ? items[i + 1] : null;
+                items[i] = items[i + 1];
             }
 
             items[10] = null;

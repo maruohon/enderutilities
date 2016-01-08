@@ -302,7 +302,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            UtilItemModular.changePrivacyModeOnSelectedModule(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD);
         }
         // Just Toggle mode: Fire the swapping action
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -329,7 +329,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            UtilItemModular.changeSelectedModuleAbs(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
