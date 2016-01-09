@@ -1,11 +1,11 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
 public class InventoryItem implements IInventory
 {
@@ -79,11 +79,12 @@ public class InventoryItem implements IInventory
     public void readFromContainerItemStack()
     {
         //System.out.println("InventoryItem#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
-        this.initInventory();
 
         // Only read the contents on the server side, they get synced to the client via the open Container
         if (this.isRemote == false)
         {
+            this.initInventory();
+
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {

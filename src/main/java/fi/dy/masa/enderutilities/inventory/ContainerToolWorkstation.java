@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
 {
@@ -129,12 +129,6 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     }
 
     @Override
-    public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
-    {
-        return this.transferStackInSlot(player, slotNum, this.inventory.getSizeInventory() + this.inventoryItem.getSizeInventory());
-    }
-
-    @Override
     public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
     {
         //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", ); isRemote: " + this.te.getWorldObj().isRemote);
@@ -142,23 +136,18 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         Slot slot = slotNum >= 0 && slotNum <= this.inventorySlots.size() ? this.getSlot(slotNum) : null;
         ItemStack stack = super.slotClick(slotNum, i1, i2, player);
 
-        if (this.isRemote == false)
+        // The clicked on slot is inside the modular item's inventory
+        if (slot != null && slot.inventory == this.inventoryItem)
         {
-            // The clicked on slot is inside the modular item's inventory
-            if (slot != null && slot.inventory == this.inventoryItem)
-            {
-                this.inventoryItem.markDirty();
-            }
-            // Changing the item in the tool slot, update the InventoryItem
-            //else if (slot != null && slot.inventory == this.inventory && slotNum == SLOT_MODULAR_ITEM)
-            else if (this.inventoryItem.getContainerItemStack() != this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL))
-            {
-                this.inventoryItem.setContainerItemStack(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL));
-            }
+            this.inventoryItem.markDirty();
         }
-
-        this.setUpgradeSlotTypes();
-        this.detectAndSendChanges();
+        // Changing the item in the tool slot, update the InventoryItem
+        else if (this.inventoryItem.getContainerItemStack() != this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL))
+        {
+            this.inventoryItem.setContainerItemStack(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL));
+            this.setUpgradeSlotTypes();
+            this.detectAndSendChanges();
+        }
 
         return stack;
     }
