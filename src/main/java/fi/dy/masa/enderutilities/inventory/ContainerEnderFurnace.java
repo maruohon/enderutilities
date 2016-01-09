@@ -9,7 +9,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class ContainerEnderFurnace extends ContainerTileEntityInventory
 {
-    private TileEntityEnderFurnace teef;
+    protected TileEntityEnderFurnace teef;
     public int burnTimeRemaining;
     public int burnTimeFresh;
     public int cookTime;

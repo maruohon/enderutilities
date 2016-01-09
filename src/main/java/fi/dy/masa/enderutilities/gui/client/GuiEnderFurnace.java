@@ -3,16 +3,16 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class GuiEnderFurnace extends GuiTileEntityInventory
 {
@@ -25,6 +25,7 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
     {
         super(container, 176, 166, "gui.container." + te.getTEName(), te);
         this.containerEnderFurnace = container;
+        this.teef = te;
     }
 
     @Override
