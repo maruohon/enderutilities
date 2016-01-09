@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -12,11 +15,21 @@ public class ContainerEnderUtilities extends Container
 {
     protected InventoryPlayer inventoryPlayer;
     protected IInventory inventory;
+    protected SlotRange customInventorySlots;
+    protected SlotRange playerArmorSlots;
+    protected SlotRange playerMainSlots;
+    protected List<SlotRange> mergeSlotRangesExtToPlayer;
+    protected List<SlotRange> mergeSlotRangesPlayerToExt;
 
     public ContainerEnderUtilities(InventoryPlayer inventoryPlayer, IInventory inventory)
     {
         this.inventoryPlayer = inventoryPlayer;
         this.inventory = inventory;
+        this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
+        this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();
+        this.customInventorySlots = new SlotRange(0, 0);
+        this.playerArmorSlots = new SlotRange(0, 0);
+        this.playerMainSlots = new SlotRange(0, 0);
     }
 
     /**
@@ -34,6 +47,10 @@ public class ContainerEnderUtilities extends Container
      */
     protected void addPlayerInventorySlots(int posX, int posY)
     {
+        // This should usually be sufficient, assuming the custom slots are added first
+        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        int playerInvStart = this.inventorySlots.size();
+
         // Player inventory
         for (int i = 0; i < 3; i++)
         {
@@ -48,6 +65,8 @@ public class ContainerEnderUtilities extends Container
         {
             this.addSlotToContainer(new Slot(this.inventoryPlayer, i, posX + i * 18, posY + 58));
         }
+
+        this.playerMainSlots = new SlotRange(playerInvStart, 36);
     }
 
     /**
@@ -65,10 +84,80 @@ public class ContainerEnderUtilities extends Container
         return this.inventory.isUseableByPlayer(player);
     }
 
+    public boolean isPlayerArmorSlot(int slotNum)
+    {
+        return slotNum >= this.playerArmorSlots.first && slotNum < this.playerArmorSlots.lastExc;
+    }
+
+    public boolean isPlayerMainInvSlot(int slotNum)
+    {
+        return slotNum >= this.playerMainSlots.first && slotNum < this.playerMainSlots.lastExc;
+    }
+
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {
-        return this.transferStackInSlot(player, slotNum, this.inventory.getSizeInventory());
+        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        // Slot clicked on has items
+        if (slot == null || slot.getHasStack() == false)
+        {
+            return null;
+        }
+
+        // From player armor slot to player main inventory
+        if (this.isPlayerArmorSlot(slotNum) == true)
+        {
+            this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+        }
+        // From player main inventory to armor slot or the "external" inventory
+        else if (this.isPlayerMainInvSlot(slotNum) == true)
+        {
+            this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false);
+            this.transferStackToPrioritySlots(player, slotNum, false);
+            this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false);
+        }
+        // From external inventory to player inventory
+        else
+        {
+            this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+        }
+
+        return null;
+    }
+
+    public void transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
+    {
+        for (SlotRange slotRange : this.mergeSlotRangesPlayerToExt)
+        {
+            this.transferStackToSlotRange(player, slotNum, slotRange.first, slotRange.lastExc, reverse);
+        }
+    }
+
+    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
+    {
+        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        // Slot clicked on has items
+        if (slot == null || slot.getHasStack() == false)
+        {
+            return false;
+        }
+
+        ItemStack stack = slot.getStack();
+        if (this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse) == false)
+        {
+            return false;
+        }
+
+        if (stack.stackSize <= 0)
+        {
+            slot.putStack(null);
+        }
+        else
+        {
+            slot.onSlotChanged();
+        }
+
+        return true;
     }
 
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum, int invSize)
@@ -200,5 +289,28 @@ public class ContainerEnderUtilities extends Container
         }
 
         return movedItems;
+    }
+
+    public void addMergeSlotRangeExtToPlayer(int start, int numSlots)
+    {
+        this.mergeSlotRangesExtToPlayer.add(new SlotRange(start, numSlots));
+    }
+
+    public void addMergeSlotRangePlayerToExt(int start, int numSlots)
+    {
+        this.mergeSlotRangesPlayerToExt.add(new SlotRange(start, numSlots));
+    }
+
+    public class SlotRange
+    {
+        public final int first;
+        /** The end of the slot range, exclusive (meaning one larger than the last slot number) */
+        public final int lastExc;
+
+        public SlotRange(int start, int numSlots)
+        {
+            this.first = start;
+            this.lastExc = start + numSlots;
+        }
     }
 }

@@ -28,6 +28,8 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
     {
         super.addPlayerInventorySlots(posX, posY);
 
+        int playerArmorStart = this.inventorySlots.size();
+
         // Player armor slots
         posX = 13;
         posY = 53;
@@ -58,11 +60,14 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
                 */
             });
         }
+
+        this.playerArmorSlots = new SlotRange(playerArmorStart, 4);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
+        int customInvStart = this.inventorySlots.size();
         int posX = 36;
         int posY = 53;
 
@@ -81,11 +86,37 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
             this.addSlotToContainer(new SlotGeneric(this.inventory, i, posX + i * 18, posY + 58));
         }
 
+        // Add the armor slots inside the Inventory Swapper as a priority slot range for shift+click merging
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
+
         posY = 33;
         // Inventory Swapper's armor slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotGeneric(this.inventory, 39 - i, posX + i * 18, posY));
+            final int slotNum = i;
+            this.addSlotToContainer(new SlotGeneric(this.inventory, 39 - i, posX + i * 18, posY)
+            {
+                public int getSlotStackLimit()
+                {
+                    return 1;
+                }
+
+                public boolean isItemValid(ItemStack stack)
+                {
+                    if (stack == null) return false;
+                    return stack.getItem().isValidArmor(stack, slotNum, ContainerInventorySwapper.this.player);
+                }
+
+                /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
+                 * the Slot background icons to render incorrectly if there is an item with the glint effect
+                 * before the Slot in question in the Container.
+                @SideOnly(Side.CLIENT)
+                public IIcon getBackgroundIconIndex()
+                {
+                    return ItemArmor.func_94602_b(slotNum);
+                }
+                */
+            });
         }
 
         posX = 126;
@@ -96,6 +127,8 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
         {
             this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD, this));
         }
+
+        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
     @Override

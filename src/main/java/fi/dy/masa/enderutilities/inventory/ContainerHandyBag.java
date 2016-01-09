@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -8,7 +9,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -38,6 +38,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         }
 
         super.addPlayerInventorySlots(posX, posY);
+
+        int playerArmorStart = this.inventorySlots.size();
 
         // Player armor slots
         posY = 15;
@@ -69,6 +71,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             });
         }
 
+        this.playerArmorSlots = new SlotRange(playerArmorStart, 4);
+
         // Player crafting slots
         posX += 90;
         posY = 15;
@@ -88,6 +92,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     protected void addCustomInventorySlots()
     {
+        int customInvStart = this.inventorySlots.size();
         int xOff = 8;
         int yOff = 102;
 
@@ -134,6 +139,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
         }
+
+        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
     @Override
