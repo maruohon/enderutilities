@@ -7,17 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
-import fi.dy.masa.enderutilities.item.ItemEnderArrow;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
-import fi.dy.masa.enderutilities.item.ItemEnderBow;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.item.ItemEnderLasso;
-import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
-import fi.dy.masa.enderutilities.item.ItemEnderPorter;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.ItemMobHarness;
-import fi.dy.masa.enderutilities.item.ItemPortalScaler;
+import fi.dy.masa.enderutilities.item.*;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -45,6 +35,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities inventorySwapper = new ItemInventorySwapper();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
+    public static final ItemEnderUtilities livingManipulator = new ItemLivingManipulator();
 
     public static void init()
     {
@@ -64,6 +55,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemInventorySwapper.getBoolean(false) == false) { GameRegistry.registerItem(inventorySwapper, ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER); }
         if (Configs.disableItemMobHarness.getBoolean(false) == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }
         if (Configs.disableItemPortalScaler.getBoolean(false) == false) { GameRegistry.registerItem(portalScaler, ReferenceNames.NAME_ITEM_PORTAL_SCALER); }
+        if (Configs.disableItemLivingManipulator.getBoolean(false) == false) { GameRegistry.registerItem(livingManipulator, ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR); }
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
@@ -125,6 +117,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeEnderPorterAdvanced.getBoolean(false) == false && Configs.disableItemEnderPorter.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderPorter, 1, 1), "EAE", "ACA", "EAE", 'E', eye, 'A', alloy2, 'C', active_core2);
+        }
+        if (Configs.disableRecipeLivingManipulator.getBoolean(false) == false && Configs.disableItemLivingManipulator.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(livingManipulator), "AAA", "BCA", "  A", 'A', alloy1, 'B', alloy2, 'C', core1);
         }
         if (Configs.disableRecipeMobHarness.getBoolean(false) == false && Configs.disableItemMobHarness.getBoolean(false) == false)
         {

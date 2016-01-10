@@ -100,6 +100,7 @@ public class ConfigReader
         Configs.disableItemEnderTools             = conf.get(category, "DisableItemEnderTools", false).setRequiresMcRestart(true);
         Configs.disableItemHandyBag               = conf.get(category, "DisableItemHandyBag", false).setRequiresMcRestart(true);
         Configs.disableItemInventorySwapper       = conf.get(category, "DisableItemInventorySwapper", false).setRequiresMcRestart(true);
+        Configs.disableItemLivingManipulator      = conf.get(category, "DisableItemLivingManipulator", false).setRequiresMcRestart(true);
         Configs.disableItemMobHarness             = conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
         Configs.disableItemPortalScaler           = conf.get(category, "DisableItemPortalScaler", false).setRequiresMcRestart(true);
 
@@ -128,6 +129,7 @@ public class ConfigReader
         Configs.disableRecipeEnderPorterAdvanced  = conf.get(category, "DisableRecipeEnderPorterAdvanced", false).setRequiresMcRestart(true);
         Configs.disableRecipeHandyBag             = conf.get(category, "DisableRecipeHandyBag", false).setRequiresMcRestart(true);
         Configs.disableRecipeInventorySwapper     = conf.get(category, "DisableRecipeInventorySwapper", false).setRequiresMcRestart(true);
+        Configs.disableRecipeLivingManipulator    = conf.get(category, "DisableRecipeLivingManipulator", false).setRequiresMcRestart(true);
         Configs.disableRecipeMobHarness           = conf.get(category, "DisableRecipeMobHarness", false).setRequiresMcRestart(true);
         Configs.disableRecipePortalScaler         = conf.get(category, "DisableRecipePortalScaler", false).setRequiresMcRestart(true);
 

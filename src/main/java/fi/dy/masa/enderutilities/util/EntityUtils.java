@@ -287,7 +287,9 @@ public class EntityUtils
     {
         if (living.isNoDespawnRequired() == false)
         {
-            boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) || (living instanceof EntityWaterMob) || ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
+            boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) ||
+                                  (living instanceof EntityWaterMob) ||
+                                  ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 
             if (canDespawn == false)
             {

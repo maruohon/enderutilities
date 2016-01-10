@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
 import java.util.Iterator;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -113,17 +112,9 @@ public class TeleportEntity
         PositionHelper pos = new PositionHelper(mop, projectile);
 
         // Hit a block, offset the position to not collide with the block
-        if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
+        if (mop.typeOfHit == MovingObjectType.BLOCK)
         {
-            ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-            pos.posX += (dir.offsetX * entity.width / 2);
-            pos.posZ += (dir.offsetZ * entity.width / 2);
-
-            // Bottom side
-            if (dir.equals(ForgeDirection.DOWN))
-            {
-                pos.posY -= entity.height;
-            }
+            pos.adjustPositionToTouchFace(entity, mop.sideHit);
         }
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -287,6 +286,50 @@ public class NBTUtils
         }
 
         return nbt != null ? nbt.getTagList(tagName, tagType) : null;
+    }
+
+    /**
+     * Writes the given <b>tagList</b> into the ItemStack containerStack.
+     * The compound tags are created if necessary.
+     */
+    public static void setTagList(ItemStack containerStack, String containerTagName, String tagName, NBTTagList tagList)
+    {
+        NBTTagCompound nbt = getCompoundTag(containerStack, containerTagName, true);
+        nbt.setTag(tagName, tagList);
+    }
+
+    /**
+     * Inserts a new tag into the given NBTTagList at position <b>index</b>.
+     * To do this the list will be re-created and the new list is returned.
+     */
+    public static NBTTagList insertToTagList(NBTTagList tagList, NBTBase tag, int index)
+    {
+        if (tagList == null || tag == null)
+        {
+            return tagList;
+        }
+
+        int count = tagList.tagCount();
+        if (index >= count)
+        {
+            index = count > 0 ? count - 1 : 0;
+        }
+
+        NBTTagList newList = new NBTTagList();
+        for (int i = 0; i < index; i++)
+        {
+            newList.appendTag(tagList.removeTag(0));
+        }
+
+        newList.appendTag(tag);
+
+        count = tagList.tagCount();
+        for (int i = 0; i < count; i++)
+        {
+            newList.appendTag(tagList.removeTag(0));
+        }
+
+        return newList;
     }
 
     /**

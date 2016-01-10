@@ -49,6 +49,7 @@ public class Configs
     public static Property disableItemInventorySwapper;
     public static Property disableItemMobHarness;
     public static Property disableItemPortalScaler;
+    public static Property disableItemLivingManipulator;
 
     // Recipe disable
     // Blocks
@@ -72,6 +73,7 @@ public class Configs
     public static Property disableRecipeEnderPorterAdvanced;
     public static Property disableRecipeHandyBag;
     public static Property disableRecipeInventorySwapper;
+    public static Property disableRecipeLivingManipulator;
     public static Property disableRecipeMobHarness;
     public static Property disableRecipePortalScaler;
     public static Property disableRecipeEnderSword;
