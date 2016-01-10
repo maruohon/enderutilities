@@ -13,6 +13,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -30,8 +32,6 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
@@ -240,7 +240,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
                 InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
-                int pickupMode = NBTUtils.getOrCreateCompoundTag(bagStack, "HandyBag").getByte("PickupMode");
+                int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))

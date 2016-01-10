@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
@@ -26,9 +25,9 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
@@ -272,13 +271,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
     public void toggleBowMode(EntityPlayer player, ItemStack stack)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        NBTUtils.cycleByteValue(nbt, "Mode", 1);
-
         // If self teleporting is disabled in the configs, always set the mode to TP target
         if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
         {
-            nbt.setByte("Mode", BOW_MODE_TP_TARGET);
+            NBTUtils.setByte(stack, null, "Mode", BOW_MODE_TP_TARGET);
+        }
+        else
+        {
+            NBTUtils.cycleByteValue(stack, null, "Mode", 1);
         }
     }
 

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -308,14 +307,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
     public boolean memoryCardHasScaleFactor(ItemStack cardStack)
     {
-        NBTTagCompound nbt = cardStack.getTagCompound();
-        if (nbt != null && nbt.hasKey("PortalScaler", Constants.NBT.TAG_COMPOUND))
+        NBTTagCompound tag = NBTUtils.getCompoundTag(cardStack, "PortalScaler", false);
+        if (tag != null &&
+            tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) &&
+            tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) &&
+            tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE))
         {
-            NBTTagCompound tag = nbt.getCompoundTag("PortalScaler");
-            if (tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) && tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) && tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE))
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -333,7 +331,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null)
         {
-            NBTTagCompound tag = NBTUtils.getOrCreateCompoundTag(moduleStack, "PortalScaler");
+            NBTTagCompound tag = NBTUtils.getCompoundTag(moduleStack, "PortalScaler", true);
 
             int x = tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleX") : 8;
             int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;

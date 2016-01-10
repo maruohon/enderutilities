@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,8 +81,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public void setCapacity(ItemStack stack, int capacity)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        nbt.setInteger("EnderChargeCapacity", capacity);
+        NBTUtils.setInteger(stack, null, "EnderChargeCapacity", capacity);
     }
 
     private int getCharge(NBTTagCompound nbt)
@@ -95,12 +93,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public int getCharge(ItemStack stack)
     {
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            return 0;
-        }
-
-        return this.getCharge(nbt);
+        return nbt != null ? this.getCharge(nbt) : 0;
     }
 
     private void setCharge(NBTTagCompound nbt, int value)
@@ -117,7 +110,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             return amount;
         }
 
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, true);
 
         int charge = this.getCharge(nbt);
         int capacity = this.getCapacity(stack, nbt);

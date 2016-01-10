@@ -39,6 +39,9 @@ public class NBTUtils
         return nbt;
     }
 
+    /**
+     * Sets the root compound tag in the given ItemStack. An empty compound will be stripped completely.
+     */
     public static ItemStack setRootCompoundTag(ItemStack stack, NBTTagCompound nbt)
     {
         if (nbt.hasNoTags() == true)
@@ -51,84 +54,69 @@ public class NBTUtils
     }
 
     /**
-     * Returns the root compound tag of the given ItemStack.
-     * If the tag is null, then a new tag will be created and written to the ItemStack.
+     * Returns a compound tag by the given name <b>tagName</b>. If <b>tagName</b> is null,
+     * then the root compound tag is returned instead. If <b>create</b> is <b>false</b>
+     * and the tag doesn't exist, null is returned and the tag is not created.
+     * If <b>create</b> is <b>true</b>, then the tag(s) are created and added if necessary.
      */
-    public static NBTTagCompound getOrCreateRootCompoundTag(ItemStack stack)
+    public static NBTTagCompound getCompoundTag(ItemStack stack, String tagName, boolean create)
     {
         NBTTagCompound nbt = stack.getTagCompound();
+
+        if (create == false)
+        {
+            if (nbt == null)
+            {
+                return null;
+            }
+
+            if (tagName != null)
+            {
+                return nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true ? nbt.getCompoundTag(tagName) : null;
+            }
+
+            return nbt;
+        }
+
+        // create = true
+
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
             stack.setTagCompound(nbt);
         }
 
-        return nbt;
-    }
-
-    /**
-     * Returns a compound tag by the name <b>tagName</b> from the given ItemStack's root compound tag.
-     * If such tag doesn't exist, it will be created and added.
-     * If <b>tagName</b> is null, then the root tag will be returned and created if necessary.
-     */
-    public static NBTTagCompound getOrCreateCompoundTag(ItemStack stack, String tagName)
-    {
-        NBTTagCompound nbt = getOrCreateRootCompoundTag(stack);
-
-        if (tagName != null)
-        {
-            if (nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == false)
-            {
-                NBTTagCompound tag = new NBTTagCompound();
-                nbt.setTag(tagName, tag);
-            }
-
-            nbt = nbt.getCompoundTag(tagName);
-        }
-
-        return nbt;
-    }
-
-    /**
-     * Get a compound tag by the given name. If the tag doesn't exist, null is returned
-     * and the tag is NOT created. If <b>tagName</b> is null, then the root tag is returned.
-     */
-    public static NBTTagCompound getCompoundTag(ItemStack stack, String tagName)
-    {
         if (tagName == null)
         {
-            return stack.getTagCompound();
+            return nbt;
         }
 
-        NBTTagCompound nbt = stack.getTagCompound();
-        return nbt != null && nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) ? nbt.getCompoundTag(tagName) : null;
+        if (nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == false)
+        {
+            nbt.setTag(tagName, new NBTTagCompound());
+        }
+
+        return nbt.getCompoundTag(tagName);
     }
 
     /**
      * Gets the stored UUID from the given ItemStack. If <b>containerTagName</b> is not null,
      * then the UUID is read from a compound tag by that name.
-     * If the ItemStack doesn't yet have an UUID, then a new random UUID will be created and stored.
+     * If <b>create</b> is true and a UUID isn't found, a new random UUID will be created and added.
+     * If <b>create</b> is false and a UUID isn't found, then null is returned.
      */
-    public static UUID getOrCreateUUIDFromItemStack(ItemStack stack, String containerTagName)
+    public static UUID getUUIDFromItemStack(ItemStack stack, String containerTagName, boolean create)
     {
-        NBTTagCompound nbt;
-        if (containerTagName != null)
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, create);
+
+        UUID uuid = getUUIDFromNBT(nbt);
+        if (uuid == null && create == true)
         {
-            nbt = getOrCreateCompoundTag(stack, containerTagName);
-        }
-        else
-        {
-            nbt = getOrCreateRootCompoundTag(stack);
+            uuid = UUID.randomUUID();
+            nbt.setLong("UUIDM", uuid.getMostSignificantBits());
+            nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
         }
 
-        if (nbt.hasKey("UUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("UUIDL", Constants.NBT.TAG_LONG))
-        {
-            return new UUID(nbt.getLong("UUIDM"), nbt.getLong("UUIDL"));
-        }
-
-        UUID uuid = UUID.randomUUID();
-        nbt.setLong("UUIDM", uuid.getMostSignificantBits());
-        nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
         return uuid;
     }
 
@@ -146,31 +134,13 @@ public class NBTUtils
     }
 
     /**
-     * Gets the stored UUID from the given ItemStack. If containerTagName is not null, then
-     * the UUID is read from a compound tag by that name. If there is no stored UUID, null is returned.
-     */
-    public static UUID getUUIDFromItemStack(ItemStack stack, String containerTagName)
-    {
-        NBTTagCompound nbt = getCompoundTag(stack, containerTagName);
-        return getUUIDFromNBT(nbt);
-    }
-
-    /**
      * Stores the given UUID to the given ItemStack. If <b>containerTagName</b> is not null,
      * then the UUID is stored inside a compound tag by that name. Otherwise it is stored
      * directly inside the root compound tag.
      */
     public static void setUUID(ItemStack stack, UUID uuid, String containerTagName)
     {
-        NBTTagCompound nbt;
-        if (containerTagName != null)
-        {
-            nbt = getOrCreateCompoundTag(stack, containerTagName);
-        }
-        else
-        {
-            nbt = getOrCreateRootCompoundTag(stack);
-        }
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
 
         nbt.setLong("UUIDM", uuid.getMostSignificantBits());
         nbt.setLong("UUIDL", uuid.getLeastSignificantBits());
@@ -182,7 +152,13 @@ public class NBTUtils
      */
     public static boolean getBoolean(ItemStack stack, String containerTagName, String tagName)
     {
-        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getBoolean(tagName) : false;
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getBoolean(tagName) : false;
+    }
+
+    public static void setBoolean(ItemStack stack, String containerTagName, String tagName, boolean value)
+    {
+        getCompoundTag(stack, containerTagName, true).setBoolean(tagName, value);
     }
 
     public static void toggleBoolean(NBTTagCompound nbt, String tagName)
@@ -196,7 +172,7 @@ public class NBTUtils
      */
     public static void toggleBoolean(ItemStack stack, String containerTagName, String tagName)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
         toggleBoolean(nbt, tagName);
     }
 
@@ -206,7 +182,8 @@ public class NBTUtils
      */
     public static byte getByte(ItemStack stack, String containerTagName, String tagName)
     {
-        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getByte(tagName) : 0;
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getByte(tagName) : 0;
     }
 
     /**
@@ -215,7 +192,7 @@ public class NBTUtils
      */
     public static void setByte(ItemStack stack, String containerTagName, String tagName, byte value)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
         nbt.setByte(tagName, value);
     }
 
@@ -235,8 +212,28 @@ public class NBTUtils
      */
     public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
         cycleByteValue(nbt, tagName, maxValue);
+    }
+
+    /**
+     * Return the integer value from a tag <b>tagName</b>, or 0 if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static long getInteger(ItemStack stack, String containerTagName, String tagName)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getInteger(tagName) : 0;
+    }
+
+    /**
+     * Set an integer value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void setInteger(ItemStack stack, String containerTagName, String tagName, int value)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        nbt.setInteger(tagName, value);
     }
 
     /**
@@ -245,7 +242,8 @@ public class NBTUtils
      */
     public static long getLong(ItemStack stack, String containerTagName, String tagName)
     {
-        return NBTUtils.getCompoundTag(stack, containerTagName) != null ? NBTUtils.getCompoundTag(stack, containerTagName).getLong(tagName) : 0;
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getLong(tagName) : 0;
     }
 
     /**
@@ -254,7 +252,7 @@ public class NBTUtils
      */
     public static void setLong(ItemStack stack, String containerTagName, String tagName, long value)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, containerTagName);
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
         nbt.setLong(tagName, value);
     }
 
@@ -266,40 +264,40 @@ public class NBTUtils
      */
     public static int getNumberOfStoredItemStacks(ItemStack containerStack)
     {
-        NBTTagList list = getStoredItemsList(containerStack);
+        NBTTagList list = getStoredItemsList(containerStack, false);
         return list != null ? list.tagCount() : -1;
     }
 
     /**
-     * Returns the NBTTagList containing all the stored ItemStacks in the containerStack, or null in case it fails.
+     * Returns a TagList for the key <b<tagName</b> and creates and adds it if one isn't found.
+     * If <b>containerTagName</b> is not null, then it is retrieved from inside a compound tag by that name.
      * @param containerStack
-     * @return the NBTTagList holding the stored items
+     * @param containerTagName the compound tag name holding the TagList, or null if it's directly inside the root compound
+     * @param tagName the name/key of the TagList
+     * @param tagType the type of tags the list is holding
+     * @param create true = the tag(s) will be created if they are not found, false = no tags will be created
+     * @return the requested TagList (will be created and added if necessary if <b>create</b> is true) or null (if <b>create</b> is false)
      */
-    public static NBTTagList getStoredItemsList(ItemStack containerStack)
+    public static NBTTagList getTagList(ItemStack containerStack, String containerTagName, String tagName, int tagType, boolean create)
     {
-        if (containerStack.getTagCompound() == null || containerStack.getTagCompound().hasKey("Items", Constants.NBT.TAG_LIST) == false)
+        NBTTagCompound nbt = getCompoundTag(containerStack, containerTagName, create);
+        if (create == true && nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == false)
         {
-            return null;
+            nbt.setTag(tagName, new NBTTagList());
         }
 
-        return containerStack.getTagCompound().getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        return nbt != null ? nbt.getTagList(tagName, tagType) : null;
     }
 
     /**
      * Returns the NBTTagList containing all the stored ItemStacks in the containerStack.
-     * If the list doesn't exist, it will be created and added.
+     * If the TagList doesn't exist and <b>create</b> is true, then the tag will be created and added.
      * @param containerStack
-     * @return the NBTTagList holding the stored items
+     * @return the NBTTagList holding the stored items, or null if it doesn't exist and <b>create</b> is false
      */
-    public static NBTTagList getOrCreateStoredItemsList(ItemStack containerStack)
+    public static NBTTagList getStoredItemsList(ItemStack containerStack, boolean create)
     {
-        NBTTagCompound nbt = getOrCreateRootCompoundTag(containerStack);
-        if (nbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
-        {
-            nbt.setTag("Items", new NBTTagList());
-        }
-
-        return nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        return getTagList(containerStack, null, "Items", Constants.NBT.TAG_COMPOUND, create);
     }
 
     /**
@@ -310,22 +308,19 @@ public class NBTUtils
      */
     public static void setStoredItemsList(ItemStack containerStack, NBTTagList tagList)
     {
-        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null);
         if (tagList == null)
         {
+            NBTTagCompound nbt = getCompoundTag(containerStack, null, false);
             if (nbt != null)
             {
                 nbt.removeTag("Items");
+                setRootCompoundTag(containerStack, nbt);
             }
 
             return;
         }
 
-        if (nbt == null)
-        {
-            nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
-        }
-
+        NBTTagCompound nbt = getCompoundTag(containerStack, null, true);
         nbt.setTag("Items", tagList);
     }
 }

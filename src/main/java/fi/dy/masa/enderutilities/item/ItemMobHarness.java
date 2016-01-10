@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -152,7 +151,7 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     public ItemStack storeTarget(ItemStack stack, Entity entity)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, true);
 
         byte mode = (byte)(entity instanceof EntityPlayer ? 2 : 1);
         nbt.setString("TargetName", entity.getCommandSenderName());

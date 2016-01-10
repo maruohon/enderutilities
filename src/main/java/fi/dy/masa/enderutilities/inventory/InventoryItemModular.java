@@ -32,7 +32,7 @@ public class InventoryItemModular extends InventoryItem
 
         this.modularItemStack = containerStack;
         this.moduleType = moduleType;
-        this.containerUUID = NBTUtils.getOrCreateUUIDFromItemStack(containerStack, "UUID");
+        this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.hostInventory = null;
 
         this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj.isRemote, player);

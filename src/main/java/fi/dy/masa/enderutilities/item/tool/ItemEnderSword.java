@@ -3,7 +3,8 @@ package fi.dy.masa.enderutilities.item.tool;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -32,10 +33,6 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -584,19 +581,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     public byte getSwordMode(ItemStack stack)
     {
-        if (stack != null && stack.getTagCompound() != null)
-        {
-            return stack.getTagCompound().getByte("Mode");
-        }
-
-        return 0;
+        return NBTUtils.getByte(stack, null, "Mode");
     }
 
     public void cycleSwordMode(ItemStack stack)
     {
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        NBTUtils.cycleByteValue(nbt, "Mode", MODE_SUMMON);
+        NBTUtils.cycleByteValue(stack, null, "Mode", MODE_SUMMON);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)

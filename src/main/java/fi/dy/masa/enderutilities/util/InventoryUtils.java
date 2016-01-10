@@ -762,7 +762,7 @@ public class InventoryUtils
         for (int i = 0; i < size; i++)
         {
             ItemStack stack = inv.getStackInSlot(i);
-            if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, containerTagName)))
+            if (stack != null && uuid.equals(NBTUtils.getUUIDFromItemStack(stack, containerTagName, false)))
             {
                 return stack;
             }

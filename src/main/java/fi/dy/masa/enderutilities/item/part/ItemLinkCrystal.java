@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;

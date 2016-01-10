@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -40,9 +39,9 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
@@ -1170,8 +1169,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeLinkMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        NBTUtils.toggleBoolean(nbt, "Linked");
+        NBTUtils.toggleBoolean(stack, null, "Linked");
     }
 
     /**
@@ -1179,7 +1177,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
      */
     private void changeOperationMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, true);
 
         // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
         byte val = (byte)(nbt.getByte("Mode") + 1);

@@ -50,7 +50,7 @@ public class UtilItemModular
      */
     public static int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return 0;
@@ -82,7 +82,7 @@ public class UtilItemModular
     public static int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
         int tier = -1;
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return tier;
@@ -171,7 +171,7 @@ public class UtilItemModular
      */
     public static ItemStack getModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return null;
@@ -206,7 +206,7 @@ public class UtilItemModular
      */
     public static ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return null;
@@ -240,12 +240,7 @@ public class UtilItemModular
      */
     public static boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
-        NBTTagList nbtTagList = NBTUtils.getOrCreateStoredItemsList(containerStack);
-        if (nbtTagList == null)
-        {
-            return false;
-        }
-
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, true);
         int listNumStacks = nbtTagList.tagCount();
         int selected = getClampedModuleSelection(containerStack, moduleType);
 
@@ -277,7 +272,7 @@ public class UtilItemModular
      */
     public static boolean setModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ItemStack moduleStack)
     {
-        NBTTagList nbtTagList = NBTUtils.getOrCreateStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, true);
         int listNumStacks = nbtTagList.tagCount();
 
         // Replace the module ItemStack with slot number slotNum, or add it if it doesn't exist
@@ -456,16 +451,16 @@ public class UtilItemModular
      */
     public static void setModuleSelection(ItemStack containerStack, ModuleType moduleType, int index)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
-
-        if (index < 0)
-        {
-            index = 0;
-        }
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
 
         if (containerStack.getItem() instanceof IModular)
         {
             index = Math.min(index, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) - 1);
+        }
+
+        if (index < 0)
+        {
+            index = 0;
         }
 
         nbt.setByte("Selected_" + moduleType.getName(), (byte)index);
@@ -478,7 +473,7 @@ public class UtilItemModular
      */
     public static int getTotalNumberOfStoredItems(ItemStack containerStack)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return 0;
@@ -496,11 +491,13 @@ public class UtilItemModular
             }
             else
             {
-                ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+                count += tag.getByte("Count");
+
+                /*ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
                 if (stack != null)
                 {
                     count += stack.stackSize;
-                }
+                }*/
             }
         }
 
@@ -512,7 +509,7 @@ public class UtilItemModular
      */
     public static void readItemNamesFromContainerItem(ItemStack containerStack, List<String> listNames)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return;
@@ -539,13 +536,13 @@ public class UtilItemModular
      * @return total number of items stored
      */
     @SideOnly(Side.CLIENT)
-    public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines)
+    public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines, int maxLines)
     {
         int itemCount = 0;
         int overflow = 0;
         String preWhite = EnumChatFormatting.WHITE.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
 
         if (nbtTagList != null && nbtTagList.tagCount() > 0)
         {
@@ -567,7 +564,7 @@ public class UtilItemModular
                         }
                         itemCount += stackSize;
 
-                        if (i < 27)
+                        if (i < maxLines)
                         {
                             listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
                         }
@@ -583,7 +580,7 @@ public class UtilItemModular
         if (overflow > 0)
         {
             String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.and");
-            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.morenotlisted");
+            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.morestacksnotlisted");
             listLines.add(String.format("     ... %s %s%d%s %s", str1, preWhite, overflow, rst, str2));
         }
 
@@ -598,7 +595,7 @@ public class UtilItemModular
      */
     public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack);
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
         if (nbtTagList == null)
         {
             return;
@@ -672,7 +669,7 @@ public class UtilItemModular
         if (keepExtraSlots == true)
         {
             // Read the old items and append any existing items that are outside the current written slot range
-            NBTTagList nbtTagListExisting = NBTUtils.getStoredItemsList(containerStack);
+            NBTTagList nbtTagListExisting = NBTUtils.getStoredItemsList(containerStack, false);
             if (nbtTagListExisting != null)
             {
                 for (int i = 0; i < nbtTagListExisting.tagCount(); i++)
@@ -688,7 +685,7 @@ public class UtilItemModular
         }
 
         // Write the module list to the tool
-        NBTTagCompound nbt = NBTUtils.getOrCreateRootCompoundTag(containerStack);
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
 
         if (nbtTagList.tagCount() > 0)
         {

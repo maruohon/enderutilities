@@ -6,7 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -43,12 +46,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -468,24 +465,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public byte getToolModeByName(ItemStack stack, String name)
     {
-        if (stack != null && stack.getTagCompound() != null)
-        {
-            return stack.getTagCompound().getByte(name);
-        }
-
-        return 0;
+        return NBTUtils.getByte(stack, null, name);
     }
 
     public void setToolModeByName(ItemStack stack, String name, byte value)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-            stack.setTagCompound(nbt);
-        }
-
-        nbt.setByte(name, value);
+        NBTUtils.setByte(stack, null, name, value);
     }
 
     public String getToolClass(ItemStack stack)
@@ -933,14 +918,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     public void cyclePoweredMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        NBTUtils.cycleByteValue(nbt, "Powered", 1);
+        NBTUtils.cycleByteValue(stack, null, "Powered", 1);
     }
 
     public void cycleDropsMode(ItemStack stack)
     {
-        NBTTagCompound nbt = NBTUtils.getOrCreateCompoundTag(stack, null);
-        NBTUtils.cycleByteValue(nbt, "DropsMode", 2);
+        NBTUtils.cycleByteValue(stack, null, "DropsMode", 2);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
@@ -1265,8 +1248,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
         // We check for the ench and Items tags so that creative spawned items won't show the tooltip
         // once they have some other NBT data on them
-        if (stack != null && stack.getTagCompound() != null && stack.getTagCompound().getBoolean("AddTooltips")
-            && stack.getTagCompound().hasKey("ench") == false && stack.getTagCompound().hasKey("Items") == false)
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, false);
+        if (nbt != null && nbt.getBoolean("AddTooltips") && nbt.hasKey("ench") == false && nbt.hasKey("Items") == false)
         {
             this.addTooltips(stack, tmpList, verbose);
 

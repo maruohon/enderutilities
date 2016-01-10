@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item.part;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
@@ -187,10 +186,10 @@ public class ItemEnderPart extends ItemModule
         else if (damage >= 51 && damage <= 54) // Memory Card (items)
         {
             ArrayList<String> lines = new ArrayList<String>();
-            int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines);
+            int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines, 20);
             if (lines.size() > 0)
             {
-                NBTTagList tagList = NBTUtils.getStoredItemsList(stack);
+                NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
                 int stackCount = tagList != null ? tagList.tagCount() : 0;
                 String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
                 String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
