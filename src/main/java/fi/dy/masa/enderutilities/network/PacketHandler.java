@@ -7,6 +7,7 @@ import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class PacketHandler
@@ -19,5 +20,6 @@ public class PacketHandler
         INSTANCE.registerMessage(MessageAddEffects.class, MessageAddEffects.class, 1, Side.CLIENT);
         INSTANCE.registerMessage(MessageGuiAction.class, MessageGuiAction.class, 2, Side.SERVER);
         INSTANCE.registerMessage(MessageOpenGui.class, MessageOpenGui.class, 3, Side.SERVER);
+        INSTANCE.registerMessage(MessageSyncSlot.class, MessageSyncSlot.class, 4, Side.CLIENT);
     }
 }
