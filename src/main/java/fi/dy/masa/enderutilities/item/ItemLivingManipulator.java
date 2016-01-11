@@ -417,7 +417,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     {
         if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD))
         {
-            return this.getMaxModules(containerStack);
+            return 4;
         }
 
         if (moduleType.equals(ModuleType.TYPE_MOBPERSISTENCE))
