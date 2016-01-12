@@ -2,7 +2,14 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -13,14 +20,6 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 
 public class GuiInventorySwapper extends GuiEnderUtilities
 {
@@ -62,28 +61,6 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSizeInventory();
         this.numModuleSlots = this.inventory.getModuleInventory().getSizeInventory();
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        super.drawScreen(mouseX, mouseY, gameTicks);
-
-        // These need to be drawn after super.drawScreen(), because the buttons get rendered after the drawGuiContainerBackgroundLayer()
-
-        /*GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_BLEND);
-        this.bindTexture(this.guiTexture);
-
-        // Draw the number icons over the preset selection buttons
-        for (int i = 0; i < ItemInventorySwapper.NUM_PRESETS; i++)
-        {
-            this.drawTexturedModalRect(this.firstInvSlotX + 93 + i * 18, this.firstInvSlotY - 30, 236, 66 + i * 10, 10, 10);
-        }
-        GL11.glEnable(GL11.GL_LIGHTING);*/
-
-        this.drawTooltips(mouseX, mouseY);
     }
 
     @Override

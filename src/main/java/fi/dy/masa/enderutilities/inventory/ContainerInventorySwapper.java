@@ -1,11 +1,11 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlotClick implements IContainerModularItem
 {
@@ -135,13 +135,6 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
     public ItemStack getModularItem()
     {
         return this.inventoryItemModular.getModularItemStack();
-    }
-
-    @Override
-    protected int getNumMergableSlots(int invSize)
-    {
-        // Our inventory, player item inventory and armor slots
-        return invSize + this.inventoryPlayer.getSizeInventory();
     }
 
     @Override

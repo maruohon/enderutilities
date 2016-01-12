@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -9,6 +8,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -147,13 +147,6 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     public ItemStack getModularItem()
     {
         return this.inventoryItemModular.getModularItemStack();
-    }
-
-    @Override
-    protected int getNumMergableSlots(int invSize)
-    {
-        // Our inventory, player item inventory and armor slots
-        return invSize + this.inventoryPlayer.getSizeInventory();
     }
 
     @Override

@@ -2,14 +2,13 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerEnderUtilities extends Container
 {
@@ -27,7 +26,7 @@ public class ContainerEnderUtilities extends Container
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();
-        this.customInventorySlots = new SlotRange(0, 0);
+        this.customInventorySlots = new SlotRange(0, 0); // Init the ranges to an empty range by default
         this.playerArmorSlots = new SlotRange(0, 0);
         this.playerMainSlots = new SlotRange(0, 0);
     }
@@ -48,7 +47,8 @@ public class ContainerEnderUtilities extends Container
     protected void addPlayerInventorySlots(int posX, int posY)
     {
         // This should usually be sufficient, assuming the custom slots are added first
-        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        //this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+
         int playerInvStart = this.inventorySlots.size();
 
         // Player inventory
@@ -67,15 +67,6 @@ public class ContainerEnderUtilities extends Container
         }
 
         this.playerMainSlots = new SlotRange(playerInvStart, 36);
-    }
-
-    /**
-     * Returns the number of inventory slots that are used when merging stacks when shift-clicking
-     */
-    protected int getNumMergableSlots(int invSize)
-    {
-        // Our inventory plus the player's inventory
-        return invSize + 36;
     }
 
     @Override
@@ -158,55 +149,6 @@ public class ContainerEnderUtilities extends Container
         }
 
         return true;
-    }
-
-    public ItemStack transferStackInSlot(EntityPlayer player, int slotNum, int invSize)
-    {
-        ItemStack stackOrig = null;
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-
-        // Slot clicked on has items
-        if (slot != null && slot.getHasStack() == true && slot.canTakeStack(player) == true)
-        {
-            stackOrig = slot.getStack();
-            ItemStack stackTmp = stackOrig.copy();
-
-            // Clicked on a slot is in the "external" inventory
-            if (slotNum < invSize)
-            {
-                // Try to merge the stack into the player inventory
-                if (this.mergeItemStack(stackTmp, invSize, this.getNumMergableSlots(invSize), true) == false)
-                {
-                    return null;
-                }
-            }
-            // Clicked on slot is in the player inventory, try to merge the stack to the external inventory
-            else if (this.mergeItemStack(stackTmp, 0, invSize, false) == false)
-            {
-                return null;
-            }
-
-            // All items moved, empty the slot
-            if (stackTmp.stackSize == 0)
-            {
-                slot.putStack(null);
-            }
-            // Update the slot
-            else
-            {
-                slot.onSlotChanged();
-            }
-
-            // No items were moved FIXME this is redundant, right? In this case we should have already returned above
-            if (stackTmp.stackSize == stackOrig.stackSize)
-            {
-                return null;
-            }
-
-            slot.onPickupFromSlot(player, stackTmp);
-        }
-
-        return stackOrig;
     }
 
     /**

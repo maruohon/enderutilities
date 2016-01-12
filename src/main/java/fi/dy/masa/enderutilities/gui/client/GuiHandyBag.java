@@ -145,6 +145,8 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         if (index >= 0)
         {
             this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
+            // Draw the selection border around the selected memory card module's selection button
+            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 238, 92, 10, 10);
         }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -204,7 +206,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         int numModules = this.invModular.getModuleInventory().getSizeInventory();
         for (int i = 0; i < numModules; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 3 + i * 18, this.firstModuleSlotY + 18, 10, 10, 18, 0, this.textureGuiWidgets, 0, 10));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 228, 84, this.textureGuiWidgets, 8, 0));
         }
 
         int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 1;
