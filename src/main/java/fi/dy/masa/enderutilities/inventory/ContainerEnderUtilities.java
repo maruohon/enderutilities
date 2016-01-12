@@ -88,40 +88,59 @@ public class ContainerEnderUtilities extends Container
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {
+        this.transferStackFromSlot(player, slotNum);
+        return null;
+    }
+
+    /**
+     * Transfers the stack from the given slot into other parts of the inventory,
+     * or other inventories in this Container.
+     * The player's inventory and the armor slots have highest "swap priority",
+     * after that come player inventory to the "priority slots" that can be added to
+     * the list of "priority slot" SlotRanges, and after that come the rest of the "custom inventory".
+     * Returns false if no items were moved, true otherwise
+     */
+    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
+    {
+        boolean ret = false;
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
         // Slot clicked on has items
         if (slot == null || slot.getHasStack() == false)
         {
-            return null;
+            return false;
         }
 
         // From player armor slot to player main inventory
         if (this.isPlayerArmorSlot(slotNum) == true)
         {
-            this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+            ret |= this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
         }
         // From player main inventory to armor slot or the "external" inventory
         else if (this.isPlayerMainInvSlot(slotNum) == true)
         {
-            this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false);
-            this.transferStackToPrioritySlots(player, slotNum, false);
-            this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false);
+            ret |= this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false);
+            ret |= this.transferStackToPrioritySlots(player, slotNum, false);
+            ret |= this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false);
         }
         // From external inventory to player inventory
         else
         {
-            this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+            ret |= this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
         }
 
-        return null;
+        return ret;
     }
 
-    public void transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
+    public boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
     {
+        boolean ret = false;
+
         for (SlotRange slotRange : this.mergeSlotRangesPlayerToExt)
         {
-            this.transferStackToSlotRange(player, slotNum, slotRange.first, slotRange.lastExc, reverse);
+            ret |= this.transferStackToSlotRange(player, slotNum, slotRange.first, slotRange.lastExc, reverse);
         }
+
+        return ret;
     }
 
     public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
@@ -143,10 +162,8 @@ public class ContainerEnderUtilities extends Container
         {
             slot.putStack(null);
         }
-        else
-        {
-            slot.onSlotChanged();
-        }
+
+        slot.onPickupFromSlot(player, stack);
 
         return true;
     }
