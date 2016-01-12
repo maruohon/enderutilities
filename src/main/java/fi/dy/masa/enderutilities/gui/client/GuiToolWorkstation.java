@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -95,10 +94,12 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
     protected void drawTooltips(int mouseX, int mouseY)
     {
         Slot slot = null;
-        try {
+        try
+        {
             slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
         }
-        catch (IllegalAccessException e) {
+        catch (IllegalAccessException e)
+        {
             return;
         }
 

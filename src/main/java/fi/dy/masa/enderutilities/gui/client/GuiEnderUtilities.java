@@ -1,10 +1,9 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import org.lwjgl.opengl.GL11;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
-
-import org.lwjgl.opengl.GL11;
-
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
@@ -39,6 +38,16 @@ public class GuiEnderUtilities extends GuiContainer
 
     protected void drawTooltips(int mouseX, int mouseY)
     {
+        for (int i = 0; i < this.buttonList.size(); i++)
+        {
+            GuiButton button = (GuiButton)this.buttonList.get(i);
+
+            // Mouse is over the button
+            if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY) == true)
+            {
+                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
+            }
+        }
     }
 
     protected void bindTexture(ResourceLocation rl)

@@ -1,11 +1,9 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
-
-import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -13,31 +11,26 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiButtonIcon extends GuiButton
 {
     ResourceLocation texture;
-    private int u;
-    private int v;
-    private int hoverOffsetU;
-    private int hoverOffsetV;
+    protected int u;
+    protected int v;
+    protected int hoverOffsetU;
+    protected int hoverOffsetV;
 
     public GuiButtonIcon(int id, int x, int y, int w, int h, int u, int v, ResourceLocation texture)
     {
-        super(id, x, y, w, h, "");
-        this.texture = texture;
-        this.u = u;
-        this.v = v;
-        this.hoverOffsetU = this.width;
-        this.hoverOffsetV = 0;
+        this(id, x, y, w, h, u, v, texture, w, 0);
     }
 
     public GuiButtonIcon(int id, int x, int y, int w, int h, int u, int v, ResourceLocation texture, int hoverOffsetU, int hoverOffsetV)
     {
-        this(id, x, y, w, h, u, v, texture);
+        super(id, x, y, w, h, "");
+        this.u = u;
+        this.v = v;
+        this.texture = texture;
         this.hoverOffsetU = hoverOffsetU;
         this.hoverOffsetV = hoverOffsetV;
     }
 
-    /**
-     * Draws this button to the screen.
-     */
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY)
     {

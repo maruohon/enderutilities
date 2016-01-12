@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
@@ -15,9 +14,8 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
-import codechicken.nei.guihook.IGuiSlotDraw;
 import cpw.mods.fml.common.Optional;
+import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
@@ -211,52 +209,40 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 
         int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 1;
         int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 54;
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.textureGuiWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.textureGuiWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 14, 14, 214, 70, this.textureGuiWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 14, 14, 214, 28, this.textureGuiWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 14, 14, 214, 42, this.textureGuiWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 14, 14, 214, 56, this.textureGuiWidgets, 14, 0));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.moveallitems", new Object[0]) }));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.quickstack", new Object[0]),
+                        "(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")" }));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 14, 14, 214, 70, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.leaveonefilledstack", new Object[0]) }));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 14, 14, 214, 28, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.fillstacks", new Object[0]) }));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 14, 14, 214, 42, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.restock", new Object[0]),
+                        "(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")" }));
+
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 14, 14, 214, 56, this.textureGuiWidgets, 14, 0,
+                new String[] { I18n.format("enderutilities.gui.label.moveallitems", new Object[0]) }));
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < this.buttonList.size(); i++)
+        {
+            GuiButton button = (GuiButton)this.buttonList.get(i);
 
-        // Move all items to bag
-        if (((GuiButton)this.buttonList.get(4)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.moveallitems", new Object[0]));
+            // Mouse is over the button
+            if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY) == true)
+            {
+                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
+            }
         }
-        // Move matching items to bag
-        else if (((GuiButton)this.buttonList.get(5)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.quickstack", new Object[0]));
-            list.add("(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")");
-        }
-        // Leave one stack of each item type and fill that stack
-        else if (((GuiButton)this.buttonList.get(6)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.leaveonefilledstack", new Object[0]));
-        }
-        // Fill stacks from bag
-        else if (((GuiButton)this.buttonList.get(7)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.fillstacks", new Object[0]));
-        }
-        // Move matching items from bag
-        else if (((GuiButton)this.buttonList.get(8)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.restock", new Object[0]));
-            list.add("(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")");
-        }
-        // Move all items from bag
-        else if (((GuiButton)this.buttonList.get(9)).mousePressed(this.mc, mouseX, mouseY))
-        {
-            list.add(I18n.format("enderutilities.gui.label.moveallitems", new Object[0]));
-        }
-
-        this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
     }
 
     protected void bindTexture(ResourceLocation rl)

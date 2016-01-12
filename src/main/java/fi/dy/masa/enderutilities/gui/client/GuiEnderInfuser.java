@@ -2,9 +2,10 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.resources.I18n;
+import net.minecraft.inventory.Slot;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
+import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
@@ -69,7 +70,6 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
             progress = progress * 15 / 100;
             this.drawTexturedModalRect(x + 116, y + 39, 204, 18, progress, 11);
         }
-        //itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
     }
 
     @Override
@@ -87,16 +87,28 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
             list.add(EUStringUtils.formatNumberWithKSeparators(ec) + " / " + EUStringUtils.formatNumberWithKSeparators(ec_capacity) + " EC");
             list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teei.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+            return;
         }
+
+        Slot slot = null;
+        try
+        {
+            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
+        }
+        catch (IllegalAccessException e)
+        {
+            return;
+        }
+
         // Hovering over an empty material slot
-        else if (mouseX >= x + 44 && mouseX <= x + 59 && mouseY >= y + 24 && mouseY <= y + 39 && this.inventorySlots.getSlot(0).getHasStack() == false)
+        if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.enderinfuser.input", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         // Hovering over an empty capacitor input slot
-        else if (mouseX >= x + 134 && mouseX <= x + 149 && mouseY >= y + 8 && mouseY <= y + 23 && this.inventorySlots.getSlot(1).getHasStack() == false)
+        else if (slot != null && slot == this.inventorySlots.getSlot(1) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput", new Object[0]));

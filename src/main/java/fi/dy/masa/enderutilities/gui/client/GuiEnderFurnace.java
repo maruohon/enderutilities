@@ -1,24 +1,19 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class GuiEnderFurnace extends GuiTileEntityInventory
 {
     public ContainerEnderFurnace containerEnderFurnace;
-    public GuiButtonIcon buttonMode;
-    public GuiButtonIcon buttonOutput;
     public TileEntityEnderFurnace teef;
 
     public GuiEnderFurnace(ContainerEnderFurnace container, TileEntityEnderFurnace te)
@@ -91,33 +86,13 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
         int modeOffset = (this.teef.fastMode == true ? 16 : 0);
         int outputOffset = (this.containerEnderFurnace.outputToEnderChest == true ? 16 : 0);
 
-        this.buttonMode = new GuiButtonIcon(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, 200, 14 + modeOffset, this.guiTexture);
-        this.buttonOutput = new GuiButtonIcon(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, 200, 46 + outputOffset, this.guiTexture);
         this.buttonList.clear();
-        this.buttonList.add(this.buttonMode);
-        this.buttonList.add(this.buttonOutput);
-    }
 
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
+        this.buttonList.add(new GuiButtonHoverText(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, 200, 14 + modeOffset, this.guiTexture,
+            new String[] { I18n.format("enderutilities.gui.label.slowfasttoggle", new Object[0]) }));
 
-        // Hovering over slow/fast mode button
-        if (mouseX >= x + 10 && mouseX <= x + 25 && mouseY >= y + 53 && mouseY <= y + 68)
-        {
-            List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.slowfasttoggle", new Object[0]));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
-        // Hovering over the output-to-ender-chest button
-        else if (mouseX >= x + 145 && mouseX <= x + 160 && mouseY >= y + 53 && mouseY <= y + 68)
-        {
-            List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.outputtoenderchest", new Object[0]));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
+        this.buttonList.add(new GuiButtonHoverText(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, 200, 46 + outputOffset, this.guiTexture,
+            new String[] { I18n.format("enderutilities.gui.label.outputtoenderchest", new Object[0]) }));
     }
 
     @Override
@@ -128,10 +103,10 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
     }
 
     @Override
-    public void updateScreen()
+    public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
-        super.updateScreen();
         this.createButtons();
+        super.drawScreen(mouseX, mouseY, gameTicks);
     }
 
     @Override

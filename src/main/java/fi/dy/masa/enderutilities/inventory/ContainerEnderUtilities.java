@@ -75,14 +75,9 @@ public class ContainerEnderUtilities extends Container
         return this.inventory.isUseableByPlayer(player);
     }
 
-    public boolean isPlayerArmorSlot(int slotNum)
+    public boolean isSlotInRange(SlotRange range, int slotNum)
     {
-        return slotNum >= this.playerArmorSlots.first && slotNum < this.playerArmorSlots.lastExc;
-    }
-
-    public boolean isPlayerMainInvSlot(int slotNum)
-    {
-        return slotNum >= this.playerMainSlots.first && slotNum < this.playerMainSlots.lastExc;
+        return slotNum >= range.first && slotNum < range.lastExc;
     }
 
     @Override
@@ -111,12 +106,12 @@ public class ContainerEnderUtilities extends Container
         }
 
         // From player armor slot to player main inventory
-        if (this.isPlayerArmorSlot(slotNum) == true)
+        if (this.isSlotInRange(this.playerArmorSlots, slotNum) == true)
         {
             ret |= this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
         }
         // From player main inventory to armor slot or the "external" inventory
-        else if (this.isPlayerMainInvSlot(slotNum) == true)
+        else if (this.isSlotInRange(this.playerMainSlots, slotNum) == true)
         {
             ret |= this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false);
             ret |= this.transferStackToPrioritySlots(player, slotNum, false);
