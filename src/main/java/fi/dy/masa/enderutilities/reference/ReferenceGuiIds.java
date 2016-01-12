@@ -11,4 +11,5 @@ public class ReferenceGuiIds
     //public static final int GUI_ID_ENDER_BAG = 1000;
     public static final int GUI_ID_HANDY_BAG = 1001;
     public static final int GUI_ID_INVENTORY_SWAPPER = 1002;
+    public static final int GUI_ID_PICKUP_MANAGER = 1003;
 }

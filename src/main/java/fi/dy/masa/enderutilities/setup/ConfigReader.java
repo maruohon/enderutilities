@@ -102,6 +102,7 @@ public class ConfigReader
         Configs.disableItemInventorySwapper       = conf.get(category, "DisableItemInventorySwapper", false).setRequiresMcRestart(true);
         Configs.disableItemLivingManipulator      = conf.get(category, "DisableItemLivingManipulator", false).setRequiresMcRestart(true);
         Configs.disableItemMobHarness             = conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
+        Configs.disableItemPickupManager          = conf.get(category, "DisableItemPickupManager", false).setRequiresMcRestart(true);
         Configs.disableItemPortalScaler           = conf.get(category, "DisableItemPortalScaler", false).setRequiresMcRestart(true);
 
         // Recipe disable
@@ -131,6 +132,7 @@ public class ConfigReader
         Configs.disableRecipeInventorySwapper     = conf.get(category, "DisableRecipeInventorySwapper", false).setRequiresMcRestart(true);
         Configs.disableRecipeLivingManipulator    = conf.get(category, "DisableRecipeLivingManipulator", false).setRequiresMcRestart(true);
         Configs.disableRecipeMobHarness           = conf.get(category, "DisableRecipeMobHarness", false).setRequiresMcRestart(true);
+        Configs.disableRecipePickupManager        = conf.get(category, "DisableRecipePickupManager", false).setRequiresMcRestart(true);
         Configs.disableRecipePortalScaler         = conf.get(category, "DisableRecipePortalScaler", false).setRequiresMcRestart(true);
 
         // Tools and weapons

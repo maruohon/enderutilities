@@ -1,7 +1,14 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
-
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
@@ -11,14 +18,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.setup.Configs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class UtilItemModular
 {
@@ -595,7 +594,19 @@ public class UtilItemModular
      */
     public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
     {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+        readItemsFromContainerItem(containerStack, items, "Items");
+    }
+
+    /**
+     * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
+     * them in the array <b>items</b>. The items are read from a tag by the name <b>tagName</b>.
+     * <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
+     * @param containerStack
+     * @param items
+     */
+    public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items, String tagName)
+    {
+        NBTTagList nbtTagList = NBTUtils.getTagList(containerStack, null, tagName, Constants.NBT.TAG_COMPOUND, false);
         if (nbtTagList == null)
         {
             return;
@@ -643,12 +654,25 @@ public class UtilItemModular
 
     /**
      * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>.
-     * The items will be written inside a TAG_Compound named "Items".
+     * The items will be written in a NBTTagList called "Items".
      * @param containerStack
      * @param items
      * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
     public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, boolean keepExtraSlots)
+    {
+        writeItemsToContainerItem(containerStack, items, "Items", keepExtraSlots);
+    }
+
+    /**
+     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>
+     * in a NBTTagList by the name <b>tagName</b>.
+     * @param containerStack
+     * @param items
+     * @param tagName the NBTTagList tag name where the items will be written to
+     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
+     */
+    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, String tagName, boolean keepExtraSlots)
     {
         NBTTagList nbtTagList = new NBTTagList();
 
@@ -669,7 +693,7 @@ public class UtilItemModular
         if (keepExtraSlots == true)
         {
             // Read the old items and append any existing items that are outside the current written slot range
-            NBTTagList nbtTagListExisting = NBTUtils.getStoredItemsList(containerStack, false);
+            NBTTagList nbtTagListExisting = NBTUtils.getTagList(containerStack, null, tagName, Constants.NBT.TAG_COMPOUND, false);
             if (nbtTagListExisting != null)
             {
                 for (int i = 0; i < nbtTagListExisting.tagCount(); i++)
@@ -689,11 +713,11 @@ public class UtilItemModular
 
         if (nbtTagList.tagCount() > 0)
         {
-            nbt.setTag("Items", nbtTagList);
+            nbt.setTag(tagName, nbtTagList);
         }
         else
         {
-            nbt.removeTag("Items");
+            nbt.removeTag(tagName);
         }
 
         NBTUtils.setRootCompoundTag(containerStack, nbt);

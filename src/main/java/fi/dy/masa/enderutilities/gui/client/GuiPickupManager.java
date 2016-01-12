@@ -1,0 +1,284 @@
+package fi.dy.masa.enderutilities.gui.client;
+
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
+import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
+import fi.dy.masa.enderutilities.inventory.InventoryItem;
+import fi.dy.masa.enderutilities.inventory.InventoryItemModules;
+import fi.dy.masa.enderutilities.item.ItemPickupManager;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.reference.ReferenceReflection;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+
+public class GuiPickupManager extends GuiEnderUtilities
+{
+    public ContainerPickupManager container;
+    public InventoryItem inventoryItemTransmit;
+    public InventoryItemModules inventoryItemModules;
+    public InventoryItem inventoryItemFilters;
+    public EntityPlayer player;
+    public int numModuleSlots;
+
+    public GuiPickupManager(ContainerPickupManager container)
+    {
+        super(container, 176, 256, "gui.container.pickupmanager");
+        this.player = container.player;
+        this.container = container;
+        this.inventoryItemTransmit = container.inventoryItemTransmit;
+        this.inventoryItemModules = container.inventoryItemModules;
+        this.inventoryItemFilters = container.inventoryItemFilters;
+        this.numModuleSlots = this.inventoryItemModules.getSizeInventory();
+    }
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+        this.createButtons();
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float gameTicks)
+    {
+        this.createButtons(); // Re-create the buttons to reflect the current state
+        super.drawScreen(mouseX, mouseY, gameTicks);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
+    {
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager", new Object[0]), 83, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager.inputfilters", new Object[0]), 81, 23, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager.transportfilters", new Object[0]), 8, 108, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager.filterpresets", new Object[0]) + ":", 8, 160, 0x404040);
+    }
+
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
+    {
+        super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
+
+        this.bindTexture(this.guiTexture);
+
+        ItemStack containerStack = this.container.getModularItem();
+
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        // Transmit slot is not accessible, because the item isn't currently accessible
+        // Draw the dark background icon over the disabled slot
+        if (this.inventoryItemTransmit.isUseableByPlayer(this.player) == false)
+        {
+            this.drawTexturedModalRect(x + 79, y + 86, 204, 18, 18, 18);
+        }
+
+        // Memory Card slots are not accessible, because the item isn't currently accessible
+        // Draw the dark background icon over the disabled slots
+        if (this.inventoryItemModules.isUseableByPlayer(this.player) == false)
+        {
+            for (int i = 0; i < this.numModuleSlots; i++)
+            {
+                this.drawTexturedModalRect(x + 116 - 1 + i * 18, y + 87 - 1, 204, 18, 18, 18);
+            }
+        }
+
+        // Filter slots are not accessible, because the item isn't currently accessible
+        // Draw the dark background icon over the disabled slots
+        if (this.inventoryItemFilters.isUseableByPlayer(this.player) == false)
+        {
+            // Input filters
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 34 - 1 + i * 18, 204, 18, 18, 18);
+                }
+            }
+
+            // Transmit filters
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 119 - 1 + i * 18, 204, 18, 18, 18);
+                }
+            }
+        }
+
+        // Draw the colored background for the selected module slot
+        if (containerStack != null)
+        {
+            int index = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_LINKCRYSTAL);
+            this.drawTexturedModalRect(x + 116 - 1 + index * 18, y + 87 - 1, 204, 0, 18, 18);
+            // Draw the selection border around the selected memory card module's selection button
+            this.drawTexturedModalRect(x + 119 + index * 18, y + 105, 246, 10, 10, 10);
+        }
+
+        if (containerStack != null)
+        {
+            // Draw the selection border around the selected preset's button
+            byte sel = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
+            this.drawTexturedModalRect(x + 101 + sel * 18, y + 159, 246, 10, 10, 10);
+        }
+
+        // TODO Remove this in 1.8 and enable the slot background icon method override instead
+        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
+        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
+        this.bindTexture(TextureMap.locationItemsTexture);
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        //GL11.glEnable(GL11.GL_BLEND);
+
+        // Draw the background icon over empty storage module slots
+        IIcon icon = EnderUtilitiesItems.linkCrystal.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_LINKCRYSTAL);
+        for (int i = 0; icon != null && i < this.numModuleSlots; i++)
+        {
+            if (this.inventoryItemModules.getStackInSlot(i) == null)
+            {
+                this.drawTexturedModelRectFromIcon(x + 116 + i * 18, y + 87, icon, 16, 16);
+            }
+        }
+
+        //GL11.glDisable(GL11.GL_BLEND);
+        //GL11.glDisable(GL11.GL_LIGHTING);
+        // TODO end of to-be-removed code in 1.8*/
+    }
+
+    @Override
+    protected void drawTooltips(int mouseX, int mouseY)
+    {
+        super.drawTooltips(mouseX, mouseY);
+
+        Slot slot = null;
+        try
+        {
+            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
+        }
+        catch (IllegalAccessException e)
+        {
+            return;
+        }
+
+        // Hovering over the tool slot
+        if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.transportitemsslot", new Object[0]));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+    }
+
+    protected void addConditionalButton(int id, int x, int y, int w, int h, ItemStack stack, String tag, int u1, int v1, int u2, int v2, String s1, String s2)
+    {
+        if (ItemPickupManager.getSettingValue(stack, tag) == 0)
+        {
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTexture, w, 0,
+                new String[] { I18n.format("enderutilities.gui.label." + s1, new Object[0]) }));
+        }
+        else
+        {
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTexture, w, 0,
+                new String[] { I18n.format("enderutilities.gui.label." + s2, new Object[0]) }));
+        }
+    }
+
+    protected void createButtons()
+    {
+        this.buttonList.clear();
+
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        int id = 0;
+        // Add the Memory Card selection buttons
+        for (int i = 0; i < this.numModuleSlots; i++)
+        {
+            this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 106, 8, 8, 222, 0, this.guiTexture, 8, 0));
+        }
+
+        // Add the preset selection buttons
+        for (int i = 0; i < ItemPickupManager.NUM_PRESETS; i++)
+        {
+            this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 160, 8, 8, 222, 8 + i * 8, this.guiTexture, 8, 0));
+        }
+
+        ItemStack containerStack = this.container.getModularItem();
+
+        // Add the input filter settings buttons
+
+        // Match or ignore this group of filters
+        this.addConditionalButton(id++, x +  8, y + 15, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INFILTER_ENABLED, 208, 72, 208, 88, "filtergroup.enabled", "filtergroup.disabled");
+
+        // Blacklist or Whitelist
+        this.addConditionalButton(id++, x + 26, y + 15, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");
+
+        // Match or ignore damage/metadata
+        this.addConditionalButton(id++, x + 44, y + 15, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INFILTER_META, 208, 104, 208, 120, "meta.match", "meta.ignore");
+
+        // Match or ignore NBT
+        this.addConditionalButton(id++, x + 62, y + 15, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INFILTER_NBT, 208, 152, 208, 136, "nbt.ignore", "nbt.match");
+
+        // Add the transport filter settings buttons
+
+        // Match or ignore this group of filters
+        this.addConditionalButton(id++, x +  8, y + 87, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 208, 72, 208, 88, "filtergroup.enabled", "filtergroup.disabled");
+
+        // Blacklist or Whitelist
+        this.addConditionalButton(id++, x + 26, y + 87, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");
+
+        // Match or ignore damage/metadata
+        this.addConditionalButton(id++, x + 44, y + 87, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META, 208, 104, 208, 120, "meta.match", "meta.ignore");
+
+        // Match or ignore NBT
+        this.addConditionalButton(id++, x + 62, y + 87, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT, 208, 152, 208, 136, "nbt.ignore", "nbt.match");
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button)
+    {
+        super.actionPerformed(button);
+
+        int first = 0;
+        if (button.id >= first && button.id < (first + this.numModuleSlots))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_SELECT_MODULE, button.id - first));
+            return;
+        }
+
+        first += this.numModuleSlots;
+        if (button.id >= this.numModuleSlots && button.id < (first + ItemPickupManager.NUM_PRESETS))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_CHANGE_PRESET, button.id - first));
+            return;
+        }
+
+        first += ItemPickupManager.NUM_PRESETS;
+        if (button.id >= first && button.id < (first + 4))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_INPUT_SETTINGS, button.id - first));
+            return;
+        }
+
+        first += 4;
+        if (button.id >= first && button.id < (first + 4))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_TRANSPORT_SETTINGS, button.id - first));
+            return;
+        }
+    }
+}

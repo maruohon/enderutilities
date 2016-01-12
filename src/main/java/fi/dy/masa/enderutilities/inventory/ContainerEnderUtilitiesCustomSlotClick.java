@@ -47,19 +47,13 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
         {
             int totalNum = 0;
             int numSlots = this.draggedSlots.size();
-            int itemsPerSlot = this.draggingRightClick == true ? 1 : stackCursor.stackSize / numSlots;
+            int itemsPerSlot = this.draggingRightClick == true ? 1 : (numSlots > 0 ? stackCursor.stackSize / numSlots : stackCursor.stackSize);
             for (int i : this.draggedSlots)
             {
                 Slot slotTmp = this.getSlot(i);
                 int slotMax = this.getMaxStackSizeFromSlotAndStack(slotTmp, stackCursor);
                 ItemStack stackTmp = slotTmp.getStack();
                 int num = Math.min(itemsPerSlot, slotMax);
-
-                // The target slot is not in our large inventory, also check the max stack size of the item
-                /*if (slotTmp.isSlotInInventory(this.inventory, i)  == false)
-                {
-                    num = Math.min(num, stackCursor.getMaxStackSize());
-                }*/
 
                 // Target slot already has items, check how many more can fit to the slot
                 if (stackTmp != null)

@@ -1,20 +1,22 @@
 package fi.dy.masa.enderutilities.gui;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiInventorySwapper;
+import fi.dy.masa.enderutilities.gui.client.GuiPickupManager;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
+import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
 public class EnderUtilitiesGUIHandler implements IGuiHandler
 {
@@ -55,6 +57,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 }
                 break;
 
+            case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
+                stack = player.getCurrentEquippedItem();
+                if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
+                {
+                    return new ContainerPickupManager(player, stack);
+                }
+                break;
+
             default:
         }
 
@@ -92,6 +102,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
                     return new GuiInventorySwapper(new ContainerInventorySwapper(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD)));
+                }
+                break;
+
+            case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
+                stack = player.getCurrentEquippedItem();
+                if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
+                {
+                    return new GuiPickupManager(new ContainerPickupManager(player, stack));
                 }
                 break;
 

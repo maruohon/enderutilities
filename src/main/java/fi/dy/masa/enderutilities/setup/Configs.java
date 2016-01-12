@@ -48,6 +48,7 @@ public class Configs
     public static Property disableItemHandyBag;
     public static Property disableItemInventorySwapper;
     public static Property disableItemMobHarness;
+    public static Property disableItemPickupManager;
     public static Property disableItemPortalScaler;
     public static Property disableItemLivingManipulator;
 
@@ -75,6 +76,7 @@ public class Configs
     public static Property disableRecipeInventorySwapper;
     public static Property disableRecipeLivingManipulator;
     public static Property disableRecipeMobHarness;
+    public static Property disableRecipePickupManager;
     public static Property disableRecipePortalScaler;
     public static Property disableRecipeEnderSword;
     public static Property disableRecipeEnderPickaxe;

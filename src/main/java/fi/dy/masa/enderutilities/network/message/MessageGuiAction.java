@@ -1,18 +1,19 @@
 package fi.dy.masa.enderutilities.network.message;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
 public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAction, IMessage>
 {
@@ -80,12 +81,19 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                         ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.action, message.elementId);
                     }
                     break;
+
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
                     ItemHandyBag.performGuiAction(player, message.action, message.elementId);
                     break;
+
                 case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
                     ItemInventorySwapper.performGuiAction(player, message.action, message.elementId);
                     break;
+
+                case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
+                    ItemPickupManager.performGuiAction(player, message.action, message.elementId);
+                    break;
+
                 default:
             }
         }

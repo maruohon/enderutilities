@@ -1,30 +1,49 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItem implements IInventory
 {
     protected ItemStack containerStack;
     protected int invSize;
     protected ItemStack[] items;
+    /** The NBTTagList tag name storing the items in the containerStack */
+    protected String itemsTagName;
     protected EntityPlayer player;
     protected boolean isRemote;
     protected String customInventoryName;
     protected int stackLimit;
     protected boolean allowCustomStackSizes;
+    protected UUID containerUUID;
+    protected IInventory hostInventory;
 
     public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    {
+        this(containerStack, invSize, isRemote, player, "Items");
+    }
+
+    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, String tagName)
+    {
+        this(containerStack, invSize, isRemote, player, tagName, null, null);
+    }
+
+    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IInventory hostInv)
     {
         this.containerStack = containerStack;
         this.invSize = invSize;
         this.player = player;
         this.isRemote = isRemote;
         this.stackLimit = 64;
+        this.containerUUID = containerUUID;
+        this.hostInventory = hostInv;
+        this.itemsTagName = tagName;
         this.initInventory();
     }
 
@@ -34,11 +53,38 @@ public class InventoryItem implements IInventory
     }
 
     /**
+     * Sets the NBTTagList tag name that stores the items of this inventory in the container ItemStack
+     * @param tagName
+     */
+    public void setItemStorageTagName(String tagName)
+    {
+        if (tagName != null)
+        {
+            this.itemsTagName = tagName;
+        }
+    }
+
+    /**
+     * Sets the host inventory and the UUID of the container ItemStack, so that the correct
+     * container ItemStack can be fetched from the host inventory.
+     */
+    public void setHostInventory(IInventory inv, UUID uuid)
+    {
+        this.hostInventory = inv;
+        this.containerUUID = uuid;
+    }
+
+    /**
      * Returns the ItemStack storing the contents of this inventory
      */
     public ItemStack getContainerItemStack()
     {
         //System.out.println("InventoryItem#getContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+        if (this.containerUUID != null && this.hostInventory != null)
+        {
+            return InventoryUtils.getItemStackByUUID(this.hostInventory, this.containerUUID, "UUID");
+        }
+
         return this.containerStack;
     }
 
@@ -88,7 +134,7 @@ public class InventoryItem implements IInventory
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
-                UtilItemModular.readItemsFromContainerItem(stack, this.items);
+                UtilItemModular.readItemsFromContainerItem(stack, this.items, this.itemsTagName);
             }
         }
     }
@@ -104,7 +150,7 @@ public class InventoryItem implements IInventory
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
-                UtilItemModular.writeItemsToContainerItem(stack, this.items, true);
+                UtilItemModular.writeItemsToContainerItem(stack, this.items, this.itemsTagName, true);
             }
         }
     }
