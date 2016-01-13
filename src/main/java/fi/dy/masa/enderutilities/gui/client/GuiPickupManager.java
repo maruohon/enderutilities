@@ -81,7 +81,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Draw the dark background icon over the disabled slot
         if (this.inventoryItemTransmit.isUseableByPlayer(this.player) == false)
         {
-            this.drawTexturedModalRect(x + 98, y + 29, 204, 18, 18, 18);
+            this.drawTexturedModalRect(x + 88, y + 28, 204, 18, 18, 18);
         }
 
         // Memory Card slots are not accessible, because the item isn't currently accessible
@@ -218,7 +218,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Add the transport filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  8, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 208, 72, 208, 88, "filtergroup.enabled", "filtergroup.disabled");
+        this.addConditionalButton(id++, x +  8, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 208, 88, 208, 72, "filtergroup.disabled", "filtergroup.enabled");
 
         // Blacklist or Whitelist
         this.addConditionalButton(id++, x + 26, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");
@@ -233,7 +233,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Add the inventory filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  8, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED, 208, 72, 208, 88, "filtergroup.enabled", "filtergroup.disabled");
+        this.addConditionalButton(id++, x +  8, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED, 208, 88, 208, 72, "filtergroup.disabled", "filtergroup.enabled");
 
         // Blacklist or Whitelist
         this.addConditionalButton(id++, x + 26, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");

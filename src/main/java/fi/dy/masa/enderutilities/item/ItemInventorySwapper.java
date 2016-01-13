@@ -1,7 +1,15 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -21,15 +29,6 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 
 public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBound
 {
@@ -72,7 +71,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String itemName = super.getItemStackDisplayName(stack); //StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+        String itemName = super.getItemStackDisplayName(stack);
         String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
@@ -324,13 +323,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1);
+            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1, ReferenceKeys.keypressActionIsReversed(key));
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            UtilItemModular.changeSelectedModuleAbs(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
@@ -377,6 +376,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 }
             }
         }
+    }
+
+    @Override
+    public boolean useAbsoluteModuleIndexing(ItemStack stack)
+    {
+        return true;
     }
 
     @Override

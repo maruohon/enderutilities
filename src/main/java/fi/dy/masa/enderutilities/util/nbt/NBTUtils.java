@@ -198,21 +198,59 @@ public class NBTUtils
     /**
      * Cycle a byte value in the given NBT. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
+     * The low end of the range is 0.
      */
     public static void cycleByteValue(NBTTagCompound nbt, String tagName, int maxValue)
     {
+        cycleByteValue(nbt, tagName, maxValue, false);
+    }
+
+    /**
+     * Cycle a byte value in the given NBT. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     * The low end of the range is 0.
+     */
+    public static void cycleByteValue(NBTTagCompound nbt, String tagName, int maxValue, boolean reverse)
+    {
         byte value = nbt.getByte(tagName);
-        nbt.setByte(tagName, ++value > maxValue ? 0 : value);
+
+        if (reverse)
+        {
+            if (--value < 0)
+            {
+                value = (byte)maxValue;
+            }
+        }
+        else
+        {
+            if (++value > maxValue)
+            {
+                value = 0;
+            }
+        }
+
+        nbt.setByte(tagName, value);
     }
 
     /**
      * Cycle a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
+     * The low end of the range is 0.
      */
     public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue)
     {
+        cycleByteValue(stack, containerTagName, tagName, maxValue, false);
+    }
+
+    /**
+     * Cycle a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     * The low end of the range is 0.
+     */
+    public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue, boolean reverse)
+    {
         NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
-        cycleByteValue(nbt, tagName, maxValue);
+        cycleByteValue(nbt, tagName, maxValue, reverse);
     }
 
     /**

@@ -2,11 +2,15 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
@@ -21,7 +25,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
-        super(player.inventory, new InventoryItem(containerStack, 1, player.worldObj.isRemote, player, "TransmitItems"));
+        super(player.inventory, new InventoryItem(containerStack, 1, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
         this.player = player;
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
@@ -31,7 +35,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
-        this.inventoryItemFilters = new InventoryItem(containerStack, 36, player.worldObj.isRemote, player, "FilterItems_" + preset);
+        this.inventoryItemFilters = new InventoryItem(containerStack, 36, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
         this.inventoryItemFilters.setHostInventory(player.inventory, this.containerUUID);
         this.inventoryItemFilters.setInventoryStackLimit(1);
         this.inventoryItemFilters.readFromContainerItemStack();
@@ -200,6 +204,18 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         ItemStack modularStackPre = this.getModularItem();
         ItemStack stack = super.slotClick(slotNum, button, type, player);
         ItemStack modularStackPost = this.getModularItem();
+
+        if (modularStackPost != null && player.worldObj.isRemote == false)
+        {
+            boolean sent = ItemPickupManager.tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
+
+            // The change is not picked up by detectAndSendCHanges() because the items are transported out
+            // immediately, so the client side container will get out of sync without a forced sync
+            if (sent == true && player instanceof EntityPlayerMP)
+            {
+                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, 0, this.getSlot(0).getStack()), (EntityPlayerMP)player);
+            }
+        }
 
         // The Bag's stack changed after the click, re-read the inventory contents.
         if (modularStackPre != modularStackPost)

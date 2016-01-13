@@ -5,6 +5,7 @@ import net.minecraft.inventory.ICrafting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderInfuser extends ContainerTileEntityInventory
 {

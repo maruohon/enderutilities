@@ -9,6 +9,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {

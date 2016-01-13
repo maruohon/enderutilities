@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
 {

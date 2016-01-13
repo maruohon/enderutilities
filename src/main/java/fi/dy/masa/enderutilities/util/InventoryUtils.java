@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
@@ -883,5 +882,64 @@ public class InventoryUtils
                 }
             }
         }
+    }
+
+    /**
+     * Returns all the non-empty ie. non-null ItemStack from the inventory <b>inv</b>
+     * from within the given slot range <b>slotRange</b>.
+     */
+    public static List<ItemStack> getNonEmptyStacksFromSlotRange(IInventory inv, SlotRange slotRange)
+    {
+        List<ItemStack> list = new ArrayList<ItemStack>();
+        int end = Math.min(slotRange.lastExc, inv.getSizeInventory());
+
+        for (int i = slotRange.first; i < end; i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null)
+            {
+                list.add(stack);
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Checks if there is a matching ItemStack in the inventory inside the given slot range.
+     */
+    public static boolean matchingStackFoundInSlotRange(IInventory inv, SlotRange slotRange, ItemStack stack, boolean ignoreMeta, boolean ignoreNbt)
+    {
+        if (stack == null)
+        {
+            return false;
+        }
+
+        List<ItemStack> list = getNonEmptyStacksFromSlotRange(inv, slotRange);
+        Item item = stack.getItem();
+        int meta = stack.getItemDamage();
+
+        for (int i = 0; i < list.size(); i++)
+        {
+            ItemStack stackTmp = list.get(i);
+            if (stackTmp.getItem() != item)
+            {
+                continue;
+            }
+
+            if (ignoreMeta == false && (meta != OreDictionary.WILDCARD_VALUE && stackTmp.getItemDamage() != meta))
+            {
+                continue;
+            }
+
+            if (ignoreNbt == false && ItemStack.areItemStackTagsEqual(stack, stackTmp) == false)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

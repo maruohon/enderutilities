@@ -9,6 +9,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
@@ -253,18 +254,5 @@ public class ContainerEnderUtilities extends Container
     public void addMergeSlotRangePlayerToExt(int start, int numSlots)
     {
         this.mergeSlotRangesPlayerToExt.add(new SlotRange(start, numSlots));
-    }
-
-    public class SlotRange
-    {
-        public final int first;
-        /** The end of the slot range, exclusive (meaning one larger than the last slot number) */
-        public final int lastExc;
-
-        public SlotRange(int start, int numSlots)
-        {
-            this.first = start;
-            this.lastExc = start + numSlots;
-        }
     }
 }

@@ -124,6 +124,25 @@ public class UtilItemModular
     }
 
     /**
+     * Returns the tier of the currently selected module (if any) of type moduleType in containerStack
+     * using absolute module indexing, or -1 for invalid or missing modules.
+     * @param containerStack
+     * @param moduleType
+     * @return 0..n for valid modules, -1 for invalid or missing modules
+     */
+    public static int getSelectedModuleTierAbs(ItemStack containerStack, ModuleType moduleType)
+    {
+        int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        ItemStack moduleStack = getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        {
+            return -1;
+        }
+
+        return ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
+    }
+
+    /**
      * Returns the index (0..num-1) of the currently selected module of type moduleType in containerStack.
      * @param containerStack
      * @param moduleType
@@ -231,6 +250,19 @@ public class UtilItemModular
     }
 
     /**
+     * Returns the ItemStack of the (currently selected, if any) installed module of type moduleType,
+     * using absolute (non empty slot skipping) module indexing.
+     * @param containerStack
+     * @param moduleType
+     * @return
+     */
+    public static ItemStack getSelectedModuleStackAbs(ItemStack containerStack, ModuleType moduleType)
+    {
+        int index = getStoredModuleSelection(containerStack, moduleType);
+        return getModuleStackBySlotNumber(containerStack, index, moduleType);
+    }
+
+    /**
      * Sets the currently selected module's ItemStack of type moduleStack to the one provided in newModuleStack.
      * @param containerStack
      * @param moduleType
@@ -260,6 +292,12 @@ public class UtilItemModular
         }
 
         return false;
+    }
+
+    public static boolean setSelectedModuleStackAbs(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
+    {
+        int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        return setModuleStackBySlotNumber(containerStack, slotNum, newModuleStack);
     }
 
     /**

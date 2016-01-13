@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -194,10 +193,22 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         UtilItemModular.setTarget(toolStack, player, x, y, z, side, hitX, hitY, hitZ, doHitOffset, storeRotation);
     }
 
+    public boolean useAbsoluteModuleIndexing(ItemStack stack)
+    {
+        return false;
+    }
+
     @Override
     public void changePrivacyMode(ItemStack containerStack, EntityPlayer player)
     {
-        UtilItemModular.changePrivacyModeOnSelectedModule(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
+        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        {
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
+        }
+        else
+        {
+            UtilItemModular.changePrivacyModeOnSelectedModule(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
+        }
     }
 
     @Override
@@ -276,24 +287,44 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
+        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        {
+            UtilItemModular.getSelectedModuleTierAbs(containerStack, moduleType);
+        }
+
         return UtilItemModular.getSelectedModuleTier(containerStack, moduleType);
     }
 
     @Override
     public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
+        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        {
+            return UtilItemModular.getSelectedModuleStackAbs(containerStack, moduleType);
+        }
+
         return UtilItemModular.getSelectedModuleStack(containerStack, moduleType);
     }
 
     @Override
     public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
+        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        {
+            UtilItemModular.setSelectedModuleStackAbs(containerStack, moduleType, moduleStack);
+        }
+
         return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
     }
 
     @Override
     public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
+        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        {
+            return UtilItemModular.changeSelectedModuleAbs(containerStack, moduleType, reverse);
+        }
+
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
 

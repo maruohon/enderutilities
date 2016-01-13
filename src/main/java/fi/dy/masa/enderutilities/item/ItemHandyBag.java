@@ -79,7 +79,6 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
 
                 InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
-                //inv.writeToContainerItemStack();
 
                 //if (player.openContainer instanceof ContainerHandyBag)
                 {
@@ -101,7 +100,6 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
                 InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
-                //inv.writeToContainerItemStack();
             }
 
             return true;
@@ -190,7 +188,7 @@ public class ItemHandyBag extends ItemInventoryModular
             String preBlue = EnumChatFormatting.BLUE.toString();
             String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
-            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+            ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
 
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
@@ -220,6 +218,13 @@ public class ItemHandyBag extends ItemInventoryModular
         addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
+    /**
+     * Tries to first fill the matching stacks in the player's inventory,
+     * and then depending on the bag's mode, tries to add the remaining items
+     * to the bag's inventory.
+     * @param event
+     * @return false if all items were handled and further processing of the event should not occur
+     */
     public static boolean onItemPickupEvent(EntityItemPickupEvent event)
     {
         int origStackSize = event.item.getEntityItem().stackSize;
@@ -231,6 +236,7 @@ public class ItemHandyBag extends ItemInventoryModular
             return false;
         }
 
+        boolean ret = true;
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
         for (int slot : slots)
@@ -251,6 +257,7 @@ public class ItemHandyBag extends ItemInventoryModular
                         event.item.getEntityItem().stackSize = 0;
                         event.item.setDead();
                         event.setCanceled(true);
+                        ret = false;
                         break;
                     }
                     //inv.writeToContainerItemStack();
@@ -267,7 +274,7 @@ public class ItemHandyBag extends ItemInventoryModular
             return true;
         }
 
-        return false;
+        return ret;
     }
 
     public static boolean bagIsOpenable(ItemStack stack)
@@ -328,8 +335,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
-        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null && moduleStack.getItem() instanceof IModule)
         {
             int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
@@ -440,8 +446,14 @@ public class ItemHandyBag extends ItemInventoryModular
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            UtilItemModular.changeSelectedModuleAbs(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
+    }
+
+    @Override
+    public boolean useAbsoluteModuleIndexing(ItemStack stack)
+    {
+        return true;
     }
 
     @Override
