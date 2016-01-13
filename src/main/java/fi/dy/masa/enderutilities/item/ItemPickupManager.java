@@ -33,25 +33,25 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemPickupManager extends ItemLocationBoundModular implements IKeyBound
 {
     public static final String TAG_NAME_CONTAINER = "PickupManager";
-    public static final String TAG_NAME_PRESET_SELECTION = "SelectedPreset";
+    public static final String TAG_NAME_PRESET_SELECTION = "SelPreset";
     public static final String TAG_NAME_PRESET = "Preset_";
     public static final String TAG_NAME_LOCKED = "Locked";
 
-    public static final String TAG_NAME_INFILTER_ENABLED = "InFilterEnabled";
-    public static final String TAG_NAME_INFILTER_MODE = "InFilterMode";
-    public static final String TAG_NAME_INFILTER_META = "InFilterMeta";
-    public static final String TAG_NAME_INFILTER_NBT = "InFilterNBT";
+    public static final String TAG_NAME_INVFILTER_ENABLED = "InvFiltEnabled";
+    public static final String TAG_NAME_INVFILTER_MODE = "InvFiltMode";
+    public static final String TAG_NAME_INVFILTER_META = "InvFiltMeta";
+    public static final String TAG_NAME_INVFILTER_NBT = "InvFiltNBT";
 
-    public static final String TAG_NAME_TXFILTER_ENABLED = "TxFilterEnabled";
-    public static final String TAG_NAME_TXFILTER_MODE = "TxFilterMode";
-    public static final String TAG_NAME_TXFILTER_META = "TxFilterMeta";
-    public static final String TAG_NAME_TXFILTER_NBT = "TxFilterNBT";
+    public static final String TAG_NAME_TXFILTER_ENABLED = "TxFiltEnabled";
+    public static final String TAG_NAME_TXFILTER_MODE = "TxFiltMode";
+    public static final String TAG_NAME_TXFILTER_META = "TxFiltMeta";
+    public static final String TAG_NAME_TXFILTER_NBT = "TxFiltNBT";
 
     public static final int NUM_PRESETS = 4;
 
     public static final int GUI_ACTION_SELECT_MODULE = 0;
     public static final int GUI_ACTION_CHANGE_PRESET = 1;
-    public static final int GUI_ACTION_TOGGLE_INPUT_SETTINGS = 2;
+    public static final int GUI_ACTION_TOGGLE_INVENTORY_SETTINGS = 2;
     public static final int GUI_ACTION_TOGGLE_TRANSPORT_SETTINGS = 3;
 
     @SideOnly(Side.CLIENT)
@@ -262,13 +262,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             container.inventoryItemFilters.setItemStorageTagName("FilterItems_" + element);
             container.inventoryItemFilters.readFromContainerItemStack();
         }
-        else if (action == GUI_ACTION_TOGGLE_INPUT_SETTINGS && element >= 0 && element < 4)
+        else if (action == GUI_ACTION_TOGGLE_INVENTORY_SETTINGS && element >= 0 && element < 4)
         {
             String tagName;
-            if (element == 0) tagName = TAG_NAME_INFILTER_ENABLED;
-            else if (element == 1) tagName = TAG_NAME_INFILTER_MODE;
-            else if (element == 2) tagName = TAG_NAME_INFILTER_META;
-            else tagName = TAG_NAME_INFILTER_NBT;
+            if (element == 0) tagName = TAG_NAME_INVFILTER_ENABLED;
+            else if (element == 1) tagName = TAG_NAME_INVFILTER_MODE;
+            else if (element == 2) tagName = TAG_NAME_INVFILTER_META;
+            else tagName = TAG_NAME_INVFILTER_NBT;
 
             setSettingValue(stack, tagName, (byte)(getSettingValue(stack, tagName) ^ 0x1));
         }

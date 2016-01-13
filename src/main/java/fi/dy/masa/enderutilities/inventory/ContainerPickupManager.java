@@ -50,15 +50,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     {
         int start = this.inventorySlots.size();
         int posX = 8;
-        int posY = 34;
+        int posY = 29;
 
         // The item transmit slot
-        this.addSlotToContainer(new SlotGeneric(this.inventoryItemTransmit, 0, posX + 4 * 18, 87));
+        this.addSlotToContainer(new SlotGeneric(this.inventoryItemTransmit, 0, 89, posY));
 
         this.customInventorySlots = new SlotRange(start, 1);
-
         start = this.inventorySlots.size();
-        // Input filter slots
+
+        posY = 47;
+        // Item tranport filter slots
         for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < 9; j++)
@@ -67,8 +68,8 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             }
         }
 
-        posY = 119;
-        // Item transmit filter slots
+        posY = 123;
+        // Inventory filter slots
         for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < 9; j++)
@@ -80,7 +81,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.filterSlots = new SlotRange(start, 36);
 
         posX = 116;
-        posY = 87;
+        posY = 29;
         // The Storage Module slots
         for (int i = 0; i < NUM_MODULE_SLOTS; i++)
         {
