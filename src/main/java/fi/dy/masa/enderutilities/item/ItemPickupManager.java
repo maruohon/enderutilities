@@ -301,7 +301,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     /**
      * Tries to handle the given ItemStack. Returns true if all items were handled and further processing should be canceled.
      */
-    public static boolean handleItems(EntityItemPickupEvent event, EntityPlayer player, ItemStack manager, ItemStack itemsIn)
+    public static Result handleItems(EntityItemPickupEvent event, EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
         byte preset = NBTUtils.getByte(manager, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
 
@@ -317,16 +317,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
             // 0 = Black list
             byte mode = getSettingValue(manager, TAG_NAME_TXFILTER_MODE);
-            System.out.println("transport enabled - pre; mode: " + (mode == 0 ? "bl" : "wl") + " ign meta: " + ignoreMeta + " match: " + match);
+
             // White list and match found, or black list and no match found
             if ((mode != 0 && match == true) || (mode == 0 && match == false))
             {
                 int sizeOrig = itemsIn.stackSize;
-                System.out.println("transport - allowed");
+
                 // All items successfully transported
                 if (tryTransportItems(player, manager, itemsIn) == true)
                 {
-                    System.out.println("transport - all handled");
                     event.setCanceled(true);
                     event.item.setDead();
 
@@ -334,7 +333,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                     player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     player.onItemPickup(event.item, sizeOrig);
 
-                    return true;
+                    return Result.TRANSPORTED;
                 }
             }
         }
@@ -348,19 +347,28 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
             // 0 = Black list
             byte mode = getSettingValue(manager, TAG_NAME_INVFILTER_MODE);
-            System.out.println("inv filtering enabled - pre; mode: " + (mode == 0 ? "bl" : "wl") + " ign meta: " + ignoreMeta + " match: " + match);
-            // White list and no match found, or black list and match found => prevent picking up the item
-            if ((mode != 0 && match == false) || (mode == 0 && match == true))
+
+            // White list
+            if (mode != 0)
             {
-                System.out.println("inv filtering - denied");
+                return match == true ? Result.WHITELISTED : Result.NOT_WHITELISTED;
+            }
+            // Black list
+            else if (mode == 0)
+            {
                 event.setCanceled(true);
-                return true;
+                return match == true ? Result.BLACKLISTED : Result.NOT_HANDLED;
             }
         }
 
-        return false;
+        return Result.NOT_HANDLED;
     }
 
+    /**
+     * Try to handle the items being picked up.
+     * @param event
+     * @return false to prevent further processing of the event
+     */
     public static boolean onItemPickupEvent(EntityItemPickupEvent event)
     {
         if (event.entityPlayer.worldObj.isRemote == true)
@@ -372,25 +380,43 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         int origStackSize = stackIn.stackSize;
         EntityPlayer player = event.entityPlayer;
         List<ItemStack> managers = getEnabledItems(player);
+        boolean deny = true;
 
         for (ItemStack manager : managers)
         {
-            System.out.println("pre");
-            if (handleItems(event, player, manager, stackIn) == true)
+            Result result = handleItems(event, player, manager, stackIn);
+
+            //System.out.println("result: " + result);
+            if (result == Result.BLACKLISTED || result == Result.TRANSPORTED)
             {
-                System.out.println("all handled");
+                event.setCanceled(true);
                 return false;
+            }
+
+            if (result == Result.WHITELISTED)
+            {
+                deny = false;
+                break;
+            }
+
+            if (result == Result.NOT_HANDLED)
+            {
+                deny = false;
             }
         }
 
         // At least some items were picked up
         if (event.item.getEntityItem().stackSize != origStackSize)
         {
-            System.out.println("something handled");
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
             player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
-            return true;
+        }
+
+        if (deny == true)
+        {
+            event.setCanceled(true);
+            return false;
         }
 
         return true;
@@ -556,5 +582,14 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         return this.itemIcon;
+    }
+
+    public enum Result
+    {
+        TRANSPORTED,
+        WHITELISTED,
+        BLACKLISTED,
+        NOT_WHITELISTED,
+        NOT_HANDLED;
     }
 }
