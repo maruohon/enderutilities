@@ -22,7 +22,7 @@ public class ItemEnderLasso extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack containerStack)
     {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ItemEnderLasso extends ItemLocationBoundModular
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 3;
+            return 8;
         }
 
         if (moduleType.equals(ModuleType.TYPE_MOBPERSISTENCE))

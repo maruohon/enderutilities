@@ -148,8 +148,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         {
             this.inventoryItem.setContainerItemStack(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL));
             this.setUpgradeSlotTypes();
-            this.detectAndSendChanges();
         }
+
+        this.detectAndSendChanges();
 
         return stack;
     }
