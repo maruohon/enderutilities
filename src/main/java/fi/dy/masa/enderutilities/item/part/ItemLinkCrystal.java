@@ -1,19 +1,24 @@
 package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
@@ -45,6 +50,27 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         }
 
         return super.getUnlocalizedName();
+    }
+
+    @Override
+    public String getTargetDisplayName(ItemStack stack)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+        if (target != null)
+        {
+            // Display the target block name if it's a Block type Link Crystal
+            if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
+            {
+                return NBTHelperTarget.getTargetBlockDisplayName(target);
+            }
+            // Location type Link Crystal
+            else if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION)
+            {
+                return TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
+            }
+        }
+
+        return null;
     }
 
     @Override

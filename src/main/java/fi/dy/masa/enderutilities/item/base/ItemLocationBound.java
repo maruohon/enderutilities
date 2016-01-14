@@ -6,10 +6,13 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
+
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
@@ -54,27 +57,30 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
+    public String getTargetDisplayName(ItemStack stack)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+        return target != null ? NBTHelperTarget.getTargetBlockDisplayName(target) : null;
+    }
+
+    @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        NBTHelperTarget target = this.getTarget(stack);
-        if (target != null)
+        // If the item has been renamed, show that name
+        if (stack.hasDisplayName() == true)
+        {
+            // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back here ;_;
+            NBTTagCompound tag = stack.stackTagCompound.getCompoundTag("display");
+            return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
+        }
+
+        String targetName = this.getTargetDisplayName(stack);
+        if (targetName != null && targetName.length() > 0)
         {
             String pre = EnumChatFormatting.GREEN.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
-            // Display the target block name if it's a Block type Link Crystal
-            if (((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                Block block = Block.getBlockFromName(target.blockName);
-                ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
-                if (targetStack != null && targetStack.getItem() != null)
-                {
-                    return super.getItemStackDisplayName(stack) + " " + pre + targetStack.getDisplayName() + rst;
-                }
-            }
-
-            String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-            return super.getItemStackDisplayName(stack) + " " + pre + dimName + rst;
+            return super.getItemStackDisplayName(stack) + " " + pre + targetName + rst;
         }
 
         return super.getItemStackDisplayName(stack);

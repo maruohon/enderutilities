@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -16,9 +17,12 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -391,11 +395,12 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
-        // Ctrl + (Shift + ) Alt + Toggle Mode: Change entity selection within the current module
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        // Shift + Toggle Mode: Change entity selection within the current module
+        else if (ReferenceKeys.keypressContainsControl(key) == false &&
+                 ReferenceKeys.keypressContainsShift(key) == true &&
+                 ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeEntitySelection(stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeEntitySelection(stack, ReferenceKeys.keypressActionIsReversed(key));
         }
         // Just Toggle key, cycle the mode
         else if (ReferenceKeys.keypressContainsControl(key) == false &&

@@ -7,10 +7,13 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -301,6 +304,18 @@ public class NBTHelperTarget
         }
 
         return false;
+    }
+
+    public static String getTargetBlockDisplayName(NBTHelperTarget target)
+    {
+        Block block = Block.getBlockFromName(target.blockName);
+        ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
+        if (targetStack != null && targetStack.getItem() != null)
+        {
+            return targetStack.getDisplayName();
+        }
+
+        return null;
     }
 
     /**

@@ -20,8 +20,10 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -248,25 +250,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         return false;
-    }
-
-    @Override
-    public String getItemStackDisplayName(ItemStack stack)
-    {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (target != null)
-        {
-            ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
-
-            if (targetStack != null && targetStack.getItem() != null)
-            {
-                String pre = EnumChatFormatting.GREEN.toString();
-                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
-                return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + pre + targetStack.getDisplayName() + rst;
-            }
-        }
-
-        return StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name").trim();
     }
 
     @Override

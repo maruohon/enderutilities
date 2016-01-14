@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-import net.minecraft.block.Block;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -9,15 +9,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -54,52 +55,40 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public String getItemStackDisplayName(ItemStack stack)
+    public String getTargetDisplayName(ItemStack stack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
         {
-            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            if (moduleStack.hasDisplayName() == true)
+            {
+                // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back to getItemStackDisplayName ;_;
+                NBTTagCompound tag = moduleStack.stackTagCompound.getCompoundTag("display");
+                return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
+            }
+
+            return ((ILocationBound)moduleStack.getItem()).getTargetDisplayName(moduleStack);
+        }
+
+        return super.getTargetDisplayName(stack);
+    }
+
+    @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        String targetName = this.getTargetDisplayName(stack);
+        if (targetName != null && targetName.length() > 0)
+        {
             String preGreen = EnumChatFormatting.GREEN.toString();
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
-            // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
+            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            if (itemName.length() >= 14)
             {
-                String preGreenIta = preGreen + EnumChatFormatting.ITALIC.toString();
-                if (itemName.length() >= 14)
-                {
-                    return EUStringUtils.getInitialsWithDots(itemName) + " " + preGreenIta + moduleStack.getDisplayName() + rst;
-                }
-
-                return itemName + " " + preGreenIta + moduleStack.getDisplayName() + rst;
+                itemName = EUStringUtils.getInitialsWithDots(itemName);
             }
 
-            // Link Crystal not named and has a valid target
-            NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
-            if (target != null && moduleStack.getItem() instanceof IModule)
-            {
-                if (itemName.length() >= 14)
-                {
-                    itemName = EUStringUtils.getInitialsWithDots(itemName);
-                }
-
-                // Display the target block name if it's a Block type Link Crystal
-                if (((IModule)moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
-                {
-                    Block block = Block.getBlockFromName(target.blockName);
-                    ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
-                    if (targetStack != null && targetStack.getItem() != null)
-                    {
-                        return itemName + " " + preGreen + targetStack.getDisplayName() + rst;
-                    }
-                }
-                // Location type Link Crystal
-                else if (((IModule)moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION)
-                {
-                    return itemName + " " + preGreen + TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true) + rst;
-                }
-            }
+            return itemName + " " + preGreen + targetName + rst;
         }
 
         return super.getItemStackDisplayName(stack);

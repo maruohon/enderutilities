@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,11 +15,14 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItem;
@@ -33,7 +37,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -97,30 +100,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public String getItemStackDisplayName(ItemStack stack)
     {
         int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        String strPre = " P: " + preset;
-        String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+        String strPre = " - P: " + preset;
+        String pre = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+        String str = super.getItemStackDisplayName(stack);
 
-        String itemName = super.getItemStackDisplayName(stack);
-        int index = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL);
-        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, index, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && moduleStack.getTagCompound() != null)
-        {
-            // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
-            {
-                if (itemName.length() >= 14)
-                {
-                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + strPre + " - " + moduleStack.getDisplayName() + rst;
-                }
-
-                return itemName + " " + pre + strPre + " - " + moduleStack.getDisplayName() + rst;
-            }
-
-            return itemName + " " + pre + strPre + " - M: " + (index + 1) + rst;
-        }
-
-        return itemName + " " + pre + strPre + rst;
+        return str + pre + strPre + rst;
     }
 
     @Override
@@ -146,6 +131,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         list.add(str);
+
+        int preset = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preGreen + preset + rst);
 
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
     }
