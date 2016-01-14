@@ -133,7 +133,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         list.add(str);
 
         int preset = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preGreen + preset + rst);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + EnumChatFormatting.BLUE.toString() + preset + rst);
 
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
     }
@@ -210,44 +210,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         return items.size() > 0 ? items.get(0) : null;
     }
 
-    public static boolean tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
-    {
-        int index = UtilItemModular.getStoredModuleSelection(manager, ModuleType.TYPE_LINKCRYSTAL);
-        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(manager, index, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null)
-        {
-            return false;
-        }
-
-        NBTHelperPlayer owner = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
-        if (owner != null && owner.canAccess(player) == false)
-        {
-            return false;
-        }
-
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(moduleStack);
-        if (target != null)
-        {
-            World world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-            if (world != null)
-            {
-                // Force load the target chunk with a 30 second unload delay.
-                if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension, target.posX >> 4, target.posZ >> 4, 30) == false)
-                {
-                    return false;
-                }
-
-                TileEntity te = world.getTileEntity(target.posX, target.posY, target.posZ);
-                if (te instanceof IInventory)
-                {
-                    return InventoryUtils.tryInsertItemStackToInventory((IInventory)te, itemsIn, target.blockFace);
-                }
-            }
-        }
-
-        return false;
-    }
-
     public static boolean tryTransportItemsFromTransportSlot(InventoryItem inv, EntityPlayer player, ItemStack manager)
     {
         /*InventoryItem inv = new InventoryItem(manager, 1, player.worldObj.isRemote, player, TAG_NAME_TX_INVENTORY);
@@ -286,10 +248,51 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         return stack.stackSize != sizeOrig;
     }
 
+    public static boolean tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
+    {
+        int index = UtilItemModular.getStoredModuleSelection(manager, ModuleType.TYPE_LINKCRYSTAL);
+        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(manager, index, ModuleType.TYPE_LINKCRYSTAL);
+        if (moduleStack == null)
+        {
+            return false;
+        }
+
+        NBTHelperPlayer owner = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
+        if (owner != null && owner.canAccess(player) == false)
+        {
+            return false;
+        }
+
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(moduleStack);
+        if (target != null)
+        {
+            World world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            if (world != null)
+            {
+                // Force load the target chunk with a 30 second unload delay.
+                if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension, target.posX >> 4, target.posZ >> 4, 30) == false)
+                {
+                    return false;
+                }
+
+                TileEntity te = world.getTileEntity(target.posX, target.posY, target.posZ);
+                if (te instanceof IInventory)
+                {
+                    ItemStack stackTmp = itemsIn.copy();
+                    boolean ret = InventoryUtils.tryInsertItemStackToInventory((IInventory)te, stackTmp, target.blockFace);
+                    itemsIn.stackSize = ret == true ? 0 : itemsIn.stackSize;
+                    return ret;
+                }
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Tries to handle the given ItemStack. Returns true if all items were handled and further processing should be canceled.
      */
-    public static Result handleItems(EntityItemPickupEvent event, EntityPlayer player, ItemStack manager, ItemStack itemsIn)
+    public static Result handleItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
         byte preset = NBTUtils.getByte(manager, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
 
@@ -309,18 +312,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             // White list and match found, or black list and no match found
             if ((mode != 0 && match == true) || (mode == 0 && match == false))
             {
-                int sizeOrig = itemsIn.stackSize;
-
                 // All items successfully transported
                 if (tryTransportItems(player, manager, itemsIn) == true)
                 {
-                    event.setCanceled(true);
-                    event.item.setDead();
-
-                    FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-                    player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-                    player.onItemPickup(event.item, sizeOrig);
-
                     return Result.TRANSPORTED;
                 }
             }
@@ -344,8 +338,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             // Black list
             else if (mode == 0)
             {
-                event.setCanceled(true);
-                return match == true ? Result.BLACKLISTED : Result.NOT_HANDLED;
+                return match == true ? Result.BLACKLISTED : Result.NOT_BLACKLISTED;
             }
         }
 
@@ -359,7 +352,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      */
     public static boolean onItemPickupEvent(EntityItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true)
+        if (event.entityPlayer.worldObj.isRemote == true ||
+            event.item.getEntityItem() == null || event.item.getEntityItem().getItem() == null)
         {
             return true;
         }
@@ -368,26 +362,37 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         int origStackSize = stackIn.stackSize;
         EntityPlayer player = event.entityPlayer;
         List<ItemStack> managers = getEnabledItems(player);
-        boolean deny = true;
+        boolean deny = managers.size() > 0;
+        boolean ret = true;
 
+        //int i = 0;
         for (ItemStack manager : managers)
         {
-            Result result = handleItems(event, player, manager, stackIn);
+            Result result = handleItems(player, manager, stackIn);
 
-            //System.out.println("result: " + result);
+            //System.out.println("i: " + i++ + " result: " + result);
+            // Blacklisted or successfully transported, cancel further processing
             if (result == Result.BLACKLISTED || result == Result.TRANSPORTED)
             {
-                event.setCanceled(true);
-                return false;
+                if (result == Result.TRANSPORTED)
+                {
+                    event.item.setDead();
+                }
+
+                deny = true;
+                ret = false;
+                break;
             }
 
+            // Whitelisted, no need to check any further managers, just allow picking it up
             if (result == Result.WHITELISTED)
             {
                 deny = false;
                 break;
             }
 
-            if (result == Result.NOT_HANDLED)
+            // Filters disabled or filtering mode was black list, and the item was not on the black list => allow through
+            if (result == Result.NOT_HANDLED || result == Result.NOT_BLACKLISTED)
             {
                 deny = false;
             }
@@ -407,7 +412,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return false;
         }
 
-        return true;
+        return ret;
     }
 
     @Override
@@ -423,7 +428,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            UtilItemModular.changePrivacyModeOnSelectedModule(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_LINKCRYSTAL);
         }
         // Just Toggle mode: Toggle locked state
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -443,7 +448,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            UtilItemModular.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
@@ -576,8 +581,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     {
         TRANSPORTED,
         WHITELISTED,
-        BLACKLISTED,
         NOT_WHITELISTED,
+        BLACKLISTED,
+        NOT_BLACKLISTED,
         NOT_HANDLED;
     }
 }
