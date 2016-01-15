@@ -1,16 +1,25 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -18,6 +27,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public class UtilItemModular
 {
@@ -979,5 +989,62 @@ public class UtilItemModular
 
             UtilItemModular.writeItemsToContainerItem(containerStack, items, false);
         }
+    }
+
+    /**
+     * Returns the inventory that the selected Link Crystal in the given modular item is currently bound to,
+     * or null in case of errors.
+     */
+    public static IInventory getBoundInventory(ItemStack modularStack, EntityPlayer player, int chunkLoadDuration)
+    {
+        if (modularStack == null || (modularStack.getItem() instanceof IModular) == false)
+        {
+            return null;
+        }
+
+        IModular iModular = (IModular)modularStack.getItem();
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
+
+        if (iModular.getSelectedModuleTier(modularStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
+        {
+            return null;
+        }
+
+        // Bound to a vanilla Ender Chest
+        if ("minecraft:ender_chest".equals(target.blockName) == true)
+        {
+            return player.getInventoryEnderChest();
+        }
+
+        // For cross-dimensional item teleport we require the third tier of active Ender Core
+        if (NBTHelperPlayer.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+            || (target.dimension != player.dimension && iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+        {
+            return null;
+        }
+
+        World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        if (targetWorld == null)
+        {
+            return null;
+        }
+
+        if (chunkLoadDuration > 0)
+        {
+            // Chunk load the target
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, chunkLoadDuration);
+        }
+
+        TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+        // Block has changed since binding, or does not implement IInventory, abort
+        if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+        {
+            // Remove the bind
+            NBTHelperTarget.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
+            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+            return null;
+        }
+
+        return (IInventory) te;
     }
 }

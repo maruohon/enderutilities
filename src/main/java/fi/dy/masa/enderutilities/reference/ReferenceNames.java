@@ -35,6 +35,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard.misc";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard.items";
 
+    public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
     public static final String NAME_ITEM_ENDER_PICKAXE          = "enderpickaxe";
     public static final String NAME_ITEM_ENDER_AXE              = "enderaxe";

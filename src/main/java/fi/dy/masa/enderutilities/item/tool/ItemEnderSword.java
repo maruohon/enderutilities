@@ -3,8 +3,10 @@ package fi.dy.masa.enderutilities.item.tool;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -26,16 +28,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
@@ -253,46 +257,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
                 && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-            if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
-            {
-                return null;
-            }
-
-            // Bound to a vanilla Ender Chest
-            if ("minecraft:ender_chest".equals(target.blockName) == true)
-            {
-                return player.getInventoryEnderChest();
-            }
-
-            // For cross-dimensional item teleport we require the third tier of active Ender Core
-            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
-            {
-                return null;
-            }
-
-            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-            if (targetWorld == null)
-            {
-                return null;
-            }
-
-            // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
-
-            TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
-            // Block has changed since binding, or does not implement IInventory, abort
-            if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
-            {
-                // Remove the bind
-                NBTHelperTarget.removeTargetTagFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
-                return null;
-            }
-
-            return (IInventory) te;
+            return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
 
         return null;

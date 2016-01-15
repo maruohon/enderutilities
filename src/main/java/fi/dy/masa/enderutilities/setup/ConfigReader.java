@@ -89,6 +89,7 @@ public class ConfigReader
         Configs.disableItemEnderCapacitor         = conf.get(category, "DisableItemEnderCapacitor", false).setRequiresMcRestart(true);
         Configs.disableItemLinkCrystal            = conf.get(category, "DisableItemLinkCrystal", false).setRequiresMcRestart(true);
 
+        Configs.disableItemBuildersWand           = conf.get(category, "DisableItemBuildersWand", false).setRequiresMcRestart(true);
         Configs.disableItemEnderArrow             = conf.get(category, "DisableItemEnderArrow", false).setRequiresMcRestart(true);
         Configs.disableItemEnderBag               = conf.get(category, "DisableItemEnderBag", false).setRequiresMcRestart(true);
         Configs.disableItemEnderBow               = conf.get(category, "DisableItemEnderBow", false).setRequiresMcRestart(true);
@@ -119,6 +120,7 @@ public class ConfigReader
         Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "DisableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
 
         // Items
+        Configs.disableRecipeBuildersWand         = conf.get(category, "DisableRecipeBuildersWand", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnderArrow           = conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnderBag             = conf.get(category, "DisableRecipeEnderBag", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnderBow             = conf.get(category, "DisableRecipeEnderBow", false).setRequiresMcRestart(true);

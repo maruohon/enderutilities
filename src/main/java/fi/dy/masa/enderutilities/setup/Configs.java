@@ -36,6 +36,7 @@ public class Configs
     public static Property disableItemEnderCapacitor;
     public static Property disableItemLinkCrystal;
 
+    public static Property disableItemBuildersWand;
     public static Property disableItemEnderArrow;
     public static Property disableItemEnderBag;
     public static Property disableItemEnderBow;
@@ -63,6 +64,7 @@ public class Configs
     public static Property disableRecipeEnergyBridgeResonator;
 
     // Items
+    public static Property disableRecipeBuildersWand;
     public static Property disableRecipeEnderArrow;
     public static Property disableRecipeEnderBag;
     public static Property disableRecipeEnderBow;

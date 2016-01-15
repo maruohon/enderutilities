@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.util;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockPosEU
@@ -8,6 +10,7 @@ public class BlockPosEU
     public int posX;
     public int posY;
     public int posZ;
+    public int face;
 
     public BlockPosEU(int x, int y, int z)
     {
@@ -52,6 +55,24 @@ public class BlockPosEU
         this.posX = MathHelper.clamp_int(this.posX, -30000000, 30000000);
         this.posY = MathHelper.clamp_int(this.posY, 0, 255);
         this.posZ = MathHelper.clamp_int(this.posZ, -30000000, 30000000);
+    }
+
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setInteger("posX", this.posX);
+        tag.setInteger("posY", this.posY);
+        tag.setInteger("posZ", this.posZ);
+        tag.setInteger("face", this.face);
+
+        nbt.setTag("BlockPos", tag);
+
+        return nbt;
     }
 
     @Override

@@ -45,6 +45,7 @@ entity.enderutilities.enderpearlreusable.name=Reusable Ender Pearl
 # Item names:
 #############
 
+item.enderutilities.builderswand.name=Lazy Builder's Wand
 item.enderutilities.enderarrow.name=Ender Arrow
 item.enderutilities.enderbag.name=Ender Bag
 item.enderutilities.enderbow.name=Ender Bow
@@ -197,6 +198,11 @@ enderutilities.tooltip.item.bucket.mode.bind=Bind to tanks
 enderutilities.tooltip.item.bucket.mode.fill=Fill bucket
 enderutilities.tooltip.item.bucket.mode.drain=Drain bucket
 enderutilities.tooltip.item.bucket.mode.normal=Normal
+enderutilities.tooltip.item.build.column=Column
+enderutilities.tooltip.item.build.cube=Cube (solid)
+enderutilities.tooltip.item.build.line=Line
+enderutilities.tooltip.item.build.plane=Plane
+enderutilities.tooltip.item.build.walls=Walls
 enderutilities.tooltip.item.cached.amount=Last seen amount
 enderutilities.tooltip.item.cached.fluid=Last seen fluid
 enderutilities.tooltip.item.cached.fluid.compact=Last
@@ -213,6 +219,9 @@ enderutilities.tooltip.item.endertool.playerinv=Player
 enderutilities.tooltip.item.endertool.remote=Remote
 enderutilities.tooltip.item.enhanced=Enhanced
 enderutilities.tooltip.item.empty=empty
+enderutilities.tooltip.item.extend.fixedmaterial=Build w/ sel. blocktype
+enderutilities.tooltip.item.extend.samematerial=Extend all
+enderutilities.tooltip.item.extend.targeted=Extend targeted
 enderutilities.tooltip.item.fast=Fast
 enderutilities.tooltip.item.fluid=Fluid
 enderutilities.tooltip.item.holdshift=Hold §e§oShift§7 for more
@@ -247,6 +256,7 @@ enderutilities.tooltip.item.release=Release
 enderutilities.tooltip.item.restockmode=Restock mode
 enderutilities.tooltip.item.restockmode.short=RM
 enderutilities.tooltip.item.selected=Selected
+enderutilities.tooltip.item.selectedblock=Selected block
 enderutilities.tooltip.item.selectedlinkcrystal=Selected Link Crystal:
 enderutilities.tooltip.item.selectedlinkcrystal.short=LC:
 enderutilities.tooltip.item.selectedmemorycard=Selected Memory Card:

@@ -22,6 +22,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities enderPart = new ItemEnderPart();
     public static final ItemEnderUtilities linkCrystal = new ItemLinkCrystal();
 
+    public static final ItemEnderUtilities buildersWand = new ItemBuildersWand();
     public static final ItemEnderUtilities enderArrow = new ItemEnderArrow();
     public static final ItemEnderUtilities enderBag = new ItemEnderBag();
     public static final ItemEnderUtilities enderBow = new ItemEnderBow();
@@ -43,6 +44,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemCraftingPart.getBoolean(false) == false) { GameRegistry.registerItem(enderPart, ReferenceNames.NAME_ITEM_ENDERPART); }
         if (Configs.disableItemEnderCapacitor.getBoolean(false) == false) { GameRegistry.registerItem(enderCapacitor, ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR); }
         if (Configs.disableItemLinkCrystal.getBoolean(false) == false) { GameRegistry.registerItem(linkCrystal, ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL); }
+        if (Configs.disableItemBuildersWand.getBoolean(false) == false) { GameRegistry.registerItem(buildersWand, ReferenceNames.NAME_ITEM_BUILDERS_WAND); }
         if (Configs.disableItemEnderArrow.getBoolean(false) == false) { GameRegistry.registerItem(enderArrow, ReferenceNames.NAME_ITEM_ENDER_ARROW); }
         if (Configs.disableItemEnderBag.getBoolean(false) == false) { GameRegistry.registerItem(enderBag, ReferenceNames.NAME_ITEM_ENDER_BAG); }
         if (Configs.disableItemEnderBow.getBoolean(false) == false) { GameRegistry.registerItem(enderBow, ReferenceNames.NAME_ITEM_ENDER_BOW); }
@@ -84,6 +86,10 @@ public class EnderUtilitiesItems
         ItemStack rope = new ItemStack(enderPart, 1, 21);
 
         // "Usable" items
+        if (Configs.disableRecipeBuildersWand.getBoolean(false) == false && Configs.disableItemBuildersWand.getBoolean(false) == false)
+        {
+            //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(buildersWand), " NP", " AN", "A  ", 'N', "nuggetGold", 'P', pearl, 'A', new ItemStack(Items.arrow)));
+        }
         if (Configs.disableRecipeEnderArrow.getBoolean(false) == false && Configs.disableItemEnderArrow.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', "nuggetGold", 'P', pearl, 'A', new ItemStack(Items.arrow)));
