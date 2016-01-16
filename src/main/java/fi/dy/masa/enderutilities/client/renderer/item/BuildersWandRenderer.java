@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -12,13 +14,12 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
 
 public class BuildersWandRenderer
 {
@@ -47,33 +48,17 @@ public class BuildersWandRenderer
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_CULL_FACE);
         //GL11.glDisable(GL11.GL_BLEND);
-        GL11.glLineWidth(1.0f);
+        GL11.glLineWidth(2.0f);
         GL11.glPushMatrix();
         //GL11.glTranslated(-player.posX, -player.posY, -player.posZ);
 
         switch(wand.getMode(stack))
         {
-            case EXTEND_TARGETED:
-            case EXTEND_SAME:
-            case EXTEND_FIXED:
-                this.renderModeExtend(world, player, stack, event.partialTicks);
-                break;
-            case COLUMN:
-                this.renderModeColumn(world, player, stack, event.partialTicks);
-                break;
-            case LINE:
-                this.renderModeLine(world, player, stack, event.partialTicks);
-                break;
-            case PLANE:
-                this.renderModePlane(world, player, stack, event.partialTicks);
-                break;
             case WALLS:
-                this.renderModeWalls(world, player, stack, event.partialTicks);
-                break;
             case CUBE:
-                this.renderModeCube(world, player, stack, event.partialTicks);
                 break;
             default:
+                this.renderOutlinesTargeted(world, player, stack, event.partialTicks);
         }
 
         GL11.glPopMatrix();
@@ -86,12 +71,8 @@ public class BuildersWandRenderer
 
     public AxisAlignedBB makeBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
     {
-        double offset1 = 0.005d;
-        double offset2 = 1.005d;
-
-        //double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
-        //double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
-        //double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+        double offset1 = 0.000d;
+        double offset2 = 1.000d;
 
         double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
@@ -100,71 +81,31 @@ public class BuildersWandRenderer
         return AxisAlignedBB.getBoundingBox(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
     }
 
-    public void renderModeExtend(World world, EntityPlayer player, ItemStack stack, float partialTicks)
+    public void renderOutlinesTargeted(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-    }
+        BlockPosEU targeted = ((ItemBuildersWand)stack.getItem()).blockPos1.get(player.getUniqueID());
 
-    public void renderModeColumn(World world, EntityPlayer player, ItemStack stack, float partialTicks)
-    {
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-    }
-
-    public void renderModeLine(World world, EntityPlayer player, ItemStack stack, float partialTicks)
-    {
         MovingObjectPosition mop = this.mc.objectMouseOver;
-        if (mop == null || mop.typeOfHit != MovingObjectType.BLOCK)
+        if (targeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
+        {
+            targeted = new BlockPosEU(mop.blockX, mop.blockY, mop.blockZ, mop.sideHit);
+        }
+
+        if (targeted == null)
         {
             return;
         }
 
-        AxisAlignedBB aabb = this.makeBoundingBox(mop.blockX, mop.blockY, mop.blockZ, partialTicks, player);
-        ForgeDirection dir = ForgeDirection.getOrientation(mop.sideHit);
-        dir = dir.getRotation(ForgeDirection.UP);
+        List<BlockPosEU> positions = ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player);
 
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-
-        // FIXME testing code
-        int max = 6;
-        int step = 255 / max;
-        for (int i = 0; i < max; i++)
+        // FIXME debug code
+        //int step = positions.size() > 0 ? (255 / positions.size()) : 0;
+        for (int i = 0; i < positions.size(); i++)
         {
-            RenderGlobal.drawOutlinedBoundingBox(aabb.offset(dir.offsetX, dir.offsetY, dir.offsetZ), (i * step) << 16 | (i * step) << 8 | (i * step));
+            BlockPosEU pos = positions.get(i);
+            AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+            //RenderGlobal.drawOutlinedBoundingBox(aabb, (i * step) << 16 | (i * step) << 8 | (i * step));
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x99FF99);
         }
-    }
-
-    public void renderModePlane(World world, EntityPlayer player, ItemStack stack, float partialTicks)
-    {
-        MovingObjectPosition mop = this.mc.objectMouseOver;
-        if (mop == null || mop.typeOfHit != MovingObjectType.BLOCK)
-        {
-            return;
-        }
-
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-    }
-
-    public void renderModeWalls(World world, EntityPlayer player, ItemStack stack, float partialTicks)
-    {
-        MovingObjectPosition mop = this.mc.objectMouseOver;
-        if ((mop == null || mop.typeOfHit != MovingObjectType.BLOCK) &&
-            EnderUtilities.proxy.isAltKeyDown() == false)
-        {
-            return;
-        }
-
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-    }
-
-    public void renderModeCube(World world, EntityPlayer player, ItemStack stack, float partialTicks)
-    {
-        MovingObjectPosition mop = this.mc.objectMouseOver;
-        if ((mop == null || mop.typeOfHit != MovingObjectType.BLOCK) &&
-            EnderUtilities.proxy.isAltKeyDown() == false)
-        {
-            return;
-        }
-
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
     }
 }

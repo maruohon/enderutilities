@@ -14,9 +14,15 @@ public class BlockPosEU
 
     public BlockPosEU(int x, int y, int z)
     {
+        this(x, y, z, 0);
+    }
+
+    public BlockPosEU(int x, int y, int z, int side)
+    {
         this.posX = x;
         this.posY = y;
         this.posZ = z;
+        this.face = side;
 
         //this.clampCoords();
     }
@@ -43,11 +49,18 @@ public class BlockPosEU
         //this.clampCoords();
     }
 
-    public void offset(ForgeDirection dir, int distance)
+    public BlockPosEU offset(ForgeDirection dir, int distance)
     {
         this.posX += dir.offsetX * distance;
         this.posY += dir.offsetY * distance;
         this.posZ += dir.offsetZ * distance;
+
+        return this;
+    }
+
+    public BlockPosEU copy()
+    {
+        return new BlockPosEU(this);
     }
 
     public void clampCoords()

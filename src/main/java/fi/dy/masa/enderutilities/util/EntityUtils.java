@@ -22,9 +22,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
+
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.Registry;
@@ -32,6 +35,17 @@ import fi.dy.masa.enderutilities.setup.Registry;
 public class EntityUtils
 {
     public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+
+    public static enum LeftRight
+    {
+        LEFT,
+        RIGHT;
+
+        public LeftRight opposite()
+        {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
 
     public static ForgeDirection getLookingDirection(Entity entity)
     {
@@ -46,6 +60,36 @@ public class EntityUtils
         }
 
         return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+    }
+
+    /**
+     * Return whether the entity is looking to the left or to the right of the given axis.
+     * The axis is the one coming towards the entity from the source location.
+     */
+    public static LeftRight getLookLeftRight(Entity entity, ForgeDirection axis)
+    {
+        float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
+        LeftRight result;
+
+        switch(axis)
+        {
+            case NORTH:
+                result = yaw <= 180.0f ? LeftRight.RIGHT : LeftRight.LEFT;
+                break;
+            case SOUTH:
+                result = yaw > 180.0f ? LeftRight.RIGHT : LeftRight.LEFT;
+                break;
+            case WEST:
+                result = (yaw >= 90.0f && yaw <= 270.0f) ? LeftRight.RIGHT : LeftRight.LEFT;
+                break;
+            case EAST:
+                result = (yaw < 90.0f || yaw > 270.0f) ? LeftRight.RIGHT : LeftRight.LEFT;
+                break;
+            default:
+                result = LeftRight.LEFT;
+        }
+
+        return result;
     }
 
     public static EntityPlayer findPlayerByUUID(UUID uuid)

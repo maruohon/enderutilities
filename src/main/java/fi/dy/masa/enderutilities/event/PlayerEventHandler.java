@@ -3,15 +3,37 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
+
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
+import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
 
 public class PlayerEventHandler
 {
+    @SubscribeEvent
+    public void onPlayerInteract(PlayerInteractEvent event)
+    {
+        if (event.action == Action.LEFT_CLICK_BLOCK)
+        {
+            ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+            {
+                BlockPosEU pos = new BlockPosEU(event.x, event.y, event.z, event.face);
+                ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setPosition(event.entityPlayer.getUniqueID(), pos, true);
+                event.setCanceled(true);
+            }
+        }
+    }
+
     @SubscribeEvent
     public void onStartStracking(PlayerEvent.StartTracking event)
     {

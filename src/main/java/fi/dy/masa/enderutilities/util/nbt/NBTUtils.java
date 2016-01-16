@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import net.minecraftforge.common.util.Constants;
 
 public class NBTUtils
@@ -53,42 +55,45 @@ public class NBTUtils
     }
 
     /**
-     * Returns a compound tag by the given name <b>tagName</b>. If <b>tagName</b> is null,
-     * then the root compound tag is returned instead. If <b>create</b> is <b>false</b>
-     * and the tag doesn't exist, null is returned and the tag is not created.
-     * If <b>create</b> is <b>true</b>, then the tag(s) are created and added if necessary.
+     * Get the root compound tag from the ItemStack.
+     * If one doesn't exist, then it will be created and added if <b>create</b> is true, otherwise null is returned.
      */
-    public static NBTTagCompound getCompoundTag(ItemStack stack, String tagName, boolean create)
+    public static NBTTagCompound getRootCompoundTag(ItemStack stack, boolean create)
     {
         NBTTagCompound nbt = stack.getTagCompound();
 
         if (create == false)
         {
-            if (nbt == null)
-            {
-                return null;
-            }
-
-            if (tagName != null)
-            {
-                return nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true ? nbt.getCompoundTag(tagName) : null;
-            }
-
             return nbt;
         }
 
         // create = true
-
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
             stack.setTagCompound(nbt);
         }
 
-        if (tagName == null)
+        return nbt;
+    }
+
+    /**
+     * Get a compound tag by the given name <b>tagName</b> from the other compound tag <b>nbt</b>.
+     * If one doesn't exist, then it will be created and added if <b>create</b> is true, otherwise null is returned.
+     */
+    public static NBTTagCompound getCompoundTag(NBTTagCompound nbt, String tagName, boolean create)
+    {
+        if (nbt == null)
         {
-            return nbt;
+            return null;
         }
+
+        if (create == false)
+        {
+            return nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true ? nbt.getCompoundTag(tagName) : null;
+        }
+
+        // create = true
 
         if (nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == false)
         {
@@ -96,6 +101,40 @@ public class NBTUtils
         }
 
         return nbt.getCompoundTag(tagName);
+    }
+
+    /**
+     * Returns a compound tag by the given name <b>tagName</b>. If <b>tagName</b> is null,
+     * then the root compound tag is returned instead. If <b>create</b> is <b>false</b>
+     * and the tag doesn't exist, null is returned and the tag is not created.
+     * If <b>create</b> is <b>true</b>, then the tag(s) are created and added if necessary.
+     */
+    public static NBTTagCompound getCompoundTag(ItemStack stack, String tagName, boolean create)
+    {
+        NBTTagCompound nbt = getRootCompoundTag(stack, create);
+
+        if (tagName != null)
+        {
+            nbt = getCompoundTag(nbt, tagName, create);
+        }
+
+        return nbt;
+    }
+
+    /**
+     * Get a nested compound tag by the name <b>tagName</b> from inside another compound tag <b>containerTagName</b>.
+     * If some of the tags don't exist, then they will be created and added if <b>create</b> is true, otherwise null is returned.
+     */
+    public static NBTTagCompound getCompoundTag(ItemStack stack, String containerTagName, String tagName, boolean create)
+    {
+        NBTTagCompound nbt = getRootCompoundTag(stack, create);
+
+        if (containerTagName != null)
+        {
+            nbt = getCompoundTag(nbt, containerTagName, create);
+        }
+
+        return getCompoundTag(nbt, tagName, create);
     }
 
     /**
