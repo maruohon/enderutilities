@@ -47,7 +47,6 @@ public class BuildersWandRenderer
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_CULL_FACE);
-        //GL11.glDisable(GL11.GL_BLEND);
         GL11.glLineWidth(2.0f);
         GL11.glPushMatrix();
         //GL11.glTranslated(-player.posX, -player.posY, -player.posZ);
@@ -63,9 +62,7 @@ public class BuildersWandRenderer
 
         GL11.glPopMatrix();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        //GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_CULL_FACE);
-        //GL11.glDisable(GL11.GL_BLEND);
         GL11.glDepthMask(true);
     }
 
@@ -97,15 +94,12 @@ public class BuildersWandRenderer
         }
 
         List<BlockPosEU> positions = ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player);
-
-        // FIXME debug code
-        //int step = positions.size() > 0 ? (255 / positions.size()) : 0;
         for (int i = 0; i < positions.size(); i++)
         {
             BlockPosEU pos = positions.get(i);
             AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-            //RenderGlobal.drawOutlinedBoundingBox(aabb, (i * step) << 16 | (i * step) << 8 | (i * step));
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x99FF99);
+            //RenderGlobal.drawOutlinedBoundingBox(aabb, 0x99FF99);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
         }
     }
 }
