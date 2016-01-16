@@ -59,7 +59,30 @@ public class EntityUtils
             return ForgeDirection.DOWN;
         }
 
+        return getHorizontalLookingDirection(entity);
+    }
+
+    public static ForgeDirection getHorizontalLookingDirection(Entity entity)
+    {
         return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+    }
+
+    public static ForgeDirection getClosestLookingDirection(Entity entity)
+    {
+        float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
+        int yawAxis = MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
+        float yawAxisMiddle = yawAxis * 360.0f / 4.0f;
+
+        if (entity.rotationPitch > Math.abs(yawAxisMiddle - yaw))
+        {
+            return ForgeDirection.DOWN;
+        }
+        else if (-entity.rotationPitch > Math.abs(yawAxisMiddle - yaw))
+        {
+            return ForgeDirection.UP;
+        }
+
+        return getHorizontalLookingDirection(entity);
     }
 
     /**
@@ -71,6 +94,7 @@ public class EntityUtils
         float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
         LeftRight result;
 
+        // South = 0 degrees
         switch(axis)
         {
             case NORTH:
@@ -80,15 +104,16 @@ public class EntityUtils
                 result = yaw > 180.0f ? LeftRight.RIGHT : LeftRight.LEFT;
                 break;
             case WEST:
-                result = (yaw >= 90.0f && yaw <= 270.0f) ? LeftRight.RIGHT : LeftRight.LEFT;
+                result = (yaw >= 90.0f && yaw <= 270.0f) ? LeftRight.LEFT : LeftRight.RIGHT;
                 break;
             case EAST:
-                result = (yaw < 90.0f || yaw > 270.0f) ? LeftRight.RIGHT : LeftRight.LEFT;
+                result = (yaw < 90.0f || yaw > 270.0f) ? LeftRight.LEFT : LeftRight.RIGHT;
                 break;
             default:
                 result = LeftRight.LEFT;
         }
 
+        //System.out.printf("yaw: %.1f axis: %s look: %s\n", yaw, axis.toString(), result.toString());
         return result;
     }
 

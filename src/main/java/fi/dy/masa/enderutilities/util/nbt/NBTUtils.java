@@ -237,25 +237,23 @@ public class NBTUtils
     /**
      * Cycle a byte value in the given NBT. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
-     * The low end of the range is 0.
      */
-    public static void cycleByteValue(NBTTagCompound nbt, String tagName, int maxValue)
+    public static void cycleByteValue(NBTTagCompound nbt, String tagName, int minValue, int maxValue)
     {
-        cycleByteValue(nbt, tagName, maxValue, false);
+        cycleByteValue(nbt, tagName, minValue, maxValue, false);
     }
 
     /**
      * Cycle a byte value in the given NBT. If <b>containerTagName</b>
      * is not null, then the value is stored inside a compound tag by that name.
-     * The low end of the range is 0.
      */
-    public static void cycleByteValue(NBTTagCompound nbt, String tagName, int maxValue, boolean reverse)
+    public static void cycleByteValue(NBTTagCompound nbt, String tagName, int minValue, int maxValue, boolean reverse)
     {
         byte value = nbt.getByte(tagName);
 
         if (reverse)
         {
-            if (--value < 0)
+            if (--value < minValue)
             {
                 value = (byte)maxValue;
             }
@@ -264,7 +262,7 @@ public class NBTUtils
         {
             if (++value > maxValue)
             {
-                value = 0;
+                value = (byte)minValue;
             }
         }
 
@@ -289,7 +287,17 @@ public class NBTUtils
     public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int maxValue, boolean reverse)
     {
         NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
-        cycleByteValue(nbt, tagName, maxValue, reverse);
+        cycleByteValue(nbt, tagName, 0, maxValue, reverse);
+    }
+
+    /**
+     * Cycle a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void cycleByteValue(ItemStack stack, String containerTagName, String tagName, int minValue, int maxValue, boolean reverse)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        cycleByteValue(nbt, tagName, minValue, maxValue, reverse);
     }
 
     /**

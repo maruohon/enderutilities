@@ -75,8 +75,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        this.blockPos1.remove(player.getUniqueID());
-
         TileEntity te = world.getTileEntity(x, y, z);
         if (te instanceof IInventory)
         {
@@ -92,6 +90,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             return true;
         }
+        else
+        {
+            this.blockPos1.remove(player.getUniqueID());
+        }
 
         return this.useWand(stack, world, player, x, y, z, side);
     }
@@ -105,6 +107,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return itemName;
         }
 
+        String preBT = EnumChatFormatting.AQUA.toString();
         String preGreen = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
@@ -114,14 +117,34 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         itemName = itemName + " M: " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
 
-        BlockInfo blockInfo = this.getSelectedBlockType(stack);
-        if (blockInfo != null)
+        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        if (sel >= 0)
         {
-            ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
-            if (blockStack != null && blockStack.getItem() != null)
+            BlockInfo blockInfo = this.getSelectedBlockType(stack);
+            if (blockInfo != null)
             {
-                itemName = itemName + " B: " + preGreen + blockStack.getDisplayName() + rst;
+                ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
+                if (blockStack != null && blockStack.getItem() != null)
+                {
+                    itemName = itemName + " B: " + preGreen + blockStack.getDisplayName() + rst;
+                }
             }
+
+            itemName = itemName + " (" + (sel + 1) + "/" + MAX_BLOCKS + ")";
+        }
+        else
+        {
+            String str;
+            if (sel == -1)
+            {
+                str = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+            }
+            else
+            {
+                str = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+            }
+
+            itemName = itemName + " B: " + preBT + str + rst;
         }
 
         /*ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
@@ -146,16 +169,47 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preBlue + Mode.getMode(stack).getDisplayName() + rst);
 
-        BlockInfo blockInfo = this.getSelectedBlockType(stack);
-        if (blockInfo != null)
+        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        if (sel >= 0)
         {
-            ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
-            if (blockStack != null && blockStack.getItem() != null)
+            BlockInfo blockInfo = this.getSelectedBlockType(stack);
+            if (blockInfo != null)
             {
-                String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
-                list.add(str + ": " + preBlue + blockStack.getDisplayName() + rst);
+                ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
+                if (blockStack != null && blockStack.getItem() != null)
+                {
+                    String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
+                    list.add(str + ": " + preBlue + blockStack.getDisplayName() + rst);
+                }
             }
         }
+        else
+        {
+            String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
+            String str2;
+            if (sel == -1)
+            {
+                str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+            }
+            else
+            {
+                str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+            }
+
+            list.add(str + ": " + preBlue + str2 + rst);
+        }
+
+        String str = StatCollector.translateToLocal("enderutilities.tooltip.item.area.flipped");
+        String str2;
+        if (this.getAreaFlipped(stack) == true)
+        {
+            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+        }
+        else
+        {
+            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+        }
+        list.add(str + ": " + str2 + rst);
 
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
@@ -182,9 +236,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     {
         switch(Mode.getMode(stack))
         {
-            case EXTEND_TARGETED:
-            case EXTEND_SAME:
-            case EXTEND_FIXED:
+            case EXTEND_CONTINUOUS:
+            case EXTEND_AREA:
             case COLUMN:
             case LINE:
             case PLANE:
@@ -199,8 +252,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public void setSelectedBlockType(ItemStack stack, Block block, int meta)
     {
         int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
-        NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, true);
-        NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_BLOCK_PRE + sel, true);
+        if (sel < 0)
+        {
+            return;
+        }
+
+        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, true);
 
         tag.setString("Block", Block.blockRegistry.getNameForObject(block));
         tag.setByte("Meta", (byte)meta);
@@ -209,8 +267,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public BlockInfo getSelectedBlockType(ItemStack stack)
     {
         int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
-        NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, false);
-        NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_BLOCK_PRE + sel, false);
+        if (sel < 0)
+        {
+            return null;
+        }
+
+        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, false);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, false);
 
         if (tag != null && tag.hasKey("Block", Constants.NBT.TAG_STRING) == true)
         {
@@ -222,7 +285,25 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void changeSelectedBlockType(ItemStack stack, boolean reverse)
     {
-        NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL, MAX_BLOCKS, reverse);
+        NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
+    }
+
+    public boolean getAreaFlipped(ItemStack stack)
+    {
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_CONFIG_PRE + mode, true);
+
+        return tag.getBoolean("Flip");
+    }
+
+    public void toggleAreaFlipped(ItemStack stack)
+    {
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_CONFIG_PRE + mode, true);
+
+        tag.setBoolean("Flip", ! tag.getBoolean("Flip"));
     }
 
     public void changeAreaDimensions(EntityPlayer player, ItemStack stack, boolean reverse)
@@ -233,6 +314,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
+        reverse = ! reverse;
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.WALLS || mode == Mode.CUBE)
         {
@@ -247,52 +329,60 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (mode == Mode.COLUMN)
         {
             area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
+            area.writeToNBT(stack);
+            return;
+        }
+
+        ForgeDirection faceAxis = ForgeDirection.getOrientation(pos.face);
+        ForgeDirection lookDir = EntityUtils.getClosestLookingDirection(player);
+
+        if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
+        {
+            switch(lookDir)
+            {
+                case SOUTH:
+                    area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
+                    break;
+                case NORTH:
+                    area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
+                    break;
+                case EAST:
+                    // Why are these reversed?
+                    if (faceAxis == ForgeDirection.DOWN)
+                        area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
+                    else
+                        area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
+                    break;
+                case WEST:
+                    if (faceAxis == ForgeDirection.DOWN)
+                        area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
+                    else
+                        area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
+                    break;
+                default:
+            }
         }
         else
         {
-            ForgeDirection axis = ForgeDirection.getOrientation(pos.face);
-            ForgeDirection dir = EntityUtils.getLookingDirection(player);
-
-            if (axis == ForgeDirection.UP || axis == ForgeDirection.DOWN)
+            switch(lookDir)
             {
-                switch(dir)
-                {
-                    case SOUTH:
-                        area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
-                        break;
-                    case NORTH:
-                        area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
-                        break;
-                    case EAST:
+                case UP:
+                    area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
+                    break;
+                case DOWN:
+                    area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
+                    break;
+                default:
+                    LeftRight look = EntityUtils.getLookLeftRight(player, faceAxis);
+                    //System.out.println("yaw: " + player.rotationYaw + " look: " + look);
+                    if (look == LeftRight.RIGHT)
+                    {
                         area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
-                        break;
-                    case WEST:
+                    }
+                    else
+                    {
                         area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
-                        break;
-                    default:
-                }
-            }
-            else
-            {
-                switch(dir)
-                {
-                    case UP:
-                        area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
-                        break;
-                    case DOWN:
-                        area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
-                        break;
-                    default:
-                        LeftRight look = EntityUtils.getLookLeftRight(player, axis);
-                        if (look == LeftRight.RIGHT)
-                        {
-                            area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
-                        }
-                        else
-                        {
-                            area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
-                        }
-                }
+                    }
             }
         }
 
@@ -305,21 +395,29 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Mode mode = Mode.getMode(stack);
         ForgeDirection face = ForgeDirection.getOrientation(targeted.face);
         ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
-        ForgeDirection axisUp = axisRight.getRotation(face.getOpposite());
+        ForgeDirection axisUp = face.getRotation(axisRight);
 
         if (face == ForgeDirection.UP)
         {
-            axisRight = face.getRotation(ForgeDirection.NORTH);
-            axisUp = axisRight.getRotation(face.getOpposite());
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+            axisUp = face.getRotation(axisRight);
         }
         else if (face == ForgeDirection.DOWN)
         {
-            axisRight = face.getRotation(ForgeDirection.NORTH);
-            axisUp = axisRight.getRotation(face.getOpposite());
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+            axisUp = face.getRotation(axisRight);
         }
 
-        Area area = new Area(stack);
+        if (this.getAreaFlipped(stack) == true)
+        {
+            axisRight = axisRight.getRotation(face);
+            axisUp = axisUp.getRotation(face);
+        }
+
+        // Move the position forward by one from the targeted block
         BlockPosEU center = targeted.copy().offset(face, 1);
+        Area area = new Area(stack);
+
         //Block block = world.getBlock(targeted.posX, targeted.posY, targeted.posZ);
         //int meta = world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ);
 
@@ -327,24 +425,30 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         switch(mode)
         {
             case COLUMN:
-                for (int i = 0; i < area.rPosH; i++)
+                for (int i = 0; i <= area.rPosH; i++)
                 {
                     int x = center.posX + i * face.offsetX;
                     int y = center.posY + i * face.offsetY;
                     int z = center.posZ + i * face.offsetZ;
+
                     if (world.isAirBlock(x, y, z) == true)
                     {
                         positions.add(new BlockPosEU(x, y, z));
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 break;
 
             case LINE:
-                for (int i = -area.rNegH; i < area.rPosH; i++)
+                for (int i = -area.rNegH; i <= area.rPosH; i++)
                 {
                     int x = center.posX + i * axisRight.offsetX;
                     int y = center.posY + i * axisRight.offsetY;
                     int z = center.posZ + i * axisRight.offsetZ;
+
                     if (world.isAirBlock(x, y, z) == true)
                     {
                         positions.add(new BlockPosEU(x, y, z));
@@ -353,13 +457,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case PLANE:
-                for (int v = -area.rNegV; v < area.rPosV; v++)
+                for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
-                    for (int h = -area.rNegH; h < area.rPosH; h++)
+                    for (int h = -area.rNegH; h <= area.rPosH; h++)
                     {
                         int x = center.posX + h * axisRight.offsetX + v * axisUp.offsetX;
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
+
                         if (world.isAirBlock(x, y, z) == true)
                         {
                             positions.add(new BlockPosEU(x, y, z));
@@ -368,13 +473,30 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
                 break;
 
-            case EXTEND_FIXED:
-            case EXTEND_SAME:
-            case EXTEND_TARGETED:
+            case EXTEND_CONTINUOUS:
                 // FIXME these should spiral outwards from the center
-                for (int v = -area.rNegV; v < area.rPosV; v++)
+                for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
-                    for (int h = -area.rNegH; h < area.rPosH; h++)
+                    for (int h = -area.rNegH; h <= area.rPosH; h++)
+                    {
+                        int x = center.posX + h * axisRight.offsetX + v * axisUp.offsetX;
+                        int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
+                        int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
+                        if (world.isAirBlock(x, y, z) == true)
+                        {
+                            if (world.isAirBlock(x - face.offsetX, y - face.offsetY, z - face.offsetZ) == false)
+                            {
+                                positions.add(new BlockPosEU(x, y, z));
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case EXTEND_AREA:
+                for (int v = -area.rNegV; v <= area.rPosV; v++)
+                {
+                    for (int h = -area.rNegH; h <= area.rPosH; h++)
                     {
                         int x = center.posX + h * axisRight.offsetX + v * axisUp.offsetX;
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
@@ -429,6 +551,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsAlt(key) == true)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key));
+        }
+        // Just Toggle key: Toggle the area flipped property
+        else if (ReferenceKeys.keypressContainsControl(key) == false &&
+                 ReferenceKeys.keypressContainsShift(key) == false &&
+                 ReferenceKeys.keypressContainsAlt(key) == false)
+        {
+            this.toggleAreaFlipped(stack);
         }
     }
 
@@ -611,12 +740,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public static enum Mode
     {
-        EXTEND_TARGETED ("enderutilities.tooltip.item.extend.targeted"),
-        EXTEND_SAME ("enderutilities.tooltip.item.extend.samematerial"),
-        EXTEND_FIXED ("enderutilities.tooltip.item.extend.fixedmaterial"),
-        COLUMN ("enderutilities.tooltip.item.build.column"),
+        EXTEND_CONTINUOUS ("enderutilities.tooltip.item.extend.continuous"),
+        EXTEND_AREA ("enderutilities.tooltip.item.extend.area"),
         LINE ("enderutilities.tooltip.item.build.line"),
         PLANE ("enderutilities.tooltip.item.build.plane"),
+        COLUMN ("enderutilities.tooltip.item.build.column"),
         WALLS ("enderutilities.tooltip.item.build.walls"),
         CUBE ("enderutilities.tooltip.item.build.cube");
 
