@@ -93,6 +93,7 @@ public class BlockPosEU
     {
         final int prime = 31;
         int result = 1;
+        result = prime * result + face;
         result = prime * result + posX;
         result = prime * result + posY;
         result = prime * result + posZ;
@@ -102,13 +103,21 @@ public class BlockPosEU
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
         BlockPosEU other = (BlockPosEU) obj;
-        if (posX != other.posX) return false;
-        if (posY != other.posY) return false;
-        if (posZ != other.posZ) return false;
+        if (face != other.face)
+            return false;
+        if (posX != other.posX)
+            return false;
+        if (posY != other.posY)
+            return false;
+        if (posZ != other.posZ)
+            return false;
         return true;
     }
 }

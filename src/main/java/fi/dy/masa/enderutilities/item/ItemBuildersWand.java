@@ -50,6 +50,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCKS = "Blocks";
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
+    public static final int BLOCK_TYPE_TARGETED = -1;
+    public static final int BLOCK_TYPE_ADJACENT = -2;
     public Map<UUID, BlockPosEU> blockPos1 = new HashMap<UUID, BlockPosEU>();
     public Map<UUID, BlockPosEU> blockPos2 = new HashMap<UUID, BlockPosEU>();
 
@@ -135,7 +137,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         else
         {
             String str;
-            if (sel == -1)
+            if (sel == BLOCK_TYPE_TARGETED)
             {
                 str = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
             }
@@ -187,7 +189,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
             String str2;
-            if (sel == -1)
+            if (sel == BLOCK_TYPE_TARGETED)
             {
                 str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
             }
@@ -389,6 +391,55 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         area.writeToNBT(stack);
     }
 
+    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH,
+            List<BlockPosEU> positions, BlockInfo blockInfo, ForgeDirection face, ForgeDirection axisRight, ForgeDirection axisUp)
+    {
+        if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
+        {
+            return;
+        }
+
+        //System.out.printf("addAdjacent(): posV: %d posH: %d blockInfo: %s\n", posV, posH, blockInfo != null ? blockInfo.blockName : "null");
+        int x = center.posX + posH * axisRight.offsetX + posV * axisUp.offsetX;
+        int y = center.posY + posH * axisRight.offsetY + posV * axisUp.offsetY;
+        int z = center.posZ + posH * axisRight.offsetZ + posV * axisUp.offsetZ;
+
+        // The location itself must be air
+        if (world.isAirBlock(x, y, z) == false)
+        {
+            return;
+        }
+
+        int xb = x - face.offsetX;
+        int yb = y - face.offsetY;
+        int zb = z - face.offsetZ;
+
+        // The block on the back face must not be air...
+        if (world.isAirBlock(xb, yb, zb) == true)
+        {
+            return;
+        }
+
+        // ... and it must be a matching block or we must not have a block requirement
+        if (blockInfo == null || (blockInfo.block == world.getBlock(xb, yb, zb) && blockInfo.meta == world.getBlockMetadata(xb, yb, zb)))
+        {
+            BlockPosEU pos = new BlockPosEU(x, y, z);
+            if (positions.contains(pos) == false)
+            {
+                positions.add(pos);
+
+                this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockInfo, face, axisRight, axisUp);
+            }
+        }
+    }
+
     public List<BlockPosEU> getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player)
     {
         List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
@@ -418,8 +469,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPosEU center = targeted.copy().offset(face, 1);
         Area area = new Area(stack);
 
-        //Block block = world.getBlock(targeted.posX, targeted.posY, targeted.posZ);
-        //int meta = world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ);
+        BlockInfo blockInfo = null;
+        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        if (sel == BLOCK_TYPE_TARGETED)
+        {
+            Block block = world.getBlock(targeted.posX, targeted.posY, targeted.posZ);
+            int meta = world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ);
+            blockInfo = new BlockInfo(block, meta);
+        }
+        else if (sel >= 0)
+        {
+            blockInfo = this.getSelectedBlockType(stack);
+        }
 
         //System.out.println("face: " + face + " right : " + axisRight + " up: " + axisUp);
         switch(mode)
@@ -443,7 +504,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case LINE:
-                for (int i = -area.rNegH; i <= area.rPosH; i++)
+                for (int i = -1; i >= -area.rNegH; i--)
                 {
                     int x = center.posX + i * axisRight.offsetX;
                     int y = center.posY + i * axisRight.offsetY;
@@ -452,6 +513,26 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     if (world.isAirBlock(x, y, z) == true)
                     {
                         positions.add(new BlockPosEU(x, y, z));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                for (int i = 0; i <= area.rPosH; i++)
+                {
+                    int x = center.posX + i * axisRight.offsetX;
+                    int y = center.posY + i * axisRight.offsetY;
+                    int z = center.posZ + i * axisRight.offsetZ;
+
+                    if (world.isAirBlock(x, y, z) == true)
+                    {
+                        positions.add(new BlockPosEU(x, y, z));
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 break;
@@ -474,23 +555,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case EXTEND_CONTINUOUS:
-                // FIXME these should spiral outwards from the center
-                for (int v = -area.rNegV; v <= area.rPosV; v++)
-                {
-                    for (int h = -area.rNegH; h <= area.rPosH; h++)
-                    {
-                        int x = center.posX + h * axisRight.offsetX + v * axisUp.offsetX;
-                        int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
-                        int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
-                        if (world.isAirBlock(x, y, z) == true)
-                        {
-                            if (world.isAirBlock(x - face.offsetX, y - face.offsetY, z - face.offsetZ) == false)
-                            {
-                                positions.add(new BlockPosEU(x, y, z));
-                            }
-                        }
-                    }
-                }
+                this.addAdjacent(world, center, area, 0, 0, positions, blockInfo, face, axisRight, axisUp);
                 break;
 
             case EXTEND_AREA:
@@ -501,11 +566,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         int x = center.posX + h * axisRight.offsetX + v * axisUp.offsetX;
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
+
                         if (world.isAirBlock(x, y, z) == true)
                         {
-                            if (world.isAirBlock(x - face.offsetX, y - face.offsetY, z - face.offsetZ) == false)
+                            int xb = x - face.offsetX;
+                            int yb = y - face.offsetY;
+                            int zb = z - face.offsetZ;
+
+                            // The block on the back face must not be air and it must be a matching block or we must have no block requirement
+                            // sel >= 0 means that we want to build with a fixed block type, in that case we don't require a specific block type on the back
+                            if (world.isAirBlock(xb, yb, zb) == false)
                             {
-                                positions.add(new BlockPosEU(x, y, z));
+                                if (sel >= 0 || blockInfo == null || (blockInfo.block == world.getBlock(xb, yb, zb) && blockInfo.meta == world.getBlockMetadata(xb, yb, zb)))
+                                {
+                                    positions.add(new BlockPosEU(x, y, z));
+                                }
                             }
                         }
                     }
