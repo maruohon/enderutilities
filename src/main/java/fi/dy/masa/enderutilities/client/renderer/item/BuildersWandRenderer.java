@@ -46,25 +46,13 @@ public class BuildersWandRenderer
             return;
         }
 
-        World world = this.mc.theWorld;
-        EntityPlayer player = this.mc.thePlayer;
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
-
         GL11.glDepthMask(false);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glPushMatrix();
-        //GL11.glTranslated(-player.posX, -player.posY, -player.posZ);
 
-        switch(wand.getMode(stack))
-        {
-            case WALLS:
-            case CUBE:
-                break;
-            default:
-                this.renderOutlinesTargeted(world, player, stack, event.partialTicks);
-        }
+        this.renderOutlinesTargeted( this.mc.theWorld, this.mc.thePlayer, stack, event.partialTicks);
 
         GL11.glPopMatrix();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -102,6 +90,7 @@ public class BuildersWandRenderer
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions);
 
+        //System.out.println("pos size: " + positions.size());
         BlockPosEU posFirst = null;
         if (positions.size() > 0)
         {

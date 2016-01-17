@@ -81,6 +81,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPosEU pos = this.blockPos1.get(player.getUniqueID());
         if (pos != null)
         {
+            Mode mode = Mode.getMode(stack);
+            if (mode == Mode.CUBE || mode == Mode.WALLS)
+            {
+                if (this.blockPos2.get(player.getUniqueID()) != null)
+                {
+                    player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+                }
+
+                return stack;
+            }
+
             //System.out.println("onItemRightClick - " + (world.isRemote ? "client" : "server"));
             if (world.isRemote == false)
             {
@@ -102,19 +113,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
         }
 
-        /*if (player.isSneaking() == true)
+        Mode mode = Mode.getMode(stack);
+        if (mode == Mode.CUBE || mode == Mode.WALLS)
         {
             if (world.isRemote == false)
             {
-                this.setSelectedBlockType(stack, world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
+                this.setPosition(player.getUniqueID(), new BlockPosEU(x, y, z, player.dimension, side), player.isSneaking() == false);
             }
 
             return true;
         }
-        else
-        {
-            this.blockPos1.remove(player.getUniqueID());
-        }*/
 
         if (world.isRemote == false)
         {
@@ -122,6 +130,33 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         return true;
+    }
+
+    public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
+    {
+        // Left click without sneaking: Set the "anchor" position
+        if (player.isSneaking() == false)
+        {
+            this.setPosition(player.getUniqueID(), new BlockPosEU(x, y, z, player.dimension, side), true);
+        }
+        // Sneak + left click: Set the selected block type
+        else
+        {
+            this.setSelectedFixedBlockType(stack, world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
+        }
+    }
+
+    @Override
+    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
+    {
+        if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 40)
+        {
+            BlockPosEU pos = this.blockPos1.get(player.getUniqueID());
+            if (pos != null)
+            {
+                this.useWand(stack, world, player, pos, 0.5f, 0.5f, 0.5f);
+            }
+        }
     }
 
     @Override
@@ -334,75 +369,84 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                                       world.getBlockMetadata(posTarget.posX, posTarget.posY, posTarget.posZ));
         }
 
+        Mode mode = Mode.getMode(stack);
+        if (mode == Mode.CUBE)
+        {
+            return false;
+        }
+
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
 
         this.getBlockPositions(stack, posTarget, world, player, positions);
 
-        switch (Mode.getMode(stack))
+        // FIXME temporary code
+        for (int i = 0; i < positions.size(); i++)
         {
-            case EXTEND_CONTINUOUS:
-            case EXTEND_AREA:
-            case COLUMN:
-            case LINE:
-            case PLANE:
-                // FIXME temporary code
-                for (int i = 0; i < positions.size(); i++)
+            BlockPosStateDist pos = positions.get(i);
+            if (world.isAirBlock(pos.posX, pos.posY, pos.posZ) == true)
+            {
+                Block block;
+                int meta = 0;
+                // Pre-determined block type to build
+                if (blockInfo != null && blockInfo.block != null)
                 {
-                    BlockPosStateDist pos = positions.get(i);
-                    if (world.isAirBlock(pos.posX, pos.posY, pos.posZ) == true)
+                    block = blockInfo.block;
+                    meta = blockInfo.meta;
+                }
+                else
+                {
+                    ForgeDirection face = ForgeDirection.getOrientation(posTarget.face);
+
+                    block = world.getBlock(pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ);
+
+                    if (block.isAir(world, pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ) == false &&
+                        block.getMaterial().isLiquid() == false)
                     {
-                        Block block;
-                        int meta = 0;
-                        // Pre-determined block type to build
-                        if (blockInfo != null && blockInfo.block != null)
+                        meta = world.getBlockMetadata(pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                if (player.capabilities.isCreativeMode == true)
+                {
+                    ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(meta));
+                    if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
+                    {
+                        // Check if we can place the block
+                        if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, posTarget.face, player, targetStack) == true)
                         {
-                            block = blockInfo.block;
-                            meta = blockInfo.meta;
+                            ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, posTarget.face, hitX, hitY, hitZ);
                         }
-                        else
+                    }
+                }
+                else
+                {
+                    IInventory inv = this.getInventoryWithItems(player, block, block.damageDropped(meta));
+                    ItemStack targetStack = this.getItemToBuildWith(inv, block, block.damageDropped(meta), 1);
+
+                    if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
+                    {
+                        // Check if we can place the block
+                        if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, posTarget.face, player, targetStack) == false ||
+                            ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, posTarget.face, hitX, hitY, hitZ) == false)
                         {
-                            ForgeDirection face = ForgeDirection.getOrientation(posTarget.face);
-
-                            block = world.getBlock(pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ);
-
-                            if (block.isAir(world, pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ) == false &&
-                                block.getMaterial().isLiquid() == false)
+                            if (InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, 1) == false)
                             {
-                                meta = world.getBlockMetadata(pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ);
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-
-                        IInventory inv = this.getInventoryWithItems(player, block, block.damageDropped(meta));
-                        ItemStack targetStack = this.getItemToBuildWith(inv, block, block.damageDropped(meta), 1);
-                        if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
-                        {
-                            // Check if we can place the block
-                            if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, posTarget.face, player, targetStack) == false ||
-                                ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, posTarget.face, hitX, hitY, hitZ) == false)
-                            {
-                                if (InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, 1) == false)
-                                {
-                                    EntityItem item = new EntityItem(world, player.posX, player.posY, player.posZ, targetStack);
-                                    world.spawnEntityInWorld(item);
-                                    break;
-                                }
+                                EntityItem item = new EntityItem(world, player.posX, player.posY, player.posZ, targetStack);
+                                world.spawnEntityInWorld(item);
+                                break;
                             }
                         }
                     }
                 }
-                break;
-
-            case WALLS:
-            case CUBE:
-            default:
+            }
         }
 
         BlockPosEU pos = this.blockPos1.get(player.getUniqueID());
-        if (pos != null)
+        if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
         {
             this.blockPos1.put(player.getUniqueID(), pos.offset(ForgeDirection.getOrientation(posTarget.face), 1));
         }
@@ -673,7 +717,32 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player, List<BlockPosStateDist> positions)
     {
+        BlockInfo blockInfo = null;
+        int blockType = this.getSelectedBlockType(stack);
+
+        if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
+        {
+            blockInfo = new BlockInfo(world.getBlock(targeted.posX, targeted.posY, targeted.posZ),
+                                      world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ));
+        }
+        // If using a fixed block type, then we require a valid block
+        else if (blockType >= 0)
+        {
+            blockInfo = this.getSelectedFixedBlockType(stack);
+
+            if (blockInfo == null)
+            {
+                return;
+            }
+        }
+
         Mode mode = Mode.getMode(stack);
+        if (mode == Mode.WALLS || mode == Mode.CUBE)
+        {
+            this.getBlockPositionsWalls(stack, world, player, positions, blockInfo);
+            return;
+        }
+
         ForgeDirection face = ForgeDirection.getOrientation(targeted.face);
         ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
         ForgeDirection axisUp = face.getRotation(axisRight);
@@ -699,25 +768,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPosEU center = targeted.copy().offset(face, 1);
         BlockPosStateDist posTmp;
         Area area = new Area(stack);
-
-        BlockInfo blockInfo = null;
-        int blockType = this.getSelectedBlockType(stack);
-
-        if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
-        {
-            blockInfo = new BlockInfo(world.getBlock(targeted.posX, targeted.posY, targeted.posZ),
-                                      world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ));
-        }
-        // If using a fixed block type, then we require a valid block
-        else if (blockType >= 0)
-        {
-            blockInfo = this.getSelectedFixedBlockType(stack);
-
-            if (blockInfo == null)
-            {
-                return;
-            }
-        }
 
         // NOTE: The block position are added so that the targeted position is first in the list,
         // and it will then be rendered in a different color
@@ -855,6 +905,72 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
+    public void getBlockPositionsWalls(ItemStack stack, World world, EntityPlayer player, List<BlockPosStateDist> positions, BlockInfo blockInfo)
+    {
+        BlockPosEU pos1 = this.blockPos1.get(player.getUniqueID());
+        BlockPosEU pos2 = this.blockPos2.get(player.getUniqueID());
+        if (pos1 == null || pos2 == null)
+        {
+            return;
+        }
+
+        int startX = Math.min(pos1.posX, pos2.posX);
+        int startY = Math.min(pos1.posY, pos2.posY);
+        int startZ = Math.min(pos1.posZ, pos2.posZ);
+
+        int endX = Math.max(pos1.posX, pos2.posX);
+        int endY = Math.max(pos1.posY, pos2.posY);
+        int endZ = Math.max(pos1.posZ, pos2.posZ);
+
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int y = startY; y <= endY; y++)
+            {
+                positions.add(new BlockPosStateDist(x, y, startZ, player.dimension, 0, blockInfo));
+            }
+        }
+
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int y = startY; y <= endY; y++)
+            {
+                positions.add(new BlockPosStateDist(x, y, endZ, player.dimension, 0, blockInfo));
+            }
+        }
+
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int z = startZ; z <= endZ; z++)
+            {
+                positions.add(new BlockPosStateDist(x, startY, z, player.dimension, 0, blockInfo));
+            }
+        }
+
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int z = startZ; z <= endZ; z++)
+            {
+                positions.add(new BlockPosStateDist(x, endY, z, player.dimension, 0, blockInfo));
+            }
+        }
+
+        for (int z = startZ + 1; z <= endZ - 1; z++)
+        {
+            for (int y = startY + 1; y <= endY - 1; y++)
+            {
+                positions.add(new BlockPosStateDist(startX, y, z, player.dimension, 0, blockInfo));
+            }
+        }
+
+        for (int z = startZ + 1; z <= endZ - 1; z++)
+        {
+            for (int y = startY + 1; y <= endY - 1; y++)
+            {
+                positions.add(new BlockPosStateDist(endX, y, z, player.dimension, 0, blockInfo));
+            }
+        }
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -916,7 +1032,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public int getMaxItemUseDuration(ItemStack stack)
     {
-        return 60;
+        return 600;
     }
 
     @Override
@@ -1020,7 +1136,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (player != null && player.getItemInUse() != null)
         {
             int inUse = 0;
-            int maxUse = stack.getMaxItemUseDuration();
+            int maxUse = this.getMaxItemUseDuration(stack);
             inUse = maxUse - useRemaining;
             index = MathHelper.clamp_int(inUse / 8, 0, 4);
             /*if (inUse >= 18) { index += 3; }
