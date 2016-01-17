@@ -37,6 +37,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
+import fi.dy.masa.enderutilities.util.BlockPosStateDist;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -333,10 +334,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                                       world.getBlockMetadata(posTarget.posX, posTarget.posY, posTarget.posZ));
         }
 
-        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
-        List<BlockInfo> blockTypes = new ArrayList<BlockInfo>();
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
 
-        this.getBlockPositions(stack, posTarget, world, player, positions, blockTypes);
+        this.getBlockPositions(stack, posTarget, world, player, positions);
 
         switch (Mode.getMode(stack))
         {
@@ -348,7 +348,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 // FIXME temporary code
                 for (int i = 0; i < positions.size(); i++)
                 {
-                    BlockPosEU pos = positions.get(i);
+                    BlockPosStateDist pos = positions.get(i);
                     if (world.isAirBlock(pos.posX, pos.posY, pos.posZ) == true)
                     {
                         Block block;
@@ -496,7 +496,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode, true);
 
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
-        //NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
     }
 
     public boolean getAreaFlipped(ItemStack stack)
@@ -602,7 +601,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         area.writeToNBT(stack);
     }
 
-    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosEU> positions, List<BlockInfo> blockTypes,
+    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosStateDist> positions,
              int blockType, boolean diagonals, BlockInfo blockInfo, ForgeDirection face, ForgeDirection axisRight, ForgeDirection axisUp)
     {
         if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
@@ -643,38 +642,36 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && blockInfo != null) ||
            (blockInfo != null && blockInfo.block == block && blockInfo.meta == meta))
         {
-            BlockPosEU pos = new BlockPosEU(x, y, z);
+            BlockPosStateDist pos = new BlockPosStateDist(x, y, z, 0, 0, blockType == BLOCK_TYPE_ADJACENT ? new BlockInfo(block, meta) : blockInfo);
             if (positions.contains(pos) == false)
             {
                 positions.add(pos);
-                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? new BlockInfo(block, meta) : blockInfo);
 
                 // Adjacent blocks
-                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
 
                 // Diagonals/corners
                 if (diagonals == true)
                 {
-                    this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
                 }
             }
         }
     }
 
-    public BlockInfo getAdjacentBlock(World world, BlockPosEU pos, ForgeDirection faceAxis)
+    public BlockInfo getAdjacentBlock(World world, int x, int y, int z, ForgeDirection faceAxis)
     {
-        pos = pos.copy().offset(faceAxis, -1);
-        return new BlockInfo(world.getBlock(pos.posX, pos.posY, pos.posZ), world.getBlockMetadata(pos.posX, pos.posY, pos.posZ));
+        return new BlockInfo(world.getBlock(x - faceAxis.offsetX, y - faceAxis.offsetY, z - faceAxis.offsetZ),
+                             world.getBlockMetadata(x - faceAxis.offsetX, y - faceAxis.offsetY, z - faceAxis.offsetZ));
     }
 
-    public void getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player,
-                                              List<BlockPosEU> positions, List<BlockInfo> blockTypes)
+    public void getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player, List<BlockPosStateDist> positions)
     {
         Mode mode = Mode.getMode(stack);
         ForgeDirection face = ForgeDirection.getOrientation(targeted.face);
@@ -700,7 +697,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         // Move the position forward by one from the targeted block
         BlockPosEU center = targeted.copy().offset(face, 1);
-        BlockPosEU posTmp;
+        BlockPosStateDist posTmp;
         Area area = new Area(stack);
 
         BlockInfo blockInfo = null;
@@ -736,8 +733,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                     if (world.isAirBlock(x, y, z) == true)
                     {
-                        positions.add(new BlockPosEU(x, y, z));
-                        blockTypes.add(blockInfo);
+                        positions.add(new BlockPosStateDist(x, y, z, 0, 0, blockInfo));
                     }
                     else
                     {
@@ -756,9 +752,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     if (world.isAirBlock(x, y, z) == true)
                     {
                         //System.out.printf("x: %d y: %d z: %d\n", x, y, z);
-                        posTmp = new BlockPosEU(x, y, z);
+                        posTmp = new BlockPosStateDist(x, y, z, 0, 0, blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
                         positions.add(posTmp);
-                        blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                     }
                     else
                     {
@@ -774,9 +769,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                     if (world.isAirBlock(x, y, z) == true)
                     {
-                        posTmp = new BlockPosEU(x, y, z);
+                        posTmp = new BlockPosStateDist(x, y, z, 0, 0, blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
                         positions.add(posTmp);
-                        blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                     }
                     else
                     {
@@ -787,9 +781,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             case PLANE:
                 // Add the center position first, it will be rendered in different color
-                posTmp = new BlockPosEU(center.posX, center.posY, center.posZ);
+                posTmp = new BlockPosStateDist(center.posX, center.posY, center.posZ, 0, 0,
+                        blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, center.posX, center.posY, center.posZ, face) : blockInfo);
                 positions.add(posTmp);
-                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
 
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
@@ -801,9 +795,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                         if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
                         {
-                            posTmp = new BlockPosEU(x, y, z);
+                            posTmp = new BlockPosStateDist(x, y, z, 0, 0, blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
                             positions.add(posTmp);
-                            blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                         }
                     }
                 }
@@ -811,14 +804,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             case EXTEND_CONTINUOUS:
                 boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
-                this.addAdjacent(world, center, area, 0, 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, 0, 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
                 break;
 
             case EXTEND_AREA:
                 // Add the center position first, it will be rendered in different color
-                posTmp = new BlockPosEU(center.posX, center.posY, center.posZ);
+                posTmp = new BlockPosStateDist(center.posX, center.posY, center.posZ, 0, 0,
+                        blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, center.posX, center.posY, center.posZ, face) : blockInfo);
                 positions.add(posTmp);
-                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
 
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
@@ -849,8 +842,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                                 //if (blockType >= 0 || blockType == BLOCK_TYPE_TARGETED || blockInfo == null ||
                                 //   (blockInfo.block == block && blockInfo.meta == meta))
                                 {
-                                    positions.add(new BlockPosEU(x, y, z));
-                                    blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? new BlockInfo(block, meta) : blockInfo);
+                                    posTmp = new BlockPosStateDist(x, y, z, 0, 0, blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
+                                    positions.add(posTmp);
                                 }
                             }
                         }

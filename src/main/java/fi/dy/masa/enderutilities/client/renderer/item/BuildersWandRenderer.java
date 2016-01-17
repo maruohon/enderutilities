@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
@@ -24,6 +25,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
+import fi.dy.masa.enderutilities.util.BlockPosStateDist;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BuildersWandRenderer
@@ -97,17 +99,13 @@ public class BuildersWandRenderer
             return;
         }
 
-        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
-        List<BlockInfo> blockTypes = new ArrayList<BlockInfo>();
-        ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions, blockTypes);
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions);
 
-        GL11.glLineWidth(6.0f);
-        // Render the targeted position (first in the list) in a different color
+        BlockPosEU posFirst = null;
         if (positions.size() > 0)
         {
-            BlockPosEU pos = positions.get(0);
-            AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
+            posFirst = positions.get(0);
         }
 
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
@@ -117,7 +115,7 @@ public class BuildersWandRenderer
             GL11.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glEnable(GL11.GL_BLEND);
-            GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
+            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(GL11.GL_ALPHA_TEST);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -132,11 +130,20 @@ public class BuildersWandRenderer
 
             for (int i = 0; i < positions.size(); i++)
             {
-                BlockInfo blockInfo = blockTypes.get(i);
+                BlockPosStateDist pos = positions.get(i);
+                pos.setSquaredDistance(pos.getSquaredDistanceFrom(dx, dy, dz));
+            }
+
+            Collections.sort(positions);
+            Collections.reverse(positions);
+
+            for (int i = 0; i < positions.size(); i++)
+            {
+                BlockPosStateDist pos = positions.get(i);
+                BlockInfo blockInfo = pos.blockInfo;
+
                 if (blockInfo != null && blockInfo.block != null)
                 {
-                    BlockPosEU pos = positions.get(i);
-
                     GL11.glPushMatrix();
                     GL11.glTranslated(pos.posX - dx + 0.5d, pos.posY - dy + 0.5d, pos.posZ - dz + 0.5d);
 
@@ -144,6 +151,22 @@ public class BuildersWandRenderer
 
                     GL11.glPopMatrix();
                 }
+            }
+
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glDisable(GL11.GL_CULL_FACE);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            GL11.glEnable(GL11.GL_ALPHA_TEST);
+            //GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(true);
+
+            GL11.glLineWidth(3.0f);
+            // Render the targeted position (first in the list) in a different color
+            if (posFirst != null)
+            {
+                AxisAlignedBB aabb = this.makeBoundingBox(posFirst.posX, posFirst.posY, posFirst.posZ, partialTicks, player);
+                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
             }
 
             GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -159,6 +182,14 @@ public class BuildersWandRenderer
                 AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
                 //RenderGlobal.drawOutlinedBoundingBox(aabb, 0x99FF99);
                 RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
+            }
+
+            GL11.glLineWidth(3.0f);
+            // Render the targeted position (first in the list) in a different color
+            if (posFirst != null)
+            {
+                AxisAlignedBB aabb = this.makeBoundingBox(posFirst.posX, posFirst.posY, posFirst.posZ, partialTicks, player);
+                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
             }
         }
     }
