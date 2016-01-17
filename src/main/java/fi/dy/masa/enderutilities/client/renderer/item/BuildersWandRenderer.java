@@ -31,10 +31,13 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class BuildersWandRenderer
 {
     public Minecraft mc;
+    public float partialTicksLast;
+    List<BlockPosStateDist> positions;
 
     public BuildersWandRenderer()
     {
         this.mc = Minecraft.getMinecraft();
+        this.positions = new ArrayList<BlockPosStateDist>();
     }
 
     @SubscribeEvent
@@ -87,18 +90,16 @@ public class BuildersWandRenderer
             return;
         }
 
-        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
-        ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions);
-
-        //System.out.println("pos size: " + positions.size());
-        BlockPosEU posFirst = null;
-        if (positions.size() > 0)
+        List<BlockPosStateDist> positions = this.positions;
+        if (partialTicks < this.partialTicksLast)
         {
-            posFirst = positions.get(0);
+            positions.clear();
+            ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions);
         }
 
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
+            BlockPosEU posFirst = ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).blockPos1.get(player.getUniqueID());
             RenderBlocks rb = new RenderBlocks();
             //OpenGlHelper.glBlendFunc(774, 768, 1, 0);
             //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -125,14 +126,17 @@ public class BuildersWandRenderer
             double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
             double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-            for (int i = 0; i < positions.size(); i++)
+            if (partialTicks < this.partialTicksLast)
             {
-                BlockPosStateDist pos = positions.get(i);
-                pos.setSquaredDistance(pos.getSquaredDistanceFrom(dx, dy, dz));
-            }
+                for (int i = 0; i < positions.size(); i++)
+                {
+                    BlockPosStateDist pos = positions.get(i);
+                    pos.setSquaredDistance(pos.getSquaredDistanceFrom(dx, dy, dz));
+                }
 
-            Collections.sort(positions);
-            Collections.reverse(positions);
+                Collections.sort(positions);
+                Collections.reverse(positions);
+            }
 
             for (int i = 0; i < positions.size(); i++)
             {
@@ -176,6 +180,12 @@ public class BuildersWandRenderer
         }
         else
         {
+            BlockPosEU posFirst = null;
+            if (positions.size() > 0)
+            {
+                posFirst = positions.get(0);
+            }
+
             GL11.glLineWidth(2.0f);
             for (int i = 1; i < positions.size(); i++)
             {
@@ -193,5 +203,7 @@ public class BuildersWandRenderer
                 RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
             }
         }
+
+        this.partialTicksLast = partialTicks;
     }
 }
