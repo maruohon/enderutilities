@@ -22,6 +22,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -93,8 +94,19 @@ public class BuildersWandRenderer
         List<BlockPosStateDist> positions = this.positions;
         if (partialTicks < this.partialTicksLast)
         {
+            ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
             positions.clear();
-            ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player, positions);
+
+            Mode mode = Mode.getMode(stack);
+            if (mode == Mode.CUBE || mode == Mode.WALLS)
+            {
+                // We use the walls mode block positions for cube rendering as well, to save on rendering burden
+                item.getBlockPositionsWalls(stack, world, player, positions, item.getBlockInfo(stack, targeted, world));
+            }
+            else
+            {
+                item.getBlockPositions(stack, targeted, world, player, positions);
+            }
         }
 
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
