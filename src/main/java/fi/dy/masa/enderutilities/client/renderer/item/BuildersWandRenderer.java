@@ -110,13 +110,21 @@ public class BuildersWandRenderer
 
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
-            this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
             RenderBlocks rb = new RenderBlocks();
+            //OpenGlHelper.glBlendFunc(774, 768, 1, 0);
+            //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+            GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.4f);
+            GL11.glPushMatrix();
             GL11.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glEnable(GL11.GL_BLEND);
-            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glPolygonOffset(-3.0F, -3.0F);
+            GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+            GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
             GL11.glDisable(GL11.GL_ALPHA_TEST);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(false);
@@ -157,9 +165,13 @@ public class BuildersWandRenderer
             GL11.glDisable(GL11.GL_CULL_FACE);
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
+            GL11.glPolygonOffset(0.0F, 0.0F);
+            GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glEnable(GL11.GL_ALPHA_TEST);
             //GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(true);
+            GL11.glPopMatrix();
 
             GL11.glLineWidth(3.0f);
             // Render the targeted position (first in the list) in a different color
@@ -170,7 +182,7 @@ public class BuildersWandRenderer
             }
 
             GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
+            //GL11.glEnable(GL11.GL_ALPHA_TEST);
             GL11.glDisable(GL11.GL_BLEND);
         }
         else
