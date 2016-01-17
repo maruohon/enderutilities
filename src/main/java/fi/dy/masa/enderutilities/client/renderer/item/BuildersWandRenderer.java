@@ -47,7 +47,6 @@ public class BuildersWandRenderer
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glLineWidth(2.0f);
         GL11.glPushMatrix();
         //GL11.glTranslated(-player.posX, -player.posY, -player.posZ);
 
@@ -94,7 +93,18 @@ public class BuildersWandRenderer
         }
 
         List<BlockPosEU> positions = ((ItemBuildersWand)stack.getItem()).getBlockPositions(stack, targeted, world, player);
-        for (int i = 0; i < positions.size(); i++)
+
+        GL11.glLineWidth(6.0f);
+        // Render the targeted position (first in the list) in a different color
+        if (positions.size() > 0)
+        {
+            BlockPosEU pos = positions.get(0);
+            AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
+        }
+
+        GL11.glLineWidth(2.0f);
+        for (int i = 1; i < positions.size(); i++)
         {
             BlockPosEU pos = positions.get(i);
             AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);

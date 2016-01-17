@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,8 +28,19 @@ public class PlayerEventHandler
             ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
             if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
-                BlockPosEU pos = new BlockPosEU(event.x, event.y, event.z, event.face);
-                ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setPosition(event.entityPlayer.getUniqueID(), pos, true);
+                // Left click without sneaking: Set the "anchor" position
+                if (event.entityPlayer.isSneaking() == false)
+                {
+                    BlockPosEU pos = new BlockPosEU(event.x, event.y, event.z, event.face);
+                    ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setPosition(event.entityPlayer.getUniqueID(), pos, true);
+                }
+                // Sneak + left click: Set the selected block type
+                else
+                {
+                    Block block = event.world.getBlock(event.x, event.y, event.z);
+                    int meta = event.world.getBlockMetadata(event.x, event.y, event.z);
+                    ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setSelectedBlockType(stack, block, meta);
+                }
                 event.setCanceled(true);
             }
         }

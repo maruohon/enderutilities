@@ -206,6 +206,7 @@ enderutilities.tooltip.item.build.cube=Cube (solid)
 enderutilities.tooltip.item.build.line=Line
 enderutilities.tooltip.item.build.plane=Plane
 enderutilities.tooltip.item.build.walls=Walls
+enderutilities.tooltip.item.builderswand.allowdiagonals=Allow diagonals
 enderutilities.tooltip.item.cached.amount=Last seen amount
 enderutilities.tooltip.item.cached.fluid=Last seen fluid
 enderutilities.tooltip.item.cached.fluid.compact=Last

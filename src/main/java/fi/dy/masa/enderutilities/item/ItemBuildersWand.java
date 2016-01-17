@@ -56,6 +56,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCKS = "Blocks";
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
+    public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
     public Map<UUID, BlockPosEU> blockPos1 = new HashMap<UUID, BlockPosEU>();
@@ -82,7 +83,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (world.isRemote == false)
             {
                 this.useWand(stack, world, player, pos.posX, pos.posY, pos.posZ, pos.face, 0.5f, 0.5f, 0.5f);
-                this.blockPos1.remove(player.getUniqueID());
             }
 
             return stack;
@@ -100,7 +100,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
         }
 
-        if (player.isSneaking() == true)
+        /*if (player.isSneaking() == true)
         {
             if (world.isRemote == false)
             {
@@ -112,7 +112,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         else
         {
             this.blockPos1.remove(player.getUniqueID());
-        }
+        }*/
 
         if (world.isRemote == false)
         {
@@ -188,10 +188,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        String preBlue = EnumChatFormatting.BLUE.toString();
+        String pre = EnumChatFormatting.DARK_GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preBlue + Mode.getMode(stack).getDisplayName() + rst);
+        Mode mode = Mode.getMode(stack);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
         int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
         if (sel >= 0)
@@ -203,7 +204,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 if (blockStack != null && blockStack.getItem() != null)
                 {
                     String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
-                    list.add(str + ": " + preBlue + blockStack.getDisplayName() + rst);
+                    list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
                 }
             }
         }
@@ -220,7 +221,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
-            list.add(str + ": " + preBlue + str2 + rst);
+            list.add(str + ": " + pre + str2 + rst);
         }
 
         String str = StatCollector.translateToLocal("enderutilities.tooltip.item.area.flipped");
@@ -235,6 +236,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         list.add(str + ": " + str2 + rst);
 
+        if (mode == Mode.EXTEND_CONTINUOUS)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
+            if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
+            {
+                str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            }
+            else
+            {
+                str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            }
+            list.add(str + ": " + str2 + rst);
+        }
+
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
 
@@ -248,11 +263,37 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     {
         if (isStart == true)
         {
-            this.blockPos1.put(uuid, pos);
+            if (pos != null && pos.equals(this.blockPos1.get(uuid)))
+            {
+                this.blockPos1.remove(uuid);
+            }
+            else
+            {
+                this.blockPos1.put(uuid, pos);
+            }
         }
         else
         {
-            this.blockPos2.put(uuid, pos);
+            if (pos != null && pos.equals(this.blockPos2.get(uuid)))
+            {
+                this.blockPos2.remove(uuid);
+            }
+            else
+            {
+                this.blockPos2.put(uuid, pos);
+            }
+        }
+    }
+
+    public void removePosition(UUID uuid, boolean isStart)
+    {
+        if (isStart == true)
+        {
+            this.blockPos1.remove(uuid);
+        }
+        else
+        {
+            this.blockPos2.remove(uuid);
         }
     }
 
@@ -331,6 +372,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             case WALLS:
             case CUBE:
             default:
+        }
+
+        BlockPosEU pos = this.blockPos1.get(player.getUniqueID());
+        if (pos != null)
+        {
+            this.blockPos1.put(player.getUniqueID(), pos.offset(ForgeDirection.getOrientation(side), 1));
         }
 
         return false;
@@ -512,8 +559,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         area.writeToNBT(stack);
     }
 
-    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH,
-            List<BlockPosEU> positions, BlockInfo blockInfo, ForgeDirection face, ForgeDirection axisRight, ForgeDirection axisUp)
+    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosEU> positions,
+             int blockType, boolean diagonals, BlockInfo blockInfo, ForgeDirection face, ForgeDirection axisRight, ForgeDirection axisUp)
     {
         if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
         {
@@ -535,28 +582,43 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int yb = y - face.offsetY;
         int zb = z - face.offsetZ;
 
-        // The block on the back face must not be air...
-        if (world.isAirBlock(xb, yb, zb) == true)
+        Block block = world.getBlock(xb, yb, zb);
+        int meta = world.getBlockMetadata(xb, yb, zb);
+
+        // The block on the back face must not be air or fluid ...
+        if (block.isAir(world, xb, yb, zb) == true || block.getMaterial().isLiquid() == true)
         {
             return;
         }
 
-        // ... and it must be a matching block or we must not have a block requirement
-        if (blockInfo == null || (blockInfo.block == world.getBlock(xb, yb, zb) && blockInfo.meta == world.getBlockMetadata(xb, yb, zb)))
+        // The block on the back face must not be air and also it must not be fluid.
+        // It must also be a matching block with our current build block, or we must have no fixed block requirement.
+        // sel >= 0 means that we want to build with a fixed/bound block type,
+        // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
+
+        //if (blockType >= 0 || blockType == BLOCK_TYPE_TARGETED || blockInfo == null || (blockInfo.block == block && blockInfo.meta == meta))
+        if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && blockInfo != null) ||
+           (blockInfo != null && blockInfo.block == block && blockInfo.meta == meta))
         {
             BlockPosEU pos = new BlockPosEU(x, y, z);
             if (positions.contains(pos) == false)
             {
                 positions.add(pos);
 
-                this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockInfo, face, axisRight, axisUp);
+                // Adjacent blocks
+                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+
+                // Diagonals/corners
+                if (diagonals == true)
+                {
+                    this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                }
             }
         }
     }
@@ -591,17 +653,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Area area = new Area(stack);
 
         BlockInfo blockInfo = null;
-        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
-        if (sel == BLOCK_TYPE_TARGETED)
+        int blockType = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        if (blockType == BLOCK_TYPE_TARGETED)
         {
             Block block = world.getBlock(targeted.posX, targeted.posY, targeted.posZ);
             int meta = world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ);
             blockInfo = new BlockInfo(block, meta);
         }
-        else if (sel >= 0)
+        else if (blockType >= 0)
         {
             blockInfo = this.getSelectedBlockType(stack);
         }
+
+        // NOTE: The block position are added so that the targeted position is first in the list,
+        // and it will then be rendered in a different color
 
         //System.out.println("face: " + face + " right : " + axisRight + " up: " + axisUp);
         switch(mode)
@@ -625,7 +690,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case LINE:
-                for (int i = -1; i >= -area.rNegH; i--)
+                for (int i = 0; i <= area.rPosH; i++)
                 {
                     int x = center.posX + i * axisRight.offsetX;
                     int y = center.posY + i * axisRight.offsetY;
@@ -641,7 +706,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     }
                 }
 
-                for (int i = 0; i <= area.rPosH; i++)
+                for (int i = -1; i >= -area.rNegH; i--)
                 {
                     int x = center.posX + i * axisRight.offsetX;
                     int y = center.posY + i * axisRight.offsetY;
@@ -659,6 +724,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case PLANE:
+                // Add the center position first, it will be rendered in different color
+                positions.add(new BlockPosEU(center.posX, center.posY, center.posZ));
+
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
                     for (int h = -area.rNegH; h <= area.rPosH; h++)
@@ -667,7 +735,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
 
-                        if (world.isAirBlock(x, y, z) == true)
+                        if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
                         {
                             positions.add(new BlockPosEU(x, y, z));
                         }
@@ -676,10 +744,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case EXTEND_CONTINUOUS:
-                this.addAdjacent(world, center, area, 0, 0, positions, blockInfo, face, axisRight, axisUp);
+                boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
+                this.addAdjacent(world, center, area, 0, 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
                 break;
 
             case EXTEND_AREA:
+                // Add the center position first, it will be rendered in different color
+                positions.add(new BlockPosEU(center.posX, center.posY, center.posZ));
+
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
                     for (int h = -area.rNegH; h <= area.rPosH; h++)
@@ -688,18 +760,26 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
 
-                        if (world.isAirBlock(x, y, z) == true)
+                        // The target position must be air
+                        if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
                         {
                             int xb = x - face.offsetX;
                             int yb = y - face.offsetY;
                             int zb = z - face.offsetZ;
 
-                            // The block on the back face must not be air and it must be a matching block or we must have no block requirement
-                            // sel >= 0 means that we want to build with a fixed block type, in that case we don't require a specific block type on the back
-                            if (world.isAirBlock(xb, yb, zb) == false)
+                            Block block = world.getBlock(xb, yb, zb);
+                            int meta = world.getBlockMetadata(xb, yb, zb);
+
+                            // The block on the back face must not be air and also it must not be fluid.
+                            // It must also be a matching block with our current build block, or we must have no fixed block requirement.
+                            // sel >= 0 means that we want to build with a fixed/bound block type,
+                            // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
+                            if (block.isAir(world, xb, yb, zb) == false && block.getMaterial().isLiquid() == false)
                             {
-                                if (sel >= 0 || sel == BLOCK_TYPE_TARGETED || blockInfo == null ||
-                                   (blockInfo.block == world.getBlock(xb, yb, zb) && blockInfo.meta == world.getBlockMetadata(xb, yb, zb)))
+                                if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && blockInfo != null) ||
+                                   (blockInfo != null && blockInfo.block == block && blockInfo.meta == meta))
+                                //if (blockType >= 0 || blockType == BLOCK_TYPE_TARGETED || blockInfo == null ||
+                                //   (blockInfo.block == block && blockInfo.meta == meta))
                                 {
                                     positions.add(new BlockPosEU(x, y, z));
                                 }
@@ -723,18 +803,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        // Alt + (Shift + ) Toggle key: Change the dimensions of the current mode
+        // Alt + (Shift + ) Toggle key: Change the selected block type
         if (ReferenceKeys.keypressContainsControl(key) == false &&
             ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            this.changeAreaDimensions(player, stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
-        // Shift + Toggle Mode: Change the selected block type
+        // Shift + Toggle Mode: Change the dimensions of the current mode
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
                  ReferenceKeys.keypressContainsShift(key) == true &&
                  ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key));
+            this.changeAreaDimensions(player, stack, ReferenceKeys.keypressActionIsReversed(key));
         }
         // Ctrl + Toggle key: Cycle the mode
         else if (ReferenceKeys.keypressContainsControl(key) == true &&
@@ -748,6 +828,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsAlt(key) == true)
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key));
+        }
+        // Ctrl + Alt +Toggle key: Toggle "allow diagonals" in Extend COntinuous mode
+        else if (ReferenceKeys.keypressContainsControl(key) == true &&
+                 ReferenceKeys.keypressContainsShift(key) == false &&
+                 ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
         }
         // Just Toggle key: Toggle the area flipped property
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
