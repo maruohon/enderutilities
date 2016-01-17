@@ -10,18 +10,25 @@ public class BlockPosEU
     public int posX;
     public int posY;
     public int posZ;
+    public int dimension;
     public int face;
 
     public BlockPosEU(int x, int y, int z)
     {
-        this(x, y, z, 0);
+        this(x, y, z, 0, 0);
     }
 
-    public BlockPosEU(int x, int y, int z, int side)
+    public BlockPosEU(int x, int y, int z, int dim)
+    {
+        this(x, y, z, dim, 0);
+    }
+
+    public BlockPosEU(int x, int y, int z, int dim, int side)
     {
         this.posX = x;
         this.posY = y;
         this.posZ = z;
+        this.dimension = dim;
         this.face = side;
 
         //this.clampCoords();
@@ -93,6 +100,7 @@ public class BlockPosEU
     {
         final int prime = 31;
         int result = 1;
+        result = prime * result + dimension;
         result = prime * result + face;
         result = prime * result + posX;
         result = prime * result + posY;
@@ -110,6 +118,8 @@ public class BlockPosEU
         if (getClass() != obj.getClass())
             return false;
         BlockPosEU other = (BlockPosEU) obj;
+        if (dimension != other.dimension)
+            return false;
         if (face != other.face)
             return false;
         if (posX != other.posX)
@@ -120,4 +130,5 @@ public class BlockPosEU
             return false;
         return true;
     }
+
 }

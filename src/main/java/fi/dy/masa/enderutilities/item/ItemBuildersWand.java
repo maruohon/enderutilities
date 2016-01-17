@@ -57,6 +57,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
     public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
+    public static final String TAG_NAME_GHOST_BLOCKS ="Ghost";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
     public Map<UUID, BlockPosEU> blockPos1 = new HashMap<UUID, BlockPosEU>();
@@ -82,7 +83,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             //System.out.println("onItemRightClick - " + (world.isRemote ? "client" : "server"));
             if (world.isRemote == false)
             {
-                this.useWand(stack, world, player, pos.posX, pos.posY, pos.posZ, pos.face, 0.5f, 0.5f, 0.5f);
+                this.useWand(stack, world, player, pos, 0.5f, 0.5f, 0.5f);
             }
 
             return stack;
@@ -116,7 +117,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (world.isRemote == false)
         {
-            this.useWand(stack, world, player, x, y, z, side, hitX, hitY, hitZ);
+            this.useWand(stack, world, player, new BlockPosEU(x, y, z, player.dimension, side), hitX, hitY, hitZ);
         }
 
         return true;
@@ -141,10 +142,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         itemName = itemName + " M: " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
 
-        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        int sel = this.getSelectedBlockType(stack);
         if (sel >= 0)
         {
-            BlockInfo blockInfo = this.getSelectedBlockType(stack);
+            BlockInfo blockInfo = this.getSelectedFixedBlockType(stack);
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
@@ -194,10 +195,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Mode mode = Mode.getMode(stack);
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
-        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        int sel = this.getSelectedBlockType(stack);
         if (sel >= 0)
         {
-            BlockInfo blockInfo = this.getSelectedBlockType(stack);
+            BlockInfo blockInfo = this.getSelectedFixedBlockType(stack);
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(Block.getBlockFromName(blockInfo.blockName), 1, blockInfo.meta);
@@ -250,6 +251,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             list.add(str + ": " + str2 + rst);
         }
 
+        str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
+        if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
+        {
+            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+        }
+        else
+        {
+            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+        }
+        list.add(str + ": " + str2 + rst);
+
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
 
@@ -297,21 +309,34 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
-    public boolean useWand(ItemStack stack, World world, EntityPlayer player, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean useWand(ItemStack stack, World world, EntityPlayer player, BlockPosEU posTarget, float hitX, float hitY, float hitZ)
     {
+        if (player.dimension != posTarget.dimension)
+        {
+            return false;
+        }
+
         BlockInfo blockInfo = null;
-        int type = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        int type = this.getSelectedBlockType(stack);
         if (type >= 0)
         {
-            blockInfo = this.getSelectedBlockType(stack);
+            blockInfo = this.getSelectedFixedBlockType(stack);
+
+            if (blockInfo == null)
+            {
+                return false;
+            }
         }
         else if (type == BLOCK_TYPE_TARGETED)
         {
-            blockInfo = new BlockInfo(world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
+            blockInfo = new BlockInfo(world.getBlock(posTarget.posX, posTarget.posY, posTarget.posZ),
+                                      world.getBlockMetadata(posTarget.posX, posTarget.posY, posTarget.posZ));
         }
 
-        ForgeDirection face = ForgeDirection.getOrientation(side);
-        List<BlockPosEU> positions = this.getBlockPositions(stack, new BlockPosEU(x, y, z, side), world, player);
+        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
+        List<BlockInfo> blockTypes = new ArrayList<BlockInfo>();
+
+        this.getBlockPositions(stack, posTarget, world, player, positions, blockTypes);
 
         switch (Mode.getMode(stack))
         {
@@ -336,6 +361,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         }
                         else
                         {
+                            ForgeDirection face = ForgeDirection.getOrientation(posTarget.face);
+
                             block = world.getBlock(pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ);
 
                             if (block.isAir(world, pos.posX - face.offsetX, pos.posY - face.offsetY, pos.posZ - face.offsetZ) == false &&
@@ -354,8 +381,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
                         {
                             // Check if we can place the block
-                            if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, side, player, targetStack) == false ||
-                                ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, side, hitX, hitY, hitZ) == false)
+                            if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, posTarget.face, player, targetStack) == false ||
+                                ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, posTarget.face, hitX, hitY, hitZ) == false)
                             {
                                 if (InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, 1) == false)
                                 {
@@ -377,7 +404,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPosEU pos = this.blockPos1.get(player.getUniqueID());
         if (pos != null)
         {
-            this.blockPos1.put(player.getUniqueID(), pos.offset(ForgeDirection.getOrientation(side), 1));
+            this.blockPos1.put(player.getUniqueID(), pos.offset(ForgeDirection.getOrientation(posTarget.face), 1));
         }
 
         return false;
@@ -419,9 +446,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return null;
     }
 
-    public void setSelectedBlockType(ItemStack stack, Block block, int meta)
+    public void setSelectedFixedBlockType(ItemStack stack, Block block, int meta)
     {
-        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        int sel = this.getSelectedBlockType(stack);
         if (sel < 0)
         {
             return;
@@ -434,9 +461,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         tag.setByte("Meta", (byte)meta);
     }
 
-    public BlockInfo getSelectedBlockType(ItemStack stack)
+    public BlockInfo getSelectedFixedBlockType(ItemStack stack)
     {
-        int sel = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
+        int sel = this.getSelectedBlockType(stack);
         if (sel < 0)
         {
             return null;
@@ -453,9 +480,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return null;
     }
 
+    public int getSelectedBlockType(ItemStack stack)
+    {
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode, true);
+
+        return tag.getByte(TAG_NAME_BLOCK_SEL);
+    }
+
     public void changeSelectedBlockType(ItemStack stack, boolean reverse)
     {
-        NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode, true);
+
+        NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
+        //NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL, -2, MAX_BLOCKS - 1, reverse);
     }
 
     public boolean getAreaFlipped(ItemStack stack)
@@ -508,6 +549,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
         {
+            lookDir = EntityUtils.getHorizontalLookingDirection(player);
+
             switch(lookDir)
             {
                 case SOUTH:
@@ -559,7 +602,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         area.writeToNBT(stack);
     }
 
-    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosEU> positions,
+    public void addAdjacent(World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosEU> positions, List<BlockInfo> blockTypes,
              int blockType, boolean diagonals, BlockInfo blockInfo, ForgeDirection face, ForgeDirection axisRight, ForgeDirection axisUp)
     {
         if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
@@ -604,28 +647,35 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (positions.contains(pos) == false)
             {
                 positions.add(pos);
+                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? new BlockInfo(block, meta) : blockInfo);
 
                 // Adjacent blocks
-                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV - 1, posH + 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 0, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, posV + 1, posH + 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
 
                 // Diagonals/corners
                 if (diagonals == true)
                 {
-                    this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
-                    this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV - 1, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV - 1, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH - 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                    this.addAdjacent(world, center, area, posV + 1, posH + 1, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
                 }
             }
         }
     }
 
-    public List<BlockPosEU> getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player)
+    public BlockInfo getAdjacentBlock(World world, BlockPosEU pos, ForgeDirection faceAxis)
     {
-        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
+        pos = pos.copy().offset(faceAxis, -1);
+        return new BlockInfo(world.getBlock(pos.posX, pos.posY, pos.posZ), world.getBlockMetadata(pos.posX, pos.posY, pos.posZ));
+    }
+
+    public void getBlockPositions(ItemStack stack, BlockPosEU targeted, World world, EntityPlayer player,
+                                              List<BlockPosEU> positions, List<BlockInfo> blockTypes)
+    {
         Mode mode = Mode.getMode(stack);
         ForgeDirection face = ForgeDirection.getOrientation(targeted.face);
         ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
@@ -650,25 +700,31 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         // Move the position forward by one from the targeted block
         BlockPosEU center = targeted.copy().offset(face, 1);
+        BlockPosEU posTmp;
         Area area = new Area(stack);
 
         BlockInfo blockInfo = null;
-        int blockType = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCK_SEL);
-        if (blockType == BLOCK_TYPE_TARGETED)
+        int blockType = this.getSelectedBlockType(stack);
+
+        if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
         {
-            Block block = world.getBlock(targeted.posX, targeted.posY, targeted.posZ);
-            int meta = world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ);
-            blockInfo = new BlockInfo(block, meta);
+            blockInfo = new BlockInfo(world.getBlock(targeted.posX, targeted.posY, targeted.posZ),
+                                      world.getBlockMetadata(targeted.posX, targeted.posY, targeted.posZ));
         }
+        // If using a fixed block type, then we require a valid block
         else if (blockType >= 0)
         {
-            blockInfo = this.getSelectedBlockType(stack);
+            blockInfo = this.getSelectedFixedBlockType(stack);
+
+            if (blockInfo == null)
+            {
+                return;
+            }
         }
 
         // NOTE: The block position are added so that the targeted position is first in the list,
         // and it will then be rendered in a different color
 
-        //System.out.println("face: " + face + " right : " + axisRight + " up: " + axisUp);
         switch(mode)
         {
             case COLUMN:
@@ -681,6 +737,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     if (world.isAirBlock(x, y, z) == true)
                     {
                         positions.add(new BlockPosEU(x, y, z));
+                        blockTypes.add(blockInfo);
                     }
                     else
                     {
@@ -698,7 +755,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                     if (world.isAirBlock(x, y, z) == true)
                     {
-                        positions.add(new BlockPosEU(x, y, z));
+                        //System.out.printf("x: %d y: %d z: %d\n", x, y, z);
+                        posTmp = new BlockPosEU(x, y, z);
+                        positions.add(posTmp);
+                        blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                     }
                     else
                     {
@@ -714,7 +774,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                     if (world.isAirBlock(x, y, z) == true)
                     {
-                        positions.add(new BlockPosEU(x, y, z));
+                        posTmp = new BlockPosEU(x, y, z);
+                        positions.add(posTmp);
+                        blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                     }
                     else
                     {
@@ -725,7 +787,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             case PLANE:
                 // Add the center position first, it will be rendered in different color
-                positions.add(new BlockPosEU(center.posX, center.posY, center.posZ));
+                posTmp = new BlockPosEU(center.posX, center.posY, center.posZ);
+                positions.add(posTmp);
+                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
 
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
@@ -737,7 +801,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
                         if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
                         {
-                            positions.add(new BlockPosEU(x, y, z));
+                            posTmp = new BlockPosEU(x, y, z);
+                            positions.add(posTmp);
+                            blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
                         }
                     }
                 }
@@ -745,12 +811,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             case EXTEND_CONTINUOUS:
                 boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
-                this.addAdjacent(world, center, area, 0, 0, positions, blockType, diagonals, blockInfo, face, axisRight, axisUp);
+                this.addAdjacent(world, center, area, 0, 0, positions, blockTypes, blockType, diagonals, blockInfo, face, axisRight, axisUp);
                 break;
 
             case EXTEND_AREA:
                 // Add the center position first, it will be rendered in different color
-                positions.add(new BlockPosEU(center.posX, center.posY, center.posZ));
+                posTmp = new BlockPosEU(center.posX, center.posY, center.posZ);
+                positions.add(posTmp);
+                blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, posTmp, face) : blockInfo);
 
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
@@ -782,6 +850,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                                 //   (blockInfo.block == block && blockInfo.meta == meta))
                                 {
                                     positions.add(new BlockPosEU(x, y, z));
+                                    blockTypes.add(blockType == BLOCK_TYPE_ADJACENT ? new BlockInfo(block, meta) : blockInfo);
                                 }
                             }
                         }
@@ -791,8 +860,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             default:
         }
-
-        return positions;
     }
 
     @Override
@@ -803,11 +870,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        // Alt + (Shift + ) Toggle key: Change the selected block type
+        // Alt + Toggle key: Change the selected block type
         if (ReferenceKeys.keypressContainsControl(key) == false &&
+            ReferenceKeys.keypressContainsShift(key) == false &&
             ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key));
         }
         // Shift + Toggle Mode: Change the dimensions of the current mode
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
@@ -829,12 +897,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key));
         }
-        // Ctrl + Alt +Toggle key: Toggle "allow diagonals" in Extend COntinuous mode
+        // Ctrl + Alt + Toggle key: Toggle "allow diagonals" in Extend Continuous mode
         else if (ReferenceKeys.keypressContainsControl(key) == true &&
                  ReferenceKeys.keypressContainsShift(key) == false &&
                  ReferenceKeys.keypressContainsAlt(key) == true)
         {
             NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
+        }
+        // Alt + Shift + Toggle key: Toggle ghost blocks
+        else if (ReferenceKeys.keypressContainsControl(key) == false &&
+                 ReferenceKeys.keypressContainsShift(key) == true &&
+                 ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
         }
         // Just Toggle key: Toggle the area flipped property
         else if (ReferenceKeys.keypressContainsControl(key) == false &&

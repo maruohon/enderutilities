@@ -31,7 +31,7 @@ public class PlayerEventHandler
                 // Left click without sneaking: Set the "anchor" position
                 if (event.entityPlayer.isSneaking() == false)
                 {
-                    BlockPosEU pos = new BlockPosEU(event.x, event.y, event.z, event.face);
+                    BlockPosEU pos = new BlockPosEU(event.x, event.y, event.z, event.entityPlayer.dimension, event.face);
                     ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setPosition(event.entityPlayer.getUniqueID(), pos, true);
                 }
                 // Sneak + left click: Set the selected block type
@@ -39,7 +39,7 @@ public class PlayerEventHandler
                 {
                     Block block = event.world.getBlock(event.x, event.y, event.z);
                     int meta = event.world.getBlockMetadata(event.x, event.y, event.z);
-                    ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setSelectedBlockType(stack, block, meta);
+                    ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).setSelectedFixedBlockType(stack, block, meta);
                 }
                 event.setCanceled(true);
             }
