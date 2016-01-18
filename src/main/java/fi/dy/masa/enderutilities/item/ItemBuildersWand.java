@@ -607,11 +607,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         ForgeDirection faceAxis = ForgeDirection.getOrientation(pos.face);
-        ForgeDirection lookDir = EntityUtils.getClosestLookingDirection(player);
 
         if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
         {
-            lookDir = EntityUtils.getHorizontalLookingDirection(player);
+            ForgeDirection lookDir = EntityUtils.getHorizontalLookingDirection(player);
 
             switch(lookDir)
             {
@@ -639,6 +638,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
+            ForgeDirection lookDir = EntityUtils.getClosestLookingDirection(player);
+            if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxis || lookDir == faceAxis.getOpposite()))
+            {
+                lookDir = EntityUtils.getVerticalLookingDirection(player);
+            }
+            //ForgeDirection lookDir = EntityUtils.getClosestLookingDirectionNotOnAxis(player, faceAxis);
+
             switch(lookDir)
             {
                 case UP:

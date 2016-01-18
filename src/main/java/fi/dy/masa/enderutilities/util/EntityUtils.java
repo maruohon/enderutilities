@@ -67,22 +67,46 @@ public class EntityUtils
         return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
     }
 
+    public static ForgeDirection getVerticalLookingDirection(Entity entity)
+    {
+        return entity.rotationPitch > 0 ? ForgeDirection.DOWN : ForgeDirection.UP;
+    }
+
     public static ForgeDirection getClosestLookingDirection(Entity entity)
     {
         float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
         int yawAxis = MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
         float yawAxisMiddle = yawAxis * 360.0f / 4.0f;
 
-        if (entity.rotationPitch > Math.abs(yawAxisMiddle - yaw))
+        //System.out.printf("yaw: %.1f yawAxis: %d yawAxisMiddle: %.1f pitch: %.1f\n", yaw, yawAxis, yawAxisMiddle, entity.rotationPitch);
+        if (entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
         {
             return ForgeDirection.DOWN;
         }
-        else if (-entity.rotationPitch > Math.abs(yawAxisMiddle - yaw))
+        else if (-entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
         {
             return ForgeDirection.UP;
         }
 
         return getHorizontalLookingDirection(entity);
+    }
+
+    public static ForgeDirection getClosestLookingDirectionNotOnAxis(Entity entity, ForgeDirection notOnAxis)
+    {
+        ForgeDirection dir = getClosestLookingDirection(entity);
+        if (dir == notOnAxis || dir.getOpposite() == notOnAxis)
+        {
+            if (notOnAxis == ForgeDirection.UP || notOnAxis == ForgeDirection.DOWN)
+            {
+                dir = getHorizontalLookingDirection(entity);
+            }
+            else
+            {
+                dir = getVerticalLookingDirection(entity);
+            }
+        }
+
+        return dir;
     }
 
     /**
