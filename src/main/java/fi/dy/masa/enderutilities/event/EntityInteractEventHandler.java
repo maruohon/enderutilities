@@ -5,9 +5,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
+import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -35,7 +39,15 @@ public class EntityInteractEventHandler
 
         Item item = stack.getItem();
 
-        if (item == EnderUtilitiesItems.mobHarness)
+        if (item == EnderUtilitiesItems.livingManipulator)
+        {
+            if (event.target instanceof EntityLivingBase)
+            {
+                ((ItemLivingManipulator)item).handleInteraction(stack, event.entityPlayer, (EntityLivingBase)event.target);
+                event.setCanceled(true);
+            }
+        }
+        else if (item == EnderUtilitiesItems.mobHarness)
         {
             if (event.target instanceof EntityLivingBase)
             {

@@ -71,7 +71,7 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     {
         if (this.useAbsoluteModuleIndexing(containerStack) == true)
         {
-            UtilItemModular.setSelectedModuleStackAbs(containerStack, moduleType, moduleStack);
+            return UtilItemModular.setSelectedModuleStackAbs(containerStack, moduleType, moduleStack);
         }
 
         return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);

@@ -71,12 +71,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return false;
     }
 
-    @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    public boolean handleInteraction(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
         if (player.worldObj.isRemote == true)
         {
-            return false;
+            return true;
         }
 
         Mode mode = Mode.getMode(stack);
