@@ -85,12 +85,12 @@ public class TaskBuildersWand implements IPlayerTask
             {
                 //System.out.println("execute return true, failCount: " + this.failCount + " index: " + this.listIndex);
                 Mode mode = Mode.getMode(stack);
-                BlockPosEU pos = ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).blockPos1.get(player.getUniqueID());
+                BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(stack, true);
 
                 // Move the target position forward by one block after the area has been built
                 if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
                 {
-                    ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).blockPos1.put(player.getUniqueID(), pos.copy().offset(ForgeDirection.getOrientation(pos.face), 1));
+                    ((ItemBuildersWand)stack.getItem()).setPosition(stack, pos.offset(ForgeDirection.getOrientation(pos.face), 1), true);
                 }
             }
 

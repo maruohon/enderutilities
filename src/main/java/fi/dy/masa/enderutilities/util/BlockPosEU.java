@@ -3,15 +3,16 @@ package fi.dy.masa.enderutilities.util;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockPosEU
 {
-    public int posX;
-    public int posY;
-    public int posZ;
-    public int dimension;
-    public int face;
+    public final int posX;
+    public final int posY;
+    public final int posZ;
+    public final int dimension;
+    public final int face;
 
     public BlockPosEU(int x, int y, int z)
     {
@@ -30,51 +31,36 @@ public class BlockPosEU
         this.posZ = z;
         this.dimension = dim;
         this.face = side;
-
-        //this.clampCoords();
     }
 
-    public BlockPosEU(BlockPosEU old)
+    /**
+     * Add the given offsets to the position.
+     * Returns a new instance with the changes applied and does not modify the original.
+     */
+    public BlockPosEU add(int x, int y, int z)
     {
-        this.posX = old.posX;
-        this.posY = old.posY;
-        this.posZ = old.posZ;
+        return new BlockPosEU(this.posX + x, this.posY + y, this.posZ + z, this.dimension, this.face);
     }
 
-    public BlockPosEU(BlockPosEU old, ForgeDirection dir, int distance)
-    {
-        this(old);
-        this.offset(dir, distance);
-    }
-
-    public void add(int x, int y, int z)
-    {
-        this.posX += x;
-        this.posY += y;
-        this.posZ += z;
-
-        //this.clampCoords();
-    }
-
+    /**
+     * Offset the position by the given amount into the given direction.
+     * Returns a new instance with the changes applied and does not modify the original.
+     */
     public BlockPosEU offset(ForgeDirection dir, int distance)
     {
-        this.posX += dir.offsetX * distance;
-        this.posY += dir.offsetY * distance;
-        this.posZ += dir.offsetZ * distance;
-
-        return this;
+        return new BlockPosEU(  this.posX + dir.offsetX * distance,
+                                this.posY + dir.offsetY * distance,
+                                this.posZ + dir.offsetZ * distance,
+                                this.dimension, this.face);
     }
 
-    public BlockPosEU copy()
+    public BlockPosEU clampCoords()
     {
-        return new BlockPosEU(this);
-    }
+        int x = MathHelper.clamp_int(this.posX, -30000000, 30000000);
+        int y = MathHelper.clamp_int(this.posY, 0, 255);
+        int z = MathHelper.clamp_int(this.posZ, -30000000, 30000000);
 
-    public void clampCoords()
-    {
-        this.posX = MathHelper.clamp_int(this.posX, -30000000, 30000000);
-        this.posY = MathHelper.clamp_int(this.posY, 0, 255);
-        this.posZ = MathHelper.clamp_int(this.posZ, -30000000, 30000000);
+        return new BlockPosEU(x, y, z, this.dimension, this.face);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
@@ -88,11 +74,39 @@ public class BlockPosEU
         tag.setInteger("posX", this.posX);
         tag.setInteger("posY", this.posY);
         tag.setInteger("posZ", this.posZ);
-        tag.setInteger("face", this.face);
+        tag.setInteger("dim", this.dimension);
+        tag.setByte("face", (byte)this.face);
 
         nbt.setTag("BlockPos", tag);
 
         return nbt;
+    }
+
+    public static BlockPosEU readFromNBT(NBTTagCompound nbt)
+    {
+        if (nbt == null || nbt.hasKey("BlockPos", Constants.NBT.TAG_COMPOUND) == false)
+        {
+            return null;
+        }
+
+        NBTTagCompound tag = nbt.getCompoundTag("BlockPos");
+        int x = tag.getInteger("posX");
+        int y = tag.getInteger("posY");
+        int z = tag.getInteger("posZ");
+        int dim = tag.getInteger("dim");
+        int face = tag.getByte("face");
+
+        return new BlockPosEU(x, y, z, dim, face);
+    }
+
+    public static void removeFromNBT(NBTTagCompound nbt)
+    {
+        if (nbt == null)
+        {
+            return;
+        }
+
+        nbt.removeTag("BlockPos");;
     }
 
     @Override

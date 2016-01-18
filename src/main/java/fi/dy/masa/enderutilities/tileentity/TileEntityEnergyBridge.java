@@ -13,14 +13,16 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockUtils;
-import fi.dy.masa.enderutilities.util.DimBlockPos;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities
@@ -152,7 +154,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             if (this.isActive == false)
             {
                 this.activateMultiBlock(world, positions);
-                EnergyBridgeTracker.addBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, positions.get(0)));
+                EnergyBridgeTracker.addBridgeLocation(positions.get(0));
             }
 
             this.updatePoweredState(world, positions);
@@ -185,27 +187,28 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return false;
         }
 
-        BlockPosEU posMaster = new BlockPosEU(x, y, z);
-        BlockPosEU posResonatorBase = new BlockPosEU(x, y, z); // position of the middle block in the y-plane of the resonators
+        BlockPosEU posMaster = new BlockPosEU(x, y, z, this.worldObj.provider.dimensionId, 1);
+
+        // position of the middle block in the y-plane of the resonators
+        BlockPosEU posResonatorBase = new BlockPosEU(x, y, z, this.worldObj.provider.dimensionId, 1);
         ForgeDirection dir = ForgeDirection.getOrientation(((TileEntityEnergyBridge)te).getRotation());
 
         // The given location is a resonator, not the master block; get the master block's location
         if (meta != masterMeta)
         {
-            posMaster.add(0, height - 1, 0);
-            posMaster.offset(dir, 3);
-            posResonatorBase.offset(dir, 3);
+            posMaster = posMaster.add(0, height - 1, 0).offset(dir, 3);
+            posResonatorBase = posResonatorBase.offset(dir, 3);
         }
         else
         {
-            posResonatorBase.add(0, -(height - 1), 0);
+            posResonatorBase = posResonatorBase.add(0, -(height - 1), 0);
         }
 
         blockPositions.add(posMaster);
-        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.NORTH, 3));
-        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.SOUTH, 3));
-        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.EAST, 3));
-        blockPositions.add(new BlockPosEU(posResonatorBase, ForgeDirection.WEST, 3));
+        blockPositions.add(posResonatorBase.offset(ForgeDirection.NORTH, 3));
+        blockPositions.add(posResonatorBase.offset(ForgeDirection.SOUTH, 3));
+        blockPositions.add(posResonatorBase.offset(ForgeDirection.EAST, 3));
+        blockPositions.add(posResonatorBase.offset(ForgeDirection.WEST, 3));
         blockPositions.add(posResonatorBase);
 
         return true;
@@ -284,8 +287,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
             return true;
         }
 
-        BlockPosEU posMaster = new BlockPosEU(blockPositions.get(0));
-        BlockPosEU posResonatorMiddle = new BlockPosEU(blockPositions.get(5));
+        BlockPosEU posMaster = blockPositions.get(0);
+        BlockPosEU posResonatorMiddle = blockPositions.get(5);
 
         // Block positions in one quadrant of the area that needs to be clear for the resonators, relative to the middle block
         BlockPosEU positionsToCheck[] = new BlockPosEU[] {
@@ -377,8 +380,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         if (oldMeta == 2)
         {
             ForgeDirection dir = ForgeDirection.getOrientation(((TileEntityEnergyBridge)te).getRotation());
-            posMaster.add(0, height - 1, 0);
-            posMaster.offset(dir, 3);
+            posMaster = posMaster.add(0, height - 1, 0).offset(dir, 3);
         }
 
         // Get the block position list from the master block
@@ -407,7 +409,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         this.setStateWithCheck(world, blockPositions.get(3), blockEb, 2, classTEEB, ForgeDirection.WEST, false);
         this.setStateWithCheck(world, blockPositions.get(4), blockEb, 2, classTEEB, ForgeDirection.EAST, false);
 
-        EnergyBridgeTracker.removeBridgeLocation(new DimBlockPos(this.worldObj.provider.dimensionId, blockPositions.get(0)));
+        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0));
     }
 
     public void setState(World world, BlockPosEU pos, boolean state)

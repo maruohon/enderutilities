@@ -78,7 +78,7 @@ public class BuildersWandRenderer
 
     public void renderOutlinesTargeted(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
-        BlockPosEU targeted = ((ItemBuildersWand)stack.getItem()).blockPos1.get(player.getUniqueID());
+        BlockPosEU targeted = ((ItemBuildersWand)stack.getItem()).getPosition(stack, true);
 
         MovingObjectPosition mop = this.mc.objectMouseOver;
         if (targeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
@@ -111,7 +111,7 @@ public class BuildersWandRenderer
 
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
-            BlockPosEU posFirst = ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).blockPos1.get(player.getUniqueID());
+            BlockPosEU posFirst = ((ItemBuildersWand)EnderUtilitiesItems.buildersWand).getPosition(stack, true);
             RenderBlocks rb = new RenderBlocks();
             //OpenGlHelper.glBlendFunc(774, 768, 1, 0);
             //OpenGlHelper.glBlendFunc(770, 771, 1, 0);

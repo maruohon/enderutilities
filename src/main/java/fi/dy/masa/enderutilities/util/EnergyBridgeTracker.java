@@ -1,9 +1,5 @@
 package fi.dy.masa.enderutilities.util;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.Reference;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,21 +9,26 @@ import java.util.List;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class EnergyBridgeTracker
 {
     private static boolean dirty = false;
-    private static List<DimBlockPos> bridgeLocations = new ArrayList<DimBlockPos>();
+    private static List<BlockPosEU> bridgeLocations = new ArrayList<BlockPosEU>();
     private static TIntObjectHashMap<Integer> bridgeCounts = new TIntObjectHashMap<Integer>();
 
-    public static void addBridgeLocation(DimBlockPos pos)
+    public static void addBridgeLocation(BlockPosEU pos)
     {
         addBridgeLocation(pos, true);
     }
 
-    private static void addBridgeLocation(DimBlockPos pos, boolean markDirty)
+    private static void addBridgeLocation(BlockPosEU pos, boolean markDirty)
     {
         Integer count = bridgeCounts.get(pos.dimension);
         if (count == null)
@@ -48,7 +49,7 @@ public class EnergyBridgeTracker
         }
     }
 
-    public static void removeBridgeLocation(DimBlockPos pos)
+    public static void removeBridgeLocation(BlockPosEU pos)
     {
         Integer count = bridgeCounts.get(pos.dimension);
         if (count == null)
@@ -89,7 +90,7 @@ public class EnergyBridgeTracker
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
             if (tag.hasKey("Dim", Constants.NBT.TAG_INT) && tag.hasKey("posX", Constants.NBT.TAG_INT) && tag.hasKey("posY", Constants.NBT.TAG_INT) && tag.hasKey("posZ", Constants.NBT.TAG_INT))
             {
-                addBridgeLocation(new DimBlockPos(tag.getInteger("Dim"), tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ")), false);
+                addBridgeLocation(new BlockPosEU(tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ"), tag.getInteger("Dim"), 1), false);
             }
         }
     }
@@ -102,7 +103,7 @@ public class EnergyBridgeTracker
             NBTTagList tagList = new NBTTagList();
             for (int i = 0; i < count; ++i)
             {
-                DimBlockPos pos = bridgeLocations.get(i);
+                BlockPosEU pos = bridgeLocations.get(i);
                 if (pos != null)
                 {
                     NBTTagCompound tag = new NBTTagCompound();
