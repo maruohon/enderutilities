@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -22,6 +23,7 @@ public class TaskBuildersWand implements IPlayerTask
     protected List<BlockPosStateDist> positions;
     protected int blocksPerTick;
     protected int listIndex;
+    protected int placedCount;
     protected int failCount;
 
     public TaskBuildersWand(World world, UUID playerUUID, List<BlockPosStateDist> positions, int blocksPerTick)
@@ -31,6 +33,7 @@ public class TaskBuildersWand implements IPlayerTask
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
         this.listIndex = 0;
+        this.placedCount = 0;
         this.failCount = 0;
     }
 
@@ -60,6 +63,7 @@ public class TaskBuildersWand implements IPlayerTask
             {
                 if (ItemBuildersWand.placeBlockToPosition(stack, world, player, this.positions.get(this.listIndex)) == true)
                 {
+                    this.placedCount += 1;
                     this.failCount = 0;
                     i += 1;
                 }
@@ -83,7 +87,6 @@ public class TaskBuildersWand implements IPlayerTask
         {
             if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
-                //System.out.println("execute return true, failCount: " + this.failCount + " index: " + this.listIndex);
                 Mode mode = Mode.getMode(stack);
                 BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(player, true);
 
@@ -103,6 +106,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public void stop()
     {
+        EnderUtilities.logger.info("TaskBuildersWand exiting, placed " + this.placedCount + " blocks in total.");
         this.positions.clear();
     }
 }

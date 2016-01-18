@@ -161,12 +161,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
     {
-        if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
+        if (world.isRemote == false)
         {
-            BlockPosEU pos = this.getPosition(player, true);
-            if (pos != null)
+            if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
             {
-                this.useWand(stack, world, player, pos);
+                BlockPosEU pos = this.getPosition(player, true);
+                if (pos != null)
+                {
+                    this.useWand(stack, world, player, pos);
+                }
             }
         }
     }
@@ -378,8 +381,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
+            //System.out.println("creating task - " + (world.isRemote ? "client" : "server"));
             // TODO add a config option for the block-per-tick value
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, 2);
+            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, 6);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
