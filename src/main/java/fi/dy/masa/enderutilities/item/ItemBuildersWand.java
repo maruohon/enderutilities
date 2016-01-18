@@ -51,6 +51,9 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemBuildersWand extends ItemLocationBoundModular
 {
+    /** How much Ender Charge does placing each block cost */
+    public static final int ENDER_CHARGE_COST = 10;
+    /** Max number of stored block types */
     public static final int MAX_BLOCKS = 6;
     public static final String WRAPPER_TAG_NAME = "BuildersWand";
     public static final String TAG_NAME_MODE = "Mode";
@@ -401,6 +404,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return false;
         }
 
+        if (UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false) == false)
+        {
+            return false;
+        }
+
         BlockInfo blockInfo = null;
 
         if (getSelectedBlockType(wandStack) == BLOCK_TYPE_ADJACENT)
@@ -455,6 +463,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
                 else
                 {
+                    UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true);
                     return true;
                 }
             }
