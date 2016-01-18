@@ -69,7 +69,7 @@ public class BuildersWandRenderer
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
         ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
-        BlockPosEU posTargeted = item.getPosition(player, true);
+        BlockPosEU posTargeted = item.getPosition(player, ItemBuildersWand.POS_START);
 
         MovingObjectPosition mop = this.mc.objectMouseOver;
         if (posTargeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
@@ -84,7 +84,7 @@ public class BuildersWandRenderer
 
         Mode mode = Mode.getMode(stack);
         BlockPosEU posStart = posTargeted.offset(ForgeDirection.getOrientation(posTargeted.face), 1);
-        BlockPosEU posEnd = item.getPosition(player, false);
+        BlockPosEU posEnd = item.getPosition(player, ItemBuildersWand.POS_END);
         posEnd = (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE)) ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
 
         if (partialTicks < this.partialTicksLast)
@@ -94,15 +94,13 @@ public class BuildersWandRenderer
             if (mode == Mode.CUBE || mode == Mode.WALLS)
             {
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
-                item.getBlockPositionsWalls(player, posStart, posEnd, this.positions, item.getBlockInfo(stack, posTargeted, world));
+                item.getBlockPositionsWalls(stack, posTargeted, world, this.positions, posStart, posEnd);
             }
             else
             {
-                item.getBlockPositions(stack, posTargeted, world, player, this.positions);
+                item.getBlockPositions(stack, posTargeted, world, this.positions);
             }
         }
-
-        this.partialTicksLast = partialTicks;
 
         GL11.glDepthMask(false);
         GL11.glDisable(GL11.GL_LIGHTING);
@@ -129,6 +127,8 @@ public class BuildersWandRenderer
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDepthMask(true);
+
+        this.partialTicksLast = partialTicks;
     }
 
     public void renderBlockOutlines(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)

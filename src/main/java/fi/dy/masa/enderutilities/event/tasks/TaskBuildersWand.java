@@ -88,13 +88,16 @@ public class TaskBuildersWand implements IPlayerTask
             if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
                 Mode mode = Mode.getMode(stack);
-                BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(player, true);
+                BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(player, ItemBuildersWand.POS_START);
 
                 // Move the target position forward by one block after the area has been built
                 if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.COLUMN)
                 {
-                    ((ItemBuildersWand)stack.getItem()).setPosition(player, pos.offset(ForgeDirection.getOrientation(pos.face), 1), true);
+                    ((ItemBuildersWand)stack.getItem()).setPosition(player, pos.offset(ForgeDirection.getOrientation(pos.face), 1), ItemBuildersWand.POS_START);
                 }
+
+                //world.playSoundAtEntity(player, "note.harp", 0.7f, 1.0f);
+                world.playSoundAtEntity(player, "note.pling", 0.3f, 1.0f);
             }
 
             return true;
