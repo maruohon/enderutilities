@@ -1,7 +1,10 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -58,10 +61,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
     public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
     public static final String TAG_NAME_GHOST_BLOCKS ="Ghost";
-    public static final String TAG_NAME_CORNER1 ="Corner1";
-    public static final String TAG_NAME_CORNER2 ="Corner2";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
+
+    public Map<UUID, BlockPosEU> blockPos1 = new HashMap<UUID, BlockPosEU>();
+    public Map<UUID, BlockPosEU> blockPos2 = new HashMap<UUID, BlockPosEU>();
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -77,7 +81,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-        BlockPosEU pos = this.getPosition(stack, true);
+        BlockPosEU pos = this.getPosition(player, true);
         if (pos != null)
         {
             Mode mode = Mode.getMode(stack);
@@ -99,7 +103,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             if (mode == Mode.CUBE || mode == Mode.WALLS)
             {
-                if (this.getPosition(stack, false) != null)
+                if (this.getPosition(player, false) != null)
                 {
                     player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
                     player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.4f, 0.7f);
@@ -124,9 +128,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.CUBE || mode == Mode.WALLS)
         {
-            if (world.isRemote == false)
+            if (world.isRemote == false && player.isSneaking() == false)
             {
-                this.setPosition(stack, new BlockPosEU(x, y, z, player.dimension, side), player.isSneaking() == false);
+                this.setPosition(player, new BlockPosEU(x, y, z, player.dimension, side), false);
             }
 
             return true;
@@ -145,7 +149,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         // Left click without sneaking: Set the "anchor" position
         if (player.isSneaking() == false)
         {
-            this.setPosition(stack, new BlockPosEU(x, y, z, player.dimension, side), true);
+            this.setPosition(player, new BlockPosEU(x, y, z, player.dimension, side), true);
         }
         // Sneak + left click: Set the selected block type
         else
@@ -159,7 +163,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     {
         if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
         {
-            BlockPosEU pos = this.getPosition(stack, true);
+            BlockPosEU pos = this.getPosition(player, true);
             if (pos != null)
             {
                 this.useWand(stack, world, player, pos);
@@ -310,38 +314,24 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         //super.addTooltips(stack, list, verbose);
     }
 
-    public BlockPosEU getPosition(ItemStack stack, boolean isStart)
+    public BlockPosEU getPosition(EntityPlayer player, boolean isStart)
     {
-        String tagName = (isStart == true) ? TAG_NAME_CORNER1 : TAG_NAME_CORNER2;
-
-        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, false);
-        if (tag != null)
-        {
-            return BlockPosEU.readFromNBT(tag);
-        }
-
-        return null;
+        Map<UUID, BlockPosEU> map = isStart == true ? this.blockPos1 : this.blockPos2;
+        return map.get(player.getUniqueID());
     }
 
-    public void setPosition(ItemStack stack, BlockPosEU pos, boolean isStart)
+    public void setPosition(EntityPlayer player, BlockPosEU pos, boolean isStart)
     {
-        String tagName = (isStart == true) ? TAG_NAME_CORNER1 : TAG_NAME_CORNER2;
+        Map<UUID, BlockPosEU> map = isStart == true ? this.blockPos1 : this.blockPos2;
 
-        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, true);
-        if (pos == null)
+        BlockPosEU oldPos = map.get(player.getUniqueID());
+        if (oldPos != null && oldPos.equals(pos) == true)
         {
-            BlockPosEU.removeFromNBT(tag);
-            return;
-        }
-
-        BlockPosEU storedPos = BlockPosEU.readFromNBT(tag);
-        if (storedPos != null && storedPos.equals(pos) == true)
-        {
-            BlockPosEU.removeFromNBT(tag);
+            map.remove(player.getUniqueID());
         }
         else
         {
-            pos.writeToNBT(tag);
+            map.put(player.getUniqueID(), pos);
         }
     }
 
@@ -353,15 +343,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        BlockPosEU posStart = this.getPosition(player, true);
+        BlockPosEU posEnd = this.getPosition(player, false);
+        posStart = posStart != null ? posStart.offset(ForgeDirection.getOrientation(posStart.face), 1) : null;
+        posEnd = posEnd != null ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
 
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.CUBE)
         {
-            this.getBlockPositionsCube(stack, world, player, positions, this.getBlockInfo(stack, targetPos, world));
+            this.getBlockPositionsCube(player, posStart, posEnd, positions, this.getBlockInfo(stack, targetPos, world));
         }
         else if (mode == Mode.WALLS)
         {
-            this.getBlockPositionsWalls(stack, world, player, positions, this.getBlockInfo(stack, targetPos, world));
+            this.getBlockPositionsWalls(player, posStart, posEnd, positions, this.getBlockInfo(stack, targetPos, world));
         }
         else
         {
@@ -375,17 +369,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 placeBlockToPosition(stack, world, player, positions.get(i));
             }
 
-            // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
-            BlockPosEU pos = this.getPosition(stack, true);
-            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
+            // Offset the start position by one after a build operation completes, but not for Walls, Cube and Column modes
+            BlockPosEU pos = this.getPosition(player, true);
+            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.COLUMN)
             {
-                this.setPosition(stack, pos.offset(ForgeDirection.getOrientation(targetPos.face), 1), true);
+                this.setPosition(player, pos.offset(ForgeDirection.getOrientation(targetPos.face), 1), true);
             }
         }
         else
         {
             // TODO add a config option for the block-per-tick value
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, 8);
+            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, 2);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
@@ -590,7 +584,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void changeAreaDimensions(EntityPlayer player, ItemStack stack, boolean reverse)
     {
-        BlockPosEU pos = this.getPosition(stack, true);
+        BlockPosEU pos = this.getPosition(player, true);
         if (pos == null)
         {
             return;
@@ -820,7 +814,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case LINE:
-                for (int i = 0; i <= area.rPosH; i++)
+                for (int i = -area.rNegH; i <= area.rPosH; i++)
                 {
                     int x = center.posX + i * axisRight.offsetX;
                     int y = center.posY + i * axisRight.offsetY;
@@ -838,32 +832,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         break;
                     }
                 }
-
-                for (int i = -1; i >= -area.rNegH; i--)
-                {
-                    int x = center.posX + i * axisRight.offsetX;
-                    int y = center.posY + i * axisRight.offsetY;
-                    int z = center.posZ + i * axisRight.offsetZ;
-
-                    if (world.isAirBlock(x, y, z) == true)
-                    {
-                        posTmp = new BlockPosStateDist(x, y, z, 0, targeted.face,
-                                blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
-                        positions.add(posTmp);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
                 break;
 
             case PLANE:
-                // Add the center position first, it will be rendered in different color
-                posTmp = new BlockPosStateDist(center.posX, center.posY, center.posZ, 0, targeted.face,
-                        blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, center.posX, center.posY, center.posZ, face) : blockInfo);
-                positions.add(posTmp);
-
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
                     for (int h = -area.rNegH; h <= area.rPosH; h++)
@@ -872,7 +843,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         int y = center.posY + h * axisRight.offsetY + v * axisUp.offsetY;
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
 
-                        if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
+                        if (world.isAirBlock(x, y, z) == true)
                         {
                             posTmp = new BlockPosStateDist(x, y, z, 0, targeted.face,
                                     blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, x, y, z, face) : blockInfo);
@@ -888,11 +859,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 break;
 
             case EXTEND_AREA:
-                // Add the center position first, it will be rendered in different color
-                posTmp = new BlockPosStateDist(center.posX, center.posY, center.posZ, 0, targeted.face,
-                        blockType == BLOCK_TYPE_ADJACENT ? this.getAdjacentBlock(world, center.posX, center.posY, center.posZ, face) : blockInfo);
-                positions.add(posTmp);
-
                 for (int v = -area.rNegV; v <= area.rPosV; v++)
                 {
                     for (int h = -area.rNegH; h <= area.rPosH; h++)
@@ -902,7 +868,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         int z = center.posZ + h * axisRight.offsetZ + v * axisUp.offsetZ;
 
                         // The target position must be air
-                        if (world.isAirBlock(x, y, z) == true && (h != 0 || v != 0))
+                        if (world.isAirBlock(x, y, z) == true)
                         {
                             int xb = x - face.offsetX;
                             int yb = y - face.offsetY;
@@ -936,10 +902,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
-    public void getBlockPositionsWalls(ItemStack stack, World world, EntityPlayer player, List<BlockPosStateDist> positions, BlockInfo blockInfo)
+    public void getBlockPositionsWalls(EntityPlayer player, BlockPosEU pos1, BlockPosEU pos2, List<BlockPosStateDist> positions, BlockInfo blockInfo)
     {
-        BlockPosEU pos1 = this.getPosition(stack, true);
-        BlockPosEU pos2 = this.getPosition(stack, false);
         if (pos1 == null || pos2 == null)
         {
             return;
@@ -1007,10 +971,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
-    public void getBlockPositionsCube(ItemStack stack, World world, EntityPlayer player, List<BlockPosStateDist> positions, BlockInfo blockInfo)
+    public void getBlockPositionsCube(EntityPlayer player, BlockPosEU pos1, BlockPosEU pos2, List<BlockPosStateDist> positions, BlockInfo blockInfo)
     {
-        BlockPosEU pos1 = this.getPosition(stack, true);
-        BlockPosEU pos2 = this.getPosition(stack, false);
         if (pos1 == null || pos2 == null)
         {
             return;
