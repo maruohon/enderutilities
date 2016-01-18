@@ -354,21 +354,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         BlockPosEU posStart = this.getPosition(player, POS_START);
         BlockPosEU posEnd = this.getPosition(player, POS_END);
-        posStart = posStart != null ? posStart.offset(ForgeDirection.getOrientation(posStart.face), 1) : null;
-        posEnd = posEnd != null ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
 
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.CUBE)
         {
+            posStart = posStart != null ? posStart.offset(ForgeDirection.getOrientation(posStart.face), 1) : null;
+            posEnd = posEnd != null ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
             this.getBlockPositionsCube(stack, targetPos, world, positions, posStart, posEnd);
         }
         else if (mode == Mode.WALLS)
         {
+            posStart = posStart != null ? posStart.offset(ForgeDirection.getOrientation(posStart.face), 1) : null;
+            posEnd = posEnd != null ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
             this.getBlockPositionsWalls(stack, targetPos, world, positions, posStart, posEnd);
         }
         else
         {
-            this.getBlockPositions(stack, targetPos, world, positions);
+            this.getBlockPositions(stack, posStart != null ? posStart : targetPos, world, positions);
         }
 
         // Small enough area, build it all in one go without the task
