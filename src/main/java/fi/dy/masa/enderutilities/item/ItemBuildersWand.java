@@ -37,6 +37,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
@@ -386,7 +387,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             //System.out.println("creating task - " + (world.isRemote ? "client" : "server"));
             // TODO add a config option for the block-per-tick value
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, 6);
+            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.valueBuildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 

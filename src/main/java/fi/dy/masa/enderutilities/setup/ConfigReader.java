@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.setup;
 import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 
@@ -28,6 +29,10 @@ public class ConfigReader
         String category;
 
         category = "Generic";
+        Configs.buildersWandBlocksPerTick = conf.get(category, "LazyBuildersWandBlocksPerTick", 6).setRequiresMcRestart(false);
+        Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 6";
+        Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(6);
+
         Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
