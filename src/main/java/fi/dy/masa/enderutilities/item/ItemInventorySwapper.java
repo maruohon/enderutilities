@@ -1,17 +1,23 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
@@ -61,6 +67,25 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     {
         player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
         return stack;
+    }
+
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking() == true)
+        {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te != null && te instanceof IInventory)
+            {
+                if (world.isRemote == false)
+                {
+                    this.swapExternalInventory(stack, (IInventory)te, player, side);
+                }
+                return true;
+            }
+        }
+
+        return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -206,18 +231,94 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
     }
 
-    public static void swapInventory(final int swapperSlot, EntityPlayer player)
+    public void swapInventoryWithIInventory(long slotMask, InventoryItemModular swapperInv, IInventory externalInv)
+    {
+        final int invMax = externalInv.getInventoryStackLimit();
+        // Only swap up to 36 slots (which fit in the swapper's GUI, excluding armor slots)
+        final int invSize = Math.min(36, externalInv.getSizeInventory());
+
+        long bit = 0x1;
+        for (int i = 0; i < invSize; i++)
+        {
+            // Only swap slots that have been enabled
+            if ((slotMask & bit) != 0)
+            {
+                ItemStack tmpStack = swapperInv.getStackInSlot(i);
+
+                // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
+                if (tmpStack == null ||
+                   (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) && externalInv.isItemValidForSlot(i, tmpStack) == true))
+                {
+                    swapperInv.setInventorySlotContents(i, externalInv.getStackInSlot(i));
+                    externalInv.setInventorySlotContents(i, tmpStack);
+                }
+            }
+
+            bit <<= 1;
+        }
+    }
+
+    public void swapInventoryWithISided(long slotMask, InventoryItemModular swapperInv, ISidedInventory externalInv, int side)
+    {
+        final int invMax = externalInv.getInventoryStackLimit();
+        final int[] slots = externalInv.getAccessibleSlotsFromSide(side);
+
+        for (int slotNum : slots)
+        {
+            // Only swap slots that have been enabled, and only up to 36 slots (which fit in the swapper's GUI, excluding armor slots)
+            if (slotNum < 36 && (slotMask & (0x1 << slotNum)) != 0)
+            {
+                ItemStack tmpStack = swapperInv.getStackInSlot(slotNum);
+
+                // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
+                if (tmpStack == null ||
+                   (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) && externalInv.isItemValidForSlot(slotNum, tmpStack) == true))
+                {
+                    ItemStack externalInvStack = externalInv.getStackInSlot(slotNum);
+
+                    if (externalInv.canExtractItem(slotNum, externalInvStack, side) == true &&
+                        (tmpStack == null || externalInv.canInsertItem(slotNum, tmpStack, side) == true))
+                    {
+                        swapperInv.setInventorySlotContents(slotNum, externalInvStack);
+                        externalInv.setInventorySlotContents(slotNum, tmpStack);
+                    }
+                }
+            }
+        }
+    }
+
+    public void swapExternalInventory(ItemStack swapperStack, IInventory externalInv, EntityPlayer player, int side)
+    {
+        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
+        if (swapperInv.isUseableByPlayer(player) == false)
+        {
+            return;
+        }
+
+        long slotMask = getEnabledSlotsMask(swapperStack);
+
+        if (externalInv instanceof ISidedInventory)
+        {
+            this.swapInventoryWithISided(slotMask, swapperInv, (ISidedInventory)externalInv, side);
+        }
+        else
+        {
+            this.swapInventoryWithIInventory(slotMask, swapperInv, externalInv);
+        }
+
+        player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+    }
+
+    public static void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
     {
         ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
-        ItemStack tmpStack;
         if (swapperStack == null)
         {
             return;
         }
 
         InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
-        int slotNum = UtilItemModular.getStoredModuleSelection(swapperStack, ModuleType.TYPE_MEMORY_CARD);
-        if (inv.getModuleInventory().getStackInSlot(slotNum) == null || inv.isUseableByPlayer(player) == false)
+        if (inv.isUseableByPlayer(player) == false)
         {
             return;
         }
@@ -233,7 +334,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             // Don't swap the swapper itself, and only swap slots that have been enabled
             if (i != swapperSlot && (mask & bit) != 0)
             {
-                tmpStack = inv.getStackInSlot(i);
+                ItemStack tmpStack = inv.getStackInSlot(i);
 
                 // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
                 if (tmpStack == null ||
@@ -263,12 +364,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
     }
 
-    public static void swapInventory(EntityPlayer player)
+    public static void swapPlayerInventory(EntityPlayer player)
     {
         int slot = getSlotContainingEnabledItem(player);
         if (slot != -1)
         {
-            swapInventory(slot, player);
+            swapPlayerInventory(slot, player);
         }
     }
 
@@ -309,7 +410,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            swapInventory(player);
+            swapPlayerInventory(player);
         }
         // Alt + Shift + Toggle mode: Toggle the locked mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
