@@ -646,9 +646,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     ItemStack stack = iter.next();
                     if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        if (InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace) == true)
+                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace);
+                        if (stackTmp == null)
                         {
                             iter.remove();
+                        }
+                        else
+                        {
+                            stack.stackSize = stackTmp.stackSize;
                         }
                     }
                 }

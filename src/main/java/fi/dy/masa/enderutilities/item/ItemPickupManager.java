@@ -236,9 +236,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
             ItemStack stackTmp = stack.copy();
             stackTmp.stackSize = size;
+            stackTmp = tryTransportItems(player, manager, stackTmp);
 
-            if (tryTransportItems(player, manager, stackTmp) == false)
+            // Could not transport he whole stack (anymore)
+            if (stackTmp != null)
             {
+                stack.stackSize -= (size - stackTmp.stackSize);
                 break;
             }
 
@@ -250,19 +253,19 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         return stack.stackSize != sizeOrig;
     }
 
-    public static boolean tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
+    public static ItemStack tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
         int index = UtilItemModular.getStoredModuleSelection(manager, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(manager, index, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null)
         {
-            return false;
+            return itemsIn;
         }
 
         NBTHelperPlayer owner = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
         if (owner != null && owner.canAccess(player) == false)
         {
-            return false;
+            return itemsIn;
         }
 
         NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(moduleStack);
@@ -274,21 +277,18 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 // Force load the target chunk with a 30 second unload delay.
                 if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension, target.posX >> 4, target.posZ >> 4, 30) == false)
                 {
-                    return false;
+                    return itemsIn;
                 }
 
                 TileEntity te = world.getTileEntity(target.posX, target.posY, target.posZ);
                 if (te instanceof IInventory)
                 {
-                    ItemStack stackTmp = itemsIn.copy();
-                    boolean ret = InventoryUtils.tryInsertItemStackToInventory((IInventory)te, stackTmp, target.blockFace);
-                    itemsIn.stackSize = ret == true ? 0 : itemsIn.stackSize;
-                    return ret;
+                    return InventoryUtils.tryInsertItemStackToInventory((IInventory)te, itemsIn, target.blockFace);
                 }
             }
         }
 
-        return false;
+        return itemsIn;
     }
 
     /**
@@ -315,9 +315,14 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             if ((mode != 0 && match == true) || (mode == 0 && match == false))
             {
                 // All items successfully transported
-                if (tryTransportItems(player, manager, itemsIn) == true)
+                ItemStack stackTmp = tryTransportItems(player, manager, itemsIn);
+                if (stackTmp == null)
                 {
                     return Result.TRANSPORTED;
+                }
+                else
+                {
+                    itemsIn.stackSize = stackTmp.stackSize;
                 }
             }
         }

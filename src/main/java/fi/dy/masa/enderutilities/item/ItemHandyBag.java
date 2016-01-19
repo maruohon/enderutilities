@@ -293,7 +293,7 @@ public class ItemHandyBag extends ItemInventoryModular
             }
 
             // If all the items fit into existing stacks in the player's inventory
-            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, 0, false) == 0)
+            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, 0, false) == null)
             {
                 iter.remove();
                 pickedUp = true;
@@ -314,7 +314,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
                     {
                         // All items successfully inserted
-                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, 0, true) == true)
+                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, 0, true) == null)
                         {
                             iter.remove();
                             pickedUp = true;
@@ -359,7 +359,7 @@ public class ItemHandyBag extends ItemInventoryModular
         EntityPlayer player = event.entityPlayer;
 
         // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
-        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), 0, false) == 0)
+        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), 0, false) == null)
         {
             event.setCanceled(true);
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
@@ -384,7 +384,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == true)
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == null)
                     {
                         event.item.setDead();
                         event.setCanceled(true);

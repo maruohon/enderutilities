@@ -337,10 +337,15 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                     ItemStack stack = iter.next().getEntityItem();
                     if (stack != null)
                     {
-                        if (InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace) == true)
+                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace);
+                        if (stackTmp == null)
                         {
                             iter.remove();
                             transported = true;
+                        }
+                        else
+                        {
+                            stack.stackSize = stackTmp.stackSize;
                         }
                     }
                 }

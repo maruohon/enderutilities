@@ -192,7 +192,7 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
 
         if (slot != null && stackCursor != null)
         {
-            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.inventory, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize);
+            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.inventory, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
             if (stackTmp != null)
             {
                 stackCursor.stackSize += stackTmp.stackSize;

@@ -457,7 +457,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 if (BlockUtils.checkCanPlaceBlockAt(world, pos.posX, pos.posY, pos.posZ, pos.face, player, targetStack) == false ||
                     ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.posX, pos.posY, pos.posZ, pos.face, 0.5f, 0.5f, 0.5f) == false)
                 {
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, 1) == false)
+                    targetStack = InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, 1);
+                    if (targetStack != null)
                     {
                         EntityItem item = new EntityItem(world, player.posX, player.posY, player.posZ, targetStack);
                         world.spawnEntityInWorld(item);
