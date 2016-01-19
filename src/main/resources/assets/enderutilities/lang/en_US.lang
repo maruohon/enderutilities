@@ -106,6 +106,7 @@ enderutilities.tooltips.itemlocationboundmodular=- Sneak + right click to bind|l
 ###################
 # Individual items:
 ###################
+item.enderutilities.builderswand.tooltips=- Can build with blocks from the player's|lf  or a linked external inventory|lf- Ctrl + scroll: Change build mode|lf- Left click: set/unset position|lf- Cube & Walls: right click to set 2nd position|lf- Sneak + left click: Store the block type|lf- Alt + scroll: Change selected block type|lf- Shift + scroll: Change area dimensions|lf  in the direction you are looking at|lf  (you need to set the position first)|lf- Ctrl + Alt + Toggle: Toggle "allow diagonals"|lf  in the Extend Continuous mode|lf- Alt + Shift + Toggle: Toggle ghost|lf  block rendering on/off|lf- Just Toggle key: Flip area around the face axis|lf- Ctrl + Alt + Shift + Toggle: Cycle selected LC|lf- Sneak + right click on inventory to bind
 item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis maybe?)
 item.enderutilities.enderbag.tooltips=- Only properly works with some vanilla blocks atm
 item.enderutilities.enderbow.tooltips=- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning|lf- Repair in an Anvil with Enhanced Ender Alloy
