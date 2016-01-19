@@ -320,7 +320,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        //super.addTooltips(stack, list, verbose);
+        addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
     public BlockPosEU getPosition(EntityPlayer player, boolean isStart)
