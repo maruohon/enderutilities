@@ -16,7 +16,6 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -41,6 +40,10 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
+    public static final int MODE_RESTOCK_ENABLED = 1;
+    public static final int MODE_PICKUP_MATCHING = 1;
+    public static final int MODE_PICKUP_ALL = 2;
+
     public static final int DAMAGE_TIER_1 = 0;
     public static final int DAMAGE_TIER_2 = 1;
 
@@ -67,32 +70,7 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         super.onUpdate(stack, world, entity, slot, isCurrent);
 
-        // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
-        if (world.isRemote == false && entity instanceof EntityPlayer && this.getModeByName(stack, "RestockMode") == 1)
-        {
-            EntityPlayer player = (EntityPlayer)entity;
-            InventoryItemModular inv;
-            // Only re-stock stacks when the player doesn't have a GUI open
-            //if (player.openContainer == player.inventoryContainer)
-            {
-                if (player.openContainer instanceof ContainerHandyBag)
-                {
-                    inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
-                }
-                else
-                {
-                    inv = new InventoryItemModular(stack, (EntityPlayer)entity, ModuleType.TYPE_MEMORY_CARD);
-                }
-
-                InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
-
-                //if (player.openContainer instanceof ContainerHandyBag)
-                {
-                    player.openContainer.detectAndSendChanges();
-                    player.inventory.markDirty();
-                }
-            }
-        }
+        this.restockPlayerInventory(stack, world, entity);
     }
 
     @Override
@@ -101,14 +79,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking() == true)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if (world.isRemote == false && te != null && te instanceof IInventory)
-            {
-                InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
-                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
-            }
-
-            return true;
+            return this.tryMoveItems(stack, world, player, x, y, z, side);
         }
 
         return super.onItemUse(stack, player,world, x, y, z, side, hitX, hitY, hitZ);
@@ -166,7 +137,7 @@ public class ItemHandyBag extends ItemInventoryModular
         int mode = this.getModeByName(containerStack, "PickupMode");
         if (mode == 0)
             strPickupMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
-        else if (mode == 1)
+        else if (mode == MODE_PICKUP_MATCHING)
             strPickupMode += preYellow + StatCollector.translateToLocal("enderutilities.tooltip.item.matching") + rst;
         else// if (mode == 2)
             strPickupMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.all") + rst;
@@ -222,6 +193,75 @@ public class ItemHandyBag extends ItemInventoryModular
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    public void restockPlayerInventory(ItemStack stack, World world, Entity entity)
+    {
+        // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
+        if (world.isRemote == false && entity instanceof EntityPlayer && this.getModeByName(stack, "RestockMode") == MODE_RESTOCK_ENABLED)
+        {
+            EntityPlayer player = (EntityPlayer)entity;
+            InventoryItemModular inv;
+            // Only re-stock stacks when the player doesn't have a GUI open
+            //if (player.openContainer == player.inventoryContainer)
+            {
+                if (player.openContainer instanceof ContainerHandyBag)
+                {
+                    inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+                }
+                else
+                {
+                    inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
+                }
+
+                if (inv.isUseableByPlayer(player) == false)
+                {
+                    return;
+                }
+
+                InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
+
+                //if (player.openContainer instanceof ContainerHandyBag)
+                {
+                    player.openContainer.detectAndSendChanges();
+                    player.inventory.markDirty();
+                }
+            }
+        }
+    }
+
+    public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, int x, int y, int z, int side)
+    {
+        TileEntity te = world.getTileEntity(x, y, z);
+        if (world.isRemote == false && te != null && te instanceof IInventory)
+        {
+            InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            if (inv.isUseableByPlayer(player) == false)
+            {
+                return false;
+            }
+
+            int mode = this.getModeByName(stack, "RestockMode");
+            if (mode == MODE_RESTOCK_ENABLED)
+            {
+                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
+                return true;
+            }
+
+            mode = this.getModeByName(stack, "PickupMode");
+            if (mode == MODE_PICKUP_MATCHING)
+            {
+                InventoryUtils.tryMoveMatchingItems((IInventory)te, inv, side, 0, true);
+                return true;
+            }
+            else if (mode == MODE_PICKUP_ALL)
+            {
+                InventoryUtils.tryMoveAllItems((IInventory)te, inv, side, 0, true);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -485,12 +525,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public int getModeByName(ItemStack stack, String name)
     {
-        if (stack.getTagCompound() == null || stack.getTagCompound().hasKey("HandyBag", Constants.NBT.TAG_COMPOUND) == false)
-        {
-            return 0;
-        }
-
-        return stack.getTagCompound().getCompoundTag("HandyBag").getByte(name);
+        return NBTUtils.getByte(stack, "HandyBag", name);
     }
 
     @Override
@@ -631,7 +666,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 return bagIsOpenable(stack) ? this.iconArray[2] : this.iconArray[3];
             case 2: // Pickup mode; 0: None, 1: Matching, 2: All
                 int index = this.getModeByName(stack, "PickupMode");
-                if (index == 1 || index == 2)
+                if (index == MODE_PICKUP_MATCHING || index == MODE_PICKUP_ALL)
                 {
                     return this.iconArray[index - 1 + 4];
                 }

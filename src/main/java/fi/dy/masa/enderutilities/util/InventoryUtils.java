@@ -105,7 +105,7 @@ public class InventoryUtils
      */
     public static boolean tryMoveMatchingItems(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, boolean ignoreStackLimit)
     {
-        return tryMoveMatchingItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, false);
+        return tryMoveMatchingItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, ignoreStackLimit);
     }
 
     /**
