@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 
@@ -9,6 +11,20 @@ public class ItemPickupEventHandler
 {
     @SubscribeEvent
     public void onEntityItemPickupEvent(EntityItemPickupEvent event)
+    {
+        if (ItemPickupManager.onEntityItemPickupEvent(event) == false)
+        {
+            return;
+        }
+
+        if (ItemHandyBag.onEntityItemPickupEvent(event) == false)
+        {
+            return;
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerItemPickupEvent(PlayerItemPickupEvent event)
     {
         if (ItemPickupManager.onItemPickupEvent(event) == false)
         {
@@ -20,5 +36,4 @@ public class ItemPickupEventHandler
             return;
         }
     }
-
 }

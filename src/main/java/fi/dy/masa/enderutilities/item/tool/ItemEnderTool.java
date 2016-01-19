@@ -57,6 +57,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -611,6 +612,11 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         EntityPlayer player = event.harvester;
         boolean isSilk = event.isSilkTouching;
         int numDropsOriginal = event.drops.size();
+
+        if (MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
+        {
+            return;
+        }
 
         IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
         if (inv != null)

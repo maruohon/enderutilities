@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.item;
 
+import java.util.Iterator;
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -13,11 +15,15 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -225,14 +231,100 @@ public class ItemHandyBag extends ItemInventoryModular
      * @param event
      * @return false if all items were handled and further processing of the event should not occur
      */
-    public static boolean onItemPickupEvent(EntityItemPickupEvent event)
+    public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
+        if (event.entityPlayer.worldObj.isRemote == true)
+        {
+            return true;
+        }
+
+        boolean ret = true;
+        boolean pickedUp = false;
+        EntityPlayer player = event.entityPlayer;
+        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+
+        Iterator<ItemStack> iter = event.drops.iterator();
+        while (iter.hasNext() == true)
+        {
+            ItemStack stack = iter.next();
+            if (stack == null)
+            {
+                continue;
+            }
+
+            // If all the items fit into existing stacks in the player's inventory
+            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, 0, false) == 0)
+            {
+                iter.remove();
+                pickedUp = true;
+                continue;
+            }
+
+            // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
+            for (int slot : bagSlots)
+            {
+                ItemStack bagStack = player.inventory.getStackInSlot(slot);
+                // Bag is not locked
+                if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
+                {
+                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                    int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
+
+                    // Pickup mode is All, or Matching and the bag already contains the same item type
+                    if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
+                    {
+                        // All items successfully inserted
+                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, 0, true) == true)
+                        {
+                            iter.remove();
+                            pickedUp = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (event.drops.isEmpty() == true)
+        {
+            event.setCanceled(true);
+            ret = false;
+        }
+
+        // At least some items were picked up
+        if (pickedUp == true)
+        {
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+        }
+
+        return ret;
+    }
+
+    /**
+     * Tries to first fill the matching stacks in the player's inventory,
+     * and then depending on the bag's mode, tries to add the remaining items
+     * to the bag's inventory.
+     * @param event
+     * @return false if all items were handled and further processing of the event should not occur
+     */
+    public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
+    {
+        if (event.entityPlayer.worldObj.isRemote == true || event.item.isDead == true ||
+            event.item.getEntityItem() == null || event.item.getEntityItem().getItem() == null)
+        {
+            return true;
+        }
+
         int origStackSize = event.item.getEntityItem().stackSize;
         EntityPlayer player = event.entityPlayer;
 
         // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
         if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), 0, false) == 0)
         {
+            event.setCanceled(true);
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.onItemPickup(event.item, origStackSize);
             return false;
         }
 
@@ -254,13 +346,11 @@ public class ItemHandyBag extends ItemInventoryModular
                     // All items successfully inserted
                     if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == true)
                     {
-                        event.item.getEntityItem().stackSize = 0;
                         event.item.setDead();
                         event.setCanceled(true);
                         ret = false;
                         break;
                     }
-                    //inv.writeToContainerItemStack();
                 }
             }
         }
@@ -271,7 +361,6 @@ public class ItemHandyBag extends ItemInventoryModular
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
             player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
-            return true;
         }
 
         return ret;

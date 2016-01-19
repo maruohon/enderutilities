@@ -33,8 +33,10 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -265,7 +267,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
     {
-        if (this.isToolBroken(toolStack) == true || event.drops == null || event.drops.size() == 0)
+        if (event.entity.worldObj.isRemote == true || this.isToolBroken(toolStack) == true || event.drops == null || event.drops.size() == 0)
         {
             return;
         }
@@ -281,10 +283,35 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         boolean transported = false;
         EntityPlayer player = (EntityPlayer)event.source.getSourceOfDamage();
 
+        // Items to further process by this method
+        ArrayList<EntityItem> items = new ArrayList<EntityItem>();
+
+        Iterator<EntityItem> iter = event.drops.iterator();
+        while (iter.hasNext() == true)
+        {
+            EntityItem item = iter.next();
+
+            // Pickup event not canceled, do further processing to those items
+            if (MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
+            {
+                if (item.getEntityItem() != null && item.getEntityItem().stackSize > 0)
+                {
+                    items.add(item);
+                }
+
+                iter.remove();
+            }
+            else if (item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+            {
+                iter.remove();
+                transported = true;
+            }
+        }
+
         IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
         if (inv != null)
         {
-            Iterator<EntityItem> iter = event.drops.iterator();
+            iter = items.iterator();
 
             if (inv instanceof InventoryPlayer)
             {
@@ -340,7 +367,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             // Chunk load the target for 30 seconds
             ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
 
-            Iterator<EntityItem> iter = event.drops.iterator();
+            iter = items.iterator();
             while (iter.hasNext() == true)
             {
                 ItemStack stack = iter.next().getEntityItem();
@@ -358,6 +385,17 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                     }
                 }
             }
+        }
+
+        // The items that were not handled, are added back to the original event's drops list
+        for (EntityItem item : items)
+        {
+            event.drops.add(item);
+        }
+
+        if (event.drops.isEmpty() == true)
+        {
+            event.setCanceled(true);
         }
 
         // At least something got transported somewhere...

@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -24,6 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -350,9 +352,82 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      * @param event
      * @return false to prevent further processing of the event
      */
-    public static boolean onItemPickupEvent(EntityItemPickupEvent event)
+    public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true ||
+        if (event.entityPlayer.worldObj.isRemote == true)
+        {
+            return true;
+        }
+
+        EntityPlayer player = event.entityPlayer;
+        List<ItemStack> managers = getEnabledItems(player);
+        boolean deny = managers.size() > 0;
+        boolean blackListed = false;
+        boolean transported = false;
+
+        Iterator<ItemStack> iter = event.drops.iterator();
+
+        while (iter.hasNext() == true)
+        {
+            ItemStack stackIn = iter.next();
+
+            //int i = 0;
+            for (ItemStack manager : managers)
+            {
+                Result result = handleItems(player, manager, stackIn);
+
+                //System.out.println("i: " + i++ + " result: " + result);
+                // Blacklisted or successfully transported, cancel further processing
+                if (result == Result.BLACKLISTED)
+                {
+                    blackListed = true;
+                    deny = true;
+                    break;
+                }
+                else if (result == Result.TRANSPORTED)
+                {
+                    iter.remove();
+                    transported = true;
+                    break;
+                }
+                // Whitelisted, no need to check any further managers, just allow picking it up
+                else if (result == Result.WHITELISTED && blackListed == false)
+                {
+                    deny = false;
+                    break;
+                }
+
+                // Filters disabled or filtering mode was black list, and the item was not on the black list => allow through
+                if (blackListed == false && (result == Result.NOT_HANDLED || result == Result.NOT_BLACKLISTED))
+                {
+                    deny = false;
+                }
+            }
+        }
+
+        // At least some items were picked up
+        if (transported == true)
+        {
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+        }
+
+        if (deny == true)
+        {
+            event.setCanceled(true);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Try to handle the items being picked up.
+     * @param event
+     * @return false to prevent further processing of the event
+     */
+    public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
+    {
+        if (event.entityPlayer.worldObj.isRemote == true || event.item.isDead == true ||
             event.item.getEntityItem() == null || event.item.getEntityItem().getItem() == null)
         {
             return true;
