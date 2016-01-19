@@ -6,9 +6,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import net.minecraftforge.common.util.Constants;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
@@ -78,7 +81,9 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
             }
             else
             {
-                EnderUtilities.logger.warn("Invalid slot number when reading inventory from NBT: " + slotNum + " (max: " + (this.itemStacks.length - 1) + ")");
+                String str = String.format("Invalid slot number while reading inventory from NBT; got: %d, max: %d (TE location: x: %d y: %d, z: %d)",
+                        slotNum, (this.itemStacks.length - 1), this.xCoord, this.yCoord, this.zCoord);
+                EnderUtilities.logger.warn(this.getClass().getSimpleName() + ": " + str);
             }
         }
     }
@@ -113,7 +118,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {
-        return itemStacks[slotNum];
+        if (slotNum >= itemStacks.length)
+        {
+            return null;
+        }
+
+        return this.itemStacks[slotNum];
     }
 
     /**
@@ -122,6 +132,11 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
+        if (slotNum >= itemStacks.length)
+        {
+            return null;
+        }
+
         if (this.itemStacks[slotNum] != null)
         {
             ItemStack stack;
@@ -141,6 +156,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
                 this.itemStacks[slotNum] = null;
             }
 
+            this.markDirty();
             return stack;
         }
 
@@ -150,20 +166,33 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
+        if (slotNum >= itemStacks.length)
+        {
+            return null;
+        }
+
         ItemStack stack = this.itemStacks[slotNum];
-        this.setInventorySlotContents(slotNum, null);
+        this.itemStacks[slotNum] = null;
+        this.markDirty();
+
         return stack;
     }
 
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack stack)
     {
+        if (slotNum >= itemStacks.length)
+        {
+            return;
+        }
+
         if (stack != null && stack.stackSize > this.getInventoryStackLimit())
         {
             stack.stackSize = this.getInventoryStackLimit();
         }
 
         this.itemStacks[slotNum] = stack;
+        this.markDirty();
     }
 
     @Override

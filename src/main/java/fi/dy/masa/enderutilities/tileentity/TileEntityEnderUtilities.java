@@ -8,7 +8,10 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+
 import net.minecraftforge.common.util.Constants;
+
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 
 public class TileEntityEnderUtilities extends TileEntity
@@ -92,6 +95,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         super.writeToNBT(nbt);
 
+        nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Rotation", (byte)this.rotation);
 
         if (this.ownerUUID != null && this.ownerName != null)
