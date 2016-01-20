@@ -74,6 +74,13 @@ public class BuildersWandRenderer
         MovingObjectPosition mop = this.mc.objectMouseOver;
         if (posTargeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
         {
+            // Don't allow targeting the top face of blocks while sneaking
+            // This should make sneak building a platform a lot less annoying
+            if (player.isSneaking() == true && ForgeDirection.getOrientation(mop.sideHit) == ForgeDirection.UP)
+            {
+                return;
+            }
+
             posTargeted = new BlockPosEU(mop.blockX, mop.blockY, mop.blockZ, player.dimension, mop.sideHit);
         }
 

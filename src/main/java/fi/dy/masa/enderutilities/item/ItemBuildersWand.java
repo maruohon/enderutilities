@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -141,9 +142,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return true;
         }
 
-        if (world.isRemote == false)
+        // Don't allow targeting the top face of blocks while sneaking
+        // This should make sneak building a platform a lot less annoying
+        if (world.isRemote == false && (player.isSneaking() == false || ForgeDirection.getOrientation(side) != ForgeDirection.UP))
         {
-            this.useWand(stack, world, player, new BlockPosEU(x, y, z, player.dimension, side));
+            return this.useWand(stack, world, player, new BlockPosEU(x, y, z, player.dimension, side));
         }
 
         return true;
@@ -178,6 +181,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack)
+    {
+        return true;
     }
 
     @Override
@@ -383,20 +392,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             // Offset the start position by one after a build operation completes, but not for Walls, Cube and Column modes
             BlockPosEU pos = this.getPosition(player, POS_START);
-            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.COLUMN)
+            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
             {
                 this.setPosition(player, pos.offset(ForgeDirection.getOrientation(targetPos.face), 1), POS_START);
             }
         }
         else
         {
-            //System.out.println("creating task - " + (world.isRemote ? "client" : "server"));
-            // TODO add a config option for the block-per-tick value
             TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.valueBuildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
-        return false;
+        return true;
     }
 
     public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist pos)
