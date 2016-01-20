@@ -110,6 +110,7 @@ public class ConfigReader
         Configs.disableItemMobHarness             = conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
         Configs.disableItemPickupManager          = conf.get(category, "DisableItemPickupManager", false).setRequiresMcRestart(true);
         Configs.disableItemPortalScaler           = conf.get(category, "DisableItemPortalScaler", false).setRequiresMcRestart(true);
+        Configs.disableItemRuler                  = conf.get(category, "DisableItemRuler", false).setRequiresMcRestart(true);
 
         // Recipe disable
         category = "DisableRecipies";
@@ -141,6 +142,7 @@ public class ConfigReader
         Configs.disableRecipeMobHarness           = conf.get(category, "DisableRecipeMobHarness", false).setRequiresMcRestart(true);
         Configs.disableRecipePickupManager        = conf.get(category, "DisableRecipePickupManager", false).setRequiresMcRestart(true);
         Configs.disableRecipePortalScaler         = conf.get(category, "DisableRecipePortalScaler", false).setRequiresMcRestart(true);
+        Configs.disableRecipeRuler                = conf.get(category, "DisableRecipeRuler", false).setRequiresMcRestart(true);
 
         // Tools and weapons
         Configs.disableRecipeEnderSword           = conf.get(category, "DisableRecipeEnderSword", false).setRequiresMcRestart(true);

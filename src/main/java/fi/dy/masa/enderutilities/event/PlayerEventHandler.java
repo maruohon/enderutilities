@@ -14,6 +14,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
+import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class PlayerEventHandler
@@ -24,9 +25,20 @@ public class PlayerEventHandler
         if (event.action == Action.LEFT_CLICK_BLOCK)
         {
             ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+            if (stack == null)
+            {
+                return;
+            }
+
+            if (stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
                 ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
+                        event.x, event.y, event.z, event.entityPlayer.dimension, event.face);
+                event.setCanceled(true);
+            }
+            else if (stack.getItem() == EnderUtilitiesItems.ruler)
+            {
+                ((ItemRuler)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
                         event.x, event.y, event.z, event.entityPlayer.dimension, event.face);
                 event.setCanceled(true);
             }

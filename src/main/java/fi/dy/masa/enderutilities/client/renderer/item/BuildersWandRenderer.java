@@ -54,7 +54,7 @@ public class BuildersWandRenderer
         this.renderSelectedArea(this.mc.theWorld, this.mc.thePlayer, stack, event.partialTicks);
     }
 
-    public AxisAlignedBB makeBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
+    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
     {
         double offset1 = 0.000d;
         double offset2 = 1.000d;
@@ -146,7 +146,7 @@ public class BuildersWandRenderer
             BlockPosEU pos = this.positions.get(i);
             if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
             {
-                AxisAlignedBB aabb = this.makeBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+                AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
                 RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
             }
         }
@@ -158,7 +158,7 @@ public class BuildersWandRenderer
         {
             // Render the targeted position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = this.makeBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
+            AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
         }
 
@@ -166,7 +166,7 @@ public class BuildersWandRenderer
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = this.makeBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
+            AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0x1111FF);
         }
     }

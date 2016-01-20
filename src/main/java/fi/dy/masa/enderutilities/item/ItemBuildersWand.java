@@ -154,6 +154,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
     {
+        if (world.isRemote == true)
+        {
+            return;
+        }
+
         // Left click without sneaking: Set the "anchor" position
         if (player.isSneaking() == false)
         {

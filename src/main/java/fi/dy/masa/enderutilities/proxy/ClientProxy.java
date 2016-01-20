@@ -24,6 +24,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
+import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
@@ -83,6 +84,7 @@ public class ClientProxy extends CommonProxy
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
+        MinecraftForge.EVENT_BUS.register(new RulerRenderer());
     }
 
     @Override

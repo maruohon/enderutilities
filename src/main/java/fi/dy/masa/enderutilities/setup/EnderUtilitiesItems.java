@@ -38,6 +38,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
     public static final ItemEnderUtilities pickupManager = new ItemPickupManager();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
+    public static final ItemEnderUtilities ruler = new ItemRuler();
 
     public static void init()
     {
@@ -60,6 +61,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemMobHarness.getBoolean(false) == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }
         if (Configs.disableItemPickupManager.getBoolean(false) == false) { GameRegistry.registerItem(pickupManager, ReferenceNames.NAME_ITEM_PICKUP_MANAGER); }
         if (Configs.disableItemPortalScaler.getBoolean(false) == false) { GameRegistry.registerItem(portalScaler, ReferenceNames.NAME_ITEM_PORTAL_SCALER); }
+        if (Configs.disableItemRuler.getBoolean(false) == false) { GameRegistry.registerItem(ruler, ReferenceNames.NAME_ITEM_RULER); }
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
@@ -141,6 +143,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePortalScaler.getBoolean(false) == false && Configs.disableItemPortalScaler.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', "blockGlassPurple", 'C', active_core1, 'A', alloy2));
+        }
+        if (Configs.disableRecipeRuler.getBoolean(false) == false && Configs.disableItemRuler.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(ruler), "A  ", "AS ", "AAA", 'A', alloy0, 'S', ender_stick);
         }
 
         // Tools and weapons

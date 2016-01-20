@@ -63,6 +63,17 @@ public class BlockPosEU
         return new BlockPosEU(x, y, z, this.dimension, this.face);
     }
 
+    public NBTTagCompound writeToTag(NBTTagCompound tag)
+    {
+        tag.setInteger("posX", this.posX);
+        tag.setInteger("posY", this.posY);
+        tag.setInteger("posZ", this.posZ);
+        tag.setInteger("dim", this.dimension);
+        tag.setByte("face", (byte)this.face);
+
+        return tag;
+    }
+
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         if (nbt == null)
@@ -70,16 +81,30 @@ public class BlockPosEU
             nbt = new NBTTagCompound();
         }
 
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("posX", this.posX);
-        tag.setInteger("posY", this.posY);
-        tag.setInteger("posZ", this.posZ);
-        tag.setInteger("dim", this.dimension);
-        tag.setByte("face", (byte)this.face);
-
-        nbt.setTag("BlockPos", tag);
+        nbt.setTag("BlockPos", this.writeToTag(new NBTTagCompound()));
 
         return nbt;
+    }
+
+    public static BlockPosEU readFromTag(NBTTagCompound tag)
+    {
+        if (tag == null ||
+            tag.hasKey("posX", Constants.NBT.TAG_INT) == false ||
+            tag.hasKey("posY", Constants.NBT.TAG_INT) == false ||
+            tag.hasKey("posZ", Constants.NBT.TAG_INT) == false ||
+            tag.hasKey("dim", Constants.NBT.TAG_INT) == false ||
+            tag.hasKey("face", Constants.NBT.TAG_BYTE) == false)
+        {
+            return null;
+        }
+
+        int x = tag.getInteger("posX");
+        int y = tag.getInteger("posY");
+        int z = tag.getInteger("posZ");
+        int dim = tag.getInteger("dim");
+        int face = tag.getByte("face");
+
+        return new BlockPosEU(x, y, z, dim, face);
     }
 
     public static BlockPosEU readFromNBT(NBTTagCompound nbt)
@@ -89,14 +114,7 @@ public class BlockPosEU
             return null;
         }
 
-        NBTTagCompound tag = nbt.getCompoundTag("BlockPos");
-        int x = tag.getInteger("posX");
-        int y = tag.getInteger("posY");
-        int z = tag.getInteger("posZ");
-        int dim = tag.getInteger("dim");
-        int face = tag.getByte("face");
-
-        return new BlockPosEU(x, y, z, dim, face);
+        return readFromTag(nbt.getCompoundTag("BlockPos"));
     }
 
     public static void removeFromNBT(NBTTagCompound nbt)
