@@ -125,7 +125,7 @@ public class ItemRuler extends ItemModular
             displayName = new StringBuilder(64).append(EUStringUtils.getInitialsWithDots(displayName.toString()));
         }
 
-        displayName.append(" - A: ");
+        /*displayName.append(" - A: ");
         if (this.getRenderAllLocations(rulerStack) == true)
         {
             displayName.append(preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst);
@@ -133,7 +133,7 @@ public class ItemRuler extends ItemModular
         else
         {
             displayName.append(preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst);
-        }
+        }*/
 
         int count = this.getLocationCount(rulerStack);
         if (count > 0)
@@ -143,7 +143,7 @@ public class ItemRuler extends ItemModular
 
             displayName.append(" - R: ");
 
-            if (this.getAlwaysRenderSelectedLocation(rulerStack) == true)
+            if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
             {
                 displayName.append(preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst);
             }
@@ -329,15 +329,20 @@ public class ItemRuler extends ItemModular
         }
     }
 
-    public boolean getAlwaysRenderSelectedLocation(ItemStack rulerStack)
+    public boolean getAlwaysRenderLocation(ItemStack rulerStack, int index)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null)
         {
+            if (index < 0)
+            {
+                index = this.getLocationSelection(rulerStack);
+            }
+
             NBTTagList tagList = NBTUtils.getTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, Constants.NBT.TAG_COMPOUND, false);
             if (tagList != null)
             {
-                NBTTagCompound tag = tagList.getCompoundTagAt(this.getLocationSelection(rulerStack));
+                NBTTagCompound tag = tagList.getCompoundTagAt(index);
                 return tag.getBoolean(TAG_RENDER_WITH_ALL);
             }
         }

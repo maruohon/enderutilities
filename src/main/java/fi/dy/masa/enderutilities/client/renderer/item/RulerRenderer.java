@@ -36,7 +36,6 @@ public class RulerRenderer
     public float partialTicks;
     public float partialTicksLast;
     Map<Integer, List<BlockPosEU>> positions;
-    long timeLast; // FIXME debug
     public String modeStrDim;
     public String modeStrDiff;
 
@@ -56,11 +55,6 @@ public class RulerRenderer
         this.renderAllPositionPairs();
 
         this.partialTicksLast = this.partialTicks;
-
-        if (System.currentTimeMillis() - this.timeLast > 5010)
-        {
-            this.timeLast = System.currentTimeMillis();
-        }
     }
 
     @SubscribeEvent
@@ -172,25 +166,30 @@ public class RulerRenderer
 
         ItemRuler item = (ItemRuler)stack.getItem();
         int selected = item.getLocationSelection(stack);
-        /*if (item.getRenderAllLocations(stack) == true)
+        int[] colors = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+
+        if (item.getRenderAllLocations(stack) == true)
         {
             int count = item.getLocationCount(stack);
 
             for (int i = 0; i < count; i++)
             {
+                int color = i < colors.length ? colors[i] : 0x70FFFF;
+
                 // We render the selected location pair last
-                if (i != selected)
+                if (i != selected && item.getAlwaysRenderLocation(stack, i) == true)
                 {
                     BlockPosEU posStart = item.getPosition(stack, i, ItemRuler.POS_START);
                     BlockPosEU posEnd = item.getPosition(stack, i, ItemRuler.POS_END);
-                    this.renderPointPair(player, posStart, posEnd, this.partialTicks);
+                    this.renderPointPair(player, posStart, posEnd, color, this.partialTicks);
                 }
             }
-        }*/
+        }
 
+        // Render the currently selected point pair in white
         BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
         BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
-        this.renderPointPair(player, posStart, posEnd, this.partialTicks);
+        this.renderPointPair(player, posStart, posEnd, 0xFFFFFF, this.partialTicks);
 
         GL11.glPopMatrix();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -198,7 +197,7 @@ public class RulerRenderer
         GL11.glDepthMask(true);
     }
 
-    public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
         if (posStart != null && posEnd != null && posStart.dimension != posEnd.dimension)
         {
@@ -206,16 +205,16 @@ public class RulerRenderer
         }
 
         // Only update the positions once per game tick
-        if (this.partialTicks < this.partialTicksLast)
+        //if (this.partialTicks < this.partialTicksLast)
         {
             this.updatePositions(player, posStart, posEnd);
         }
 
-        this.renderPositions(player, posStart, posEnd, partialTicks);
+        this.renderPositions(player, posStart, posEnd, color, partialTicks);
         this.renderStartAndEndPositions(player, posStart, posEnd, partialTicks);
     }
 
-    public void renderPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    public void renderPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
         GL11.glLineWidth(2.0f);
         for (int a = 0; a < 3; a++)
@@ -229,10 +228,10 @@ public class RulerRenderer
             for (int i = 0; i < column.size(); i++)
             {
                 BlockPosEU pos = column.get(i);
-                if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+                //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
                     AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                    RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
+                    RenderGlobal.drawOutlinedBoundingBox(aabb, color);
                 }
             }
         }
