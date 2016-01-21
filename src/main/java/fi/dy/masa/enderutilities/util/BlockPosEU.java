@@ -163,4 +163,10 @@ public class BlockPosEU
         return true;
     }
 
+    @Override
+    public String toString()
+    {
+        return String.format("BlockPosEU:{x: %d, y: %d, z: %d, dim: %d, face: %d}", this.posX, this.posY, this.posZ, this.dimension, this.face);
+        //return "BlockPosEU:{x:" + this.posX + ",y:" + this.posY + ",z:" + this.posZ + "dim:" + this.dimension + ",face:" + this.face + "}";
+    }
 }

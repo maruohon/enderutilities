@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
@@ -12,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
@@ -23,33 +26,64 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 public class RulerRenderer
 {
     public Minecraft mc;
+    public float partialTicks;
     public float partialTicksLast;
-    List<BlockPosEU> positions;
+    Map<Integer, List<BlockPosEU>> positions;
+    long timeLast; // FIXME debug
 
     public RulerRenderer()
     {
         this.mc = Minecraft.getMinecraft();
-        this.positions = new ArrayList<BlockPosEU>();
+        this.positions = new HashMap<Integer, List<BlockPosEU>>();
     }
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
+        this.partialTicks = event.partialTicks;
+
+        this.renderAllPairs();
+
+        this.partialTicksLast = this.partialTicks;
+
+        if (System.currentTimeMillis() - this.timeLast > 5010)
+        {
+            this.timeLast = System.currentTimeMillis();
+        }
+    }
+
+    public void renderAllPairs()
+    {
         EntityPlayer player = this.mc.thePlayer;
+        if (player == null)
+        {
+            return;
+        }
+
         ItemStack stack = player.getCurrentEquippedItem();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
             stack = InventoryUtils.getFirstMatchingItem(player.inventory, EnderUtilitiesItems.ruler);
-            if (stack == null)
+            if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;
             }
         }
 
+        GL11.glDepthMask(false);
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glPushMatrix();
+
         ItemRuler item = (ItemRuler)stack.getItem();
+        int selected = item.getLocationSelection(stack);
         if (item.getRenderAllLocations(stack) == true)
         {
-            int selected = item.getLocationSelection(stack);
             int count = item.getLocationCount(stack);
 
             for (int i = 0; i < count; i++)
@@ -59,38 +93,59 @@ public class RulerRenderer
                 {
                     BlockPosEU posStart = item.getPosition(stack, i, ItemRuler.POS_START);
                     BlockPosEU posEnd = item.getPosition(stack, i, ItemRuler.POS_END);
-                    this.render(player, posStart, posEnd, event.partialTicks);
+                    this.renderPointPair(player, posStart, posEnd, this.partialTicks);
                 }
             }
-
-            BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
-            BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
-            this.render(player, posStart, posEnd, event.partialTicks);
         }
+
+        BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
+        BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
+        this.renderPointPair(player, posStart, posEnd, this.partialTicks);
+
+        GL11.glPopMatrix();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glDepthMask(true);
     }
 
-    public void render(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
-        this.updatePositions(player, posStart, posEnd);
+        if (posStart != null && posEnd != null && posStart.dimension != posEnd.dimension)
+        {
+            return;
+        }
+
+        // Only update the positions once per game tick
+        if (this.partialTicks < this.partialTicksLast)
+        {
+            this.updatePositions(player, posStart, posEnd);
+        }
+
         this.renderPositions(player, posStart, posEnd, partialTicks);
         this.renderStartAndEndPositions(player, posStart, posEnd, partialTicks);
-    }
-
-    public void updatePositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd)
-    {
-        this.positions.clear();
     }
 
     public void renderPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         GL11.glLineWidth(2.0f);
-        for (int i = 0; i < this.positions.size(); i++)
+        for (int a = 0; a < 3; a++)
         {
-            BlockPosEU pos = this.positions.get(i);
-            if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+            List<BlockPosEU> column = this.positions.get(a);
+            if (column == null)
             {
-                AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
+                continue;
+            }
+
+            for (int i = 0; i < column.size(); i++)
+            {
+                //System.out.println("rendering 1");
+                BlockPosEU pos = column.get(i);
+                if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+                {
+                    //System.out.println("rendering 2");
+                    AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+                    RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
+                }
             }
         }
     }
@@ -111,6 +166,146 @@ public class RulerRenderer
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0x1111FF);
+        }
+    }
+
+    public void updatePositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd)
+    {
+        if (posStart == null && posEnd == null)
+        {
+            return;
+        }
+
+        if (posStart == null)
+        {
+            posStart = posEnd;
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY + 1d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+        }
+        else if (posEnd == null)
+        {
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY + 1d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+        }
+
+        BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
+
+        for (int i = 0; i < 3; i++)
+        {
+            BlockPosAligner aligner = new BlockPosAligner(pos[0], pos[1], player);
+            //int axis = aligner.getFurthestPointIndexOnLongestAxis(axisId);
+            BlockPosEU aligned = aligner.getAlignedPointAlongLongestAxis();
+
+            if (aligner.axisLength <= 1)
+            {
+                break;
+            }
+
+            int furthest = aligner.furthestPoint;
+
+            // generate block positions here
+            if (System.currentTimeMillis() - this.timeLast > 5000)
+            {
+                System.out.println("position pair:\n  furthest: " + pos[furthest] + "\n  aligned: " + aligned);
+            }
+
+            // The column starts from the nearest point, offset the start position by one
+            if (aligned.equals(pos[furthest ^ 1]) == true)
+            {
+                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, true, true));
+            }
+            else
+            {
+                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, false, true));
+            }
+
+            pos[furthest] = aligned;
+        }
+    }
+
+    public List<BlockPosEU> getColumn(BlockPosEU posNear, BlockPosEU posFar, int axis, boolean startOffset, boolean endOffset)
+    {
+        List<BlockPosEU> list = new ArrayList<BlockPosEU>();
+        int[] p1 = new int[] { posNear.posX, posNear.posY, posNear.posZ };
+        int[] p2 = new int[] { posFar.posX, posFar.posY, posFar.posZ };
+        int inc = p1[axis] < p1[axis] ? 1 : -1;
+
+        if (startOffset == true)
+        {
+            p1[axis] += inc;
+        }
+
+        if (endOffset == false)
+        {
+            p2[axis] -= inc;
+        }
+
+        for (int i = 0; i < 256 && p1[axis] != p2[axis]; i++)
+        {
+            list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
+            p1[axis] += inc;
+        }
+
+        return list;
+    }
+
+    public class BlockPosAligner
+    {
+        public final int[] playerPos;
+        public int longestAxis;
+        public int axisLength;
+        public int furthestPoint;
+        public int[][] points;
+
+        public BlockPosAligner(BlockPosEU p1, BlockPosEU p2, EntityPlayer player)
+        {
+            this.playerPos = new int[] { (int)(player.posX + 0.5d), (int)(player.posY + 0.5d), (int)(player.posZ + 0.5d) };
+            this.points = new int[][] {
+                { p1.posX, p1.posY, p1.posZ },
+                { p2.posX, p2.posY, p2.posZ }
+            };
+        }
+
+        public int getLongestAxisLength()
+        {
+            this.getLongestAxis();
+            return this.axisLength;
+        }
+
+        public int getLongestAxis()
+        {
+            int longest = 0;
+            int length = Math.abs(this.points[0][0] - this.points[1][0]);
+
+            for (int i = 1; i < 3; i++)
+            {
+                int tmp = Math.abs(this.points[0][i] - this.points[1][i]);
+                if (tmp > length)
+                {
+                    longest = i;
+                    length = tmp;
+                }
+            }
+
+            this.longestAxis = longest;
+            this.axisLength = length;
+
+            return longest;
+        }
+
+        public int getFurthestPointIndexOnLongestAxis()
+        {
+            int axisId = this.getLongestAxis();
+            this.furthestPoint = Math.abs(this.playerPos[axisId] - this.points[0][axisId]) > Math.abs(this.playerPos[axisId] - this.points[1][axisId]) ? 0 : 1;
+            return this.furthestPoint;
+        }
+
+        public BlockPosEU getAlignedPointAlongLongestAxis()
+        {
+            int far = this.getFurthestPointIndexOnLongestAxis();
+            int near = far ^ 0x1;
+            int[] p = new int[] { this.points[far][0], this.points[far][1], this.points[far][2] };
+            p[this.longestAxis] = this.points[near][this.longestAxis];
+
+            return new BlockPosEU(p[0], p[1], p[2]); 
         }
     }
 }

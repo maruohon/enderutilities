@@ -14,6 +14,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -69,7 +70,7 @@ public class ItemRuler extends ItemModular
         Long last = this.lastLeftClick.get(player.getUniqueID());
         if (last == null || (world.getTotalWorldTime() - last) >= 6)
         {
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_START);
+            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side).offset(ForgeDirection.getOrientation(side), 1), POS_START);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
@@ -95,7 +96,7 @@ public class ItemRuler extends ItemModular
         Long last = this.lastLeftClick.get(player.getUniqueID());
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, dimension, side), POS_END);
+            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, dimension, side).offset(ForgeDirection.getOrientation(side), 1), POS_END);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
