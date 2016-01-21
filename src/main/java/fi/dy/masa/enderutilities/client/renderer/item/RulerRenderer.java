@@ -18,7 +18,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -193,50 +192,16 @@ public class RulerRenderer
         for (int i = 0; i < 3; i++)
         {
             BlockPosAligner aligner = new BlockPosAligner(pos[0], pos[1], player);
-            //int axis = aligner.getFurthestPointIndexOnLongestAxis(axisId);
             BlockPosEU aligned = aligner.getAlignedPointAlongLongestAxis();
             int furthest = aligner.furthestPoint;
 
-            List<BlockPosEU> list = null;
-
             if (aligner.axisLength > 0)
             {
-                // generate block positions here
-
-                //List<BlockPosEU> list = this.getColumn(aligned, pos[furthest], aligner.longestAxis, includeStart, false);
-                // The column starts from the nearest point, offset the start position by one
+                // We don't want to include duplicate positions
                 boolean includeStart = aligned.equals(pos[0]) == false && aligned.equals(pos[1]) == false;
-                list = this.getColumn(aligned, pos[furthest], aligner.longestAxis, includeStart, false);
-                this.positions.put(aligner.longestAxis, list);
+                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, includeStart, false));
                 done[aligner.longestAxis] = 1;
-
-                //this.positions.put(aligner.longestAxis, list);
             }
-            else
-            {
-                //this.positions.put(aligner.longestAxis, new ArrayList<BlockPosEU>());
-            }
-
-            if (System.currentTimeMillis() - this.timeLast > 5000)
-            {
-                String strAxis = "XYZ   ";
-                strAxis = strAxis.substring(aligner.longestAxis, aligner.longestAxis + 1);
-                String str = "axis: " + strAxis + " len: " + aligner.axisLength + " furthest: " + pos[furthest] + " - aligned: " + aligned;
-                if (list == null || list.isEmpty())
-                {
-                    str = str + " empty";
-                }
-                EnderUtilities.logger.info(str);
-            }
-
-            /*if (aligned.equals(pos[furthest ^ 1]) == true)
-            {
-                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, false, true));
-            }
-            else
-            {
-                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, true, true));
-            }*/
 
             pos[furthest] = aligned;
         }
@@ -245,12 +210,6 @@ public class RulerRenderer
         {
             if (done[i] == 0)
             {
-                if (System.currentTimeMillis() - this.timeLast > 5000)
-                {
-                    String strAxis = "XYZ   ";
-                    strAxis = strAxis.substring(i, i + 1);
-                    System.out.println("clearing axis " + strAxis);
-                }
                 this.positions.remove(i);
             }
         }
@@ -262,8 +221,6 @@ public class RulerRenderer
 
         int[] p1 = new int[] { posNear.posX, posNear.posY, posNear.posZ };
         int[] p2 = new int[] { posFar.posX, posFar.posY, posFar.posZ };
-        int o1 = p1[axis];
-        int o2 = p2[axis];
         int inc = p1[axis] < p2[axis] ? 1 : -1;
 
         if (includeStart == false)
@@ -276,17 +233,8 @@ public class RulerRenderer
             p2[axis] -= inc;
         }
 
-        /*if (Math.abs(o1 - o2) <= 0)
-        {
-            return list;
-        }*/
-
         if (p1[axis] <= p2[axis])
         {
-            if (System.currentTimeMillis() - this.timeLast > 5000)
-            {
-                //System.out.println("\ncolumn, p1 < p2: " + posNear + " - " + posFar);
-            }
             for (int i = 0; i < 256 && p1[axis] <= p2[axis]; i++)
             {
                 list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
@@ -295,10 +243,6 @@ public class RulerRenderer
         }
         else if (p1[axis] > p2[axis])
         {
-            if (System.currentTimeMillis() - this.timeLast > 5000)
-            {
-                //System.out.println("\ncolumn, p1 > p2: " + posNear + " - " + posFar);
-            }
             for (int i = 0; i < 256 && p1[axis] >= p2[axis]; i++)
             {
                 list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
