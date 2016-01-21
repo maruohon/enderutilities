@@ -489,7 +489,7 @@ public class TeleportEntity
         player.theItemInWorldManager.setWorld(worldServerDst);
         player.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(player, worldServerDst);
         player.mcServer.getConfigurationManager().syncPlayerInventory(player);
-        player.addExperience(0);
+        player.addExperienceLevel(0);
         player.setPlayerHealthUpdated();
 
         Iterator<PotionEffect> iterator = player.getActivePotionEffects().iterator();
