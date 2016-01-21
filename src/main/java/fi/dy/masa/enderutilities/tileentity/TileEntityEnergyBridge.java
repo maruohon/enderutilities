@@ -35,11 +35,14 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     public int beamYMin;
     @SideOnly(Side.CLIENT)
     public int beamYMax;
+    @SideOnly(Side.CLIENT)
+    AxisAlignedBB renderBB;
 
     public TileEntityEnergyBridge()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
         this.timer = 0;
+        this.renderBB = INFINITE_EXTENT_AABB;
     }
 
     @Override
@@ -487,6 +490,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
         }
 
         this.beamYMax = ty;
+        this.renderBB = AxisAlignedBB.getBoundingBox(this.xCoord - 4.0d, this.beamYMin - 4d, this.zCoord - 4.0d, this.xCoord + 4.0d, this.beamYMax + 4d, this.zCoord + 4.0d);
     }
 
     @SideOnly(Side.CLIENT)
@@ -500,6 +504,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
-        return TileEntity.INFINITE_EXTENT_AABB;
+        return this.renderBB;
     }
 }
