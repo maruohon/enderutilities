@@ -18,6 +18,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -187,61 +188,122 @@ public class RulerRenderer
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
+        int[] done = new int[] { 0, 0, 0 };
 
         for (int i = 0; i < 3; i++)
         {
             BlockPosAligner aligner = new BlockPosAligner(pos[0], pos[1], player);
             //int axis = aligner.getFurthestPointIndexOnLongestAxis(axisId);
             BlockPosEU aligned = aligner.getAlignedPointAlongLongestAxis();
-
-            if (aligner.axisLength <= 1)
-            {
-                break;
-            }
-
             int furthest = aligner.furthestPoint;
 
-            // generate block positions here
-            if (System.currentTimeMillis() - this.timeLast > 5000)
-            {
-                System.out.println("position pair:\n  furthest: " + pos[furthest] + "\n  aligned: " + aligned);
-            }
+            List<BlockPosEU> list = null;
 
-            // The column starts from the nearest point, offset the start position by one
-            if (aligned.equals(pos[furthest ^ 1]) == true)
+            if (aligner.axisLength > 0)
             {
-                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, true, true));
+                // generate block positions here
+
+                //List<BlockPosEU> list = this.getColumn(aligned, pos[furthest], aligner.longestAxis, includeStart, false);
+                // The column starts from the nearest point, offset the start position by one
+                boolean includeStart = aligned.equals(pos[0]) == false && aligned.equals(pos[1]) == false;
+                list = this.getColumn(aligned, pos[furthest], aligner.longestAxis, includeStart, false);
+                this.positions.put(aligner.longestAxis, list);
+                done[aligner.longestAxis] = 1;
+
+                //this.positions.put(aligner.longestAxis, list);
             }
             else
             {
+                //this.positions.put(aligner.longestAxis, new ArrayList<BlockPosEU>());
+            }
+
+            if (System.currentTimeMillis() - this.timeLast > 5000)
+            {
+                String strAxis = "XYZ   ";
+                strAxis = strAxis.substring(aligner.longestAxis, aligner.longestAxis + 1);
+                String str = "axis: " + strAxis + " len: " + aligner.axisLength + " furthest: " + pos[furthest] + " - aligned: " + aligned;
+                if (list == null || list.isEmpty())
+                {
+                    str = str + " empty";
+                }
+                EnderUtilities.logger.info(str);
+            }
+
+            /*if (aligned.equals(pos[furthest ^ 1]) == true)
+            {
                 this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, false, true));
             }
+            else
+            {
+                this.positions.put(aligner.longestAxis, this.getColumn(aligned, pos[furthest], aligner.longestAxis, true, true));
+            }*/
 
             pos[furthest] = aligned;
         }
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (done[i] == 0)
+            {
+                if (System.currentTimeMillis() - this.timeLast > 5000)
+                {
+                    String strAxis = "XYZ   ";
+                    strAxis = strAxis.substring(i, i + 1);
+                    System.out.println("clearing axis " + strAxis);
+                }
+                this.positions.remove(i);
+            }
+        }
     }
 
-    public List<BlockPosEU> getColumn(BlockPosEU posNear, BlockPosEU posFar, int axis, boolean startOffset, boolean endOffset)
+    public List<BlockPosEU> getColumn(BlockPosEU posNear, BlockPosEU posFar, int axis, boolean includeStart, boolean includeEnd)
     {
         List<BlockPosEU> list = new ArrayList<BlockPosEU>();
+
         int[] p1 = new int[] { posNear.posX, posNear.posY, posNear.posZ };
         int[] p2 = new int[] { posFar.posX, posFar.posY, posFar.posZ };
-        int inc = p1[axis] < p1[axis] ? 1 : -1;
+        int o1 = p1[axis];
+        int o2 = p2[axis];
+        int inc = p1[axis] < p2[axis] ? 1 : -1;
 
-        if (startOffset == true)
+        if (includeStart == false)
         {
             p1[axis] += inc;
         }
 
-        if (endOffset == false)
+        if (includeEnd == false)
         {
             p2[axis] -= inc;
         }
 
-        for (int i = 0; i < 256 && p1[axis] != p2[axis]; i++)
+        /*if (Math.abs(o1 - o2) <= 0)
         {
-            list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
-            p1[axis] += inc;
+            return list;
+        }*/
+
+        if (p1[axis] <= p2[axis])
+        {
+            if (System.currentTimeMillis() - this.timeLast > 5000)
+            {
+                //System.out.println("\ncolumn, p1 < p2: " + posNear + " - " + posFar);
+            }
+            for (int i = 0; i < 256 && p1[axis] <= p2[axis]; i++)
+            {
+                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
+                p1[axis] += 1;
+            }
+        }
+        else if (p1[axis] > p2[axis])
+        {
+            if (System.currentTimeMillis() - this.timeLast > 5000)
+            {
+                //System.out.println("\ncolumn, p1 > p2: " + posNear + " - " + posFar);
+            }
+            for (int i = 0; i < 256 && p1[axis] >= p2[axis]; i++)
+            {
+                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
+                p1[axis] -= 1;
+            }
         }
 
         return list;
@@ -257,7 +319,7 @@ public class RulerRenderer
 
         public BlockPosAligner(BlockPosEU p1, BlockPosEU p2, EntityPlayer player)
         {
-            this.playerPos = new int[] { (int)(player.posX + 0.5d), (int)(player.posY + 0.5d), (int)(player.posZ + 0.5d) };
+            this.playerPos = new int[] { (int)(player.posX + 0.0d), (int)(player.posY - 1.0d), (int)(player.posZ + 0.0d) };
             this.points = new int[][] {
                 { p1.posX, p1.posY, p1.posZ },
                 { p2.posX, p2.posY, p2.posZ }
