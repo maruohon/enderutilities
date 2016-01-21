@@ -107,6 +107,11 @@ public class RulerRenderer
             posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
         }
 
+        if ((posStart != null && posStart.dimension != player.dimension) || (posEnd != null && posEnd.dimension != player.dimension))
+        {
+            return;
+        }
+
         int lenX = Math.abs(posStart.posX - posEnd.posX);
         int lenY = Math.abs(posStart.posY - posEnd.posY);
         int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
@@ -199,7 +204,7 @@ public class RulerRenderer
 
     public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
-        if (posStart != null && posEnd != null && posStart.dimension != posEnd.dimension)
+        if ((posStart != null && posStart.dimension != player.dimension) || (posEnd != null && posEnd.dimension != player.dimension))
         {
             return;
         }
