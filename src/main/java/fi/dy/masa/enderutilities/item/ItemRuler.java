@@ -60,7 +60,7 @@ public class ItemRuler extends ItemModular
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true || player.isSneaking() == true)
+        if (world.isRemote == true)
         {
             return false;
         }
@@ -70,7 +70,8 @@ public class ItemRuler extends ItemModular
         Long last = this.lastLeftClick.get(player.getUniqueID());
         if (last == null || (world.getTotalWorldTime() - last) >= 6)
         {
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side).offset(ForgeDirection.getOrientation(side), 1), POS_START);
+            // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
+            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_START, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
@@ -96,7 +97,8 @@ public class ItemRuler extends ItemModular
         Long last = this.lastLeftClick.get(player.getUniqueID());
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, dimension, side).offset(ForgeDirection.getOrientation(side), 1), POS_END);
+            // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
+            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_END, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
@@ -322,7 +324,7 @@ public class ItemRuler extends ItemModular
         ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null)
         {
-            int max = this.getLocationCount(rulerStack) - 1;
+            int max = Math.min(this.getLocationCount(rulerStack), 7);
             NBTUtils.cycleByteValue(moduleStack, TAG_WRAPPER, TAG_SELECTED_LOCATION, max, reverse);
         }
     }
@@ -358,8 +360,10 @@ public class ItemRuler extends ItemModular
             {
                 index = this.getLocationSelection(rulerStack);
             }
+
             String tagName = isPos1 == true ? "Pos1" : "Pos2";
             NBTTagCompound tag = tagList.getCompoundTagAt(index);
+
             return BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
         }
 
@@ -370,15 +374,25 @@ public class ItemRuler extends ItemModular
      * Writes the given block position to the selected module, to the selected position.
      * If the given position is null, or is equal to the stored position, then the position is removed.
      */
-    public void setOrRemovePosition(ItemStack rulerStack, BlockPosEU pos, boolean isPos1)
+    public void setOrRemovePosition(ItemStack rulerStack, BlockPosEU pos, boolean isPos1, boolean adjustPosition)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack != null)
         {
+            if (adjustPosition == true)
+            {
+                pos = pos.offset(ForgeDirection.getOrientation(pos.face), 1);
+            }
+
             int selected = this.getLocationSelection(rulerStack);
-            String tagName = isPos1 == true ? "Pos1" : "Pos2";
             NBTTagList tagList = NBTUtils.getTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, Constants.NBT.TAG_COMPOUND, true);
+            if (selected >= tagList.tagCount())
+            {
+                tagList.appendTag(new NBTTagCompound());
+            }
+
             NBTTagCompound tag = tagList.getCompoundTagAt(selected);
+            String tagName = isPos1 == true ? "Pos1" : "Pos2";
             BlockPosEU oldPos = BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
 
             if (pos == null || pos.equals(oldPos) == true)

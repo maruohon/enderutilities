@@ -8,21 +8,28 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.StatCollector;
 
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
+@SideOnly(Side.CLIENT)
 public class RulerRenderer
 {
     public Minecraft mc;
@@ -30,11 +37,15 @@ public class RulerRenderer
     public float partialTicksLast;
     Map<Integer, List<BlockPosEU>> positions;
     long timeLast; // FIXME debug
+    public String modeStrDim;
+    public String modeStrDiff;
 
     public RulerRenderer()
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
+        this.modeStrDim = StatCollector.translateToLocal("enderutilities.tooltip.item.dimensions");
+        this.modeStrDiff = StatCollector.translateToLocal("enderutilities.tooltip.item.difference");
     }
 
     @SubscribeEvent
@@ -42,7 +53,7 @@ public class RulerRenderer
     {
         this.partialTicks = event.partialTicks;
 
-        this.renderAllPairs();
+        this.renderAllPositionPairs();
 
         this.partialTicksLast = this.partialTicks;
 
@@ -52,7 +63,86 @@ public class RulerRenderer
         }
     }
 
-    public void renderAllPairs()
+    @SubscribeEvent
+    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
+    {
+        if (event.type != ElementType.ALL)
+        {
+            return;
+        }
+
+        this.renderHud();
+    }
+
+    public void renderHud()
+    {
+        EntityPlayer player = this.mc.thePlayer;
+        if (player == null)
+        {
+            return;
+        }
+
+        ItemStack stack = player.getCurrentEquippedItem();
+        if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
+        {
+            stack = InventoryUtils.getFirstMatchingItem(player.inventory, EnderUtilitiesItems.ruler);
+            if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
+            {
+                return;
+            }
+        }
+
+        ItemRuler item = (ItemRuler)stack.getItem();
+        int selected = item.getLocationSelection(stack);
+
+        BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
+        BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
+
+        if (posStart == null && posEnd == null)
+        {
+            return;
+        }
+
+        if (posStart == null)
+        {
+            posStart = posEnd;
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+        }
+        else if (posEnd == null)
+        {
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+        }
+
+        int lenX = Math.abs(posStart.posX - posEnd.posX);
+        int lenY = Math.abs(posStart.posY - posEnd.posY);
+        int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
+        String modeStr = this.modeStrDiff;
+
+        if (item.getDistanceMode(stack) == ItemRuler.DISTANCE_MODE_DIMENSIONS)
+        {
+            lenX += 1;
+            lenY += 1;
+            lenZ += 1;
+            modeStr = this.modeStrDim;
+        }
+
+        ScaledResolution scaledResolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
+
+        //int scaledX = scaledResolution.getScaledWidth();
+        int scaledY = scaledResolution.getScaledHeight();
+        int x = 0;
+        int y = scaledY - 16;
+
+        //System.out.println("scX: " + scaledX + " scY: " + scaledY);
+        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, modeStr,        x + 10, y + 10, 0xffffffff);
+        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF427CFF);
+        this.mc.fontRenderer.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
+        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  X: " + lenX, x + 10, y + 18, 0xffffffff);
+        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  Y: " + lenY, x + 10, y + 26, 0xffffffff);
+        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  Z: " + lenZ, x + 10, y + 34, 0xffffffff);
+    }
+
+    public void renderAllPositionPairs()
     {
         EntityPlayer player = this.mc.thePlayer;
         if (player == null)
@@ -82,7 +172,7 @@ public class RulerRenderer
 
         ItemRuler item = (ItemRuler)stack.getItem();
         int selected = item.getLocationSelection(stack);
-        if (item.getRenderAllLocations(stack) == true)
+        /*if (item.getRenderAllLocations(stack) == true)
         {
             int count = item.getLocationCount(stack);
 
@@ -96,7 +186,7 @@ public class RulerRenderer
                     this.renderPointPair(player, posStart, posEnd, this.partialTicks);
                 }
             }
-        }
+        }*/
 
         BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
         BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
@@ -138,11 +228,9 @@ public class RulerRenderer
 
             for (int i = 0; i < column.size(); i++)
             {
-                //System.out.println("rendering 1");
                 BlockPosEU pos = column.get(i);
                 if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
-                    //System.out.println("rendering 2");
                     AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
                     RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
                 }
@@ -173,17 +261,21 @@ public class RulerRenderer
     {
         if (posStart == null && posEnd == null)
         {
+            for (int i = 0; i < 3; i++)
+            {
+                this.positions.remove(i);
+            }
             return;
         }
 
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY + 1d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY + 1d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
@@ -233,9 +325,11 @@ public class RulerRenderer
             p2[axis] -= inc;
         }
 
+        int maxLength = 160;
+
         if (p1[axis] <= p2[axis])
         {
-            for (int i = 0; i < 256 && p1[axis] <= p2[axis]; i++)
+            for (int i = 0; i < maxLength && p1[axis] <= p2[axis]; i++)
             {
                 list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
                 p1[axis] += 1;
@@ -243,7 +337,7 @@ public class RulerRenderer
         }
         else if (p1[axis] > p2[axis])
         {
-            for (int i = 0; i < 256 && p1[axis] >= p2[axis]; i++)
+            for (int i = 0; i < maxLength && p1[axis] >= p2[axis]; i++)
             {
                 list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
                 p1[axis] -= 1;
