@@ -1,16 +1,5 @@
 package fi.dy.masa.enderutilities.block.machine;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import java.util.List;
 import java.util.Random;
 
@@ -25,11 +14,25 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * Machine specific data, such as icons.
@@ -46,6 +49,10 @@ public class Machine
     public static Machine energyBridgeTransmitter = new MachineEnergyBridge(1, 0, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
     public static Machine energyBridgeReceiver = new MachineEnergyBridge(1, 1, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
     public static Machine energyBridgeResonator = new MachineEnergyBridge(1, 2, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR, TileEntityEnergyBridge.class, "pickaxe", 1, 6.0f);
+
+    public static Machine templatedChest0 = new MachineStorage(2, 0, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".0", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
+    public static Machine templatedChest1 = new MachineStorage(2, 1, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".1", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
+    public static Machine templatedChest2 = new MachineStorage(2, 2, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".2", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
 
     protected int blockIndex;
     protected int blockMeta;

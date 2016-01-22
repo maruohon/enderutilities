@@ -20,7 +20,7 @@ public class InventoryItem implements IInventory
     protected boolean isRemote;
     protected String customInventoryName;
     protected int stackLimit;
-    protected boolean allowCustomStackSizes;
+    protected boolean ignoreMaxStackSize;
     protected UUID containerUUID;
     protected IInventory hostInventory;
 
@@ -109,14 +109,14 @@ public class InventoryItem implements IInventory
         this.stackLimit = stackLimit;
     }
 
-    public boolean getAllowCustomStackSizes()
+    public void setIgnoreMaxStackSize(boolean ignore)
     {
-        return this.allowCustomStackSizes;
+        this.ignoreMaxStackSize = ignore;
     }
 
-    public void setAllowCustomStackSizes(boolean allow)
+    public boolean getIgnoreMaxStackSize()
     {
-        this.allowCustomStackSizes = allow;
+        return this.ignoreMaxStackSize;
     }
 
     /**

@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.tileentity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
 import net.minecraftforge.common.util.Constants;
 
@@ -28,8 +27,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
     public TileEntityToolWorkstation()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-        this.itemStacks = new ItemStack[10];
+        super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION, 10);
     }
 
     @Override
@@ -66,43 +64,28 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
                 this.xCoord, this.yCoord, this.zCoord);
         EnderUtilities.logger.warn(str);
 
-        NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        int numSlots = nbtTagList.tagCount();
-        ItemStack[] stacks = new ItemStack[20];
+        ItemStack[] stacks = new ItemStack[this.invSize];
+        ItemStack[] stacksTmp = this.readItemsFromNBT(nbt, 20, "Items");
 
-        for (int i = 0; i < numSlots; ++i)
+        if (stacksTmp[0] != null)
         {
-            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            byte slotNum = tag.getByte("Slot");
-
-            if (slotNum >= 0 && slotNum < stacks.length)
-            {
-                stacks[slotNum] = ItemStack.loadItemStackFromNBT(tag);
-            }
-            else
-            {
-                String className = this.getClass().getSimpleName();
-                EnderUtilities.logger.warn("Invalid slot number when reading inventory from NBT: " +
-                                            slotNum + " (max: " + (stacks.length - 1) + ") in " + className);
-            }
-        }
-
-        // Set the modular item itself
-        this.itemStacks[SLOT_TOOL] = stacks[0];
-        if (this.itemStacks[SLOT_TOOL] != null)
-        {
-            UtilItemModular.compatibilityAdjustInstalledModulePositions(this.itemStacks[SLOT_TOOL]);
+            UtilItemModular.compatibilityAdjustInstalledModulePositions(stacksTmp[0]);
         }
 
         // Move the stored modules in the Tool Workstation
         for (int i = 0; i < 9; i++)
         {
-            this.itemStacks[i + 1] = stacks[i + 11];
+            stacksTmp[i + 1] = stacksTmp[i + 11];
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            stacks[i] = stacksTmp[i];
         }
 
         nbt.removeTag("Items");
 
-        return this.itemStacks;
+        return stacks;
     }
 
     @Override

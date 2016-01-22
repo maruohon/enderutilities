@@ -82,8 +82,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 12, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper.storagemodules", new Object[0]), 125, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper.presets", new Object[0]) + ":", 60, 135, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), 125, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 60, 135, 0x404040);
     }
 
     @Override

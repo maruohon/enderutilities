@@ -192,7 +192,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     {
         int xOff = this.bagTier == 1 ? 40 : 0;
         this.fontRendererObj.drawString(I18n.format("container.crafting", new Object[0]), xOff + 97, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag.storagemodules", new Object[0]), xOff + 97, 59, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), xOff + 97, 59, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag", new Object[0]), xOff + 8, 90, 0x404040);
     }
 

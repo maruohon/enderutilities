@@ -3,8 +3,11 @@ package fi.dy.masa.enderutilities.setup;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import cpw.mods.fml.common.registry.GameRegistry;
+
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.block.ItemBlockMachine;
@@ -14,12 +17,14 @@ public class EnderUtilitiesBlocks
 {
     public static final Block machine_0 = new BlockEnderUtilitiesInventory(0, ReferenceNames.NAME_TILE_MACHINE_0, 1.0f);
     public static final Block machine_1 = new BlockEnderUtilitiesTileEntity(1, ReferenceNames.NAME_TILE_MACHINE_1, 1.0f);
+    public static final Block storage_0 = new BlockEnderUtilitiesInventory(2, ReferenceNames.NAME_TILE_STORAGE_0, 6.0f);
 
     public static void init()
     {
         // Register blocks
         if (Configs.disableBlockMachine_0.getBoolean(false) == false) { GameRegistry.registerBlock(machine_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_0); }
         if (Configs.disableBlockMachine_1.getBoolean(false) == false) { GameRegistry.registerBlock(machine_1, ItemBlockMachine.class, ReferenceNames.NAME_TILE_MACHINE_1); }
+        if (Configs.disableBlockStorage0.getBoolean(false) == false) { GameRegistry.registerBlock(storage_0, ItemBlockMachine.class, ReferenceNames.NAME_TILE_STORAGE_0); }
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);

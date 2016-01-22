@@ -36,7 +36,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         {
             // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
-            this.addSlotToContainer(new SlotModule(this.inventoryItem, i, x, y, ModuleType.TYPE_ANY, this));
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItem, i, x, y, ModuleType.TYPE_ANY, this));
 
             // First row done
             if (i == 4)
@@ -107,9 +107,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
                 for (int i = 0; i < maxOfType && slotNum < NUM_MODULE_SLOTS && slotNum < numSlots; i++, slotNum++)
                 {
                     slot = this.getSlot(slotNum);
-                    if (slot instanceof SlotModule)
+                    if (slot instanceof SlotModuleModularItem)
                     {
-                        ((SlotModule)slot).setModuleType(moduleType);
+                        ((SlotModuleModularItem)slot).setModuleType(moduleType);
                     }
                 }
 
@@ -123,9 +123,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         for ( ; slotNum < NUM_MODULE_SLOTS; slotNum++)
         {
             slot = this.getSlot(slotNum);
-            if (slot instanceof SlotModule)
+            if (slot instanceof SlotModuleModularItem)
             {
-                ((SlotModule)slot).setModuleType(ModuleType.TYPE_INVALID);
+                ((SlotModuleModularItem)slot).setModuleType(ModuleType.TYPE_INVALID);
             }
         }
     }

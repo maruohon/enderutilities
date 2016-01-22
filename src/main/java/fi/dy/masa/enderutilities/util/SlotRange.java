@@ -14,4 +14,10 @@ public class SlotRange
         this.lastInc = start + numSlots - 1;
         this.lastExc = start + numSlots;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("SlotRange: {first: %d, lastInc: %d, lastExc: %d}", this.first, this.lastInc, this.lastExc);
+    }
 }

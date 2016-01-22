@@ -6,7 +6,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.SlotModule;
+import fi.dy.masa.enderutilities.inventory.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
@@ -71,9 +71,9 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
                 this.drawTexturedModalRect(x + dx, y + dy, 230, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
-            else if (slot instanceof SlotModule && slot.getHasStack() == false)
+            else if (slot instanceof SlotModuleModularItem && slot.getHasStack() == false)
             {
-                int offset = this.getModuleBackgroundOffset(((SlotModule)slot).getModuleType());
+                int offset = this.getModuleBackgroundOffset(((SlotModuleModularItem)slot).getModuleType());
                 // Only one type of module is allowed in this slot
                 if (offset >= 0)
                 {

@@ -71,8 +71,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     public TileEntityEnderFurnace()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.itemStacks = new ItemStack[3];
+        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, 3);
         this.smeltingResultCache = null;
         this.inputDirty = true;
         //this.fuelDirty = true;
@@ -135,11 +134,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
     {
         nbt = super.getDescriptionPacketTag(nbt);
-
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
 
         byte flags = (byte)(this.getRotation() & 0x07);
         // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active

@@ -2,12 +2,14 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -100,7 +102,6 @@ public class ContainerEnderUtilities extends Container
     {
         boolean ret = false;
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        // Slot clicked on has items
         if (slot == null || slot.getHasStack() == false)
         {
             return false;

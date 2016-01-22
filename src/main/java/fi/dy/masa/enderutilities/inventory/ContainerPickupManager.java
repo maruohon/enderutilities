@@ -89,7 +89,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         // The Storage Module slots
         for (int i = 0; i < NUM_MODULE_SLOTS; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.inventoryItemModules, i, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, i, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
         }
     }
 

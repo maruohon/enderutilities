@@ -67,11 +67,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     {
         nbt = super.getDescriptionPacketTag(nbt);
 
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
         nbt.setByte("f", (byte)((this.isPowered ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
 
         return nbt;

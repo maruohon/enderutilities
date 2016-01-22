@@ -33,8 +33,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 
     public TileEntityEnderInfuser()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.itemStacks = new ItemStack[3];
+        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, 3);
     }
 
     @Override

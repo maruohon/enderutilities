@@ -106,11 +106,6 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
     {
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
         nbt.setByte("r", (byte)(this.getRotation() & 0x07));
 
         if (this.ownerName != null)
@@ -126,7 +121,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (this.worldObj != null)
         {
-            return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, this.getDescriptionPacketTag(null));
+            return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, this.getDescriptionPacketTag(new NBTTagCompound()));
         }
 
         return null;

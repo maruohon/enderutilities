@@ -138,7 +138,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModular.getModuleInventory(), i, xOff + i * 18, yOff, ModuleType.TYPE_MEMORY_CARD, this));
         }
 
         this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);

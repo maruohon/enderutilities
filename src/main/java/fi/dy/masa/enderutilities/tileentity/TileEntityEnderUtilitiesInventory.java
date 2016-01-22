@@ -14,18 +14,22 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
-import fi.dy.masa.enderutilities.inventory.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
 {
     protected String customInventoryName;
     protected ItemStack[] itemStacks;
+    protected int invSize;
+    protected int invStackLimit;
 
-
-    public TileEntityEnderUtilitiesInventory(String name)
+    public TileEntityEnderUtilitiesInventory(String name, int invSize)
     {
         super(name);
+        this.invSize = invSize;
+        this.invStackLimit = 64;
+        this.itemStacks = new ItemStack[this.invSize];
     }
 
     public void setInventoryName(String name)
@@ -45,15 +49,73 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return this.hasCustomInventoryName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
     }
 
-    @Override
-    public int getSizeInventory()
+    /**
+     * Reads stored items from NBT, from a TagList by the name <b>tagName</b>.
+     * The array of ItemStacks is initialized to the size <b>invSize</b>.
+     * @param invSize
+     * @param tagName
+     * @return an array of ItemStacks read from NBT from a key tagName
+     */
+    public ItemStack[] readItemsFromNBT(NBTTagCompound nbt, int invSize, String tagName)
     {
-        if (this.itemStacks != null)
+        ItemStack[] stacks = new ItemStack[invSize];
+
+        NBTTagList nbtTagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
+        int numSlots = nbtTagList.tagCount();
+
+        for (int i = 0; i < numSlots; i++)
         {
-            return this.itemStacks.length;
+            NBTTagCompound tagItem = nbtTagList.getCompoundTagAt(i);
+            byte slotNum = tagItem.getByte("Slot");
+
+            if (slotNum >= 0 && slotNum < stacks.length)
+            {
+                stacks[slotNum] = ItemStack.loadItemStackFromNBT(tagItem);
+
+                if (tagItem.hasKey("ActualCount", Constants.NBT.TAG_INT))
+                {
+                    stacks[slotNum].stackSize = tagItem.getInteger("ActualCount");
+                }
+            }
+            else
+            {
+                String str = String.format("Invalid slot number while reading inventory from NBT; got: %d, max: %d (TE location: x: %d y: %d, z: %d)",
+                        slotNum, (this.itemStacks.length - 1), this.xCoord, this.yCoord, this.zCoord);
+                EnderUtilities.logger.warn(this.getClass().getSimpleName() + ": " + str);
+            }
         }
 
-        return 0;
+        return stacks;
+    }
+
+    /**
+     * Writes the items from the given array of ItemStacks into NBT to a TagList by the name <b>tagName</b>.
+     * @param nbt
+     * @param tagName
+     */
+    public void writeItemsToNBT(NBTTagCompound nbt, ItemStack[] stacks, String tagName)
+    {
+        if (stacks == null)
+        {
+            return;
+        }
+
+        NBTTagList nbtTagList = new NBTTagList();
+        int numSlots = (stacks != null ? stacks.length : 0);
+
+        for (int i = 0; i < numSlots; ++i)
+        {
+            if (stacks[i] != null)
+            {
+                NBTTagCompound tagItem = new NBTTagCompound();
+                stacks[i].writeToNBT(tagItem);
+                tagItem.setByte("Slot", (byte)i);
+                tagItem.setInteger("ActualCount", stacks[i].stackSize);
+                nbtTagList.appendTag(tagItem);
+            }
+        }
+
+        nbt.setTag(tagName, nbtTagList);
     }
 
     @Override
@@ -66,26 +128,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
             this.customInventoryName = nbt.getString("CustomName");
         }
 
-        NBTTagList nbtTagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        int numSlots = nbtTagList.tagCount();
-        this.itemStacks = new ItemStack[this.getSizeInventory()];
-
-        for (int i = 0; i < numSlots; ++i)
-        {
-            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            byte slotNum = tag.getByte("Slot");
-
-            if (slotNum >= 0 && slotNum < this.itemStacks.length)
-            {
-                this.itemStacks[slotNum] = ItemStack.loadItemStackFromNBT(tag);
-            }
-            else
-            {
-                String str = String.format("Invalid slot number while reading inventory from NBT; got: %d, max: %d (TE location: x: %d y: %d, z: %d)",
-                        slotNum, (this.itemStacks.length - 1), this.xCoord, this.yCoord, this.zCoord);
-                EnderUtilities.logger.warn(this.getClass().getSimpleName() + ": " + str);
-            }
-        }
+        this.itemStacks = this.readItemsFromNBT(nbt, this.invSize, "Items");
     }
 
     @Override
@@ -98,27 +141,24 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
             nbt.setString("CustomName", this.customInventoryName);
         }
 
-        NBTTagList nbtTagList = new NBTTagList();
-        int numSlots = (this.itemStacks != null ? this.itemStacks.length : 0);
+        this.writeItemsToNBT(nbt, this.itemStacks, "Items");
+    }
 
-        for (int i = 0; i < numSlots; ++i)
+    @Override
+    public int getSizeInventory()
+    {
+        if (this.itemStacks != null)
         {
-            if (this.itemStacks[i] != null)
-            {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte)i);
-                this.itemStacks[i].writeToNBT(tag);
-                nbtTagList.appendTag(tag);
-            }
+            return this.itemStacks.length;
         }
 
-        nbt.setTag("Items", nbtTagList);
+        return 0;
     }
 
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {
-        if (slotNum >= itemStacks.length)
+        if (slotNum >= this.itemStacks.length)
         {
             return null;
         }
@@ -126,13 +166,10 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         return this.itemStacks[slotNum];
     }
 
-    /**
-     * Removes from an inventory slot (slotNum) up to a specified number (maxAmount) of items and returns them in a new stack.
-     */
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
-        if (slotNum >= itemStacks.length)
+        if (slotNum >= this.itemStacks.length)
         {
             return null;
         }
@@ -166,7 +203,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        if (slotNum >= itemStacks.length)
+        if (slotNum >= this.itemStacks.length)
         {
             return null;
         }
@@ -181,7 +218,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack stack)
     {
-        if (slotNum >= itemStacks.length)
+        if (slotNum >= this.itemStacks.length)
         {
             return;
         }
@@ -192,13 +229,20 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
         }
 
         this.itemStacks[slotNum] = stack;
+
         this.markDirty();
     }
 
     @Override
     public int getInventoryStackLimit()
     {
-        return 64;
+        return this.invStackLimit;
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
+    {
+        return true;
     }
 
     @Override
@@ -227,13 +271,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     {
     }
 
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack itemStack)
-    {
-        return true;
-    }
-
-    public ContainerTileEntityInventory getContainer(InventoryPlayer inventory)
+    public ContainerEnderUtilities getContainer(InventoryPlayer inventory)
     {
         return null;
     }

@@ -7,9 +7,9 @@ public class TileEntityEnderUtilitiesSided extends TileEntityEnderUtilitiesInven
 {
     protected static final int[] SLOTS_EMPTY = new int[0];
 
-    public TileEntityEnderUtilitiesSided(String name)
+    public TileEntityEnderUtilitiesSided(String name, int invSize)
     {
-        super(name);
+        super(name, invSize);
     }
 
     @Override

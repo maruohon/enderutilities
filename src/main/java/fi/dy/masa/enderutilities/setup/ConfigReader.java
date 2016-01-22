@@ -85,6 +85,8 @@ public class ConfigReader
         Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser";
         Configs.disableBlockMachine_1             = conf.get(category, "DisableBlockMachine_1", false).setRequiresMcRestart(true);
         Configs.disableBlockMachine_1.comment = "Info: Machine 1 meta values: 0 = Energy Bridge Transmitter; 1 = Energy Bridge Receiver; 2 = Energy Bridge Resonator";
+        Configs.disableBlockStorage0             = conf.get(category, "DisableBlockStorage_0", false).setRequiresMcRestart(true);
+        Configs.disableBlockStorage0.comment = "Meta values: 0 = Small Templated Chest, 1 = Templated Chest, 2 = Deep Templated Chest";
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");
@@ -124,6 +126,10 @@ public class ConfigReader
         Configs.disableRecipeEnergyBridgeTransmitter    = conf.get(category, "DisableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "DisableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "DisableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
+
+        Configs.disableRecipeTemplatedChest0      = conf.get(category, "DisableRecipeTemplatedChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeTemplatedChest1      = conf.get(category, "DisableRecipeTemplatedChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeTemplatedChest2      = conf.get(category, "DisableRecipeTemplatedChest2", false).setRequiresMcRestart(true);
 
         // Items
         Configs.disableRecipeBuildersWand         = conf.get(category, "DisableRecipeBuildersWand", false).setRequiresMcRestart(true);

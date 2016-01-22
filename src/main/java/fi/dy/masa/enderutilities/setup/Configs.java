@@ -32,6 +32,7 @@ public class Configs
     // Block disable
     public static Property disableBlockMachine_0;
     public static Property disableBlockMachine_1;
+    public static Property disableBlockStorage0;
 
     // Item disable
     public static Property disableItemCraftingPart;
@@ -65,6 +66,10 @@ public class Configs
     public static Property disableRecipeEnergyBridgeTransmitter;
     public static Property disableRecipeEnergyBridgeReceiver;
     public static Property disableRecipeEnergyBridgeResonator;
+
+    public static Property disableRecipeTemplatedChest0;
+    public static Property disableRecipeTemplatedChest1;
+    public static Property disableRecipeTemplatedChest2;
 
     // Items
     public static Property disableRecipeBuildersWand;

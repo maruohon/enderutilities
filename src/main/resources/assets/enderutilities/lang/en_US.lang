@@ -13,11 +13,9 @@ enderutilities.key.togglemode=Toggle Mode
 enderutilities.container.enderfurnace=Ender Furnace
 enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
-enderutilities.container.handybag.storagemodules=Memory Cards
 enderutilities.container.inventoryswapper=Inventory Swapper
-enderutilities.container.inventoryswapper.presets=Slot presets
-enderutilities.container.inventoryswapper.storagemodules=Memory Cards
 enderutilities.container.pickupmanager=Suckage Manager
+enderutilities.container.templatedchest=Templated Chest
 enderutilities.container.toolworkstation=Tool Workstation
 
 
@@ -27,10 +25,13 @@ enderutilities.container.toolworkstation=Tool Workstation
 
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
-tile.enderutilities.toolworkstation.name=Ender Tool Workstation
 tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
 tile.enderutilities.energybridge.receiver.name=Energy Bridge Receiver
 tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
+tile.enderutilities.templatedchest.0.name=Small Templated Chest
+tile.enderutilities.templatedchest.1.name=Templated Chest
+tile.enderutilities.templatedchest.2.name=Deep Templated Chest
+tile.enderutilities.toolworkstation.name=Ender Tool Workstation
 
 
 #############
@@ -45,7 +46,7 @@ entity.enderutilities.enderpearlreusable.name=Reusable Ender Pearl
 # Item names:
 #############
 
-item.enderutilities.builderswand.name=Lazy Builder's Wand
+item.enderutilities.builderswand.name=Wand of the Lazy Builder
 item.enderutilities.enderarrow.name=Ender Arrow
 item.enderutilities.enderbag.name=Ender Bag
 item.enderutilities.enderbow.name=Ender Bow
@@ -169,6 +170,7 @@ enderutilities.gui.label.filterpresets=Filter presets
 enderutilities.gui.label.inventoryfilters=Inventory filters
 enderutilities.gui.label.inventoryswapper.info=- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots
 enderutilities.gui.label.leaveonefilledstack=Leave one filled stack
+enderutilities.gui.label.memorycards=Memory Cards
 enderutilities.gui.label.meta.ignore=Ignore damage/metadata
 enderutilities.gui.label.meta.match=Match damage/metadata
 enderutilities.gui.label.modulestorage=Module storage
@@ -178,11 +180,13 @@ enderutilities.gui.label.nbt.ignore=Ignore NBT
 enderutilities.gui.label.nbt.match=Match NBT
 enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
+enderutilities.gui.label.slotpresets=Slot presets
 enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
 enderutilities.gui.label.restock=Re-Stock
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
+enderutilities.gui.label.templatedchest.info=- Middle click to lock the current item type for the slot|lf- Only that type of item can enter an empty slot
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
 enderutilities.gui.label.whitelist=White list
