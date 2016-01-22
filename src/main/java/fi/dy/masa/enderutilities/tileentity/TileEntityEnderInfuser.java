@@ -5,11 +5,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
 import net.minecraftforge.common.util.Constants;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
-import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -251,7 +254,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiEnderInfuser(this.getContainer(inventoryPlayer), this);
     }

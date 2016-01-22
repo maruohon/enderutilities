@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
+    protected EntityPlayer player;
     protected InventoryPlayer inventoryPlayer;
     protected IInventory inventory;
     protected SlotRange customInventorySlots;
@@ -26,6 +27,7 @@ public class ContainerEnderUtilities extends Container
     public ContainerEnderUtilities(InventoryPlayer inventoryPlayer, IInventory inventory)
     {
         this.inventoryPlayer = inventoryPlayer;
+        this.player = inventoryPlayer.player;
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();
@@ -70,6 +72,11 @@ public class ContainerEnderUtilities extends Container
         }
 
         this.playerMainSlots = new SlotRange(playerInvStart, 36);
+    }
+
+    public EntityPlayer getPlayer()
+    {
+        return this.player;
     }
 
     @Override

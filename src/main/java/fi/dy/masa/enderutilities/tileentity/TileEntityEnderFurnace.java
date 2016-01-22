@@ -18,15 +18,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.world.EnumSkyBlock;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
+
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
-import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -788,7 +791,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiEnderFurnace(this.getContainer(inventoryPlayer), this);
     }

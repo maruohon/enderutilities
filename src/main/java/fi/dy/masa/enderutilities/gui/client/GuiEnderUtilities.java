@@ -9,6 +9,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class GuiEnderUtilities extends GuiContainer
 {
+    public ContainerEnderUtilities container;
     public ResourceLocation guiTexture;
     public int backgroundU;
     public int backgroundV;
@@ -16,6 +17,7 @@ public class GuiEnderUtilities extends GuiContainer
     public GuiEnderUtilities(ContainerEnderUtilities container, int xSize, int ySize, String textureName)
     {
         super(container);
+        this.container = container;
         this.xSize = xSize;
         this.ySize = ySize;
         this.guiTexture = ReferenceTextures.getGuiTexture(textureName);

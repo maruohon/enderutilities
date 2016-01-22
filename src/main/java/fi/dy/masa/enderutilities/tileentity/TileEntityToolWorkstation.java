@@ -10,7 +10,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -137,7 +137,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiToolWorkstation(getContainer(inventoryPlayer), this);
     }

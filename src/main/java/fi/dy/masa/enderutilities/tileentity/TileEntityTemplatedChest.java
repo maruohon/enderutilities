@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -10,17 +12,20 @@ import net.minecraft.util.MathHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiTemplatedChest;
-import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.ContainerTemplatedChest;
-import fi.dy.masa.enderutilities.inventory.InventoryItem;
+import fi.dy.masa.enderutilities.inventory.IModularInventoryCallback;
+import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryStackArray;
+import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
+public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryCallback
 {
-    protected InventoryItem itemInventory;
+    public static final int GUI_ACTION_CHANGE_SELECTED_MODULE = 0;
+    protected InventoryItemCallback itemInventory;
     protected InventoryStackArray moduleInventory;
     protected ItemStack[] templateStacks;
     protected ItemStack[] moduleStacks;
@@ -33,9 +38,14 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     public TileEntityTemplatedChest()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST, 9);
+
         this.templateStacks = new ItemStack[27];
+
+        this.itemInventory = new InventoryItemCallback(null, 27, true, null, this);
+
         this.moduleStacks = new ItemStack[4];
-        this.itemInventory = new InventoryItem(null, 27, true, null);
+        this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
+        this.moduleInventory.setInventoryCallback(this);
     }
 
     @Override
@@ -55,7 +65,7 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
             this.selectedModule = nbt.getByte("SelModule");
             this.moduleStacks = this.readItemsFromNBT(nbt, 4, "ModuleItems");
 
-            this.itemInventory = new InventoryItem(this.moduleStacks[this.selectedModule], this.invSizeItems, true, null);
+            this.itemInventory = new InventoryItemCallback(this.moduleStacks[this.selectedModule], 27, false, null, this);
 
             this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
             this.moduleInventory.setInventoryCallback(this);
@@ -103,10 +113,20 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         if (this.chestTier == 2)
         {
             this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
-            //this.moduleInventory.setInventoryCallback(this);
+            this.moduleInventory.setInventoryCallback(this);
         }
 
         super.onDataPacket(net, packet);
+    }
+
+    public IInventory getItemInventory()
+    {
+        return this.itemInventory;
+    }
+
+    public boolean isInventoryAccessible(EntityPlayer player)
+    {
+        return this.itemInventory.isUseableByPlayer(player);
     }
 
     public InventoryStackArray getModuleInventory()
@@ -126,11 +146,31 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     }
 
     @Override
+    public int getInventoryStackLimit()
+    {
+        if (this.chestTier == 2)
+        {
+            ItemStack moduleStack = this.getContainerStack();
+            if (moduleStack != null && moduleStack.getItem() instanceof IModule)
+            {
+                int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
+                if (tier >= 6 && tier <= 12)
+                {
+                    return (int)Math.pow(2, tier);
+                }
+            }
+        }
+
+        return super.getInventoryStackLimit();
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slotNum)
     {
         if (this.chestTier == 2)
         {
-            this.itemInventory.getStackInSlot(slotNum);
+            this.itemInventory.markDirty();
+            return this.itemInventory.getStackInSlot(slotNum);
         }
 
         return super.getStackInSlot(slotNum);
@@ -187,13 +227,15 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     }
 
     @Override
-    public void markDirty()
+    public ItemStack getContainerStack()
     {
-        super.markDirty();
+        return this.moduleStacks[this.selectedModule];
+    }
 
-        if (this.chestTier == 2 && this.moduleStacks[this.selectedModule] != null)
-        {
-        }
+    @Override
+    public void modularInventoryChanged()
+    {
+        this.itemInventory.setContainerItemStack(this.moduleStacks[this.selectedModule]);
     }
 
     @Override
@@ -211,6 +253,11 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     public int getSelectedModule()
     {
         return this.selectedModule;
+    }
+
+    public void setSelectedModule(int index)
+    {
+        this.selectedModule = index;
     }
 
     public int getTemplateMask()
@@ -244,6 +291,19 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     }
 
     @Override
+    public void performGuiAction(int action, int element)
+    {
+        super.performGuiAction(action, element);
+
+        if (action == GUI_ACTION_CHANGE_SELECTED_MODULE && element >= 0 && element < 4)
+        {
+            this.itemInventory.markDirty();
+            this.selectedModule = element;
+            this.modularInventoryChanged();
+        }
+    }
+
+    @Override
     public ContainerTemplatedChest getContainer(InventoryPlayer inventoryPlayer)
     {
         return new ContainerTemplatedChest(inventoryPlayer, this);
@@ -251,7 +311,7 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
     {
         return new GuiTemplatedChest(this.getContainer(inventoryPlayer), this);
     }

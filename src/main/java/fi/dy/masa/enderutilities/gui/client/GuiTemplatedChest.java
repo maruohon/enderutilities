@@ -4,22 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import cpw.mods.fml.common.Optional;
+
+import codechicken.nei.guihook.IGuiSlotDraw;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerTemplatedChest;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 
-public class GuiTemplatedChest extends GuiTileEntityInventory
+@Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
+public class GuiTemplatedChest extends GuiEnderUtilities implements IGuiSlotDraw
 {
+    protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityTemplatedChest tetc;
     protected int chestTier;
 
     public GuiTemplatedChest(ContainerTemplatedChest container, TileEntityTemplatedChest te)
     {
-        super(container, 176, 207, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0), te);
+        super(container, 176, 207, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
         this.tetc = te;
         this.chestTier = te.getStorageTier();
     }
@@ -42,6 +53,22 @@ public class GuiTemplatedChest extends GuiTileEntityInventory
             case 1: this.ySize = 176; break;
             case 2: this.ySize = 207; break;
             default:
+        }
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float gameTicks)
+    {
+        if (ModRegistry.isModLoadedNEI() == false)
+        {
+            // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
+            RenderItem ri = this.setItemRender(itemRenderCustom);
+            super.drawScreen(mouseX, mouseY, gameTicks);
+            this.setItemRender(ri);
+        }
+        else
+        {
+            super.drawScreen(mouseX, mouseY, gameTicks);
         }
     }
 
@@ -69,12 +96,6 @@ public class GuiTemplatedChest extends GuiTileEntityInventory
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
         this.bindTexture(this.guiTexture);
-
-        if (this.chestTier == 2)
-        {
-            int selected = this.tetc.getSelectedModule();
-            this.drawTexturedModalRect(this.guiLeft + 101 + selected * 18, this.guiTop + 44, 218, 10, 10, 10);
-        }
 
         int invSize = this.tetc.getSizeInventory();
 
@@ -109,6 +130,24 @@ public class GuiTemplatedChest extends GuiTileEntityInventory
                     {
                         itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
                     }
+                }
+            }
+        }
+
+        // "Deep" version, aka. modular
+        if (this.chestTier == 2)
+        {
+            // Draw the selection marker around the selected module's button
+            this.drawTexturedModalRect(this.guiLeft + 101 + this.tetc.getSelectedModule() * 18, this.guiTop + 44, 218, 10, 10, 10);
+
+            // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
+            if (this.tetc.isInventoryAccessible(this.container.getPlayer()) == false)
+            {
+                // Draw the dark background icon over the disabled inventory slots
+                for (int i = 0; i < invSize; i++)
+                {
+                    Slot slot = this.inventorySlots.getSlot(i);
+                    this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 176, 18, 18, 18);
                 }
             }
         }
@@ -158,5 +197,35 @@ public class GuiTemplatedChest extends GuiTileEntityInventory
     protected void actionPerformed(GuiButton button)
     {
         super.actionPerformed(button);
+
+        if (button.id >= 0 && button.id < 4)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tetc.getWorldObj().provider.dimensionId, this.tetc.xCoord, this.tetc.yCoord, this.tetc.zCoord,
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityTemplatedChest.GUI_ACTION_CHANGE_SELECTED_MODULE, button.id));
+        }
+    }
+
+    protected RenderItem setItemRender(RenderItem itemRenderIn)
+    {
+        RenderItem ri = itemRender;
+        itemRender = itemRenderIn;
+        return ri;
+    }
+
+    @Optional.Method(modid = "NotEnoughItems")
+    @Override
+    public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
+    {
+        // Slot is in the external inventory, render using the smaller font for stack size
+        if (slot.inventory == this.tetc)
+        {
+            itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
+        }
+        else
+        {
+            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
+        }
     }
 }

@@ -13,7 +13,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.gui.client.GuiTileEntityInventory;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 
@@ -277,7 +277,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @SideOnly(Side.CLIENT)
-    public GuiTileEntityInventory getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
     {
         return null;
     }

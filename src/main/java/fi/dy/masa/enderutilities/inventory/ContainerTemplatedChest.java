@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -9,9 +10,10 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerTemplatedChest extends ContainerTileEntityInventory
+public class ContainerTemplatedChest extends ContainerLargeStacks
 {
-    TileEntityTemplatedChest tetc;
+    protected TileEntityTemplatedChest tetc;
+    public int selectedModule;
 
     public ContainerTemplatedChest(InventoryPlayer inventoryPlayer, TileEntityTemplatedChest te)
     {
@@ -87,8 +89,16 @@ public class ContainerTemplatedChest extends ContainerTileEntityInventory
     }
 
     @Override
+    public boolean canInteractWith(EntityPlayer player)
+    {
+        return super.canInteractWith(player) && this.tetc.isInvalid() == false;
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
     {
+        this.tetc.getItemInventory().markDirty();
+
         // Middle click
         if (button == 2 && type == 3 && slotNum >= 0 && slotNum < (this.tetc.getSizeInventory()))
         {
@@ -111,8 +121,42 @@ public class ContainerTemplatedChest extends ContainerTileEntityInventory
     }
 
     @Override
+    public void addCraftingToCrafters(ICrafting icrafting)
+    {
+        super.addCraftingToCrafters(icrafting);
+        icrafting.sendProgressBarUpdate(this, 0, this.tetc.getSelectedModule());
+    }
+
+    @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
+
+        if (this.tetc.getWorldObj().isRemote == true)
+        {
+            return;
+        }
+
+        if (this.selectedModule != this.tetc.getSelectedModule())
+        {
+            this.selectedModule = this.tetc.getSelectedModule();
+
+            for (int i = 0; i < this.crafters.size(); ++i)
+            {
+                ICrafting icrafting = (ICrafting)this.crafters.get(i);
+                icrafting.sendProgressBarUpdate(this, 0, this.selectedModule);
+            }
+        }
+    }
+
+    @Override
+    public void updateProgressBar(int var, int val)
+    {
+        super.updateProgressBar(var, val);
+
+        if (var == 0)
+        {
+            this.tetc.setSelectedModule(val);
+        }
     }
 }
