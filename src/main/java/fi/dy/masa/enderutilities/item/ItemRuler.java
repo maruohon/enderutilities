@@ -87,7 +87,7 @@ public class ItemRuler extends ItemModular
 
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
     {
-        if (world.isRemote == true || player.isSneaking() == true)
+        if (world.isRemote == true)
         {
             return;
         }
