@@ -30,6 +30,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -53,6 +54,10 @@ public class Machine
     public static Machine templatedChest0 = new MachineStorage(2, 0, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".0", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
     public static Machine templatedChest1 = new MachineStorage(2, 1, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".1", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
     public static Machine templatedChest2 = new MachineStorage(2, 2, ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".2", TileEntityTemplatedChest.class, "pickaxe", 1, 16.0f);
+
+    public static Machine handyChest0 = new MachineStorage(2, 3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".0", TileEntityHandyChest.class, "pickaxe", 1, 16.0f);
+    public static Machine handyChest1 = new MachineStorage(2, 4, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".1", TileEntityHandyChest.class, "pickaxe", 1, 16.0f);
+    public static Machine handyChest2 = new MachineStorage(2, 5, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".2", TileEntityHandyChest.class, "pickaxe", 1, 16.0f);
 
     protected int blockIndex;
     protected int blockMeta;
@@ -229,6 +234,10 @@ public class Machine
         }
 
         return true;
+    }
+
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    {
     }
 
     public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)

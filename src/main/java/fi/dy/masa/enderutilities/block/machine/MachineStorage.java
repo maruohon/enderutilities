@@ -1,12 +1,14 @@
 package fi.dy.masa.enderutilities.block.machine;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
 public class MachineStorage extends Machine
 {
@@ -33,8 +35,28 @@ public class MachineStorage extends Machine
                 {
                     tier = meta;
                 }
+                // Handy Chests
+                else if (meta <= 5)
+                {
+                    tier = meta - 3;
+                }
 
                 ((ITieredStorage)te).setStorageTier(tier);
+            }
+        }
+    }
+
+    @Override
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    {
+        super.onBlockClicked(world, x, y, z, player);
+
+        if (world.isRemote == false)
+        {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te instanceof TileEntityHandyChest)
+            {
+                ((TileEntityHandyChest)te).onLeftClickBlock(player);
             }
         }
     }

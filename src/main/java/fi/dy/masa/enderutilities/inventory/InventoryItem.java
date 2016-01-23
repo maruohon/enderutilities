@@ -161,6 +161,12 @@ public class InventoryItem implements IInventory
         return this.invSize;
     }
 
+    public void setInventorySize(int size)
+    {
+        this.invSize = size;
+        this.initInventory();
+    }
+
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {

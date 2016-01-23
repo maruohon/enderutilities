@@ -17,9 +17,12 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -149,6 +152,18 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         }
 
         return false;
+    }
+
+    @Override
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    {
+        super.onBlockClicked(world, x, y, z, player);
+
+        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        if (machine != null)
+        {
+            machine.onBlockClicked(world, x, y, z, player);
+        }
     }
 
     @Override

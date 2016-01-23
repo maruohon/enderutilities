@@ -797,7 +797,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void performGuiAction(int action, int element)
+    public void performGuiAction(EntityPlayer player, int action, int element)
     {
         // 0: Operating mode (slow/eco vs. fast)
         if (action == 0)

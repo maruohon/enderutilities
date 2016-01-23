@@ -14,15 +14,16 @@ public class InventoryStackArray implements IInventory
 
     public InventoryStackArray(ItemStack[] stacks)
     {
-        this(stacks, 64, 27, false);
+        this(stacks, 64, 27, false, null);
     }
 
-    public InventoryStackArray(ItemStack[] stacks, int invStackLimit, int invSize, boolean ignoreMaxStackSize)
+    public InventoryStackArray(ItemStack[] stacks, int invStackLimit, int invSize, boolean ignoreMaxStackSize, IModularInventoryCallback inv)
     {
         this.itemStacks = stacks;
         this.invStackLimit = invStackLimit;
         this.invSize = invSize;
         this.ignoreMaxStackSize = ignoreMaxStackSize;
+        this.inventoryCallback = inv;
     }
 
     public void setInventoryCallback(IModularInventoryCallback inv)

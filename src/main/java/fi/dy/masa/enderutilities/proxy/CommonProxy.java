@@ -1,30 +1,25 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
-import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
-import fi.dy.masa.enderutilities.event.BlockEventHandler;
-import fi.dy.masa.enderutilities.event.EntityInteractEventHandler;
-import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
-import fi.dy.masa.enderutilities.event.GuiEventHandler;
-import fi.dy.masa.enderutilities.event.ItemPickupEventHandler;
-import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
-import fi.dy.masa.enderutilities.event.PlayerEventHandler;
-import fi.dy.masa.enderutilities.event.TickHandler;
-import fi.dy.masa.enderutilities.event.WorldEventHandler;
+import fi.dy.masa.enderutilities.event.*;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -84,6 +79,7 @@ public abstract class CommonProxy implements IProxy
         GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
         GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
         GameRegistry.registerTileEntity(TileEntityTemplatedChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST));
+        GameRegistry.registerTileEntity(TileEntityHandyChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST));
     }
 
     @Override

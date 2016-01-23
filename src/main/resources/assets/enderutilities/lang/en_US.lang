@@ -13,6 +13,7 @@ enderutilities.key.togglemode=Toggle Mode
 enderutilities.container.enderfurnace=Ender Furnace
 enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
+enderutilities.container.handychest=Handy Chest
 enderutilities.container.inventoryswapper=Inventory Swapper
 enderutilities.container.pickupmanager=Suckage Manager
 enderutilities.container.templatedchest=Memory Chest
@@ -28,6 +29,9 @@ tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
 tile.enderutilities.energybridge.receiver.name=Energy Bridge Receiver
 tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
+tile.enderutilities.handychest.0.name=Handy Chest
+tile.enderutilities.handychest.1.name=Large Handy Chest
+tile.enderutilities.handychest.2.name=Extended Handy Chest
 tile.enderutilities.templatedchest.0.name=Small Memory Chest
 tile.enderutilities.templatedchest.1.name=Memory Chest
 tile.enderutilities.templatedchest.2.name=Large Memory Chest
@@ -155,6 +159,14 @@ tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules
 tile.enderutilities.energybridge.transmitter.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Transmitter in The End|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Build the Transmitter around an Ender Crystal|lf  (on top of the Obsidian pillars in The End)|lf- Leave two blocks of air above the Crystal|lf  and then place the Transmitter|lf- Place four Resonators on the same level as|lf  the Ender Crystal, two blocks of air between them|lf- The Resonators must face the Crystal|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  the Transmitter all the way up to the sky
 tile.enderutilities.energybridge.receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
 tile.enderutilities.energybridge.resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
+
+tile.enderutilities.handychest.0.tooltips=Easier inventory management
+tile.enderutilities.handychest.1.tooltips=Easier inventory management
+tile.enderutilities.handychest.2.tooltips=Easier inventory management
+
+tile.enderutilities.templatedchest.0.tooltips=Each slot can be locked to an item type
+tile.enderutilities.templatedchest.1.tooltips=Each slot can be locked to an item type
+tile.enderutilities.templatedchest.2.tooltips=Each slot can be locked to an item type
 
 ###################################
 # GUI and item labels/tooltips etc:

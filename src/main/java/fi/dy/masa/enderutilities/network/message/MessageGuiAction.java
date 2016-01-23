@@ -78,7 +78,7 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                     TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
                     if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {
-                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(message.action, message.elementId);
+                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(player, message.action, message.elementId);
                     }
                     break;
 

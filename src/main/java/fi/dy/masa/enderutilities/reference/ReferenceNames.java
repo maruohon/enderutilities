@@ -59,6 +59,7 @@ public class ReferenceNames
 
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
 
+    public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
     public static final String NAME_TILE_ENTITY_TEMPLATED_CHEST      = "templatedchest";
 
     public static String getPrefixedName(String name)
