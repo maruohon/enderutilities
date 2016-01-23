@@ -1,12 +1,19 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncTemplateStack;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -14,11 +21,14 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
 {
     protected TileEntityTemplatedChest tetc;
     public int selectedModule;
+    protected List<ItemStack> templateStacksLast;
 
     public ContainerTemplatedChest(InventoryPlayer inventoryPlayer, TileEntityTemplatedChest te)
     {
         super(inventoryPlayer, te);
         this.tetc = te;
+        this.templateStacksLast = new ArrayList<ItemStack>();
+
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 58);
     }
@@ -89,6 +99,18 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
     }
 
     @Override
+    protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
+    {
+        // Modular variant
+        if (this.tetc.getStorageTier() == 2 && slot.inventory == this.inventory)
+        {
+            return slot.getSlotStackLimit();
+        }
+
+        return stack != null ? Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize()) : slot.getSlotStackLimit();
+    }
+
+    @Override
     public boolean canInteractWith(EntityPlayer player)
     {
         return super.canInteractWith(player) && this.tetc.isInvalid() == false;
@@ -109,6 +131,7 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
             }
 
             this.tetc.setTemplateStack(invSlotNum, this.tetc.getStackInSlot(invSlotNum));
+            this.tetc.toggleTemplateMask(invSlotNum);
 
             return null;
         }
@@ -120,6 +143,11 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
         return stack;
     }
 
+    public TileEntityTemplatedChest getTileEntity()
+    {
+        return this.tetc;
+    }
+
     @Override
     public void addCraftingToCrafters(ICrafting icrafting)
     {
@@ -128,9 +156,40 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
     }
 
     @Override
+    protected Slot addSlotToContainer(Slot slot)
+    {
+        this.templateStacksLast.add(null);
+
+        return super.addSlotToContainer(slot);
+    }
+
+    @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
+
+        for (int i = 0; i < this.templateStacksLast.size(); ++i)
+        {
+            ItemStack currentStack = this.tetc.getTemplateStack(i);
+            ItemStack prevStack = this.templateStacksLast.get(i);
+
+            if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+            {
+                prevStack = currentStack != null ? currentStack.copy() : null;
+                this.templateStacksLast.set(i, prevStack);
+
+                for (int j = 0; j < this.crafters.size(); ++j)
+                {
+                    //System.out.println("loop");
+                    ICrafting ic = (ICrafting)this.crafters.get(j);
+                    if (ic instanceof EntityPlayerMP)
+                    {
+                        EntityPlayerMP player = (EntityPlayerMP)ic;
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncTemplateStack(this.windowId, i, prevStack), player);
+                    }
+                }
+            }
+        }
 
         if (this.tetc.getWorldObj().isRemote == true)
         {

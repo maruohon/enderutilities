@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
@@ -99,6 +101,24 @@ public class GuiTemplatedChest extends GuiEnderUtilities implements IGuiSlotDraw
 
         int invSize = this.tetc.getSizeInventory();
 
+        // "Deep" version, aka. modular
+        if (this.chestTier == 2)
+        {
+            // Draw the selection marker around the selected module's button
+            this.drawTexturedModalRect(this.guiLeft + 101 + this.tetc.getSelectedModule() * 18, this.guiTop + 44, 218, 10, 10, 10);
+
+            // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
+            if (this.tetc.isInventoryAccessible(this.container.getPlayer()) == false)
+            {
+                // Draw the dark background icon over the disabled inventory slots
+                for (int i = 0; i < invSize; i++)
+                {
+                    Slot slot = this.inventorySlots.getSlot(i);
+                    this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 176, 36, 18, 18);
+                }
+            }
+        }
+
         // Draw the colored background icon for locked/"templated" slots
         int mask = this.tetc.getTemplateMask();
         for (int i = 0, bit = 0x1; i < invSize; i++, bit <<= 1)
@@ -108,8 +128,14 @@ public class GuiTemplatedChest extends GuiEnderUtilities implements IGuiSlotDraw
             {
                 int x = this.guiLeft + slot.xDisplayPosition;
                 int y = this.guiTop + slot.yDisplayPosition;
+                int u = 0;
 
-                this.drawTexturedModalRect(x - 1, y - 1, 176, 0, 18, 18);
+                if (this.tetc.getStackInSlot(i) == null)
+                {
+                    u = 18;
+                }
+
+                this.drawTexturedModalRect(x - 1, y - 1, 176, u, 18, 18);
             }
         }
 
@@ -128,26 +154,10 @@ public class GuiTemplatedChest extends GuiEnderUtilities implements IGuiSlotDraw
                     stack = this.tetc.getTemplateStack(i);
                     if (stack != null)
                     {
+                        GL11.glDisable(GL11.GL_LIGHTING);
                         itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+                        GL11.glEnable(GL11.GL_LIGHTING);
                     }
-                }
-            }
-        }
-
-        // "Deep" version, aka. modular
-        if (this.chestTier == 2)
-        {
-            // Draw the selection marker around the selected module's button
-            this.drawTexturedModalRect(this.guiLeft + 101 + this.tetc.getSelectedModule() * 18, this.guiTop + 44, 218, 10, 10, 10);
-
-            // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
-            if (this.tetc.isInventoryAccessible(this.container.getPlayer()) == false)
-            {
-                // Draw the dark background icon over the disabled inventory slots
-                for (int i = 0; i < invSize; i++)
-                {
-                    Slot slot = this.inventorySlots.getSlot(i);
-                    this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 176, 18, 18, 18);
                 }
             }
         }

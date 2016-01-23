@@ -275,12 +275,16 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         return null;
     }
 
+    public void toggleTemplateMask(int slotNum)
+    {
+        this.templateMask ^= (1 << slotNum);
+    }
+
     public void setTemplateStack(int slotNum, ItemStack stack)
     {
         if (this.templateStacks != null && slotNum < this.templateStacks.length)
         {
             this.templateStacks[slotNum] = stack;
-            this.templateMask ^= (1 << slotNum);
         }
     }
 
