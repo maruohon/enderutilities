@@ -1,23 +1,23 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 
 import cpw.mods.fml.common.Optional;
 
 import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
@@ -126,29 +126,27 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
             Slot slot = this.container.getSlot(this.containerHC.getSelectedSlot());
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 220, 100, 18, 18);
         }
-    }
 
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
+        // TODO Remove this in 1.8 and enable the slot background icon method override instead
+        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
+        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
+        this.bindTexture(TextureMap.locationItemsTexture);
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        //GL11.glEnable(GL11.GL_BLEND);
 
-        switch(this.chestTier)
+        // Draw the background icon over empty storage module slots
+        IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
+        for (int i = 0; icon != null && i < 4; i++)
         {
-            case 0: x += 152; y += 6; break;
-            case 1: x += 152; y += 6; break;
-            case 2: x +=   6; y += 6; break;
-            default:
+            if (this.tehc.getStackInSlot(i) == null)
+            {
+                this.drawTexturedModelRectFromIcon(this.guiLeft + 98 + i * 18, this.guiTop + 8, icon, 16, 16);
+            }
         }
 
-        // Hovering over the info icon
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.templatedchest.info", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
+        //GL11.glDisable(GL11.GL_BLEND);
+        //GL11.glDisable(GL11.GL_LIGHTING);
+        // TODO end of to-be-removed code in 1.8*/
     }
 
     protected void createButtons()
@@ -165,10 +163,20 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         }
 
         int yOff = 78 + this.chestTier * 36;
+        int xOffs[] = new int[] { 9, 27, 45, 117, 135, 153 };
+        String[] strs = new String[] {
+                "enderutilities.gui.label.moveallitems",
+                "enderutilities.gui.label.movematchingitems",
+                "enderutilities.gui.label.leaveonefilledstack",
+                "enderutilities.gui.label.fillstacks",
+                "enderutilities.gui.label.movematchingitems",
+                "enderutilities.gui.label.moveallitems"
+        };
+
         for (int i = 0; i < 6; i++)
         {
-            int xOff = new int[] { 9, 27, 45, 117, 135, 153 }[i];
-            this.buttonList.add(new GuiButtonIcon(i + 4, x + xOff + 1, y + yOff, 12, 12, 220, i * 12, this.guiTexture, 12, 0));
+            this.buttonList.add(new GuiButtonHoverText(i + 4, x + xOffs[i] + 1, y + yOff, 12, 12, 220, i * 12,
+                    this.guiTexture, 12, 0, new String[] { I18n.format(strs[i], new Object[0]) }));
         }
     }
 

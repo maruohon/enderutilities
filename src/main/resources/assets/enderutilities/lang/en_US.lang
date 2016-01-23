@@ -160,9 +160,9 @@ tile.enderutilities.energybridge.transmitter.tooltips=- An active Energy Bridge 
 tile.enderutilities.energybridge.receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
 tile.enderutilities.energybridge.resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
 
-tile.enderutilities.handychest.0.tooltips=Easier inventory management
-tile.enderutilities.handychest.1.tooltips=Easier inventory management
-tile.enderutilities.handychest.2.tooltips=Easier inventory management
+tile.enderutilities.handychest.0.tooltips=Easier inventory management|lfTip: middle click to swap stacks
+tile.enderutilities.handychest.1.tooltips=Easier inventory management|lfTip: middle click to swap stacks
+tile.enderutilities.handychest.2.tooltips=Easier inventory management|lfTip: middle click to swap stacks
 
 tile.enderutilities.templatedchest.0.tooltips=Each slot can be locked to an item type
 tile.enderutilities.templatedchest.1.tooltips=Each slot can be locked to an item type
@@ -181,12 +181,12 @@ enderutilities.gui.label.filtergroup.enabled=Use this group of filters
 enderutilities.gui.label.filterpresets=Filter presets
 enderutilities.gui.label.inventoryfilters=Inventory filters
 enderutilities.gui.label.inventoryswapper.info=- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots
-enderutilities.gui.label.leaveonefilledstack=Leave one filled stack
+enderutilities.gui.label.leaveonefilledstack=Leave one filled stack of every item type
 enderutilities.gui.label.memorycards=Memory Cards
 enderutilities.gui.label.meta.ignore=Ignore damage/metadata
 enderutilities.gui.label.meta.match=Match damage/metadata
 enderutilities.gui.label.modulestorage=Module storage
-enderutilities.gui.label.moveallitems= Move all items
+enderutilities.gui.label.moveallitems=Move all items
 enderutilities.gui.label.movematchingitems=Move matching/existing items
 enderutilities.gui.label.nbt.ignore=Ignore NBT
 enderutilities.gui.label.nbt.match=Match NBT
