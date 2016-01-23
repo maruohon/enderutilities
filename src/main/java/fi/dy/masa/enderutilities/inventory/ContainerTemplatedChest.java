@@ -10,18 +10,17 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncTemplateStack;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerTemplatedChest extends ContainerLargeStacks
+public class ContainerTemplatedChest extends ContainerEnderUtilities
 {
     protected TileEntityTemplatedChest tetc;
-    public int selectedModule;
     protected List<ItemStack> templateStacksLast;
+    protected long templateMask;
 
     public ContainerTemplatedChest(InventoryPlayer inventoryPlayer, TileEntityTemplatedChest te)
     {
@@ -41,73 +40,25 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
         int posY = 26;
 
         int tier = this.tetc.getStorageTier();
+        int rows = TileEntityTemplatedChest.INV_SIZES[tier] / 9;
 
-        // Regular or Deep Templated Chest - 27 slots
-        if (tier == 1 || tier == 2)
+        for (int i = 0; i < rows; i++)
         {
-            if (tier == 2)
+            for (int j = 0; j < 9; j++)
             {
-                posY = 57;
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
-                }
-            }
-        }
-        // Small Templated Chest - 9 slots
-        else
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, i, posX + i * 18, posY));
+                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
             }
         }
 
         this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
-
-        if (tier == 2)
-        {
-            // Add the module slots as a priority slot range for shift+click merging
-            this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
-
-            posX = 98;
-            posY = 26;
-
-            int min = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B;
-            int max = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-            // The Storage Module slots
-            for (int i = 0; i < 4; i++)
-            {
-                this.addSlotToContainer(new SlotModule(this.tetc.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD).setMinAndMaxModuleTier(min, max));
-            }
-        }
     }
 
     @Override
     protected void addPlayerInventorySlots(int posX, int posY)
     {
-        int tier = this.tetc.getStorageTier();
-        if (tier == 0) { posY = 58; }
-        else if (tier == 1) { posY = 94; }
-        else if (tier == 2) { posY = 125; }
+        posY = ((Slot)this.inventorySlots.get(this.inventorySlots.size() - 1)).yDisplayPosition + 32;
 
         super.addPlayerInventorySlots(posX, posY);
-    }
-
-    @Override
-    protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
-    {
-        // Modular variant
-        if (this.tetc.getStorageTier() == 2 && slot.inventory == this.inventory)
-        {
-            return slot.getSlotStackLimit();
-        }
-
-        return stack != null ? Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
     @Override
@@ -117,10 +68,51 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
     }
 
     @Override
+    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
+    {
+        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        if (slot == null || slot.getHasStack() == false)
+        {
+            return false;
+        }
+
+        // We want to merge to matching template slots first, so we only handle slots FROM the player inventory
+        if (slot.inventory != this.player.inventory)
+        {
+            return super.transferStackFromSlot(player, slotNum);
+        }
+
+        ItemStack stackSlot = slot.getStack();
+        int origSize = stackSlot.stackSize;
+
+        for (int i = 0; i < this.tetc.getSizeInventory(); i++)
+        {
+            ItemStack stackTmp = this.tetc.getTemplateStack(i);
+
+            if (stackTmp != null && InventoryUtils.areItemStacksEqual(stackTmp, stackSlot) == true)
+            {
+                this.mergeItemStack(stackSlot, i, i + 1, false);
+
+                if (stackSlot.stackSize <= 0)
+                {
+                    slot.putStack(null);
+                    slot.onPickupFromSlot(player, stackSlot);
+                    return true;
+                }
+            }
+        }
+
+        if (stackSlot.stackSize != origSize)
+        {
+            slot.onPickupFromSlot(player, stackSlot);
+        }
+
+        return super.transferStackFromSlot(player, slotNum);
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
     {
-        this.tetc.getItemInventory().markDirty();
-
         // Middle click
         if (button == 2 && type == 3 && slotNum >= 0 && slotNum < (this.tetc.getSizeInventory()))
         {
@@ -149,13 +141,6 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting icrafting)
-    {
-        super.addCraftingToCrafters(icrafting);
-        icrafting.sendProgressBarUpdate(this, 0, this.tetc.getSelectedModule());
-    }
-
-    @Override
     protected Slot addSlotToContainer(Slot slot)
     {
         this.templateStacksLast.add(null);
@@ -180,42 +165,42 @@ public class ContainerTemplatedChest extends ContainerLargeStacks
 
                 for (int j = 0; j < this.crafters.size(); ++j)
                 {
-                    //System.out.println("loop");
-                    ICrafting ic = (ICrafting)this.crafters.get(j);
-                    if (ic instanceof EntityPlayerMP)
+                    ICrafting icrafting = (ICrafting)this.crafters.get(j);
+                    if (icrafting instanceof EntityPlayerMP)
                     {
-                        EntityPlayerMP player = (EntityPlayerMP)ic;
+                        EntityPlayerMP player = (EntityPlayerMP)icrafting;
                         PacketHandler.INSTANCE.sendTo(new MessageSyncTemplateStack(this.windowId, i, prevStack), player);
                     }
                 }
             }
         }
 
-        if (this.tetc.getWorldObj().isRemote == true)
-        {
-            return;
-        }
+        long mask = this.tetc.getTemplateMask();
 
-        if (this.selectedModule != this.tetc.getSelectedModule())
+        for (int j = 0; j < this.crafters.size(); ++j)
         {
-            this.selectedModule = this.tetc.getSelectedModule();
-
-            for (int i = 0; i < this.crafters.size(); ++i)
+            if (this.templateMask != mask)
             {
-                ICrafting icrafting = (ICrafting)this.crafters.get(i);
-                icrafting.sendProgressBarUpdate(this, 0, this.selectedModule);
+                ICrafting icrafting = (ICrafting)this.crafters.get(j);
+                // Send the long in 16-bit pieces because of the network packet limitation in MP
+                icrafting.sendProgressBarUpdate(this, 0, (int)(mask & 0xFFFF));
+                icrafting.sendProgressBarUpdate(this, 1, (int)((mask >> 16) & 0xFFFF));
+                icrafting.sendProgressBarUpdate(this, 2, (int)((mask >> 32) & 0xFFFF));
+                icrafting.sendProgressBarUpdate(this, 3, (int)((mask >> 48) & 0xFFFF));
             }
         }
+
+        this.templateMask = mask;
     }
 
     @Override
     public void updateProgressBar(int var, int val)
     {
-        super.updateProgressBar(var, val);
-
-        if (var == 0)
+        if (var >= 0 && var <= 3)
         {
-            this.tetc.setSelectedModule(val);
+            this.templateMask &= ~(0xFFFFL << (var * 16));
+            this.templateMask |= (((long)val) << (var * 16));
+            this.tetc.setTemplateMask(this.templateMask);
         }
     }
 }

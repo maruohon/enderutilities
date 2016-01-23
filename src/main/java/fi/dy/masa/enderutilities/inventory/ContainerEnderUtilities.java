@@ -150,7 +150,6 @@ public class ContainerEnderUtilities extends Container
     public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        // Slot clicked on has items
         if (slot == null || slot.getHasStack() == false)
         {
             return false;

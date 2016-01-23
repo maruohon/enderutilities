@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -15,76 +13,42 @@ import cpw.mods.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiTemplatedChest;
 import fi.dy.masa.enderutilities.inventory.ContainerTemplatedChest;
-import fi.dy.masa.enderutilities.inventory.IModularInventoryCallback;
-import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
-import fi.dy.masa.enderutilities.inventory.InventoryStackArray;
-import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryCallback
+public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
-    public static final int GUI_ACTION_CHANGE_SELECTED_MODULE = 0;
-    protected InventoryItemCallback itemInventory;
-    protected InventoryStackArray moduleInventory;
+    public static final int[] INV_SIZES = new int[] { 9, 27, 54 };
+
     protected ItemStack[] templateStacks;
-    protected ItemStack[] moduleStacks;
     protected int chestTier;
-    protected int selectedModule;
-    protected int invSizeItems;
-    protected int templateMask;
-    public static final int[] INV_SIZES = new int[] { 9, 27, 4 };
+    protected long templateMask;
 
     public TileEntityTemplatedChest()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST, 9);
-
-        this.templateStacks = new ItemStack[27];
-
-        this.itemInventory = new InventoryItemCallback(null, 27, true, null, this);
-
-        this.moduleStacks = new ItemStack[4];
-        this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
-        this.moduleInventory.setInventoryCallback(this);
+        this.templateStacks = new ItemStack[54];
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, 2);
-        this.templateMask = nbt.getInteger("TemplateMask");
+        this.templateMask = nbt.getLong("TemplateMask");
         this.invSize = INV_SIZES[this.chestTier];
-        this.invSizeItems = this.chestTier == 0 ? 9 : 27;
 
         super.readFromNBTCustom(nbt);
 
-        this.templateStacks = this.readItemsFromNBT(nbt, this.invSizeItems, "TemplateItems");
-
-        if (this.chestTier == 2)
-        {
-            this.selectedModule = nbt.getByte("SelModule");
-            this.moduleStacks = this.readItemsFromNBT(nbt, 4, "ModuleItems");
-
-            this.itemInventory = new InventoryItemCallback(this.moduleStacks[this.selectedModule], 27, false, null, this);
-
-            this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
-            this.moduleInventory.setInventoryCallback(this);
-        }
+        this.templateStacks = this.readItemsFromNBT(nbt, this.invSize, "TemplateItems");
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("ChestTier", (byte)this.chestTier);
-        nbt.setInteger("TemplateMask", this.templateMask);
+        nbt.setLong("TemplateMask", this.templateMask);
 
         this.writeItemsToNBT(nbt, this.templateStacks, "TemplateItems");
-
-        if (this.chestTier == 2)
-        {
-            nbt.setByte("SelModule", (byte)this.selectedModule);
-            this.writeItemsToNBT(nbt, this.moduleStacks, "ModuleItems");
-        }
 
         super.writeToNBT(nbt);
     }
@@ -95,7 +59,7 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         nbt = super.getDescriptionPacketTag(nbt);
 
         nbt.setByte("tier", (byte)this.chestTier);
-        nbt.setInteger("tmpl", this.templateMask);
+        //nbt.setLong("tmpl", this.templateMask); // TODO remove?
 
         return nbt;
     }
@@ -104,138 +68,31 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.func_148857_g();
-        this.chestTier = nbt.getByte("tier");
-        this.templateMask = nbt.getInteger("tmpl");
-        this.invSize = INV_SIZES[this.chestTier];
-        this.invSizeItems = this.chestTier == 0 ? 9 : 27;
-        this.itemStacks = new ItemStack[this.invSize];
 
-        if (this.chestTier == 2)
-        {
-            this.moduleInventory = new InventoryStackArray(this.moduleStacks, 1, 4, false);
-            this.moduleInventory.setInventoryCallback(this);
-        }
+        this.chestTier = nbt.getByte("tier");
+        //this.templateMask = nbt.getLong("tmpl");
+        this.invSize = INV_SIZES[this.chestTier];
+        this.itemStacks = new ItemStack[this.invSize];
+        this.templateStacks = new ItemStack[this.invSize];
 
         super.onDataPacket(net, packet);
-    }
-
-    public IInventory getItemInventory()
-    {
-        return this.itemInventory;
-    }
-
-    public boolean isInventoryAccessible(EntityPlayer player)
-    {
-        return this.itemInventory.isUseableByPlayer(player);
-    }
-
-    public InventoryStackArray getModuleInventory()
-    {
-        return this.moduleInventory;
     }
 
     @Override
     public int getSizeInventory()
     {
-        if (this.chestTier == 2)
-        {
-            return this.itemInventory.getSizeInventory();
-        }
-
-        return this.invSizeItems;
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        if (this.chestTier == 2)
-        {
-            ItemStack moduleStack = this.getContainerStack();
-            if (moduleStack != null && moduleStack.getItem() instanceof IModule)
-            {
-                int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
-                if (tier >= 6 && tier <= 12)
-                {
-                    return (int)Math.pow(2, tier);
-                }
-            }
-        }
-
-        return super.getInventoryStackLimit();
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slotNum)
-    {
-        if (this.chestTier == 2)
-        {
-            this.itemInventory.markDirty();
-            return this.itemInventory.getStackInSlot(slotNum);
-        }
-
-        return super.getStackInSlot(slotNum);
-    }
-
-    @Override
-    public ItemStack decrStackSize(int slotNum, int maxAmount)
-    {
-        if (this.chestTier == 2)
-        {
-            return this.itemInventory.decrStackSize(slotNum, maxAmount);
-        }
-
-        return super.decrStackSize(slotNum, maxAmount);
-    }
-
-    @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
-    {
-        if (this.chestTier == 2)
-        {
-            return this.itemInventory.getStackInSlotOnClosing(slotNum);
-        }
-
-        return super.getStackInSlotOnClosing(slotNum);
-    }
-
-    @Override
-    public void setInventorySlotContents(int slotNum, ItemStack stack)
-    {
-        if (this.chestTier == 2)
-        {
-            this.itemInventory.setInventorySlotContents(slotNum, stack);
-            return;
-        }
-
-        super.setInventorySlotContents(slotNum, stack);
+        return this.invSize;
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        if ((this.templateMask & (1 << slotNum)) != 0 && InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == false)
+        if ((this.templateMask & (1L << slotNum)) == 0)
         {
-            return false;
+            return true;
         }
 
-        if (this.chestTier == 2)
-        {
-            return this.itemInventory.isItemValidForSlot(slotNum, stack);
-        }
-
-        return true;
-    }
-
-    @Override
-    public ItemStack getContainerStack()
-    {
-        return this.moduleStacks[this.selectedModule];
-    }
-
-    @Override
-    public void modularInventoryChanged()
-    {
-        this.itemInventory.setContainerItemStack(this.moduleStacks[this.selectedModule]);
+        return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
     }
 
     @Override
@@ -247,22 +104,26 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     @Override
     public void setStorageTier(int tier)
     {
+        tier = MathHelper.clamp_int(tier, 0, 2);
         this.chestTier = tier;
+        this.invSize = INV_SIZES[this.chestTier];
+        this.itemStacks = new ItemStack[this.invSize];
+        this.templateStacks = new ItemStack[this.invSize];
     }
 
-    public int getSelectedModule()
-    {
-        return this.selectedModule;
-    }
-
-    public void setSelectedModule(int index)
-    {
-        this.selectedModule = index;
-    }
-
-    public int getTemplateMask()
+    public long getTemplateMask()
     {
         return this.templateMask;
+    }
+
+    public void toggleTemplateMask(int slotNum)
+    {
+        this.templateMask ^= (1L << slotNum);
+    }
+
+    public void setTemplateMask(long mask)
+    {
+        this.templateMask = mask;
     }
 
     public ItemStack getTemplateStack(int slotNum)
@@ -273,11 +134,6 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         }
 
         return null;
-    }
-
-    public void toggleTemplateMask(int slotNum)
-    {
-        this.templateMask ^= (1 << slotNum);
     }
 
     public void setTemplateStack(int slotNum, ItemStack stack)
@@ -292,19 +148,6 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     public boolean canUpdate()
     {
         return false;
-    }
-
-    @Override
-    public void performGuiAction(int action, int element)
-    {
-        super.performGuiAction(action, element);
-
-        if (action == GUI_ACTION_CHANGE_SELECTED_MODULE && element >= 0 && element < 4)
-        {
-            this.itemInventory.markDirty();
-            this.selectedModule = element;
-            this.modularInventoryChanged();
-        }
     }
 
     @Override
