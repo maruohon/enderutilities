@@ -60,7 +60,7 @@ public class GuiTemplatedChest extends GuiEnderUtilities
             default:
         }
 
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.templatedchest", new Object[0]), 8, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.templatedchest", new Object[0]), 8, 15, 0x404040);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, y, 0x404025);
     }
 

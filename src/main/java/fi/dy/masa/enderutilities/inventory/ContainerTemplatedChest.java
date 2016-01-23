@@ -153,6 +153,11 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities
     {
         super.detectAndSendChanges();
 
+        if (this.tetc.getWorldObj().isRemote == true)
+        {
+            return;
+        }
+
         for (int i = 0; i < this.templateStacksLast.size(); ++i)
         {
             ItemStack currentStack = this.tetc.getTemplateStack(i);

@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +24,7 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     public static final int[] INV_SIZES = new int[] { 9, 27, 54 };
 
     protected ItemStack[] templateStacks;
+    protected List<Integer> enabledTemplateSlots;
     protected int chestTier;
     protected long templateMask;
 
@@ -28,14 +32,15 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     {
         super(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST, 9);
         this.templateStacks = new ItemStack[54];
+        this.enabledTemplateSlots = new ArrayList<Integer>();
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, 2);
-        this.templateMask = nbt.getLong("TemplateMask");
         this.invSize = INV_SIZES[this.chestTier];
+        this.setTemplateMask(nbt.getLong("TemplateMask"));
 
         super.readFromNBTCustom(nbt);
 
@@ -59,7 +64,6 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         nbt = super.getDescriptionPacketTag(nbt);
 
         nbt.setByte("tier", (byte)this.chestTier);
-        //nbt.setLong("tmpl", this.templateMask); // TODO remove?
 
         return nbt;
     }
@@ -70,7 +74,6 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         NBTTagCompound nbt = packet.func_148857_g();
 
         this.chestTier = nbt.getByte("tier");
-        //this.templateMask = nbt.getLong("tmpl");
         this.invSize = INV_SIZES[this.chestTier];
         this.itemStacks = new ItemStack[this.invSize];
         this.templateStacks = new ItemStack[this.invSize];
@@ -87,12 +90,44 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
+        // Simple cases for allowing items in: no templated slots, or matching item already in the slot 
+        if (this.templateMask == 0 || stack == null || this.itemStacks[slotNum] != null)
+        {
+            return true;
+        }
+
+        // If trying to add into an empty slot, first make sure that there aren't templated slots
+        // for this item type, that still have free space
+        int max = Math.min(this.getInventoryStackLimit(), stack.getMaxStackSize());
+
+        for (int i : this.enabledTemplateSlots)
+        {
+            if (slotNum == i)
+            {
+                //System.out.println("isValid slot match - " + (this.worldObj.isRemote ? "client" : "server"));
+                return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
+            }
+
+            // Space in the inventory slot for this template slot, and the input item matches the template item
+            // => disallow putting the input item in slotNum, unless slotNum was this slot (see above check)
+            if ((this.itemStacks[i] == null || this.itemStacks[i].stackSize < max) &&
+                 InventoryUtils.areItemStacksEqual(stack, this.templateStacks[i]) == true)
+            {
+                //System.out.println("isValid denied - " + (this.worldObj.isRemote ? "client" : "server"));
+                return false;
+            }
+        }
+
+        return true;
+
+        /*// This is the simple version with no templated slot prioritization
         if ((this.templateMask & (1L << slotNum)) == 0)
         {
             return true;
         }
 
         return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
+        */
     }
 
     @Override
@@ -118,12 +153,22 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
 
     public void toggleTemplateMask(int slotNum)
     {
-        this.templateMask ^= (1L << slotNum);
+        this.setTemplateMask(this.templateMask ^ (1L << slotNum));
     }
 
     public void setTemplateMask(long mask)
     {
         this.templateMask = mask;
+
+        this.enabledTemplateSlots.clear();
+        long bit = 0x1;
+        for (int i = 0; i < this.invSize; i++, bit <<= 1)
+        {
+            if ((this.templateMask & bit) != 0)
+            {
+                this.enabledTemplateSlots.add(i);
+            }
+        }
     }
 
     public ItemStack getTemplateStack(int slotNum)
