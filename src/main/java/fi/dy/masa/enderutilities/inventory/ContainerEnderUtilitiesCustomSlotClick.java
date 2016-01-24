@@ -135,11 +135,11 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
                     }
                 }
                 // Can't put items into the slot (for example a crafting output slot); take items instead
-                else if (stackCursor.stackSize < stackCursor.getMaxStackSize())
+                else if (stackCursor.getMaxStackSize() - stackCursor.stackSize >= stackSlot.stackSize)
                 {
-                    slot.decrStackSize(1);
+                    stackCursor.stackSize += stackSlot.stackSize;
+                    slot.decrStackSize(stackSlot.stackSize);
                     slot.onPickupFromSlot(player, stackSlot);
-                    stackCursor.stackSize += 1;
                     this.inventoryPlayer.setItemStack(stackCursor);
                 }
             }
