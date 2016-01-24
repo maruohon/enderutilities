@@ -44,10 +44,24 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
 
             if (iCrafting instanceof EntityPlayerMP)
             {
+                this.syncAllSlots((EntityPlayerMP)iCrafting);
                 ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new S2FPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
             }
 
             this.detectAndSendChanges();
+        }
+    }
+
+    protected void syncAllSlots(EntityPlayerMP player)
+    {
+        for (int i = 0; i < this.inventorySlots.size(); ++i)
+        {
+            ItemStack stack = ((Slot)this.inventorySlots.get(i)).getStack();
+
+            if (stack != null)
+            {
+                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, stack), player);
+            }
         }
     }
 
