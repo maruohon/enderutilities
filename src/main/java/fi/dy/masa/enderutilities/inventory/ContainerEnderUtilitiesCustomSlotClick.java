@@ -2,12 +2,13 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilities
@@ -17,9 +18,9 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
     protected int selectedSlot = -1;
 
-    public ContainerEnderUtilitiesCustomSlotClick(InventoryPlayer inventoryPlayer, IInventory inventory)
+    public ContainerEnderUtilitiesCustomSlotClick(EntityPlayer player, IInventory inventory)
     {
-        super(inventoryPlayer, inventory);
+        super(player, inventory);
     }
 
     public int getSelectedSlot()

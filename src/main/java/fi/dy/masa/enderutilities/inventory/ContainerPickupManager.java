@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -16,7 +18,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
 {
     public static final int NUM_MODULE_SLOTS = 3;
-    public EntityPlayer player;
     public InventoryItem inventoryItemTransmit;
     public InventoryItemModules inventoryItemModules;
     public InventoryItem inventoryItemFilters;
@@ -25,8 +26,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
-        super(player.inventory, new InventoryItem(containerStack, 1, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
-        this.player = player;
+        super(player, new InventoryItem(containerStack, 1, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 

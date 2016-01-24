@@ -69,8 +69,6 @@ public class GuiTemplatedChest extends GuiEnderUtilities
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.bindTexture(this.guiTexture);
-
         int invSize = this.tetc.getSizeInventory();
 
         // Draw the colored background icon for locked/"templated" slots

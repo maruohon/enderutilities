@@ -127,6 +127,12 @@ public class ConfigReader
         Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "DisableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "DisableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
 
+        Configs.disableRecipeCreationStation  = conf.get(category, "DisableRecipeCreationStation", false).setRequiresMcRestart(true);
+
+        Configs.disableRecipeHandyChest0      = conf.get(category, "DisableRecipeHandyChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest1      = conf.get(category, "DisableRecipeHandyChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest2      = conf.get(category, "DisableRecipeHandyChest2", false).setRequiresMcRestart(true);
+
         Configs.disableRecipeTemplatedChest0      = conf.get(category, "DisableRecipeTemplatedChest0", false).setRequiresMcRestart(true);
         Configs.disableRecipeTemplatedChest1      = conf.get(category, "DisableRecipeTemplatedChest1", false).setRequiresMcRestart(true);
         Configs.disableRecipeTemplatedChest2      = conf.get(category, "DisableRecipeTemplatedChest2", false).setRequiresMcRestart(true);

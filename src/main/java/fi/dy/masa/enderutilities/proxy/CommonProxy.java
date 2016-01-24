@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.*;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
@@ -80,6 +81,7 @@ public abstract class CommonProxy implements IProxy
         GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
         GameRegistry.registerTileEntity(TileEntityTemplatedChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST));
         GameRegistry.registerTileEntity(TileEntityHandyChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST));
+        GameRegistry.registerTileEntity(TileEntityCreationStation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION));
     }
 
     @Override

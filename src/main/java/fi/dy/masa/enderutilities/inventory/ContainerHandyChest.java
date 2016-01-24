@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -17,9 +16,9 @@ public class ContainerHandyChest extends ContainerLargeStacks
     public int selectedModule;
     public int actionMode;
 
-    public ContainerHandyChest(InventoryPlayer inventoryPlayer, TileEntityHandyChest te)
+    public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.tehc = te;
 
         this.addCustomInventorySlots();

@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.SlotFurnace;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -20,9 +22,9 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
     public int outputBufferAmount;
     public boolean outputToEnderChest;
 
-    public ContainerEnderFurnace(InventoryPlayer inventoryPlayer, TileEntityEnderFurnace te)
+    public ContainerEnderFurnace(EntityPlayer player, TileEntityEnderFurnace te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.teef = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 84);

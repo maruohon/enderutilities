@@ -3,7 +3,7 @@ package fi.dy.masa.enderutilities.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -196,15 +196,15 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     }
 
     @Override
-    public ContainerTemplatedChest getContainer(InventoryPlayer inventoryPlayer)
+    public ContainerTemplatedChest getContainer(EntityPlayer player)
     {
-        return new ContainerTemplatedChest(inventoryPlayer, this);
+        return new ContainerTemplatedChest(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiTemplatedChest(this.getContainer(inventoryPlayer), this);
+        return new GuiTemplatedChest(this.getContainer(player), this);
     }
 }

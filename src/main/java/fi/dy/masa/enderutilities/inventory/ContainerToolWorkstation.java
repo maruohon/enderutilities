@@ -1,9 +1,9 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
@@ -17,9 +17,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     public InventoryItemModules inventoryItem;
     protected boolean isRemote;
 
-    public ContainerToolWorkstation(InventoryPlayer inventoryPlayer, TileEntityToolWorkstation te)
+    public ContainerToolWorkstation(EntityPlayer player, TileEntityToolWorkstation te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj().isRemote, inventoryPlayer.player);
         this.inventoryItem.readFromContainerItemStack();
         this.isRemote = this.te.getWorldObj().isRemote;

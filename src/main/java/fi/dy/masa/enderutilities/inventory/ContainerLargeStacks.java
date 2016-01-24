@@ -1,20 +1,21 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
+
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 
 public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
 {
-    public ContainerLargeStacks(InventoryPlayer inventoryPlayer, IInventory inventory)
+    public ContainerLargeStacks(EntityPlayer player, IInventory inventory)
     {
-        super(inventoryPlayer, inventory);
+        super(player, inventory);
     }
 
     @Override

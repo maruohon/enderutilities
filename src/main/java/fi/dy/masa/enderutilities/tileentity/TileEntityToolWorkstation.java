@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -130,15 +130,15 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerToolWorkstation getContainer(InventoryPlayer inventoryPlayer)
+    public ContainerToolWorkstation getContainer(EntityPlayer player)
     {
-        return new ContainerToolWorkstation(inventoryPlayer, this);
+        return new ContainerToolWorkstation(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiToolWorkstation(getContainer(inventoryPlayer), this);
+        return new GuiToolWorkstation(getContainer(player), this);
     }
 }

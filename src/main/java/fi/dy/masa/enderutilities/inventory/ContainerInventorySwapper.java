@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -11,12 +12,10 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlotClick implements IContainerModularItem
 {
     public InventoryItemModular inventoryItemModular;
-    public EntityPlayer player;
 
     public ContainerInventorySwapper(EntityPlayer player, InventoryItemModular inventory)
     {
-        super(player.inventory, inventory);
-        this.player = player;
+        super(player, inventory);
         this.inventoryItemModular = inventory;
         this.inventoryItemModular.setHostInventory(player.inventory);
 

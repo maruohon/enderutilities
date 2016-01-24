@@ -8,12 +8,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
-    public final EntityPlayer player;
     public final InventoryItemModular inventoryItemModular;
 
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
@@ -21,8 +21,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
     public ContainerHandyBag(EntityPlayer player, InventoryItemModular inventory)
     {
-        super(player.inventory, inventory);
-        this.player = player;
+        super(player, inventory);
         this.inventoryItemModular = inventory;
         this.inventoryItemModular.setHostInventory(player.inventory);
 

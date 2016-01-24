@@ -1,16 +1,16 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
+
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class ContainerTileEntityInventory extends ContainerEnderUtilities
 {
     protected TileEntityEnderUtilitiesInventory te;
 
-    public ContainerTileEntityInventory(InventoryPlayer inventoryPlayer, TileEntityEnderUtilitiesInventory te)
+    public ContainerTileEntityInventory(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.te = te;
     }
 

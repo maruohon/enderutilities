@@ -1,17 +1,17 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class InventoryItem implements IInventory
+public class InventoryItemCrafting extends InventoryCrafting
 {
     protected ItemStack containerStack;
     protected int invSize;
@@ -23,35 +23,37 @@ public class InventoryItem implements IInventory
     protected String customInventoryName;
     protected int stackLimit;
     protected boolean ignoreMaxStackSize;
-    protected UUID containerUUID;
-    protected IInventory hostInventory;
+    protected Container container;
+    protected IModularInventoryCallback callback;
 
-    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    public InventoryItemCrafting(Container container, int width, int height, ItemStack containerStack, boolean isRemote,
+            EntityPlayer player, IModularInventoryCallback callback, String tagName)
     {
-        this(containerStack, invSize, isRemote, player, "Items");
-    }
-
-    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, String tagName)
-    {
-        this(containerStack, invSize, isRemote, player, tagName, null, null);
-    }
-
-    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IInventory hostInv)
-    {
+        super(container, width, height);
+        this.container = container;
         this.containerStack = containerStack;
-        this.invSize = invSize;
+        this.invSize = width * height;
         this.player = player;
         this.isRemote = isRemote;
         this.stackLimit = 64;
-        this.containerUUID = containerUUID;
-        this.hostInventory = hostInv;
+        this.callback = callback;
         this.itemsTagName = tagName;
         this.initInventory();
     }
 
-    public void setIsRemote(boolean isRemote)
+    public void setCallback(IModularInventoryCallback callback)
     {
-        this.isRemote = isRemote;
+        this.callback = callback;
+    }
+
+    public ItemStack getContainerItemStack()
+    {
+        if (this.callback != null)
+        {
+            return this.callback.getContainerStack();
+        }
+
+        return this.containerStack;
     }
 
     protected void initInventory()
@@ -69,30 +71,6 @@ public class InventoryItem implements IInventory
         {
             this.itemsTagName = tagName;
         }
-    }
-
-    /**
-     * Sets the host inventory and the UUID of the container ItemStack, so that the correct
-     * container ItemStack can be fetched from the host inventory.
-     */
-    public void setHostInventory(IInventory inv, UUID uuid)
-    {
-        this.hostInventory = inv;
-        this.containerUUID = uuid;
-    }
-
-    /**
-     * Returns the ItemStack storing the contents of this inventory
-     */
-    public ItemStack getContainerItemStack()
-    {
-        //System.out.println("InventoryItem#getContainerItemStack() - " + (this.isRemote ? "client" : "server"));
-        if (this.containerUUID != null && this.hostInventory != null)
-        {
-            return InventoryUtils.getItemStackByUUID(this.hostInventory, this.containerUUID, "UUID");
-        }
-
-        return this.containerStack;
     }
 
     /**
@@ -131,7 +109,7 @@ public class InventoryItem implements IInventory
      */
     public void readFromContainerItemStack()
     {
-        //System.out.println("InventoryItem#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
 
         // Only read the contents on the server side, they get synced to the client via the open Container
         if (this.isRemote == false)
@@ -153,7 +131,7 @@ public class InventoryItem implements IInventory
     {
         if (this.isRemote == false)
         {
-            //System.out.println("InventoryItem#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+            //System.out.println("InventoryItemCrafting#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
@@ -177,7 +155,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {
-        //System.out.println("InventoryItem#getStackInSlot(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#getStackInSlot(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         if (slotNum < this.items.length)
         {
             return this.items[slotNum];
@@ -193,7 +171,7 @@ public class InventoryItem implements IInventory
     @Override
     public void setInventorySlotContents(int slotNum, ItemStack newStack)
     {
-        //System.out.println("InventoryItem#setInventorySlotContents(" + slotNum + ", " + newStack + ") - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#setInventorySlotContents(" + slotNum + ", " + newStack + ") - " + (this.isRemote ? "client" : "server"));
         if (slotNum < this.items.length)
         {
             this.items[slotNum] = newStack;
@@ -209,7 +187,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack decrStackSize(int slotNum, int maxAmount)
     {
-        //System.out.println("InventoryItem#decrStackSize(" + slotNum + ", " + maxAmount + ") - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#decrStackSize(" + slotNum + ", " + maxAmount + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
 
         if (slotNum < this.items.length)
@@ -246,7 +224,7 @@ public class InventoryItem implements IInventory
     @Override
     public ItemStack getStackInSlotOnClosing(int slotNum)
     {
-        //System.out.println("InventoryItem#getStackInSlotOnClosing(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#getStackInSlotOnClosing(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
         if (slotNum < this.items.length)
         {
@@ -262,14 +240,24 @@ public class InventoryItem implements IInventory
     @Override
     public int getInventoryStackLimit()
     {
-        //System.out.println("InventoryItem#getInventoryStackLimit() - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#getInventoryStackLimit() - " + (this.isRemote ? "client" : "server"));
+        ItemStack stack = this.getContainerItemStack();
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
+        {
+            int tier = ((IModule) stack.getItem()).getModuleTier(stack);
+            if (tier >= 6 && tier <= 12)
+            {
+                return (int)Math.pow(2, tier);
+            }
+        }
+
         return this.stackLimit;
     }
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        //System.out.println("InventoryItem#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
         return this.getContainerItemStack() != null;
     }
 
@@ -310,11 +298,11 @@ public class InventoryItem implements IInventory
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        //System.out.println("InventoryItem#isUseableByPlayer() - " + (this.isRemote ? "client" : "server"));
+        //System.out.println("InventoryItemCrafting#isUseableByPlayer() - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = this.getContainerItemStack();
         if (stack == null)
         {
-            //System.out.println("isUseableByPlayer(): false - containerStack == null");
+            //System.out.println("InventoryItemCrafting#isUseableByPlayer(): false - containerStack == null");
             return false;
         }
 
@@ -327,21 +315,10 @@ public class InventoryItem implements IInventory
     {
         if (this.isRemote == false)
         {
-            //System.out.println("InventoryItem#markDirty() - " + (this.isRemote ? "client" : "server"));
+            //System.out.println("InventoryItemCrafting#markDirty() - " + (this.isRemote ? "client" : "server"));
             this.writeToContainerItemStack();
         }
-    }
 
-    @Override
-    public void openInventory()
-    {
-        //System.out.println("InventoryItem#openInventory() - " + (this.isRemote ? "client" : "server"));
-    }
-
-    @Override
-    public void closeInventory()
-    {
-        //System.out.println("InventoryItem#closeInventory() - " + (this.isRemote ? "client" : "server"));
-        //this.writeToContainerItemStack();
+        this.container.onCraftMatrixChanged(this);
     }
 }

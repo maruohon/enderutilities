@@ -1,9 +1,11 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -18,9 +20,9 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
     public int ciCurrent; // chargeableItemCurrentCharge
     public int ciCurrentLast;
 
-    public ContainerEnderInfuser(InventoryPlayer inventoryPlayer, TileEntityEnderInfuser te)
+    public ContainerEnderInfuser(EntityPlayer player, TileEntityEnderInfuser te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.teef = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);

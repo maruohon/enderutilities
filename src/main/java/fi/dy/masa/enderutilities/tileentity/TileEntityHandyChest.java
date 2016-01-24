@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -280,15 +279,15 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
     }
 
     @Override
-    public ContainerHandyChest getContainer(InventoryPlayer inventoryPlayer)
+    public ContainerHandyChest getContainer(EntityPlayer player)
     {
-        return new ContainerHandyChest(inventoryPlayer, this);
+        return new ContainerHandyChest(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiHandyChest(this.getContainer(inventoryPlayer), this);
+        return new GuiHandyChest(this.getContainer(player), this);
     }
 }

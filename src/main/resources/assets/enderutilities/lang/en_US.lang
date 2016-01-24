@@ -10,6 +10,7 @@ enderutilities.key.togglemode=Toggle Mode
 # Container/inventory names:
 ############################
 
+enderutilities.container.creationstation=Creation Station
 enderutilities.container.enderfurnace=Ender Furnace
 enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
@@ -24,6 +25,7 @@ enderutilities.container.toolworkstation=Tool Workstation
 # Block names:
 ##############
 
+tile.enderutilities.creationstation.name=Creation Station
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
@@ -152,6 +154,7 @@ item.enderutilities.pickupmanager.tooltips=Also known as Item Pickup Manager|lf-
 item.enderutilities.portalscaler.tooltips=- Will change the Nether Portal teleportation scale factor,|lf  if you right click with it while standing in a portal.|lf- To change the scaling factor:|lf  - First select the item in your hotbar|lf  - Look at the direction of the axis you want to change (x/y/z)|lf  - Then press and hold Alt + Shift and use the mouse wheel|lf  - Or press Alt + Shift (+ Ctrl) + Toggle mode|lf- Can also light up and shut down portals|lf  (right click a portal block/the obsidian frame|lf  while NOT standing in the portal)
 item.enderutilities.ruler.tooltips=Measure distances and visualize positions|lf- Alt + scroll: Cycle selected point|lf- Ctrl + scroll: Cycle selected Memory Card|lf- Shift + Toggle: Toggle render when unselected|lf- Ctrl + Alt + Toggle: Toggle distance mode|lf- Alt + Shift + Toggle: Toggle render all points|lf- Just Toggle: Toggle "render with all" for selected point
 
+tile.enderutilities.creationstation.tooltips=Combines two crafting tables, two furnaces and some storage
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
 tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items

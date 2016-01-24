@@ -4,7 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.common.network.IGuiHandler;
+
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiInventorySwapper;
 import fi.dy.masa.enderutilities.gui.client.GuiPickupManager;
@@ -37,7 +39,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 TileEntity te = world.getTileEntity(x, y, z);
                 if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
-                    return ((TileEntityEnderUtilitiesInventory)te).getContainer(player.inventory);
+                    return ((TileEntityEnderUtilitiesInventory)te).getContainer(player);
                 }
                 break;
 
@@ -85,7 +87,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 TileEntity te = world.getTileEntity(x, y, z);
                 if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
-                    return ((TileEntityEnderUtilitiesInventory)te).getGui(player.inventory);
+                    return ((TileEntityEnderUtilitiesInventory)te).getGui(player);
                 }
                 break;
 

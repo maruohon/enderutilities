@@ -15,19 +15,19 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
-    protected EntityPlayer player;
-    protected InventoryPlayer inventoryPlayer;
-    protected IInventory inventory;
+    public final EntityPlayer player;
+    public final InventoryPlayer inventoryPlayer;
+    public final IInventory inventory;
     protected SlotRange customInventorySlots;
     protected SlotRange playerArmorSlots;
     protected SlotRange playerMainSlots;
     protected List<SlotRange> mergeSlotRangesExtToPlayer;
     protected List<SlotRange> mergeSlotRangesPlayerToExt;
 
-    public ContainerEnderUtilities(InventoryPlayer inventoryPlayer, IInventory inventory)
+    public ContainerEnderUtilities(EntityPlayer player, IInventory inventory)
     {
-        this.inventoryPlayer = inventoryPlayer;
-        this.player = inventoryPlayer.player;
+        this.player = player;
+        this.inventoryPlayer = player.inventory;
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();

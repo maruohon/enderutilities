@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -271,13 +270,13 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     {
     }
 
-    public ContainerEnderUtilities getContainer(InventoryPlayer inventory)
+    public ContainerEnderUtilities getContainer(EntityPlayer player)
     {
         return null;
     }
 
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
         return null;
     }

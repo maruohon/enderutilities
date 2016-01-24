@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.tileentity;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryEnderChest;
@@ -784,16 +783,16 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerEnderFurnace getContainer(InventoryPlayer inventoryPlayer)
+    public ContainerEnderFurnace getContainer(EntityPlayer player)
     {
-        return new ContainerEnderFurnace(inventoryPlayer, this);
+        return new ContainerEnderFurnace(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiEnderFurnace(this.getContainer(inventoryPlayer), this);
+        return new GuiEnderFurnace(this.getContainer(player), this);
     }
 
     @Override

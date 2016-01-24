@@ -87,8 +87,6 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.bindTexture(this.guiTexture);
-
         int invSize = this.tehc.getItemInventory().getSizeInventory();
 
         // Draw the selection marker around the selected module's button

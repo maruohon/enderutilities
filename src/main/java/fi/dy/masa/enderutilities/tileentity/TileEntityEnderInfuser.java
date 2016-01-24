@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -247,15 +247,15 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ContainerEnderInfuser getContainer(InventoryPlayer inventoryPlayer)
+    public ContainerEnderInfuser getContainer(EntityPlayer player)
     {
-        return new ContainerEnderInfuser(inventoryPlayer, this);
+        return new ContainerEnderInfuser(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(InventoryPlayer inventoryPlayer)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiEnderInfuser(this.getContainer(inventoryPlayer), this);
+        return new GuiEnderInfuser(this.getContainer(player), this);
     }
 }

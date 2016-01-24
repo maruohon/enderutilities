@@ -67,6 +67,12 @@ public class Configs
     public static Property disableRecipeEnergyBridgeReceiver;
     public static Property disableRecipeEnergyBridgeResonator;
 
+    public static Property disableRecipeCreationStation;
+
+    public static Property disableRecipeHandyChest0;
+    public static Property disableRecipeHandyChest1;
+    public static Property disableRecipeHandyChest2;
+
     public static Property disableRecipeTemplatedChest0;
     public static Property disableRecipeTemplatedChest1;
     public static Property disableRecipeTemplatedChest2;

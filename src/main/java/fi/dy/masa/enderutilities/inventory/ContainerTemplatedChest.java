@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -22,9 +21,9 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities
     protected List<ItemStack> templateStacksLast;
     protected long templateMask;
 
-    public ContainerTemplatedChest(InventoryPlayer inventoryPlayer, TileEntityTemplatedChest te)
+    public ContainerTemplatedChest(EntityPlayer player, TileEntityTemplatedChest te)
     {
-        super(inventoryPlayer, te);
+        super(player, te);
         this.tetc = te;
         this.templateStacksLast = new ArrayList<ItemStack>();
 
