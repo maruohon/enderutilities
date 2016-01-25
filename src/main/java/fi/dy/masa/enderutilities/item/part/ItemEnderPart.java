@@ -199,7 +199,7 @@ public class ItemEnderPart extends ItemModule
             }
             else if (damage != 50)
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.unknowndata"));
             }
         }
 

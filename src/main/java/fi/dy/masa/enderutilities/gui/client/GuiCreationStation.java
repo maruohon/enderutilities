@@ -165,11 +165,11 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
 
         // Draw the burn progress flame
         int vOff = (isFast == true ? 34 : 20);
-        int h = (this.containerCS.fuelProgress & 0xFF) * 13 / 100;
+        int h = (this.containerCS.fuelProgress & 0x7F) * 13 / 100;
         this.drawTexturedModalRect(this.guiLeft + 9, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, 14, h + 1);
 
         // Draw the smelting progress arrow
-        if (this.containerCS.smeltProgress > 0)
+        if ((this.containerCS.smeltProgress & 0xFF) > 0)
         {
             vOff = isFast == true ? 10 : 0;
             int w = (this.containerCS.smeltProgress & 0xFF) * 11 / 100;
@@ -182,15 +182,15 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
 
         // Draw the burn progress flame
         vOff = (isFast == true ? 34 : 20);
-        h = (this.containerCS.fuelProgress >> 8) * 13 / 100;
-        this.drawTexturedModalRect(this.guiLeft + 217, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, -14, h + 1);
+        h = ((this.containerCS.fuelProgress >> 8) & 0x7F) * 13 / 100;
+        this.drawTexturedModalRect(this.guiLeft + 217, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, 14, h + 1);
 
         // Draw the smelting progress arrow
-        if (this.containerCS.smeltProgress > 0)
+        if ((this.containerCS.smeltProgress >> 8) > 0)
         {
             vOff = isFast == true ? 10 : 0;
-            int w = (this.containerCS.smeltProgress >> 8) * 11 / 100;
-            this.drawTexturedModalRect(this.guiLeft + 203, this.guiTop + 11, 134, vOff, -w, 10);
+            int w = ((this.containerCS.smeltProgress >> 8) & 0x7F) * 11 / 100;
+            this.drawTexturedModalRect(this.guiLeft + 203 + 10 - w, this.guiTop + 11, 144 + 10 - w, vOff, w, 10);
         }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -347,7 +347,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
         // Slot is in the external inventory, render using the smaller font for stack size
-        if (slot.inventory == this.tecs.getItemInventory())
+        if (slot.inventory == this.tecs.getItemInventory() || slot.inventory == this.tecs.getFurnaceInventory())
         {
             itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
             itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);

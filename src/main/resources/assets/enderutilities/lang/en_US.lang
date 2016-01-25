@@ -264,6 +264,7 @@ enderutilities.tooltip.item.memorycard.items.stackcount.1=Storing
 enderutilities.tooltip.item.memorycard.items.stackcount.2=stacks and
 enderutilities.tooltip.item.memorycard.items.stackcount.3=items in total
 enderutilities.tooltip.item.memorycard.nodata=Empty
+enderutilities.tooltip.item.memorycard.unknowndata=Unknown data
 enderutilities.tooltip.item.mode=Mode
 enderutilities.tooltip.item.morestacksnotlisted=more stacks not listed
 enderutilities.tooltip.item.no=no

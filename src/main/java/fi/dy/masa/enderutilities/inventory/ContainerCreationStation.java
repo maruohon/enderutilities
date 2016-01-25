@@ -101,6 +101,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrixRight, this.craftResultRight, 0, 112, 69));
 
+        // Add the furnace slots as priority merge slots
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
+
         // Furnace slots, left side
         // Smeltable items
         this.addSlotToContainer(new SlotSmeltable(this.furnaceInventory, 0, 8, 8));
@@ -146,8 +149,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        // Player inventory, module slots, crafting slots or furnace slots
-        if (slot.inventory != this.tecs.getItemInventory())
+        // Player inventory, module slots or crafting slots
+        if (slot.inventory != this.tecs.getItemInventory() && slot.inventory != this.tecs.getFurnaceInventory())
         {
             return super.getMaxStackSizeFromSlotAndStack(slot, stack);
         }

@@ -25,6 +25,7 @@ public class InventoryStackArray implements IInventory
         this.invSize = invSize;
         this.ignoreMaxStackSize = ignoreMaxStackSize;
         this.inventoryCallback = inv;
+        this.invId = invId;
     }
 
     public void setInventoryCallback(IModularInventoryCallback inv, int invId)

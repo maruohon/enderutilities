@@ -42,9 +42,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
     public static final int INV_SIZE_ITEMS = 27;
 
-    public static final int INV_ID_CRAFTING_LEFT  = 1;
-    public static final int INV_ID_CRAFTING_RIGHT = 2;
-    public static final int INV_ID_FURNACE        = 3;
+    public static final int INV_ID_MODULES        = 1;
+    public static final int INV_ID_CRAFTING_LEFT  = 2;
+    public static final int INV_ID_CRAFTING_RIGHT = 3;
+    public static final int INV_ID_FURNACE        = 4;
 
     public static final int COOKTIME_INC_SLOW = 12; // Slow/eco mode: 5 seconds per item
     public static final int COOKTIME_INC_FAST = 30; // Fast mode: 2 second per item (2.5x as fast)
@@ -90,7 +91,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         this.craftResults = new InventoryCraftResult[] { new InventoryCraftResult(), new InventoryCraftResult() };
 
         this.furnaceItems = new ItemStack[6];
-        this.furnaceInventory = new InventoryStackArray(this.furnaceItems, 576, 6, true, this, INV_ID_FURNACE);
+        this.furnaceInventory = new InventoryStackArray(this.furnaceItems, 1024, 6, true, this, INV_ID_FURNACE);
 
         this.clickTimes = new HashMap<UUID, Long>();
         this.numPlayersUsing = 0;
@@ -249,18 +250,32 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             this.inputDirty[0] = this.inputDirty[1] = true;
             return;
         }
+        else
+        {
+            this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
 
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+            if (this.craftingInventories[0] != null)
+            {
+                this.craftingInventories[0].setContainerItemStack(this.itemStacks[this.selectedModule]);
+            }
 
-        if (this.craftingInventories[0] != null)
+            if (this.craftingInventories[1] != null)
+            {
+                this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
+            }
+        }
+        /*else if (invId == 0)
+        {
+            this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+        }
+        else if (invId == INV_ID_CRAFTING_LEFT && this.craftingInventories[0] != null)
         {
             this.craftingInventories[0].setContainerItemStack(this.itemStacks[this.selectedModule]);
         }
-
-        if (this.craftingInventories[1] != null)
+        else if (invId == INV_ID_CRAFTING_RIGHT && this.craftingInventories[1] != null)
         {
             this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
-        }
+        }*/
     }
 
     @Override
@@ -273,6 +288,21 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public int getInventoryStackLimit()
     {
         return 1;
+    }
+
+    @Override
+    public void setInventorySlotContents(int slotNum, ItemStack stack)
+    {
+        super.setInventorySlotContents(slotNum, stack);
+        this.inventoryChanged(INV_ID_MODULES);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int slotNum, int maxAmount)
+    {
+        ItemStack stack = super.decrStackSize(slotNum, maxAmount);
+        this.inventoryChanged(INV_ID_MODULES);
+        return stack;
     }
 
     @Override
@@ -308,7 +338,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public void markDirty()
     {
         super.markDirty();
-        this.inventoryChanged(0);
     }
 
     @Override
@@ -356,7 +385,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         {
             this.itemInventory.markDirty();
             this.setSelectedModule(element);
-            this.inventoryChanged(0);
+            this.inventoryChanged(INV_ID_MODULES);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
@@ -507,7 +536,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
                 }
 
                 this.burnTimeFresh[id] = burnTime;
-                this.furnaceInventory.setInventorySlotContents(id * 3 + 1, fuelStack.stackSize > 0 ? fuelStack : null);
+                this.furnaceInventory.setInventorySlotContents(id * 3 + 1, fuelStack);
             }
         }
 
