@@ -254,11 +254,11 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
                     }
                 }
                 // Can't put items into the slot (for example a crafting output slot); take items instead
-                else if (stackCursor.stackSize < stackCursor.getMaxStackSize())
+                else if (stackCursor.getMaxStackSize() - stackCursor.stackSize >= stackSlot.stackSize)
                 {
-                    slot.decrStackSize(1);
+                    stackCursor.stackSize += stackSlot.stackSize;
+                    slot.decrStackSize(stackSlot.stackSize);
                     slot.onPickupFromSlot(player, stackSlot);
-                    stackCursor.stackSize += 1;
                     this.inventoryPlayer.setItemStack(stackCursor);
                 }
             }
@@ -284,20 +284,32 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
         // Empty cursor, trying to take items from the slot (split the stack)
         else if (stackSlot != null && slot.canTakeStack(this.inventoryPlayer.player) == true)
         {
-            int num = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), (int)Math.ceil((double)stackSlot.getMaxStackSize() / 2.0d));
-            // Can't take all the items from the slot
-            if (num < stackSlot.stackSize)
+            if (slot.isItemValid(stackSlot) == true)
             {
-                stackCursor = stackSlot.copy();
-                stackCursor.stackSize = num;
-                slot.decrStackSize(num);
-                this.inventoryPlayer.setItemStack(stackCursor);
+                int num = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), (int)Math.ceil((double)stackSlot.getMaxStackSize() / 2.0d));
+                // Can't take all the items from the slot
+                if (num < stackSlot.stackSize)
+                {
+                    //stackCursor = stackSlot.copy();
+                    //stackCursor.stackSize = num;
+                    //slot.decrStackSize(num);
+                    stackCursor = stackSlot.splitStack(num);
+                    slot.putStack(stackSlot.stackSize > 0 ? stackSlot : null);
+                    this.inventoryPlayer.setItemStack(stackCursor);
+                }
+                // Taking all the items from the slot
+                else
+                {
+                    this.inventoryPlayer.setItemStack(stackSlot);
+                    slot.putStack(null);
+                }
             }
-            // Taking all the items from the slot
+            // Can't put items into the slot (for example a crafting output slot); take items instead
             else
             {
-                this.inventoryPlayer.setItemStack(stackSlot);
-                slot.putStack(null);
+                stackCursor = stackSlot.copy();
+                slot.decrStackSize(stackSlot.stackSize);
+                this.inventoryPlayer.setItemStack(stackCursor);
             }
 
             slot.onPickupFromSlot(player, stackSlot);
