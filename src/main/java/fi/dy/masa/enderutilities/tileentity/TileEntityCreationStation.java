@@ -37,12 +37,14 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public static final int GUI_ACTION_MOVE_ITEMS          = 1;
     public static final int GUI_ACTION_SET_QUICK_ACTION    = 2;
     public static final int GUI_ACTION_CLEAR_CRAFTING_GRID = 3;
-    public static final int GUI_ACTION_SET_CRAFTING_MODE   = 4;
-    public static final int GUI_ACTION_RECALL_RECIPE       = 5;
-    public static final int GUI_ACTION_SET_RECIPE          = 6;
-    public static final int GUI_ACTION_TOGGLE_FURNACE_MODE = 7;
+    public static final int GUI_ACTION_RECIPE_PRESET       = 4;
+    public static final int GUI_ACTION_TOGGLE_MODE         = 5;
 
     public static final int INV_SIZE_ITEMS = 27;
+
+    public static final int INV_ID_CRAFTING_LEFT  = 1;
+    public static final int INV_ID_CRAFTING_RIGHT = 2;
+    public static final int INV_ID_FURNACE        = 3;
 
     public static final int COOKTIME_INC_SLOW = 12; // Slow/eco mode: 5 seconds per item
     public static final int COOKTIME_INC_FAST = 30; // Fast mode: 2 second per item (2.5x as fast)
@@ -51,12 +53,20 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public static final int BURNTIME_USAGE_SLOW = 20; // Slow/eco mode base usage
     public static final int BURNTIME_USAGE_FAST = 120; // Fast mode: use fuel 6x faster over time
 
-    protected InventoryItemCallback itemInventory;
-    protected InventoryItemCrafting craftingInventoryLeft;
-    protected InventoryItemCrafting craftingInventoryRight;
-    protected final IInventory craftResultLeft = new InventoryCraftResult();
-    protected final IInventory craftResultRight = new InventoryCraftResult();
+    // The crafting mode button bits are in continuous order for easier checking in the gui
+    public static final int MODE_BIT_LEFT_CRAFTING_OREDICT  = 0x0001;
+    public static final int MODE_BIT_LEFT_CRAFTING_KEEPONE  = 0x0002;
+    public static final int MODE_BIT_LEFT_CRAFTING_AUTOUSE  = 0x0004;
+    public static final int MODE_BIT_RIGHT_CRAFTING_OREDICT = 0x0008;
+    public static final int MODE_BIT_RIGHT_CRAFTING_KEEPONE = 0x0010;
+    public static final int MODE_BIT_RIGHT_CRAFTING_AUTOUSE = 0x0020;
+    public static final int MODE_BIT_LEFT_FAST              = 0x0040;
+    public static final int MODE_BIT_RIGHT_FAST             = 0x0080;
+
+    protected InventoryItemCrafting[] craftingInventories;
+    protected final IInventory[] craftResults;
     protected final InventoryStackArray furnaceInventory;
+    protected InventoryItemCallback itemInventory;
     protected ItemStack[] furnaceItems;
     protected int selectedModule;
     protected int actionMode;
@@ -68,7 +78,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public int[] burnTimeFresh;       // The time the currently burning fuel will burn in total
     public int[] cookTime;            // The time the currently cooking item has been cooking for
     protected boolean[] inputDirty;
-    protected boolean[] fastMode;
+    protected int modeMask;
 
     public TileEntityCreationStation()
     {
@@ -76,8 +86,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, false, null, this);
 
+        this.craftingInventories = new InventoryItemCrafting[2];
+        this.craftResults = new InventoryCraftResult[] { new InventoryCraftResult(), new InventoryCraftResult() };
+
         this.furnaceItems = new ItemStack[6];
-        this.furnaceInventory = new InventoryStackArray(this.furnaceItems, 576, 6, true, null);
+        this.furnaceInventory = new InventoryStackArray(this.furnaceItems, 576, 6, true, this, INV_ID_FURNACE);
 
         this.clickTimes = new HashMap<UUID, Long>();
         this.numPlayersUsing = 0;
@@ -87,7 +100,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         this.burnTimeFresh = new int[2];
         this.cookTime = new int[2];
         this.inputDirty = new boolean[] { true, true };
-        this.fastMode = new boolean[2];
+        this.modeMask = 0;
     }
 
     @Override
@@ -95,13 +108,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     {
         this.setSelectedModule(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
+        this.modeMask = nbt.getShort("ModeMask");
 
         for (int i = 0; i < 2; i++)
         {
             this.burnTimeRemaining[i]  = nbt.getInteger("BurnTimeRemaining" + i);
             this.burnTimeFresh[i]      = nbt.getInteger("BurnTimeFresh" + i);
             this.cookTime[i]           = nbt.getInteger("CookTime" + i);
-            this.fastMode[i]           = nbt.getBoolean("FastMode" + i);
         }
 
         super.readFromNBTCustom(nbt);
@@ -117,13 +130,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     {
         nbt.setByte("QuickMode", (byte)this.actionMode);
         nbt.setByte("SelModule", (byte)this.selectedModule);
+        nbt.setShort("ModeMask", (short)this.modeMask);
 
         for (int i = 0; i < 2; i++)
         {
             nbt.setInteger("BurnTimeRemaining" + i, this.burnTimeRemaining[i]);
             nbt.setInteger("BurnTimeFresh" + i, this.burnTimeFresh[i]);
             nbt.setInteger("CookTime" + i, this.cookTime[i]);
-            nbt.setBoolean("FastMode",  this.fastMode[i]);
         }
 
         this.writeItemsToNBT(nbt, this.furnaceItems, "FurnaceItems");
@@ -148,7 +161,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
         this.selectedModule = nbt.getByte("msel");
 
-        this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], INV_SIZE_ITEMS, true, null, this);
+        this.itemInventory.setIsRemote(true);
+        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
 
         super.onDataPacket(net, packet);
     }
@@ -158,38 +172,21 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         return this.itemInventory;
     }
 
-    public InventoryItemCrafting getCraftingInventoryLeft(Container container, EntityPlayer player)
+    public InventoryItemCrafting getCraftingInventory(int id, Container container, EntityPlayer player)
     {
-        if (this.craftingInventoryLeft == null)
+        if (this.craftingInventories[id] == null)
         {
-            this.craftingInventoryLeft = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
-                    this.worldObj.isRemote, player, this, "CraftingItemsLeft");
-            this.craftingInventoryLeft.readFromContainerItemStack();
+            this.craftingInventories[id] = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
+                    this.worldObj.isRemote, player, this, "CraftItems_" + id);
+            this.craftingInventories[id].readFromContainerItemStack();
         }
 
-        return this.craftingInventoryLeft;
+        return this.craftingInventories[id];
     }
 
-    public InventoryItemCrafting getCraftingInventoryRight(Container container, EntityPlayer player)
+    public IInventory getCraftResultInventory(int id)
     {
-        if (this.craftingInventoryRight == null)
-        {
-            this.craftingInventoryRight = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
-                    this.worldObj.isRemote, player, this, "CraftingItemsRight");
-            this.craftingInventoryRight.readFromContainerItemStack();
-        }
-
-        return this.craftingInventoryRight;
-    }
-
-    public IInventory getCraftResultInventoryLeft()
-    {
-        return this.craftResultLeft;
-    }
-
-    public IInventory getCraftResultInventoryRight()
-    {
-        return this.craftResultRight;
+        return this.craftResults[id];
     }
 
     public InventoryStackArray getFurnaceInventory()
@@ -222,19 +219,19 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         this.selectedModule = MathHelper.clamp_int(index, 0, this.invSize - 1);
     }
 
-    public int getFastModeMask()
+    public int getModeMask()
     {
-        int mode = 0, bit = 0x1;
+        return this.modeMask;
+    }
 
-        for (int i = 0; i < 2; i++, bit <<= 1)
-        {
-            if (this.fastMode[i] == true)
-            {
-                mode |= bit;
-            }
-        }
+    public int getCraftingPreset(int invId)
+    {
+        return 0;
+    }
 
-        return mode;
+    public void setCraftingPreset(int invId)
+    {
+        
     }
 
     @Override
@@ -244,22 +241,26 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     }
 
     @Override
-    public void modularInventoryChanged()
+    public void inventoryChanged(int invId)
     {
+        if (invId == INV_ID_FURNACE)
+        {
+            // This gets called from the furnace inventory's markDirty
+            this.inputDirty[0] = this.inputDirty[1] = true;
+            return;
+        }
+
         this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
 
-        if (this.craftingInventoryLeft != null)
+        if (this.craftingInventories[0] != null)
         {
-            this.craftingInventoryLeft.setContainerItemStack(this.itemStacks[this.selectedModule]);
+            this.craftingInventories[0].setContainerItemStack(this.itemStacks[this.selectedModule]);
         }
 
-        if (this.craftingInventoryRight != null)
+        if (this.craftingInventories[1] != null)
         {
-            this.craftingInventoryRight.setContainerItemStack(this.itemStacks[this.selectedModule]);
+            this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
         }
-
-        // This gets called from the furnace inventory's markDirty
-        this.inputDirty[0] = this.inputDirty[1] = true;
     }
 
     @Override
@@ -307,7 +308,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public void markDirty()
     {
         super.markDirty();
-        this.modularInventoryChanged();
+        this.inventoryChanged(0);
     }
 
     @Override
@@ -322,8 +323,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         if (--this.numPlayersUsing <= 0)
         {
             this.numPlayersUsing = 0;
-            this.craftingInventoryLeft = null;
-            this.craftingInventoryRight = null;
+            this.craftingInventories[0] = null;
+            this.craftingInventories[1] = null;
         }
     }
 
@@ -355,7 +356,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         {
             this.itemInventory.markDirty();
             this.setSelectedModule(element);
-            this.modularInventoryChanged();
+            this.inventoryChanged(0);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
@@ -396,20 +397,16 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         }
         else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element < 2)
         {
-            IInventory inv = element == 0 ? this.craftingInventoryLeft : this.craftingInventoryRight;
+            IInventory inv = this.craftingInventories[element];
 
             if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory, 0, 0, true) == false)
             {
                 InventoryUtils.tryMoveAllItems(inv, player.inventory, 0, 0, false);
             }
         }
-        else if (action == GUI_ACTION_SET_CRAFTING_MODE && element >= 0 && element < 2)
+        else if (action == GUI_ACTION_RECIPE_PRESET && element >= 0 && element < 2)
         {
-            
-        }
-        else if (action == GUI_ACTION_RECALL_RECIPE && element >= 0 && element < 2)
-        {
-            IInventory inv = element == 0 ? this.craftingInventoryLeft : this.craftingInventoryRight;
+            IInventory inv = this.craftingInventories[element];
 
             if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory, 0, 0, true) == true ||
                 InventoryUtils.tryMoveAllItems(inv, player.inventory, 0, 0, false) == true)
@@ -417,12 +414,20 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
                 ;
             }
         }
-        else if (action == GUI_ACTION_SET_RECIPE && element >= 0 && element < 2)
+        else if (action == GUI_ACTION_TOGGLE_MODE && element >= 0 && element < 8)
         {
-        }
-        else if (action == GUI_ACTION_TOGGLE_FURNACE_MODE && element >= 0 && element < 2)
-        {
-            this.fastMode[element] = ! this.fastMode[element];
+            switch (element)
+            {
+                case 0: this.modeMask ^= MODE_BIT_LEFT_CRAFTING_OREDICT; break;
+                case 1: this.modeMask ^= MODE_BIT_LEFT_CRAFTING_KEEPONE; break;
+                case 2: this.modeMask ^= MODE_BIT_LEFT_CRAFTING_AUTOUSE; break;
+                case 3: this.modeMask ^= MODE_BIT_RIGHT_CRAFTING_AUTOUSE; break;
+                case 4: this.modeMask ^= MODE_BIT_RIGHT_CRAFTING_KEEPONE; break;
+                case 5: this.modeMask ^= MODE_BIT_RIGHT_CRAFTING_OREDICT; break;
+                case 6: this.modeMask ^= MODE_BIT_LEFT_FAST; break;
+                case 7: this.modeMask ^= MODE_BIT_RIGHT_FAST; break;
+                default:
+            }
         }
     }
 
@@ -583,13 +588,14 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
         boolean dirty = false;
         boolean hasFuel = this.hasFuelAvailable(id);
+        boolean isFastMode = id == 0 ? (this.modeMask & MODE_BIT_LEFT_FAST) != 0 : (this.modeMask & MODE_BIT_RIGHT_FAST) != 0;
 
         int cookTimeIncrement = COOKTIME_INC_SLOW;
         if (this.burnTimeRemaining[id] == 0 && hasFuel == false)
         {
             return;
         }
-        else if (this.fastMode[id] == true)
+        else if (isFastMode == true)
         {
             cookTimeIncrement = COOKTIME_INC_FAST;
         }
@@ -598,7 +604,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         // The furnace is currently burning fuel
         if (this.burnTimeRemaining[id] > 0)
         {
-            int btUse = (this.fastMode[id] == true ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
+            int btUse = (isFastMode == true ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
 
             // Not enough fuel burn time remaining for the elapsed tick
             if (btUse > this.burnTimeRemaining[id])
@@ -685,7 +691,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     /**
      * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
      */
-    public int getCookProgressScaled(int id, int i)
+    public int getSmeltProgressScaled(int id, int i)
     {
         return this.cookTime[id] * i / COOKTIME_DEFAULT;
     }

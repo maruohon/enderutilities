@@ -6,5 +6,5 @@ public interface IModularInventoryCallback
 {
     public ItemStack getContainerStack();
 
-    public void modularInventoryChanged();
+    public void inventoryChanged(int invId);
 }

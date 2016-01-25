@@ -136,7 +136,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
     }
 
     @Override
-    public void modularInventoryChanged()
+    public void inventoryChanged(int invId)
     {
         this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
     }
@@ -206,7 +206,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
     public void markDirty()
     {
         super.markDirty();
-        this.modularInventoryChanged();
+        this.inventoryChanged(0);
     }
 
     public void onLeftClickBlock(EntityPlayer player)
@@ -237,7 +237,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         {
             this.itemInventory.markDirty();
             this.setSelectedModule(element);
-            this.modularInventoryChanged();
+            this.inventoryChanged(0);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {

@@ -9,15 +9,16 @@ public class InventoryStackArray implements IInventory
     protected ItemStack[] itemStacks;
     protected int invSize;
     protected int invStackLimit;
+    protected int invId;
     boolean ignoreMaxStackSize;
     protected IModularInventoryCallback inventoryCallback;
 
     public InventoryStackArray(ItemStack[] stacks)
     {
-        this(stacks, 64, 27, false, null);
+        this(stacks, 64, 27, false, null, 0);
     }
 
-    public InventoryStackArray(ItemStack[] stacks, int invStackLimit, int invSize, boolean ignoreMaxStackSize, IModularInventoryCallback inv)
+    public InventoryStackArray(ItemStack[] stacks, int invStackLimit, int invSize, boolean ignoreMaxStackSize, IModularInventoryCallback inv, int invId)
     {
         this.itemStacks = stacks;
         this.invStackLimit = invStackLimit;
@@ -26,9 +27,10 @@ public class InventoryStackArray implements IInventory
         this.inventoryCallback = inv;
     }
 
-    public void setInventoryCallback(IModularInventoryCallback inv)
+    public void setInventoryCallback(IModularInventoryCallback inv, int invId)
     {
         this.inventoryCallback = inv;
+        this.invId = invId;
     }
 
     public void setStackArray(ItemStack[] stacks)
@@ -165,7 +167,7 @@ public class InventoryStackArray implements IInventory
     {
         if (this.inventoryCallback != null)
         {
-            this.inventoryCallback.modularInventoryChanged();
+            this.inventoryCallback.inventoryChanged(this.invId);
         }
     }
 

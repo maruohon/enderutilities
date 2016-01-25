@@ -24,13 +24,23 @@ import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 
 @Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
-public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDraw
+public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDraw, IButtonCallback
 {
     protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityCreationStation tecs;
     protected ContainerCreationStation containerCS;
     protected ResourceLocation guiTextureWidgets;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
+    public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
+    public static final String[] BUTTON_STRINGS = new String[] {
+            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.leaveonefilledstack",
+            "enderutilities.gui.label.fillstacks",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.slowfasttoggle"
+    };
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {
@@ -96,6 +106,22 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         // Draw the selection marker around the selected action button, ie. the "Quick Action"
         this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y, 120, 10, 14, 14);
 
+        // Draw the selection marker around selected crafting mode buttons
+        mode = this.containerCS.modeMask & 0xFF;
+        for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
+        {
+            if ((mode & bit) != 0)
+            {
+                this.drawTexturedModalRect(this.guiLeft + CRAFTING_BUTTON_POSX[i], this.guiTop + 87, 120, 0, 10, 10);
+            }
+        }
+
+        // Draw the selection border around the selected crafting preset buttons
+        mode = (this.containerCS.modeMask >> 8) & 0x7;
+        this.drawTexturedModalRect(this.guiLeft +  28, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
+        mode = (this.containerCS.modeMask >> 12) & 0x7;
+        this.drawTexturedModalRect(this.guiLeft + 202, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
+
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
         if (this.tecs.isInventoryAccessible(this.container.getPlayer()) == false)
         {
@@ -133,6 +159,40 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
+        // Left side furnace progress icons
+
+        boolean isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0;
+
+        // Draw the burn progress flame
+        int vOff = (isFast == true ? 34 : 20);
+        int h = (this.containerCS.fuelProgress & 0xFF) * 13 / 100;
+        this.drawTexturedModalRect(this.guiLeft + 9, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, 14, h + 1);
+
+        // Draw the smelting progress arrow
+        if (this.containerCS.smeltProgress > 0)
+        {
+            vOff = isFast == true ? 10 : 0;
+            int w = (this.containerCS.smeltProgress & 0xFF) * 11 / 100;
+            this.drawTexturedModalRect(this.guiLeft + 27, this.guiTop + 11, 134, vOff, w, 10);
+        }
+
+        // Right side furnace progress icons
+
+        isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0;
+
+        // Draw the burn progress flame
+        vOff = (isFast == true ? 34 : 20);
+        h = (this.containerCS.fuelProgress >> 8) * 13 / 100;
+        this.drawTexturedModalRect(this.guiLeft + 217, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, -14, h + 1);
+
+        // Draw the smelting progress arrow
+        if (this.containerCS.smeltProgress > 0)
+        {
+            vOff = isFast == true ? 10 : 0;
+            int w = (this.containerCS.smeltProgress >> 8) * 11 / 100;
+            this.drawTexturedModalRect(this.guiLeft + 203, this.guiTop + 11, 134, vOff, -w, 10);
+        }
+
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
@@ -168,42 +228,56 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             this.buttonList.add(new GuiButtonIcon(i, x + 205, y + 106 + i * 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
-        String[] strs = new String[] {
-                "enderutilities.gui.label.moveallitems",
-                "enderutilities.gui.label.movematchingitems",
-                "enderutilities.gui.label.leaveonefilledstack",
-                "enderutilities.gui.label.fillstacks",
-                "enderutilities.gui.label.movematchingitems",
-                "enderutilities.gui.label.moveallitems"
-        };
-
         // Add the quick-move-items buttons
         for (int i = 0; i < 6; i++)
         {
             this.buttonList.add(new GuiButtonHoverText(i + 4, x + ACTION_BUTTON_POSX[i] + 1, y + 157, 12, 12, 24, i * 12,
-                    this.guiTextureWidgets, 12, 0, new String[] { I18n.format(strs[i], new Object[0]) }));
+                    this.guiTextureWidgets, 12, 0, new String[] { I18n.format(BUTTON_STRINGS[i], new Object[0]) }));
         }
 
-        // Add the left side crafting grid buttons
-        this.buttonList.add(new GuiButtonIcon(10, x + 58, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(12, x + 71, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(14, x + 84, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0));
-
-        // Add the right side crafting grid buttons
+        // Crafting grid clear buttons
+        this.buttonList.add(new GuiButtonIcon(10, x +  84, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0));
         this.buttonList.add(new GuiButtonIcon(11, x + 148, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(13, x + 161, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(15, x + 174, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
+
+        // Add other left side crafting grid buttons
+        this.buttonList.add(new GuiButtonIcon(12, x + 45, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonIcon(13, x + 58, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonIcon(14, x + 71, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
+
+        // Add other right side crafting grid buttons
+        this.buttonList.add(new GuiButtonIcon(15, x + 161, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonIcon(16, x + 174, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonIcon(17, x + 187, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0));
 
         // Add the left and right side furnace mode buttons
-        this.buttonList.add(new GuiButtonIcon(16, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0));
-        this.buttonList.add(new GuiButtonIcon(17, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0));
+        this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
+                new String[] { I18n.format(BUTTON_STRINGS[6], new Object[0]) }, 0, this));
+        this.buttonList.add(new GuiButtonCallback(19, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
+                new String[] { I18n.format(BUTTON_STRINGS[6], new Object[0]) }, 1, this));
 
         // Add the recipe recall buttons
         for (int i = 0; i < 5; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(18 + i, x +  29, y + 33 + i * 11, 8, 8, 0, 32 + i * 8, this.guiTextureWidgets, 8, 0));
-            this.buttonList.add(new GuiButtonIcon(23 + i, x + 203, y + 33 + i * 11, 8, 8, 0, 32 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(20 + i, x +  29, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(25 + i, x + 203, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
+    }
+
+    @Override
+    public int getButtonU(int callbackId)
+    {
+        return 60;
+    }
+
+    @Override
+    public int getButtonV(int callbackId)
+    {
+        if (callbackId == 1)
+        {
+            return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 14 : 0;
+        }
+
+        return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;
     }
 
     @Override
@@ -236,36 +310,28 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             }
         }
         // Clear crafting grid buttons
-        else if (button.id == 10 && button.id == 11)
+        else if (button.id == 10 || button.id == 11)
         {
             PacketHandler.INSTANCE.sendToServer(
                 new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
                     this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
                     TileEntityCreationStation.GUI_ACTION_CLEAR_CRAFTING_GRID, button.id - 10));
         }
-        // Crafting grid mode buttons
-        else if (button.id >= 12 && button.id <= 15)
+        // Crafting grid mode buttons and furnace mode buttons
+        else if (button.id >= 12 && button.id <= 19)
         {
             PacketHandler.INSTANCE.sendToServer(
                 new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
                     this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_CLEAR_CRAFTING_GRID, button.id - 12));
-        }
-        // Toggle furnace mode buttons
-        else if (button.id >= 16 && button.id <= 17)
-        {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_TOGGLE_FURNACE_MODE, button.id - 16));
+                    TileEntityCreationStation.GUI_ACTION_TOGGLE_MODE, button.id - 12));
         }
         // Recipe recall buttons
-        else if (button.id >= 18 && button.id <= 27)
+        else if (button.id >= 20 && button.id <= 29)
         {
             PacketHandler.INSTANCE.sendToServer(
                 new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
                     this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_RECALL_RECIPE, button.id - 18));
+                    TileEntityCreationStation.GUI_ACTION_RECIPE_PRESET, button.id - 20));
         }
     }
 

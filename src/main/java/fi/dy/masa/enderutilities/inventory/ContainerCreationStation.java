@@ -17,9 +17,10 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 public class ContainerCreationStation extends ContainerLargeStacks
 {
     protected final TileEntityCreationStation tecs;
-    public int selectedModule;
-    public int actionMode;
-    public int fastModeMask;
+    public int selectionsLast; // action mode and module selection
+    public int modeMask;
+    public int fuelProgress;
+    public int smeltProgress;
 
     public final IInventory craftResultLeft;
     public final IInventory craftResultRight;
@@ -33,10 +34,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.tecs = te;
         te.openInventory();
 
-        this.craftMatrixLeft = te.getCraftingInventoryLeft(this, player);
-        this.craftMatrixRight = te.getCraftingInventoryRight(this, player);
-        this.craftResultLeft = te.getCraftResultInventoryLeft();
-        this.craftResultRight = te.getCraftResultInventoryRight();
+        this.craftMatrixLeft = te.getCraftingInventory(0, this, player);
+        this.craftMatrixRight = te.getCraftingInventory(1, this, player);
+        this.craftResultLeft = te.getCraftResultInventory(0);
+        this.craftResultRight = te.getCraftResultInventory(1);
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -189,8 +190,15 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.addCraftingToCrafters(icrafting);
 
-        icrafting.sendProgressBarUpdate(this, 0, this.tecs.getSelectedModule());
-        icrafting.sendProgressBarUpdate(this, 1, this.tecs.getQuickMode());
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int modeMask = this.tecs.getCraftingPreset(1) << 12 | this.tecs.getCraftingPreset(0) << 8 | this.tecs.getModeMask();
+        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
+        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
+
+        icrafting.sendProgressBarUpdate(this, 0, modeMask);
+        icrafting.sendProgressBarUpdate(this, 1, selection);
+        icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
+        icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
     }
 
     @Override
@@ -203,29 +211,37 @@ public class ContainerCreationStation extends ContainerLargeStacks
             return;
         }
 
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int modeMask = this.tecs.getCraftingPreset(1) << 12 | this.tecs.getCraftingPreset(0) << 8 | this.tecs.getModeMask();
+        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
+        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
+
         for (int i = 0; i < this.crafters.size(); ++i)
         {
             ICrafting icrafting = (ICrafting)this.crafters.get(i);
 
-            if (this.selectedModule != this.tecs.getSelectedModule())
+            if (this.modeMask != modeMask)
             {
-                icrafting.sendProgressBarUpdate(this, 0, this.tecs.getSelectedModule());
+                icrafting.sendProgressBarUpdate(this, 0, modeMask);
             }
-
-            if (this.actionMode != this.tecs.getQuickMode())
+            if (this.selectionsLast != selection)
             {
-                icrafting.sendProgressBarUpdate(this, 1, this.tecs.getQuickMode());
+                icrafting.sendProgressBarUpdate(this, 1, selection);
             }
-
-            if (this.fastModeMask != this.tecs.getFastModeMask())
+            if (this.fuelProgress != fuelProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 2, this.tecs.getFastModeMask());
+                icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
+            }
+            if (this.smeltProgress != smeltProgress)
+            {
+                icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
             }
         }
 
-        this.selectedModule = this.tecs.getSelectedModule();
-        this.actionMode = this.tecs.getQuickMode();
-        this.fastModeMask = this.tecs.getFastModeMask();
+        this.modeMask = modeMask;
+        this.selectionsLast = selection;
+        this.fuelProgress = fuelProgress;
+        this.smeltProgress = smeltProgress;
     }
 
     @Override
@@ -236,13 +252,17 @@ public class ContainerCreationStation extends ContainerLargeStacks
         switch (var)
         {
             case 0:
-                this.tecs.setSelectedModule(val);
+                this.modeMask = val;
                 break;
             case 1:
-                this.tecs.setQuickMode(val);
+                this.tecs.setSelectedModule(val & 0x3); // 0..3
+                this.tecs.setQuickMode((val >> 2) & 0x7); // 0..5
                 break;
             case 2:
-                this.fastModeMask = val;
+                this.fuelProgress = val; // value is 0..100, left furnace is in the lower bits 7..0
+                break;
+            case 3:
+                this.smeltProgress = val; // value is 0..100, left furnace is in the lower bits 7..0
                 break;
             default:
         }
