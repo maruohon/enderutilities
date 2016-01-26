@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
@@ -14,7 +15,9 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
+
 import cpw.mods.fml.common.Optional;
+
 import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
@@ -191,9 +194,9 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int xOff = this.bagTier == 1 ? 40 : 0;
-        this.fontRendererObj.drawString(I18n.format("container.crafting", new Object[0]), xOff + 97, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), xOff + 97, 59, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag", new Object[0]), xOff + 8, 90, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 97, 59, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 90, 0x404040);
     }
 
     protected void createButtons()
@@ -211,24 +214,24 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 54;
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.moveallitems", new Object[0]) }));
+                "enderutilities.gui.label.moveallitems"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.quickstack", new Object[0]),
-                        "(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")" }));
+                "enderutilities.gui.label.quickstack",
+                 "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 14, 14, 214, 70, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.leaveonefilledstack", new Object[0]) }));
+                "enderutilities.gui.label.leaveonefilledstack"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 14, 14, 214, 28, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.fillstacks", new Object[0]) }));
+                "enderutilities.gui.label.fillstacks"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 14, 14, 214, 42, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.restock", new Object[0]),
-                        "(" + I18n.format("enderutilities.gui.label.movematchingitems", new Object[0]) + ")" }));
+                "enderutilities.gui.label.restock",
+                 "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 14, 14, 214, 56, this.textureGuiWidgets, 14, 0,
-                new String[] { I18n.format("enderutilities.gui.label.moveallitems", new Object[0]) }));
+                "enderutilities.gui.label.moveallitems"));
     }
 
     protected void drawTooltips(int mouseX, int mouseY)

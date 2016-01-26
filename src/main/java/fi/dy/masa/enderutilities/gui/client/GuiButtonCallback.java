@@ -8,13 +8,13 @@ public class GuiButtonCallback extends GuiButtonHoverText
     protected int callbackId;
 
     public GuiButtonCallback(int id, int x, int y, int w, int h, int u, int v, ResourceLocation texture,
-            String[] hoverStrings, int callbackId, IButtonCallback callback)
+            int callbackId, IButtonCallback callback, String ... hoverStrings)
     {
-        this(id, x, y, w, h, u, v, texture, w, 0, hoverStrings, callbackId, callback);
+        this(id, x, y, w, h, u, v, texture, w, 0, callbackId, callback, hoverStrings);
     }
 
     public GuiButtonCallback(int id, int x, int y, int w, int h, int u, int v, ResourceLocation texture,
-            int hoverOffsetU, int hoverOffsetV, String[] hoverStrings, int callbackId, IButtonCallback callback)
+            int hoverOffsetU, int hoverOffsetV, int callbackId, IButtonCallback callback, String ... hoverStrings)
     {
         super(id, x, y, w, h, u, v, texture, hoverOffsetU, hoverOffsetV, hoverStrings);
         this.callbackId = callbackId;

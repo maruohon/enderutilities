@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
@@ -9,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItem;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModules;
@@ -183,13 +185,11 @@ public class GuiPickupManager extends GuiEnderUtilities
     {
         if (ItemPickupManager.getSettingValue(stack, tag) == 0)
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTexture, w, 0,
-                new String[] { I18n.format("enderutilities.gui.label." + s1, new Object[0]) }));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTexture, w, 0, "enderutilities.gui.label." + s1));
         }
         else
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTexture, w, 0,
-                new String[] { I18n.format("enderutilities.gui.label." + s2, new Object[0]) }));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTexture, w, 0, "enderutilities.gui.label." + s2));
         }
     }
 

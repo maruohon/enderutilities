@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -19,6 +22,7 @@ import cpw.mods.fml.common.Optional;
 import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -45,7 +49,11 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
             "enderutilities.gui.label.moveallitems",
-            "enderutilities.gui.label.slowfasttoggle"
+            "enderutilities.gui.label.slowfasttoggle",
+            "enderutilities.gui.label.clearcraftinggrid",
+            "enderutilities.gui.label.useoredictionary",
+            "enderutilities.gui.label.leaveoneitemongrid",
+            "enderutilities.gui.label.useitemsfrominventory"
     };
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
@@ -318,6 +326,24 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         // TODO end of to-be-removed code in 1.8*/
     }
 
+    @Override
+    protected void drawTooltips(int mouseX, int mouseY)
+    {
+        super.drawTooltips(mouseX, mouseY);
+
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+        x += 7;
+        y += 89;
+
+        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
+        {
+            List<String> list = new ArrayList<String>();
+            ItemEnderUtilities.addTooltips("enderutilities.gui.label.creationstation.info", list, false);
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+    }
+
     protected void createButtons()
     {
         this.buttonList.clear();
@@ -335,28 +361,28 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         for (int i = 0; i < 6; i++)
         {
             this.buttonList.add(new GuiButtonHoverText(i + 4, x + ACTION_BUTTON_POSX[i] + 1, y + 157, 12, 12, 24, i * 12,
-                    this.guiTextureWidgets, 12, 0, new String[] { I18n.format(BUTTON_STRINGS[i], new Object[0]) }));
+                    this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
 
         // Crafting grid clear buttons
-        this.buttonList.add(new GuiButtonIcon(10, x +  84, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(11, x + 148, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonHoverText(10, x +  84, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+        this.buttonList.add(new GuiButtonHoverText(11, x + 148, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
 
         // Add other left side crafting grid buttons
-        this.buttonList.add(new GuiButtonIcon(12, x + 45, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(13, x + 58, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(14, x + 71, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonHoverText(12, x + 45, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonHoverText(13, x + 58, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonHoverText(14, x + 71, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
 
         // Add other right side crafting grid buttons
-        this.buttonList.add(new GuiButtonIcon(15, x + 161, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(16, x + 174, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0));
-        this.buttonList.add(new GuiButtonIcon(17, x + 187, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0));
+        this.buttonList.add(new GuiButtonHoverText(15, x + 161, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonHoverText(16, x + 174, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonHoverText(17, x + 187, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
 
         // Add the left and right side furnace mode buttons
         this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
-                new String[] { I18n.format(BUTTON_STRINGS[6], new Object[0]) }, 0, this));
+                0, this, BUTTON_STRINGS[6]));
         this.buttonList.add(new GuiButtonCallback(19, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
-                new String[] { I18n.format(BUTTON_STRINGS[6], new Object[0]) }, 1, this));
+                1, this, BUTTON_STRINGS[6]));
 
         // Add the recipe recall buttons
         for (int i = 0; i < 5; i++)

@@ -133,7 +133,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
         this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
         this.readModeMaskFromModule();
-        //this.inventoryChanged(INV_ID_MODULES);
+        this.loadRecipe(0, this.getRecipeId(0));
+        this.loadRecipe(1, this.getRecipeId(1));
     }
 
     @Override
@@ -444,7 +445,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             return;
         }*/
 
-        System.out.printf("%s - inventoryChanged\n", (this.worldObj.isRemote ? "client" : "server"));
+        //System.out.printf("%s - inventoryChanged\n", (this.worldObj.isRemote ? "client" : "server"));
         if (invId == INV_ID_FURNACE)
         {
             // This gets called from the furnace inventory's markDirty
@@ -452,8 +453,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             return;
         }
 
-        if (this.worldObj.isRemote == false)
-        {
         this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
         this.readModeMaskFromModule();
 
@@ -467,7 +466,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
         }
 
-
+        if (this.worldObj.isRemote == false)
+        {
             this.loadRecipe(0, this.getRecipeId(0));
             this.loadRecipe(1, this.getRecipeId(1));
         }

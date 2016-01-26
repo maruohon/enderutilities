@@ -28,6 +28,14 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
     protected TileEntityHandyChest tehc;
     protected ContainerHandyChest containerHC;
     protected int chestTier;
+    public static final String[] BUTTON_STRINGS = new String[] {
+            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.leaveonefilledstack",
+            "enderutilities.gui.label.fillstacks",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.moveallitems"
+    };
 
     public GuiHandyChest(ContainerHandyChest container, TileEntityHandyChest te)
     {
@@ -162,19 +170,11 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
 
         int yOff = 78 + this.chestTier * 36;
         int xOffs[] = new int[] { 9, 27, 45, 117, 135, 153 };
-        String[] strs = new String[] {
-                "enderutilities.gui.label.moveallitems",
-                "enderutilities.gui.label.movematchingitems",
-                "enderutilities.gui.label.leaveonefilledstack",
-                "enderutilities.gui.label.fillstacks",
-                "enderutilities.gui.label.movematchingitems",
-                "enderutilities.gui.label.moveallitems"
-        };
 
         for (int i = 0; i < 6; i++)
         {
             this.buttonList.add(new GuiButtonHoverText(i + 4, x + xOffs[i] + 1, y + yOff, 12, 12, 220, i * 12,
-                    this.guiTexture, 12, 0, new String[] { I18n.format(strs[i], new Object[0]) }));
+                    this.guiTexture, 12, 0, BUTTON_STRINGS[i]));
         }
     }
 
