@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -16,8 +15,6 @@ import net.minecraft.util.MathHelper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -201,8 +198,8 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     {
         super.addCraftingToCrafters(icrafting);
 
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
         int modeMask = this.tecs.getModeMask();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -224,7 +221,7 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
             return;
         }
 
-        ItemStack currentStack = null;
+        /*ItemStack currentStack = null;
 
         for (int i = 0; i < this.recipeStacksLast.size(); i++)
         {
@@ -258,10 +255,10 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
                     }
                 }
             }
-        }
+        }*/
 
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
         int modeMask = this.tecs.getModeMask();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -313,6 +310,7 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
             case 1:
                 this.tecs.setSelectedModule(val & 0x3); // 0..3
                 this.tecs.setQuickMode((val >> 2) & 0x7); // 0..5
+                this.tecs.inventoryChanged(TileEntityCreationStation.INV_ID_MODULES);
                 break;
             case 2:
                 this.fuelProgress = val; // value is 0..100, left furnace is in the lower bits 7..0

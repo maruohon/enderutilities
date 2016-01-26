@@ -466,7 +466,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
         }
 
-        if (this.worldObj.isRemote == false)
+        //if (this.worldObj.isRemote == false)
         {
             this.loadRecipe(0, this.getRecipeId(0));
             this.loadRecipe(1, this.getRecipeId(1));

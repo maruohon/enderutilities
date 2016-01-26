@@ -102,6 +102,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         this.bindTexture(this.guiTextureWidgets);
 
         int invSize = this.tecs.getItemInventory().getSizeInventory();
+        int modeMask = this.tecs.getModeMask();
 
         // Draw the selection marker around the selected module's button
         this.drawTexturedModalRect(this.guiLeft + 204, this.guiTop + 105 + this.tecs.getSelectedModule() * 18, 120, 0, 10, 10);
@@ -121,7 +122,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y, 120, 10, 14, 14);
 
         // Draw the selection marker around selected crafting mode buttons
-        mode = this.containerCS.modeMask & 0xFF;
+        mode = modeMask & 0xFF;
         for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
         {
             if ((mode & bit) != 0)
@@ -131,9 +132,9 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         }
 
         // Draw the selection border around the selected crafting preset buttons
-        mode = (this.containerCS.modeMask >> 8) & 0x7;
+        mode = (modeMask >> 8) & 0x7;
         this.drawTexturedModalRect(this.guiLeft +  28, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
-        mode = (this.containerCS.modeMask >> 11) & 0x7;
+        mode = (modeMask >> 11) & 0x7;
         this.drawTexturedModalRect(this.guiLeft + 202, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
@@ -227,7 +228,10 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
                         if (gridStack == null)
                         {
                             this.bindTexture(this.guiTextureWidgets);
+
+                            GL11.glDisable(GL11.GL_LIGHTING);
                             this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
+                            GL11.glEnable(GL11.GL_LIGHTING);
 
                             RenderHelper.enableGUIStandardItemLighting();
                             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -235,7 +239,6 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
                             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
                             this.zLevel = 100.0F;
                             itemRender.zLevel = 100.0F;
-                            GL11.glEnable(GL11.GL_LIGHTING);
                             GL11.glEnable(GL11.GL_DEPTH_TEST);
                             GL11.glEnable(GL11.GL_BLEND);
                             OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -252,14 +255,18 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
                         else if (recipeStack == null)
                         {
                             this.bindTexture(this.guiTextureWidgets);
+                            GL11.glDisable(GL11.GL_LIGHTING);
                             this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
+                            GL11.glEnable(GL11.GL_LIGHTING);
                             //itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
                         }
                         // Wrong items, red background
                         else
                         {
                             this.bindTexture(this.guiTextureWidgets);
+                            GL11.glDisable(GL11.GL_LIGHTING);
                             this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
+                            GL11.glEnable(GL11.GL_LIGHTING);
                         }
                     }
                 }
@@ -407,6 +414,12 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         }
 
         return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;
+        /*if (callbackId == 1)
+        {
+            return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 14 : 0;
+        }
+
+        return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;*/
     }
 
     @Override
