@@ -939,4 +939,21 @@ public class InventoryUtils
 
         return false;
     }
+
+    /**
+     * @param inv
+     * @return true if all the slots in the inventory are empty, ie. null
+     */
+    public static boolean isInventoryEmpty(IInventory inv)
+    {
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            if (inv.getStackInSlot(i) != null)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

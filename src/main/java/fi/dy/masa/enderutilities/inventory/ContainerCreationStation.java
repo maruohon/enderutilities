@@ -1,6 +1,10 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -8,13 +12,16 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.MathHelper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerCreationStation extends ContainerLargeStacks
+public class ContainerCreationStation extends ContainerLargeStacks implements ICustomSlotSync
 {
     protected final TileEntityCreationStation tecs;
     public int selectionsLast; // action mode and module selection
@@ -22,11 +29,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int fuelProgress;
     public int smeltProgress;
 
-    public final IInventory craftResultLeft;
-    public final IInventory craftResultRight;
-    protected InventoryItemCrafting craftMatrixLeft;
-    protected InventoryItemCrafting craftMatrixRight;
-    protected InventoryStackArray furnaceInventory;
+    public final IInventory[] craftResults;
+    public final InventoryItemCrafting[] craftMatrices;
+    public final InventoryStackArray furnaceInventory;
+    public final List<ItemStack> recipeStacksLast;
+    //protected final ItemStack[] recipeOutputs;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -34,10 +41,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.tecs = te;
         te.openInventory();
 
-        this.craftMatrixLeft = te.getCraftingInventory(0, this, player);
-        this.craftMatrixRight = te.getCraftingInventory(1, this, player);
-        this.craftResultLeft = te.getCraftResultInventory(0);
-        this.craftResultRight = te.getCraftResultInventory(1);
+        this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
+        this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
+        this.recipeStacksLast = new ArrayList<ItemStack>(20);
+        //this.recipeOutputs = new ItemStack[2];
+        this.furnaceInventory = this.tecs.getFurnaceInventory();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -46,7 +54,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     protected void addCustomInventorySlots()
     {
-        this.furnaceInventory = this.tecs.getFurnaceInventory();
+        for (int i = 0; i < 20; i++) { this.recipeStacksLast.add(null); }
 
         int customInvStart = this.inventorySlots.size();
         int posX = 40;
@@ -84,10 +92,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotGeneric(this.craftMatrixLeft, j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrixLeft, this.craftResultLeft, 0, 112, 33));
+        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
 
         // Crafting slots, right side
         posX = 148;
@@ -96,10 +104,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotGeneric(this.craftMatrixRight, j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrixRight, this.craftResultRight, 0, 112, 69));
+        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
 
         // Add the furnace slots as priority merge slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
@@ -120,7 +128,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Output
         this.addSlotToContainer(new SlotFurnace(this.player, this.furnaceInventory, 5, 184, 8));
 
-        this.onCraftMatrixChanged(this.craftMatrixLeft);
+        this.onCraftMatrixChanged(this.craftMatrices[0]);
     }
 
     @Override
@@ -128,8 +136,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.onCraftMatrixChanged(inv);
 
-        this.craftResultLeft.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrixLeft, this.player.worldObj));
-        this.craftResultRight.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrixRight, this.player.worldObj));
+        this.craftResults[0].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
+        this.craftResults[1].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
     }
 
     @Override
@@ -143,7 +151,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public boolean func_94530_a(ItemStack stack, Slot slot)
     {
-        return slot.inventory != this.craftResultLeft && slot.inventory != this.craftResultRight && super.func_94530_a(stack, slot);
+        return slot.inventory != this.craftResults[0] && slot.inventory != this.craftResults[0] && super.func_94530_a(stack, slot);
     }
 
     @Override
@@ -194,7 +202,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         super.addCraftingToCrafters(icrafting);
 
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
-        int modeMask = this.tecs.getCraftingPreset(1) << 12 | this.tecs.getCraftingPreset(0) << 8 | this.tecs.getModeMask();
+        int modeMask = this.tecs.getModeMask();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -202,6 +210,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
         icrafting.sendProgressBarUpdate(this, 1, selection);
         icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
         icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
+
+        this.detectAndSendChanges();
     }
 
     @Override
@@ -214,8 +224,44 @@ public class ContainerCreationStation extends ContainerLargeStacks
             return;
         }
 
+        ItemStack currentStack = null;
+
+        for (int i = 0; i < this.recipeStacksLast.size(); i++)
+        {
+            int invId = i / 10;
+            int slotNum = i % 10;
+
+            // Crafting grid contents
+            if (slotNum < 9)
+            {
+                currentStack = this.tecs.getRecipeItems(invId)[slotNum];
+            }
+            // Recipe output
+            else
+            {
+                currentStack = this.craftResults[invId].getStackInSlot(0);
+            }
+
+            ItemStack prevStack = this.recipeStacksLast.get(i);
+
+            if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+            {
+                prevStack = currentStack != null ? currentStack.copy() : null;
+                this.recipeStacksLast.set(i, prevStack);
+
+                for (int j = 0; j < this.crafters.size(); ++j)
+                {
+                    ICrafting icrafting = (ICrafting)this.crafters.get(j);
+                    if (icrafting instanceof EntityPlayerMP)
+                    {
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, invId, slotNum, prevStack), (EntityPlayerMP)icrafting);
+                    }
+                }
+            }
+        }
+
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
-        int modeMask = this.tecs.getCraftingPreset(1) << 12 | this.tecs.getCraftingPreset(0) << 8 | this.tecs.getModeMask();
+        int modeMask = this.tecs.getModeMask();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -245,6 +291,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.selectionsLast = selection;
         this.fuelProgress = fuelProgress;
         this.smeltProgress = smeltProgress;
+    }
+
+    @Override
+    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
+    {
+        typeId = MathHelper.clamp_int(typeId, 0, 1);
+        this.tecs.getRecipeItems(typeId)[slotNum] = stack;
     }
 
     @Override

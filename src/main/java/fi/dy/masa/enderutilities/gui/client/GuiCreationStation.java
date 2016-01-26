@@ -1,6 +1,11 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
@@ -22,6 +27,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 @Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
 public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDraw, IButtonCallback
@@ -119,7 +125,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         // Draw the selection border around the selected crafting preset buttons
         mode = (this.containerCS.modeMask >> 8) & 0x7;
         this.drawTexturedModalRect(this.guiLeft +  28, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
-        mode = (this.containerCS.modeMask >> 12) & 0x7;
+        mode = (this.containerCS.modeMask >> 11) & 0x7;
         this.drawTexturedModalRect(this.guiLeft + 202, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
@@ -192,6 +198,103 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             int w = ((this.containerCS.smeltProgress >> 8) & 0x7F) * 11 / 100;
             this.drawTexturedModalRect(this.guiLeft + 203 + 10 - w, this.guiTop + 11, 144 + 10 - w, vOff, w, 10);
         }
+
+        // Draw the red or purple background under non-matching crafting grid slots
+        for (int i = 0; i < 2; i++)
+        {
+            if (this.tecs.getShowRecipe(i) == true)
+            {
+                for (int slotNum = 0; slotNum < 9; slotNum++)
+                {
+                    ItemStack gridStack = this.containerCS.craftMatrices[i].getStackInSlot(slotNum);
+                    ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
+
+                    if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)
+                    {
+                        Slot slot = this.containerCS.getSlot(31 + i * 10 + slotNum);
+                        x = this.guiLeft + slot.xDisplayPosition - 1;
+                        y = this.guiTop + slot.yDisplayPosition - 1;
+
+                        // Missing items, red background
+                        if (gridStack == null)
+                        {
+                            this.bindTexture(this.guiTextureWidgets);
+                            this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
+
+                            RenderHelper.enableGUIStandardItemLighting();
+                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+                            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+                            this.zLevel = 100.0F;
+                            itemRender.zLevel = 100.0F;
+                            GL11.glEnable(GL11.GL_LIGHTING);
+                            GL11.glEnable(GL11.GL_DEPTH_TEST);
+                            GL11.glEnable(GL11.GL_BLEND);
+                            OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+                            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x + 1, y + 1);
+
+                            itemRender.zLevel = 0.0F;
+                            this.zLevel = 0.0F;
+
+                            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x + 1, y + 1, "0");
+                        }
+                        // Extra items, purple background
+                        else if (recipeStack == null)
+                        {
+                            this.bindTexture(this.guiTextureWidgets);
+                            this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
+                            //itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
+                        }
+                        // Wrong items, red background
+                        else
+                        {
+                            this.bindTexture(this.guiTextureWidgets);
+                            this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Draw recipe template stacks for empty crafting grid stacks
+        /*RenderHelper.enableGUIStandardItemLighting();
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+        this.zLevel = 100.0F;
+        itemRender.zLevel = 100.0F;
+
+        for (int i = 0; i < 2; i++)
+        {
+            for (int slotNum = 0; slotNum < 9; slotNum++)
+            {
+                ItemStack gridStack = this.containerCS.craftMatrices[i].getStackInSlot(slotNum);
+                ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
+                if (gridStack == null && recipeStack != null)
+                {
+                    Slot slot = this.containerCS.getSlot(31 + i * 10 + slotNum);
+                    x = this.guiLeft + slot.xDisplayPosition;
+                    y = this.guiTop + slot.yDisplayPosition;
+
+                    GL11.glEnable(GL11.GL_LIGHTING);
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+                    GL11.glEnable(GL11.GL_BLEND);
+                    OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+                    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y);
+                }
+            }
+        }
+
+        itemRender.zLevel = 0.0F;
+        this.zLevel = 0.0F;*/
+
+        //GL11.glEnable(GL11.GL_BLEND);
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        //GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //RenderHelper.enableStandardItemLighting();
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
@@ -281,57 +384,83 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton)
     {
         super.actionPerformed(button);
 
+        boolean valid = true;
+        int action = 0;
+        int element = 0;
+
         if (button.id >= 0 && button.id <= 3)
         {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_SELECT_MODULE, button.id));
+            action = TileEntityCreationStation.GUI_ACTION_SELECT_MODULE;
+            element = button.id - 0;
         }
         else if (button.id >= 4 && button.id <= 9)
         {
-            if (isShiftKeyDown() == true)
+            if (isShiftKeyDown() == true || mouseButton != 0)
             {
-                PacketHandler.INSTANCE.sendToServer(
-                        new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                            this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                            TileEntityCreationStation.GUI_ACTION_SET_QUICK_ACTION, button.id - 4));
+                action = TileEntityCreationStation.GUI_ACTION_SET_QUICK_ACTION;
             }
             else
             {
-                PacketHandler.INSTANCE.sendToServer(
-                    new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                        this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                        TileEntityCreationStation.GUI_ACTION_MOVE_ITEMS, button.id - 4));
+                action = TileEntityCreationStation.GUI_ACTION_MOVE_ITEMS;
             }
+
+            element = button.id - 4;
         }
         // Clear crafting grid buttons
         else if (button.id == 10 || button.id == 11)
         {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_CLEAR_CRAFTING_GRID, button.id - 10));
+            action = TileEntityCreationStation.GUI_ACTION_CLEAR_CRAFTING_GRID;
+            element = button.id - 10;
         }
         // Crafting grid mode buttons and furnace mode buttons
         else if (button.id >= 12 && button.id <= 19)
         {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_TOGGLE_MODE, button.id - 12));
+            action = TileEntityCreationStation.GUI_ACTION_TOGGLE_MODE;
+            element = button.id - 12;
         }
         // Recipe recall buttons
         else if (button.id >= 20 && button.id <= 29)
         {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityCreationStation.GUI_ACTION_RECIPE_PRESET, button.id - 20));
+            // Left click: Load recipe or load items from recipe into crafting grid, or if sneaking, store the recipe
+            if (mouseButton == 0)
+            {
+                if (isShiftKeyDown() == true)
+                {
+                    action = TileEntityCreationStation.GUI_ACTION_RECIPE_STORE;
+                }
+                else
+                {
+                    action = TileEntityCreationStation.GUI_ACTION_RECIPE_LOAD;
+                }
+
+                element = button.id - 20;
+            }
+            // Right click: Clear crafting grid
+            else if (mouseButton == 1)
+            {
+                action = TileEntityCreationStation.GUI_ACTION_CLEAR_CRAFTING_GRID;
+                element = (button.id - 20) / 5;
+            }
+            // Middle click: Remove recipe
+            else if (mouseButton == 2)
+            {
+                action = TileEntityCreationStation.GUI_ACTION_RECIPE_CLEAR;
+                element = button.id - 20;
+            }
+        }
+        else
+        {
+            valid = false;
+        }
+
+        if (valid == true)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
+                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }
 

@@ -10,12 +10,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageSyncTemplateStack;
+import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerTemplatedChest extends ContainerEnderUtilities
+public class ContainerTemplatedChest extends ContainerEnderUtilities implements ICustomSlotSync
 {
     protected TileEntityTemplatedChest tetc;
     protected List<ItemStack> templateStacksLast;
@@ -148,6 +148,12 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities
     }
 
     @Override
+    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
+    {
+        this.tetc.setTemplateStack(slotNum, stack);
+    }
+
+    @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
@@ -157,7 +163,7 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities
             return;
         }
 
-        for (int i = 0; i < this.templateStacksLast.size(); ++i)
+        for (int i = 0; i < this.templateStacksLast.size(); i++)
         {
             ItemStack currentStack = this.tetc.getTemplateStack(i);
             ItemStack prevStack = this.templateStacksLast.get(i);
@@ -167,13 +173,12 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities
                 prevStack = currentStack != null ? currentStack.copy() : null;
                 this.templateStacksLast.set(i, prevStack);
 
-                for (int j = 0; j < this.crafters.size(); ++j)
+                for (int j = 0; j < this.crafters.size(); j++)
                 {
                     ICrafting icrafting = (ICrafting)this.crafters.get(j);
                     if (icrafting instanceof EntityPlayerMP)
                     {
-                        EntityPlayerMP player = (EntityPlayerMP)icrafting;
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncTemplateStack(this.windowId, i, prevStack), player);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP)icrafting);
                     }
                 }
             }

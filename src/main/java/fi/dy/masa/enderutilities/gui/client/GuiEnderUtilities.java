@@ -1,9 +1,11 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
+
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
@@ -51,6 +53,24 @@ public class GuiEnderUtilities extends GuiContainer
             }
         }
     }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+
+        for (int l = 0; l < this.buttonList.size(); ++l)
+        {
+            GuiButton guibutton = (GuiButton)this.buttonList.get(l);
+
+            if (guibutton.mousePressed(this.mc, mouseX, mouseY) == true)
+            {
+                this.actionPerformedWithButton(guibutton, mouseButton);
+            }
+        }
+    }
+
+    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) { }
 
     protected void bindTexture(ResourceLocation rl)
     {
