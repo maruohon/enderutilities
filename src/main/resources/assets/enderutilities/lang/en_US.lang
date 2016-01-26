@@ -177,7 +177,7 @@ tile.enderutilities.templatedchest.2.tooltips=Each slot can be locked to an item
 
 enderutilities.gui.label.blacklist=Black list
 enderutilities.gui.label.clearcraftinggrid=Clear grid
-enderutilities.gui.label.creationstation.info=Crafting presets:|lf- Left click (1st): Load recipe|lf- Left click (2nd): Try fill crafting grid|lf- Shift + left click: Store recipe|lf- Right click: Clear grid (same as 'x')|lf- Middle click: Remove stored recipe|lf- Clear the grid when empty to hide the recipe
+enderutilities.gui.label.creationstation.info=Crafting presets:|lf- Left click (1st): Load recipe|lf- Left click (2nd): Try fill crafting grid|lf- Shift + left click: Store recipe|lf- Right click: Clear grid (same as 'x')|lf- Middle click: Remove stored recipe|lf- Clear the grid (again) when empty to hide the recipe
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
 enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
 enderutilities.gui.label.fillstacks=Fill all existing stacks
@@ -208,7 +208,7 @@ enderutilities.gui.label.templatedchest.info=- Middle click to lock the current 
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
 enderutilities.gui.label.useitemsfrominventory=Take items from inventory
-enderutilities.gui.label.useoredictionary=Use Ore Dictionary
+enderutilities.gui.label.useoredictionary=Use Ore Dictionary (not implemented yet)
 enderutilities.gui.label.whitelist=White list
 
 enderutilities.tooltip.dimension=Dimension

@@ -397,7 +397,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         this.clearLoadedRecipe(invId);
     }
 
-    protected void loadRecipeItemsIntoGrid(int invId, int recipeId)
+    /**
+     * Adds one more of each item in the recipe into the crafting grid, if possible
+     * @param invId
+     * @param recipeId
+     */
+    public void addOneSetOfRecipeItemsIntoGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
         IInventory inv = this.craftingInventories[invId];
@@ -406,15 +411,45 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             return;
         }
 
-        this.loadRecipe(invId, recipeId);
+        boolean isRecipe = InventoryUtils.getMinNonEmptyStackSize(inv) == -1;
+
+        if (isRecipe == true)
+        {
+            //this.loadRecipe(invId, recipeId);
+        }
+
         ItemStack items[] = this.getRecipeItems(invId);
+        ItemStack stackTemplate = null;
 
         for (int i = 0; i < inv.getSizeInventory(); i++)
         {
-            if (items[i] != null)
+            if (isRecipe == true)
             {
-                ItemStack stack = InventoryUtils.collectItemsFromInventory(this.itemInventory, items[i], 1, true);
-                inv.setInventorySlotContents(i, stack);
+                stackTemplate = items[i];
+            }
+            else
+            {
+                stackTemplate = this.craftingInventories[invId].getStackInSlot(i);
+            }
+
+            if (stackTemplate == null)
+            {
+                continue;
+            }
+
+            ItemStack existingStack = inv.getStackInSlot(i);
+            if (existingStack == null || existingStack.stackSize < existingStack.getMaxStackSize())
+            {
+                ItemStack stack = InventoryUtils.collectItemsFromInventory(this.itemInventory, stackTemplate, 1, true);
+                if (existingStack == null)
+                {
+                    inv.setInventorySlotContents(i, stack);
+                }
+                else if (stack != null)
+                {
+                    existingStack.stackSize += 1;
+                    inv.setInventorySlotContents(i, existingStack);
+                }
             }
         }
     }
@@ -426,6 +461,62 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory, 0, 0, true) == false)
         {
             return InventoryUtils.tryMoveAllItems(inv, player.inventory, 0, 0, false);
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if there are enough items on the crafting grid to craft once, and try to add more items
+     * if necessary and the auto-use feature is enabled.
+     * @param invId
+     * @return
+     */
+    public boolean canCraftItems(int invId)
+    {
+        invId = MathHelper.clamp_int(invId, 0, 1);
+        int maskKeepOne = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_KEEPONE : MODE_BIT_LEFT_CRAFTING_KEEPONE;
+        int maskAutoUse = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_AUTOUSE : MODE_BIT_LEFT_CRAFTING_AUTOUSE;
+        IInventory inv = this.craftingInventories[invId];
+
+        // No requirement to keep one item on the grid
+        /*if ((this.modeMask & maskKeepOne) == 0)
+        {
+            return true;
+        }
+
+        // Need to keep one item on the grid, and there are some stacks with only one item left
+        if (InventoryUtils.getMinNonEmptyStackSize(inv) == 1)
+        {
+            //System.out.println("one left, start");
+            // Auto-use items from inventory enabled
+            if ((this.modeMask & maskAutoUse) != 0)
+            {
+                //System.out.println("one left, auto-use enabled");
+                this.addOneSetOfRecipeItemsIntoGrid(invId, this.getRecipeId(invId));
+
+                // Now more than one item in every stack after trying to add one to them
+                if (InventoryUtils.getMinNonEmptyStackSize(inv) > 1)
+                {
+                    //System.out.println("one left, filled stuff");
+                    return true;
+                }
+            }
+
+            //System.out.println("one left, end fail");
+            return false;
+        }*/
+
+        // Auto-use items from inventory enabled
+        if ((this.modeMask & maskAutoUse) != 0)
+        {
+            this.addOneSetOfRecipeItemsIntoGrid(invId, this.getRecipeId(invId));
+        }
+
+        // Keep-one-item enabled and still only one item left in some slots after the fill operation
+        if ((this.modeMask & maskKeepOne) != 0 && InventoryUtils.getMinNonEmptyStackSize(inv) == 1)
+        {
+            return false;
         }
 
         return true;
@@ -647,7 +738,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
                 // First clear away the old contents
                 if (this.clearCraftingGrid(invId, player) == true)
                 {
-                    this.loadRecipeItemsIntoGrid(invId, recipeId);
+                    this.addOneSetOfRecipeItemsIntoGrid(invId, recipeId);
                 }
             }
             // Clicked on a different recipe button => load the recipe, but not the items

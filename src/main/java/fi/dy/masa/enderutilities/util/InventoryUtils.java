@@ -956,4 +956,26 @@ public class InventoryUtils
 
         return true;
     }
+
+    /**
+     * Returns the minimum stack size from the inventory <b>inv</b> from
+     * stacks that are not empty, or -1 if all stacks are empty.
+     * @param inv
+     * @return minimum stack size from the inventory, or -1 if all stacks are empty
+     */
+    public static int getMinNonEmptyStackSize(IInventory inv)
+    {
+        int minSize = -1;
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && (minSize < 0 || stack.stackSize < minSize))
+            {
+                minSize = stack.stackSize;
+            }
+        }
+
+        return minSize;
+    }
 }

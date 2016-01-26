@@ -30,7 +30,8 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     public final InventoryItemCrafting[] craftMatrices;
     public final InventoryStackArray furnaceInventory;
     public final List<ItemStack> recipeStacksLast;
-    //protected final ItemStack[] recipeOutputs;
+    private SlotRange craftingGridSlotsLeft;
+    private SlotRange craftingGridSlotsRight;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -83,6 +84,7 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
         }
 
         // Crafting slots, left side
+        this.craftingGridSlotsLeft = new SlotRange(this.inventorySlots.size(), 9);
         posX = 40;
         posY = 33;
         for (int i = 0; i < 3; ++i)
@@ -95,6 +97,7 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
 
         // Crafting slots, right side
+        this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
         posX = 148;
         posY = 33;
         for (int i = 0; i < 3; ++i)
@@ -154,14 +157,37 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     @Override
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        // Player inventory, module slots or crafting slots
-        if (slot.inventory != this.tecs.getItemInventory() && slot.inventory != this.tecs.getFurnaceInventory())
+        // Our main item inventory or the furnace inventory
+        if (slot.inventory == this.tecs.getItemInventory() || slot.inventory == this.tecs.getFurnaceInventory())
         {
-            return super.getMaxStackSizeFromSlotAndStack(slot, stack);
+            return slot.getSlotStackLimit();
         }
 
-        // Our main item inventory
-        return slot.getSlotStackLimit();
+        // Player inventory, module slots or crafting slots
+        return super.getMaxStackSizeFromSlotAndStack(slot, stack);
+    }
+
+    @Override
+    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
+    {
+        // Crafting output slots; if "keep one item" is enabled and the minimum remaining stack size is 1, then we bail out
+        if (slotNum == 40 || slotNum == 50)
+        {
+            if (this.tecs.canCraftItems(slotNum == 50 ? 1 : 0) == false)
+            {
+                return false;
+            }
+        }
+        // Crafting grid slots, try to merge to the main item inventory first
+        else if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true)
+        {
+            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false) == true)
+            {
+                return true;
+            }
+        }
+
+        return super.transferStackFromSlot(player, slotNum);
     }
 
     @Override
@@ -194,6 +220,21 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     }
 
     @Override
+    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    {
+        // Crafting output slots; if "keep one item" is enabled and the minimum remaining stack size is 1, then we bail out
+        if (slotNum == 40 || slotNum == 50)
+        {
+            if (this.tecs.canCraftItems(slotNum == 50 ? 1 : 0) == false)
+            {
+                return null;
+            }
+        }
+
+        return super.slotClick(slotNum, button, type, player);
+    }
+
+    @Override
     public void addCraftingToCrafters(ICrafting icrafting)
     {
         super.addCraftingToCrafters(icrafting);
@@ -220,42 +261,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
         {
             return;
         }
-
-        /*ItemStack currentStack = null;
-
-        for (int i = 0; i < this.recipeStacksLast.size(); i++)
-        {
-            int invId = i / 10;
-            int slotNum = i % 10;
-
-            // Crafting grid contents
-            if (slotNum < 9)
-            {
-                currentStack = this.tecs.getRecipeItems(invId)[slotNum];
-            }
-            // Recipe output
-            else
-            {
-                currentStack = this.craftResults[invId].getStackInSlot(0);
-            }
-
-            ItemStack prevStack = this.recipeStacksLast.get(i);
-
-            if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
-            {
-                prevStack = currentStack != null ? currentStack.copy() : null;
-                this.recipeStacksLast.set(i, prevStack);
-
-                for (int j = 0; j < this.crafters.size(); ++j)
-                {
-                    ICrafting icrafting = (ICrafting)this.crafters.get(j);
-                    if (icrafting instanceof EntityPlayerMP)
-                    {
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, invId, slotNum, prevStack), (EntityPlayerMP)icrafting);
-                    }
-                }
-            }
-        }*/
 
         int modeMask = this.tecs.getModeMask();
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
