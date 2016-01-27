@@ -1,7 +1,10 @@
 package fi.dy.masa.enderutilities.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.inventory.IInventory;
@@ -977,5 +980,166 @@ public class InventoryUtils
         }
 
         return minSize;
+    }
+
+    /**
+     * Checks if the given inventory <b>inv</b> has at least <b>amount</b> number of items
+     * matching the item in <b>stackTemplate</b>.
+     */
+    public static boolean checkInventoryHasItems(IInventory inv, ItemStack stackTemplate, int amount)
+    {
+        int found = 0;
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stackTmp = inv.getStackInSlot(i);
+
+            if (stackTmp != null && areItemStacksEqual(stackTmp, stackTemplate) == true)
+            {
+                found += stackTmp.stackSize;
+            }
+
+            if (found >= amount)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the inventory <b>invStorage</b> has all the items from the other inventory <b>invTemplate</b>
+     * in at least the amountPerStack quantity per each stack from the template inventory.
+     */
+    public static boolean checkInventoryHasAllItems(IInventory invStorage, IInventory invTemplate, int amountPerStack)
+    {
+        Map<ItemType, Integer> quantities = new HashMap<ItemType, Integer>();
+
+        // First get the sum of all the items required based on the template inventory
+        for (int i = 0; i < invTemplate.getSizeInventory(); i++)
+        {
+            ItemStack stackTmp = invTemplate.getStackInSlot(i);
+
+            if (stackTmp != null)
+            {
+                ItemType item = new ItemType(stackTmp);
+                Integer amount = quantities.get(item);
+                amount = (amount != null) ? amount + amountPerStack : amountPerStack;
+                quantities.put(item, Integer.valueOf(amount));
+            }
+        }
+
+        // Then check if the storage inventory has the required amount of each of those items
+        Set<ItemType> items = quantities.keySet();
+        for (ItemType item : items)
+        {
+            Integer amount = quantities.get(item);
+            if (amount != null)
+            {
+                if (checkInventoryHasItems(invStorage, item.getStack(), amount) == false)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a copy of the whole inventory and returns it in a new ItemStack array.
+     * @param inv
+     * @return an array of ItemStacks containing a copy of the entire inventory
+     */
+    public static ItemStack[] createInventorySnapshot(IInventory inv)
+    {
+        ItemStack[] items = new ItemStack[inv.getSizeInventory()];
+
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = ItemStack.copyItemStack(inv.getStackInSlot(i));
+        }
+
+        return items;
+    }
+
+    /**
+     * Adds amountPerStack items to all the stacks in invTarget based on the template inventory contents array <b>template</b>.
+     * If the existing stack doesn't match the template, then nothing will be added to that stack.
+     * If the existing stack is null, then it will be set to a new stack based on the template.
+     * All the items are taken from the inventory <b>invStorage</b>.
+     * If emptySlotsOnly is true, then only slots that are empty in the target inventory will be re-stocked.
+     * @param invTarget
+     * @param invStorage
+     * @param template
+     * @param amountPerStack
+     * @param emptySlotsOnly
+     * @return true if ALL the items from the template inventory contents and in the quantity amountPerStack were successfully added
+     */
+    public static boolean restockInventoryBasedOnTemplate(IInventory invTarget, IInventory invStorage, ItemStack[] template,
+            int amountPerStack, boolean emptySlotsOnly)
+    {
+        int i = 0;
+        int amount = 0;
+        boolean allSuccess = true;
+
+        for (i = 0; i < template.length && i < invTarget.getSizeInventory(); i++)
+        {
+            if (template[i] == null)
+            {
+                continue;
+            }
+
+            ItemStack stackExisting = invTarget.getStackInSlot(i);
+
+            if (emptySlotsOnly == true && stackExisting != null)
+            {
+                continue;
+            }
+
+            if (stackExisting != null && areItemStacksEqual(stackExisting, template[i]) == false)
+            {
+                allSuccess = false;
+                continue;
+            }
+
+            amount = Math.min(invTarget.getInventoryStackLimit(), template[i].getMaxStackSize());
+
+            if (stackExisting != null)
+            {
+                amount = Math.max(amount - stackExisting.stackSize, 0);
+            }
+
+            amount = Math.min(amount, amountPerStack);
+
+            if (amount <= 0)
+            {
+                allSuccess = false;
+                continue;
+            }
+
+            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false);
+
+            if (stackNew == null)
+            {
+                allSuccess = false;
+                continue;
+            }
+
+            if (stackNew.stackSize < amount)
+            {
+                allSuccess = false;
+            }
+
+            if (stackExisting != null)
+            {
+                stackNew.stackSize += stackExisting.stackSize;
+            }
+
+            invTarget.setInventorySlotContents(i, stackNew);
+        }
+
+        return allSuccess;
     }
 }

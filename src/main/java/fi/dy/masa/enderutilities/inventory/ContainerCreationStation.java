@@ -170,13 +170,21 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     @Override
     public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
-        // Crafting output slots; if "keep one item" is enabled and the minimum remaining stack size is 1, then we bail out
+        // Crafting output slots; if "keep one item" is enabled and the minimum remaining
+        // stack size is 1 and the auto-use feature is not enabled, then we bail out
         if (slotNum == 40 || slotNum == 50)
         {
-            if (this.tecs.canCraftItems(slotNum == 50 ? 1 : 0) == false)
+            int invId = slotNum == 50 ? 1 : 0;
+
+            if (this.tecs.canCraftItems(invId) == false)
             {
                 return false;
             }
+
+            boolean ret = super.transferStackFromSlot(player, slotNum);
+            this.tecs.restockCraftingGrid(invId);
+
+            return ret;
         }
         // Crafting grid slots, try to merge to the main item inventory first
         else if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true)
@@ -188,6 +196,29 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
         }
 
         return super.transferStackFromSlot(player, slotNum);
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    {
+        // Crafting output slots; if "keep one item" is enabled and the minimum remaining
+        // stack size is 1 and the auto-use feature is not enabled, then we bail out
+        if (slotNum == 40 || slotNum == 50)
+        {
+            int invId = slotNum == 50 ? 1 : 0;
+
+            if (this.tecs.canCraftItems(invId) == false)
+            {
+                return null;
+            }
+
+            ItemStack stack = super.slotClick(slotNum, button, type, player);
+            this.tecs.restockCraftingGrid(invId);
+
+            return stack;
+        }
+
+        return super.slotClick(slotNum, button, type, player);
     }
 
     @Override
@@ -217,21 +248,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
                 this.selectedSlot = slotNum;
             }
         }
-    }
-
-    @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
-    {
-        // Crafting output slots; if "keep one item" is enabled and the minimum remaining stack size is 1, then we bail out
-        if (slotNum == 40 || slotNum == 50)
-        {
-            if (this.tecs.canCraftItems(slotNum == 50 ? 1 : 0) == false)
-            {
-                return null;
-            }
-        }
-
-        return super.slotClick(slotNum, button, type, player);
     }
 
     @Override
