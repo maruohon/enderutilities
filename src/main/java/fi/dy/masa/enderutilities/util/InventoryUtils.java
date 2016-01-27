@@ -808,6 +808,17 @@ public class InventoryUtils
      */
     public static ItemStack collectItemsFromInventory(IInventory inv, ItemStack stackTemplate, int maxAmount, boolean reverse)
     {
+        return collectItemsFromInventory(inv, stackTemplate, maxAmount, reverse, false);
+    }
+
+    /**
+     * Collects items from the inventory that are identical to stackTemplate and makes a new ItemStack
+     * out of them, up to stackSize = maxAmount. If <b>reverse</b> is true, then the items are collected
+     * starting from the end of the given inventory.
+     * If no matching items are found, null is returned.
+     */
+    public static ItemStack collectItemsFromInventory(IInventory inv, ItemStack stackTemplate, int maxAmount, boolean reverse, boolean useOreDict)
+    {
         ItemStack stack = stackTemplate.copy();
         stack.stackSize = 0;
 
@@ -817,11 +828,34 @@ public class InventoryUtils
         for (int i = start; i >= 0 && i < inv.getSizeInventory() && stack.stackSize < maxAmount; i += inc)
         {
             ItemStack stackTmp = inv.getStackInSlot(i);
+            if (stackTmp == null)
+            {
+                continue;
+            }
 
             if (areItemStacksEqual(stackTmp, stackTemplate) == true)
             {
                 int num = Math.min(maxAmount - stack.stackSize, stackTmp.stackSize);
                 stack.stackSize += num;
+                stackTmp.stackSize -= num;
+                inv.setInventorySlotContents(i, stackTmp.stackSize > 0 ? stackTmp : null);
+            }
+            else if (useOreDict == true && areItemStacksOreDictMatch(stackTmp, stackTemplate) == true)
+            {
+                int num = Math.min(maxAmount - stack.stackSize, stackTmp.stackSize);
+
+                // This is the first match, and since it's an OreDictionary match ie. different actual
+                // item, we convert the stack to the matched item.
+                if (stack.stackSize == 0)
+                {
+                    stack = stackTmp.copy();
+                    stack.stackSize = num;
+                }
+                else
+                {
+                    stack.stackSize += num;
+                }
+
                 stackTmp.stackSize -= num;
                 inv.setInventorySlotContents(i, stackTmp.stackSize > 0 ? stackTmp : null);
             }
@@ -983,10 +1017,38 @@ public class InventoryUtils
     }
 
     /**
+     * Checks if the ItemStack <b>stackTarget</b> is valid to be used as a substitution
+     * for <b>stackReference</b> via the OreDictionary keys.
+     * @param stackTarget
+     * @param stackReference
+     * @return
+     */
+    public static boolean areItemStacksOreDictMatch(ItemStack stackTarget, ItemStack stackReference)
+    {
+        int[] ids = OreDictionary.getOreIDs(stackReference);
+
+        for (int id : ids)
+        {
+            List<ItemStack> oreStacks = OreDictionary.getOres(OreDictionary.getOreName(id), false);
+
+            for (ItemStack oreStack : oreStacks)
+            {
+                if (OreDictionary.itemMatches(stackTarget, oreStack, false) == true)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Checks if the given inventory <b>inv</b> has at least <b>amount</b> number of items
      * matching the item in <b>stackTemplate</b>.
+     * If useOreDict is true, then any matches via OreDictionary are also accepted.
      */
-    public static boolean checkInventoryHasItems(IInventory inv, ItemStack stackTemplate, int amount)
+    public static boolean checkInventoryHasItems(IInventory inv, ItemStack stackTemplate, int amount, boolean useOreDict)
     {
         int found = 0;
 
@@ -994,9 +1056,13 @@ public class InventoryUtils
         {
             ItemStack stackTmp = inv.getStackInSlot(i);
 
-            if (stackTmp != null && areItemStacksEqual(stackTmp, stackTemplate) == true)
+            if (stackTmp != null)
             {
-                found += stackTmp.stackSize;
+                if (areItemStacksEqual(stackTmp, stackTemplate) == true ||
+                   (useOreDict == true && areItemStacksOreDictMatch(stackTmp, stackTemplate) == true))
+                {
+                    found += stackTmp.stackSize;
+                }
             }
 
             if (found >= amount)
@@ -1011,8 +1077,9 @@ public class InventoryUtils
     /**
      * Checks if the inventory <b>invStorage</b> has all the items from the other inventory <b>invTemplate</b>
      * in at least the amountPerStack quantity per each stack from the template inventory.
+     * If useOreDict is true, then any matches via OreDictionary are also accepted.
      */
-    public static boolean checkInventoryHasAllItems(IInventory invStorage, IInventory invTemplate, int amountPerStack)
+    public static boolean checkInventoryHasAllItems(IInventory invStorage, IInventory invTemplate, int amountPerStack, boolean useOreDict)
     {
         Map<ItemType, Integer> quantities = new HashMap<ItemType, Integer>();
 
@@ -1037,7 +1104,7 @@ public class InventoryUtils
             Integer amount = quantities.get(item);
             if (amount != null)
             {
-                if (checkInventoryHasItems(invStorage, item.getStack(), amount) == false)
+                if (checkInventoryHasItems(invStorage, item.getStack(), amount, useOreDict) == false)
                 {
                     return false;
                 }
@@ -1070,15 +1137,17 @@ public class InventoryUtils
      * If the existing stack is null, then it will be set to a new stack based on the template.
      * All the items are taken from the inventory <b>invStorage</b>.
      * If emptySlotsOnly is true, then only slots that are empty in the target inventory will be re-stocked.
+     * If useOreDict is true, then any matches via OreDictionary are also accepted.
      * @param invTarget
      * @param invStorage
      * @param template
      * @param amountPerStack
      * @param emptySlotsOnly
+     * @param useOreDict
      * @return true if ALL the items from the template inventory contents and in the quantity amountPerStack were successfully added
      */
     public static boolean restockInventoryBasedOnTemplate(IInventory invTarget, IInventory invStorage, ItemStack[] template,
-            int amountPerStack, boolean emptySlotsOnly)
+            int amountPerStack, boolean emptySlotsOnly, boolean useOreDict)
     {
         int i = 0;
         int amount = 0;
@@ -1098,6 +1167,7 @@ public class InventoryUtils
                 continue;
             }
 
+            // Somehow the existing stack doesn't match the template, skip it
             if (stackExisting != null && areItemStacksEqual(stackExisting, template[i]) == false)
             {
                 allSuccess = false;
@@ -1119,7 +1189,7 @@ public class InventoryUtils
                 continue;
             }
 
-            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false);
+            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false, useOreDict);
 
             if (stackNew == null)
             {

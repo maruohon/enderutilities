@@ -208,7 +208,7 @@ enderutilities.gui.label.templatedchest.info=- Middle click to lock the current 
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
 enderutilities.gui.label.useitemsfrominventory=Take items from inventory
-enderutilities.gui.label.useoredictionary=Use Ore Dictionary (not implemented yet)
+enderutilities.gui.label.useoredictionary=Use Ore Dictionary
 enderutilities.gui.label.whitelist=White list
 
 enderutilities.tooltip.dimension=Dimension

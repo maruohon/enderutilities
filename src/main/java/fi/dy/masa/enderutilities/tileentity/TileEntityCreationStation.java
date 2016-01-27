@@ -412,7 +412,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             return;
         }
 
-        InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, this.getRecipeItems(invId), 1, true);
+        int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
+        boolean useOreDict = (this.modeMask & maskOreDict) != 0;
+
+        InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, this.getRecipeItems(invId), 1, true, useOreDict);
     }
 
     protected boolean clearCraftingGrid(int invId, EntityPlayer player)
@@ -442,6 +445,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         invId = MathHelper.clamp_int(invId, 0, 1);
         int maskKeepOne = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_KEEPONE : MODE_BIT_LEFT_CRAFTING_KEEPONE;
         int maskAutoUse = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_AUTOUSE : MODE_BIT_LEFT_CRAFTING_AUTOUSE;
+
         this.craftingGridTemplates[invId] = null;
 
         IInventory invCrafting = this.craftingInventories[invId];
@@ -473,10 +477,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
         // or that the auto-use feature is enabled and the inventory has all the required items
         // to re-stock the crafting grid afterwards.
 
+        int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
+        boolean useOreDict = (this.modeMask & maskOreDict) != 0;
+
         // More than one item left in each slot
         //if (InventoryUtils.getMinNonEmptyStackSize(invCrafting) > 1 || this.craftingGridTemplates[invId] != null)
         if (InventoryUtils.getMinNonEmptyStackSize(invCrafting) > 1 ||
-            InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1) == true)
+            InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1, useOreDict) == true)
         {
             return true;
         }
@@ -500,7 +507,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             return;
         }
 
-        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventories[invId], this.itemInventory, this.craftingGridTemplates[invId], 1, true);
+        int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
+        boolean useOreDict = (this.modeMask & maskOreDict) != 0;
+
+        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventories[invId], this.itemInventory,
+                this.craftingGridTemplates[invId], 1, true, useOreDict);
         this.craftingGridTemplates[invId] = null;
     }
 
