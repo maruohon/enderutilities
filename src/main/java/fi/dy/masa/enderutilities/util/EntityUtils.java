@@ -34,7 +34,7 @@ import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
-    public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
+    public static final byte YAW_TO_DIRECTION[] = {3, 4, 2, 5};
 
     public static enum LeftRight
     {
@@ -64,7 +64,9 @@ public class EntityUtils
 
     public static ForgeDirection getHorizontalLookingDirection(Entity entity)
     {
-        return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+        //float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
+        //System.out.printf("axis: " + ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]) + "\n");
+        return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
     }
 
     public static ForgeDirection getVerticalLookingDirection(Entity entity)
@@ -74,20 +76,26 @@ public class EntityUtils
 
     public static ForgeDirection getClosestLookingDirection(Entity entity)
     {
-        float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
-        int yawAxis = MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
-        float yawAxisMiddle = yawAxis * 360.0f / 4.0f;
+        //float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
+        //int yawAxis = MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
+        //float yawAxisMiddle = yawAxis * 360.0f / 4.0f;
 
-        //System.out.printf("yaw: %.1f yawAxis: %d yawAxisMiddle: %.1f pitch: %.1f\n", yaw, yawAxis, yawAxisMiddle, entity.rotationPitch);
-        if (entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
+        //System.out.printf("yaw: %.1f yawAxis: %d yawAxisMiddle: %.1f pitch: %.1f", yaw, yawAxis, yawAxisMiddle, entity.rotationPitch);
+        //if (entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
+        if (entity.rotationPitch > 60.0f)
         {
+            //System.out.printf(" axis: " + ForgeDirection.DOWN + "\n");
             return ForgeDirection.DOWN;
         }
-        else if (-entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
+        //else if (-entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
+        else if (-entity.rotationPitch > 60.0f)
         {
+            //System.out.printf(" axis: " + ForgeDirection.UP + "\n");
             return ForgeDirection.UP;
         }
 
+        //System.out.printf(" axis: " + ForgeDirection.getOrientation(YAW_TO_DIRECTION[yawAxis]) + "\n");
+        //return ForgeDirection.getOrientation(YAW_TO_DIRECTION[yawAxis]);
         return getHorizontalLookingDirection(entity);
     }
 
@@ -137,7 +145,7 @@ public class EntityUtils
                 result = LeftRight.LEFT;
         }
 
-        //System.out.printf("yaw: %.1f axis: %s look: %s\n", yaw, axis.toString(), result.toString());
+        System.out.printf("yaw: %.1f axis: %s look: %s\n", yaw, axis.toString(), result.toString());
         return result;
     }
 

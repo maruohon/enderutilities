@@ -256,6 +256,7 @@ enderutilities.tooltip.item.empty=empty
 enderutilities.tooltip.item.extend.area=Extend area
 enderutilities.tooltip.item.extend.continuous=Extend cont.
 enderutilities.tooltip.item.fast=Fast
+enderutilities.tooltip.item.flipaxis=Flip axis
 enderutilities.tooltip.item.fluid=Fluid
 enderutilities.tooltip.item.holdshift=Hold §e§oShift§7 for more
 enderutilities.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for description

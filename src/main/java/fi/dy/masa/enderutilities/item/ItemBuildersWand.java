@@ -295,24 +295,29 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         String str2;
         if (this.getAreaFlipped(stack) == true)
         {
-            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            list.add(str + ": " + str2 + rst);
+
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.flipaxis");
+            String preBlue = EnumChatFormatting.BLUE.toString();
+            list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, ForgeDirection.UP) + rst);
         }
         else
         {
-            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            list.add(str + ": " + str2 + rst);
         }
-        list.add(str + ": " + str2 + rst);
 
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
             str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
             if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
             {
-                str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+                str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
             }
             else
             {
-                str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+                str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
             }
             list.add(str + ": " + str2 + rst);
         }
@@ -320,11 +325,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
-            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
         list.add(str + ": " + str2 + rst);
 
@@ -395,7 +400,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 placeBlockToPosition(stack, world, player, positions.get(i));
             }
 
-            // Offset the start position by one after a build operation completes, but not for Walls, Cube and Column modes
+            // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
             BlockPosEU pos = this.getPosition(player, POS_START);
             if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
             {
@@ -584,13 +589,35 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return tag.getBoolean("Flip");
     }
 
-    public void toggleAreaFlipped(ItemStack stack)
+    public void toggleAreaFlipped(ItemStack stack, EntityPlayer player)
     {
         int mode = Mode.getModeOrdinal(stack);
         NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
         NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_CONFIG_PRE + mode, true);
 
-        tag.setBoolean("Flip", ! tag.getBoolean("Flip"));
+        boolean isFlipped = tag.getBoolean("Flip");
+        tag.setBoolean("Flip", ! isFlipped);
+
+        //System.out.println("axis: " + EntityUtils.getClosestLookingDirection(player));
+        //if (isFlipped == true)
+        {
+            ForgeDirection dir = EntityUtils.getClosestLookingDirection(player);
+            tag.setByte("FlipAxis", (byte)dir.ordinal());
+        }
+    }
+
+    public ForgeDirection getAreaFlipAxis(ItemStack stack, ForgeDirection defaultFlipAxis)
+    {
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound wrapperTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(wrapperTag, TAG_NAME_CONFIG_PRE + mode, true);
+
+        if (tag.hasKey("FlipAxis", Constants.NBT.TAG_BYTE) == true)
+        {
+            return ForgeDirection.getOrientation(tag.getByte("FlipAxis"));
+        }
+
+        return defaultFlipAxis;
     }
 
     public void changeAreaDimensions(EntityPlayer player, ItemStack stack, boolean reverse)
@@ -621,26 +648,38 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         ForgeDirection faceAxis = ForgeDirection.getOrientation(pos.face);
 
+        ForgeDirection flipAxis = this.getAreaFlipAxis(stack, faceAxis);
+        boolean isFlipped = this.getAreaFlipped(stack);
+        if (isFlipped == true)
+        {
+            faceAxis = faceAxis.getRotation(flipAxis);
+        }
+
         if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
         {
             ForgeDirection lookDir = EntityUtils.getHorizontalLookingDirection(player);
+            if (isFlipped == true)
+            {
+                lookDir = lookDir.getRotation(flipAxis.getOpposite());
+            }
 
+            //System.out.printf("up/down, face: " + faceAxis + " lookdir: " + lookDir + "\n");
             switch(lookDir)
             {
-                case SOUTH:
+                case NORTH:
                     area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
                     break;
-                case NORTH:
+                case SOUTH:
                     area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
                     break;
-                case EAST:
+                case WEST:
                     // Why are these reversed?
                     if (faceAxis == ForgeDirection.DOWN)
                         area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
                     else
                         area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
                     break;
-                case WEST:
+                case EAST:
                     if (faceAxis == ForgeDirection.DOWN)
                         area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
                     else
@@ -652,10 +691,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         else
         {
             ForgeDirection lookDir = EntityUtils.getClosestLookingDirection(player);
+            //System.out.printf("sides, face: " + faceAxis + " lookdir 1: " + lookDir + "\n");
             if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxis || lookDir == faceAxis.getOpposite()))
             {
                 lookDir = EntityUtils.getVerticalLookingDirection(player);
             }
+
+            if (isFlipped == true)
+            {
+                lookDir = lookDir.getRotation(flipAxis.getOpposite());
+            }
+
+            //System.out.printf("sides, face: " + faceAxis + " lookdir 2: " + lookDir + "\n");
             //ForgeDirection lookDir = EntityUtils.getClosestLookingDirectionNotOnAxis(player, faceAxis);
 
             switch(lookDir)
@@ -817,8 +864,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (this.getAreaFlipped(stack) == true)
         {
-            axisRight = axisRight.getRotation(face);
-            axisUp = axisUp.getRotation(face);
+            ForgeDirection flipAxis = this.getAreaFlipAxis(stack, face);
+            axisRight = axisRight.getRotation(flipAxis);
+            axisUp = axisUp.getRotation(flipAxis);
         }
 
         // Move the position forward by one from the targeted block
@@ -1120,7 +1168,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsShift(key) == false &&
                  ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.toggleAreaFlipped(stack);
+            this.toggleAreaFlipped(stack, player);
         }
     }
 

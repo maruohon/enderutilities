@@ -91,7 +91,7 @@ public class TaskBuildersWand implements IPlayerTask
                 BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(player, ItemBuildersWand.POS_START);
 
                 // Move the target position forward by one block after the area has been built
-                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.COLUMN)
+                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
                 {
                     ((ItemBuildersWand)stack.getItem()).setPosition(player, pos.offset(ForgeDirection.getOrientation(pos.face), 1), ItemBuildersWand.POS_START);
                 }
