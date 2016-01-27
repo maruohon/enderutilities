@@ -102,12 +102,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public String getItemStackDisplayName(ItemStack stack)
     {
         int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        String strPre = " - P: " + preset;
+        String strPre = "P: " + preset;
         String pre = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
         String str = super.getItemStackDisplayName(stack);
 
-        return str + pre + strPre + rst;
+        return str + " - " + pre + strPre + rst;
     }
 
     @Override
