@@ -339,10 +339,18 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
         {
             return;
         }
+        ItemStack stackOrig = stackSlot.copy();
 
         if (slot instanceof SlotCrafting)
         {
-            while (this.transferStackFromSlot(player, slotNum) == true) { }
+            while (this.transferStackFromSlot(player, slotNum) == true)
+            {
+                // Ran out of some of the items, so the crafting result changed, bail out now
+                if (InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                {
+                    break;
+                }
+            }
         }
         // Only transfer a maximum of one regular stack
         else if (stackSlot.stackSize > stackSlot.getMaxStackSize())
