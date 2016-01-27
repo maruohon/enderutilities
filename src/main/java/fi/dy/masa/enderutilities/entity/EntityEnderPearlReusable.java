@@ -63,9 +63,9 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         if (isElitePearl == true)
         {
             this.teleportDamage = 1.0f;
-            this.motionX *= 1.3d;
-            this.motionY *= 1.3d;
-            this.motionZ *= 1.3d;
+            //this.motionX *= 1.3d;
+            //this.motionY *= 1.3d;
+            //this.motionZ *= 1.3d;
         }
     }
 
