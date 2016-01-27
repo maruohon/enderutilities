@@ -66,6 +66,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     public static final int MODE_BIT_RIGHT_CRAFTING_AUTOUSE = 0x0020;
     public static final int MODE_BIT_LEFT_FAST              = 0x0040;
     public static final int MODE_BIT_RIGHT_FAST             = 0x0080;
+    // Note: The selected recipe index is stored in bits 0x3F00 for right and left side (3 bits for each)
     public static final int MODE_BIT_SHOW_RECIPE_LEFT       = 0x4000;
     public static final int MODE_BIT_SHOW_RECIPE_RIGHT      = 0x8000;
 

@@ -273,43 +273,11 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             }
         }
 
-        // Draw recipe template stacks for empty crafting grid stacks
-        /*RenderHelper.enableGUIStandardItemLighting();
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
-        this.zLevel = 100.0F;
-        itemRender.zLevel = 100.0F;
-
-        for (int i = 0; i < 2; i++)
-        {
-            for (int slotNum = 0; slotNum < 9; slotNum++)
-            {
-                ItemStack gridStack = this.containerCS.craftMatrices[i].getStackInSlot(slotNum);
-                ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
-                if (gridStack == null && recipeStack != null)
-                {
-                    Slot slot = this.containerCS.getSlot(31 + i * 10 + slotNum);
-                    x = this.guiLeft + slot.xDisplayPosition;
-                    y = this.guiTop + slot.yDisplayPosition;
-
-                    GL11.glEnable(GL11.GL_LIGHTING);
-                    GL11.glEnable(GL11.GL_DEPTH_TEST);
-                    GL11.glEnable(GL11.GL_BLEND);
-                    OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-                    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y);
-                }
-            }
-        }
-
-        itemRender.zLevel = 0.0F;
-        this.zLevel = 0.0F;*/
-
         //GL11.glEnable(GL11.GL_BLEND);
         //GL11.glEnable(GL11.GL_LIGHTING);
         //GL11.glEnable(GL11.GL_DEPTH_TEST);
         //RenderHelper.enableStandardItemLighting();
+        RenderHelper.enableGUIStandardItemLighting();
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
@@ -414,12 +382,6 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         }
 
         return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;
-        /*if (callbackId == 1)
-        {
-            return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 14 : 0;
-        }
-
-        return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;*/
     }
 
     @Override

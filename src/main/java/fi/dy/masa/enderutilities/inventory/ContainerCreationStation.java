@@ -1,8 +1,5 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
@@ -11,14 +8,13 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.MathHelper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerCreationStation extends ContainerLargeStacks implements ICustomSlotSync
+public class ContainerCreationStation extends ContainerLargeStacks
 {
     protected final TileEntityCreationStation tecs;
     public int selectionsLast; // action mode and module selection
@@ -29,7 +25,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     public final IInventory[] craftResults;
     public final InventoryItemCrafting[] craftMatrices;
     public final InventoryStackArray furnaceInventory;
-    public final List<ItemStack> recipeStacksLast;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
 
@@ -41,8 +36,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
         this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
-        this.recipeStacksLast = new ArrayList<ItemStack>(20);
-        //this.recipeOutputs = new ItemStack[2];
         this.furnaceInventory = this.tecs.getFurnaceInventory();
 
         this.addCustomInventorySlots();
@@ -52,8 +45,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
     @Override
     protected void addCustomInventorySlots()
     {
-        for (int i = 0; i < 20; i++) { this.recipeStacksLast.add(null); }
-
         int customInvStart = this.inventorySlots.size();
         int posX = 40;
         int posY = 102;
@@ -309,13 +300,6 @@ public class ContainerCreationStation extends ContainerLargeStacks implements IC
         this.selectionsLast = selection;
         this.fuelProgress = fuelProgress;
         this.smeltProgress = smeltProgress;
-    }
-
-    @Override
-    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
-    {
-        typeId = MathHelper.clamp_int(typeId, 0, 1);
-        this.tecs.getRecipeItems(typeId)[slotNum] = stack;
     }
 
     @Override
