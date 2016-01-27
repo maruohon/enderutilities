@@ -1167,17 +1167,18 @@ public class InventoryUtils
                 continue;
             }
 
-            // Somehow the existing stack doesn't match the template, skip it
-            if (stackExisting != null && areItemStacksEqual(stackExisting, template[i]) == false)
-            {
-                allSuccess = false;
-                continue;
-            }
-
             amount = Math.min(invTarget.getInventoryStackLimit(), template[i].getMaxStackSize());
 
+            // Somehow the existing stack doesn't match the template, skip it
             if (stackExisting != null)
             {
+                if ((useOreDict == false && areItemStacksEqual(stackExisting, template[i]) == false) ||
+                    (useOreDict == true && areItemStacksOreDictMatch(stackExisting, template[i]) == false))
+                {
+                    allSuccess = false;
+                    continue;
+                }
+
                 amount = Math.max(amount - stackExisting.stackSize, 0);
             }
 
