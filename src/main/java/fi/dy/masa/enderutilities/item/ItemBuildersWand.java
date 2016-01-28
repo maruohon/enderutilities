@@ -213,6 +213,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         itemName = itemName + " M: " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
 
+        if (this.getAreaFlipped(stack) == true)
+        {
+            String strFlip = this.getAreaFlipAxis(stack, ForgeDirection.NORTH).toString().substring(0, 1);
+            itemName = itemName + " F: " + preGreen + strFlip + rst;
+        }
+        else
+        {
+            itemName = itemName + " F: " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+        }
+
         int sel = getSelectedBlockType(stack);
         if (sel >= 0)
         {
@@ -620,47 +630,207 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return defaultFlipAxis;
     }
 
+    public ForgeDirection getAxisRight(ItemStack stack, BlockPosEU pos)
+    {
+        ForgeDirection face = ForgeDirection.getOrientation(pos.face);
+        ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
+
+        if (face == ForgeDirection.UP)
+        {
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+        }
+        else if (face == ForgeDirection.DOWN)
+        {
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+        }
+
+        if (this.getAreaFlipped(stack) == true)
+        {
+            ForgeDirection flipAxis = this.getAreaFlipAxis(stack, face);
+            axisRight = axisRight.getRotation(flipAxis);
+        }
+
+        return axisRight;
+    }
+
+    public ForgeDirection getAxisUp(ItemStack stack, BlockPosEU pos)
+    {
+        ForgeDirection face = ForgeDirection.getOrientation(pos.face);
+        //ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
+        ForgeDirection axisRight = face.getRotation(ForgeDirection.DOWN);
+        ForgeDirection axisUp = face.getRotation(axisRight);
+
+        if (face == ForgeDirection.UP)
+        {
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+            axisUp = face.getRotation(axisRight);
+        }
+        else if (face == ForgeDirection.DOWN)
+        {
+            axisRight = face.getRotation(ForgeDirection.SOUTH);
+            axisUp = face.getRotation(axisRight);
+        }
+
+        if (this.getAreaFlipped(stack) == true)
+        {
+            ForgeDirection flipAxis = this.getAreaFlipAxis(stack, face);
+            axisUp = axisUp.getRotation(flipAxis);
+        }
+
+        return axisUp;
+    }
+
     public void changeAreaDimensions(EntityPlayer player, ItemStack stack, boolean reverse)
     {
         BlockPosEU pos = this.getPosition(player, POS_START);
-        if (pos == null)
-        {
-            return;
-        }
-
         Mode mode = Mode.getMode(stack);
-        if (mode == Mode.WALLS || mode == Mode.CUBE)
+        if (pos == null || mode == Mode.WALLS || mode == Mode.CUBE)
         {
             return;
         }
 
-        int amount = reverse ? 1 : -1;
-        int maxRadius = 64;
+        int amount = reverse == true ? 1 : -1;
         Area area = new Area(stack);
 
         // Only one dimension is used for the column mode
         if (mode == Mode.COLUMN)
         {
-            area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
+            area.adjustFromPlanarizedFacing(ForgeDirection.EAST, amount, ForgeDirection.UP, ForgeDirection.EAST);
             area.writeToNBT(stack);
             return;
         }
 
         ForgeDirection faceAxis = ForgeDirection.getOrientation(pos.face);
+        ForgeDirection axisRight = this.getAxisRight(stack, pos);
+        ForgeDirection axisUp = this.getAxisUp(stack, pos);
 
-        ForgeDirection flipAxis = this.getAreaFlipAxis(stack, faceAxis);
         boolean isFlipped = this.getAreaFlipped(stack);
-        if (isFlipped == true)
+        ForgeDirection flipAxis = this.getAreaFlipAxis(stack, faceAxis);
+        ForgeDirection faceAxisFlipped = isFlipped == true ? faceAxis.getRotation(flipAxis) : faceAxis;
+
+        /*if (faceAxisFlipped != ForgeDirection.UP && faceAxisFlipped != ForgeDirection.DOWN)
         {
-            faceAxis = faceAxis.getRotation(flipAxis);
+            axisUp = axisUp.getRotation(axisRight);
+        }*/
+
+        /*if (axisUp == ForgeDirection.UP)
+        {
+            axisUp = ForgeDirection.NORTH;
+        }
+        else if (axisUp == ForgeDirection.DOWN)
+        {
+            axisUp = ForgeDirection.SOUTH;
+        }*/
+
+        //boolean usePitch = flippedFaceAxis != ForgeDirection.UP && flippedFaceAxis != ForgeDirection.DOWN;
+        ForgeDirection lookDir = ForgeDirection.NORTH; //EntityUtils.getClosesLookingDirectionPlanarized(player, usePitch);
+        ForgeDirection lookDirUp = ForgeDirection.NORTH;
+        ForgeDirection lookDirRight = ForgeDirection.EAST;
+        //ForgeDirection lookDirFixed = lookDir;
+
+        // Horizontal looking direction only
+        if (faceAxisFlipped == ForgeDirection.UP || faceAxisFlipped == ForgeDirection.DOWN)
+        {
+            lookDir = EntityUtils.getHorizontalLookingDirection(player);
+            lookDirRight = faceAxisFlipped.getRotation(ForgeDirection.SOUTH);
+            //lookDirUp = faceAxisFlipped;
+            /*lookDirFixed = lookDir;
+
+            if (faceAxisFlipped == ForgeDirection.DOWN && (lookDirFixed == ForgeDirection.WEST || lookDirFixed == ForgeDirection.EAST))
+            {
+                lookDirFixed = lookDirFixed.getOpposite();
+            }*/
+
+            System.out.printf("up/down - look: %s\n", lookDir);
+        }
+        else
+        {
+            lookDir = EntityUtils.getClosestLookingDirection(player);
+            System.out.printf("horizontal - look pre: %s\n", lookDir);
+
+            if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxisFlipped || lookDir == faceAxisFlipped.getOpposite()))
+            {
+                lookDir = EntityUtils.getVerticalLookingDirection(player);
+                //lookDir = lookDir == ForgeDirection.UP ? ForgeDirection.NORTH : ForgeDirection.SOUTH;
+            }
+            else
+            {
+                LeftRight leftRight = EntityUtils.getLookLeftRight(player, faceAxisFlipped);
+                //lookDir = leftRight == LeftRight.RIGHT ? ForgeDirection.EAST : ForgeDirection.WEST;
+                lookDir = leftRight == LeftRight.RIGHT ? faceAxisFlipped.getRotation(ForgeDirection.DOWN) : faceAxisFlipped.getRotation(ForgeDirection.UP);
+            }
+
+            lookDirUp = ForgeDirection.UP;
+            lookDirRight = faceAxisFlipped.getRotation(ForgeDirection.DOWN);
+
+            //lookDirFixed = lookDir;
+            System.out.printf("horizontal - look post: %s\n", lookDir);
         }
 
-        if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
+        System.out.printf("look before TR: %s\n", lookDir);
+        List<ForgeDirection> rotations = EntityUtils.getTransformationsToMatchPlanes(lookDirUp, lookDirRight, axisUp, axisRight);
+        for (ForgeDirection rot : rotations)
+        {
+            System.out.printf(" rot: " + rot);
+            //lookDir = lookDir.getRotation(rot);
+        }
+        System.out.printf("\nlook after TR: %s\n", lookDir);
+
+        // Horizontal face axis
+        /*if (faceAxisFlipped != ForgeDirection.UP && faceAxisFlipped != ForgeDirection.DOWN)
+        {
+            
+        }
+
+        if (isFlipped == true)
+        {
+            // The flip is a roll around the face axis, we need to roll the looking direction
+            if (faceAxisFlipped == faceAxis || faceAxisFlipped == faceAxis.getOpposite())
+            {
+                System.out.printf("flipped, par - orig look: %s\n", lookDirFixed);
+                lookDirFixed = lookDirFixed.getRotation(flipAxis);
+                System.out.printf("flipped, par - fixed look: %s\n", lookDirFixed);
+            }
+            else
+            {
+                axisRight = axisRight.getRotation(flipAxis);
+                axisUp = axisUp.getRotation(flipAxis);
+                System.out.printf("flipped, non-par - fixed up: %s right: %s\n", axisUp, axisRight);
+            }
+        }*/
+
+        /*System.out.printf("pre up: %s right: %s\n", axisUp, axisRight);
+        if (axisUp == ForgeDirection.UP)
+        {
+            axisUp = axisUp.getRotation(axisRight);
+        }
+        else if (axisUp == ForgeDirection.DOWN)
+        {
+            axisUp = axisUp.getRotation(axisRight.getOpposite());
+        }
+        else if (axisRight == ForgeDirection.UP)
+        {
+            axisRight = axisRight.getRotation(axisUp.getOpposite());
+        }
+        else if (axisRight == ForgeDirection.DOWN)
+        {
+            axisRight = axisRight.getRotation(axisUp);
+        }
+        System.out.printf("post up: %s right: %s\n", axisUp, axisRight);*/
+        
+
+        //System.out.printf("face: %s flippedFace: %s flipAxis: %s look: %s lookDirFixed: %s\n", faceAxis, (isFlipped ? faceAxisFlipped : "none"), flipAxis, lookDir, lookDirFixed);
+        System.out.printf("face: %s flippedFace: %s flipAxis: %s look: %s up: %s right: %s\n", faceAxis, (isFlipped ? faceAxisFlipped : "none"), flipAxis, lookDir, axisUp, axisRight);
+        area.adjustFromPlanarizedFacing(lookDir, amount, axisUp, axisRight);
+        //area.adjustFromPlanarizedFacing(lookDir, amount, ForgeDirection.NORTH, ForgeDirection.EAST);
+        //area.adjustFromPlanarizedFacing(lookDir, amount, ForgeDirection.UP, ForgeDirection.EAST);
+
+        /*if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
         {
             ForgeDirection lookDir = EntityUtils.getHorizontalLookingDirection(player);
             if (isFlipped == true)
             {
-                lookDir = lookDir.getRotation(flipAxis.getOpposite());
+                //lookDir = lookDir.getRotation(flipAxis.getOpposite());
             }
 
             //System.out.printf("up/down, face: " + faceAxis + " lookdir: " + lookDir + "\n");
@@ -699,7 +869,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             if (isFlipped == true)
             {
-                lookDir = lookDir.getRotation(flipAxis.getOpposite());
+                //lookDir = lookDir.getRotation(flipAxis.getOpposite());
             }
 
             //System.out.printf("sides, face: " + faceAxis + " lookdir 2: " + lookDir + "\n");
@@ -725,7 +895,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                         area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
                     }
             }
-        }
+        }*/
 
         area.writeToNBT(stack);
     }
@@ -1298,6 +1468,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         public int rNegH;
         public int rPosV;
         public int rNegV;
+        public int maxRadius;
 
         public Area(int packed)
         {
@@ -1330,6 +1501,39 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             this.rNegH = rNegH;
             this.rPosV = rPosV;
             this.rNegV = rNegV;
+            this.maxRadius = 64;
+        }
+
+        /**
+         * Adjust the area based on the "planarized" ForgeDirection, where<br>
+         * NORTH = rPosV<br>
+         * SOUTH = rNegV<br>
+         * EAST  = rPosH<br>
+         * WEST  = rNegH<br>
+         * @param dir
+         * @param amount
+         * @return
+         */
+        public Area adjustFromPlanarizedFacing(ForgeDirection dir, int amount, ForgeDirection upAxis, ForgeDirection rightAxis)
+        {
+            if (dir == upAxis)
+            {
+                this.rPosV = MathHelper.clamp_int(this.rPosV + amount, 0, this.maxRadius);
+            }
+            else if (dir == upAxis.getOpposite())
+            {
+                this.rNegV = MathHelper.clamp_int(this.rNegV + amount, 0, this.maxRadius);
+            }
+            else if (dir == rightAxis)
+            {
+                this.rPosH = MathHelper.clamp_int(this.rPosH + amount, 0, this.maxRadius);
+            }
+            else if (dir == rightAxis.getOpposite())
+            {
+                this.rNegH = MathHelper.clamp_int(this.rNegH + amount, 0, this.maxRadius);
+            }
+
+            return this;
         }
 
         public int getPacked()

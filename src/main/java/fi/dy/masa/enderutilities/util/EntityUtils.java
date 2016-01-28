@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -99,6 +100,27 @@ public class EntityUtils
         return getHorizontalLookingDirection(entity);
     }
 
+    public static ForgeDirection getClosesLookingDirectionPlanarized(Entity entity, boolean usePitch)
+    {
+        if (usePitch == true)
+        {
+            ForgeDirection dir = getClosestLookingDirection(entity);
+
+            if (dir == ForgeDirection.UP)
+            {
+                dir = ForgeDirection.NORTH;
+            }
+            else if (dir == ForgeDirection.DOWN)
+            {
+                dir = ForgeDirection.SOUTH;
+            }
+
+            return dir;
+        }
+
+        return getHorizontalLookingDirection(entity);
+    }
+
     public static ForgeDirection getClosestLookingDirectionNotOnAxis(Entity entity, ForgeDirection notOnAxis)
     {
         ForgeDirection dir = getClosestLookingDirection(entity);
@@ -145,8 +167,71 @@ public class EntityUtils
                 result = LeftRight.LEFT;
         }
 
-        System.out.printf("yaw: %.1f axis: %s look: %s\n", yaw, axis.toString(), result.toString());
+        //System.out.printf("yaw: %.1f axis: %s look: %s\n", yaw, axis.toString(), result.toString());
         return result;
+    }
+
+    /**
+     * Get the (non-optimized) transformations to transform a plane defined by the
+     * vectors p1Up and p1Right to match the other plane defined by p2Up and p2Right.
+     */
+    public static List<ForgeDirection> getTransformationsToMatchPlanes(ForgeDirection p1Up, ForgeDirection p1Right, ForgeDirection p2Up, ForgeDirection p2Right)
+    {
+        List<ForgeDirection> list = new ArrayList<ForgeDirection>();
+        ForgeDirection tmp1 = p1Up;
+        ForgeDirection tmp2 = p1Right;
+        ForgeDirection rot = p1Up;
+
+        // First get the rotations to match p1Up to p2Up
+        if (p2Up == p1Right)
+        {
+            rot = p1Up.getRotation(p1Right.getOpposite());
+            System.out.printf("TR right - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
+            list.add(rot);
+            p1Right = p1Right.getRotation(rot);
+            p1Up = p2Up;
+        }
+        else if (p2Up == p1Right.getOpposite())
+        {
+            rot = p1Up.getRotation(p1Right);
+            System.out.printf("TR left - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
+            list.add(rot);
+            p1Right = p1Right.getRotation(rot);
+            p1Up = p2Up;
+        }
+        else
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (tmp1 == p2Up)
+                {
+                    break;
+                }
+
+                System.out.printf("TR loop 1 - p1Right %s ", p1Right);
+                tmp1 = tmp1.getRotation(p1Right);
+                list.add(p1Right);
+            }
+        }
+
+        p1Up = tmp1;
+        System.out.printf("\np1Right: %s p2Right: %s\n", p1Right, p2Right);
+        tmp1 = p1Right;
+        // Then get the rotations to match p1Right to p2Right, rotating around p2Up
+        for (int i = 0; i < 4; i++)
+        {
+            if (tmp1 == p2Right)
+            {
+                break;
+            }
+
+            System.out.printf("TR loop 2: %s ", p2Up);
+            tmp1 = tmp1.getRotation(p2Up);
+            list.add(p2Up);
+        }
+
+        System.out.printf("\n");
+        return list;
     }
 
     public static EntityPlayer findPlayerByUUID(UUID uuid)
