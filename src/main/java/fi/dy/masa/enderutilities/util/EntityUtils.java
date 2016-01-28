@@ -179,14 +179,13 @@ public class EntityUtils
     {
         List<ForgeDirection> list = new ArrayList<ForgeDirection>();
         ForgeDirection tmp1 = p1Up;
-        ForgeDirection tmp2 = p1Right;
         ForgeDirection rot = p1Up;
 
         // First get the rotations to match p1Up to p2Up
         if (p2Up == p1Right)
         {
             rot = p1Up.getRotation(p1Right.getOpposite());
-            System.out.printf("TR right - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
+            //System.out.printf("TR right - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
             p1Right = p1Right.getRotation(rot);
             p1Up = p2Up;
@@ -194,7 +193,7 @@ public class EntityUtils
         else if (p2Up == p1Right.getOpposite())
         {
             rot = p1Up.getRotation(p1Right);
-            System.out.printf("TR left - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
+            //System.out.printf("TR left - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
             p1Right = p1Right.getRotation(rot);
             p1Up = p2Up;
@@ -208,15 +207,16 @@ public class EntityUtils
                     break;
                 }
 
-                System.out.printf("TR loop 1 - p1Right %s ", p1Right);
+                //System.out.printf("TR loop 1 - p1Right %s ", p1Right);
                 tmp1 = tmp1.getRotation(p1Right);
                 list.add(p1Right);
             }
         }
 
+        //System.out.printf("\np1Right: %s p2Right: %s\n", p1Right, p2Right);
         p1Up = tmp1;
-        System.out.printf("\np1Right: %s p2Right: %s\n", p1Right, p2Right);
         tmp1 = p1Right;
+
         // Then get the rotations to match p1Right to p2Right, rotating around p2Up
         for (int i = 0; i < 4; i++)
         {
@@ -225,12 +225,12 @@ public class EntityUtils
                 break;
             }
 
-            System.out.printf("TR loop 2: %s ", p2Up);
+            //System.out.printf("TR loop 2: %s ", p2Up);
             tmp1 = tmp1.getRotation(p2Up);
             list.add(p2Up);
         }
 
-        System.out.printf("\n");
+        //System.out.printf("\n");
         return list;
     }
 

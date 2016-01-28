@@ -708,194 +708,36 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         ForgeDirection flipAxis = this.getAreaFlipAxis(stack, faceAxis);
         ForgeDirection faceAxisFlipped = isFlipped == true ? faceAxis.getRotation(flipAxis) : faceAxis;
 
-        /*if (faceAxisFlipped != ForgeDirection.UP && faceAxisFlipped != ForgeDirection.DOWN)
-        {
-            axisUp = axisUp.getRotation(axisRight);
-        }*/
-
-        /*if (axisUp == ForgeDirection.UP)
-        {
-            axisUp = ForgeDirection.NORTH;
-        }
-        else if (axisUp == ForgeDirection.DOWN)
-        {
-            axisUp = ForgeDirection.SOUTH;
-        }*/
-
-        //boolean usePitch = flippedFaceAxis != ForgeDirection.UP && flippedFaceAxis != ForgeDirection.DOWN;
-        ForgeDirection lookDir = ForgeDirection.NORTH; //EntityUtils.getClosesLookingDirectionPlanarized(player, usePitch);
-        ForgeDirection lookDirUp = ForgeDirection.NORTH;
-        ForgeDirection lookDirRight = ForgeDirection.EAST;
-        //ForgeDirection lookDirFixed = lookDir;
+        ForgeDirection lookDir = ForgeDirection.NORTH;
 
         // Horizontal looking direction only
         if (faceAxisFlipped == ForgeDirection.UP || faceAxisFlipped == ForgeDirection.DOWN)
         {
             lookDir = EntityUtils.getHorizontalLookingDirection(player);
-            lookDirRight = faceAxisFlipped.getRotation(ForgeDirection.SOUTH);
-            //lookDirUp = faceAxisFlipped;
-            /*lookDirFixed = lookDir;
-
-            if (faceAxisFlipped == ForgeDirection.DOWN && (lookDirFixed == ForgeDirection.WEST || lookDirFixed == ForgeDirection.EAST))
-            {
-                lookDirFixed = lookDirFixed.getOpposite();
-            }*/
-
-            System.out.printf("up/down - look: %s\n", lookDir);
         }
         else
         {
             lookDir = EntityUtils.getClosestLookingDirection(player);
-            System.out.printf("horizontal - look pre: %s\n", lookDir);
 
             if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxisFlipped || lookDir == faceAxisFlipped.getOpposite()))
             {
                 lookDir = EntityUtils.getVerticalLookingDirection(player);
-                //lookDir = lookDir == ForgeDirection.UP ? ForgeDirection.NORTH : ForgeDirection.SOUTH;
             }
             else
             {
                 LeftRight leftRight = EntityUtils.getLookLeftRight(player, faceAxisFlipped);
-                //lookDir = leftRight == LeftRight.RIGHT ? ForgeDirection.EAST : ForgeDirection.WEST;
                 lookDir = leftRight == LeftRight.RIGHT ? faceAxisFlipped.getRotation(ForgeDirection.DOWN) : faceAxisFlipped.getRotation(ForgeDirection.UP);
             }
-
-            lookDirUp = ForgeDirection.UP;
-            lookDirRight = faceAxisFlipped.getRotation(ForgeDirection.DOWN);
-
-            //lookDirFixed = lookDir;
-            System.out.printf("horizontal - look post: %s\n", lookDir);
         }
 
-        System.out.printf("look before TR: %s\n", lookDir);
-        List<ForgeDirection> rotations = EntityUtils.getTransformationsToMatchPlanes(lookDirUp, lookDirRight, axisUp, axisRight);
+        /*List<ForgeDirection> rotations = EntityUtils.getTransformationsToMatchPlanes(lookDirUp, lookDirRight, axisUp, axisRight);
         for (ForgeDirection rot : rotations)
         {
-            System.out.printf(" rot: " + rot);
-            //lookDir = lookDir.getRotation(rot);
-        }
-        System.out.printf("\nlook after TR: %s\n", lookDir);
-
-        // Horizontal face axis
-        /*if (faceAxisFlipped != ForgeDirection.UP && faceAxisFlipped != ForgeDirection.DOWN)
-        {
-            
-        }
-
-        if (isFlipped == true)
-        {
-            // The flip is a roll around the face axis, we need to roll the looking direction
-            if (faceAxisFlipped == faceAxis || faceAxisFlipped == faceAxis.getOpposite())
-            {
-                System.out.printf("flipped, par - orig look: %s\n", lookDirFixed);
-                lookDirFixed = lookDirFixed.getRotation(flipAxis);
-                System.out.printf("flipped, par - fixed look: %s\n", lookDirFixed);
-            }
-            else
-            {
-                axisRight = axisRight.getRotation(flipAxis);
-                axisUp = axisUp.getRotation(flipAxis);
-                System.out.printf("flipped, non-par - fixed up: %s right: %s\n", axisUp, axisRight);
-            }
+            lookDir = lookDir.getRotation(rot);
         }*/
 
-        /*System.out.printf("pre up: %s right: %s\n", axisUp, axisRight);
-        if (axisUp == ForgeDirection.UP)
-        {
-            axisUp = axisUp.getRotation(axisRight);
-        }
-        else if (axisUp == ForgeDirection.DOWN)
-        {
-            axisUp = axisUp.getRotation(axisRight.getOpposite());
-        }
-        else if (axisRight == ForgeDirection.UP)
-        {
-            axisRight = axisRight.getRotation(axisUp.getOpposite());
-        }
-        else if (axisRight == ForgeDirection.DOWN)
-        {
-            axisRight = axisRight.getRotation(axisUp);
-        }
-        System.out.printf("post up: %s right: %s\n", axisUp, axisRight);*/
-        
-
-        //System.out.printf("face: %s flippedFace: %s flipAxis: %s look: %s lookDirFixed: %s\n", faceAxis, (isFlipped ? faceAxisFlipped : "none"), flipAxis, lookDir, lookDirFixed);
-        System.out.printf("face: %s flippedFace: %s flipAxis: %s look: %s up: %s right: %s\n", faceAxis, (isFlipped ? faceAxisFlipped : "none"), flipAxis, lookDir, axisUp, axisRight);
+        //System.out.printf("face: %s flippedFace: %s flipAxis: %s look: %s up: %s right: %s\n", faceAxis, (isFlipped ? faceAxisFlipped : "none"), flipAxis, lookDir, axisUp, axisRight);
         area.adjustFromPlanarizedFacing(lookDir, amount, axisUp, axisRight);
-        //area.adjustFromPlanarizedFacing(lookDir, amount, ForgeDirection.NORTH, ForgeDirection.EAST);
-        //area.adjustFromPlanarizedFacing(lookDir, amount, ForgeDirection.UP, ForgeDirection.EAST);
-
-        /*if (faceAxis == ForgeDirection.UP || faceAxis == ForgeDirection.DOWN)
-        {
-            ForgeDirection lookDir = EntityUtils.getHorizontalLookingDirection(player);
-            if (isFlipped == true)
-            {
-                //lookDir = lookDir.getRotation(flipAxis.getOpposite());
-            }
-
-            //System.out.printf("up/down, face: " + faceAxis + " lookdir: " + lookDir + "\n");
-            switch(lookDir)
-            {
-                case NORTH:
-                    area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
-                    break;
-                case SOUTH:
-                    area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
-                    break;
-                case WEST:
-                    // Why are these reversed?
-                    if (faceAxis == ForgeDirection.DOWN)
-                        area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
-                    else
-                        area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
-                    break;
-                case EAST:
-                    if (faceAxis == ForgeDirection.DOWN)
-                        area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
-                    else
-                        area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
-                    break;
-                default:
-            }
-        }
-        else
-        {
-            ForgeDirection lookDir = EntityUtils.getClosestLookingDirection(player);
-            //System.out.printf("sides, face: " + faceAxis + " lookdir 1: " + lookDir + "\n");
-            if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxis || lookDir == faceAxis.getOpposite()))
-            {
-                lookDir = EntityUtils.getVerticalLookingDirection(player);
-            }
-
-            if (isFlipped == true)
-            {
-                //lookDir = lookDir.getRotation(flipAxis.getOpposite());
-            }
-
-            //System.out.printf("sides, face: " + faceAxis + " lookdir 2: " + lookDir + "\n");
-            //ForgeDirection lookDir = EntityUtils.getClosestLookingDirectionNotOnAxis(player, faceAxis);
-
-            switch(lookDir)
-            {
-                case UP:
-                    area.rPosV = MathHelper.clamp_int(area.rPosV + amount, 0, maxRadius);
-                    break;
-                case DOWN:
-                    area.rNegV = MathHelper.clamp_int(area.rNegV + amount, 0, maxRadius);
-                    break;
-                default:
-                    LeftRight look = EntityUtils.getLookLeftRight(player, faceAxis);
-                    //System.out.println("yaw: " + player.rotationYaw + " look: " + look);
-                    if (look == LeftRight.RIGHT)
-                    {
-                        area.rPosH = MathHelper.clamp_int(area.rPosH + amount, 0, maxRadius);
-                    }
-                    else
-                    {
-                        area.rNegH = MathHelper.clamp_int(area.rNegH + amount, 0, maxRadius);
-                    }
-            }
-        }*/
 
         area.writeToNBT(stack);
     }
