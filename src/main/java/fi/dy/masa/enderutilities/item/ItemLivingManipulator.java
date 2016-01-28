@@ -242,7 +242,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 String name = tag.getString("CustomName");
                 if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                 {
-                    name = name.length() > 0 ? pre + name + rst + " (" + tag.getString("id") + ")" : tag.getString("id");
+                    String id = tag.getString("id");
+                    String translated = StatCollector.translateToLocal("entity." + id + ".name");
+                    if (id.equals(translated) == false)
+                    {
+                        id = translated;
+                    }
+                    name = name.length() > 0 ? pre + name + rst + " (" + id + ")" : id;
                 }
 
                 return name;
@@ -385,7 +391,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
                         if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                         {
-                            name = name.length() > 0 ? pre + name + rst + " (" + tag.getString("id") + ")" : tag.getString("id");
+                            String id = tag.getString("id");
+                            String translated = StatCollector.translateToLocal("entity." + id + ".name");
+                            if (id.equals(translated) == false)
+                            {
+                                id = translated;
+                            }
+                            name = name.length() > 0 ? pre + name + rst + " (" + id + ")" : id;
                         }
 
                         name = (i == current) ? "-> " + name : "   " + name;
