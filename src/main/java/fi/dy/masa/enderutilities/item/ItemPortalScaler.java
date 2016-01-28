@@ -218,7 +218,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 String sx = x < 0 ? "1/" + (-x) : String.valueOf(x);
                 String sy = y < 0 ? "1/" + (-y) : String.valueOf(y);
                 String sz = z < 0 ? "1/" + (-z) : String.valueOf(z);
-                str = str + String.format(" (x: %s y: %s z: %s)", sx, sy, sz);
+                str = str + String.format(" x: %s y: %s z: %s", sx, sy, sz);
                 return super.getItemStackDisplayName(stack) + str + rst;
             }
         }

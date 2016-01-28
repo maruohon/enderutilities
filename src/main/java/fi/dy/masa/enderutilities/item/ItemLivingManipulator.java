@@ -301,16 +301,16 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             // If the currently selected module has been renamed, show that name
             if (moduleStack.hasDisplayName() == true)
             {
-                str = str + " " + preGreenIta + moduleStack.getDisplayName();
+                str = str + " " + preGreenIta + moduleStack.getDisplayName() + rst;
             }
             else
             {
-                str = str + " " + preGreenIta + (UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1);
+                str = str + " MC: " + preGreen + (UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1) + rst;
             }
 
             int index = this.getCurrentIndex(stack);
             int count = this.getStoredEntityCount(stack);
-            str = str + " - " + (index + 1) + "/" + count + rst;
+            str = str + " E: " + preGreen + (index + 1) + "/" + count + rst;
             String entity = this.getEntityName(stack, index);
             if (entity != null)
             {
@@ -332,11 +332,31 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
 
+        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
         String preBlue = EnumChatFormatting.BLUE.toString();
         String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + Mode.getMode(stack).getDisplayName());
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
+
+        if (verbose == true)
+        {
+            // Item supports Jailer modules, show if one is installed
+            if (this.getMaxModules(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+            {
+                String s;
+                if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                {
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                }
+                else
+                {
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                }
+
+                list.add(s);
+            }
+        }
 
         // Memory Cards installed
         if (memoryCardStack != null)
@@ -360,7 +380,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                     NBTTagCompound tag = tagList.getCompoundTagAt(i);
                     if (tag != null)
                     {
-                        String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+                        String pre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
                         String name = tag.getString("CustomName");
 
                         if (tag.hasKey("id", Constants.NBT.TAG_STRING))

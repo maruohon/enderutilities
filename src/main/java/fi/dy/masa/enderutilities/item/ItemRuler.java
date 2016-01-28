@@ -139,7 +139,7 @@ public class ItemRuler extends ItemModular
         if (count > 0)
         {
             int sel = this.getLocationSelection(rulerStack);
-            displayName.append(" - L: (").append(sel + 1).append("/").append(count).append(")");
+            displayName.append(" - P: ").append(preGreen + (sel + 1)).append("/").append(count).append(rst);
 
             displayName.append(" - R: ");
 
@@ -184,6 +184,17 @@ public class ItemRuler extends ItemModular
         }
         list.add(str);
 
+        int sel = this.getLocationSelection(rulerStack);
+        str = StatCollector.translateToLocal("enderutilities.tooltip.item.rendercurrentwithall");
+        if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
+        {
+            list.add(str + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst);
+        }
+        else
+        {
+            list.add(str + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst);
+        }
+
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.renderall") + ": ";
         if (this.getRenderAllLocations(rulerStack) == true)
         {
@@ -206,7 +217,6 @@ public class ItemRuler extends ItemModular
         }
         list.add(str);
 
-        int sel = this.getLocationSelection(rulerStack);
         int count = this.getLocationCount(rulerStack);
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.selected") + ": ";
         list.add(str + preBlue + (sel + 1) + rst + " / " + preBlue + count + rst);
@@ -458,17 +468,17 @@ public class ItemRuler extends ItemModular
             return;
         }
 
-        // Alt + Toggle key: Cycle location selection
+        // Shift + Toggle key: Cycle location selection
         if (ReferenceKeys.keypressContainsControl(key) == false &&
-            ReferenceKeys.keypressContainsShift(key) == false &&
-            ReferenceKeys.keypressContainsAlt(key) == true)
+            ReferenceKeys.keypressContainsShift(key) == true &&
+            ReferenceKeys.keypressContainsAlt(key) == false)
         {
             this.cycleLocationSelection(rulerStack, ReferenceKeys.keypressActionIsReversed(key));
         }
-        // Shift + Toggle key: Toggle "Render when unselected"
+        // Alt + Toggle key: Toggle "Render when unselected"
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+                 ReferenceKeys.keypressContainsShift(key) == false &&
+                 ReferenceKeys.keypressContainsAlt(key) == true)
         {
             this.toggleRenderWhenUnselected(rulerStack);
         }

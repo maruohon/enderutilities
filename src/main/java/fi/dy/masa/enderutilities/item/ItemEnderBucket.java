@@ -228,6 +228,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
     }
 
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
     public byte getBucketMode(ItemStack stack)
     {
         NBTTagCompound nbt = stack.getTagCompound();

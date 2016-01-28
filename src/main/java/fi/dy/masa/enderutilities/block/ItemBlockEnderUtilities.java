@@ -59,7 +59,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
         {
             this.addTooltips(stack, tmpList, verbose);
 
-            if (verbose == false && tmpList.size() > 1)
+            if (verbose == false && tmpList.size() > 2)
             {
                 list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
             }

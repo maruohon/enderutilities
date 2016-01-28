@@ -97,7 +97,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     public String getItemStackDisplayName(ItemStack stack)
     {
         String itemName = super.getItemStackDisplayName(stack);
-        String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+        String preGreenIta = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+        String preGreen = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
         int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD);
@@ -109,17 +110,24 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             {
                 if (itemName.length() >= 14)
                 {
-                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
+                    itemName = EUStringUtils.getInitialsWithDots(itemName) + " " + preGreenIta + moduleStack.getDisplayName() + rst;
                 }
-
-                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
+                else
+                {
+                    itemName = itemName + " " + preGreenIta + moduleStack.getDisplayName() + rst;
+                }
             }
 
             //return itemName + " " + pre + (NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1) + rst;
         }
 
         // Module not renamed, show the module index instead
-        return itemName + " " + pre + (slotNum + 1) + rst;
+        itemName = itemName + " MC: " + preGreen + (slotNum + 1) + rst;
+
+        byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        itemName = itemName + " P: " + preGreen + (selected + 1) + rst;
+
+        return itemName;
     }
 
     @Override
@@ -131,6 +139,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         String preGreen = EnumChatFormatting.GREEN.toString();
+        String preBlue = EnumChatFormatting.BLUE.toString();
         String preRed = EnumChatFormatting.RED.toString();
         String preWhite = EnumChatFormatting.WHITE.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
@@ -146,11 +155,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
         list.add(str);
 
+        byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
+
         int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
         if (installed > 0)
         {
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
-            String preBlue = EnumChatFormatting.BLUE.toString();
             String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
@@ -159,15 +170,10 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
-                list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
+                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
 
                 ((ItemEnderPart)moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
                 return;
-            }
-            else
-            {
-                String strNo = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
-                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
             }
         }
         else

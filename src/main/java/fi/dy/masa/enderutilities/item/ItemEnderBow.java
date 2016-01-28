@@ -249,13 +249,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // TP self to impact point
         if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
         }
         // TP the target entity
         else
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_AQUA + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
         }
     }
 

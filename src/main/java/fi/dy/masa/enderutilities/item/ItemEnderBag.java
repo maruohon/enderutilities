@@ -273,6 +273,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
 
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
     @Override
     public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
     {

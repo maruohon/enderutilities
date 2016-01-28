@@ -101,13 +101,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        String strPre = "P: " + preset;
+        int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
         String pre = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
-        String str = super.getItemStackDisplayName(stack);
 
-        return str + " - " + pre + strPre + rst;
+        return super.getItemStackDisplayName(stack) + " - P: " + pre + (preset + 1) + rst;
     }
 
     @Override
@@ -138,6 +136,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + EnumChatFormatting.BLUE.toString() + preset + rst);
 
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
     public static NBTTagCompound getSelectedPresetTag(ItemStack stack, boolean create)
