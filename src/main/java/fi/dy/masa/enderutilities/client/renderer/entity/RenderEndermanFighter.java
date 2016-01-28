@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.client.renderer.entity;
 
 import java.util.Random;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.model.ModelEnderman;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -10,10 +12,9 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
-import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
@@ -99,18 +100,6 @@ public class RenderEndermanFighter extends RenderLiving
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         return 1;
-    }
-
-    @Override
-    public void doRender(Entity entity, double x, double y, double z, float p_76986_8_, float p_76986_9_)
-    {
-        this.doRender((EntityEndermanFighter)entity, x, y, z, p_76986_8_, p_76986_9_);
-    }
-
-    @Override
-    public void doRender(EntityLivingBase entity, double x, double y, double z, float p_76986_8_, float p_76986_9_)
-    {
-        this.doRender((EntityEndermanFighter)entity, x, y, z, p_76986_8_, p_76986_9_);
     }
 
     @Override
