@@ -69,6 +69,8 @@ public class GuiTemplatedChest extends GuiEnderUtilities
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
+        this.bindTexture(this.guiTextureWidgets);
+
         int invSize = this.tetc.getSizeInventory();
 
         // Draw the colored background icon for locked/"templated" slots
@@ -82,15 +84,15 @@ public class GuiTemplatedChest extends GuiEnderUtilities
             {
                 int x = this.guiLeft + slot.xDisplayPosition;
                 int y = this.guiTop + slot.yDisplayPosition;
-                int u = 0;
+                int v = 18;
 
                 // Empty locked slots are in a different color
                 if (this.tetc.getStackInSlot(i) == null)
                 {
-                    u = 18;
+                    v = 36;
                 }
 
-                this.drawTexturedModalRect(x - 1, y - 1, 176, u, 18, 18);
+                this.drawTexturedModalRect(x - 1, y - 1, 102, v, 18, 18);
             }
         }
 

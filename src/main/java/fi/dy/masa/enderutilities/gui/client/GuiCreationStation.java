@@ -15,7 +15,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.ResourceLocation;
 
 import cpw.mods.fml.common.Optional;
 
@@ -27,7 +26,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
@@ -39,7 +37,6 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
     protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityCreationStation tecs;
     protected ContainerCreationStation containerCS;
-    protected ResourceLocation guiTextureWidgets;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
     public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
     public static final String[] BUTTON_STRINGS = new String[] {
@@ -61,7 +58,6 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         super(container, 240, 256, "gui.container.creationstation");
         this.tecs = te;
         this.containerCS = container;
-        this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
     }
 
     @Override

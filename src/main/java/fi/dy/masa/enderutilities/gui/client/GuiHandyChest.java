@@ -95,13 +95,15 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
+        this.bindTexture(this.guiTextureWidgets);
+
         int invSize = this.tehc.getItemInventory().getSizeInventory();
 
         // Draw the selection marker around the selected module's button
-        this.drawTexturedModalRect(this.guiLeft + 101 + this.tehc.getSelectedModule() * 18, this.guiTop + 26, 244, 72, 10, 10);
+        this.drawTexturedModalRect(this.guiLeft + 101 + this.tehc.getSelectedModule() * 18, this.guiTop + 26, 120, 0, 10, 10);
 
         // Draw the hilight background for the selected module slot
-        this.drawTexturedModalRect(this.guiLeft + 97 + this.tehc.getSelectedModule() * 18, this.guiTop + 7, 220, 100, 18, 18);
+        this.drawTexturedModalRect(this.guiLeft + 97 + this.tehc.getSelectedModule() * 18, this.guiTop + 7, 102, 18, 18, 18);
 
         int y = 77 + this.chestTier * 36;
         int x = 9;
@@ -112,7 +114,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         }
 
         // Draw the selection marker around the selected action button, ie. the "Quick Action"
-        this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y, 238, 82, 14, 14);
+        this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y, 120, 10, 14, 14);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
         if (this.tehc.isInventoryAccessible(this.container.getPlayer()) == false)
@@ -123,14 +125,14 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xDisplayPosition - 1;
                 y = this.guiTop + slot.yDisplayPosition - 1;
-                this.drawTexturedModalRect(x, y, 220, 82, 18, 18);
+                this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
         }
         // Draw the colored background for the selected slot (for swapping), if any
         else if (this.containerHC.getSelectedSlot() != -1)
         {
             Slot slot = this.container.getSlot(this.containerHC.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 220, 100, 18, 18);
+            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -165,16 +167,17 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         // Add the Memory Card selection buttons
         for (int i = 0; i < 4; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(i, x + 102 + i * 18, y + 27, 8, 8, 220, 72, this.guiTexture, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(i, x + 102 + i * 18, y + 27, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         int yOff = 78 + this.chestTier * 36;
         int xOffs[] = new int[] { 9, 27, 45, 117, 135, 153 };
 
+        // Add the Quick Action/move items buttons
         for (int i = 0; i < 6; i++)
         {
-            this.buttonList.add(new GuiButtonHoverText(i + 4, x + xOffs[i] + 1, y + yOff, 12, 12, 220, i * 12,
-                    this.guiTexture, 12, 0, BUTTON_STRINGS[i]));
+            this.buttonList.add(new GuiButtonHoverText(i + 4, x + xOffs[i] + 1, y + yOff, 12, 12, 24, i * 12,
+                    this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
     }
 

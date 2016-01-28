@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
@@ -10,6 +11,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -28,19 +30,6 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     public static final int BTN_ID_FIRST_TOGGLE_ROWS    = 8;
     public static final int BTN_ID_FIRST_TOGGLE_COLUMNS = 12;
 
-    public static final int selSlotHilightU = 204;
-    public static final int selSlotHilightV = 18;
-    public static final int disabledSlotU = 204;
-    public static final int disabledSlotV = 0;
-    public static final int toggleButtonU = 204;
-    public static final int toggleButtonRowV = 52;
-    public static final int toggleButtonColDownV = 68;
-    public static final int toggleButtonColUpV = 84;
-    public static final int selectionButtonU = 222;
-    public static final int selectionButtonVMC = 0;
-    public static final int selectionButtonVPreset = 8;
-    public static final int selectionButtonHilightU = 246;
-    public static final int selectionButtonHilightV = 10;
     public ContainerInventorySwapper container;
     public InventoryItemModular inventory;
     public EntityPlayer player;
@@ -91,7 +80,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.bindTexture(this.guiTexture);
+        this.bindTexture(this.guiTextureWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
         if (this.inventory.isUseableByPlayer(this.player) == false)
@@ -100,7 +89,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.container.getSlot(i);
-                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, disabledSlotU, disabledSlotV, 18, 18);
+                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
             }
         }
 
@@ -110,7 +99,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {
-                this.drawTexturedModalRect(this.firstModuleSlotX - 1 + i * 18, this.firstModuleSlotY - 1, disabledSlotU, disabledSlotV, 18, 18);
+                this.drawTexturedModalRect(this.firstModuleSlotX - 1 + i * 18, this.firstModuleSlotY - 1, 102, 0, 18, 18);
             }
         }
 
@@ -118,9 +107,9 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         int index = this.inventory.getSelectedModuleIndex();
         if (index >= 0)
         {
-            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, selSlotHilightU, selSlotHilightV, 18, 18);
+            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 102, 18, 18, 18);
             // Draw the selection border around the selected memory card module's selection button
-            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, selectionButtonHilightU, selectionButtonHilightV, 10, 10);
+            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
         ItemStack stack = this.container.getModularItem();
@@ -128,7 +117,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         {
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET_SELECTION);
-            this.drawTexturedModalRect(this.firstInvSlotX + 93 + sel * 18, this.firstInvSlotY - 29, selectionButtonHilightU, selectionButtonHilightV, 10, 10);
+            this.drawTexturedModalRect(this.firstInvSlotX + 93 + sel * 18, this.firstInvSlotY - 29, 120, 0, 10, 10);
 
             // Draw the colored background for the selected/enabled inventory slots
             final long mask = ItemInventorySwapper.getEnabledSlotsMask(stack);
@@ -138,7 +127,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             {
                 if ((mask & bit) != 0)
                 {
-                    this.drawTexturedModalRect(this.firstInvSlotX - 1 + c * 18, this.firstInvSlotY - 1 + 58, selSlotHilightU, selSlotHilightV, 18, 18);
+                    this.drawTexturedModalRect(this.firstInvSlotX - 1 + c * 18, this.firstInvSlotY - 1 + 58, 102, 18, 18, 18);
                 }
                 bit <<= 1;
             }
@@ -150,7 +139,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
                 {
                     if ((mask & bit) != 0)
                     {
-                        this.drawTexturedModalRect(this.firstInvSlotX - 1 + c * 18, this.firstInvSlotY - 1 + r * 18, selSlotHilightU, selSlotHilightV, 18, 18);
+                        this.drawTexturedModalRect(this.firstInvSlotX - 1 + c * 18, this.firstInvSlotY - 1 + r * 18, 102, 18, 18, 18);
                     }
                     bit <<= 1;
                 }
@@ -161,7 +150,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             {
                 if ((mask & bit) != 0)
                 {
-                    this.drawTexturedModalRect(this.firstArmorSlotX - 1, this.firstArmorSlotY - 1 + (3 - r) * 18, selSlotHilightU, selSlotHilightV, 18, 18);
+                    this.drawTexturedModalRect(this.firstArmorSlotX - 1, this.firstArmorSlotY - 1 + (3 - r) * 18, 102, 18, 18, 18);
                 }
                 bit <<= 1;
             }
@@ -233,32 +222,38 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         // Add the Memory Card selection buttons
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, selectionButtonU, selectionButtonVMC, this.guiTexture, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19,
+                    8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         // Add the preset selection buttons
         for (int i = 0; i < ItemInventorySwapper.NUM_PRESETS; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_PRESET + i, this.firstInvSlotX + 94 + i * 18, this.firstInvSlotY - 28, 8, 8, selectionButtonU, selectionButtonVPreset + i * 8, this.guiTexture, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_PRESET + i, this.firstInvSlotX + 94 + i * 18, this.firstInvSlotY - 28,
+                    8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
 
         // Add the Toggle Row buttons
         // Hotbar is first
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_ROWS, this.firstInvSlotX - 18, this.firstInvSlotY + 58, 16, 16, toggleButtonU, toggleButtonRowV, this.guiTexture, 16, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_ROWS, this.firstInvSlotX - 17, this.firstInvSlotY + 59,
+                14, 14, 60, 28, this.guiTextureWidgets, 14, 0));
 
         for (int i = 0; i < 3; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_ROWS + i + 1, this.firstInvSlotX - 18, this.firstInvSlotY + i * 18, 16, 16, toggleButtonU, toggleButtonRowV, this.guiTexture, 16, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_ROWS + i + 1, this.firstInvSlotX - 17, this.firstInvSlotY + 1 + i * 18,
+                    14, 14, 60, 28, this.guiTextureWidgets, 14, 0));
         }
 
         // Add the Toggle Column buttons
         for (int i = 0; i < 9; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + i, this.firstInvSlotX + i * 18, this.firstInvSlotY - 18, 16, 16, toggleButtonU, toggleButtonColDownV, this.guiTexture, 16, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + i, this.firstInvSlotX + 1 + i * 18, this.firstInvSlotY - 17,
+                    14, 14, 60, 42, this.guiTextureWidgets, 14, 0));
         }
 
         // Toggle button for armor
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + 9, this.firstArmorSlotX, this.firstArmorSlotY + 72, 16, 16, toggleButtonU, toggleButtonColUpV, this.guiTexture, 16, 0));
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + 9, this.firstArmorSlotX + 1, this.firstArmorSlotY + 73,
+                14, 14, 60, 56, this.guiTextureWidgets, 14, 0));
     }
 
     @Override

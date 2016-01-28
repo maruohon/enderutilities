@@ -72,7 +72,7 @@ public class GuiPickupManager extends GuiEnderUtilities
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.bindTexture(this.guiTexture);
+        this.bindTexture(this.guiTextureWidgets);
 
         ItemStack containerStack = this.container.getModularItem();
 
@@ -83,7 +83,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Draw the dark background icon over the disabled slot
         if (this.inventoryItemTransmit.isUseableByPlayer(this.player) == false)
         {
-            this.drawTexturedModalRect(x + 88, y + 28, 204, 18, 18, 18);
+            this.drawTexturedModalRect(x + 88, y + 28, 102, 0, 18, 18);
         }
 
         // Memory Card slots are not accessible, because the item isn't currently accessible
@@ -92,7 +92,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {
-                this.drawTexturedModalRect(x + 116 - 1 + i * 18, y + 29 - 1, 204, 18, 18, 18);
+                this.drawTexturedModalRect(x + 116 - 1 + i * 18, y + 29 - 1, 102, 0, 18, 18);
             }
         }
 
@@ -105,7 +105,7 @@ public class GuiPickupManager extends GuiEnderUtilities
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 47 - 1 + i * 18, 204, 18, 18, 18);
+                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 47 - 1 + i * 18, 102, 0, 18, 18);
                 }
             }
 
@@ -114,7 +114,7 @@ public class GuiPickupManager extends GuiEnderUtilities
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 123 - 1 + i * 18, 204, 18, 18, 18);
+                    this.drawTexturedModalRect(x + 8 - 1 + j * 18, y + 123 - 1 + i * 18, 102, 0, 18, 18);
                 }
             }
         }
@@ -123,16 +123,16 @@ public class GuiPickupManager extends GuiEnderUtilities
         if (containerStack != null)
         {
             int index = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_LINKCRYSTAL);
-            this.drawTexturedModalRect(x + 116 - 1 + index * 18, y + 29 - 1, 204, 0, 18, 18);
+            this.drawTexturedModalRect(x + 116 - 1 + index * 18, y + 29 - 1, 102, 18, 18, 18);
             // Draw the selection border around the selected memory card module's selection button
-            this.drawTexturedModalRect(x + 119 + index * 18, y + 17, 246, 10, 10, 10);
+            this.drawTexturedModalRect(x + 119 + index * 18, y + 17, 120, 0, 10, 10);
         }
 
         if (containerStack != null)
         {
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
-            this.drawTexturedModalRect(x + 101 + sel * 18, y + 162, 246, 10, 10, 10);
+            this.drawTexturedModalRect(x + 101 + sel * 18, y + 162, 120, 0, 10, 10);
         }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -185,11 +185,11 @@ public class GuiPickupManager extends GuiEnderUtilities
     {
         if (ItemPickupManager.getSettingValue(stack, tag) == 0)
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTexture, w, 0, "enderutilities.gui.label." + s1));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s1));
         }
         else
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTexture, w, 0, "enderutilities.gui.label." + s2));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s2));
         }
     }
 
@@ -204,13 +204,13 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Add the Memory Card selection buttons
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 18, 8, 8, 222, 0, this.guiTexture, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         // Add the preset selection buttons
         for (int i = 0; i < ItemPickupManager.NUM_PRESETS; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 163, 8, 8, 222, 8 + i * 8, this.guiTexture, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 163, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
 
         ItemStack containerStack = this.container.getModularItem();
@@ -218,31 +218,31 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Add the transport filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  8, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 208, 88, 208, 72, "filtergroup.disabled", "filtergroup.enabled");
+        this.addConditionalButton(id++, x +  9, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 26, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 27, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE, 60, 70, 60, 84, "blacklist", "whitelist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 44, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META, 208, 104, 208, 120, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 45, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META, 60, 112, 60, 126, "meta.match", "meta.ignore");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 62, y + 28, 16, 16, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT, 208, 152, 208, 136, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 63, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
 
 
         // Add the inventory filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  8, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED, 208, 88, 208, 72, "filtergroup.disabled", "filtergroup.enabled");
+        this.addConditionalButton(id++, x +  9, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 26, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE, 208, 40, 208, 56, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 27, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE, 60, 70, 60, 84, "blacklist", "whitelist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 44, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_META, 208, 104, 208, 120, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 45, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_META, 60, 112, 60, 126, "meta.match", "meta.ignore");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 62, y + 104, 16, 16, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_NBT, 208, 152, 208, 136, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 63, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_NBT, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
     }
 
     @Override

@@ -41,12 +41,10 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     protected EntityPlayer player;
     protected ContainerHandyBag container;
     protected InventoryItemModular invModular;
-    protected ResourceLocation textureGuiBackground;
-    protected ResourceLocation textureGuiWidgets;
+    protected ResourceLocation guiTexture;
+    protected ResourceLocation guiTextureWidgets;
     protected float mouseXFloat;
     protected float mouseYFloat;
-    protected int backgroundU;
-    protected int backgroundV;
     protected int invSize;
     protected int numModuleSlots;
     protected int bagTier;
@@ -65,12 +63,10 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.numModuleSlots = this.invModular.getModuleInventory().getSizeInventory();
         this.bagTier = this.container.getBagTier();
 
-        this.textureGuiBackground = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
-        this.textureGuiWidgets = ReferenceTextures.getGuiTexture("gui.container.handybag.0");
+        this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
+        this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
         this.xSize = this.bagTier == 1 ? 256 : 176;
         this.ySize = 256;
-        this.backgroundU = this.bagTier == 1 ? 0 : 40;
-        this.backgroundV = 0;
     }
 
     @Override
@@ -109,10 +105,10 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        this.bindTexture(this.textureGuiBackground);
-        this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
+        this.bindTexture(this.guiTexture);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 
-        this.bindTexture(this.textureGuiWidgets);
+        this.bindTexture(this.guiTextureWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected)
         if (this.invModular.isUseableByPlayer(this.player) == false)
@@ -121,14 +117,14 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
             for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.container.getSlot(i);
-                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 0, 0, 18, 18);
+                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
             }
         }
         // Draw the colored background for the selected slot (for swapping), if any
         else if (this.container.getSelectedSlot() != -1)
         {
             Slot slot = this.container.getSlot(this.container.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 0, 18, 18, 18);
+            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
@@ -137,7 +133,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {
-                this.drawTexturedModalRect(this.firstModuleSlotX - 1 + i * 18, this.firstModuleSlotY - 1, 0, 0, 18, 18);
+                this.drawTexturedModalRect(this.firstModuleSlotX - 1 + i * 18, this.firstModuleSlotY - 1, 102, 0, 18, 18);
             }
         }
 
@@ -145,9 +141,9 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         int index = this.invModular.getSelectedModuleIndex();
         if (index >= 0)
         {
-            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 0, 18, 18, 18);
+            this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 102, 18, 18, 18);
             // Draw the selection border around the selected memory card module's selection button
-            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 238, 92, 10, 10);
+            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
@@ -207,30 +203,30 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         int numModules = this.invModular.getModuleInventory().getSizeInventory();
         for (int i = 0; i < numModules; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 228, 84, this.textureGuiWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
-        int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 1;
-        int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 54;
+        int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 2;
+        int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 55;
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 14, 14, 214, 14, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitems"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 14, 14, 214,  0, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24, 12, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.quickstack",
                  "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 14, 14, 214, 70, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 12, 12, 24, 24, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.leaveonefilledstack"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 14, 14, 214, 28, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 12, 12, 24, 36, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.fillstacks"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 14, 14, 214, 42, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 12, 12, 24, 48, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.restock",
                  "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 14, 14, 214, 56, this.textureGuiWidgets, 14, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 12, 12, 24, 60, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitems"));
     }
 
