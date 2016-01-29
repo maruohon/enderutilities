@@ -532,9 +532,9 @@ public class UtilItemModular
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
 
-            if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+            if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
             {
-                count += tag.getInteger("CountReal");
+                count += tag.getInteger("ActualCount");
             }
             else
             {
@@ -605,9 +605,9 @@ public class UtilItemModular
                     {
                         int stackSize = tmpStack.stackSize;
 
-                        if (tag.hasKey("CountReal", Constants.NBT.TAG_INT) == true)
+                        if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT) == true)
                         {
-                            stackSize = tag.getInteger("CountReal");
+                            stackSize = tag.getInteger("ActualCount");
                         }
                         itemCount += stackSize;
 
@@ -670,9 +670,9 @@ public class UtilItemModular
             {
                 items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
 
-                if (tag.hasKey("CountReal", Constants.NBT.TAG_INT))
+                if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
                 {
-                    items[slotNum].stackSize = tag.getInteger("CountReal");
+                    items[slotNum].stackSize = tag.getInteger("ActualCount");
                 }
             }
         }
@@ -732,7 +732,7 @@ public class UtilItemModular
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setByte("Slot", (byte)slotNum);
-                tag.setInteger("CountReal", items[slotNum].stackSize);
+                tag.setInteger("ActualCount", items[slotNum].stackSize);
                 items[slotNum].writeToNBT(tag);
                 nbtTagList.appendTag(tag);
             }
