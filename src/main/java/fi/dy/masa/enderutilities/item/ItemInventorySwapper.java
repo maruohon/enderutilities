@@ -94,6 +94,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
+    public void onCreated(ItemStack stack, World world, EntityPlayer player)
+    {
+        super.onCreated(stack, world, player);
+        // Create the UUID when the item is crafted
+        NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+    }
+
+    @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
         String itemName = super.getItemStackDisplayName(stack);

@@ -86,6 +86,14 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
+    public void onCreated(ItemStack stack, World world, EntityPlayer player)
+    {
+        super.onCreated(stack, world, player);
+        // Create the UUID when the item is crafted
+        NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+    }
+
+    @Override
     public String getUnlocalizedName(ItemStack stack)
     {
         return super.getUnlocalizedName() + "." + stack.getItemDamage();

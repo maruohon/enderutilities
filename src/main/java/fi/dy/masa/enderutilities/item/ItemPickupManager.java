@@ -99,6 +99,14 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     }
 
     @Override
+    public void onCreated(ItemStack stack, World world, EntityPlayer player)
+    {
+        super.onCreated(stack, world, player);
+        // Create the UUID when the item is crafted
+        NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+    }
+
+    @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
         int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
