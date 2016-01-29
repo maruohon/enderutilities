@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -28,10 +29,12 @@ public class EnderUtilitiesBlocks
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
+        ItemStack enderChest = new ItemStack(Blocks.ender_chest);
         ItemStack furnace = new ItemStack(Blocks.furnace);
         ItemStack hopper = new ItemStack(Blocks.hopper);
         ItemStack obsidian = new ItemStack(Blocks.obsidian);
         ItemStack piston = new ItemStack(Blocks.piston);
+        ItemStack repeater = new ItemStack(Items.repeater);
 
         ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 0);
         ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
@@ -50,18 +53,22 @@ public class EnderUtilitiesBlocks
         {
             GameRegistry.addRecipe(new ItemStack(machine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', furnace, 'C', core0);
         }
-        if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_0, 1, 1), "ASA", "ACA", "OHO", 'A', alloy0, 'S', "slimeball", 'C', craftingtable, 'O', obsidian, 'H', chest));
-        }
         if (Configs.disableRecipeEnderInfuser.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ItemStack(machine_0, 1, 2), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
         }
+        if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_0, 1, 1), "ASA", "ACA", "OHO", 'A', alloy0, 'S', "slimeball", 'C', craftingtable, 'O', obsidian, 'H', chest));
+        }
+        if (Configs.disableRecipeCreationStation.getBoolean(false) == false && Configs.disableBlockMachine_0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_0, 1, 3), "FRF", "ACA", "OAO", 'F', new ItemStack(machine_0, 1, 0), 'R', craftingtable, 'A', alloy2, 'C', active_core1, 'O', obsidian));
+        }
 
         if (Configs.disableRecipeEnergyBridgeTransmitter.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_1, 1, 0), "AGA", "ACA", "AGA", 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_1, 1, 0), "ASA", "ACA", "AGA", 'S', Items.nether_star, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
         }
         if (Configs.disableRecipeEnergyBridgeReceiver.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
@@ -70,6 +77,32 @@ public class EnderUtilitiesBlocks
         if (Configs.disableRecipeEnergyBridgeResonator.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(machine_1, 1, 2), "AGA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', active_core1));
+        }
+
+        if (Configs.disableRecipeTemplatedChest0.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 2, 0), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy0, 'C', chest);
+        }
+        if (Configs.disableRecipeTemplatedChest1.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 2, 1), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy1, 'C', chest);
+        }
+        if (Configs.disableRecipeTemplatedChest2.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 2, 2), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy2, 'C', chest);
+        }
+
+        if (Configs.disableRecipeHandyChest0.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 1, 3), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy0, 'C', enderChest, 'O', active_core1, 'R', repeater);
+        }
+        if (Configs.disableRecipeHandyChest1.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 1, 4), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy1, 'C', enderChest, 'O', active_core1, 'R', repeater);
+        }
+        if (Configs.disableRecipeHandyChest2.getBoolean(false) == false && Configs.disableBlockStorage0.getBoolean(false) == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(storage_0, 1, 5), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy2, 'C', enderChest, 'O', active_core1, 'R', repeater);
         }
     }
 }
