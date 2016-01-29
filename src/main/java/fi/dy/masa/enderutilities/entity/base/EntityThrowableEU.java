@@ -14,7 +14,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
+
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public abstract class EntityThrowableEU extends EntityThrowable
@@ -23,7 +25,6 @@ public abstract class EntityThrowableEU extends EntityThrowable
     public int blockY;
     public int blockZ;
     public Block inBlock;
-    public EntityLivingBase thrower;
     public UUID throwerUUID;
     public int ticksInGround;
     public int ticksInAir;
@@ -241,17 +242,16 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
     public void setThrower(EntityLivingBase entity)
     {
-        this.thrower = entity;
         this.throwerUUID = entity.getUniqueID();
     }
 
     public EntityLivingBase getThrower()
     {
-        if (this.thrower == null && this.throwerUUID != null)
+        if (this.throwerUUID != null)
         {
-            this.thrower = this.worldObj.func_152378_a(this.throwerUUID); // getPlayerEntityByUUID()
+            return this.worldObj.func_152378_a(this.throwerUUID); // getPlayerEntityByUUID()
         }
 
-        return this.thrower;
+        return null;
     }
 }
