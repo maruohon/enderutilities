@@ -38,6 +38,7 @@ public class RulerRenderer
     Map<Integer, List<BlockPosEU>> positions;
     public String modeStrDim;
     public String modeStrDiff;
+    public static int[] colors = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
 
     public RulerRenderer()
     {
@@ -171,7 +172,6 @@ public class RulerRenderer
 
         ItemRuler item = (ItemRuler)stack.getItem();
         int selected = item.getLocationSelection(stack);
-        int[] colors = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
 
         if (item.getRenderAllLocations(stack) == true)
         {
@@ -353,7 +353,7 @@ public class RulerRenderer
 
     public class BlockPosAligner
     {
-        public final int[] playerPos;
+        public final double[] playerPos;
         public int longestAxis;
         public int axisLength;
         public int furthestPoint;
@@ -361,7 +361,7 @@ public class RulerRenderer
 
         public BlockPosAligner(BlockPosEU p1, BlockPosEU p2, EntityPlayer player)
         {
-            this.playerPos = new int[] { (int)(player.posX + 0.0d), (int)(player.posY - 1.0d), (int)(player.posZ + 0.0d) };
+            this.playerPos = new double[] { player.posX, player.posY - 1.0d, player.posZ };
             this.points = new int[][] {
                 { p1.posX, p1.posY, p1.posZ },
                 { p2.posX, p2.posY, p2.posZ }
@@ -398,7 +398,9 @@ public class RulerRenderer
         public int getFurthestPointIndexOnLongestAxis()
         {
             int axisId = this.getLongestAxis();
-            this.furthestPoint = Math.abs(this.playerPos[axisId] - this.points[0][axisId]) > Math.abs(this.playerPos[axisId] - this.points[1][axisId]) ? 0 : 1;
+            double len0 = Math.abs(this.playerPos[axisId] - (this.points[0][axisId] + 0.5d));
+            double len1 = Math.abs(this.playerPos[axisId] - (this.points[1][axisId] + 0.5d));
+            this.furthestPoint = len0 > len1 ? 0 : 1;
             return this.furthestPoint;
         }
 

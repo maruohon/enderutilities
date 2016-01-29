@@ -79,12 +79,6 @@ public class ItemRuler extends ItemModular
         return true;
     }
 
-    @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
-    {
-        return stack;
-    }
-
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
     {
         if (world.isRemote == true)
