@@ -779,6 +779,28 @@ public class InventoryUtils
         return slots;
     }
 
+    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IInventory inv, ItemStack stackTemplate, boolean useOreDict)
+    {
+        List<Integer> slots = new ArrayList<Integer>();
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack == null)
+            {
+                continue;
+            }
+
+            if (areItemStacksEqual(stack, stackTemplate) == true ||
+               (useOreDict == true && areItemStacksOreDictMatch(stack, stackTemplate) == true))
+            {
+                slots.add(Integer.valueOf(i));
+            }
+        }
+
+        return slots;
+    }
+
     /**
      * Get the ItemStack that has the given UUID stored in its NBT. If <b>containerTagName</b>
      * is not null, then the UUID is read from a compound tag by that name.
@@ -995,6 +1017,27 @@ public class InventoryUtils
     }
 
     /**
+     * Returns the largest existing stack size from the inventory <b>inv</b>.
+     * @param inv
+     * @return largest existing stack size from the inventory, or -1 if all stacks are empty
+     */
+    public static int getLargestExistingStackSize(IInventory inv)
+    {
+        int largestSize = -1;
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack != null && stack.stackSize > largestSize)
+            {
+                largestSize = stack.stackSize;
+            }
+        }
+
+        return largestSize;
+    }
+
+    /**
      * Returns the minimum stack size from the inventory <b>inv</b> from
      * stacks that are not empty, or -1 if all stacks are empty.
      * @param inv
@@ -1041,6 +1084,31 @@ public class InventoryUtils
         }
 
         return false;
+    }
+
+    /**
+     * Counts the number of items in the inventory <b>inv</b> that are identical to <b>stackTemplate</b>.
+     * If <b>useOreDict</b> is true, then Ore Dictionary matches are also accepted.
+     */
+    public static int getNumberOfMatchingItemsInInventory(IInventory inv, ItemStack stackTemplate, boolean useOreDict)
+    {
+        int found = 0;
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stackTmp = inv.getStackInSlot(i);
+
+            if (stackTmp != null)
+            {
+                if (areItemStacksEqual(stackTmp, stackTemplate) == true ||
+                   (useOreDict == true && areItemStacksOreDictMatch(stackTmp, stackTemplate) == true))
+                {
+                    found += stackTmp.stackSize;
+                }
+            }
+        }
+
+        return found;
     }
 
     /**
@@ -1112,6 +1180,29 @@ public class InventoryUtils
         }
 
         return true;
+    }
+
+    /**
+     * Returns a map of how many slots contain the same item, for each item found in the inventory.
+     */
+    public static Map<ItemType, Integer> getSlotCountPerItem(IInventory inv)
+    {
+        Map<ItemType, Integer> slots = new HashMap<ItemType, Integer>();
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ItemStack stackTmp = inv.getStackInSlot(i);
+
+            if (stackTmp != null)
+            {
+                ItemType item = new ItemType(stackTmp);
+                Integer count = slots.get(item);
+                count = (count != null) ? count + 1 : 1;
+                slots.put(item, Integer.valueOf(count));
+            }
+        }
+
+        return slots;
     }
 
     /**
