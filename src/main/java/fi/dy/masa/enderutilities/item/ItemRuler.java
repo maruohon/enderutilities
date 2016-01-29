@@ -173,6 +173,24 @@ public class ItemRuler extends ItemModular
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
         String str;
+
+        int selected = this.getLocationSelection(rulerStack);
+        BlockPosEU posStart = this.getPosition(rulerStack, selected, POS_START);
+        if (posStart != null)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.start");
+            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posStart.posX, rst,
+                    preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst));
+        }
+
+        BlockPosEU posEnd = this.getPosition(rulerStack, selected, POS_END);
+        if (posEnd != null)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.end");
+            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posEnd.posX, rst,
+                    preBlue, posEnd.posY, rst, preBlue, posEnd.posZ, rst));
+        }
+
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": ";
         if (this.getDistanceMode(rulerStack) == DISTANCE_MODE_DIMENSIONS)
         {
@@ -184,9 +202,8 @@ public class ItemRuler extends ItemModular
         }
         list.add(str);
 
-        int sel = this.getLocationSelection(rulerStack);
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.rendercurrentwithall");
-        if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
+        if (this.getAlwaysRenderLocation(rulerStack, selected) == true)
         {
             list.add(str + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst);
         }
@@ -219,7 +236,7 @@ public class ItemRuler extends ItemModular
 
         int count = this.getLocationCount(rulerStack);
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.selected") + ": ";
-        list.add(str + preBlue + (sel + 1) + rst + " / " + preBlue + count + rst);
+        list.add(str + preBlue + (selected + 1) + rst + " / " + preBlue + count + rst);
 
         int installed = this.getInstalledModuleCount(rulerStack, ModuleType.TYPE_MEMORY_CARD);
         if (installed > 0)
