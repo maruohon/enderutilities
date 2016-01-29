@@ -71,8 +71,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final boolean POS_START = true;
     public static final boolean POS_END = false;
 
-    public Map<UUID, BlockPosEU> blockPos1 = new HashMap<UUID, BlockPosEU>();
-    public Map<UUID, BlockPosEU> blockPos2 = new HashMap<UUID, BlockPosEU>();
+    protected Map<UUID, Long> lastLeftClick = new HashMap<UUID, Long>();
 
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
@@ -88,7 +87,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-        BlockPosEU pos = this.getPosition(player, POS_START);
+        BlockPosEU pos = this.getPosition(stack, POS_START);
         if (pos == null)
         {
             return super.onItemRightClick(stack, world, player);
@@ -96,7 +95,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         Mode mode = Mode.getMode(stack);
 
-        //System.out.println("onItemRightClick - " + (world.isRemote ? "client" : "server"));
         if (world.isRemote == false)
         {
             if (PlayerTaskScheduler.getInstance().hasTask(player, TaskBuildersWand.class) == true)
@@ -113,7 +111,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (mode == Mode.CUBE || mode == Mode.WALLS)
         {
-            if (this.getPosition(player, POS_END) != null)
+            if (this.getPosition(stack, POS_END) != null)
             {
                 player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
             }
@@ -136,7 +134,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (world.isRemote == false && player.isSneaking() == false)
             {
-                this.setPosition(player, new BlockPosEU(x, y, z, player.dimension, side), POS_END);
+                this.setPosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_END);
             }
 
             return true;
@@ -159,16 +157,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        // Left click without sneaking: Set the "anchor" position
-        if (player.isSneaking() == false)
+        // Hack to work around the fact that when the NBT changes, the left click event will fire again the next tick,
+        // so it would easily result in the state toggling multiple times per left click
+        Long last = this.lastLeftClick.get(player.getUniqueID());
+        if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
-            this.setPosition(player, new BlockPosEU(x, y, z, player.dimension, side), POS_START);
+            if (player.isSneaking() == false)
+            {
+                this.setPosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_START);
+            }
+            // Sneak + left click: Set the selected block type
+            else
+            {
+                this.setSelectedFixedBlockType(stack, world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
+            }
         }
-        // Sneak + left click: Set the selected block type
-        else
-        {
-            this.setSelectedFixedBlockType(stack, world.getBlock(x, y, z), world.getBlockMetadata(x, y, z));
-        }
+
+        this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
     }
 
     @Override
@@ -178,7 +183,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
             {
-                BlockPosEU pos = this.getPosition(player, POS_START);
+                BlockPosEU pos = this.getPosition(stack, POS_START);
                 if (pos != null)
                 {
                     this.useWand(stack, world, player, pos);
@@ -352,24 +357,38 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
-    public BlockPosEU getPosition(EntityPlayer player, boolean isStart)
+    public BlockPosEU getPosition(ItemStack stack, boolean isStart)
     {
-        Map<UUID, BlockPosEU> map = isStart == POS_START ? this.blockPos1 : this.blockPos2;
-        return map.get(player.getUniqueID());
+        String tagName = isStart == true ? "Pos1" : "Pos2";
+        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, false);
+        if (tag != null)
+        {
+            return BlockPosEU.readFromTag(tag);
+        }
+
+        return null;
     }
 
-    public void setPosition(EntityPlayer player, BlockPosEU pos, boolean isStart)
+    public void setPosition(ItemStack stack, BlockPosEU pos, boolean isStart)
     {
-        Map<UUID, BlockPosEU> map = isStart == true ? this.blockPos1 : this.blockPos2;
-
-        BlockPosEU oldPos = map.get(player.getUniqueID());
-        if (oldPos != null && oldPos.equals(pos) == true)
+        String tagName = isStart == true ? "Pos1" : "Pos2";
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, true);
+        if (nbt != null && nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true)
         {
-            map.remove(player.getUniqueID());
+            BlockPosEU oldPos = BlockPosEU.readFromTag(nbt.getCompoundTag(tagName));
+            if (oldPos != null && oldPos.equals(pos) == true)
+            {
+                nbt.removeTag(tagName);
+            }
+            else
+            {
+                nbt.setTag(tagName, pos.writeToTag(new NBTTagCompound()));
+            }
         }
         else
         {
-            map.put(player.getUniqueID(), pos);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, true);
+            pos.writeToTag(tag);
         }
     }
 
@@ -381,8 +400,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
-        BlockPosEU posStart = this.getPosition(player, POS_START);
-        BlockPosEU posEnd = this.getPosition(player, POS_END);
+        BlockPosEU posStart = this.getPosition(stack, POS_START);
+        BlockPosEU posEnd = this.getPosition(stack, POS_END);
 
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.CUBE)
@@ -403,7 +422,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         // Small enough area, build it all in one go without the task
-        if (positions.size() <= 48)
+        if (positions.size() <= 60)
         {
             for (int i = 0; i < positions.size(); i++)
             {
@@ -411,10 +430,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             }
 
             // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
-            BlockPosEU pos = this.getPosition(player, POS_START);
+            BlockPosEU pos = this.getPosition(stack, POS_START);
             if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
             {
-                this.setPosition(player, pos.offset(ForgeDirection.getOrientation(targetPos.face), 1), POS_START);
+                this.setPosition(stack, pos.offset(ForgeDirection.getOrientation(targetPos.face), 1), POS_START);
             }
         }
         else
@@ -682,7 +701,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void changeAreaDimensions(EntityPlayer player, ItemStack stack, boolean reverse)
     {
-        BlockPosEU pos = this.getPosition(player, POS_START);
+        BlockPosEU pos = this.getPosition(stack, POS_START);
         Mode mode = Mode.getMode(stack);
         if (pos == null || mode == Mode.WALLS || mode == Mode.CUBE)
         {

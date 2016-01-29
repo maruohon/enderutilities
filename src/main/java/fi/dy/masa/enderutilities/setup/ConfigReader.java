@@ -29,9 +29,9 @@ public class ConfigReader
         String category;
 
         category = "Generic";
-        Configs.buildersWandBlocksPerTick = conf.get(category, "LazyBuildersWandBlocksPerTick", 6).setRequiresMcRestart(false);
-        Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 6";
-        Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(6);
+        Configs.buildersWandBlocksPerTick = conf.get(category, "LazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
+        Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 10";
+        Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(10);
 
         Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
@@ -82,11 +82,11 @@ public class ConfigReader
 
         // Block disable
         Configs.disableBlockMachine_0             = conf.get(category, "DisableBlockMachine_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser";
+        Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser, 3 = Creation Station";
         Configs.disableBlockMachine_1             = conf.get(category, "DisableBlockMachine_1", false).setRequiresMcRestart(true);
         Configs.disableBlockMachine_1.comment = "Info: Machine 1 meta values: 0 = Energy Bridge Transmitter; 1 = Energy Bridge Receiver; 2 = Energy Bridge Resonator";
         Configs.disableBlockStorage0             = conf.get(category, "DisableBlockStorage_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockStorage0.comment = "Meta values: 0 = Small Templated Chest, 1 = Templated Chest, 2 = Deep Templated Chest";
+        Configs.disableBlockStorage0.comment = "Meta values: 0..2 = Templated Chests, 3..5 = Handy Chests";
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");

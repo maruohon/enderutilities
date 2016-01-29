@@ -69,7 +69,7 @@ public class BuildersWandRenderer
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
         ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
-        BlockPosEU posTargeted = item.getPosition(player, ItemBuildersWand.POS_START);
+        BlockPosEU posTargeted = item.getPosition(stack, ItemBuildersWand.POS_START);
 
         MovingObjectPosition mop = this.mc.objectMouseOver;
         if (posTargeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
@@ -91,7 +91,7 @@ public class BuildersWandRenderer
 
         Mode mode = Mode.getMode(stack);
         BlockPosEU posStart = posTargeted.offset(ForgeDirection.getOrientation(posTargeted.face), 1);
-        BlockPosEU posEnd = item.getPosition(player, ItemBuildersWand.POS_END);
+        BlockPosEU posEnd = item.getPosition(stack, ItemBuildersWand.POS_END);
         posEnd = (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE)) ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
 
         if (partialTicks < this.partialTicksLast)
