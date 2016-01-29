@@ -550,6 +550,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
     public void restockCraftingGrid(int invId)
     {
+        this.recipeLoadClickCount = 0;
         invId = MathHelper.clamp_int(invId, 0, 1);
         int maskAutoUse = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_AUTOUSE : MODE_BIT_LEFT_CRAFTING_AUTOUSE;
 

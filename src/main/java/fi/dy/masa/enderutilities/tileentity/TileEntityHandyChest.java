@@ -271,6 +271,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
                     InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, chestMaxSlot, 0, playerMaxSlot, false);
                     break;
             }
+
+            this.markDirty();
         }
         else if (action == GUI_ACTION_SET_QUICK_ACTION && element >= 0 && element < 6)
         {

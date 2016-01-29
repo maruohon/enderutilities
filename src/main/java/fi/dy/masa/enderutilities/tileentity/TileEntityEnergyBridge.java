@@ -42,7 +42,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
         this.timer = 0;
-        this.renderBB = INFINITE_EXTENT_AABB;
     }
 
     @Override
@@ -499,6 +498,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
-        return this.renderBB;
+        return this.renderBB != null ? this.renderBB : INFINITE_EXTENT_AABB;
     }
 }

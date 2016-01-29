@@ -124,12 +124,12 @@ public class ContainerHandyChest extends ContainerLargeStacks
     @Override
     public void detectAndSendChanges()
     {
-        super.detectAndSendChanges();
-
         if (this.tehc.getWorldObj().isRemote == true)
         {
             return;
         }
+
+        super.detectAndSendChanges();
 
         for (int i = 0; i < this.crafters.size(); ++i)
         {

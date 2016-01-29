@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block.machine;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -40,6 +41,21 @@ public class MachineCreationStation extends Machine
     
         // We want the default BlockEnderUtilitiesInventory.breakBlock() to deal with the generic inventory
         return false;
+    }
+
+    @Override
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    {
+        super.onBlockClicked(world, x, y, z, player);
+
+        if (world.isRemote == false)
+        {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te instanceof TileEntityCreationStation)
+            {
+                ((TileEntityCreationStation)te).onLeftClickBlock(player);
+            }
+        }
     }
 
     @Override

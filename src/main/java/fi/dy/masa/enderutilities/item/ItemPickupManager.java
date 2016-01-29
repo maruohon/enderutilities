@@ -492,7 +492,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize)
+        if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead == true)
         {
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
             player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
