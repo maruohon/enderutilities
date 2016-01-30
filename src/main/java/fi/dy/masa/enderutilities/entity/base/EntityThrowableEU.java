@@ -153,6 +153,10 @@ public abstract class EntityThrowableEU extends EntityThrowable
             {
                 this.setInPortal();
             }
+            else if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlock(mopImpact.blockX, mopImpact.blockY, mopImpact.blockZ) == Blocks.web)
+            {
+                this.setInWeb();
+            }
             else
             {
                 this.onImpact(mopImpact);
@@ -198,6 +202,16 @@ public abstract class EntityThrowableEU extends EntityThrowable
             }
 
             motionFactor = 0.8F;
+        }
+        else if (this.isInWeb == true)
+        {
+            this.isInWeb = false;
+            //p_70091_1_ *= 0.25D;
+            //p_70091_3_ *= 0.05000000074505806D;
+            //p_70091_5_ *= 0.25D;
+            this.motionX *= 0.3;
+            this.motionY *= 0.3;
+            this.motionZ *= 0.3;
         }
 
         this.motionX *= (double)motionFactor;

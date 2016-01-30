@@ -115,6 +115,14 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
             return;
         }
 
+        // Don't collide with blocks without a collision box
+        if (mop.typeOfHit == MovingObjectType.BLOCK &&
+           this.worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ)
+               .getCollisionBoundingBoxFromPool(this.worldObj, mop.blockX, mop.blockY, mop.blockZ) == null)
+        {
+            return;
+        }
+
         Entity thrower = this.getThrower();
 
         // Thrower not found, drop the item if applicable and bail out
