@@ -63,6 +63,8 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
     public static final String NAME_TILE_ENTITY_TEMPLATED_CHEST      = "templatedchest";
 
+    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + ".enderalloy.advanced";
+
     public static String getPrefixedName(String name)
     {
         return Reference.MOD_ID + "." + name;

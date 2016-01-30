@@ -45,6 +45,9 @@ public class ConfigReader
         Configs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
 
+        Configs.harvestLevelEnderAlloyAdvanced = conf.get(category, "HarvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
+        Configs.harvestLevelEnderAlloyAdvanced.comment = "The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).";
+
         Configs.useEnderCharge = conf.get(category, "UseEnderCharge", true).setRequiresMcRestart(false);
         Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);

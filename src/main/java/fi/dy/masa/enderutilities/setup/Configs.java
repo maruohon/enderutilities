@@ -16,6 +16,7 @@ public class Configs
     public static Property configFileVersion;
     public static Property buildersWandBlocksPerTick;
     public static Property enderBucketCapacity;
+    public static Property harvestLevelEnderAlloyAdvanced;
     public static Property useEnderCharge;
 
     // Teleport control
