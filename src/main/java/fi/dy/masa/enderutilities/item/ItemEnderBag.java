@@ -155,15 +155,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(x, y, z);
-        if (world.isRemote == false && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
+        if (player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
-            /*if (this.isTargetBlockWhitelisted(Block.blockRegistry.getNameForObject(block), meta) == false)
-            {
-                player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.blocknotwhitelisted")
-                        + " '" + Block.blockRegistry.getNameForObject(block) + ":" + meta + "'"));
-                return true;
-            }*/
-
             return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
         }
 

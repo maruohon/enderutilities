@@ -146,18 +146,12 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
 
             // Link Crystal not named
-            NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
-            if (target != null && moduleStack.getItem() instanceof IModule)
+            if (moduleStack.getItem() instanceof ItemLinkCrystal)
             {
-                // Display the target block name if it's a Block type Link Crystal
-                if (((IModule)moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+                String targetName = ((ItemLinkCrystal)moduleStack.getItem()).getTargetDisplayName(moduleStack);
+                if (targetName != null)
                 {
-                    Block block = Block.getBlockFromName(target.blockName);
-                    ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
-                    if (targetStack != null && targetStack.getItem() != null)
-                    {
-                        return itemName + " " + EnumChatFormatting.GREEN.toString() + targetStack.getDisplayName() + rst;
-                    }
+                    return itemName + " " + EnumChatFormatting.GREEN.toString() + targetName + rst;
                 }
             }
         }

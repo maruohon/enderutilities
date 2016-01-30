@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.SlotFurnace;
+import net.minecraft.util.MathHelper;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -109,7 +110,7 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
         {
             case 0:
                 this.fuelProgress = val & 0x7F; // value is 0..100, mask it to he lowest 7 bits (0..127)
-                this.smeltingProgress = (val >> 8) & 0x7F;
+                this.smeltingProgress = MathHelper.clamp_int((val >>> 8) & 0x7F, 0, 100);
                 break;
             case 1:
                 this.outputBufferAmount = val;

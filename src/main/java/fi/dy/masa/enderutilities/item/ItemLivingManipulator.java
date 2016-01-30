@@ -97,12 +97,10 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         int count = this.getStoredEntityCount(stack);
         if (count < MAX_ENTITIES_PER_CARD)
         {
-            this.storeEntity(stack, livingBase);
+            return this.storeEntity(stack, livingBase);
         }
-        else
-        {
-            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.memorycard.full"));
-        }
+
+        player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.memorycard.full"));
 
         return false;
     }
@@ -132,6 +130,10 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         if (tag != null)
         {
             Entity entity = EntityList.createEntityFromNBT(tag, world);
+            if (entity == null)
+            {
+                return false;
+            }
             PositionHelper pos = new PositionHelper(x, y, z);
             pos.adjustPositionToTouchFace(entity, side);
             entity.setLocationAndAngles(pos.posX, pos.posY, pos.posZ, entity.rotationYaw, entity.rotationPitch);

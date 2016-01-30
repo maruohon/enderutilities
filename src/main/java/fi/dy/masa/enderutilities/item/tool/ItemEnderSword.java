@@ -118,18 +118,12 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             }
 
             // Link Crystal not named
-            NBTHelperTarget target = ((ILocationBound)moduleStack.getItem()).getTarget(moduleStack);
-            if (target != null && moduleStack.getItem() instanceof IModule)
+            if (moduleStack.getItem() instanceof ItemLinkCrystal)
             {
-                // Display the target block name if it's a Block type Link Crystal
-                if (((IModule)moduleStack.getItem()).getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+                String targetName = ((ItemLinkCrystal)moduleStack.getItem()).getTargetDisplayName(moduleStack);
+                if (targetName != null)
                 {
-                    Block block = Block.getBlockFromName(target.blockName);
-                    ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
-                    if (targetStack != null && targetStack.getItem() != null)
-                    {
-                        return itemName + " " + EnumChatFormatting.GREEN.toString() + targetStack.getDisplayName() + rst;
-                    }
+                    return itemName + " " + EnumChatFormatting.GREEN.toString() + targetName + rst;
                 }
             }
         }
@@ -855,6 +849,13 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean hasEffect(ItemStack par1ItemStack, int pass)
+    {
+        return false;
     }
 
     @SideOnly(Side.CLIENT)

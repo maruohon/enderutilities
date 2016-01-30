@@ -5,6 +5,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
+
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -136,13 +138,14 @@ public class ItemRendererEnderBucket implements IItemRenderer
         this.renderQuad(type, t, iicon, 0.0f, 0.0f, 1.0f, 1.0f, 0.0d, 0.0d, 0.0d);
 
         iicon = itemBucket.getIconPart(offset + 5); // 1: Bucket window background (empty part of gauge)
-        float capacity = (float)itemBucket.getCapacityCached(stack, null);
-        if (capacity == 0.0f)
+        int capacity = itemBucket.getCapacityCached(stack, null);
+        if (capacity == 0)
         {
-            capacity = 1.0f;
+            capacity = 1;
         }
+        amount = MathHelper.clamp_int(amount, 0, capacity);
         //(float)EUConfigs.enderBucketCapacity.getInt(ReferenceBlocksItems.ENDER_BUCKET_MAX_AMOUNT))
-        float scale = 1.0f - (((float)amount) / capacity);
+        float scale = 1.0f - (((float)amount) / ((float)capacity));
         //this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.00005d);
         this.renderQuad(type, t, iicon, 0.375f, 0.5625f, 0.25f, scale * 0.25f, 0.0d, 0.0d, 0.0d);
 
