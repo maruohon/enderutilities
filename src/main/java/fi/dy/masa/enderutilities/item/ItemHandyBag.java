@@ -253,6 +253,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (mode == MODE_RESTOCK_ENABLED)
             {
                 InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
+                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
 
@@ -260,11 +261,13 @@ public class ItemHandyBag extends ItemInventoryModular
             if (mode == MODE_PICKUP_MATCHING)
             {
                 InventoryUtils.tryMoveMatchingItems((IInventory)te, inv, side, 0, true);
+                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
             else if (mode == MODE_PICKUP_ALL)
             {
                 InventoryUtils.tryMoveAllItems((IInventory)te, inv, side, 0, true);
+                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
         }
