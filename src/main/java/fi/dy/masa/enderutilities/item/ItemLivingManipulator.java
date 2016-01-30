@@ -134,6 +134,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             {
                 return false;
             }
+
             PositionHelper pos = new PositionHelper(x, y, z);
             pos.adjustPositionToTouchFace(entity, side);
             entity.setLocationAndAngles(pos.posX, pos.posY, pos.posZ, entity.rotationYaw, entity.rotationPitch);
@@ -170,17 +171,27 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return false;
         }
 
-        NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, true);
+        // Dismount the entity from its rider and the entity it's riding, if any
+        livingBase.mountEntity(null);
+
+        if (livingBase.riddenByEntity != null)
+        {
+            livingBase.riddenByEntity.mountEntity(null);
+        }
 
         NBTTagCompound nbtEntity = new NBTTagCompound();
-        livingBase.writeToNBTOptional(nbtEntity);
+        if (livingBase.writeToNBTOptional(nbtEntity) == false)
+        {
+            return false;
+        }
+
+        NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, true);
 
         tagList = NBTUtils.insertToTagList(tagList, nbtEntity, NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current"));
         NBTUtils.setTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", tagList);
 
         this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
 
-        //livingBase.setDead();
         livingBase.isDead = true;
 
         return true;
