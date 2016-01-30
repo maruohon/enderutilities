@@ -286,7 +286,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             EntityItem item = iter.next();
 
             // Pickup event not canceled, do further processing to those items
-            if (MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
+            if (mode == 2 || MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
             {
                 if (item.getEntityItem() != null && item.getEntityItem().stackSize > 0)
                 {

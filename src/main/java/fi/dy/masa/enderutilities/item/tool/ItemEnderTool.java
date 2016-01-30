@@ -607,7 +607,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         boolean isSilk = event.isSilkTouching;
         int numDropsOriginal = event.drops.size();
 
-        if (MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
+        if (mode != 2 && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
         {
             return;
         }
