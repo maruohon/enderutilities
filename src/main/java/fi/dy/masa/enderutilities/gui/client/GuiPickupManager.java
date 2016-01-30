@@ -41,7 +41,8 @@ public class GuiPickupManager extends GuiEnderUtilities
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;
         this.inventoryItemFilters = container.inventoryItemFilters;
-        this.numModuleSlots = this.inventoryItemModules.getSizeInventory();
+        // FIXME the -1 is after adding the capacitor module...
+        this.numModuleSlots = this.inventoryItemModules.getSizeInventory() - 1;
     }
 
     @Override
@@ -146,7 +147,8 @@ public class GuiPickupManager extends GuiEnderUtilities
         IIcon icon = EnderUtilitiesItems.linkCrystal.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_LINKCRYSTAL);
         for (int i = 0; icon != null && i < this.numModuleSlots; i++)
         {
-            if (this.inventoryItemModules.getStackInSlot(i) == null)
+            // FIXME the +1 is after adding the capacitor module...
+            if (this.inventoryItemModules.getStackInSlot(i + 1) == null)
             {
                 this.drawTexturedModelRectFromIcon(x + 116 + i * 18, y + 29, icon, 16, 16);
             }
@@ -201,7 +203,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         int y = (this.height - this.ySize) / 2;
 
         int id = 0;
-        // Add the Memory Card selection buttons
+        // Add the Link Crystal selection buttons
         for (int i = 0; i < this.numModuleSlots; i++)
         {
             this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
@@ -259,7 +261,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         }
         first += this.numModuleSlots;
 
-        if (button.id >= this.numModuleSlots && button.id < (first + ItemPickupManager.NUM_PRESETS))
+        if (button.id >= first && button.id < (first + ItemPickupManager.NUM_PRESETS))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_CHANGE_PRESET, button.id - first));

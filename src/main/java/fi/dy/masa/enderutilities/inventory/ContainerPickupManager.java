@@ -11,6 +11,7 @@ import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -30,7 +31,8 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 
-        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULE_SLOTS, player.worldObj.isRemote, player);
+        // FIXME the +1 is after adding the capacitor module
+        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULE_SLOTS + 1, player.worldObj.isRemote, player);
         this.inventoryItemModules.setHostInventory(player.inventory, this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
@@ -89,7 +91,9 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         // The Storage Module slots
         for (int i = 0; i < NUM_MODULE_SLOTS; i++)
         {
-            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, i, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
+            // FIXME after adding the Ender Capacitor to the item, we now need this offset of 1 in the slot numbers...
+            // And the module ordering depends on the ModuleType enum... So this is a bit hacky, how should it be improved?
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, i + 1, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
         }
     }
 
@@ -202,14 +206,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         }
 
         ItemStack modularStackPre = this.getModularItem();
+
         ItemStack stack = super.slotClick(slotNum, button, type, player);
+
         ItemStack modularStackPost = this.getModularItem();
 
-        if (modularStackPost != null && player.worldObj.isRemote == false)
+        if (player.worldObj.isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.pickupManager)
         {
-            boolean sent = ItemPickupManager.tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
+            boolean sent = ((ItemPickupManager)modularStackPost.getItem()).tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
 
-            // The change is not picked up by detectAndSendCHanges() because the items are transported out
+            // The change is not picked up by detectAndSendChanges() because the items are transported out
             // immediately, so the client side container will get out of sync without a forced sync
             if (sent == true && player instanceof EntityPlayerMP)
             {
@@ -217,7 +223,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             }
         }
 
-        // The Bag's stack changed after the click, re-read the inventory contents.
+        // The modular stack changed after the click, re-read the inventory contents.
         if (modularStackPre != modularStackPost)
         {
             //System.out.println("slotClick() - updating container");

@@ -810,6 +810,27 @@ public class UtilItemModular
     }
 
     /**
+     * Returns the amount of Ender Charge currently stored in the selected Ender Capacitor
+     * @param containerStack
+     * @return the amount of Ender Charge stored in the selected Capacitor
+     */
+    public static int getAvailableEnderCharge(ItemStack containerStack)
+    {
+        if ((containerStack.getItem() instanceof IModular) == false)
+        {
+            return 0;
+        }
+
+        ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
+        if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
+        {
+            return 0;
+        }
+
+        return ((IChargeable) moduleStack.getItem()).getCharge(moduleStack);
+    }
+
+    /**
      * If the given modular item has an Ender Capacitor module installed, and the capacitor has sufficient charge,
      * then the given amount of charge will be drained from it, and true is returned.
      * In case of any errors, no charge will be drained and false is returned.
