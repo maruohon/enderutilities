@@ -195,6 +195,11 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
     public void dropAsItem()
     {
+        if (this.isDead == true)
+        {
+            return;
+        }
+
         int damage = (this.isElite == true ? 1 : 0);
         EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
 
