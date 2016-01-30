@@ -41,7 +41,6 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
         else
         {
             this.crafters.add(iCrafting);
-            //iCrafting.sendContainerAndContentsToPlayer(this, this.getInventory());
 
             if (iCrafting instanceof EntityPlayerMP)
             {
@@ -58,11 +57,7 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
         for (int i = 0; i < this.inventorySlots.size(); ++i)
         {
             ItemStack stack = ((Slot)this.inventorySlots.get(i)).getStack();
-
-            if (stack != null)
-            {
-                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, stack), player);
-            }
+            PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, stack), player);
         }
     }
 
