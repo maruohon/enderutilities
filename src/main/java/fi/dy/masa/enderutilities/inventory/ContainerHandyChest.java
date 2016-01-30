@@ -86,22 +86,24 @@ public class ContainerHandyChest extends ContainerLargeStacks
     @Override
     public void middleClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
 
         // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot != null && slot.isSlotInInventory(this.tehc.getItemInventory(), slotNum) == true)
+        if (slot1 != null && slot1.isSlotInInventory(this.tehc.getItemInventory(), slotNum) == true)
         {
             if (this.selectedSlot != -1)
             {
                 // Don't swap with self
                 if (this.selectedSlot != slotNum)
                 {
-                    ItemStack stackTmp = slot.getStack();
-                    slot.putStack(this.getSlot(this.selectedSlot).getStack());
-                    this.getSlot(this.selectedSlot).putStack(stackTmp);
+                    Slot slot2 = this.getSlot(this.selectedSlot);
+                    ItemStack stackTmp1 = slot1.getStack();
+                    ItemStack stackTmp2 = slot2.getStack();
+                    slot1.putStack(stackTmp2);
+                    slot2.putStack(stackTmp1);
 
-                    slot.onPickupFromSlot(player, stackTmp);
-                    this.getSlot(this.selectedSlot).onPickupFromSlot(player, stackTmp);
+                    slot1.onPickupFromSlot(player, stackTmp1);
+                    slot2.onPickupFromSlot(player, stackTmp2);
                 }
                 this.selectedSlot = -1;
             }

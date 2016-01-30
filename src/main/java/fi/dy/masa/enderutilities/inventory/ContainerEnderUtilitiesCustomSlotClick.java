@@ -280,15 +280,16 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
                 // Won't take all the items from the slot
                 if (num < stackSlot.stackSize)
                 {
-                    stackCursor = stackSlot.splitStack(num);
-                    slot.putStack(stackSlot.stackSize > 0 ? stackSlot : null);
+                    stackCursor = slot.decrStackSize(num);
+                    slot.onPickupFromSlot(player, stackCursor);
                     this.inventoryPlayer.setItemStack(stackCursor);
                 }
                 // Taking all the items from the slot
                 else
                 {
-                    this.inventoryPlayer.setItemStack(stackSlot.copy());
-                    slot.putStack(null);
+                    ItemStack stackTmp = slot.decrStackSize(num);
+                    this.inventoryPlayer.setItemStack(stackTmp);
+                    slot.onPickupFromSlot(player, stackTmp);
                 }
             }
             // Can't put items into the slot (for example a crafting output slot); take items instead
@@ -296,30 +297,32 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
             {
                 stackCursor = slot.decrStackSize(stackSlot.stackSize);
                 this.inventoryPlayer.setItemStack(stackCursor);
+                slot.onPickupFromSlot(player, stackCursor);
             }
-
-            slot.onPickupFromSlot(player, stackSlot);
         }
     }
 
     public void middleClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        // TODO add the "main inventory" as a getter method for the container, so this method doesn't have to be overridden
+        Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
 
-        // Only allow swapping in this inventory
-        if (slot != null && slot.isSlotInInventory(this.inventory, slotNum) == true)
+        // Only allow swapping in this inventory (which supports the large stacks)
+        if (slot1 != null && slot1.isSlotInInventory(this.inventory, slotNum) == true)
         {
             if (this.selectedSlot != -1)
             {
                 // Don't swap with self
                 if (this.selectedSlot != slotNum)
                 {
-                    ItemStack stackTmp = slot.getStack();
-                    slot.putStack(this.getSlot(this.selectedSlot).getStack());
-                    this.getSlot(this.selectedSlot).putStack(stackTmp);
+                    Slot slot2 = this.getSlot(this.selectedSlot);
+                    ItemStack stackTmp1 = slot1.getStack();
+                    ItemStack stackTmp2 = slot2.getStack();
+                    slot1.putStack(stackTmp2);
+                    slot2.putStack(stackTmp1);
 
-                    slot.onPickupFromSlot(player, stackTmp);
-                    this.getSlot(this.selectedSlot).onPickupFromSlot(player, stackTmp);
+                    slot1.onPickupFromSlot(player, stackTmp1);
+                    slot2.onPickupFromSlot(player, stackTmp2);
                 }
                 this.selectedSlot = -1;
             }
@@ -388,8 +391,8 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
         if (stackSlot != null && slot.canTakeStack(this.inventoryPlayer.player) == true)
         {
             ItemStack stackDrop = slot.decrStackSize(1);
+            slot.onPickupFromSlot(player, stackDrop);
             player.dropPlayerItemWithRandomChoice(stackDrop, true);
-            slot.onPickupFromSlot(player, stackSlot);
         }
     }
 
@@ -419,7 +422,7 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
             int num = Math.min(stackSlot.getMaxStackSize(), this.inventoryPlayer.getInventoryStackLimit());
             num = Math.min(num, stackSlot.stackSize);
             stackHotbar = slot.decrStackSize(num);
-            slot.onPickupFromSlot(player, stackSlot);
+            slot.onPickupFromSlot(player, stackHotbar);
             this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
         }
         // Matching items in both slots, fill the hotbar stack if it has still space, otherwise take the stack from it
@@ -429,8 +432,8 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
             if (num > 0)
             {
                 stackHotbar.stackSize += num;
-                slot.decrStackSize(num);
-                slot.onPickupFromSlot(player, stackSlot);
+                slot.decrStackSize(num); // FIXME ?
+                slot.onPickupFromSlot(player, stackSlot); // FIXME ?
                 this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
             }
             else if (slot.isItemValid(stackHotbar) == true)
