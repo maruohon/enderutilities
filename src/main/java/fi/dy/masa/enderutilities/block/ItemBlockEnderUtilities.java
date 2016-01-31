@@ -51,7 +51,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();

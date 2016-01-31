@@ -1,10 +1,17 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.ILockableContainer;
+import net.minecraft.world.LockCode;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -15,8 +22,9 @@ import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 
-public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
+public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory, ILockableContainer
 {
+    protected LockCode lockCode = LockCode.EMPTY_CODE;
     protected String customInventoryName;
     protected ItemStack[] itemStacks;
     protected int invSize;
@@ -36,15 +44,21 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         return this.customInventoryName != null && this.customInventoryName.length() > 0;
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
-        return this.hasCustomInventoryName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+        return this.hasCustomName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentTranslation(this.getName());
     }
 
     /**
@@ -77,8 +91,9 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
             }
             else
             {
+                BlockPos pos = this.getPos();
                 String str = String.format("Invalid slot number while reading inventory from NBT; got: %d, max: %d (TE location: x: %d y: %d, z: %d)",
-                        slotNum, (this.itemStacks.length - 1), this.xCoord, this.yCoord, this.zCoord);
+                        slotNum, (this.itemStacks.length - 1), pos.getX(), pos.getY(), pos.getZ());
                 EnderUtilities.logger.warn(this.getClass().getSimpleName() + ": " + str);
             }
         }
@@ -134,7 +149,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     {
         super.writeToNBT(nbt);
 
-        if (this.hasCustomInventoryName())
+        if (this.hasCustomName() == true)
         {
             nbt.setString("CustomName", this.customInventoryName);
         }
@@ -199,7 +214,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
+    public ItemStack removeStackFromSlot(int slotNum)
     {
         if (slotNum >= this.itemStacks.length)
         {
@@ -244,14 +259,23 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
+    public void clear()
+    {
+        for (int i = 0; i < this.itemStacks.length; ++i)
+        {
+            this.itemStacks[i] = null;
+        }
+    }
+
+    @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        if (this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord) != this)
+        if (this.worldObj.getTileEntity(this.getPos()) != this)
         {
             return false;
         }
 
-        if (player.getDistanceSq((double)this.xCoord + 0.5d, (double)this.yCoord + 0.5d, (double)this.zCoord + 0.5d) >= 64.0d)
+        if (player.getDistanceSq(this.getPos()) >= 64.0d)
         {
             return false;
         }
@@ -260,13 +284,28 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) { }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
     }
 
     public ContainerEnderUtilities getContainer(EntityPlayer player)
@@ -282,5 +321,34 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
+    }
+
+    @Override
+    public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)
+    {
+        return null;
+    }
+
+    @Override
+    public String getGuiID()
+    {
+        return Reference.MOD_ID + ":" + this.tileEntityName;
+    }
+
+    @Override
+    public boolean isLocked()
+    {
+        return this.lockCode != null && this.lockCode.isEmpty() == false;
+    }
+
+    @Override
+    public void setLockCode(LockCode code)
+    {
+    }
+
+    @Override
+    public LockCode getLockCode()
+    {
+        return this.lockCode;
     }
 }

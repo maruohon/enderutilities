@@ -5,6 +5,7 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,7 +13,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -26,7 +28,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
-    public static final byte YAW_TO_DIRECTION[] = {2, 5, 3, 4};
     public int blockIndex;
 
     public BlockEnderUtilitiesTileEntity(int index, String name, float hardness)
@@ -43,15 +44,15 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     @Override
-    public boolean hasTileEntity(int metadata)
+    public boolean hasTileEntity(IBlockState state)
     {
         return true;
     }
 
     @Override
-    public TileEntity createTileEntity(World world, int metadata)
+    public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, metadata);
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(state));
         if (machine != null)
         {
             return machine.createTileEntity();
@@ -61,18 +62,15 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = worldIn.getTileEntity(pos);
         if (te == null || (te instanceof TileEntityEnderUtilities) == false)
         {
             return;
         }
 
-        int yaw = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
-
         TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
-
         NBTTagCompound nbt = stack.getTagCompound();
 
         // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
@@ -82,32 +80,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         }
         else
         {
-            /*
-            if (livingBase.rotationPitch > 45.0f)
+            if (placer instanceof EntityPlayer)
             {
-                rot = (rot << 4) | 1;
-            }
-            else if (livingBase.rotationPitch < -45.0f)
-            {
-                rot = rot << 4;
-            }
-            else
-            {
-            */
-                // {DOWN, UP, NORTH, SOUTH, WEST, EAST}
-                /*switch (yaw)
-                {
-                    case 0: yaw = 2; break;
-                    case 1: yaw = 5; break;
-                    case 2: yaw = 3; break;
-                    case 3: yaw = 4; break;
-                    default:
-                }*/
-            //}
-
-            if (livingBase instanceof EntityPlayer)
-            {
-                teeu.setOwner((EntityPlayer)livingBase);
+                teeu.setOwner((EntityPlayer)placer);
             }
 
             if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
@@ -116,94 +91,95 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
             }
         }
 
-        // Update the rotation
-        if (yaw < YAW_TO_DIRECTION.length)
-        {
-            teeu.setRotation(YAW_TO_DIRECTION[yaw]);
-        }
+        // FIXME add the 24-way rotation stuff
+        EnumFacing facing = placer.getHorizontalFacing();
+        teeu.setRotation(facing.getIndex());
 
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(worldIn.getBlockState(pos)));
         if (machine != null)
         {
-            machine.onBlockPlacedBy(world, x, y, z, livingBase, stack);
+            machine.onBlockPlacedBy(worldIn, pos, state, placer, stack);
         }
     }
 
     @Override
-    public void onBlockAdded(World world, int x, int y, int z)
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(worldIn.getBlockState(pos)));
         if (machine != null)
         {
-            machine.onBlockAdded(world, x, y, z);
+            machine.onBlockAdded(worldIn, pos, state);
         }
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(worldIn.getBlockState(pos)));
         if (machine != null)
         {
-            return machine.onBlockActivated(world, x, y, z, player, side, offsetX, offsetY, offsetZ);
+            return machine.onBlockActivated(worldIn, pos, state, playerIn, side, hitX, hitY, hitZ);
         }
 
         return false;
     }
 
     @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
     {
-        super.onBlockClicked(world, x, y, z, player);
+        super.onBlockClicked(worldIn, pos, playerIn);
 
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(worldIn.getBlockState(pos)));
         if (machine != null)
         {
-            machine.onBlockClicked(world, x, y, z, player);
+            machine.onBlockClicked(worldIn, pos, playerIn);
         }
     }
 
-    @Override
-    public void onBlockPreDestroy(World world, int x, int y, int z, int oldMeta)
+    // FIXME
+    /*@Override
+    public void onBlockPreDestroy(World world, BlockPos pos, int oldMeta)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
+        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(world.getBlockState(pos)));
         if (machine != null)
         {
-            machine.onBlockPreDestroy(world, x, y, z, oldMeta);
+            machine.onBlockPreDestroy(world, pos, oldMeta);
         }
-    }
+    }*/
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         // This is for handling custom storage stuff like buffers, which are not regular
         // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
+        int meta = this.getMetaFromState(worldIn.getBlockState(pos));
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            machine.breakBlock(world, x, y, z, block, meta);
+            machine.breakBlock(worldIn, pos, state);
         }
 
-        super.breakBlock(world, x, y, z, block, meta);   // world.removeTileEntity(x, y, z);
+        super.breakBlock(worldIn, pos, state); // world.removeTileEntity(pos);
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z)
+    public int getLightValue(IBlockAccess worldIn, BlockPos pos)
     {
-        Block block = world.getBlock(x, y, z);
+        Block block = worldIn.getBlockState(pos).getBlock();
         if (block != this)
         {
-            return block.getLightValue(world, x, y, z);
+            return block.getLightValue(worldIn, pos);
         }
 
-        int meta = world.getBlockMetadata(x, y, z);
+        IBlockState state = worldIn.getBlockState(pos);
+        int meta = this.getMetaFromState(state);
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            return machine.getLightValue(world, x, y, z, block, meta);
+            return machine.getLightValue(worldIn, pos, state);
         }
 
-        return super.getLightValue(world, x, y, z);
+        return super.getLightValue(worldIn, pos);
     }
 
     public int getBlockIndex()
@@ -212,57 +188,20 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     @SideOnly(Side.CLIENT)
-    public void getSubBlocks(Item item, CreativeTabs tab, List list)
+    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
         Machine.getSubBlocks(this.blockIndex, this, item, tab, list);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    public void randomDisplayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        Machine machine = Machine.getMachine(this.blockIndex, world.getBlockMetadata(x, y, z));
-        if (machine != null)
-        {
-            machine.randomDisplayTick(world, x, y, z, rand);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(int side, int meta)
-    {
+        int meta = this.getMetaFromState(worldIn.getBlockState(pos));
         Machine machine = Machine.getMachine(this.blockIndex, meta);
         if (machine != null)
         {
-            return machine.getIcon(side, meta);
+            machine.randomDisplayTick(worldIn, pos, state, rand);
         }
-
-        return this.blockIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
-    {
-        int meta = blockAccess.getBlockMetadata(x, y, z);
-        TileEntity te = blockAccess.getTileEntity(x, y, z);
-        if (te != null && te instanceof TileEntityEnderUtilities)
-        {
-            Machine machine = Machine.getMachine(this.blockIndex, meta);
-            if (machine != null)
-            {
-                return machine.getIcon((TileEntityEnderUtilities)te, side, meta);
-            }
-        }
-
-        return this.getIcon(side, meta);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerBlockIcons(IIconRegister iconRegister)
-    {
-        Machine.registerIcons(this.blockIndex, iconRegister);
     }
 }

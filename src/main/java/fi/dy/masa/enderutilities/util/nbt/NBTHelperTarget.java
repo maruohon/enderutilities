@@ -1,26 +1,23 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry.UniqueIdentifier;
 
-import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class NBTHelperTarget
 {
-    public int posX;
-    public int posY;
-    public int posZ;
+    public BlockPos pos;
     public double dPosX;
     public double dPosY;
     public double dPosZ;
@@ -31,15 +28,13 @@ public class NBTHelperTarget
     public float pitch;
     public String blockName;
     public int blockMeta;
-    /* Face of the target block */
+    public int itemMeta;
     public int blockFace;
-    public ForgeDirection forgeDir;
+    public EnumFacing facing;
 
     public NBTHelperTarget()
     {
-        this.posX = 0;
-        this.posY = 0;
-        this.posZ = 0;
+        this.pos = new BlockPos(0, 0, 0);
         this.dPosX = 0.0d;
         this.dPosY = 0.0d;
         this.dPosZ = 0.0d;
@@ -50,8 +45,9 @@ public class NBTHelperTarget
         this.pitch = 0.0f;
         this.blockName = "";
         this.blockMeta = 0;
+        this.itemMeta = 0;
         this.blockFace = -1;
-        this.forgeDir = ForgeDirection.UP;
+        this.facing = EnumFacing.UP;
     }
 
     public static NBTHelperTarget getTargetFromItem(ItemStack stack)
@@ -114,19 +110,18 @@ public class NBTHelperTarget
         }
 
         NBTTagCompound tag = nbt.getCompoundTag("Target");
-        this.posX = tag.getInteger("posX");
-        this.posY = tag.getInteger("posY");
-        this.posZ = tag.getInteger("posZ");
+        this.pos = new BlockPos(tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ"));
         this.dimension = tag.getInteger("Dim");
         this.dimensionName = tag.getString("DimName");
         this.blockName = tag.getString("BlockName");
         this.blockMeta = tag.getByte("BlockMeta");
+        this.itemMeta = tag.getByte("ItemMeta");
         this.blockFace = tag.getByte("BlockFace");
-        this.forgeDir = ForgeDirection.getOrientation(this.blockFace);
+        this.facing = EnumFacing.getFront(this.blockFace);
 
-        this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.posX + 0.5d;
-        this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.posY;
-        this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.posZ + 0.5d;
+        this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.pos.getX() + 0.5d;
+        this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.pos.getY();
+        this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.pos.getZ() + 0.5d;
 
         if (tag.hasKey("Yaw", Constants.NBT.TAG_FLOAT) == true && tag.hasKey("Pitch", Constants.NBT.TAG_FLOAT) == true)
         {
@@ -146,7 +141,8 @@ public class NBTHelperTarget
         return target;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, double dx, double dy, double dz, int dim, String dimName, String blockName, int meta, int blockFace, float yaw, float pitch, boolean hasAngle)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, double dx, double dy, double dz, int dim,
+            String dimName, String blockName, int blockMeta, int itemMeta, int blockFace, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
@@ -154,16 +150,17 @@ public class NBTHelperTarget
         }
 
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("posX", x);
-        tag.setInteger("posY", y);
-        tag.setInteger("posZ", z);
+        tag.setInteger("posX", pos.getX());
+        tag.setInteger("posY", pos.getY());
+        tag.setInteger("posZ", pos.getZ());
         tag.setDouble("dPosX", dx);
         tag.setDouble("dPosY", dy);
         tag.setDouble("dPosZ", dz);
         tag.setInteger("Dim", dim);
         tag.setString("DimName", dimName);
         tag.setString("BlockName", blockName);
-        tag.setByte("BlockMeta", (byte)meta);
+        tag.setByte("BlockMeta", (byte)blockMeta);
+        tag.setShort("ItemMeta", (short)itemMeta);
         tag.setByte("BlockFace", (byte)blockFace);
 
         if (hasAngle == true)
@@ -177,16 +174,17 @@ public class NBTHelperTarget
         return nbt;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, int blockFace,
+            double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
             nbt = new NBTTagCompound();
         }
 
-        double dPosX = x;
-        double dPosY = y;
-        double dPosZ = z;
+        double dPosX = pos.getX();
+        double dPosY = pos.getY();
+        double dPosZ = pos.getZ();
 
         if (doHitOffset == true)
         {
@@ -197,7 +195,8 @@ public class NBTHelperTarget
 
         String dimName = "";
         String blockName = "";
-        int meta = 0;
+        int blockMeta = 0;
+        int itemMeta = 0;
 
         if (MinecraftServer.getServer() != null)
         {
@@ -206,27 +205,26 @@ public class NBTHelperTarget
             {
                 dimName = world.provider.getDimensionName();
 
-                UniqueIdentifier ui = GameRegistry.findUniqueIdentifierFor(world.getBlock(x, y, z));
-                if (ui != null)
-                {
-                    blockName = ui.toString();
-                }
-                else
-                {
-                    blockName = Block.blockRegistry.getNameForObject(world.getBlock(x, y, z));
-                }
+                IBlockState iBlockState = world.getBlockState(pos);
+                Block block = iBlockState.getBlock();
+                blockMeta = block.getMetaFromState(iBlockState);
+                itemMeta = block.getDamageValue(world, pos);
 
-                meta = world.getBlockMetadata(x, y, z);
+                ResourceLocation rl = Block.blockRegistry.getNameForObject(block);
+                if (rl != null)
+                {
+                    blockName = rl.toString();
+                }
             }
         }
 
-        return writeTargetTagToNBT(nbt, x, y, z, dPosX, dPosY, dPosZ, dim, dimName, blockName, meta, blockFace, yaw, pitch, hasAngle);
+        return writeTargetTagToNBT(nbt, pos, dPosX, dPosY, dPosZ, dim, dimName, blockName, blockMeta, itemMeta, blockFace, yaw, pitch, hasAngle);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        return writeTargetTagToNBT(nbt, this.posX, this.posY, this.posZ, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
-            this.dimensionName, this.blockName, this.blockMeta, this.blockFace, this.yaw, this.pitch, this.hasAngle);
+        return writeTargetTagToNBT(nbt, this.pos, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
+            this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.blockFace, this.yaw, this.pitch, this.hasAngle);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
@@ -256,20 +254,22 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static void writeTargetTagToItem(ItemStack stack, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, int blockFace,
+            double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (stack != null)
         {
-            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
     }
 
-    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, int x, int y, int z, int dim, int blockFace, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, BlockPos pos, int dim, int blockFace,
+            double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack != null)
         {
-            writeTargetTagToItem(moduleStack, x, y, z, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
+            writeTargetTagToItem(moduleStack, pos, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
 
             return true;
@@ -292,11 +292,12 @@ public class NBTHelperTarget
             return false;
         }
 
-        Block block = world.getBlock(this.posX, this.posY, this.posZ);
+        IBlockState iBlockState = world.getBlockState(this.pos);
+        Block block = iBlockState.getBlock();
+        int meta = block.getMetaFromState(iBlockState);
 
         // The target block unique name and metadata matches what we have stored
-        if (this.blockName != null && this.blockName.equals(Block.blockRegistry.getNameForObject(block)) == true
-            && this.blockMeta == world.getBlockMetadata(this.posX, this.posY, this.posZ))
+        if (this.blockMeta == meta && this.blockName.equals(Block.blockRegistry.getNameForObject(block).toString()) == true)
         {
             return true;
         }
@@ -307,113 +308,12 @@ public class NBTHelperTarget
     public static String getTargetBlockDisplayName(NBTHelperTarget target)
     {
         Block block = Block.getBlockFromName(target.blockName);
-        ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
+        ItemStack targetStack = new ItemStack(block, 1, target.itemMeta);
         if (targetStack != null && targetStack.getItem() != null)
         {
             return targetStack.getDisplayName();
         }
 
         return null;
-    }
-
-    /**
-     * This is for compatibility when upgrading from 0.3.x.
-     * It tries to transfer old style target data tags from the containing item to
-     * the first link crystal that has no target tag, and then removes the old target tag from the item.
-     * FIXME Remove this sometime around 0.5.0 or 0.6.0.
-     */
-    public static boolean compatibilityTransferTargetData(ItemStack toolStack)
-    {
-        if (toolStack == null || toolStack.getTagCompound() == null || (toolStack.getItem() instanceof IModular) == false)
-        {
-            return false;
-        }
-
-        IModular item = (IModular)toolStack.getItem();
-        // Only handle Ender Bow, Ender Lasso and Ender Porter target data
-        if (! (item == EnderUtilitiesItems.enderLasso
-            || item == EnderUtilitiesItems.enderBow
-            || item == EnderUtilitiesItems.enderPorter))
-        {
-            return false;
-        }
-
-        NBTTagCompound toolNbt = toolStack.getTagCompound();
-        if (toolNbt.hasKey("Target", Constants.NBT.TAG_COMPOUND) == false)
-        {
-            return false;
-        }
-
-        NBTTagCompound tag = toolNbt.getCompoundTag("Target");
-        // BlockFace tag was INT, otherwise we could have used the current method to check for target tag
-        if (! (tag != null &&
-            tag.hasKey("posX", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("Dim", Constants.NBT.TAG_INT) == true &&
-            //tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
-            //tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
-            tag.hasKey("BlockFace", Constants.NBT.TAG_INT) == true))
-        {
-            return false;
-        }
-
-        // See how many link crystals are installed
-        if (item.getInstalledModuleCount(toolStack, ModuleType.TYPE_LINKCRYSTAL) == 0)
-        {
-            return false;
-        }
-
-        // Read the old target tag
-        NBTHelperTarget target = new NBTHelperTarget();
-        target.posX = tag.getInteger("posX");
-        target.posY = tag.getInteger("posY");
-        target.posZ = tag.getInteger("posZ");
-        target.dimension = tag.getInteger("Dim");
-        target.dimensionName = tag.getString("DimName");
-        target.blockName = tag.getString("BlockName");
-        target.blockMeta = tag.getByte("BlockMeta");
-        target.blockFace = tag.getByte("BlockFace");
-        target.forgeDir = ForgeDirection.getOrientation(target.blockFace);
-
-        target.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : target.posX + 0.5d;
-        target.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : target.posY;
-        target.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : target.posZ + 0.5d;
-
-        if (toolNbt.hasKey("Items", Constants.NBT.TAG_LIST) == false)
-        {
-            return false;
-        }
-
-        NBTTagList nbtTagList = toolNbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        if (nbtTagList == null)
-        {
-            return false;
-        }
-
-        int listNumStacks = nbtTagList.tagCount();
-
-        // Try to find a link crystal that has no target tag yet
-        for (int i = 0; i < listNumStacks; ++i)
-        {
-            NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
-            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(moduleTag);
-            if (UtilItemModular.moduleTypeEquals(moduleStack, ModuleType.TYPE_LINKCRYSTAL) == true)
-            {
-                NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-                if (moduleNbt == null || NBTHelperTarget.nbtHasTargetTag(moduleNbt) == false)
-                {
-                    moduleNbt = target.writeToNBT(moduleNbt);
-                    moduleStack.setTagCompound(moduleNbt);
-                    // Write the new module ItemStack to the compound tag of the old one, so that we
-                    // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                    nbtTagList.func_150304_a(i, moduleStack.writeToNBT(moduleTag));
-                    toolNbt.removeTag("Target");
-                    //System.out.println("post transfering target... lc: " + (i + 1) + " moduleNbt: " + moduleNbt + " toolNbt: " + toolNbt);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

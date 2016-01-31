@@ -2,9 +2,9 @@ package fi.dy.masa.enderutilities.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class BlockEnderUtilities extends Block
 {
@@ -19,18 +19,11 @@ public class BlockEnderUtilities extends Block
         super(material);
         this.setHardness(hardness);
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setBlockName(name);
     }
 
     @Override
-    public Block setBlockName(String name)
+    public int damageDropped(IBlockState iBlockState)
     {
-        return super.setBlockName(ReferenceNames.getPrefixedName(name));
-    }
-
-    @Override
-    public int damageDropped(int meta)
-    {
-        return meta;
+        return this.getMetaFromState(iBlockState);
     }
 }

@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -58,8 +58,8 @@ public abstract class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new LivingDropsEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
         MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
-        FMLCommonHandler.instance().bus().register(new TickHandler());
-        FMLCommonHandler.instance().bus().register(new FMLPlayerEventHandler());
+        MinecraftForge.EVENT_BUS.register(new TickHandler());
+        MinecraftForge.EVENT_BUS.register(new FMLPlayerEventHandler());
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
     }
 
@@ -72,9 +72,8 @@ public abstract class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        // TODO: Remove the WithAlternatives version of the register call after some releases. Added in v0.4.0 to be able to prefix the TE names with the MOD_ID.
-        GameRegistry.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE), ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        GameRegistry.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION), ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
+        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE));
+        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION));
         GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
         GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
         GameRegistry.registerTileEntity(TileEntityTemplatedChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST));

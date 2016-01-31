@@ -1,10 +1,11 @@
 package fi.dy.masa.enderutilities.block.machine;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -20,9 +21,9 @@ public class MachineCreationStation extends Machine
     }
 
     @Override
-    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public boolean breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = worldIn.getTileEntity(pos);
 
         if (te != null && te instanceof TileEntityCreationStation)
         {
@@ -34,7 +35,7 @@ public class MachineCreationStation extends Machine
                 ItemStack stack = inv.getStackInSlot(i);
                 if (stack != null)
                 {
-                    BlockEnderUtilitiesInventory.dropItemStacks(world, x, y, z, stack, stack.stackSize, true);
+                    BlockEnderUtilitiesInventory.dropItemStacks(worldIn, pos, stack, stack.stackSize, true);
                 }
             }
         }
@@ -44,29 +45,29 @@ public class MachineCreationStation extends Machine
     }
 
     @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
     {
-        super.onBlockClicked(world, x, y, z, player);
+        super.onBlockClicked(worldIn, pos, playerIn);
 
-        if (world.isRemote == false)
+        if (worldIn.isRemote == false)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
+            TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileEntityCreationStation)
             {
-                ((TileEntityCreationStation)te).onLeftClickBlock(player);
+                ((TileEntityCreationStation)te).onLeftClickBlock(playerIn);
             }
         }
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    public int getLightValue(IBlockAccess world, BlockPos pos, IBlockState state)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityCreationStation)
         {
             return 15;
         }
 
-        return block.getLightValue();
+        return state.getBlock().getLightValue();
     }
 }

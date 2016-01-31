@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
@@ -31,13 +32,13 @@ public class PlayerEventHandler
             if (stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
                 ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
-                        event.x, event.y, event.z, event.entityPlayer.dimension, event.face);
+                        event.pos, event.entityPlayer.dimension, event.face);
                 event.setCanceled(true);
             }
             else if (stack.getItem() == EnderUtilitiesItems.ruler)
             {
                 ((ItemRuler)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
-                        event.x, event.y, event.z, event.entityPlayer.dimension, event.face);
+                        event.pos, event.entityPlayer.dimension, event.face);
                 event.setCanceled(true);
             }
         }

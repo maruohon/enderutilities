@@ -6,17 +6,17 @@ import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
-import fi.dy.masa.enderutilities.util.BlockPosEU;
 
 public class TeleportEntityNetherPortal
 {
     /** The axis along which the destination portal aligns. Is either EAST or SOUTH. */
-    public ForgeDirection portalAxis;
+    public EnumFacing portalAxis;
     /** The side of the portal the player gets placed to */
-    public ForgeDirection teleportSide;
+    public EnumFacing teleportSide;
     public int portalPosX;
     public int portalPosY;
     public int portalPosZ;
@@ -32,8 +32,8 @@ public class TeleportEntityNetherPortal
         this.entityPosX = 0.0d;
         this.entityPosY = 0.0d;
         this.entityPosZ = 0.0d;
-        this.portalAxis = ForgeDirection.UNKNOWN;
-        this.teleportSide = ForgeDirection.UNKNOWN;
+        this.portalAxis = EnumFacing.NORTH;
+        this.teleportSide = EnumFacing.EAST;
     }
 
     /**
@@ -104,9 +104,9 @@ public class TeleportEntityNetherPortal
 
                 for (y = world.getActualHeight() - 1; y >= 0; --y)
                 {
-                    if (world.getBlock(x, y, z) == Blocks.portal)
+                    if (world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.portal)
                     {
-                        while (world.getBlock(x, y - 1, z) == Blocks.portal)
+                        while (world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.portal)
                         {
                             --y;
                         }
@@ -137,13 +137,14 @@ public class TeleportEntityNetherPortal
 
     public void getPortalOrientation(World world)
     {
-        if (world.getBlock(this.portalPosX - 1, this.portalPosY, this.portalPosZ) == Blocks.portal || world.getBlock(this.portalPosX + 1, this.portalPosY, this.portalPosZ) == Blocks.portal)
+        BlockPos pos = new BlockPos(this.portalPosX, this.portalPosY, this.portalPosZ);
+        if (world.getBlockState(pos.west()).getBlock() == Blocks.portal || world.getBlockState(pos.east()).getBlock() == Blocks.portal)
         {
-            this.portalAxis = ForgeDirection.EAST;
+            this.portalAxis = EnumFacing.EAST;
         }
-        else if (world.getBlock(this.portalPosX, this.portalPosY, this.portalPosZ - 1) == Blocks.portal || world.getBlock(this.portalPosX, this.portalPosY, this.portalPosZ + 1) == Blocks.portal)
+        else if (world.getBlockState(pos.north()).getBlock() == Blocks.portal || world.getBlockState(pos.south()).getBlock() == Blocks.portal)
         {
-            this.portalAxis = ForgeDirection.SOUTH;
+            this.portalAxis = EnumFacing.SOUTH;
         }
     }
 
@@ -157,57 +158,64 @@ public class TeleportEntityNetherPortal
         }
         else
         {
-            ForgeDirection dirSide = this.portalAxis.getRotation(ForgeDirection.UP);
-            ForgeDirection dirPortal = this.portalAxis;
+            EnumFacing dirSide = this.portalAxis.rotateY();
+            EnumFacing dirPortal = this.portalAxis;
 
             // Get the axis where there are more portal blocks (if only 2 wide portal)
-            if (world.getBlock(this.portalPosX + dirPortal.offsetX, this.portalPosY, this.portalPosZ + dirPortal.offsetZ) != Blocks.portal)
+            BlockPos posTmp = new BlockPos(this.portalPosX + dirPortal.getFrontOffsetX(),
+                                           this.portalPosY,
+                                           this.portalPosZ + dirPortal.getFrontOffsetZ());
+            if (world.getBlockState(posTmp).getBlock() != Blocks.portal)
             {
                 dirPortal = dirPortal.getOpposite();
             }
 
-            List<BlockPosEU> list = new ArrayList<BlockPosEU>(8);
-            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX + dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ + dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 1, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
-            list.add(new BlockPosEU(this.portalPosX - dirSide.offsetX + dirPortal.offsetX, this.portalPosY - 2, this.portalPosZ - dirSide.offsetZ + dirPortal.offsetZ));
+            List<BlockPos> list = new ArrayList<BlockPos>();
+            int xPos = this.portalPosX + dirSide.getFrontOffsetX();
+            int zPos = this.portalPosZ + dirSide.getFrontOffsetZ();
+            int xNeg = this.portalPosX - dirSide.getFrontOffsetX();
+            int zNeg = this.portalPosZ - dirSide.getFrontOffsetZ();
+            list.add(new BlockPos(xPos, this.portalPosY - 1, zPos));
+            list.add(new BlockPos(xPos, this.portalPosY - 2, zPos));
+            list.add(new BlockPos(xPos + dirPortal.getFrontOffsetX(), this.portalPosY - 1, zPos + dirPortal.getFrontOffsetZ()));
+            list.add(new BlockPos(xPos + dirPortal.getFrontOffsetX(), this.portalPosY - 2, zPos + dirPortal.getFrontOffsetZ()));
+            list.add(new BlockPos(xNeg, this.portalPosY - 1, zNeg));
+            list.add(new BlockPos(xNeg, this.portalPosY - 2, zNeg));
+            list.add(new BlockPos(xNeg + dirPortal.getFrontOffsetX(), this.portalPosY - 1, zNeg + dirPortal.getFrontOffsetZ()));
+            list.add(new BlockPos(xNeg + dirPortal.getFrontOffsetX(), this.portalPosY - 2, zNeg + dirPortal.getFrontOffsetZ()));
 
             // Try to find a suitable position on either side of the portal
-            for (BlockPosEU pos : list)
+            for (BlockPos pos : list)
             {
-                if (World.doesBlockHaveSolidTopSurface(world, pos.posX, pos.posY, pos.posZ) == true
-                    && world.isAirBlock(pos.posX, pos.posY + 1, pos.posZ) && world.isAirBlock(pos.posX, pos.posY + 2, pos.posZ))
+                if (World.doesBlockHaveSolidTopSurface(world, pos) == true
+                    && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
-                    this.entityPosX = pos.posX + 0.5d;
-                    this.entityPosY = pos.posY + 1.5d;
-                    this.entityPosZ = pos.posZ + 0.5d;
+                    this.entityPosX = pos.getX() + 0.5d;
+                    this.entityPosY = pos.getY() + 1.5d;
+                    this.entityPosZ = pos.getZ() + 0.5d;
                     return;
                 }
             }
 
             // No suitable positions found, try to add a solid block to teleport to
-            for (BlockPosEU pos : list)
+            for (BlockPos pos : list)
             {
-                if (world.isAirBlock(pos.posX, pos.posY, pos.posZ) == true
-                    && world.isAirBlock(pos.posX, pos.posY + 1, pos.posZ) && world.isAirBlock(pos.posX, pos.posY + 2, pos.posZ))
+                if (world.isAirBlock(pos) == true
+                    && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
-                    world.setBlock(pos.posX, pos.posY, pos.posZ, Blocks.cobblestone, 0, 3);
-                    this.entityPosX = pos.posX + 0.5d;
-                    this.entityPosY = pos.posY + 1.5d;
-                    this.entityPosZ = pos.posZ + 0.5d;
+                    world.setBlockState(pos, Blocks.stone.getDefaultState(), 3);
+                    this.entityPosX = pos.getX() + 0.5d;
+                    this.entityPosY = pos.getY() + 1.5d;
+                    this.entityPosZ = pos.getZ() + 0.5d;
                     return;
                 }
             }
 
             // No suitable positions found on either side of the portal, what should we do here??
             // Let's just stick the player to wherever he ends up on the side of the portal for now...
-            this.entityPosX = this.portalPosX + dirSide.offsetX + 0.5d;
+            this.entityPosX = this.portalPosX + dirSide.getFrontOffsetX() + 0.5d;
             this.entityPosY = this.portalPosY + 0.5d;
-            this.entityPosZ = this.portalPosZ + dirSide.offsetZ + 0.5d;
+            this.entityPosZ = this.portalPosZ + dirSide.getFrontOffsetZ() + 0.5d;
         }
     }
 }

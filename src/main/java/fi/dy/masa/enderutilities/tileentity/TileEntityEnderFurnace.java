@@ -16,7 +16,8 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
@@ -33,7 +34,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
+public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implements ITickable
 {
     // The values that define how fuels burn and items smelt
     public static final int COOKTIME_INC_NOFUEL = 1; // No fuel mode: 60 seconds per item
@@ -149,7 +150,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
         byte flags = nbt.getByte("f");
         this.setRotation((byte)(flags & 0x07));
         this.isCookingLast = (flags & 0x10) == 0x10;
@@ -158,7 +159,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
 
         super.onDataPacket(net, packet);
 
-        this.worldObj.updateLightByType(EnumSkyBlock.Block, this.xCoord, this.yCoord, this.zCoord);
+        // FIXME
+        //this.worldObj.updateLightByType(EnumSkyBlock.BLOCK, this.getPos());
     }
 
     public int getOutputBufferAmount()
@@ -191,7 +193,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         {
             if (this.itemStacks[SLOT_INPUT] != null)
             {
-                this.smeltingResultCache = FurnaceRecipes.smelting().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
+                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
             }
             else
             {
@@ -223,7 +225,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }*/
 
     @Override
-    public void updateEntity()
+    public void update()
     {
         if (this.worldObj.isRemote == true)
         {
@@ -339,7 +341,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         // Check if we need to sync some stuff to the clients
         if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
 
         this.isBurningLast = this.isBurning();
@@ -618,7 +620,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             if (item == Items.stick) return COOKTIME_DEFAULT * 3 / 4;
             if (item instanceof ItemTool && ((ItemTool)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
             if (item instanceof ItemSword && ((ItemSword)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
-            if (item instanceof ItemHoe && ((ItemHoe)item).getToolMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
+            if (item instanceof ItemHoe && ((ItemHoe)item).getMaterialName().equals("WOOD")) return COOKTIME_DEFAULT * 15 / 10;
 
         }
 
@@ -703,7 +705,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
+    public ItemStack removeStackFromSlot(int slotNum)
     {
         //System.out.println("getStackInSlotOnClosing(slot: " + slotNum + ")");
         if (slotNum == SLOT_INPUT)
@@ -715,7 +717,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             this.fuelDirty = true;
         }*/
 
-        return super.getStackInSlotOnClosing(slotNum);
+        return super.removeStackFromSlot(slotNum);
     }
 
     @Override
@@ -750,11 +752,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
             return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || isItemFuel(stack) == true;
         }
 
-        return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || FurnaceRecipes.smelting().getSmeltingResult(stack) != null;
+        return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || FurnaceRecipes.instance().getSmeltingResult(stack) != null;
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing side)
     {
         //System.out.println("getAccessibleSlotsFromSide(side: " + side + ")");
         // Allow access to all slots from all sides
@@ -762,17 +764,17 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    public boolean canExtractItem(int slotNum, ItemStack stack, EnumFacing direction)
     {
         //System.out.println("canExtractItem(slot: " + slot + ", " + stack + " side: " + side + ")");
         // Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
-        if (slot == 1)
+        if (slotNum == 1)
         {
             return isItemFuel(stack) == false;
         }
 
         // Allow pulling out output items from any side, but only when not outputting to Ender Chest
-        if (slot == 2 && this.outputToEnderChest == false)
+        if (slotNum == 2 && this.outputToEnderChest == false)
         {
             return true;
         }
@@ -801,7 +803,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         if (action == 0)
         {
             this.fastMode = ! this.fastMode;
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+            this.worldObj.markBlockForUpdate(this.getPos());
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (action == 1)

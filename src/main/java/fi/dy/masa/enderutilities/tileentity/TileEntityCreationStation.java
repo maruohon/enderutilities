@@ -15,6 +15,7 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -35,7 +36,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided implements IModularInventoryCallback
+public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided implements IModularInventoryCallback, ITickable
 {
     public static final int GUI_ACTION_SELECT_MODULE       = 0;
     public static final int GUI_ACTION_MOVE_ITEMS          = 1;
@@ -176,7 +177,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
 
         this.selectedModule = nbt.getByte("msel");
 
@@ -678,13 +679,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
         this.numPlayersUsing++;
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
         if (--this.numPlayersUsing <= 0)
         {
@@ -890,7 +891,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
             ItemStack inputStack = this.furnaceInventory.getStackInSlot(id * 3);
             if (inputStack != null)
             {
-                this.smeltingResultCache[id] = FurnaceRecipes.smelting().getSmeltingResult(inputStack);
+                this.smeltingResultCache[id] = FurnaceRecipes.instance().getSmeltingResult(inputStack);
             }
             else
             {
@@ -1120,7 +1121,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
     }
 
     @Override
-    public void updateEntity()
+    public void update()
     {
         if (this.worldObj.isRemote == true)
         {

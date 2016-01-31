@@ -9,8 +9,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -293,7 +295,7 @@ public class UtilItemModular
                 {
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                    nbtTagList.func_150304_a(i, newModuleStack.writeToNBT(moduleTag));
+                    nbtTagList.set(i, newModuleStack.writeToNBT(moduleTag));
                     return true;
                 }
             }
@@ -328,7 +330,7 @@ public class UtilItemModular
             {
                 // Write the new module ItemStack to the compound tag of the old one, so that we
                 // preserve the Slot tag and any other non-ItemStack tags of the old one.
-                nbtTagList.func_150304_a(i, moduleStack.writeToNBT(moduleTag));
+                nbtTagList.set(i, moduleStack.writeToNBT(moduleTag));
                 return true;
             }
         }
@@ -887,7 +889,7 @@ public class UtilItemModular
         // Don't adjust the target position for uses that are targeting the block, not the in-world location
         boolean adjustPosHit = getSelectedModuleTier(containerStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
 
-        setTarget(containerStack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        setTarget(containerStack, player, player.getPosition(), EnumFacing.UP.getIndex(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     /**
@@ -905,14 +907,16 @@ public class UtilItemModular
      * using the integer position. This is normally true for location type Link Crystals, and false for block type Link Crystals.
      * @param storeRotation true if we also want to store the player's yaw and pitch rotations
      */
-    public static void setTarget(ItemStack containerStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public static void setTarget(ItemStack containerStack, EntityPlayer player, BlockPos pos, int side,
+            double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
         if (NBTHelperPlayer.canAccessSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side,
+                hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.selectedModuleHasPlayerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
         {
@@ -1051,11 +1055,13 @@ public class UtilItemModular
         if (chunkLoadDuration > 0)
         {
             // Chunk load the target
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, chunkLoadDuration);
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension,
+                    target.pos.getX() >> 4, target.pos.getZ() >> 4, chunkLoadDuration);
         }
 
-        TileEntity te = targetWorld.getTileEntity(target.posX, target.posY, target.posZ);
+        TileEntity te = targetWorld.getTileEntity(target.pos);
         // Block has changed since binding, or does not implement IInventory, abort
+        // FIXME add IItemHandler support
         if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
         {
             // Remove the bind

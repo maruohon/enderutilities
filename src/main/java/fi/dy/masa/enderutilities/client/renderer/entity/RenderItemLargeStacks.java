@@ -1,16 +1,18 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.resources.model.ModelManager;
 
 public class RenderItemLargeStacks extends RenderItem
 {
-    @Override
+    public RenderItemLargeStacks(TextureManager textureManager, ModelManager modelManager)
+    {
+        super(textureManager, modelManager);
+    }
+
+    // TODO
+    /*@Override
     public void renderItemOverlayIntoGUI(FontRenderer fontRenderer, TextureManager textureManager, ItemStack stack, int x, int y, String str)
     {
         if (stack != null)
@@ -31,10 +33,10 @@ public class RenderItemLargeStacks extends RenderItem
                     fontRenderer.drawStringWithShadow(s1, (31 - fontRenderer.getStringWidth(s1)), 23, 16777215);
                     GL11.glPopMatrix();
                 }
-                /*else
+                //else
                 {
-                    fontRenderer.drawStringWithShadow(s1, x + 19 - 2 - fontRenderer.getStringWidth(s1), y + 6 + 3, 16777215);
-                }*/
+                    //fontRenderer.drawStringWithShadow(s1, x + 19 - 2 - fontRenderer.getStringWidth(s1), y + 6 + 3, 16777215);
+                }
 
                 GL11.glEnable(GL11.GL_LIGHTING);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -75,5 +77,5 @@ public class RenderItemLargeStacks extends RenderItem
         tessellator.addVertex((double)(x + z), (double)(y + p_77017_5_), 0.0D);
         tessellator.addVertex((double)(x + z), (double)(y + 0), 0.0D);
         tessellator.draw();
-    }
+    }*/
 }

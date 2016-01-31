@@ -1,10 +1,12 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
@@ -98,7 +100,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                    Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
             }
             else if (message.effectType == EFFECT_ENDER_TOOLS)
@@ -109,7 +111,7 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
                 }
                 if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
                 {
-                    Particles.spawnParticles(world, "portal", message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                    Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
             }
         }

@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.util;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.common.util.Constants;
@@ -12,6 +14,12 @@ public class BlockPosEU
     public final int posZ;
     public final int dimension;
     public final int face;
+    public final EnumFacing side;
+
+    public BlockPosEU(BlockPos pos)
+    {
+        this(pos.getX(), pos.getY(), pos.getZ());
+    }
 
     public BlockPosEU(int x, int y, int z)
     {
@@ -23,13 +31,24 @@ public class BlockPosEU
         this(x, y, z, dim, 0);
     }
 
-    public BlockPosEU(int x, int y, int z, int dim, int side)
+    public BlockPosEU(BlockPos pos, int dim, int side)
+    {
+        this(pos.getX(), pos.getY(), pos.getZ(), dim, side);
+    }
+
+    public BlockPosEU(BlockPos pos, int dim, EnumFacing side)
+    {
+        this(pos.getX(), pos.getY(), pos.getZ(), dim, side.getIndex());
+    }
+
+    public BlockPosEU(int x, int y, int z, int dim, int face)
     {
         this.posX = x;
         this.posY = y;
         this.posZ = z;
         this.dimension = dim;
-        this.face = side;
+        this.face = face;
+        this.side = EnumFacing.getFront(face);
     }
 
     /**
@@ -45,11 +64,11 @@ public class BlockPosEU
      * Offset the position by the given amount into the given direction.
      * Returns a new instance with the changes applied and does not modify the original.
      */
-    public BlockPosEU offset(ForgeDirection dir, int distance)
+    public BlockPosEU offset(EnumFacing facing, int distance)
     {
-        return new BlockPosEU(  this.posX + dir.offsetX * distance,
-                                this.posY + dir.offsetY * distance,
-                                this.posZ + dir.offsetZ * distance,
+        return new BlockPosEU(  this.posX + facing.getFrontOffsetX() * distance,
+                                this.posY + facing.getFrontOffsetY() * distance,
+                                this.posZ + facing.getFrontOffsetZ() * distance,
                                 this.dimension, this.face);
     }
 

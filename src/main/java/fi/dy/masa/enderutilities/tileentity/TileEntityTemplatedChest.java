@@ -71,7 +71,7 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
 
         this.chestTier = nbt.getByte("tier");
         this.invSize = INV_SIZES[this.chestTier];
@@ -187,12 +187,6 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
         {
             this.templateStacks[slotNum] = stack;
         }
-    }
-
-    @Override
-    public boolean canUpdate()
-    {
-        return false;
     }
 
     @Override

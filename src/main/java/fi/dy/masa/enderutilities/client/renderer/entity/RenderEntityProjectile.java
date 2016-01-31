@@ -1,76 +1,61 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import fi.dy.masa.enderutilities.entity.IItemData;
 
-public class RenderEntityProjectile extends Render
+public class RenderEntityProjectile<T extends Entity> extends Render<T>
 {
     private Item item;
+    private final RenderItem renderItem;
 
-    public RenderEntityProjectile(Item item)
+    public RenderEntityProjectile(RenderManager renderManager, Item item, RenderItem renderItem)
     {
+        super(renderManager);
         this.item = item;
+        this.renderItem = renderItem;
     }
 
     @Override
-    public void doRender(Entity entity, double x, double y, double z, float yaw, float brightness)
+    public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        IIcon iicon;
+        GlStateManager.pushMatrix();
+        GlStateManager.translate((float)x, (float)y, (float)z);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.scale(0.5F, 0.5F, 0.5F);
+        GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
+        this.bindTexture(TextureMap.locationBlocksTexture);
+
+        this.renderItem.renderItem(this.getItemStack(entity), ItemCameraTransforms.TransformType.GROUND);
+
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.popMatrix();
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
+    }
+
+    protected ItemStack getItemStack(T entity)
+    {
         if (entity instanceof IItemData)
         {
-            iicon = this.item.getIconFromDamage(((IItemData)entity).getItemDamage(entity));
-        }
-        else
-        {
-            iicon = this.item.getIconFromDamage(0);
+            return new ItemStack(this.item, 1, ((IItemData)entity).getItemDamage(entity));
         }
 
-        if (iicon != null)
-        {
-            GL11.glPushMatrix();
-            GL11.glTranslatef((float)x, (float)y, (float)z);
-            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-            GL11.glScalef(0.5F, 0.5F, 0.5F);
-            this.bindEntityTexture(entity);
-            Tessellator tessellator = Tessellator.instance;
-
-            this.drawQuad(tessellator, iicon);
-            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-            GL11.glPopMatrix();
-        }
+        return new ItemStack(this.item, 1, 0);
     }
 
     @Override
-    protected ResourceLocation getEntityTexture(Entity p_110775_1_)
+    protected ResourceLocation getEntityTexture(Entity entity)
     {
-        return TextureMap.locationItemsTexture;
-    }
-
-    private void drawQuad(Tessellator tessellator, IIcon iicon)
-    {
-        float minU = iicon.getMinU();
-        float maxU = iicon.getMaxU();
-        float minV = iicon.getMinV();
-        float maxV = iicon.getMaxV();
-
-        GL11.glRotatef(180.0f - this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
-        GL11.glRotatef(-this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
-
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0f, 1.0f, 0.0f);
-        tessellator.addVertexWithUV(-0.5d, -0.25d, 0.0d, (double)minU, (double)maxV);
-        tessellator.addVertexWithUV( 0.5d, -0.25d, 0.0d, (double)maxU, (double)maxV);
-        tessellator.addVertexWithUV( 0.5d,  0.75d, 0.0d, (double)maxU, (double)minV);
-        tessellator.addVertexWithUV(-0.5d,  0.75d, 0.0d, (double)minU, (double)minV);
-        tessellator.draw();
+        return TextureMap.locationBlocksTexture;
     }
 }

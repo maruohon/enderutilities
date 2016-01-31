@@ -88,7 +88,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        NBTTagCompound nbt = packet.func_148857_g();
+        NBTTagCompound nbt = packet.getNbtCompound();
 
         this.chestTier = nbt.getByte("tier");
         this.selectedModule = nbt.getByte("msel");
@@ -154,12 +154,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         this.chestTier = tier;
         this.invSizeItems = INV_SIZES[this.chestTier];
         this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
-    }
-
-    @Override
-    public boolean canUpdate()
-    {
-        return false;
     }
 
     @Override

@@ -4,7 +4,6 @@ public class ReferenceNames
 {
     public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
-
     public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
@@ -44,7 +43,8 @@ public class ReferenceNames
     public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";
     public static final String NAME_ITEM_RULER                  = "ruler";
 
-    public static final String NAME_TILE_MACHINE_0              = "enderfurnace"; // Legacy weight name... :p
+
+    public static final String NAME_TILE_MACHINE_0              = "machine.0";
     public static final String NAME_TILE_MACHINE_1              = "machine.1";
     public static final String NAME_TILE_STORAGE_0              = "storage.0";
 
@@ -53,17 +53,17 @@ public class ReferenceNames
     public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge.resonator";
 
 
+    public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
-    public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
-
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
-
-    public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
     public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
     public static final String NAME_TILE_ENTITY_TEMPLATED_CHEST      = "templatedchest";
+    public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
+
 
     public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + ".enderalloy.advanced";
+
 
     public static String getPrefixedName(String name)
     {

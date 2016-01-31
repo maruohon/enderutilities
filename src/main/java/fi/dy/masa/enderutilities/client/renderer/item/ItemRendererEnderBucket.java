@@ -1,22 +1,8 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
-
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-
-public class ItemRendererEnderBucket implements IItemRenderer
+public class ItemRendererEnderBucket// implements IItemRenderer
 {
-    public Minecraft mc;
+    /*public Minecraft mc;
 
     public ItemRendererEnderBucket()
     {
@@ -220,5 +206,5 @@ public class ItemRendererEnderBucket implements IItemRenderer
                 layerShrinkX, layerShrinkY, layerShrinkZ);
 
         GL11.glPopMatrix();
-    }
+    }*/
 }

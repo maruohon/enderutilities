@@ -29,41 +29,40 @@ public class ConfigReader
         String category;
 
         category = "Generic";
-        Configs.buildersWandBlocksPerTick = conf.get(category, "LazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
+        Configs.buildersWandBlocksPerTick = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 10";
         Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(10);
 
-        Configs.enderBowAllowPlayers = conf.get(category, "EnderBowAllowPlayers", true).setRequiresMcRestart(false);
+        Configs.enderBowAllowPlayers = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
 
-        Configs.enderBowAllowSelfTP = conf.get(category, "EnderBowAllowSelfTP", true).setRequiresMcRestart(false);
+        Configs.enderBowAllowSelfTP = conf.get(category, "enderBowAllowSelfTP", true).setRequiresMcRestart(false);
         Configs.enderBowAllowSelfTP.comment = "Can the Ender Bow be used in the 'TP Self' mode";
 
-        Configs.enderBucketCapacity = conf.get(category, "EnderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
+        Configs.enderBucketCapacity = conf.get(category, "enderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
         Configs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
 
-        Configs.enderLassoAllowPlayers = conf.get(category, "EnderLassoAllowPlayers", true).setRequiresMcRestart(false);
+        Configs.enderLassoAllowPlayers = conf.get(category, "enderLassoAllowPlayers", true).setRequiresMcRestart(false);
         Configs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
 
-        Configs.harvestLevelEnderAlloyAdvanced = conf.get(category, "HarvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
+        Configs.harvestLevelEnderAlloyAdvanced = conf.get(category, "harvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
         Configs.harvestLevelEnderAlloyAdvanced.comment = "The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).";
 
-        Configs.useEnderCharge = conf.get(category, "UseEnderCharge", true).setRequiresMcRestart(false);
+        Configs.useEnderCharge = conf.get(category, "useEnderCharge", true).setRequiresMcRestart(false);
         Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
 
         category = "Client";
         conf.addCustomCategoryComment(category, "Client side configs");
 
-        Configs.useToolParticles = conf.get(category, "UseToolParticles", true).setRequiresMcRestart(false);
+        Configs.useToolParticles = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
         Configs.useToolParticles.comment = "Does the block drops teleporting by Ender tools cause particle effects";
 
-        Configs.useToolSounds = conf.get(category, "UseToolSounds", true).setRequiresMcRestart(false);
+        Configs.useToolSounds = conf.get(category, "useToolSounds", true).setRequiresMcRestart(false);
         Configs.useToolSounds.comment = "Does the block drops teleporting by Ender tools play the sound effect";
 
         category = "Version";
-        // 0.3.1 was the version where the configs were first added, use that as the default (note that the version number itself was added later in 0.3.2)
-        Configs.configFileVersion = conf.get(category, "ConfigFileVersion", 31).setRequiresMcRestart(true);
+        Configs.configFileVersion = conf.get(category, "configFileVersion", 500).setRequiresMcRestart(false);
         Configs.configFileVersion.comment = "Internal config file version tracking. DO NOT CHANGE!!";
         confVersion = Configs.configFileVersion.getInt();
 
@@ -84,111 +83,110 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
-        Configs.disableBlockMachine_0             = conf.get(category, "DisableBlockMachine_0", false).setRequiresMcRestart(true);
+        Configs.disableBlockMachine_0             = conf.get(category, "disableBlockMachine_0", false).setRequiresMcRestart(true);
         Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser, 3 = Creation Station";
-        Configs.disableBlockMachine_1             = conf.get(category, "DisableBlockMachine_1", false).setRequiresMcRestart(true);
+        Configs.disableBlockMachine_1             = conf.get(category, "disableBlockMachine_1", false).setRequiresMcRestart(true);
         Configs.disableBlockMachine_1.comment = "Info: Machine 1 meta values: 0 = Energy Bridge Transmitter; 1 = Energy Bridge Receiver; 2 = Energy Bridge Resonator";
-        Configs.disableBlockStorage0             = conf.get(category, "DisableBlockStorage_0", false).setRequiresMcRestart(true);
+        Configs.disableBlockStorage0             = conf.get(category, "disableBlockStorage_0", false).setRequiresMcRestart(true);
         Configs.disableBlockStorage0.comment = "Meta values: 0..2 = Templated Chests, 3..5 = Handy Chests";
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");
 
         // Item disable
-        Configs.disableItemCraftingPart           = conf.get(category, "DisableItemCraftingPart", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderCapacitor         = conf.get(category, "DisableItemEnderCapacitor", false).setRequiresMcRestart(true);
-        Configs.disableItemLinkCrystal            = conf.get(category, "DisableItemLinkCrystal", false).setRequiresMcRestart(true);
+        Configs.disableItemCraftingPart           = conf.get(category, "disableItemCraftingPart", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderCapacitor         = conf.get(category, "disableItemEnderCapacitor", false).setRequiresMcRestart(true);
+        Configs.disableItemLinkCrystal            = conf.get(category, "disableItemLinkCrystal", false).setRequiresMcRestart(true);
 
-        Configs.disableItemBuildersWand           = conf.get(category, "DisableItemBuildersWand", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderArrow             = conf.get(category, "DisableItemEnderArrow", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderBag               = conf.get(category, "DisableItemEnderBag", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderBow               = conf.get(category, "DisableItemEnderBow", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderBucket            = conf.get(category, "DisableItemEnderBucket", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderLasso             = conf.get(category, "DisableItemEnderLasso", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderPearl             = conf.get(category, "DisableItemEnderPearl", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderPorter            = conf.get(category, "DisableItemEnderPorter", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderSword             = conf.get(category, "DisableItemEnderSword", false).setRequiresMcRestart(true);
-        Configs.disableItemEnderTools             = conf.get(category, "DisableItemEnderTools", false).setRequiresMcRestart(true);
-        Configs.disableItemHandyBag               = conf.get(category, "DisableItemHandyBag", false).setRequiresMcRestart(true);
-        Configs.disableItemInventorySwapper       = conf.get(category, "DisableItemInventorySwapper", false).setRequiresMcRestart(true);
-        Configs.disableItemLivingManipulator      = conf.get(category, "DisableItemLivingManipulator", false).setRequiresMcRestart(true);
-        Configs.disableItemMobHarness             = conf.get(category, "DisableItemMobHarness", false).setRequiresMcRestart(true);
-        Configs.disableItemPickupManager          = conf.get(category, "DisableItemPickupManager", false).setRequiresMcRestart(true);
-        Configs.disableItemPortalScaler           = conf.get(category, "DisableItemPortalScaler", false).setRequiresMcRestart(true);
-        Configs.disableItemRuler                  = conf.get(category, "DisableItemRuler", false).setRequiresMcRestart(true);
+        Configs.disableItemBuildersWand           = conf.get(category, "disableItemBuildersWand", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderArrow             = conf.get(category, "disableItemEnderArrow", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderBag               = conf.get(category, "disableItemEnderBag", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderBow               = conf.get(category, "disableItemEnderBow", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderBucket            = conf.get(category, "disableItemEnderBucket", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderLasso             = conf.get(category, "disableItemEnderLasso", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderPearl             = conf.get(category, "disableItemEnderPearl", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderPorter            = conf.get(category, "disableItemEnderPorter", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderSword             = conf.get(category, "disableItemEnderSword", false).setRequiresMcRestart(true);
+        Configs.disableItemEnderTools             = conf.get(category, "disableItemEnderTools", false).setRequiresMcRestart(true);
+        Configs.disableItemHandyBag               = conf.get(category, "disableItemHandyBag", false).setRequiresMcRestart(true);
+        Configs.disableItemInventorySwapper       = conf.get(category, "disableItemInventorySwapper", false).setRequiresMcRestart(true);
+        Configs.disableItemLivingManipulator      = conf.get(category, "disableItemLivingManipulator", false).setRequiresMcRestart(true);
+        Configs.disableItemMobHarness             = conf.get(category, "disableItemMobHarness", false).setRequiresMcRestart(true);
+        Configs.disableItemPickupManager          = conf.get(category, "disableItemPickupManager", false).setRequiresMcRestart(true);
+        Configs.disableItemPortalScaler           = conf.get(category, "disableItemPortalScaler", false).setRequiresMcRestart(true);
+        Configs.disableItemRuler                  = conf.get(category, "disableItemRuler", false).setRequiresMcRestart(true);
 
         // Recipe disable
         category = "DisableRecipies";
         conf.addCustomCategoryComment(category, "Disable block or item recipies");
 
         // Blocks
-        Configs.disableRecipeEnderFurnace         = conf.get(category, "DisableRecipeEnderFurnace", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderInfuser         = conf.get(category, "DisableRecipeEnderInfuser", false).setRequiresMcRestart(true);
-        Configs.disableRecipeToolWorkstation      = conf.get(category, "DisableRecipeToolWorkstation", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderFurnace         = conf.get(category, "disableRecipeEnderFurnace", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true);
+        Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true);
+        Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipeEnergyBridgeTransmitter    = conf.get(category, "DisableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "DisableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "DisableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnergyBridgeTransmitter    = conf.get(category, "disableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "disableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "disableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipeCreationStation  = conf.get(category, "DisableRecipeCreationStation", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest0      = conf.get(category, "disableRecipeHandyChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest1      = conf.get(category, "disableRecipeHandyChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest2      = conf.get(category, "disableRecipeHandyChest2", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipeHandyChest0      = conf.get(category, "DisableRecipeHandyChest0", false).setRequiresMcRestart(true);
-        Configs.disableRecipeHandyChest1      = conf.get(category, "DisableRecipeHandyChest1", false).setRequiresMcRestart(true);
-        Configs.disableRecipeHandyChest2      = conf.get(category, "DisableRecipeHandyChest2", false).setRequiresMcRestart(true);
-
-        Configs.disableRecipeTemplatedChest0      = conf.get(category, "DisableRecipeTemplatedChest0", false).setRequiresMcRestart(true);
-        Configs.disableRecipeTemplatedChest1      = conf.get(category, "DisableRecipeTemplatedChest1", false).setRequiresMcRestart(true);
-        Configs.disableRecipeTemplatedChest2      = conf.get(category, "DisableRecipeTemplatedChest2", false).setRequiresMcRestart(true);
+        Configs.disableRecipeTemplatedChest0      = conf.get(category, "disableRecipeMemoryChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeTemplatedChest1      = conf.get(category, "disableRecipeMemoryChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeTemplatedChest2      = conf.get(category, "disableRecipeMemoryChest2", false).setRequiresMcRestart(true);
 
         // Items
-        Configs.disableRecipeBuildersWand         = conf.get(category, "DisableRecipeBuildersWand", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderArrow           = conf.get(category, "DisableRecipeEnderArrow", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderBag             = conf.get(category, "DisableRecipeEnderBag", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderBow             = conf.get(category, "DisableRecipeEnderBow", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderBucket          = conf.get(category, "DisableRecipeEnderBucket", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderLasso           = conf.get(category, "DisableRecipeEnderLasso", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderPearl           = conf.get(category, "DisableRecipeEnderPearl", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderPearlElite      = conf.get(category, "DisableRecipeEnderPearlElite", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderPorterBasic     = conf.get(category, "DisableRecipeEnderPorterBasic", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderPorterAdvanced  = conf.get(category, "DisableRecipeEnderPorterAdvanced", false).setRequiresMcRestart(true);
-        Configs.disableRecipeHandyBag             = conf.get(category, "DisableRecipeHandyBag", false).setRequiresMcRestart(true);
-        Configs.disableRecipeInventorySwapper     = conf.get(category, "DisableRecipeInventorySwapper", false).setRequiresMcRestart(true);
-        Configs.disableRecipeLivingManipulator    = conf.get(category, "DisableRecipeLivingManipulator", false).setRequiresMcRestart(true);
-        Configs.disableRecipeMobHarness           = conf.get(category, "DisableRecipeMobHarness", false).setRequiresMcRestart(true);
-        Configs.disableRecipePickupManager        = conf.get(category, "DisableRecipePickupManager", false).setRequiresMcRestart(true);
-        Configs.disableRecipePortalScaler         = conf.get(category, "DisableRecipePortalScaler", false).setRequiresMcRestart(true);
-        Configs.disableRecipeRuler                = conf.get(category, "DisableRecipeRuler", false).setRequiresMcRestart(true);
+        Configs.disableRecipeBuildersWand         = conf.get(category, "disableRecipeBuildersWand", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderArrow           = conf.get(category, "disableRecipeEnderArrow", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderBag             = conf.get(category, "disableRecipeEnderBag", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderBow             = conf.get(category, "disableRecipeEnderBow", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderBucket          = conf.get(category, "disableRecipeEnderBucket", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderLasso           = conf.get(category, "disableRecipeEnderLasso", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderPearl           = conf.get(category, "disableRecipeEnderPearl", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderPearlElite      = conf.get(category, "disableRecipeEnderPearlElite", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderPorterBasic     = conf.get(category, "disableRecipeEnderPorterBasic", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderPorterAdvanced  = conf.get(category, "disableRecipeEnderPorterAdvanced", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyBag             = conf.get(category, "disableRecipeHandyBag", false).setRequiresMcRestart(true);
+        Configs.disableRecipeInventorySwapper     = conf.get(category, "disableRecipeInventorySwapper", false).setRequiresMcRestart(true);
+        Configs.disableRecipeLivingManipulator    = conf.get(category, "disableRecipeLivingManipulator", false).setRequiresMcRestart(true);
+        Configs.disableRecipeMobHarness           = conf.get(category, "disableRecipeMobHarness", false).setRequiresMcRestart(true);
+        Configs.disableRecipePickupManager        = conf.get(category, "disableRecipePickupManager", false).setRequiresMcRestart(true);
+        Configs.disableRecipePortalScaler         = conf.get(category, "disableRecipePortalScaler", false).setRequiresMcRestart(true);
+        Configs.disableRecipeRuler                = conf.get(category, "disableRecipeRuler", false).setRequiresMcRestart(true);
 
         // Tools and weapons
-        Configs.disableRecipeEnderSword           = conf.get(category, "DisableRecipeEnderSword", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderPickaxe         = conf.get(category, "DisableRecipeEnderPickaxe", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderAxe             = conf.get(category, "DisableRecipeEnderAxe", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderShovel          = conf.get(category, "DisableRecipeEnderShovel", false).setRequiresMcRestart(true);
-        Configs.disableRecipeEnderHoe             = conf.get(category, "DisableRecipeEnderHoe", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderSword           = conf.get(category, "disableRecipeEnderSword", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderPickaxe         = conf.get(category, "disableRecipeEnderPickaxe", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderAxe             = conf.get(category, "disableRecipeEnderAxe", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderShovel          = conf.get(category, "disableRecipeEnderShovel", false).setRequiresMcRestart(true);
+        Configs.disableRecipeEnderHoe             = conf.get(category, "disableRecipeEnderHoe", false).setRequiresMcRestart(true);
 
         // Items - crafting parts, modules, etc.
-        Configs.disableRecipeModuleEnderCapacitor0      = conf.get(category, "DisableRecipeModuleEnderCapacitor0", false).setRequiresMcRestart(true);
-        Configs.disableRecipeModuleEnderCapacitor1      = conf.get(category, "DisableRecipeModuleEnderCapacitor1", false).setRequiresMcRestart(true);
-        Configs.disableRecipeModuleEnderCapacitor2      = conf.get(category, "DisableRecipeModuleEnderCapacitor2", false).setRequiresMcRestart(true);
-        Configs.disableRecipeModuleLinkCrystalLocation  = conf.get(category, "DisableRecipeModuleLinkCrystalLocation", false).setRequiresMcRestart(true);
-        Configs.disableRecipeModuleLinkCrystalBlock     = conf.get(category, "DisableRecipeModuleLinkCrystalBlock", false).setRequiresMcRestart(true);
-        Configs.disableRecipeModuleLinkCrystalPortal    = conf.get(category, "DisableRecipeModuleLinkCrystalPortal", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleEnderCapacitor0      = conf.get(category, "disableRecipeModuleEnderCapacitor0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleEnderCapacitor1      = conf.get(category, "disableRecipeModuleEnderCapacitor1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleEnderCapacitor2      = conf.get(category, "disableRecipeModuleEnderCapacitor2", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleLinkCrystalLocation  = conf.get(category, "disableRecipeModuleLinkCrystalLocation", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleLinkCrystalBlock     = conf.get(category, "disableRecipeModuleLinkCrystalBlock", false).setRequiresMcRestart(true);
+        Configs.disableRecipeModuleLinkCrystalPortal    = conf.get(category, "disableRecipeModuleLinkCrystalPortal", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipePartEnderAlloy0      = conf.get(category, "DisableRecipePartEnderAlloy0", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderAlloy1      = conf.get(category, "DisableRecipePartEnderAlloy1", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderAlloy2      = conf.get(category, "DisableRecipePartEnderAlloy2", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderCore0       = conf.get(category, "DisableRecipePartEnderCore0", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderCore1       = conf.get(category, "DisableRecipePartEnderCore1", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderCore2       = conf.get(category, "DisableRecipePartEnderCore2", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMemoryCardMisc   = conf.get(category, "DisableRecipePartMemoryCardMisc", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMemoryCardItems6b  = conf.get(category, "DisableRecipePartMemoryCardItems6b", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMemoryCardItems8b  = conf.get(category, "DisableRecipePartMemoryCardItems8b", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMemoryCardItems10b = conf.get(category, "DisableRecipePartMemoryCardItems10b", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMemoryCardItems12b = conf.get(category, "DisableRecipePartMemoryCardItems12b", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartMobPersistence   = conf.get(category, "DisableRecipePartMobPersistence", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderRelic       = conf.get(category, "DisableRecipePartEnderRelic", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderRope        = conf.get(category, "DisableRecipePartEnderRope", false).setRequiresMcRestart(true);
-        Configs.disableRecipePartEnderStick       = conf.get(category, "DisableRecipePartEnderStick", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderAlloy0      = conf.get(category, "disableRecipePartEnderAlloy0", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderAlloy1      = conf.get(category, "disableRecipePartEnderAlloy1", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderAlloy2      = conf.get(category, "disableRecipePartEnderAlloy2", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderCore0       = conf.get(category, "disableRecipePartEnderCore0", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderCore1       = conf.get(category, "disableRecipePartEnderCore1", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderCore2       = conf.get(category, "disableRecipePartEnderCore2", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardMisc   = conf.get(category, "disableRecipePartMemoryCardMisc", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardItems6b  = conf.get(category, "disableRecipePartMemoryCardItems6b", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardItems8b  = conf.get(category, "disableRecipePartMemoryCardItems8b", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardItems10b = conf.get(category, "disableRecipePartMemoryCardItems10b", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMemoryCardItems12b = conf.get(category, "disableRecipePartMemoryCardItems12b", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartMobPersistence   = conf.get(category, "disableRecipePartMobPersistence", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderRelic       = conf.get(category, "disableRecipePartEnderRelic", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderRope        = conf.get(category, "disableRecipePartEnderRope", false).setRequiresMcRestart(true);
+        Configs.disableRecipePartEnderStick       = conf.get(category, "disableRecipePartEnderStick", false).setRequiresMcRestart(true);
 
         if (conf.hasChanged() == true)
         {
@@ -201,17 +199,17 @@ public class ConfigReader
         String category;
 
         category = "EnderBag";
-        Configs.enderBagListType = conf.get(category, "ListType", "whitelist").setRequiresMcRestart(false);
+        Configs.enderBagListType = conf.get(category, "listType", "whitelist").setRequiresMcRestart(false);
         Configs.enderBagListType.comment = "Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.";
 
-        Configs.enderBagBlacklist = conf.get(category, "BlackList", new String[] {}).setRequiresMcRestart(false);
+        Configs.enderBagBlacklist = conf.get(category, "blackList", new String[] {}).setRequiresMcRestart(false);
         Configs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
 
-        Configs.enderBagWhitelist = conf.get(category, "WhiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(false);
+        Configs.enderBagWhitelist = conf.get(category, "whiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(false);
         Configs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!";
 
         category = "Teleporting";
-        Configs.teleportBlacklist = conf.get(category, "EntityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(false);
+        Configs.teleportBlacklist = conf.get(category, "entityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(false);
         Configs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
 
         //updateConfigs(conf);
@@ -224,30 +222,5 @@ public class ConfigReader
 
     public static void updateConfigs(Configuration conf)
     {
-        boolean found = false;
-        int i = 0;
-
-        // 0.3.2: Add EntityEnderCrystal to teleport blacklist
-        if (confVersion < 32)
-        {
-            EnderUtilities.logger.info("Updating configuration lists to 32");
-
-            String[] strs = Configs.teleportBlacklist.getStringList();
-            String[] strsNew = new String[strs.length + 1];
-            for (i = 0; i < strs.length; ++i)
-            {
-                strsNew[i] = strs[i];
-                if (strs[i].equals("EntityEnderCrystal") == true)
-                {
-                    found = true;
-                }
-            }
-
-            if (found == false)
-            {
-                strsNew[i] = "EntityEnderCrystal";
-                Configs.teleportBlacklist.setValues(strsNew);
-            }
-        }
     }
 }

@@ -1,16 +1,19 @@
 package fi.dy.masa.enderutilities.setup;
 
+import net.minecraftforge.fml.common.Loader;
+
 public class ModRegistry
 {
-    private static boolean modLoadedNEI;
+    private static boolean modLoadedJEI;
 
     public static void checkLoadedMods()
     {
-        modLoadedNEI = Loader.isModLoaded("NotEnoughItems");
+        // FIXME is this the correct mod id?
+        modLoadedJEI = Loader.isModLoaded("JustEnoughItems");
     }
 
-    public static boolean isModLoadedNEI()
+    public static boolean isModLoadedJEI()
     {
-        return modLoadedNEI;
+        return modLoadedJEI;
     }
 }

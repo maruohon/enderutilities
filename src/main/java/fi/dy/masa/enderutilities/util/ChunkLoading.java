@@ -20,7 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
@@ -179,10 +179,10 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        Ticket ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getCommandSenderName(), world, ForgeChunkManager.Type.NORMAL);
+        Ticket ticket = ForgeChunkManager.requestPlayerTicket(EnderUtilities.instance, player.getName(), world, ForgeChunkManager.Type.NORMAL);
         if (ticket == null)
         {
-            EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getCommandSenderName() + "'");
+            EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get a chunk loading ticket for player '" + player.getName() + "'");
             return null;
         }
 
@@ -356,24 +356,18 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         return this.loadChunkWithoutForce(MinecraftServer.getServer().worldServerForDimension(dimension), chunkX, chunkZ);
     }
 
-    public boolean loadChunkWithoutForce(World world, int chunkX, int chunkZ)
+    public boolean loadChunkWithoutForce(WorldServer worldServer, int chunkX, int chunkZ)
     {
         //System.out.println("loadChunkWithoutForce() start");
-        if (world == null)
+        if (worldServer == null || worldServer.theChunkProviderServer == null)
         {
             return false;
         }
 
-        IChunkProvider chunkProvider = world.getChunkProvider();
-        if (chunkProvider == null)
-        {
-            return false;
-        }
-
-        if (chunkProvider.chunkExists(chunkX, chunkZ) == false)
+        if (worldServer.theChunkProviderServer.chunkExists(chunkX, chunkZ) == false)
         {
             //System.out.println("loadChunkWithoutForce() loading chunk");
-            chunkProvider.loadChunk(chunkX, chunkZ);
+            worldServer.theChunkProviderServer.loadChunk(chunkX, chunkZ);
         }
 
         //System.out.println("loadChunkWithoutForce() end");

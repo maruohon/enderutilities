@@ -62,7 +62,7 @@ public class AnvilUpdateEventHandler
             else if (StringUtils.isBlank(event.name) == true && repaired.hasDisplayName() == true)
             {
                 // Remove the custom name
-                repaired.func_135074_t();
+                repaired.clearCustomName();
             }
 
             event.output = repaired;

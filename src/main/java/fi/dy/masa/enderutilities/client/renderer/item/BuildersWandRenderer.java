@@ -1,17 +1,17 @@
 package fi.dy.masa.enderutilities.client.renderer.item;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
@@ -22,7 +22,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -60,7 +59,7 @@ public class BuildersWandRenderer
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-        return AxisAlignedBB.getBoundingBox(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
+        return AxisAlignedBB.fromBounds(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
     }
 
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
@@ -73,12 +72,12 @@ public class BuildersWandRenderer
         {
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
-            if (player.isSneaking() == true && ForgeDirection.getOrientation(mop.sideHit) == ForgeDirection.UP)
+            if (player.isSneaking() == true && mop.sideHit == EnumFacing.UP)
             {
                 return;
             }
 
-            posTargeted = new BlockPosEU(mop.blockX, mop.blockY, mop.blockZ, player.dimension, mop.sideHit);
+            posTargeted = new BlockPosEU(mop.getBlockPos(), player.dimension, mop.sideHit);
         }
 
         if (posTargeted == null || player.dimension != posTargeted.dimension)
@@ -87,9 +86,9 @@ public class BuildersWandRenderer
         }
 
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posStart = posTargeted.offset(ForgeDirection.getOrientation(posTargeted.face), 1);
+        BlockPosEU posStart = posTargeted.offset(posTargeted.side, 1);
         BlockPosEU posEnd = item.getPosition(stack, ItemBuildersWand.POS_END);
-        posEnd = (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE)) ? posEnd.offset(ForgeDirection.getOrientation(posEnd.face), 1) : null;
+        posEnd = (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE)) ? posEnd.offset(posEnd.side, 1) : null;
 
         if (partialTicks < this.partialTicksLast)
         {
@@ -106,10 +105,10 @@ public class BuildersWandRenderer
             }
         }
 
-        GL11.glDepthMask(false);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glPushMatrix();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.pushMatrix();
 
         boolean renderGhostBlocks = NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS);
 
@@ -118,7 +117,7 @@ public class BuildersWandRenderer
             this.renderGhostBlocks(player, partialTicks);
         }
 
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GlStateManager.disableTexture2D();
 
         if (renderGhostBlocks == false)
         {
@@ -127,10 +126,10 @@ public class BuildersWandRenderer
 
         this.renderStartAndEndPositions(mode, player, posStart, posEnd, partialTicks);
 
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDepthMask(true);
+        GlStateManager.popMatrix();
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
 
         this.partialTicksLast = partialTicks;
     }
@@ -144,7 +143,7 @@ public class BuildersWandRenderer
             if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
             {
                 AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFFFFFF);
+                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xFF);
             }
         }
     }
@@ -156,7 +155,7 @@ public class BuildersWandRenderer
             // Render the targeted position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
         if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE))
@@ -164,13 +163,14 @@ public class BuildersWandRenderer
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x1111FF);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
         }
     }
 
     public void renderGhostBlocks(EntityPlayer player, float partialTicks)
     {
-        RenderBlocks rb = new RenderBlocks();
+        // FIXME
+        /*RenderBlocks rb = new RenderBlocks();
         //OpenGlHelper.glBlendFunc(774, 768, 1, 0);
         //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -234,6 +234,6 @@ public class BuildersWandRenderer
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         //GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(true);
-        GL11.glPopMatrix();
+        GL11.glPopMatrix();*/
     }
 }

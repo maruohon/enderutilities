@@ -9,7 +9,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -78,7 +80,7 @@ public class ItemRuler extends ItemModular
         return true;
     }
 
-    public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
+    public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, BlockPos pos, int dimension, EnumFacing side)
     {
         if (world.isRemote == true)
         {
@@ -91,7 +93,7 @@ public class ItemRuler extends ItemModular
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
             // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_END, player.isSneaking() == false);
+            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_END, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());

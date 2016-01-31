@@ -7,12 +7,11 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Util;
 
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -20,8 +19,6 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
-import fi.dy.masa.enderutilities.client.renderer.item.ItemRendererEnderBucket;
-import fi.dy.masa.enderutilities.client.renderer.item.RenderEnderBow;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -56,9 +53,7 @@ public class ClientProxy extends CommonProxy
     public void registerEventHandlers()
     {
         super.registerEventHandlers();
-        InputEventHandler ieh = new InputEventHandler();
-        FMLCommonHandler.instance().bus().register(ieh);
-        MinecraftForge.EVENT_BUS.register(ieh);
+        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
         MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
     }
 
@@ -76,9 +71,6 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow());
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderEntityProjectile(EnderUtilitiesItems.enderPearlReusable));
         RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter());
-
-        MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBow, new RenderEnderBow());
-        MinecraftForgeClient.registerItemRenderer(EnderUtilitiesItems.enderBucket, new ItemRendererEnderBucket());
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());

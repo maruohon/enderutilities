@@ -99,7 +99,7 @@ public class TickHandler
 
                     if (target != null)
                     {
-                        ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.posX >> 4, target.posZ >> 4);
+                        ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4);
                     }
                 }
             }

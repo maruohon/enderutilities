@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
 public interface IProxy
 {
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);

@@ -5,6 +5,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,7 +21,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
+public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implements ITickable
 {
     protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
     public static final int AMOUNT_PER_ENDERPEARL = 250;
@@ -66,7 +68,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public void updateEntity()
+    public void update()
     {
         if (this.worldObj.isRemote == true)
         {
@@ -232,17 +234,17 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided
     }
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing side)
     {
         // Allow access to all slots from all sides
         return SLOTS_SIDES;
     }
 
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side)
+    public boolean canExtractItem(int slotNum, ItemStack stack, EnumFacing direction)
     {
         // Only allow pulling out items from the output slot
-        return slot == 2;
+        return slotNum == 2;
     }
 
     @Override

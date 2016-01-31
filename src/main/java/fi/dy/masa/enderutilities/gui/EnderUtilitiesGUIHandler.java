@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.gui;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.IGuiHandler;
@@ -36,7 +37,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
         switch (id)
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                TileEntity te = world.getTileEntity(x, y, z);
+                TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
                 if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
                     return ((TileEntityEnderUtilitiesInventory)te).getContainer(player);
@@ -84,7 +85,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
         switch (id)
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                TileEntity te = world.getTileEntity(x, y, z);
+                TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
                 if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                 {
                     return ((TileEntityEnderUtilitiesInventory)te).getGui(player);

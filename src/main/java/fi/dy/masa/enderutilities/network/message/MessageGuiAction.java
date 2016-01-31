@@ -3,10 +3,12 @@ package fi.dy.masa.enderutilities.network.message;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -76,7 +78,7 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
             switch(message.guiId)
             {
                 case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                    TileEntity te = world.getTileEntity(message.posX, message.posY, message.posZ);
+                    TileEntity te = world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
                     if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
                     {
                         ((TileEntityEnderUtilitiesInventory)te).performGuiAction(player, message.action, message.elementId);

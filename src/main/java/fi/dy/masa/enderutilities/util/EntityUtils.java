@@ -18,9 +18,12 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -33,7 +36,7 @@ import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
-    public static final byte YAW_TO_DIRECTION[] = {3, 4, 2, 5};
+    //public static final byte YAW_TO_DIRECTION[] = {3, 4, 2, 5};
 
     public static enum LeftRight
     {
@@ -46,34 +49,35 @@ public class EntityUtils
         }
     }
 
-    public static ForgeDirection getLookingDirection(Entity entity)
+    public static EnumFacing getLookingDirection(Entity entity)
     {
         if (entity.rotationPitch < -45)
         {
-            return ForgeDirection.UP;
+            return EnumFacing.UP;
         }
 
         if (entity.rotationPitch > 45)
         {
-            return ForgeDirection.DOWN;
+            return EnumFacing.DOWN;
         }
 
         return getHorizontalLookingDirection(entity);
     }
 
-    public static ForgeDirection getHorizontalLookingDirection(Entity entity)
+    public static EnumFacing getHorizontalLookingDirection(Entity entity)
     {
         //float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
         //System.out.printf("axis: " + ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]) + "\n");
-        return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+        //return ForgeDirection.getOrientation(YAW_TO_DIRECTION[MathHelper.floor_double((entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3]);
+        return EnumFacing.fromAngle(entity.rotationYaw);
     }
 
-    public static ForgeDirection getVerticalLookingDirection(Entity entity)
+    public static EnumFacing getVerticalLookingDirection(Entity entity)
     {
-        return entity.rotationPitch > 0 ? ForgeDirection.DOWN : ForgeDirection.UP;
+        return entity.rotationPitch > 0 ? EnumFacing.DOWN : EnumFacing.UP;
     }
 
-    public static ForgeDirection getClosestLookingDirection(Entity entity)
+    public static EnumFacing getClosestLookingDirection(Entity entity)
     {
         //float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
         //int yawAxis = MathHelper.floor_double((double)(entity.rotationYaw * 4.0f / 360.0f) + 0.5d) & 3;
@@ -84,13 +88,13 @@ public class EntityUtils
         if (entity.rotationPitch > 60.0f)
         {
             //System.out.printf(" axis: " + ForgeDirection.DOWN + "\n");
-            return ForgeDirection.DOWN;
+            return EnumFacing.DOWN;
         }
         //else if (-entity.rotationPitch > (Math.abs(yawAxisMiddle - yaw) + 45.0f))
         else if (-entity.rotationPitch > 60.0f)
         {
             //System.out.printf(" axis: " + ForgeDirection.UP + "\n");
-            return ForgeDirection.UP;
+            return EnumFacing.UP;
         }
 
         //System.out.printf(" axis: " + ForgeDirection.getOrientation(YAW_TO_DIRECTION[yawAxis]) + "\n");
@@ -98,50 +102,50 @@ public class EntityUtils
         return getHorizontalLookingDirection(entity);
     }
 
-    public static ForgeDirection getClosesLookingDirectionPlanarized(Entity entity, boolean usePitch)
+    public static EnumFacing getClosesLookingDirectionPlanarized(Entity entity, boolean usePitch)
     {
         if (usePitch == true)
         {
-            ForgeDirection dir = getClosestLookingDirection(entity);
+            EnumFacing facing = getClosestLookingDirection(entity);
 
-            if (dir == ForgeDirection.UP)
+            if (facing == EnumFacing.UP)
             {
-                dir = ForgeDirection.NORTH;
+                facing = EnumFacing.NORTH;
             }
-            else if (dir == ForgeDirection.DOWN)
+            else if (facing == EnumFacing.DOWN)
             {
-                dir = ForgeDirection.SOUTH;
+                facing = EnumFacing.SOUTH;
             }
 
-            return dir;
+            return facing;
         }
 
         return getHorizontalLookingDirection(entity);
     }
 
-    public static ForgeDirection getClosestLookingDirectionNotOnAxis(Entity entity, ForgeDirection notOnAxis)
+    public static EnumFacing getClosestLookingDirectionNotOnAxis(Entity entity, EnumFacing notOnAxis)
     {
-        ForgeDirection dir = getClosestLookingDirection(entity);
-        if (dir == notOnAxis || dir.getOpposite() == notOnAxis)
+        EnumFacing facing = getClosestLookingDirection(entity);
+        if (facing == notOnAxis || facing.getOpposite() == notOnAxis)
         {
-            if (notOnAxis == ForgeDirection.UP || notOnAxis == ForgeDirection.DOWN)
+            if (notOnAxis == EnumFacing.UP || notOnAxis == EnumFacing.DOWN)
             {
-                dir = getHorizontalLookingDirection(entity);
+                facing = getHorizontalLookingDirection(entity);
             }
             else
             {
-                dir = getVerticalLookingDirection(entity);
+                facing = getVerticalLookingDirection(entity);
             }
         }
 
-        return dir;
+        return facing;
     }
 
     /**
      * Return whether the entity is looking to the left or to the right of the given axis.
      * The axis is the one coming towards the entity from the source location.
      */
-    public static LeftRight getLookLeftRight(Entity entity, ForgeDirection axis)
+    public static LeftRight getLookLeftRight(Entity entity, EnumFacing axis)
     {
         float yaw = (entity.rotationYaw % 360.0f + 360.0f) % 360.0f;
         LeftRight result;
@@ -173,27 +177,27 @@ public class EntityUtils
      * Get the (non-optimized) transformations to transform a plane defined by the
      * vectors p1Up and p1Right to match the other plane defined by p2Up and p2Right.
      */
-    public static List<ForgeDirection> getTransformationsToMatchPlanes(ForgeDirection p1Up, ForgeDirection p1Right, ForgeDirection p2Up, ForgeDirection p2Right)
+    public static List<EnumFacing> getTransformationsToMatchPlanes(EnumFacing p1Up, EnumFacing p1Right, EnumFacing p2Up, EnumFacing p2Right)
     {
-        List<ForgeDirection> list = new ArrayList<ForgeDirection>();
-        ForgeDirection tmp1 = p1Up;
-        ForgeDirection rot = p1Up;
+        List<EnumFacing> list = new ArrayList<EnumFacing>();
+        EnumFacing tmp1 = p1Up;
+        EnumFacing rot = p1Up;
 
         // First get the rotations to match p1Up to p2Up
         if (p2Up == p1Right)
         {
-            rot = p1Up.getRotation(p1Right.getOpposite());
+            rot = p1Up.rotateAround(p1Right.getOpposite().getAxis());
             //System.out.printf("TR right - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
-            p1Right = p1Right.getRotation(rot);
+            p1Right = p1Right.rotateAround(rot.getAxis());
             p1Up = p2Up;
         }
         else if (p2Up == p1Right.getOpposite())
         {
-            rot = p1Up.getRotation(p1Right);
+            rot = p1Up.rotateAround(p1Right.getAxis());
             //System.out.printf("TR left - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
-            p1Right = p1Right.getRotation(rot);
+            p1Right = p1Right.rotateAround(rot.getAxis());
             p1Up = p2Up;
         }
         else
@@ -206,7 +210,7 @@ public class EntityUtils
                 }
 
                 //System.out.printf("TR loop 1 - p1Right %s ", p1Right);
-                tmp1 = tmp1.getRotation(p1Right);
+                tmp1 = tmp1.rotateAround(p1Right.getAxis());
                 list.add(p1Right);
             }
         }
@@ -224,7 +228,7 @@ public class EntityUtils
             }
 
             //System.out.printf("TR loop 2: %s ", p2Up);
-            tmp1 = tmp1.getRotation(p2Up);
+            tmp1 = tmp1.rotateAround(p2Up.getAxis());
             list.add(p2Up);
         }
 
@@ -245,7 +249,7 @@ public class EntityUtils
             return null;
         }
 
-        List<EntityPlayer> playerList = mcs.getConfigurationManager().playerEntityList;
+        List<EntityPlayerMP> playerList = mcs.getConfigurationManager().playerEntityList;
 
         for (EntityPlayer player : playerList)
         {
@@ -439,7 +443,7 @@ public class EntityUtils
      */
     public static boolean isEntityCollidingWithBlockSpace(World world, Entity entity, Block block)
     {
-        AxisAlignedBB bb = entity.boundingBox;
+        AxisAlignedBB bb = entity.getEntityBoundingBox();
         int mX = MathHelper.floor_double(bb.minX);
         int mY = MathHelper.floor_double(bb.minY);
         int mZ = MathHelper.floor_double(bb.minZ);
@@ -450,7 +454,7 @@ public class EntityUtils
             {
                 for (int z2 = mZ; z2 < bb.maxZ; z2++)
                 {
-                    if (world.getBlock(x2, y2, z2) == block)
+                    if (world.getBlockState(new BlockPos(x2, y2, z2)).getBlock() == block)
                     {
                         return true;
                     }
@@ -477,7 +481,7 @@ public class EntityUtils
 
             if (canDespawn == false)
             {
-                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "v", "func_70692_ba"});
+                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "func_70692_ba", "C"});
                 try
                 {
                     Object o = method.invoke(living);
@@ -506,7 +510,7 @@ public class EntityUtils
             if (canDespawn == true)
             {
                 // Sets the persistenceRequired boolean
-                living.func_110163_bv();
+                living.isNoDespawnRequired();
                 living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
 
                 return true;
@@ -521,11 +525,11 @@ public class EntityUtils
         // Only allow the activation to happen in The End
         if (world != null && world.provider != null)
         {
-            // The item must be right clicked on the Bedrock block on top of the obsidian pillars
-            if (world.provider.getDimensionId() == 1 && world.getBlock(x, y, z) == Blocks.bedrock)
+            // The item must be right clicked on an obsidian block on top of the obsidian pillars
+            if (world.provider.getDimensionId() == 1 && world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.obsidian)
             {
                 // Check that there aren't already Ender Crystals nearby
-                List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.getBoundingBox(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
+                List<EntityEnderCrystal> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.fromBounds(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
                 if (entities.isEmpty() == false)
                 {
                     return false;
@@ -538,7 +542,7 @@ public class EntityUtils
                     {
                         for (int bz = z - 1; bz <= z + 1; ++bz)
                         {
-                            if (world.getBlock(bx, by, bz) != Blocks.obsidian)
+                            if (world.getBlockState(new BlockPos(bx, by, bz)).getBlock() != Blocks.obsidian)
                             {
                                 return false;
                             }

@@ -16,7 +16,9 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -146,7 +148,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return true;
     }
 
-    public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, int x, int y, int z, int dimension, int side)
+    public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, BlockPos pos, int dimension, EnumFacing side)
     {
         if (world.isRemote == true)
         {
@@ -160,7 +162,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (player.isSneaking() == false)
             {
-                this.setPosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_START);
+                this.setPosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START);
             }
             // Sneak + left click: Set the selected block type
             else

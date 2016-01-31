@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 @Event.HasResult

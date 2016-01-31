@@ -4,24 +4,27 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
@@ -65,9 +68,6 @@ public class Machine
     protected String toolClass;
     protected int harvestLevel;
     protected float blockHardness;
-
-    @SideOnly(Side.CLIENT)
-    protected IIcon[] icons;
 
     public Machine(int index, int meta, String name, Class<? extends TileEntityEnderUtilities> TEClass, String tool, int harvestLevel, float hardness)
     {
@@ -168,7 +168,7 @@ public class Machine
             Machine m = getMachine(blockIndex, meta);
             if (m != null)
             {
-                block.setHarvestLevel(m.toolClass, m.harvestLevel, meta);
+                block.setHarvestLevel(m.toolClass, m.harvestLevel, block.getStateFromMeta(meta));
             }
         }
 
@@ -178,30 +178,32 @@ public class Machine
     /**
      * The replacement/equivalent of Block.onBlockPlacedBy() for customized per-machine block placing behavior.
      */
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
     }
 
     /**
      * The replacement/equivalent of Block.onBlockAdded() for customized per-machine block adding behavior.
      */
-    public void onBlockAdded(World world, int x, int y, int z)
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
     }
 
     /**
      * The replacement/equivalent of Block.onBlockPreDestroy() for customized per-machine pre-block-breaking behavior.
      */
-    public void onBlockPreDestroy(World world, int x, int y, int z, int oldMeta)
+    // FIXME
+    /*
+    public void onBlockPreDestroy(World world, BlockPos pos, int oldMeta)
     {
-    }
+    }*/
 
     /**
      * The replacement/equivalent of Block.breakBlock() for customized per-machine block breaking behavior.
      * Return true if custom behavior should override the default BlockEnderUtilities*.breakBlock().
      * Note that the vanilla Block.breakBlock() (or equivalent) will still get called! (To deal with the TE removal etc.)
      */
-    public boolean breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public boolean breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         return false;
     }
@@ -209,17 +211,17 @@ public class Machine
     /**
      * The replacement/equivalent of Block.onBlockActivated() for customized per-machine block activation behavior.
      */
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ)
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        PlayerInteractEvent e = new PlayerInteractEvent(player, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, x, y, z, side, world);
+        PlayerInteractEvent e = new PlayerInteractEvent(playerIn, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, pos, side, worldIn);
         if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
         {
             return false;
         }
 
-        if (world.isRemote == false)
+        if (worldIn.isRemote == false)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
+            TileEntity te = worldIn.getTileEntity(pos);
             if (te == null || te instanceof TileEntityEnderUtilities == false)
             {
                 return false;
@@ -227,20 +229,20 @@ public class Machine
 
             if (this.isTileEntityValid(te) == true)
             {
-                player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, x, y, z);
+                playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, worldIn, pos.getX(), pos.getY(), pos.getZ());
             }
         }
 
         return true;
     }
 
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
     {
     }
 
-    public int getLightValue(IBlockAccess world, int x, int y, int z, Block block, int meta)
+    public int getLightValue(IBlockAccess worldIn, BlockPos pos, IBlockState state)
     {
-        return block.getLightValue();
+        return state.getBlock().getLightValue();
     }
 
     @SideOnly(Side.CLIENT)
@@ -256,66 +258,7 @@ public class Machine
     }
 
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
-    {
-        // These are for the rendering in ItemBlock form in inventories etc.
-
-        if (side == 0 || side == 1)
-        {
-            return this.icons[1]; // top
-        }
-        if (side == 3)
-        {
-            return this.icons[2]; // front
-        }
-
-        return this.icons[4]; // side (left)
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(TileEntityEnderUtilities te, int side, int meta)
-    {
-        // FIXME we should get the proper side (left, right, back) textures based on the TE rotation and the side argument
-        if (side == 0 || side == 1)
-        {
-            return this.icons[side];
-        }
-
-        if (te != null && side == te.getRotation())
-        {
-            return this.icons[2]; // front
-        }
-
-        return this.icons[4];
-    }
-
-    @SideOnly(Side.CLIENT)
-    protected void registerIcons(IIconRegister iconRegister)
-    {
-        this.icons = new IIcon[6];
-        this.icons[0] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".bottom");
-        this.icons[1] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".top");
-        this.icons[2] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".front");
-        this.icons[3] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".back");
-        this.icons[4] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".left");
-        this.icons[5] = iconRegister.registerIcon(ReferenceTextures.getTileName(this.blockName) + ".right");
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static void registerIcons(int blockIndex, IIconRegister iconRegister)
-    {
-        for (int meta = 0; meta < 16; ++meta)
-        {
-            Machine m = getMachine(blockIndex, meta);
-            if (m != null)
-            {
-                m.registerIcons(iconRegister);
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(World world, int x, int y, int z, Random rand)
+    public void randomDisplayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
     }
 }

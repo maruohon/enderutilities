@@ -11,6 +11,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -35,12 +36,14 @@ public class InventoryUtils
     public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst, boolean ignoreStackLimit)
     {
+        // TODO change the sides into facings
         boolean movedAll = true;
 
         if (invSrc instanceof ISidedInventory)
         {
+            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
 
             for (int slotNum : slotsSrc)
             {
@@ -48,7 +51,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(slotNum);
 
-                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, sideSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, faceSrc) == true)
                     {
                         stack = tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, slotMinDst, slotMaxDst, ignoreStackLimit);
                         invSrc.setInventorySlotContents(slotNum, stack);
@@ -133,8 +136,9 @@ public class InventoryUtils
 
         if (invSrc instanceof ISidedInventory)
         {
+            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
 
             for (int slotNum : slotsSrc)
             {
@@ -142,7 +146,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(slotNum);
 
-                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, sideSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, faceSrc) == true)
                     {
                         if (getSlotOfFirstMatchingItemStackWithinSlotRange(invDst, stack, slotMinDst, slotMaxDst) != -1)
                         {
@@ -202,8 +206,9 @@ public class InventoryUtils
     {
         if (invSrc instanceof ISidedInventory)
         {
+            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getAccessibleSlotsFromSide(sideSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
 
             for (int i : slotsSrc)
             {
@@ -211,7 +216,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(i);
 
-                    if (stack != null && sidedSrc.canExtractItem(i, stack, sideSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(i, stack, faceSrc) == true)
                     {
                         List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacksWithinSlotRange(invDst, stack, slotMinDst, slotMaxDst);
 
@@ -276,8 +281,9 @@ public class InventoryUtils
 
         if (inv instanceof ISidedInventory)
         {
+            EnumFacing face = EnumFacing.getFront(side);
             ISidedInventory sided = (ISidedInventory) inv;
-            int[] slots = sided.getAccessibleSlotsFromSide(side);
+            int[] slots = sided.getSlotsForFace(face);
 
             // First try to add to existing stacks
             for (int i : slots)
@@ -513,7 +519,7 @@ public class InventoryUtils
      */
     public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, int side)
     {
-        return (sided.isItemValidForSlot(slotNum, stackIn) && sided.canInsertItem(slotNum, stackIn, side));
+        return (sided.isItemValidForSlot(slotNum, stackIn) && sided.canInsertItem(slotNum, stackIn, EnumFacing.getFront(side)));
     }
 
     /**

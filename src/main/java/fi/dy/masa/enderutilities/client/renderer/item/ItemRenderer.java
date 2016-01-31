@@ -12,7 +12,8 @@ public class ItemRenderer
             float minU, float minV, float maxU, float maxV,
             double layerOffsetX, double layerOffsetY, double layerOffsetZ)
     {
-        double x1, x2, y1, y2, z1, z2;
+        // FIXME remove?
+        /*double x1, x2, y1, y2, z1, z2;
         //double layerOffset = (double)layerNum * 0.0000025d;
         x1 = minX + layerOffsetX;
         x2 = maxX - layerOffsetX;
@@ -102,6 +103,6 @@ public class ItemRenderer
             tessellator.addVertexWithUV(x1, y, z2, (double)minU, v);
             tessellator.addVertexWithUV(x2, y, z2, (double)maxU, v);
         }
-        tessellator.draw();
+        tessellator.draw();*/
     }
 }

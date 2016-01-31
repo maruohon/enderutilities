@@ -16,12 +16,12 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.IChunkProvider;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
@@ -91,7 +91,7 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.boundingBox != null && entity.worldObj.getCollidingBoundingBoxes(entity, entity.boundingBox).isEmpty() == true)
+            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
             {
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
@@ -147,7 +147,6 @@ public class TeleportEntity
             return target;
         }
 
-        ForgeDirection dir = ForgeDirection.getOrientation(target.blockFace);
         float widthAdj = 0.5f;
         float heightAdj = 1.0f;
 
@@ -157,11 +156,11 @@ public class TeleportEntity
             heightAdj = entity.height;
         }
 
-        target.dPosX += dir.offsetX * widthAdj;
-        target.dPosZ += dir.offsetZ * widthAdj;
+        target.dPosX += target.facing.getFrontOffsetX() * widthAdj;
+        target.dPosZ += target.facing.getFrontOffsetZ() * widthAdj;
 
         // Targeting the bottom face of a block, adjust the position lower
-        if (dir.equals(ForgeDirection.DOWN))
+        if (target.facing.equals(EnumFacing.DOWN))
         {
             target.dPosY -= heightAdj;
         }
@@ -285,16 +284,12 @@ public class TeleportEntity
 
             //System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
 
-            IChunkProvider chunkProvider = worldServerDst.getChunkProvider();
-            if (chunkProvider == null)
-            {
-                return null;
-            }
+            int chunkX = ((int)x) >> 4;
+            int chunkZ = ((int)z) >> 4;
 
-            if (chunkProvider.chunkExists((int)x >> 4, (int)z >> 4) == false)
+            if (worldServerDst.theChunkProviderServer.chunkExists(chunkX, chunkZ) == false)
             {
-                //worldServerDst.theChunkProviderServer.loadChunk((int)x >> 4, (int)z >> 4);
-                chunkProvider.loadChunk((int)x >> 4, (int)z >> 4);
+                worldServerDst.theChunkProviderServer.loadChunk(chunkX, chunkZ);
             }
 
             if (entity instanceof EntityLiving)
@@ -365,7 +360,7 @@ public class TeleportEntity
         entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
         entitySrc.isDead = false;
 
-        entityDst.copyDataFrom(entitySrc, true);
+        entityDst.copyDataFromOld(entitySrc);
         if (entityDst instanceof EntityLivingBase)
         {
             ((EntityLivingBase)entityDst).setPositionAndUpdate(x, y, z);
@@ -416,7 +411,7 @@ public class TeleportEntity
             return null;
         }
 
-        entityDst.copyDataFrom(entitySrc, true);
+        entityDst.copyDataFromOld(entitySrc);
         // FIXME ugly special case to prevent the chest minecart etc from duping items
         if (entitySrc instanceof EntityMinecartContainer)
         {
@@ -426,6 +421,7 @@ public class TeleportEntity
         {
             entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
         }
+
         x = MathHelper.clamp_double(x, -30000000.0d, 30000000.0d);
         z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
         entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
@@ -451,7 +447,7 @@ public class TeleportEntity
 
         // Post the event and check if the teleport should be allowed
         PlayerChangedDimensionEvent pcdEvent = new PlayerChangedDimensionEvent(player, player.dimension, dimDst);
-        if (FMLCommonHandler.instance().bus().post(pcdEvent) == true)
+        if (MinecraftForge.EVENT_BUS.post(pcdEvent) == true)
         {
             return null;
         }
@@ -472,7 +468,7 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension, player.worldObj.difficultySetting, player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
+        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
@@ -486,7 +482,7 @@ public class TeleportEntity
         worldServerDst.spawnEntityInWorld(player);
         worldServerDst.updateEntityWithOptionalForce(player, false);
         player.setWorld(worldServerDst);
-        serverCM.func_72375_a(player, worldServerSrc); // remove player from the source world
+        serverCM.preparePlayer(player, worldServerSrc); // remove player from the source world
         player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
         player.theItemInWorldManager.setWorld(worldServerDst);
         player.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(player, worldServerDst);

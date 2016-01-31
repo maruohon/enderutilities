@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 
@@ -86,14 +87,13 @@ public class PositionHelper
      * @param entity
      * @param side
      */
-    public void adjustPositionToTouchFace(Entity entity, int side)
+    public void adjustPositionToTouchFace(Entity entity, EnumFacing facing)
     {
-        ForgeDirection dir = ForgeDirection.getOrientation(side);
-        this.posX += (dir.offsetX * entity.width / 2);
-        this.posZ += (dir.offsetZ * entity.width / 2);
+        this.posX += (facing.getFrontOffsetX() * entity.width / 2);
+        this.posZ += (facing.getFrontOffsetZ() * entity.width / 2);
 
         // Bottom side
-        if (dir.equals(ForgeDirection.DOWN))
+        if (facing.equals(EnumFacing.DOWN) == true)
         {
             this.posY -= entity.height;
         }

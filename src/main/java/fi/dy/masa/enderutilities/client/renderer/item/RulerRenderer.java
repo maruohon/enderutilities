@@ -9,10 +9,12 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -99,11 +101,11 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
 
         if ((posStart != null && posStart.dimension != player.dimension) || (posEnd != null && posEnd.dimension != player.dimension))
@@ -124,20 +126,13 @@ public class RulerRenderer
             modeStr = this.modeStrDim;
         }
 
-        ScaledResolution scaledResolution = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
-
-        //int scaledX = scaledResolution.getScaledWidth();
+        ScaledResolution scaledResolution = new ScaledResolution(this.mc);
         int scaledY = scaledResolution.getScaledHeight();
         int x = 0;
         int y = scaledY - 16;
 
         //System.out.println("scX: " + scaledX + " scY: " + scaledY);
-        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, modeStr,        x + 10, y + 10, 0xffffffff);
-        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF427CFF);
-        this.mc.fontRenderer.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
-        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  X: " + lenX, x + 10, y + 18, 0xffffffff);
-        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  Y: " + lenY, x + 10, y + 26, 0xffffffff);
-        //this.mc.ingameGUI.drawString(this.mc.fontRenderer, "  Z: " + lenZ, x + 10, y + 34, 0xffffffff);
+        this.mc.fontRendererObj.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
     }
 
     public void renderAllPositionPairs()
@@ -158,15 +153,15 @@ public class RulerRenderer
             }
         }
 
-        GL11.glDepthMask(false);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
+        GlStateManager.depthMask(false);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableBlend();
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glPushMatrix();
+        GlStateManager.disablePolygonOffset(); //GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+        GlStateManager.enableAlpha();
+        GlStateManager.pushMatrix();
 
         ItemRuler item = (ItemRuler)stack.getItem();
         int selected = item.getLocationSelection(stack);
@@ -194,10 +189,10 @@ public class RulerRenderer
         BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
         this.renderPointPair(player, posStart, posEnd, 0xFFFFFF, this.partialTicks);
 
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDepthMask(true);
+        GlStateManager.popMatrix();
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
     }
 
     public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
@@ -234,7 +229,7 @@ public class RulerRenderer
                 //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
                     AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                    RenderGlobal.drawOutlinedBoundingBox(aabb, color);
+                    RenderGlobal.drawOutlinedBoundingBox(aabb, (color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF, 0xFF);
                 }
             }
         }
@@ -247,7 +242,7 @@ public class RulerRenderer
             // Render the start position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF1111);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
         if (posEnd != null)
@@ -255,7 +250,7 @@ public class RulerRenderer
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x1111FF);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
         }
     }
 
@@ -273,11 +268,11 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, ForgeDirection.UP.ordinal());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
