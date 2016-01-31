@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,15 +22,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements ITickable
 {
-    public boolean isActive;
-    public boolean isPowered;
-    public int timer;
+    protected boolean isActive;
+    protected boolean isPowered;
+    protected int timer;
+    protected Type type;
 
     @SideOnly(Side.CLIENT)
     public int beamYMin;
@@ -43,6 +43,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
         this.timer = 0;
+        this.type = Type.INVALID;
     }
 
     @Override
@@ -85,13 +86,18 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         super.onDataPacket(net, packet);
     }
 
-    public void setState(boolean state)
+    protected void setActiveState(boolean state)
     {
         this.isActive = state;
         this.worldObj.markBlockForUpdate(this.getPos());
     }
 
-    public void setPowered(boolean value)
+    public boolean getIsActive()
+    {
+        return this.isActive;
+    }
+
+    protected void setPoweredState(boolean value)
     {
         if (this.isPowered != value)
         {
@@ -100,11 +106,25 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
+    public boolean getIsPowered()
+    {
+        return this.isPowered;
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+
+        this.type = Type.fromMeta(this.getBlockMetadata());
+    }
+
     @Override
     public void update()
     {
         // Master blocks (Transmitter or Receiver) re-validate the multiblock every 2 seconds
-        if (this.worldObj.isRemote == false && this.getBlockMetadata() < 2 && ++this.timer >= 40)
+
+        if (this.worldObj.isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 40)
         {
             this.tryAssembleMultiBlock(this.worldObj, this.getPos());
             this.timer = 0;
@@ -116,125 +136,122 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // The End has the transmitter, and in a slightly different position than the receivers are
         if (worldIn.provider.getDimensionId() == 1)
         {
-            this.tryAssembleMultiBlock(worldIn, pos, 4, 0, true);
+            this.tryAssembleMultiBlock(worldIn, pos, Type.TRANSMITTER);
         }
         else
         {
-            this.tryAssembleMultiBlock(worldIn, pos, 1, 1, false);
+            this.tryAssembleMultiBlock(worldIn, pos, Type.RECEIVER);
         }
     }
 
-    public void disassembleMultiblock(World worldIn, BlockPos pos, int oldMeta)
+    public void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
     {
-        // The End has the transmitter, and in a slightly different position than the receivers are
-        if (worldIn.provider.getDimensionId() == 1)
-        {
-            this.disassembleMultiblock(worldIn, pos, 4, 0, oldMeta);
-        }
-        else
-        {
-            this.disassembleMultiblock(worldIn, pos, 1, 1, oldMeta);
-        }
+
     }
 
-    public void tryAssembleMultiBlock(World worldIn, BlockPos pos, int height, int masterMeta, boolean requireEnderCrystal)
+    protected void tryAssembleMultiBlock(World worldIn, BlockPos pos, Type type)
     {
-        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
-        if (this.getBlockPositions(worldIn, pos, height, masterMeta, positions) == false || positions.size() != 6)
+        List<BlockPos> positions = new ArrayList<BlockPos>();
+
+        if (this.getBlockPositions(worldIn, pos, type, positions) == false || positions.size() != 6)
         {
             return;
         }
 
-        boolean isValid = this.isStructureValid(worldIn, pos, height, masterMeta, requireEnderCrystal, positions);
+        boolean isValid = this.isStructureValid(worldIn, pos, type, positions);
 
         if (isValid == true)
         {
             if (this.isActive == false)
             {
                 this.activateMultiBlock(worldIn, positions);
-                EnergyBridgeTracker.addBridgeLocation(positions.get(0));
+                EnergyBridgeTracker.addBridgeLocation(positions.get(0), worldIn.provider.getDimensionId());
             }
 
             this.updatePoweredState(worldIn, positions);
         }
-        // This gets called from the periodic validation via updateEntity()
+        // This gets called from the periodic validation via update()
         else if (this.isActive == true)
         {
-            this.disassembleMultiblock(worldIn, pos, worldIn.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord));
+            this.disassembleMultiblock(worldIn, pos, type);
         }
     }
 
-    public void activateMultiBlock(World world, List<BlockPosEU> blockPositions)
+    protected void activateMultiBlock(World worldIn, List<BlockPos> positions)
     {
         for (int i = 0; i < 5; i++)
         {
-            this.setState(world, blockPositions.get(i), true);
+            this.setState(worldIn, positions.get(i), true);
         }
     }
 
-    public boolean getBlockPositions(World world, BlockPos pos, int height, int masterMeta, List<BlockPosEU> blockPositions)
+    protected boolean getBlockPositions(World worldIn, BlockPos pos, Type type, List<BlockPos> positions)
     {
-        blockPositions.clear();
+        positions.clear();
 
-        Block block = world.getBlock(x, y, z);
-        int meta = world.getBlockMetadata(x, y, z);
-        TileEntity te = world.getTileEntity(x, y, z);
+        IBlockState state = worldIn.getBlockState(pos);
+        Block block = state.getBlock();
+        int meta = block.getMetaFromState(state);
+        TileEntity te = worldIn.getTileEntity(pos);
 
-        if (block != EnderUtilitiesBlocks.machine_1 || (meta != masterMeta && meta != 2) || (te instanceof TileEntityEnergyBridge) == false)
+        // Check that the position is either a resonator or the type of master we are checking for
+        if (block != EnderUtilitiesBlocks.machine_1 || (meta != type.getMeta() && meta != Type.RESONATOR.getMeta()) ||
+           (te instanceof TileEntityEnergyBridge) == false)
         {
             return false;
         }
 
-        BlockPosEU posMaster = new BlockPosEU(x, y, z, this.worldObj.provider.getDimensionId(), 1);
-
         // position of the middle block in the y-plane of the resonators
-        BlockPosEU posResonatorBase = new BlockPosEU(x, y, z, this.worldObj.provider.getDimensionId(), 1);
-        ForgeDirection dir = ForgeDirection.getOrientation(((TileEntityEnergyBridge)te).getRotation());
+        BlockPos posResonatorBase = pos;
+        BlockPos posMaster = pos;
+        EnumFacing facing = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
+
+        int yOffset = type == Type.TRANSMITTER ? 3 : 0;
 
         // The given location is a resonator, not the master block; get the master block's location
-        if (meta != masterMeta)
+        if (meta != type.getMeta())
         {
-            posMaster = posMaster.add(0, height - 1, 0).offset(dir, 3);
-            posResonatorBase = posResonatorBase.offset(dir, 3);
+            posMaster = posMaster.add(0, yOffset, 0).offset(facing, 3);
+            posResonatorBase = posResonatorBase.offset(facing, 3);
         }
         else
         {
-            posResonatorBase = posResonatorBase.add(0, -(height - 1), 0);
+            posResonatorBase = posResonatorBase.add(0, -yOffset, 0);
         }
 
-        blockPositions.add(posMaster);
-        blockPositions.add(posResonatorBase.offset(ForgeDirection.NORTH, 3));
-        blockPositions.add(posResonatorBase.offset(ForgeDirection.SOUTH, 3));
-        blockPositions.add(posResonatorBase.offset(ForgeDirection.EAST, 3));
-        blockPositions.add(posResonatorBase.offset(ForgeDirection.WEST, 3));
-        blockPositions.add(posResonatorBase);
+        positions.add(posMaster);
+        positions.add(posResonatorBase.offset(EnumFacing.NORTH, 3));
+        positions.add(posResonatorBase.offset(EnumFacing.SOUTH, 3));
+        positions.add(posResonatorBase.offset(EnumFacing.EAST, 3));
+        positions.add(posResonatorBase.offset(EnumFacing.WEST, 3));
+        positions.add(posResonatorBase);
 
         return true;
     }
 
-    public boolean isStructureValid(World world, BlockPos pos, int height, int masterMeta, boolean requireEnderCrystal, List<BlockPosEU> blockPositions)
+    protected boolean isStructureValid(World world, BlockPos pos, Type type, List<BlockPos> positions)
     {
         Block blockEb = EnderUtilitiesBlocks.machine_1;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
         boolean isValid = false;
 
-        if (BlockUtils.blockMatches(world, blockPositions.get(0), blockEb, masterMeta, classTEEB, ForgeDirection.UNKNOWN) &&
-            BlockUtils.blockMatches(world, blockPositions.get(1), blockEb, 2, classTEEB, ForgeDirection.SOUTH) &&
-            BlockUtils.blockMatches(world, blockPositions.get(2), blockEb, 2, classTEEB, ForgeDirection.NORTH) &&
-            BlockUtils.blockMatches(world, blockPositions.get(3), blockEb, 2, classTEEB, ForgeDirection.WEST) &&
-            BlockUtils.blockMatches(world, blockPositions.get(4), blockEb, 2, classTEEB, ForgeDirection.EAST))
+        if (BlockUtils.blockMatches(world, positions.get(0), blockEb, type.getMeta(), classTEEB, null) &&
+            BlockUtils.blockMatches(world, positions.get(1), blockEb, 2, classTEEB, EnumFacing.SOUTH) &&
+            BlockUtils.blockMatches(world, positions.get(2), blockEb, 2, classTEEB, EnumFacing.NORTH) &&
+            BlockUtils.blockMatches(world, positions.get(3), blockEb, 2, classTEEB, EnumFacing.WEST) &&
+            BlockUtils.blockMatches(world, positions.get(4), blockEb, 2, classTEEB, EnumFacing.EAST))
         {
-            if (requireEnderCrystal == false)
+            if (type != Type.TRANSMITTER)
             {
                 isValid = true;
             }
             else
             {
-                double xd = blockPositions.get(5).posX;
-                double yd = blockPositions.get(5).posY;
-                double zd = blockPositions.get(5).posZ;
-                double d = 0.0d;
-                List<Entity> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.getBoundingBox(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
+                double xd = positions.get(5).getX();
+                double yd = positions.get(5).getY();
+                double zd = positions.get(5).getZ();
+                double d = 1.0d;
+                List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.fromBounds(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
 
                 if (list.size() == 1)
                 {
@@ -246,30 +263,23 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Our machine blocks are all in the right configuration, now just check that there are no other obstructing blocks in the area
         if (isValid == true)
         {
-            return this.isObstructed(world, blockEb, height, masterMeta, blockPositions) == false;
+            return this.isObstructed(world, blockEb, type, positions) == false;
         }
 
         return false;
     }
 
-    public boolean isObstructedQuadrant(World world, BlockPosEU basePosition, ForgeDirection dir, BlockPosEU ... positions)
+    protected boolean isObstructedQuadrant(World world, BlockPos basePos, EnumFacing facing, BlockPos ... positions)
     {
-        ForgeDirection dirNext = dir.getRotation(ForgeDirection.UP); // the direction 90 degrees clock wise
+        EnumFacing dirNext = facing.rotateY(); // the direction 90 degrees clock wise
 
-        for (BlockPosEU pos : positions)
+        for (BlockPos pos : positions)
         {
-            int x = pos.posX * dir.offsetX + pos.posZ * dir.offsetZ;
-            int y = pos.posY;
-            int z = pos.posX * dirNext.offsetX + pos.posZ * dirNext.offsetZ;
+            int x = pos.getX() * facing.getFrontOffsetX() + pos.getZ() * facing.getFrontOffsetZ();
+            int y = pos.getY();
+            int z = pos.getX() * dirNext.getFrontOffsetX() + pos.getZ() * dirNext.getFrontOffsetZ();
 
-            if (basePosition != null)
-            {
-                x += basePosition.posX;
-                y += basePosition.posY;
-                z += basePosition.posZ;
-            }
-
-            if (world.getBlock(x, y, z).isAir(world, x, y, z) == false)
+            if (world.isAirBlock(basePos.add(x, y, z)) == false)
             {
                 return true;
             }
@@ -278,40 +288,41 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    public boolean isObstructed(World world, Block blockEb, int height, int masterMeta, List<BlockPosEU> blockPositions)
+    protected boolean isObstructed(World worldIn, Block blockEb, Type type, List<BlockPos> positions)
     {
-        if (blockPositions.size() != 6)
+        if (positions.size() != 6)
         {
             return true;
         }
 
-        BlockPosEU posMaster = blockPositions.get(0);
-        BlockPosEU posResonatorMiddle = blockPositions.get(5);
+        BlockPos posMaster = positions.get(0);
+        BlockPos posResonatorMiddle = positions.get(5);
 
         // Block positions in one quadrant of the area that needs to be clear for the resonators, relative to the middle block
-        BlockPosEU positionsToCheck[] = new BlockPosEU[] {
-                                                        new BlockPosEU(1, 0, 0),
-                                                        new BlockPosEU(2, 0, 0),
-                                                        new BlockPosEU(1, 0, 3),
-                                                        new BlockPosEU(1, 0, 2),
-                                                        new BlockPosEU(2, 0, 2),
-                                                        new BlockPosEU(2, 0, 1),
-                                                        new BlockPosEU(3, 0, 1)
+        BlockPos positionsToCheck[] = new BlockPos[] {
+                                                        new BlockPos(1, 0, 0),
+                                                        new BlockPos(2, 0, 0),
+                                                        new BlockPos(1, 0, 3),
+                                                        new BlockPos(1, 0, 2),
+                                                        new BlockPos(2, 0, 2),
+                                                        new BlockPos(2, 0, 1),
+                                                        new BlockPos(3, 0, 1)
                                                     };
 
-        if (this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.EAST, positionsToCheck) == true ||
-            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.SOUTH, positionsToCheck) == true ||
-            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.WEST, positionsToCheck) == true ||
-            this.isObstructedQuadrant(world, posResonatorMiddle, ForgeDirection.NORTH, positionsToCheck) == true)
+        if (this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.EAST, positionsToCheck) == true ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.SOUTH, positionsToCheck) == true ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.WEST, positionsToCheck) == true ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.NORTH, positionsToCheck) == true)
         {
             return true;
         }
 
         // Transmitter
-        if (masterMeta == 0)
+        if (type == Type.TRANSMITTER)
         {
             // Check the two blocks below the transmitter
-            if (this.isObstructedQuadrant(world, posMaster, ForgeDirection.EAST, new BlockPosEU[] {new BlockPosEU(0, -1, 0), new BlockPosEU(0, -2, 0)}) == true)
+            if (this.isObstructedQuadrant(worldIn, posMaster, EnumFacing.EAST,
+                    new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}) == true)
             {
                 return true;
             }
@@ -319,31 +330,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Receiver: check the column below the Receiver down to bedrock
         else
         {
-            for (int y = posMaster.posY - 1; y >= 0; --y)
+            for (int y = posMaster.getY() - 1; y >= 0; y--)
             {
-                Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
-                if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
-                {
-                    if (block.getLightOpacity(world, posMaster.posX, y, posMaster.posZ) > 3)
-                    {
-                        if (block != Blocks.bedrock)
-                        {
-                            return true;
-                        }
+                BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
+                Block block = worldIn.getBlockState(pos).getBlock();
 
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Check the column above the master block up to world height or first bedrock block
-        for (int y = posMaster.posY + 1; y <= world.getActualHeight(); ++y)
-        {
-            Block block = world.getBlock(posMaster.posX, y, posMaster.posZ);
-            if (block.isAir(world, posMaster.posX, y, posMaster.posZ) == false)
-            {
-                if (block.getLightOpacity(world, posMaster.posX, y, posMaster.posZ) > 3)
+                if (block.isAir(worldIn, pos) == false && block.getLightOpacity(worldIn, pos) > 3)
                 {
                     if (block != Blocks.bedrock)
                     {
@@ -355,6 +347,23 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             }
         }
 
+        // Check the column above the master block up to world height or first bedrock block
+        for (int y = posMaster.getY() + 1; y <= worldIn.getActualHeight(); y++)
+        {
+            BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
+            Block block = worldIn.getBlockState(pos).getBlock();
+
+            if (block.isAir(worldIn, pos) == false && block.getLightOpacity(worldIn, pos) > 3)
+            {
+                if (block != Blocks.bedrock)
+                {
+                    return true;
+                }
+
+                break;
+            }
+        }
+
         /*if (world.canBlockSeeTheSky(posMaster.posX, posMaster.posY, posMaster.posZ) == false)
         {
             return true;
@@ -363,35 +372,39 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    public void disassembleMultiblock(World world, BlockPos pos, int height, int masterMeta, int oldMeta)
+    public void disassembleMultiblock(World worldIn, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(pos);
+        // The End has the transmitter, and in a slightly different position than the receivers are
+        Type type = worldIn.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+
+        TileEntity te = worldIn.getTileEntity(pos);
 
         if (te == null || (te instanceof TileEntityEnergyBridge) == false)
         {
             return;
         }
 
-        BlockPosEU posMaster = new BlockPosEU(pos); // position of the master block (the transmitter or the receiver)
+        BlockPos posMaster = pos; // position of the master block (the transmitter or the receiver)
 
         // The given location is a resonator, not the master block; get the master block's location
-        if (oldMeta == 2)
+        if (type == Type.RESONATOR)
         {
             EnumFacing dir = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
-            posMaster = posMaster.add(0, height - 1, 0).offset(dir, 3);
+            int yOffset = type == Type.TRANSMITTER ? 3 : 0;
+            posMaster = posMaster.add(0, yOffset, 0).offset(dir, 3);
         }
 
         // Get the block position list from the master block
-        List<BlockPosEU> positions = new ArrayList<BlockPosEU>();
-        if (this.getBlockPositions(world, x, y, z, height, masterMeta, positions) == false)
+        List<BlockPos> positions = new ArrayList<BlockPos>();
+        if (this.getBlockPositions(worldIn, pos, type, positions) == false)
         {
             return;
         }
 
-        this.disableMultiBlock(world, masterMeta, positions);
+        this.disableMultiBlock(worldIn, type, positions);
     }
 
-    public void disableMultiBlock(World world, int masterMeta, List<BlockPos> blockPositions)
+    protected void disableMultiBlock(World worldIn, Type type, List<BlockPos> blockPositions)
     {
         if (blockPositions == null || blockPositions.size() != 6)
         {
@@ -401,60 +414,60 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         Block blockEb = EnderUtilitiesBlocks.machine_1;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
 
-        this.setStateWithCheck(world, blockPositions.get(0), blockEb, masterMeta, classTEEB, null, false);
-        this.setStateWithCheck(world, blockPositions.get(1), blockEb, 2, classTEEB, EnumFacing.SOUTH, false);
-        this.setStateWithCheck(world, blockPositions.get(2), blockEb, 2, classTEEB, EnumFacing.NORTH, false);
-        this.setStateWithCheck(world, blockPositions.get(3), blockEb, 2, classTEEB, EnumFacing.WEST, false);
-        this.setStateWithCheck(world, blockPositions.get(4), blockEb, 2, classTEEB, EnumFacing.EAST, false);
+        this.setStateWithCheck(worldIn, blockPositions.get(0), blockEb, type, classTEEB, null, false);
+        this.setStateWithCheck(worldIn, blockPositions.get(1), blockEb, Type.RESONATOR, classTEEB, EnumFacing.SOUTH, false);
+        this.setStateWithCheck(worldIn, blockPositions.get(2), blockEb, Type.RESONATOR, classTEEB, EnumFacing.NORTH, false);
+        this.setStateWithCheck(worldIn, blockPositions.get(3), blockEb, Type.RESONATOR, classTEEB, EnumFacing.WEST, false);
+        this.setStateWithCheck(worldIn, blockPositions.get(4), blockEb, Type.RESONATOR, classTEEB, EnumFacing.EAST, false);
 
-        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0));
+        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0), worldIn.provider.getDimensionId());
     }
 
-    public void setState(World world, BlockPos pos, boolean state)
+    protected void setState(World worldIn, BlockPos pos, boolean state)
     {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
         {
-            ((TileEntityEnergyBridge)te).setState(state);
+            ((TileEntityEnergyBridge)te).setActiveState(state);
         }
     }
 
-    public void setStateWithCheck(World worldIn, BlockPos pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass,
+    protected void setStateWithCheck(World worldIn, BlockPos pos, Block requiredBlock, Type type, Class <? extends TileEntity> TEClass,
             EnumFacing requiredDirection, boolean state)
     {
-        if (BlockUtils.blockMatches(worldIn, pos, requiredBlock, requiredMeta, TEClass, requiredDirection) == true)
+        if (BlockUtils.blockMatches(worldIn, pos, requiredBlock, type.getMeta(), TEClass, requiredDirection) == true)
         {
-            ((TileEntityEnergyBridge)worldIn.getTileEntity(pos)).setState(state);
+            ((TileEntityEnergyBridge)worldIn.getTileEntity(pos)).setActiveState(state);
         }
     }
 
-    public void updatePoweredState(World world, List<BlockPos> positions)
+    protected void updatePoweredState(World worldIn, List<BlockPos> positions)
     {
         if (positions == null || positions.size() != 6)
         {
             return;
         }
 
-        int dim = world.provider.getDimensionId();
+        int dim = worldIn.provider.getDimensionId();
         boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) == true && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true);
 
         for (int i = 0; i < 5; ++i)
         {
-            this.updatePoweredState(world, positions.get(i), powered);
+            this.updatePoweredState(worldIn, positions.get(i), powered);
         }
     }
 
-    public void updatePoweredState(World world, BlockPos pos, boolean value)
+    protected void updatePoweredState(World world, BlockPos pos, boolean value)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
         {
-            ((TileEntityEnergyBridge)te).setPowered(value);
+            ((TileEntityEnergyBridge)te).setPoweredState(value);
         }
     }
 
     @SideOnly(Side.CLIENT)
-    public void getBeamEndPoints()
+    protected void getBeamEndPoints()
     {
         int posX = this.getPos().getX();
         int posY = this.getPos().getY();
@@ -504,5 +517,23 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     public AxisAlignedBB getRenderBoundingBox()
     {
         return this.renderBB != null ? this.renderBB : INFINITE_EXTENT_AABB;
+    }
+
+    public enum Type
+    {
+        TRANSMITTER,
+        RECEIVER,
+        RESONATOR,
+        INVALID;
+
+        public static Type fromMeta(int meta)
+        {
+            return meta < values().length ? values()[meta] : INVALID;
+        }
+
+        public int getMeta()
+        {
+            return this.ordinal();
+        }
     }
 }

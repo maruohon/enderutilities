@@ -9,6 +9,7 @@ import java.util.List;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
 
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
@@ -23,9 +24,9 @@ public class EnergyBridgeTracker
     private static List<BlockPosEU> bridgeLocations = new ArrayList<BlockPosEU>();
     private static TIntObjectHashMap<Integer> bridgeCounts = new TIntObjectHashMap<Integer>();
 
-    public static void addBridgeLocation(BlockPosEU pos)
+    public static void addBridgeLocation(BlockPos pos, int dimension)
     {
-        addBridgeLocation(pos, true);
+        addBridgeLocation(new BlockPosEU(pos, dimension, 1), true);
     }
 
     private static void addBridgeLocation(BlockPosEU pos, boolean markDirty)
@@ -49,9 +50,10 @@ public class EnergyBridgeTracker
         }
     }
 
-    public static void removeBridgeLocation(BlockPosEU pos)
+    public static void removeBridgeLocation(BlockPos posIn, int dimension)
     {
-        Integer count = bridgeCounts.get(pos.dimension);
+        BlockPosEU pos = new BlockPosEU(posIn, dimension, 1);
+        Integer count = bridgeCounts.get(dimension);
         if (count == null)
         {
             count = Integer.valueOf(1);
@@ -59,7 +61,7 @@ public class EnergyBridgeTracker
 
         if (bridgeLocations.remove(pos) == true)
         {
-            bridgeCounts.put(pos.dimension, Integer.valueOf(count.intValue() - 1));
+            bridgeCounts.put(dimension, Integer.valueOf(count.intValue() - 1));
         }
 
         dirty = true;

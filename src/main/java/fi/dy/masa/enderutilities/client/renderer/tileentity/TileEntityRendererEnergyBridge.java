@@ -106,7 +106,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
 
     public void renderTileEntityAt(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage)
     {
-        if (teeb.isActive == false)
+        if (teeb.getIsActive() == false)
         {
             return;
         }
@@ -120,14 +120,14 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         // Energy Bridge Transmitter
         if (meta == 0)
         {
-            this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot, 3.0d, teeb.isPowered);
-            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, 3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot, 3.0d, teeb.getIsPowered());
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, 3.0d, teeb.getIsPowered());
         }
         // Energy Bridge Receiver
         else if (meta == 1)
         {
-            this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot,  3.0d, teeb.isPowered);
-            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, -3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot,  3.0d, teeb.getIsPowered());
+            this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, -3.0d, teeb.getIsPowered());
         }
         // Energy Bridge Resonator
         else if (meta == 2)
@@ -140,7 +140,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
             GlStateManager.translate(x + 0.5d * dirFront.getFrontOffsetX(), y + 0.5d, z + 0.5d * dirFront.getFrontOffsetZ());
             GlStateManager.rotate(90, -dirSide.getFrontOffsetX(), 0, -dirSide.getFrontOffsetZ());
             GlStateManager.translate(-x, -y, -z);
-            this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d, teeb.getIsPowered());
             GlStateManager.popMatrix();
 
             // From resonator to next resonator
@@ -149,7 +149,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
             GlStateManager.rotate(90, dirFront.getFrontOffsetX(), 0, dirFront.getFrontOffsetZ());
             GlStateManager.rotate(45, -dirSide.getFrontOffsetX(), 0, -dirSide.getFrontOffsetZ());
             GlStateManager.translate(-x, -y, -z);
-            this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d, teeb.isPowered);
+            this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d, teeb.getIsPowered());
             GlStateManager.popMatrix();
         }
     }
