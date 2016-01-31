@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class PositionHelper
 {

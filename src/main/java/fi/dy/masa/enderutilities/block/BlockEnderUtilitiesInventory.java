@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.machine.Machine;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;

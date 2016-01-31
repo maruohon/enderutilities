@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 

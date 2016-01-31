@@ -1,11 +1,13 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import java.io.IOException;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import io.netty.buffer.ByteBuf;
 

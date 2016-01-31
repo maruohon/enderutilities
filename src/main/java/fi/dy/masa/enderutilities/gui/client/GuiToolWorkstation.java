@@ -2,9 +2,11 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.base.IModular;

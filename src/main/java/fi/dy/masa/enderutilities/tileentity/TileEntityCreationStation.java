@@ -17,8 +17,8 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.MathHelper;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;

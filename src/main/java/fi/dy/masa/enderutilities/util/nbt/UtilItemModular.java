@@ -15,10 +15,8 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;

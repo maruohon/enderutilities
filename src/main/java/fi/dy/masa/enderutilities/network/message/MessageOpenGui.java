@@ -1,16 +1,17 @@
 package fi.dy.masa.enderutilities.network.message;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import io.netty.buffer.ByteBuf;
 
 public class MessageOpenGui implements IMessage, IMessageHandler<MessageOpenGui, IMessage>
 {

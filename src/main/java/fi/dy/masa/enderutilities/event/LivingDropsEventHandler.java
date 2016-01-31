@@ -2,8 +2,10 @@ package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 

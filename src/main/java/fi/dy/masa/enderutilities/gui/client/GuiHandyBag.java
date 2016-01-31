@@ -13,12 +13,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
-import cpw.mods.fml.common.Optional;
-
-import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;

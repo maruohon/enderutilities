@@ -1,15 +1,16 @@
 package fi.dy.masa.enderutilities.network.message;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEffects, IMessage>
 {

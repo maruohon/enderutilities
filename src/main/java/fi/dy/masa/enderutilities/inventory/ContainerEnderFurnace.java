@@ -2,11 +2,10 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.util.MathHelper;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.util.SlotRange;

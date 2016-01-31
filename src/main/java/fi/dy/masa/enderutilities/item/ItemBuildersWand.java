@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,17 +17,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.ForgeDirection;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
@@ -903,7 +899,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         // Move the position forward by one from the targeted block
         BlockPosEU center = targeted.offset(face, 1);
         Area area = new Area(stack);
-        int dim = world.provider.dimensionId;
+        int dim = world.provider.getDimensionId();
 
         Mode mode = Mode.getMode(stack);
         switch(mode)
@@ -1050,7 +1046,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int blockType = getSelectedBlockType(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted);
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int dim = world.provider.dimensionId;
+        int dim = world.provider.getDimensionId();
 
         for (int x = startX; x <= endX; x++)
         {
@@ -1130,7 +1126,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int blockType = getSelectedBlockType(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted);
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int dim = world.provider.dimensionId;
+        int dim = world.provider.getDimensionId();
 
         for (int y = startY; y <= endY; y++)
         {

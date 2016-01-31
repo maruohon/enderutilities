@@ -1,12 +1,13 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.AnvilUpdateEvent;
-
 import org.apache.commons.lang3.StringUtils;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class AnvilUpdateEventHandler

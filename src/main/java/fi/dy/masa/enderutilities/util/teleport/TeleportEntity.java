@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
 import java.util.Iterator;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -21,12 +22,13 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
+
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -43,7 +45,7 @@ public class TeleportEntity
         if (world.isRemote == false)
         {
             PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
-                    new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
         }
     }
 

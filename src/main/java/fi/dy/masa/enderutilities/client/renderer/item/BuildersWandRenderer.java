@@ -7,7 +7,6 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,9 +17,7 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.util.ForgeDirection;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;

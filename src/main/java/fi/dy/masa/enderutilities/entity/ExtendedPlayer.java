@@ -6,8 +6,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.IExtendedEntityProperties;
+
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ExtendedPlayer implements IExtendedEntityProperties

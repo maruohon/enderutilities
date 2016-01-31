@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;

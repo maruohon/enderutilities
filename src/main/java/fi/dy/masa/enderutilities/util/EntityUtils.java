@@ -24,10 +24,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.util.ForgeDirection;
-
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -524,7 +522,7 @@ public class EntityUtils
         if (world != null && world.provider != null)
         {
             // The item must be right clicked on the Bedrock block on top of the obsidian pillars
-            if (world.provider.dimensionId == 1 && world.getBlock(x, y, z) == Blocks.bedrock)
+            if (world.provider.getDimensionId() == 1 && world.getBlock(x, y, z) == Blocks.bedrock)
             {
                 // Check that there aren't already Ender Crystals nearby
                 List<Entity> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.getBoundingBox(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));
@@ -558,7 +556,7 @@ public class EntityUtils
             }
             // Allow spawning decorative Ender Crystals in other dimensions.
             // They won't be valid for Ender Charge, and spawning them doesn't create an explosion or have block requirements.
-            else if (world.provider.dimensionId != 1)
+            else if (world.provider.getDimensionId() != 1)
             {
                 EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
                 entityendercrystal.setLocationAndAngles(x + 0.5d, y + 1.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);

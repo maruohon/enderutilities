@@ -20,7 +20,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.Constants;
+
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;

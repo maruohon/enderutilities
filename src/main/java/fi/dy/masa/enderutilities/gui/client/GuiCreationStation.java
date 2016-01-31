@@ -14,11 +14,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 
-import cpw.mods.fml.common.Optional;
-
-import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -456,7 +452,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
 
         if (valid == true)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorldObj().provider.dimensionId,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorldObj().provider.getDimensionId(),
                     this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }

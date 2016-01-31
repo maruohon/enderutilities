@@ -5,6 +5,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -114,7 +115,7 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
     {
         super.actionPerformed(btn);
 
-        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.dimensionId, this.te.xCoord, this.te.yCoord, this.te.zCoord,
+        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorldObj().provider.getDimensionId(), this.te.xCoord, this.te.yCoord, this.te.zCoord,
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, 0));
     }
 }

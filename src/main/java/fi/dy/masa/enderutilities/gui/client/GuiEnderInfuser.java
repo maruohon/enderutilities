@@ -2,8 +2,10 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;

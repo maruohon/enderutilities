@@ -6,9 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.event.entity.player.PlayerEvent;
-
-import cpw.mods.fml.common.eventhandler.Cancelable;
-import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 @Cancelable
 @Event.HasResult

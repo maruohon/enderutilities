@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;

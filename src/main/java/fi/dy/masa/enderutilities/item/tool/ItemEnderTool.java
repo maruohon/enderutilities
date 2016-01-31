@@ -14,7 +14,6 @@ import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -37,7 +36,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -49,11 +47,9 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
@@ -245,8 +241,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     {
         super.onUpdate(stack, world, player, slot, isCurrent);
 
-        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.dimensionId) == true &&
-            (world.provider.dimensionId == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
+        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimensionId()) == true &&
+            (world.provider.getDimensionId() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
         }
@@ -361,7 +357,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
                         PacketHandler.INSTANCE.sendToAllAround(
                             new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
                     }
                 }
             }
@@ -380,7 +376,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
                         PacketHandler.INSTANCE.sendToAllAround(
                             new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 24.0d));
+                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
                     }
                 }
             }
@@ -709,7 +705,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
                     event.x + 0.5d, event.y + 0.5d, event.z + 0.5d, 8, 0.2d, 0.3d),
-                        new NetworkRegistry.TargetPoint(event.world.provider.dimensionId, event.x, event.y, event.z, 24.0d));
+                        new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), event.x, event.y, event.z, 24.0d));
         }
 
         // All items successfully transported somewhere, cancel the drops

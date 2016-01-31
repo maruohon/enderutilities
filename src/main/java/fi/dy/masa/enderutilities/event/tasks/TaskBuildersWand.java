@@ -7,8 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.util.ForgeDirection;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
@@ -28,7 +26,7 @@ public class TaskBuildersWand implements IPlayerTask
 
     public TaskBuildersWand(World world, UUID playerUUID, List<BlockPosStateDist> positions, int blocksPerTick)
     {
-        this.dimension = world.provider.dimensionId;
+        this.dimension = world.provider.getDimensionId();
         this.playerUUID = playerUUID;
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
@@ -45,7 +43,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public boolean canExecute(World world, EntityPlayer player)
     {
-        if (world.provider.dimensionId != this.dimension)
+        if (world.provider.getDimensionId() != this.dimension)
         {
             return false;
         }

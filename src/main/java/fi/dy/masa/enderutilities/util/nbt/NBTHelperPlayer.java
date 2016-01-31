@@ -5,7 +5,9 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
 import net.minecraftforge.common.util.Constants;
+
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperPlayer

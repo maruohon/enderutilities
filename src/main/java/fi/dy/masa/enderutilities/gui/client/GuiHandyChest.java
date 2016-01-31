@@ -6,11 +6,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 
-import cpw.mods.fml.common.Optional;
-
-import codechicken.nei.guihook.IGuiSlotDraw;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -189,7 +185,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         if (button.id >= 0 && button.id < 4)
         {
             PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tehc.getWorldObj().provider.dimensionId,
+                new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
                     this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
                     ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
                     TileEntityHandyChest.GUI_ACTION_SELECT_MODULE, button.id));
@@ -199,7 +195,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
             if (isShiftKeyDown() == true)
             {
                 PacketHandler.INSTANCE.sendToServer(
-                        new MessageGuiAction(this.tehc.getWorldObj().provider.dimensionId,
+                        new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
                             this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
                             ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
                             TileEntityHandyChest.GUI_ACTION_SET_QUICK_ACTION, button.id - 4));
@@ -207,7 +203,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
             else
             {
                 PacketHandler.INSTANCE.sendToServer(
-                    new MessageGuiAction(this.tehc.getWorldObj().provider.dimensionId,
+                    new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
                         this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
                         ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
                         TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));

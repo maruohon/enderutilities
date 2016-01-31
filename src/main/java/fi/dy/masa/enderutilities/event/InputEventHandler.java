@@ -1,5 +1,15 @@
 package fi.dy.masa.enderutilities.event;
 
+import org.lwjgl.input.Keyboard;
+
+import net.minecraft.entity.player.EntityPlayer;
+
+import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
@@ -7,16 +17,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import gnu.trove.map.hash.TIntIntHashMap;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.client.event.MouseEvent;
-
-import org.lwjgl.input.Keyboard;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class InputEventHandler
 {

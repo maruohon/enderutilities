@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.item.ItemStack;
-
-import org.lwjgl.opengl.GL11;
 
 public class RenderItemLargeStacks extends RenderItem
 {

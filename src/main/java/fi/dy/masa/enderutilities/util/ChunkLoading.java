@@ -9,23 +9,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.SetMultimap;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
+
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.OrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.PlayerOrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.SetMultimap;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -65,7 +66,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             {
                 for (ChunkCoordIntPair chunk : ticket.getChunkList())
                 {
-                    //System.out.println("void ticketsLoaded(): forcing chunk: " + chunk + " in dimension: " + ticket.world.provider.dimensionId);
+                    //System.out.println("void ticketsLoaded(): forcing chunk: " + chunk + " in dimension: " + ticket.world.provider.getDimensionId());
                     ForgeChunkManager.forceChunk(ticket, chunk);
                 }
             }
@@ -89,7 +90,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             /*
             if (ticket.world != null && ticket.world.provider != null)
             {
-                System.out.println("List<Ticket> ticketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.dimensionId);
+                System.out.println("List<Ticket> ticketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.getDimensionId());
             }
             else
             {
@@ -126,7 +127,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             {
                 if (ticket != null)
                 {
-                    /*if (ticket.world != null && ticket.world.provider != null) { System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.dimensionId); }
+                    /*if (ticket.world != null && ticket.world.provider != null) { System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world + " dim: " + ticket.world.provider.getDimensionId()); }
                     else { System.out.println("playerTicketsLoaded(): looping: " + i + " world: " + world); }
                     ++i;*/
 
@@ -277,7 +278,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             UUID uuid = this.getPlayerUUIDFromTicket(ticket);
             if (ticket.world.provider != null && uuid != null)
             {
-                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.dimensionId).remove(ticket);
+                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.getDimensionId()).remove(ticket);
             }
         }
         else
