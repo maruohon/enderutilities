@@ -3,6 +3,10 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
+
+import fi.dy.masa.enderutilities.reference.Reference;
 
 public class InventoryStackArray implements IInventory
 {
@@ -112,7 +116,7 @@ public class InventoryStackArray implements IInventory
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
+    public ItemStack removeStackFromSlot(int slotNum)
     {
         if (slotNum >= this.itemStacks.length)
         {
@@ -146,13 +150,13 @@ public class InventoryStackArray implements IInventory
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         return "";
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         return false;
     }
@@ -179,12 +183,12 @@ public class InventoryStackArray implements IInventory
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
     }
 
@@ -192,5 +196,37 @@ public class InventoryStackArray implements IInventory
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
         return true;
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentTranslation(Reference.MOD_ID + ":" + this.getName());
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+        for (int i = 0; i < this.getSizeInventory(); i++)
+        {
+            this.itemStacks[i] = null;
+        }
     }
 }

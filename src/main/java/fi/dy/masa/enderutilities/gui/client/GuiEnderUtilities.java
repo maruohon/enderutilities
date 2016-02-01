@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
+
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.GuiButton;
@@ -57,7 +59,7 @@ public class GuiEnderUtilities extends GuiContainer
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
@@ -70,7 +72,7 @@ public class GuiEnderUtilities extends GuiContainer
                 // Vanilla GUI only plays the click sound for the left click, we do it for other buttons here
                 if (mouseButton != 0)
                 {
-                    guibutton.func_146113_a(this.mc.getSoundHandler());
+                    guibutton.playPressSound(this.mc.getSoundHandler());
                 }
 
                 this.actionPerformedWithButton(guibutton, mouseButton);
@@ -78,7 +80,7 @@ public class GuiEnderUtilities extends GuiContainer
         }
     }
 
-    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) { }
+    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException { }
 
     protected void bindTexture(ResourceLocation rl)
     {

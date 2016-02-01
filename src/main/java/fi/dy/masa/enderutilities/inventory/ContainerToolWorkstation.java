@@ -20,9 +20,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     public ContainerToolWorkstation(EntityPlayer player, TileEntityToolWorkstation te)
     {
         super(player, te);
-        this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorldObj().isRemote, inventoryPlayer.player);
+        this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL), NUM_MODULE_SLOTS, this.te.getWorld().isRemote, inventoryPlayer.player);
         this.inventoryItem.readFromContainerItemStack();
-        this.isRemote = this.te.getWorldObj().isRemote;
+        this.isRemote = this.te.getWorld().isRemote;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
     }

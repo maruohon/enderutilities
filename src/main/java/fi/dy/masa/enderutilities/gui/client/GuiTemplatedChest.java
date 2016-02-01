@@ -124,7 +124,7 @@ public class GuiTemplatedChest extends GuiEnderUtilities
                         GL11.glEnable(GL11.GL_BLEND);
                         OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
                         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                        itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+                        itemRender.renderItemAndEffectIntoGUI(stack, x, y);
                     }
                 }
             }

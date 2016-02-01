@@ -89,7 +89,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
         Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
 
         // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isSlotInInventory(this.tehc.getItemInventory(), slotNum) == true)
+        if (slot1 != null && slot1.isHere(this.tehc.getItemInventory(), slotNum) == true)
         {
             if (this.selectedSlot != -1)
             {
@@ -115,9 +115,9 @@ public class ContainerHandyChest extends ContainerLargeStacks
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting icrafting)
+    public void onCraftGuiOpened(ICrafting icrafting)
     {
-        super.addCraftingToCrafters(icrafting);
+        super.onCraftGuiOpened(icrafting);
 
         icrafting.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
         icrafting.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
@@ -126,7 +126,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
     @Override
     public void detectAndSendChanges()
     {
-        if (this.tehc.getWorldObj().isRemote == true)
+        if (this.tehc.getWorld().isRemote == true)
         {
             return;
         }

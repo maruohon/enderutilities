@@ -158,7 +158,7 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities implements 
     {
         super.detectAndSendChanges();
 
-        if (this.tetc.getWorldObj().isRemote == true)
+        if (this.tetc.getWorld().isRemote == true)
         {
             return;
         }

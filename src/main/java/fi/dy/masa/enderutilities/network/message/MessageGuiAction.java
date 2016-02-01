@@ -35,12 +35,12 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
     {
     }
 
-    public MessageGuiAction(int dim, int x, int y, int z, int guiId, int action, int elementId)
+    public MessageGuiAction(int dim, BlockPos pos, int guiId, int action, int elementId)
     {
         this.dimension = dim;
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
+        this.posX = pos.getX();
+        this.posY = pos.getY();
+        this.posZ = pos.getZ();
         this.guiId = guiId;
         this.action = action;
         this.elementId = elementId;

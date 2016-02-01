@@ -114,9 +114,9 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     {
         super.onContainerClosed(player);
 
-        this.inventory.closeInventory();
-        this.inventoryItemModules.closeInventory();
-        this.inventoryItemFilters.closeInventory();
+        this.inventory.closeInventory(player);
+        this.inventoryItemModules.closeInventory(player);
+        this.inventoryItemFilters.closeInventory(player);
     }
 
     protected boolean fakeSlotClick(int slotNum, int button, int type, EntityPlayer player)

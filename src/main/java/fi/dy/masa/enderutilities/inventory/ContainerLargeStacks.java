@@ -32,7 +32,7 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting iCrafting)
+    public void onCraftGuiOpened(ICrafting iCrafting)
     {
         if (this.crafters.contains(iCrafting))
         {

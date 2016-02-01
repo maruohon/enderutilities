@@ -4,9 +4,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -222,7 +225,7 @@ public class InventoryItemCrafting extends InventoryCrafting
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
+    public ItemStack removeStackFromSlot(int slotNum)
     {
         //System.out.println("InventoryItemCrafting#getStackInSlotOnClosing(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
@@ -262,7 +265,7 @@ public class InventoryItemCrafting extends InventoryCrafting
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         if (this.customInventoryName != null)
         {
@@ -279,7 +282,7 @@ public class InventoryItemCrafting extends InventoryCrafting
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         if (this.customInventoryName != null)
         {
@@ -320,5 +323,37 @@ public class InventoryItemCrafting extends InventoryCrafting
         }
 
         this.container.onCraftMatrixChanged(this);
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentTranslation(Reference.MOD_ID + ":" + this.getName());
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+        for (int i = 0; i < this.getSizeInventory(); i++)
+        {
+            this.items[i] = null;
+        }
     }
 }

@@ -148,7 +148,7 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
     {
         super.onContainerClosed(player);
 
-        this.inventoryItemModular.closeInventory();
+        this.inventoryItemModular.closeInventory(player);
     }
 
     @Override

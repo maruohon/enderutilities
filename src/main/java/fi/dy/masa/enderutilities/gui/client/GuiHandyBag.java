@@ -1,39 +1,33 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
+
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
-import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.setup.ModRegistry;
 
-@Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
-public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
+public class GuiHandyBag extends InventoryEffectRenderer
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
 
-    protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
+    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected EntityPlayer player;
     protected ContainerHandyBag container;
     protected InventoryItemModular invModular;
@@ -80,7 +74,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
         this.createButtons();
 
-        if (ModRegistry.isModLoadedNEI() == false)
+        /*if (ModRegistry.isModLoadedNEI() == false)
         {
             // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
             RenderItem ri = this.setItemRender(itemRenderCustom);
@@ -90,7 +84,9 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         else
         {
             super.drawScreen(mouseX, mouseY, gameTicks);
-        }
+        }*/
+
+        super.drawScreen(mouseX, mouseY, gameTicks);
 
         this.drawTooltips(mouseX, mouseY);
         this.mouseXFloat = (float)mouseX;
@@ -145,33 +141,33 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        this.bindTexture(TextureMap.locationItemsTexture);
+        //this.bindTexture(TextureMap.locationBlocksTexture);
         //GL11.glEnable(GL11.GL_LIGHTING);
         //GL11.glEnable(GL11.GL_BLEND);
 
         // Draw the background icon over empty storage module slots
-        IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
+        /*IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
         for (int i = 0; icon != null && i < this.numModuleSlots; i++)
         {
             if (this.invModular.getModuleInventory().getStackInSlot(i) == null)
             {
                 this.drawTexturedModelRectFromIcon(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, icon, 16, 16);
             }
-        }
+        }*/
 
         // Draw the background icon for empty player armor slots
-        IInventory inv = this.player.inventory;
+        //IInventory inv = this.player.inventory;
         // Note: We use the original actual inventory size for these!
         // Otherwise stuff would mess up when the bag is picked up with the cursor, since
         // the number of slots in the container doesn't change.
-        for (int i = 0; i < 4; i++)
+        /*for (int i = 0; i < 4; i++)
         {
             if (inv.getStackInSlot(39 - i) == null)
             {
                 icon = ItemArmor.func_94602_b(i);
                 this.drawTexturedModelRectFromIcon(this.firstArmorSlotX, this.firstArmorSlotY + i * 18, icon, 16, 16);
             }
-        }
+        }*/
 
         //GL11.glDisable(GL11.GL_BLEND);
         //GL11.glDisable(GL11.GL_LIGHTING);
@@ -179,7 +175,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
 
         int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
         // Draw the player model
-        GuiInventory.func_147046_a(xOff, this.guiTop + 82, 30, xOff - this.mouseXFloat, this.guiTop + 25 - this.mouseYFloat, this.mc.thePlayer);
+        GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.mouseXFloat, this.guiTop + 25 - this.mouseYFloat, this.mc.thePlayer);
     }
 
     @Override
@@ -246,18 +242,18 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
+    protected void actionPerformed(GuiButton button) throws IOException
     {
         super.actionPerformed(button);
 
         if (button.id >= BTN_ID_FIRST_SELECT_MODULE && button.id < (BTN_ID_FIRST_SELECT_MODULE + this.numModuleSlots))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_SELECT_MODULE, button.id - BTN_ID_FIRST_SELECT_MODULE));
         }
         else if (button.id >= BTN_ID_FIRST_MOVE_ITEMS && button.id <= (BTN_ID_FIRST_MOVE_ITEMS + 5))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
         }
     }
@@ -269,7 +265,7 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
         return ri;
     }
 
-    @Optional.Method(modid = "NotEnoughItems")
+    /*@Optional.Method(modid = "NotEnoughItems")
     @Override
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
@@ -284,5 +280,5 @@ public class GuiHandyBag extends InventoryEffectRenderer implements IGuiSlotDraw
             itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
             itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
         }
-    }
+    }*/
 }

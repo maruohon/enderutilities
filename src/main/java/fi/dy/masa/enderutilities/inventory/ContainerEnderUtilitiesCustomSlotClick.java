@@ -308,7 +308,7 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
         Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
 
         // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isSlotInInventory(this.inventory, slotNum) == true)
+        if (slot1 != null && slot1.isHere(this.inventory, slotNum) == true)
         {
             if (this.selectedSlot != -1)
             {

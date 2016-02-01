@@ -159,7 +159,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         for (int i = 0; i < 4; ++i)
         {
-            ItemStack stack = this.craftMatrix.getStackInSlotOnClosing(i);
+            ItemStack stack = this.craftMatrix.removeStackFromSlot(i);
 
             if (stack != null)
             {
@@ -194,13 +194,13 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         // Drop the items in the crafting grid
         this.dropCraftingGridContents();
 
-        this.inventoryItemModular.closeInventory();
+        this.inventoryItemModular.closeInventory(player);
     }
 
     @Override
-    public boolean func_94530_a(ItemStack stack, Slot slot)
+    public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
-        return slot.inventory != this.craftResult && super.func_94530_a(stack, slot);
+        return slot.inventory != this.craftResult && super.canMergeSlot(stack, slot);
     }
 
     @Override

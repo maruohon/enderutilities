@@ -5,6 +5,7 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.inventory.SlotFurnaceOutput;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
@@ -31,7 +32,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super(player, te);
         this.tecs = te;
-        te.openInventory();
+        te.openInventory(player);
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
         this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
@@ -108,7 +109,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Fuel
         this.addSlotToContainer(new SlotFuel(this.furnaceInventory, 1, 8, 51));
         // Output
-        this.addSlotToContainer(new SlotFurnace(this.player, this.furnaceInventory, 2, 40, 8));
+        this.addSlotToContainer(new SlotFurnaceOutput(this.player, this.furnaceInventory, 2, 40, 8));
 
         // Furnace slots, right side
         // Smeltable items
@@ -116,7 +117,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Fuel
         this.addSlotToContainer(new SlotFuel(this.furnaceInventory, 4, 216, 51));
         // Output
-        this.addSlotToContainer(new SlotFurnace(this.player, this.furnaceInventory, 5, 184, 8));
+        this.addSlotToContainer(new SlotFurnaceOutput(this.player, this.furnaceInventory, 5, 184, 8));
 
         this.onCraftMatrixChanged(this.craftMatrices[0]);
     }
@@ -135,13 +136,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.onContainerClosed(player);
 
-        this.tecs.closeInventory();
+        this.tecs.closeInventory(player);
     }
 
     @Override
-    public boolean func_94530_a(ItemStack stack, Slot slot)
+    public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
-        return slot.inventory != this.craftResults[0] && slot.inventory != this.craftResults[0] && super.func_94530_a(stack, slot);
+        return slot.inventory != this.craftResults[0] && slot.inventory != this.craftResults[0] && super.canMergeSlot(stack, slot);
     }
 
     @Override
@@ -217,7 +218,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
 
         // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isSlotInInventory(this.tecs.getItemInventory(), slotNum) == true)
+        if (slot1 != null && slot1.isHere(this.tecs.getItemInventory(), slotNum) == true)
         {
             if (this.selectedSlot != -1)
             {
@@ -243,9 +244,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting icrafting)
+    public void onCraftGuiOpened(ICrafting icrafting)
     {
-        super.addCraftingToCrafters(icrafting);
+        super.onCraftGuiOpened(icrafting);
 
         int modeMask = this.tecs.getModeMask();
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
@@ -265,7 +266,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.detectAndSendChanges();
 
-        if (this.tecs.getWorldObj().isRemote == true)
+        if (this.tecs.getWorld().isRemote == true)
         {
             return;
         }

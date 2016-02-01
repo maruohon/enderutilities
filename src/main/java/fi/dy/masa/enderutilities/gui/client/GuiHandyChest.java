@@ -1,26 +1,21 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
-@Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
-public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
+public class GuiHandyChest extends GuiEnderUtilities
 {
-    protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
+    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityHandyChest tehc;
     protected ContainerHandyChest containerHC;
     protected int chestTier;
@@ -62,7 +57,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         }
     }
 
-    @Override
+    /*@Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         if (ModRegistry.isModLoadedNEI() == false)
@@ -76,7 +71,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         {
             super.drawScreen(mouseX, mouseY, gameTicks);
         }
-    }
+    }*/
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
@@ -134,19 +129,19 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        this.bindTexture(TextureMap.locationItemsTexture);
+        //this.bindTexture(TextureMap.locationBlocksTexture);
         //GL11.glEnable(GL11.GL_LIGHTING);
         //GL11.glEnable(GL11.GL_BLEND);
 
         // Draw the background icon over empty storage module slots
-        IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
+        /*IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
         for (int i = 0; icon != null && i < 4; i++)
         {
             if (this.tehc.getStackInSlot(i) == null)
             {
                 this.drawTexturedModelRectFromIcon(this.guiLeft + 98 + i * 18, this.guiTop + 8, icon, 16, 16);
             }
-        }
+        }*/
 
         //GL11.glDisable(GL11.GL_BLEND);
         //GL11.glDisable(GL11.GL_LIGHTING);
@@ -178,35 +173,29 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
+    protected void actionPerformed(GuiButton button) throws IOException
     {
         super.actionPerformed(button);
 
         if (button.id >= 0 && button.id < 4)
         {
             PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
-                    this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
-                    ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                    TileEntityHandyChest.GUI_ACTION_SELECT_MODULE, button.id));
+                new MessageGuiAction(this.tehc.getWorld().provider.getDimensionId(), this.tehc.getPos(),
+                    ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SELECT_MODULE, button.id));
         }
         else if (button.id >= 4 && button.id < 10)
         {
             if (isShiftKeyDown() == true)
             {
                 PacketHandler.INSTANCE.sendToServer(
-                        new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
-                            this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
-                            ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                            TileEntityHandyChest.GUI_ACTION_SET_QUICK_ACTION, button.id - 4));
+                        new MessageGuiAction(this.tehc.getWorld().provider.getDimensionId(), this.tehc.getPos(),
+                            ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SET_QUICK_ACTION, button.id - 4));
             }
             else
             {
                 PacketHandler.INSTANCE.sendToServer(
-                    new MessageGuiAction(this.tehc.getWorldObj().provider.getDimensionId(),
-                        this.tehc.xCoord, this.tehc.yCoord, this.tehc.zCoord,
-                        ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC,
-                        TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
+                    new MessageGuiAction(this.tehc.getWorld().provider.getDimensionId(), this.tehc.getPos(),
+                        ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
             }
         }
     }
@@ -218,7 +207,7 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
         return ri;
     }
 
-    @Optional.Method(modid = "NotEnoughItems")
+    /*@Optional.Method(modid = "NotEnoughItems")
     @Override
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
@@ -233,5 +222,5 @@ public class GuiHandyChest extends GuiEnderUtilities implements IGuiSlotDraw
             itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
             itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
         }
-    }
+    }*/
 }

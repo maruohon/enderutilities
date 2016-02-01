@@ -14,6 +14,6 @@ public class SlotSmeltable extends SlotGeneric
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return stack == null || (FurnaceRecipes.smelting().getSmeltingResult(stack) != null && super.isItemValid(stack));
+        return stack == null || (FurnaceRecipes.instance().getSmeltingResult(stack) != null && super.isItemValid(stack));
     }
 }

@@ -5,8 +5,11 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -244,7 +247,7 @@ public class InventoryItem implements IInventory
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotNum)
+    public ItemStack removeStackFromSlot(int slotNum)
     {
         //System.out.println("InventoryItem#getStackInSlotOnClosing(" + slotNum + ") - " + (this.isRemote ? "client" : "server"));
         ItemStack stack = null;
@@ -274,7 +277,7 @@ public class InventoryItem implements IInventory
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         if (this.customInventoryName != null)
         {
@@ -291,7 +294,7 @@ public class InventoryItem implements IInventory
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         if (this.customInventoryName != null)
         {
@@ -333,15 +336,47 @@ public class InventoryItem implements IInventory
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
         //System.out.println("InventoryItem#openInventory() - " + (this.isRemote ? "client" : "server"));
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
         //System.out.println("InventoryItem#closeInventory() - " + (this.isRemote ? "client" : "server"));
         //this.writeToContainerItemStack();
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return new ChatComponentTranslation(Reference.MOD_ID + ":" + this.getName());
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+        for (int i = 0; i < this.getSizeInventory(); i++)
+        {
+            this.items[i] = null;
+        }
     }
 }

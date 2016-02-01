@@ -78,9 +78,9 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
     }
 
     @Override
-    public void addCraftingToCrafters(ICrafting icrafting)
+    public void onCraftGuiOpened(ICrafting icrafting)
     {
-        super.addCraftingToCrafters(icrafting);
+        super.onCraftGuiOpened(icrafting);
 
         this.updateChargingProgress();
         icrafting.sendProgressBarUpdate(this, 0, this.amountStored);

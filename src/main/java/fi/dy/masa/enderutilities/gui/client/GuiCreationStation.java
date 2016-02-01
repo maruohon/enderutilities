@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,27 +11,21 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.client.renderer.entity.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-@Optional.Interface(iface = "codechicken.nei.guihook.IGuiSlotDraw", modid = "NotEnoughItems")
-public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDraw, IButtonCallback
+public class GuiCreationStation extends GuiEnderUtilities implements IButtonCallback
 {
-    protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
+    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityCreationStation tecs;
     protected ContainerCreationStation containerCS;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
@@ -64,7 +59,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         this.createButtons();
     }
 
-    @Override
+    /*@Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         if (ModRegistry.isModLoadedNEI() == false)
@@ -78,7 +73,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         {
             super.drawScreen(mouseX, mouseY, gameTicks);
         }
-    }
+    }*/
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
@@ -236,12 +231,12 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
                             OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
                             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-                            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x + 1, y + 1);
+                            itemRender.renderItemAndEffectIntoGUI(recipeStack, x + 1, y + 1);
 
                             itemRender.zLevel = 0.0F;
                             this.zLevel = 0.0F;
 
-                            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x + 1, y + 1, "0");
+                            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, recipeStack, x + 1, y + 1, "0");
                         }
                         // Extra items, purple background
                         else if (recipeStack == null)
@@ -274,19 +269,19 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        this.bindTexture(TextureMap.locationItemsTexture);
+        //this.bindTexture(TextureMap.locationBlocksTexture);
         //GL11.glEnable(GL11.GL_LIGHTING);
         //GL11.glEnable(GL11.GL_BLEND);
 
         // Draw the background icon over empty storage module slots
-        IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-        for (int i = 0; icon != null && i < 4; i++)
+        //IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
+        /*for (int i = 0; icon != null && i < 4; i++)
         {
             if (this.tecs.getStackInSlot(i) == null)
             {
                 this.drawTexturedModelRectFromIcon(this.guiLeft + 216, this.guiTop + 102 + i * 18, icon, 16, 16);
             }
-        }
+        }*/
 
         //GL11.glDisable(GL11.GL_BLEND);
         //GL11.glDisable(GL11.GL_LIGHTING);
@@ -377,7 +372,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
     }
 
     @Override
-    protected void actionPerformedWithButton(GuiButton button, int mouseButton)
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
     {
         super.actionPerformed(button);
 
@@ -452,8 +447,8 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
 
         if (valid == true)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorldObj().provider.getDimensionId(),
-                    this.tecs.xCoord, this.tecs.yCoord, this.tecs.zCoord, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorld().provider.getDimensionId(),
+                    this.tecs.getPos(), ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }
 
@@ -464,7 +459,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
         return ri;
     }
 
-    @Optional.Method(modid = "NotEnoughItems")
+    /*@Optional.Method(modid = "NotEnoughItems")
     @Override
     public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
     {
@@ -479,5 +474,5 @@ public class GuiCreationStation extends GuiEnderUtilities implements IGuiSlotDra
             itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
             itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
         }
-    }
+    }*/
 }

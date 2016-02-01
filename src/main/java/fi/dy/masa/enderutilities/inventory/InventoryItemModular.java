@@ -142,7 +142,7 @@ public class InventoryItemModular extends InventoryItem
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
         ItemStack stack = this.getSelectedModuleStack();
         if (stack != null && stack.hasDisplayName())
@@ -155,7 +155,7 @@ public class InventoryItemModular extends InventoryItem
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
         ItemStack stack = this.getSelectedModuleStack();
         // First check if the selected storage module has been named, and use that name
@@ -220,16 +220,16 @@ public class InventoryItemModular extends InventoryItem
     }*/
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer player)
     {
-        super.openInventory();
-        this.moduleInventory.openInventory();
+        super.openInventory(player);
+        this.moduleInventory.openInventory(player);
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer player)
     {
-        super.closeInventory();
-        this.moduleInventory.closeInventory();
+        super.closeInventory(player);
+        this.moduleInventory.closeInventory(player);
     }
 }

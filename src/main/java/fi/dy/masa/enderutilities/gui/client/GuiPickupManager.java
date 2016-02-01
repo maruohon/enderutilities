@@ -1,14 +1,15 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItem;
@@ -19,7 +20,6 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -138,12 +138,12 @@ public class GuiPickupManager extends GuiEnderUtilities
         // TODO Remove this in 1.8 and enable the slot background icon method override instead
         // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
         // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        this.bindTexture(TextureMap.locationItemsTexture);
+        //this.bindTexture(TextureMap.locationBlocksTexture);
         //GL11.glEnable(GL11.GL_LIGHTING);
         //GL11.glEnable(GL11.GL_BLEND);
 
         // Draw the background icon over empty storage module slots
-        IIcon icon = EnderUtilitiesItems.linkCrystal.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_LINKCRYSTAL);
+        /*IIcon icon = EnderUtilitiesItems.linkCrystal.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_LINKCRYSTAL);
         for (int i = 0; icon != null && i < this.numModuleSlots; i++)
         {
             // FIXME the +1 is after adding the capacitor module...
@@ -151,7 +151,7 @@ public class GuiPickupManager extends GuiEnderUtilities
             {
                 this.drawTexturedModelRectFromIcon(x + 116 + i * 18, y + 29, icon, 16, 16);
             }
-        }
+        }*/
 
         //GL11.glDisable(GL11.GL_BLEND);
         //GL11.glDisable(GL11.GL_LIGHTING);
@@ -247,14 +247,14 @@ public class GuiPickupManager extends GuiEnderUtilities
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
+    protected void actionPerformed(GuiButton button) throws IOException
     {
         super.actionPerformed(button);
 
         int first = 0;
         if (button.id >= first && button.id < (first + this.numModuleSlots))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_SELECT_MODULE, button.id - first));
             return;
         }
@@ -262,7 +262,7 @@ public class GuiPickupManager extends GuiEnderUtilities
 
         if (button.id >= first && button.id < (first + ItemPickupManager.NUM_PRESETS))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_CHANGE_PRESET, button.id - first));
             return;
         }
@@ -270,7 +270,7 @@ public class GuiPickupManager extends GuiEnderUtilities
 
         if (button.id >= first && button.id < (first + 4))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_TRANSPORT_SETTINGS, button.id - first));
             return;
         }
@@ -278,7 +278,7 @@ public class GuiPickupManager extends GuiEnderUtilities
 
         if (button.id >= first && button.id < (first + 4))
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, 0, 0, 0,
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_INVENTORY_SETTINGS, button.id - first));
             return;
         }
