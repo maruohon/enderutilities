@@ -54,6 +54,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         // Damage 1: "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
 
         EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getItemDamage() == 1);
+        world.spawnEntityInWorld(pearl);
 
         if (stack.getItemDamage() == 1)
         {
@@ -69,7 +70,6 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         }
 
         --stack.stackSize;
-        world.spawnEntityInWorld(pearl);
         world.playSoundAtEntity(player, "random.bow", 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
         return stack;

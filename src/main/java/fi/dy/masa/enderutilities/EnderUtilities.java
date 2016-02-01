@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -47,12 +48,16 @@ public class EnderUtilities
 
         proxy.registerEntities();
         proxy.registerTileEntities();
-        proxy.registerEventHandlers();
         proxy.registerKeyBindings();
-        proxy.registerRenderers();
         proxy.setupReflection();
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        proxy.registerEventHandlers();
+        proxy.registerRenderers();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
-        ModRegistry.checkLoadedMods();
     }
 
     @EventHandler
@@ -60,6 +65,7 @@ public class EnderUtilities
     {
         Registry.registerEnderbagLists();
         Registry.registerTeleportBlacklist();
+        ModRegistry.checkLoadedMods();
     }
 
     @EventHandler
