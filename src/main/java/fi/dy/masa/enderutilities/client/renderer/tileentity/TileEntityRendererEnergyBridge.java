@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge.Type;
 
 @SideOnly(Side.CLIENT)
 public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<TileEntityEnergyBridge>
@@ -111,26 +112,26 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
             return;
         }
 
-        int meta = teeb.getBlockMetadata();
+        TileEntityEnergyBridge.Type type = teeb.getType();
         double rot = (teeb.getWorld().getTotalWorldTime() % 100.0d) * Math.PI  / 50.0d + (Math.PI / 50.0d * partialTicks);
         x += 0.5d;
         z += 0.5d;
 
         BlockPos pos = teeb.getPos();
         // Energy Bridge Transmitter
-        if (meta == 0)
+        if (type == Type.TRANSMITTER)
         {
             this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot, 3.0d, teeb.getIsPowered());
             this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, 3.0d, teeb.getIsPowered());
         }
         // Energy Bridge Receiver
-        else if (meta == 1)
+        else if (type == Type.RECEIVER)
         {
             this.renderBeamVertical(x, y, z, teeb.beamYMin - pos.getY(), 0.0d, 0.2d, rot,  3.0d, teeb.getIsPowered());
             this.renderBeamVertical(x, y, z, 1.0d, teeb.beamYMax - pos.getY(), 0.2d, rot, -3.0d, teeb.getIsPowered());
         }
         // Energy Bridge Resonator
-        else if (meta == 2)
+        else if (type == Type.RESONATOR)
         {
             EnumFacing dirFront = EnumFacing.getFront(teeb.getRotation());
             EnumFacing dirSide = dirFront.rotateY();

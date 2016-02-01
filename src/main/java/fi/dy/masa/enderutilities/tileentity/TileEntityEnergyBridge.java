@@ -30,7 +30,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     protected boolean isActive;
     protected boolean isPowered;
     protected int timer;
-    protected Type type;
+    protected int blockType;
 
     @SideOnly(Side.CLIENT)
     public int beamYMin;
@@ -43,7 +43,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
         this.timer = 0;
-        this.type = Type.INVALID;
     }
 
     @Override
@@ -52,7 +51,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         super.readFromNBTCustom(nbt);
 
         byte f = nbt.getByte("Flags");
-        this.isActive = (f & 0x01) == 0x01;
+        this.isActive = (f & 0x80) != 0;
+        this.blockType = f & 0x03;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Flags", (byte)(this.isActive ? 0x01 : 0x00));
+        nbt.setByte("Flags", (byte)((this.isActive ? 0x80 : 0x00) | this.blockType));
     }
 
     @Override
@@ -68,7 +68,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         nbt = super.getDescriptionPacketTag(nbt);
 
-        nbt.setByte("f", (byte)((this.isPowered ? 0x02 : 0x00) | (this.isActive ? 0x01 : 0x00)));
+        nbt.setByte("f", (byte)((this.isPowered ? 0x40 : 0x00) | (this.isActive ? 0x80 : 0x00) | this.blockType));
 
         return nbt;
     }
@@ -79,8 +79,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         NBTTagCompound nbt = packet.getNbtCompound();
         byte f = nbt.getByte("f");
 
-        this.isActive = ((f & 0x01) == 0x01);
-        this.isPowered = ((f & 0x02) == 0x02);
+        this.isActive = ((f & 0x80) != 0);
+        this.isPowered = ((f & 0x40) != 0);
+        this.blockType = f & 0x03;
         this.getBeamEndPoints();
 
         super.onDataPacket(net, packet);
@@ -111,12 +112,14 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return this.isPowered;
     }
 
-    @Override
-    public void onLoad()
+    public Type getType()
     {
-        super.onLoad();
+        return Type.fromMeta(this.blockType);
+    }
 
-        this.type = Type.fromMeta(this.getBlockMetadata());
+    public void setType(int meta)
+    {
+        this.blockType = meta;
     }
 
     @Override
@@ -124,9 +127,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         // Master blocks (Transmitter or Receiver) re-validate the multiblock every 2 seconds
 
+        Type type = this.getType();
         if (this.worldObj.isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 40)
         {
-            this.tryAssembleMultiBlock(this.worldObj, this.getPos());
+            this.tryAssembleMultiBlock(this.worldObj, this.getPos(), type);
             this.timer = 0;
         }
     }
@@ -134,19 +138,16 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     public void tryAssembleMultiBlock(World worldIn, BlockPos pos)
     {
         // The End has the transmitter, and in a slightly different position than the receivers are
-        if (worldIn.provider.getDimensionId() == 1)
+        /*if (worldIn.provider.getDimensionId() == 1)
         {
             this.tryAssembleMultiBlock(worldIn, pos, Type.TRANSMITTER);
         }
         else
         {
             this.tryAssembleMultiBlock(worldIn, pos, Type.RECEIVER);
-        }
-    }
+        }*/
 
-    public void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
-    {
-
+        this.tryAssembleMultiBlock(worldIn, pos, this.getType());
     }
 
     protected void tryAssembleMultiBlock(World worldIn, BlockPos pos, Type type)
@@ -236,10 +237,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         boolean isValid = false;
 
         if (BlockUtils.blockMatches(world, positions.get(0), blockEb, type.getMeta(), classTEEB, null) &&
-            BlockUtils.blockMatches(world, positions.get(1), blockEb, 2, classTEEB, EnumFacing.SOUTH) &&
-            BlockUtils.blockMatches(world, positions.get(2), blockEb, 2, classTEEB, EnumFacing.NORTH) &&
-            BlockUtils.blockMatches(world, positions.get(3), blockEb, 2, classTEEB, EnumFacing.WEST) &&
-            BlockUtils.blockMatches(world, positions.get(4), blockEb, 2, classTEEB, EnumFacing.EAST))
+            BlockUtils.blockMatches(world, positions.get(1), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.SOUTH) &&
+            BlockUtils.blockMatches(world, positions.get(2), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.NORTH) &&
+            BlockUtils.blockMatches(world, positions.get(3), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.WEST) &&
+            BlockUtils.blockMatches(world, positions.get(4), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.EAST))
         {
             if (type != Type.TRANSMITTER)
             {
@@ -374,29 +375,31 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     public void disassembleMultiblock(World worldIn, BlockPos pos)
     {
-        // The End has the transmitter, and in a slightly different position than the receivers are
-        Type type = worldIn.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+        this.disassembleMultiblock(worldIn, pos, this.getType());
+    }
 
+    public void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
+    {
         TileEntity te = worldIn.getTileEntity(pos);
-
         if (te == null || (te instanceof TileEntityEnergyBridge) == false)
         {
             return;
         }
 
-        BlockPos posMaster = pos; // position of the master block (the transmitter or the receiver)
+        BlockPos posMaster = pos;
 
         // The given location is a resonator, not the master block; get the master block's location
         if (type == Type.RESONATOR)
         {
             EnumFacing dir = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
+            type = this.worldObj.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
             int yOffset = type == Type.TRANSMITTER ? 3 : 0;
-            posMaster = posMaster.add(0, yOffset, 0).offset(dir, 3);
+            posMaster = pos.add(0, yOffset, 0).offset(dir, 3);
         }
 
         // Get the block position list from the master block
         List<BlockPos> positions = new ArrayList<BlockPos>();
-        if (this.getBlockPositions(worldIn, pos, type, positions) == false)
+        if (this.getBlockPositions(worldIn, posMaster, type, positions) == false)
         {
             return;
         }

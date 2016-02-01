@@ -56,9 +56,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     protected String[] getUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER,
+                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR,
                 ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER,
-                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR
+                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER
         };
     }
 
@@ -78,9 +78,25 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileEntityEnergyBridge)
             {
+                ((TileEntityEnergyBridge)te).setType(worldIn.getBlockState(pos).getBlock().getMetaFromState(state));
                 ((TileEntityEnergyBridge)te).tryAssembleMultiBlock(worldIn, pos);
             }
         }
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    {
+        if (worldIn.isRemote == false)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityEnergyBridge)
+            {
+                ((TileEntityEnergyBridge)te).disassembleMultiblock(worldIn, pos);
+            }
+        }
+
+        super.breakBlock(worldIn, pos, state);
     }
 
     @Override
@@ -88,22 +104,6 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     {
         return false;
     }
-
-    // FIXME
-    /*@Override
-    public void onBlockPreDestroy(World world, BlockPos pos, int oldMeta)
-    {
-        super.onBlockPreDestroy(world, pos, oldMeta);
-
-        if (world.isRemote == false)
-        {
-            TileEntity te = world.getTileEntity(pos);
-            if (te instanceof TileEntityEnergyBridge)
-            {
-                ((TileEntityEnergyBridge)te).disassembleMultiblock(world, pos, oldMeta);
-            }
-        }
-    }*/
 
     @Override
     public IBlockState getStateFromMeta(int meta)
