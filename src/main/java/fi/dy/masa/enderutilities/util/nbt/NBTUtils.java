@@ -477,7 +477,7 @@ public class NBTUtils
             {
                 items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
 
-                if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
+                if (items[slotNum] != null && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
                 {
                     items[slotNum].stackSize = tag.getInteger("ActualCount");
                 }

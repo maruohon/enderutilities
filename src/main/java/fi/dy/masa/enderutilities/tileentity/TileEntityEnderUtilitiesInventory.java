@@ -84,7 +84,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
             {
                 stacks[slotNum] = ItemStack.loadItemStackFromNBT(tagItem);
 
-                if (tagItem.hasKey("ActualCount", Constants.NBT.TAG_INT))
+                if (stacks[slotNum] != null && tagItem.hasKey("ActualCount", Constants.NBT.TAG_INT))
                 {
                     stacks[slotNum].stackSize = tagItem.getInteger("ActualCount");
                 }
