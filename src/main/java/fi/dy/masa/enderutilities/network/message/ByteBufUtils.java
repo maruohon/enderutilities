@@ -10,6 +10,9 @@ import net.minecraft.nbt.NBTTagCompound;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.handler.codec.EncoderException;
 
 public class ByteBufUtils
 {
@@ -34,7 +37,7 @@ public class ByteBufUtils
         writeNBTTagCompoundToBuffer(buf, tag);
     }
 
-    public static ItemStack readItemStackFromBuffer(ByteBuf buf)
+    public static ItemStack readItemStackFromBuffer(ByteBuf buf) throws IOException
     {
         ItemStack stack = null;
         short id = buf.readShort();
@@ -54,44 +57,34 @@ public class ByteBufUtils
     {
         if (tag == null)
         {
-            buf.writeShort(-1);
+            buf.writeByte(0);
             return;
         }
 
         try
         {
-            byte[] byteArr = CompressedStreamTools.compress(tag);
-            buf.writeShort((short)byteArr.length);
-            buf.writeBytes(byteArr);
+            CompressedStreamTools.write(tag, new ByteBufOutputStream(buf));
         }
-        catch (IOException e)
+        catch (IOException ioexception)
         {
             EnderUtilities.logger.error("IOException while trying to write a NBTTagCompound to ByteBuf");
+            throw new EncoderException(ioexception);
         }
     }
 
-    public static NBTTagCompound readNBTTagCompoundFromBuffer(ByteBuf buf)
+    public static NBTTagCompound readNBTTagCompoundFromBuffer(ByteBuf buf) throws IOException
     {
-        short length = buf.readShort();
+        int i = buf.readerIndex();
+        byte b0 = buf.readByte();
 
-        if (length < 0)
+        if (b0 == 0)
         {
             return null;
         }
-
-        byte[] byteArr = new byte[length];
-        buf.readBytes(byteArr);
-
-        NBTTagCompound tag = null;
-        try
+        else
         {
-            tag = CompressedStreamTools.func_152457_a(byteArr, new NBTSizeTracker(2097152L));
+            buf.readerIndex(i);
+            return CompressedStreamTools.read(new ByteBufInputStream(buf), new NBTSizeTracker(2097152L));
         }
-        catch (IOException e)
-        {
-            EnderUtilities.logger.error("IOException while trying to read a NBTTagCompound from ByteBuf");
-        }
-
-        return tag;
     }
 }

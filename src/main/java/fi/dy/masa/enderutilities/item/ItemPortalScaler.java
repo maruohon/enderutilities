@@ -8,14 +8,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -39,9 +39,6 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     // at the world's edge, with the Advanced capacitor (500k EC).
     public static final float TELEPORTATION_EC_COST = 0.013f;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemPortalScaler()
     {
         super();
@@ -51,7 +48,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
         if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true)
@@ -59,32 +56,29 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return false;
         }
 
-        Block block = world.getBlock(x, y, z);
+        Block block = world.getBlockState(pos).getBlock();
         // When right clicking on a Nether Portal block, shut down the portal
         if (block == Blocks.portal)
         {
             if (world.isRemote == false)
             {
-                world.setBlockToAir(x, y, z);
-                world.playSoundEffect(x + 0.5d, y + 0.5d, z + 0.5d, block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.getPitch() * 0.8f);
+                world.setBlockToAir(pos);
+                world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                        block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.frequency * 0.8f);
             }
 
             return true;
         }
 
-        ForgeDirection dir = ForgeDirection.getOrientation(side);
-        x += dir.offsetX;
-        y += dir.offsetY;
-        z += dir.offsetZ;
-
         // When right clicking on Obsidian, try to light a Nether Portal
-        if (block == Blocks.obsidian && world.isAirBlock(x, y, z) == true &&
-            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true && Blocks.portal.func_150000_e(world, x, y, z) == true)
+        if (block == Blocks.obsidian && world.isAirBlock(pos.offset(side)) == true &&
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true &&
+            Blocks.portal.func_176548_d(world, pos) == true) // FIXME verify the func
         {
             if (world.isRemote == false)
             {
                 UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
-                world.playAuxSFXAtEntity((EntityPlayer)null, 1009, x, y, z, 0); // Blaze fireball shooting sound
+                world.playAuxSFXAtEntity((EntityPlayer)null, 1009, pos, 0); // Blaze fireball shooting sound
             }
             return true;
         }
@@ -338,15 +332,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;
             int z = tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleZ") : 8;
 
-            ForgeDirection dir = EntityUtils.getLookingDirection(player);
-            x += Math.abs(dir.offsetX) * amount;
-            y += Math.abs(dir.offsetY) * amount;
-            z += Math.abs(dir.offsetZ) * amount;
+            EnumFacing facing = EntityUtils.getLookingDirection(player);
+            x += Math.abs(facing.getFrontOffsetX()) * amount;
+            y += Math.abs(facing.getFrontOffsetY()) * amount;
+            z += Math.abs(facing.getFrontOffsetZ()) * amount;
 
             // Hop over zero
-            if (x == 0) { x += Math.abs(dir.offsetX) * amount; }
-            if (y == 0) { y += Math.abs(dir.offsetY) * amount; }
-            if (z == 0) { z += Math.abs(dir.offsetZ) * amount; }
+            if (x == 0) { x += Math.abs(facing.getFrontOffsetX()) * amount; }
+            if (y == 0) { y += Math.abs(facing.getFrontOffsetY()) * amount; }
+            if (z == 0) { z += Math.abs(facing.getFrontOffsetZ()) * amount; }
 
             x = MathHelper.clamp_int(x, -64, 64);
             y = MathHelper.clamp_int(y, -64, 64);

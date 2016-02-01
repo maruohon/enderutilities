@@ -55,7 +55,7 @@ public class BlockUtils
      * Check if the block in the given ItemStack stack can be placed in the given position.
      * Note: This method is a functional copy of ItemBlock.func_150936_a() which is client side only.
      */
-    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, int side, EntityPlayer player, ItemStack stack)
+    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
     {
         if (stack == null || (stack.getItem() instanceof ItemBlock) == false)
         {
@@ -64,17 +64,16 @@ public class BlockUtils
 
         ItemBlock itemBlock = (ItemBlock)stack.getItem();
         Block block = world.getBlockState(pos).getBlock();
-        EnumFacing facing = EnumFacing.getFront(side);
 
         if (block == Blocks.snow_layer && block.isReplaceable(world, pos) == true)
         {
-            facing = EnumFacing.UP;
+            side = EnumFacing.UP;
         }
         else if (block.isReplaceable(world, pos) == false)
         {
-            pos = pos.offset(facing);
+            pos = pos.offset(side);
         }
 
-        return world.canBlockBePlaced(itemBlock.block, pos, false, facing, (Entity)null, stack);
+        return world.canBlockBePlaced(itemBlock.block, pos, false, side, (Entity)null, stack);
     }
 }

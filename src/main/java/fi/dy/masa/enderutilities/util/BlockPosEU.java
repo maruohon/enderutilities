@@ -81,6 +81,11 @@ public class BlockPosEU
         return new BlockPosEU(x, y, z, this.dimension, this.face);
     }
 
+    public BlockPos toBlockPos()
+    {
+        return new BlockPos(this.posX, this.posY, this.posZ);
+    }
+
     public NBTTagCompound writeToTag(NBTTagCompound tag)
     {
         tag.setInteger("posX", this.posX);

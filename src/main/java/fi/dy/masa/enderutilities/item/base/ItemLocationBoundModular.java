@@ -6,7 +6,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -25,14 +27,14 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player != null && player.isSneaking() == true)
         {
             if (world.isRemote == false)
             {
                 boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-                this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+                this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
 
             return true;
@@ -63,7 +65,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             if (moduleStack.hasDisplayName() == true)
             {
                 // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back to getItemStackDisplayName ;_;
-                NBTTagCompound tag = moduleStack.stackTagCompound.getCompoundTag("display");
+                NBTTagCompound tag = moduleStack.getTagCompound().getCompoundTag("display");
                 return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
             }
 
@@ -177,9 +179,9 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void setTarget(ItemStack toolStack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public void setTarget(ItemStack toolStack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        UtilItemModular.setTarget(toolStack, player, x, y, z, side, hitX, hitY, hitZ, doHitOffset, storeRotation);
+        UtilItemModular.setTarget(toolStack, player, pos, side, hitX, hitY, hitZ, doHitOffset, storeRotation);
     }
 
     public boolean useAbsoluteModuleIndexing(ItemStack stack)

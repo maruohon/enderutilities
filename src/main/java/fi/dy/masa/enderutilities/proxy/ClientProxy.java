@@ -2,7 +2,10 @@ package fi.dy.masa.enderutilities.proxy;
 
 import org.lwjgl.input.Keyboard;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Util;
@@ -68,9 +71,12 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerRenderers()
     {
-        RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow());
-        RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderEntityProjectile(EnderUtilitiesItems.enderPearlReusable));
-        RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter());
+        RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+        RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, new RenderEnderArrow(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, new RenderEntityProjectile(renderManager, EnderUtilitiesItems.enderPearlReusable, renderItem));
+        RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter(renderManager));
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());

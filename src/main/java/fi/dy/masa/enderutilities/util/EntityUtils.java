@@ -262,14 +262,14 @@ public class EntityUtils
         return null;
     }
 
-    public static Entity findEntityByUUID(List<Entity> list, UUID uuid)
+    public static <T extends Entity> T findEntityByUUID(List<T> list, UUID uuid)
     {
         if (uuid == null)
         {
             return null;
         }
 
-        for (Entity entity : list)
+        for (T entity : list)
         {
             if (entity.getUniqueID().equals(uuid) == true)
             {
@@ -520,13 +520,17 @@ public class EntityUtils
         return false;
     }
 
-    public static boolean spawnEnderCrystal(World world, int x, int y, int z)
+    public static boolean spawnEnderCrystal(World world, BlockPos pos)
     {
         // Only allow the activation to happen in The End
         if (world != null && world.provider != null)
         {
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+
             // The item must be right clicked on an obsidian block on top of the obsidian pillars
-            if (world.provider.getDimensionId() == 1 && world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.obsidian)
+            if (world.provider.getDimensionId() == 1 && world.getBlockState(pos).getBlock() == Blocks.obsidian)
             {
                 // Check that there aren't already Ender Crystals nearby
                 List<EntityEnderCrystal> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.fromBounds(x - 2, y - 2, z - 2, x + 2, y + 2, z + 2));

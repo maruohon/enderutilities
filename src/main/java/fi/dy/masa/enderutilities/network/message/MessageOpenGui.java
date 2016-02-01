@@ -1,13 +1,16 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -56,27 +59,53 @@ public class MessageOpenGui implements IMessage, IMessageHandler<MessageOpenGui,
     }
 
     @Override
-    public IMessage onMessage(MessageOpenGui message, MessageContext ctx)
+    public IMessage onMessage(final MessageOpenGui message, MessageContext ctx)
     {
-        EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
-        World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
-
-        if (player != null)
+        if (ctx.side != Side.SERVER)
         {
-            switch(message.guiId)
-            {
-                case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                    ItemStack stack = ItemHandyBag.getOpenableBag(player);
-                    if (stack != null)
-                    {
-                        player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-                    }
-                    break;
-                default:
-            }
+            EnderUtilities.logger.error("Wrong side in MessageOpenGui: " + ctx.side);
+            return null;
         }
 
+        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+        if (sendingPlayer == null)
+        {
+            EnderUtilities.logger.error("player was null in MessageOpenGui");
+            return null;
+        }
+
+        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+        if (playerWorldServer == null)
+        {
+            EnderUtilities.logger.error("World was null in MessageOpenGui");
+            return null;
+        }
+
+        playerWorldServer.addScheduledTask(new Runnable()
+        {
+            public void run()
+            {
+                processMessage(message, sendingPlayer);
+            }
+        });
+
         return null;
+    }
+
+    protected void processMessage(final MessageOpenGui message, EntityPlayer player)
+    {
+        switch(message.guiId)
+        {
+            case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                if (stack != null)
+                {
+                    World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
+                    player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+                }
+                break;
+            default:
+        }
     }
 
 }

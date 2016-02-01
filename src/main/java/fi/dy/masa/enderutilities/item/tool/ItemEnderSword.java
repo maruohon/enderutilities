@@ -27,7 +27,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -55,7 +58,6 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
@@ -72,13 +74,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     private float damageVsEntity;
     private final Item.ToolMaterial material;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-    @SideOnly(Side.CLIENT)
-    private IIcon iconEmpty;
-    @SideOnly(Side.CLIENT)
-    String[] parts;
-
     public ItemEnderSword()
     {
         super(ItemEnderTool.ENDER_ALLOY_ADVANCED);
@@ -89,7 +84,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         this.damageVsEntity = 5.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
-        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
     }
 
     @Override
@@ -129,7 +123,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     // This is used for determining which weapon is better when mobs pick up items
     @Override
-    public float func_150931_i()
+    public float getDamageVsEntity()
     {
         // FIXME no way to check if the item is broken without ItemStack and NBT data
         return this.damageVsEntity;
@@ -171,7 +165,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public float func_150893_a(ItemStack stack, Block block)
+    public float getStrVsBlock(ItemStack stack, Block block)
     {
         if (this.isToolBroken(stack) == true)
         {
@@ -209,17 +203,17 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase livingbase)
+    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, BlockPos pos, EntityLivingBase playerIn)
     {
-        if (block.getBlockHardness(world, x, y, z) != 0.0f && this.isToolBroken(stack) == false)
+        if (block.getBlockHardness(world, pos) != 0.0f && this.isToolBroken(stack) == false)
         {
             int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
-            stack.damageItem(amount, livingbase);
+            stack.damageItem(amount, playerIn);
 
             // Tool just broke
             if (this.isToolBroken(stack) == true)
             {
-                livingbase.renderBrokenItemStack(stack);
+                playerIn.renderBrokenItemStack(stack);
             }
 
             return true;
@@ -327,7 +321,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
                     ItemStack stack = iter.next().getEntityItem();
                     if (stack != null)
                     {
-                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace);
+                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.facing);
                         if (stackTmp == null)
                         {
                             iter.remove();
@@ -360,7 +354,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             }
 
             // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
 
             iter = items.iterator();
             while (iter.hasNext() == true)
@@ -374,7 +368,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
                     if (targetWorld.spawnEntityInWorld(entityItem) == true)
                     {
-                        Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        Particles.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
                         transported = true;
                     }
@@ -422,14 +416,14 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         double z = targetEntity.posZ;
         int numReTargeted = 0;
 
-        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(x - r, y - r, z - r, x + r, y + r, z + r);
+        AxisAlignedBB bb = AxisAlignedBB.fromBounds(x - r, y - r, z - r, x + r, y + r, z + r);
         List<EntityEndermanFighter> list = world.getEntitiesWithinAABB(EntityEndermanFighter.class, bb);
 
         for (EntityEndermanFighter fighter : list)
         {
-            if (fighter.getEntityToAttack() == null && fighter.hasCustomNameTag() == false)
+            if (fighter.getAttackTarget() == null && fighter.hasCustomName() == false)
             {
-                fighter.setTargetCommanded(targetEntity);
+                fighter.setPrimaryTarget(targetEntity);
                 numReTargeted++;
             }
         }
@@ -448,23 +442,24 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
             EntityEndermanFighter fighter = new EntityEndermanFighter(world);
             fighter.setPosition(x, targetEntity.posY, z);
-            Block block = world.getBlock((int)x, (int)targetEntity.posY - 1, (int)z);
+            Block block = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z)).getBlock();
 
-            if (world.getCollidingBoundingBoxes(fighter, fighter.boundingBox).isEmpty()  == true && world.isAnyLiquid(fighter.boundingBox) == false
-                && block.getMaterial().blocksMovement() == true)
+            if (world.getCollidingBoundingBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
+                world.isAnyLiquid(fighter.getEntityBoundingBox()) == false &&
+                block.getMaterial().blocksMovement() == true)
             {
                 for (int j = 0; j < 16; ++j)
                 {
                     float vx = (world.rand.nextFloat() - 0.5F) * 0.2F;
                     float vy = (world.rand.nextFloat() - 0.5F) * 0.2F;
                     float vz = (world.rand.nextFloat() - 0.5F) * 0.2F;
-                    world.spawnParticle("portal", x, y, z, vx, vy, vz);
+                    world.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
                 world.playSoundEffect(x, y, z, "mob.endermen.portal", 1.0F, 1.0F);
 
                 world.spawnEntityInWorld(fighter);
-                fighter.setTargetCommanded(targetEntity);
+                fighter.setPrimaryTarget(targetEntity);
 
                 if (++count >= amount)
                 {
@@ -502,7 +497,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     @Override
     public EnumAction getItemUseAction(ItemStack stack)
     {
-        return EnumAction.block;
+        return EnumAction.BLOCK;
     }
 
     @Override
@@ -519,9 +514,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
         if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
@@ -529,7 +524,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         {
             if (world.isRemote == false)
             {
-                UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+                UtilItemModular.setTarget(stack, player, pos, side, hitX, hitY, hitZ, false, false);
             }
             return true;
         }
@@ -550,7 +545,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean func_150897_b(Block block)
+    public boolean canHarvestBlock(Block block)
     {
         return block == Blocks.web;
     }
@@ -562,7 +557,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public Multimap getAttributeModifiers(ItemStack stack)
+    public Multimap<String, AttributeModifier> getAttributeModifiers(ItemStack stack)
     {
         double dmg = this.damageVsEntity;
 
@@ -573,7 +568,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
 
         Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", dmg, 0));
+        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Weapon modifier", dmg, 0));
         return multimap;
     }
 
@@ -799,7 +794,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
@@ -849,117 +844,8 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean hasEffect(ItemStack par1ItemStack, int pass)
+    public boolean hasEffect(ItemStack stack)
     {
         return false;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.parts = new String[] {"rod", "head.1", "head.2", "head.3", "head.4", "head.1.broken", "head.2.broken", "head.3.broken", "head.4.broken",
-                "core.1", "core.2", "core.3", "capacitor.1", "capacitor.2", "capacitor.3", "linkcrystal.1", "linkcrystal.2"};
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".rod");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.iconArray = new IIcon[this.parts.length];
-        String prefix = this.getIconString() + ".";
-
-        for (int i = 0; i < this.parts.length; i++)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(prefix + this.parts[i]);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        if (stack == null)
-        {
-            return this.itemIcon;
-        }
-
-        int i = 0;
-        int tier = 0;
-
-        switch(renderPass)
-        {
-            case 0: // 0: Rod
-                break;
-            case 1: // 1: Head
-                i += getSwordMode(stack) + 1;
-
-                // Broken tool
-                if (this.isToolBroken(stack) == true)
-                {
-                    i += 4;
-                }
-                break;
-            case 2: // 2: Core
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier >= 0)
-                {
-                    i += tier + 9;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier >= 0)
-                {
-                    i += tier + 12;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 4: // 4: Link Crystal
-                ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
-                {
-                    tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
-                }
-                else
-                {
-                    tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                }
-                if (tier >= 0)
-                {
-                    i += tier + 15;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            default:
-                return this.iconEmpty;
-        }
-
-        if (i < 0 || i >= this.iconArray.length)
-        {
-            return this.iconEmpty;
-        }
-
-        return this.iconArray[i];
     }
 }

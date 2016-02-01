@@ -13,7 +13,6 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -23,9 +22,6 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     public static final int TYPE_LOCATION = 0;
     public static final int TYPE_BLOCK = 1;
     public static final int TYPE_PORTAL = 2;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
 
     public ItemLinkCrystal()
     {
@@ -95,7 +91,7 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
@@ -105,32 +101,5 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
                 list.add(new ItemStack(this, 1, i));
             }
         }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray = new IIcon[3];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".location");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".block");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".portal");
-
-        // The background icon for empty slots for this item type
-        this.slotBackground = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(this.name));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        if (damage >= 0 && damage <= 2)
-        {
-            return this.iconArray[damage];
-        }
-
-        return this.itemIcon;
     }
 }

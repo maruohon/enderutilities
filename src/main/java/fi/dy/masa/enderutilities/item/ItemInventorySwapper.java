@@ -9,12 +9,11 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
@@ -27,7 +26,6 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -48,9 +46,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     public static final int GUI_ACTION_TOGGLE_ROWS = 2;
     public static final int GUI_ACTION_TOGGLE_COLUMNS = 3;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemInventorySwapper()
     {
         super();
@@ -68,11 +63,11 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking() == true)
         {
-            TileEntity te = world.getTileEntity(x, y, z);
+            TileEntity te = world.getTileEntity(pos);
             if (te != null && te instanceof IInventory)
             {
                 if (world.isRemote == false)
@@ -83,7 +78,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             }
         }
 
-        return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+        return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -270,10 +265,10 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    public void swapInventoryWithISided(long slotMask, InventoryItemModular swapperInv, ISidedInventory externalInv, int side)
+    public void swapInventoryWithISided(long slotMask, InventoryItemModular swapperInv, ISidedInventory externalInv, EnumFacing side)
     {
         final int invMax = externalInv.getInventoryStackLimit();
-        final int[] slots = externalInv.getAccessibleSlotsFromSide(side);
+        final int[] slots = externalInv.getSlotsForFace(side);
 
         for (int slotNum : slots)
         {
@@ -299,7 +294,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    public void swapExternalInventory(ItemStack swapperStack, IInventory externalInv, EntityPlayer player, int side)
+    public void swapExternalInventory(ItemStack swapperStack, IInventory externalInv, EntityPlayer player, EnumFacing side)
     {
         InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
         if (swapperInv.isUseableByPlayer(player) == false)
@@ -524,49 +519,5 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         return 0;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 2;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.iconArray = new IIcon[3];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
-
-        // Overlay textures
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".overlay.locked");
-        this.iconArray[2] = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        switch (renderPass)
-        {
-            case 0: // Main texture
-                return this.iconArray[0];
-            case 1: // Locked icon
-                boolean isLocked = NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
-                return isLocked == true ? this.iconArray[1] : this.iconArray[2];
-        }
-
-        return this.itemIcon;
     }
 }

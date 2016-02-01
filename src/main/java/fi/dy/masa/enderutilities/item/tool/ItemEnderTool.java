@@ -13,7 +13,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -35,18 +37,21 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,7 +72,6 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -90,13 +94,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     public float damageVsEntity;
     private final Item.ToolMaterial material;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-    @SideOnly(Side.CLIENT)
-    private IIcon iconEmpty;
-    @SideOnly(Side.CLIENT)
-    String[] parts;
-
     public ItemEnderTool()
     {
         // The Set is not actually used for anything!
@@ -109,7 +106,6 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDERTOOL));
-        this.setTextureName(ReferenceTextures.getItemTextureName(ReferenceNames.NAME_ITEM_ENDERTOOL));
     }
 
     @Override
@@ -160,23 +156,23 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = worldIn.getTileEntity(pos);
         // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+        if (playerIn != null && playerIn.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            if (world.isRemote == false)
+            if (worldIn.isRemote == false)
             {
-                UtilItemModular.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, false, false);
+                UtilItemModular.setTarget(stack, playerIn,pos, side, hitX, hitY, hitZ, false, false);
             }
         }
         // Hoe
         else if (this.getToolType(stack).equals(ToolType.HOE) == true)
         {
-            if (world.isRemote == true)
+            if (worldIn.isRemote == true)
             {
                 return true;
             }
@@ -184,50 +180,50 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             if (this.isToolPowered(stack) == true)
             {
                 // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoeArea(stack, player, world, x, y, z, side, 1, 1) == false)
+                if (this.useHoeArea(stack, playerIn, worldIn, pos, side, 1, 1) == false)
                 {
-                    this.useHoeToPlantArea(stack, player, world, x, y, z, side, hitX, hitY, hitZ, 1, 1);
+                    this.useHoeToPlantArea(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, 1, 1);
                 }
             }
             else
             {
                 // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoe(stack, player, world, x, y, z, side) == false)
+                if (this.useHoe(stack, playerIn, worldIn, pos, side) == false)
                 {
-                    this.useHoeToPlant(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+                    this.useHoeToPlant(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
                 }
             }
         }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (player != null && (player instanceof FakePlayer) == false)
+        else if (playerIn != null && (playerIn instanceof FakePlayer) == false)
         {
-            int origSlot = player.inventory.currentItem;
+            int origSlot = playerIn.inventory.currentItem;
             int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
-            ItemStack targetStack = player.inventory.getStackInSlot(slot);
+            ItemStack targetStack = playerIn.inventory.getStackInSlot(slot);
 
             // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
             if (origSlot == 0 && (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false))
             {
                 slot = InventoryPlayer.getHotbarSize() - 1;
-                targetStack = player.inventory.getStackInSlot(slot);
+                targetStack = playerIn.inventory.getStackInSlot(slot);
             }
 
             // If the target stack is an ItemBlock, we try to place that in the world
             if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
             {
                 // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, x, y, z, side, player, targetStack) == true)
+                if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, playerIn, targetStack) == true)
                 {
-                    if (world.isRemote == true)
+                    if (worldIn.isRemote == true)
                     {
                         return true;
                     }
 
-                    player.inventory.currentItem = slot;
-                    boolean success = targetStack.tryPlaceItemIntoWorld(player, world, x, y, z, side, hitX, hitY, hitZ);
-                    player.inventory.currentItem = origSlot;
-                    player.inventory.markDirty();
-                    player.inventoryContainer.detectAndSendChanges();
+                    playerIn.inventory.currentItem = slot;
+                    boolean success = targetStack.onItemUse(playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+                    playerIn.inventory.currentItem = origSlot;
+                    playerIn.inventory.markDirty();
+                    playerIn.inventoryContainer.detectAndSendChanges();
                     return success;
                 }
             }
@@ -248,7 +244,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
     }
 
-    public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, int xIn, int yIn, int zIn, int side, int rWidth, int rHeight)
+    public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, int rWidth, int rHeight)
     {
         boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
@@ -260,25 +256,25 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             rHeight = tmp;
         }
 
-        for (int x = xIn - rWidth; x <= (xIn + rWidth); ++x)
+        for (int x = pos.getX() - rWidth; x <= (pos.getX() + rWidth); ++x)
         {
-            for (int z = zIn - rHeight; z <= (zIn + rHeight); ++z)
+            for (int z = pos.getZ() - rHeight; z <= (pos.getZ() + rHeight); ++z)
             {
-                retValue |= this.useHoe(stack, player, world, x, yIn, z, side);
+                retValue |= this.useHoe(stack, player, world, new BlockPos(x, pos.getY(), z), side);
             }
         }
 
         return retValue;
     }
 
-    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side)
+    public boolean useHoe(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side)
     {
-        if (player.canPlayerEdit(x, y, z, side, stack) == false)
+        if (player.canPlayerEdit(pos, side, stack) == false)
         {
             return false;
         }
 
-        UseHoeEvent event = new UseHoeEvent(player, stack, world, x, y, z);
+        UseHoeEvent event = new UseHoeEvent(player, stack, world, pos);
         if (MinecraftForge.EVENT_BUS.post(event))
         {
             return false;
@@ -290,16 +286,19 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             return true;
         }
 
-        Block block = world.getBlock(x, y, z);
-        if (side != 0 && world.getBlock(x, y + 1, z).isAir(world, x, y + 1, z) && (block == Blocks.grass || block == Blocks.dirt))
+        Block block = world.getBlockState(pos).getBlock();
+        if (side != EnumFacing.DOWN && world.isAirBlock(pos.up()) && (block == Blocks.grass || block == Blocks.dirt))
         {
             if (world.isRemote == false)
             {
                 Block blockFarmland = Blocks.farmland;
-                world.playSoundEffect(x + 0.5d, y + 0.5d, z + 0.5d, blockFarmland.stepSound.getStepResourcePath(), (blockFarmland.stepSound.getVolume() + 1.0f) / 2.0f, blockFarmland.stepSound.getPitch() * 0.8f);
+                SoundType sound = blockFarmland.stepSound;
+                world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                        sound.soundName, (sound.getVolume() + 1.0f) / 2.0f, sound.frequency * 0.8f);
 
-                world.setBlock(x, y, z, blockFarmland, 0, 3);
-                world.markBlockForUpdate(x, y, z);  // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
+                world.setBlockState(pos, blockFarmland.getDefaultState(), 3);
+                // FIXME?
+                world.markBlockForUpdate(pos);  // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
                 this.addToolDamage(stack, 1, player, player);
             }
 
@@ -309,7 +308,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, int xIn, int yIn, int zIn, int side, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
+    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
     {
         boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
@@ -321,18 +320,18 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             rHeight = tmp;
         }
 
-        for (int x = xIn - rWidth; x <= (xIn + rWidth); ++x)
+        for (int x = pos.getX() - rWidth; x <= (pos.getX() + rWidth); ++x)
         {
-            for (int z = zIn - rHeight; z <= (zIn + rHeight); ++z)
+            for (int z = pos.getZ() - rHeight; z <= (pos.getZ() + rHeight); ++z)
             {
-                retValue |= this.useHoeToPlant(stack, player, world, x, yIn, z, side, hitX, hitY, hitZ);
+                retValue |= this.useHoeToPlant(stack, player, world, new BlockPos(x, pos.getY(), z), side, hitX, hitY, hitZ);
             }
         }
 
         return retValue;
     }
 
-    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == false)
         {
@@ -347,17 +346,18 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             {
                 NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
                 ISidedInventory sided = (ISidedInventory) inv;
-                int[] slots = sided.getAccessibleSlotsFromSide(target.blockFace);
+                int[] slots = sided.getSlotsForFace(target.facing);
                 for (int slotNum : slots)
                 {
-                    if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.blockFace) == true
-                        && this.plantItemFromInventorySlot(world, player, sided, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
+                    if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.facing) == true
+                        && this.plantItemFromInventorySlot(world, player, sided, slotNum, pos, side, hitX, hitY, hitZ) == true)
                     {
                         UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
 
                         PacketHandler.INSTANCE.sendToAllAround(
                             new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
+                                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                                new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
                     }
                 }
             }
@@ -366,7 +366,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                 int size = inv.getSizeInventory();
                 for (int slotNum = 0; slotNum < size; ++slotNum)
                 {
-                    if (this.plantItemFromInventorySlot(world, player, inv, slotNum, x, y, z, side, hitX, hitY, hitZ) == true)
+                    if (this.plantItemFromInventorySlot(world, player, inv, slotNum, pos, side, hitX, hitY, hitZ) == true)
                     {
                         // Use Ender Charge if planting from a remote inventory
                         if (this.getToolModeByName(toolStack, "DropsMode") == 2)
@@ -375,8 +375,9 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                         }
 
                         PacketHandler.INSTANCE.sendToAllAround(
-                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                x + 0.5d, y + 0.5d, z + 0.5d, 8, 0.2d, 0.3d), new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
+                                new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
+                                    pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
                     }
                 }
             }
@@ -385,13 +386,13 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         return false;
     }
 
-    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IInventory inv, int slotNum, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IInventory inv, int slotNum, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         ItemStack plantStack = inv.getStackInSlot(slotNum);
         if (plantStack != null && plantStack.getItem() instanceof IPlantable)
         {
             ItemStack newStack = plantStack.copy();
-            if (newStack.tryPlaceItemIntoWorld(player, world, x, y, z, side, hitX, hitY, hitZ) == true)
+            if (newStack.onItemUse(player, world, pos, side, hitX, hitY, hitZ) == true)
             {
                 if (newStack.stackSize > 0)
                 {
@@ -538,7 +539,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase living)
+    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, BlockPos pos, EntityLivingBase living)
     {
         //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
 
@@ -549,7 +550,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
-        if (this.isToolBroken(stack) == false && block.getBlockHardness(world, x, y, z) > 0.0f)
+        if (this.isToolBroken(stack) == false && block.getBlockHardness(world, pos) > 0.0f)
         {
             // Fast mode uses double the durability
             int dmg = (this.getToolModeByName(stack, "Powered") == 1 ? 2 : 1);
@@ -640,7 +641,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
                     ItemStack stack = iter.next();
                     if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                     {
-                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.blockFace);
+                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.facing);
                         if (stackTmp == null)
                         {
                             iter.remove();
@@ -672,7 +673,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
 
             // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.posX >> 4, target.posZ >> 4, 30);
+            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
 
             Iterator<ItemStack> iter = event.drops.iterator();
             while (iter.hasNext() == true)
@@ -686,7 +687,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
                     if (targetWorld.spawnEntityInWorld(entityItem) == true)
                     {
-                        Particles.spawnParticles(targetWorld, "portal", target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        Particles.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
                     }
                 }
@@ -704,8 +705,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                    event.x + 0.5d, event.y + 0.5d, event.z + 0.5d, 8, 0.2d, 0.3d),
-                        new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), event.x, event.y, event.z, 24.0d));
+                    event.pos.getX() + 0.5d, event.pos.getY() + 0.5d, event.pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                    new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), event.pos.getX(), event.pos.getY(), event.pos.getZ(), 24.0d));
         }
 
         // All items successfully transported somewhere, cancel the drops
@@ -716,14 +717,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @Override
-    public boolean func_150897_b(Block block)
+    public boolean canHarvestBlock(Block block)
     {
         //System.out.println("func_150897_b()");
         return false;
     }
 
     @Override
-    public float func_150893_a(ItemStack stack, Block block)
+    public float getStrVsBlock(ItemStack stack, Block block)
     {
         //System.out.println("func_150893_a()");
         if (this.isToolBroken(stack) == true)
@@ -795,13 +796,14 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @Override
-    public float getDigSpeed(ItemStack stack, Block block, int meta)
+    public float getDigSpeed(ItemStack stack, IBlockState iBlockState)
     {
         if (this.isToolBroken(stack) == true)
         {
             return 0.2f;
         }
 
+        Block block = iBlockState.getBlock();
         // Allow instant mine of leaves with the axe
         if (block.getMaterial() != null && block.getMaterial() == Material.leaves && this.getToolType(stack).equals(ToolType.AXE))
         {
@@ -826,7 +828,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
             }
         }
 
-        if (ForgeHooks.isToolEffective(stack, block, meta))
+        //if (ForgeHooks.isToolEffective(stack, block, meta))
+        if (block.isToolEffective(this.getToolClass(stack), iBlockState) == true)
         {
             //System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
             return eff;
@@ -839,7 +842,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         //System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
-        return super.getDigSpeed(stack, block, meta);
+        return super.getDigSpeed(stack, iBlockState);
     }
 
     @Override
@@ -861,7 +864,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
     }
 
     @Override
-    public Multimap getAttributeModifiers(ItemStack stack)
+    public Multimap<String, AttributeModifier> getAttributeModifiers(ItemStack stack)
     {
         //System.out.println("getAttributeModifiers()");
         double dmg = this.damageVsEntity;
@@ -877,7 +880,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
         }
 
         Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Tool modifier", dmg, 0));
+        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Tool modifier", dmg, 0));
         return multimap;
     }
 
@@ -1210,7 +1213,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
@@ -1261,7 +1264,7 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         ItemStack stack;
         if (Configs.disableItemEnderTools.getBoolean(false) == false)
@@ -1278,142 +1281,8 @@ public class ItemEnderTool extends ItemTool implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean hasEffect(ItemStack par1ItemStack, int pass)
+    public boolean hasEffect(ItemStack stack)
     {
         return false;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 5;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDER_PICKAXE + ".head.1");
-        this.iconEmpty = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-        this.parts = new String[] {"rod.1", "head.1", "head.2", "head.3",
-                                            "head.1.glow", "head.2.glow", "head.3.glow",
-                                            "head.1.broken", "head.2.broken", "head.3.broken",
-                                            "head.1.glow.broken", "head.2.glow.broken", "head.3.glow.broken",
-                                            "core.1", "core.2", "core.3",
-                                            "capacitor.1", "capacitor.2", "capacitor.3",
-                                            "linkcrystal.1", "linkcrystal.2"};
-
-        this.iconArray = new IIcon[this.parts.length * 4];
-        String prefix = this.getIconString() + ".";
-
-        for (ToolType type : ToolType.values())
-        {
-            int id = type.getId();
-            int start = id * this.parts.length;
-
-            for (int j = 0; id >= 0 && j < this.parts.length && (start + j) < this.iconArray.length; j++)
-            {
-                this.iconArray[start + j] = iconRegister.registerIcon(prefix + type.getName() + "." + this.parts[j]);
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        if (stack == null)
-        {
-            return this.itemIcon;
-        }
-
-        ToolType type = this.getToolType(stack);
-        if (type.equals(ToolType.INVALID))
-        {
-            return this.itemIcon;
-        }
-
-        int i = type.getId() * this.parts.length;
-        int tier = 0;
-
-        switch(renderPass)
-        {
-            case 0: // 0: Rod
-                break;
-            case 1: // 1: Head
-                // The head color is defined by the drops handling mode
-                i += getToolModeByName(stack, "DropsMode") + 1; // Head icons start at index 1
-
-                // Fast mode uses the glow variation of the head
-                if (getToolModeByName(stack, "Powered") == 1)
-                {
-                    i += 3;
-                }
-
-                // Broken tool
-                if (this.isToolBroken(stack) == true)
-                {
-                    i += 6;
-                }
-                break;
-            case 2: // 2: Core
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
-                if (tier >= 0)
-                {
-                    i += tier + 13;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 3: // 3: Capacitor
-                tier = this.getMaxModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (tier >= 0)
-                {
-                    i += tier + 16;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            case 4: // 4: Link Crystal
-                ItemStack lcStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (lcStack != null && lcStack.getItem() instanceof ItemLinkCrystal)
-                {
-                    tier = ((ItemLinkCrystal)lcStack.getItem()).getModuleTier(lcStack);
-                }
-                else
-                {
-                    tier = this.getMaxModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL);
-                }
-                if (tier >= 0)
-                {
-                    i += tier + 19;
-                }
-                else
-                {
-                    return this.iconEmpty;
-                }
-                break;
-            default:
-                return this.iconEmpty;
-        }
-
-        if (i < 0 || i >= this.iconArray.length)
-        {
-            return this.iconEmpty;
-        }
-
-        return this.iconArray[i];
     }
 }

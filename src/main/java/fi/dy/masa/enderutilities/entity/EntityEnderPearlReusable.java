@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.entity;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -13,6 +14,7 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.entity.base.EntityThrowableEU;
+import fi.dy.masa.enderutilities.entity.base.IItemData;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -49,7 +51,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         float f = 0.4f;
         double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
         double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.func_70183_g()) / 180.0f * (float)Math.PI) * f);
+        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.getInaccuracy()) / 180.0f * (float)Math.PI) * f);
 
         this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 0.2f);
     }
@@ -116,9 +118,8 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         // Don't collide with blocks without a collision box
-        if (mop.typeOfHit == MovingObjectType.BLOCK &&
-           this.worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ)
-               .getCollisionBoundingBoxFromPool(this.worldObj, mop.blockX, mop.blockY, mop.blockZ) == null)
+        IBlockState state = this.worldObj.getBlockState(mop.getBlockPos());
+        if (mop.typeOfHit == MovingObjectType.BLOCK && state.getBlock().getCollisionBoundingBox(this.worldObj, mop.getBlockPos(), state) == null)
         {
             return;
         }
@@ -214,7 +215,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
         entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
         entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
-        entityitem.delayBeforeCanPickup = 0;
+        entityitem.setDefaultPickupDelay();
 
         this.worldObj.spawnEntityInWorld(entityitem);
     }

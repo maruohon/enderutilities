@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -243,26 +244,27 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
 
             int playerMaxSlot = player.inventory.getSizeInventory() - 5;
             int chestMaxSlot = this.itemInventory.getSizeInventory() - 1;
+            EnumFacing up = EnumFacing.UP;
 
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, inv, 0, 0, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, inv, 0, 0, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
                     InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, inv, false, false, true);
                     break;
                 case 3: // Fill stacks in player inventory from Chest
-                    InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
                     break;
                 case 4: // Move matching items to player inventory
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
                     break;
                 case 5: // Move all items to player inventory
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
                     break;
             }
 

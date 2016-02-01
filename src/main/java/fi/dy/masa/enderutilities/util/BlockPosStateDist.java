@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.util;
 
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+
 public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPosStateDist>
 {
     public double distance;
@@ -8,6 +11,12 @@ public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPos
     public BlockPosStateDist(BlockPosEU pos, BlockInfo blockInfo)
     {
         this(pos.posX, pos.posY, pos.posZ, pos.dimension, pos.face, blockInfo);
+    }
+
+    public BlockPosStateDist(BlockPos pos, int dim, EnumFacing side, BlockInfo blockInfo)
+    {
+        super(pos, dim, side);
+        this.blockInfo = blockInfo;
     }
 
     public BlockPosStateDist(int x, int y, int z, int dim, int face, BlockInfo blockInfo)

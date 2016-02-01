@@ -1,12 +1,16 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
@@ -38,9 +42,41 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
     }
 
     @Override
-    public IMessage onMessage(MessageKeyPressed message, MessageContext ctx)
+    public IMessage onMessage(final MessageKeyPressed message, MessageContext ctx)
     {
-        EntityPlayer player = ctx.getServerHandler().playerEntity;
+        if (ctx.side != Side.SERVER)
+        {
+            EnderUtilities.logger.error("Wrong side in MessageKeyPressed: " + ctx.side);
+            return null;
+        }
+
+        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+        if (sendingPlayer == null)
+        {
+            EnderUtilities.logger.error("Sending player was null in MessageKeyPressed");
+            return null;
+        }
+
+        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+        if (playerWorldServer == null)
+        {
+            EnderUtilities.logger.error("World was null in MessageKeyPressed");
+            return null;
+        }
+
+        playerWorldServer.addScheduledTask(new Runnable()
+        {
+            public void run()
+            {
+                processMessage(message, sendingPlayer);
+            }
+        });
+
+        return null;
+    }
+
+    protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
+    {
         ItemStack stack = player.getCurrentEquippedItem();
 
         if (stack != null && stack.getItem() instanceof IKeyBound)
@@ -54,7 +90,5 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
         {
             ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
         }
-
-        return null;
     }
 }

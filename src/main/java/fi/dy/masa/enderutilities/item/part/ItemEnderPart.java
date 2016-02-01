@@ -12,7 +12,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -21,7 +23,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -35,11 +36,6 @@ public class ItemEnderPart extends ItemModule
     public static final int MEMORY_CARD_TYPE_ITEMS_8B  = 8;
     public static final int MEMORY_CARD_TYPE_ITEMS_10B = 10;
     public static final int MEMORY_CARD_TYPE_ITEMS_12B = 12;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-    @SideOnly(Side.CLIENT)
-    private IIcon[] slotBackgrounds;
 
     public ItemEnderPart()
     {
@@ -98,7 +94,7 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
@@ -108,7 +104,7 @@ public class ItemEnderPart extends ItemModule
         // Ender Relic
         if (stack != null && stack.getItemDamage() == 40)
         {
-            if (EntityUtils.spawnEnderCrystal(world, x, y, z) == true)
+            if (EntityUtils.spawnEnderCrystal(world, pos) == true)
             {
                 --stack.stackSize;
                 return true;
@@ -162,7 +158,7 @@ public class ItemEnderPart extends ItemModule
         if (damage == 50) // Memory Card (misc)
         {
             ArrayList<String> listDataTypes = new ArrayList<String>();
-            Iterator<String> iter = nbt.func_150296_c().iterator();
+            Iterator<String> iter = nbt.getKeySet().iterator();
             while (iter.hasNext())
             {
                 String key = iter.next();
@@ -298,7 +294,7 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         if (Configs.disableItemCraftingPart.getBoolean(false) == false)
         {
@@ -330,84 +326,5 @@ public class ItemEnderPart extends ItemModule
             list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
             list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
         }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + ".0");
-        this.iconArray = new IIcon[18];
-
-        int i = 0, j;
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + j);
-        }
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".inactive");
-        }
-
-        for (j = 0; j < 3; ++i, ++j)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + j + ".active");
-        }
-
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC);
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".6b");
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".8b");
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".10b");
-        this.iconArray[i++] = iconRegister.registerIcon(this.getIconString() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + ".12b");
-
-        // The background icon for empty slots for this item type
-        this.slotBackgrounds = new IIcon[3];
-        this.slotBackgrounds[0] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE));
-        this.slotBackgrounds[1] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE));
-        this.slotBackgrounds[2] = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        // Ender Alloy
-        if (damage >= 0 && damage <= 2) { return this.iconArray[damage]; }
-
-        // Inactive Ender Core
-        if (damage >= 10 && damage <= 12) { return this.iconArray[damage - 7]; }
-
-        // Ender Core (active)
-        if (damage >= 15 && damage <= 17) { return this.iconArray[damage - 9]; }
-
-        if (damage == 20) { return this.iconArray[9]; } // Ender Stick
-        if (damage == 21) { return this.iconArray[10]; } // Ender Rope
-        if (damage == 40) { return this.iconArray[11]; } // Ender Relic
-        if (damage == 45) { return this.iconArray[12]; } // Mob Persistence
-        if (damage >= 50 && damage <= 54) { return this.iconArray[damage - 37]; } // Memory Card
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getGuiSlotBackgroundIconIndex(ModuleType moduleType)
-    {
-        // Ender Cores
-        if (ModuleType.TYPE_ENDERCORE_ACTIVE.equals(moduleType) || ModuleType.TYPE_ENDERCORE_ACTIVE.equals(moduleType)) { return this.slotBackgrounds[0]; }
-
-        // Jailer module
-        if (ModuleType.TYPE_MOBPERSISTENCE.equals(moduleType)) { return this.slotBackgrounds[1]; }
-
-        // Memory Cards
-        if (ModuleType.TYPE_MEMORY_CARD.equals(moduleType)) { return this.slotBackgrounds[2]; }
-
-        return null;
     }
 }

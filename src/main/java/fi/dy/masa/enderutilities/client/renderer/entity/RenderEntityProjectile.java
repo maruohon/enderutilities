@@ -11,7 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-import fi.dy.masa.enderutilities.entity.IItemData;
+import fi.dy.masa.enderutilities.entity.base.IItemData;
 
 public class RenderEntityProjectile<T extends Entity> extends Render<T>
 {

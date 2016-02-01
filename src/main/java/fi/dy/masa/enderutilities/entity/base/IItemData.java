@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.entity;
+package fi.dy.masa.enderutilities.entity.base;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;

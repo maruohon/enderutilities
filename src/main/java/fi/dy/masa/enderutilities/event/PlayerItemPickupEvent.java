@@ -1,6 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Event.HasResult
 public class PlayerItemPickupEvent extends PlayerEvent
 {
-    public final ArrayList<ItemStack> drops;
+    public final List<ItemStack> drops;
 
     /**
      * This event is called when a player is about to receive items into their inventory.
@@ -27,7 +27,7 @@ public class PlayerItemPickupEvent extends PlayerEvent
      * The event can be canceled, and no further processing will be done.
      * 
      */
-    public PlayerItemPickupEvent(EntityPlayer player, ArrayList<ItemStack> items)
+    public PlayerItemPickupEvent(EntityPlayer player, List<ItemStack> items)
     {
         super(player);
         this.drops = items;

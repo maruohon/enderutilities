@@ -14,15 +14,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ItemEnderUtilities extends Item
 {
     public String name;
-    @SideOnly(Side.CLIENT)
-    protected IIcon slotBackground;
 
     public ItemEnderUtilities()
     {
@@ -34,7 +30,6 @@ public class ItemEnderUtilities extends Item
     public Item setUnlocalizedName(String name)
     {
         this.name = name;
-        this.setTextureName(ReferenceTextures.getItemTextureName(name));
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
 
@@ -48,7 +43,7 @@ public class ItemEnderUtilities extends Item
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
@@ -116,28 +111,5 @@ public class ItemEnderUtilities extends Item
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
-    /**
-     * Return the slot background icon of empty slots that are meant for only this type of module.
-     */
-    @SideOnly(Side.CLIENT)
-    public IIcon getGuiSlotBackgroundIconIndex(ModuleType moduleType)
-    {
-        return this.slotBackground;
-    }
-
-    /**
-     * Return the slot background icon of empty slots that are meant for only this type of item.
-     */
-    @SideOnly(Side.CLIENT)
-    public IIcon getGuiSlotBackgroundIconIndex(ItemStack stack)
-    {
-        if (stack.getItem() instanceof IModule)
-        {
-            return this.getGuiSlotBackgroundIconIndex(((IModule)stack.getItem()).getModuleType(stack));
-        }
-
-        return null;
     }
 }

@@ -1,14 +1,17 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -68,12 +71,44 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
     }
 
     @Override
-    public IMessage onMessage(MessageGuiAction message, MessageContext ctx)
+    public IMessage onMessage(final MessageGuiAction message, MessageContext ctx)
     {
-        EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+        if (ctx.side != Side.SERVER)
+        {
+            EnderUtilities.logger.error("Wrong side in MessageGuiAction: " + ctx.side);
+            return null;
+        }
+
+        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+        if (sendingPlayer == null)
+        {
+            EnderUtilities.logger.error("Sending player was null in MessageGuiAction");
+            return null;
+        }
+
+        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+        if (playerWorldServer == null)
+        {
+            EnderUtilities.logger.error("World was null in MessageGuiAction");
+            return null;
+        }
+
+        playerWorldServer.addScheduledTask(new Runnable()
+        {
+            public void run()
+            {
+                processMessage(message, sendingPlayer);
+            }
+        });
+
+        return null;
+    }
+
+    protected void processMessage(final MessageGuiAction message, EntityPlayer player)
+    {
         World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
 
-        if (player != null && world != null)
+        if (world != null)
         {
             switch(message.guiId)
             {
@@ -100,7 +135,5 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
                 default:
             }
         }
-
-        return null;
     }
 }

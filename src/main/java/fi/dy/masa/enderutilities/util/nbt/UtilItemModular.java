@@ -889,7 +889,7 @@ public class UtilItemModular
         // Don't adjust the target position for uses that are targeting the block, not the in-world location
         boolean adjustPosHit = getSelectedModuleTier(containerStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
 
-        setTarget(containerStack, player, player.getPosition(), EnumFacing.UP.getIndex(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        setTarget(containerStack, player, player.getPosition(), EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     /**
@@ -907,7 +907,7 @@ public class UtilItemModular
      * using the integer position. This is normally true for location type Link Crystals, and false for block type Link Crystals.
      * @param storeRotation true if we also want to store the player's yaw and pitch rotations
      */
-    public static void setTarget(ItemStack containerStack, EntityPlayer player, BlockPos pos, int side,
+    public static void setTarget(ItemStack containerStack, EntityPlayer player, BlockPos pos, EnumFacing side,
             double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
         if (NBTHelperPlayer.canAccessSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)

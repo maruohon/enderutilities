@@ -15,8 +15,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -36,11 +34,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public static final int ENDER_CHARGE_COST_MOB_TP = 1000;
     public static final byte BOW_MODE_TP_TARGET = 0;
     public static final byte BOW_MODE_TP_SELF = 1;
-
-    public static final String[] bowPullIconNameArray = new String[] {"standby", "pulling.0", "pulling.1", "pulling.2", "broken",
-                            "mode2.standby", "mode2.pulling.0", "mode2.pulling.1", "mode2.pulling.2", "mode2.broken"};
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
 
     public ItemEnderBow()
     {
@@ -158,7 +151,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public EnumAction getItemUseAction(ItemStack stack)
     {
-        return EnumAction.bow;
+        return EnumAction.BOW;
     }
 
     /**
@@ -322,86 +315,5 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         return 0;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".standby");
-        this.iconArray = new IIcon[bowPullIconNameArray.length];
-
-        for (int i = 0; i < this.iconArray.length; ++i)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + "." + bowPullIconNameArray[i]);
-        }
-    }
-
-    /**
-     * used to cycle through icons based on their used duration, i.e. for the bow
-     */
-    @SideOnly(Side.CLIENT)
-    public IIcon getItemIconForUseDuration(int index)
-    {
-        if (index < this.iconArray.length)
-        {
-            return this.iconArray[index];
-        }
-
-        return this.itemIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        int index = 0;
-        byte mode = 0;
-
-        if (stack.getTagCompound() != null)
-        {
-            mode = stack.getTagCompound().getByte("Mode");
-            if (mode > 1 || mode < 0)
-            {
-                mode = 0;
-            }
-            index = mode * 5;
-        }
-
-        if (this.isBroken(stack) == true)
-        {
-            index += 4;
-        }
-        else if (player != null && player.getItemInUse() != null)
-        {
-            int inUse = 0;
-            inUse = stack.getMaxItemUseDuration() - useRemaining;
-            if (inUse >= 18) { index += 3; }
-            else if (inUse >= 13) { index += 2; }
-            else if (inUse > 0) { index += 1; }
-        }
-
-        return this.getItemIconForUseDuration(index);
     }
 }

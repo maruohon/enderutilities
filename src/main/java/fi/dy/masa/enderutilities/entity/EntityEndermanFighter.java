@@ -7,6 +7,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIAttackOnCollide;
+import net.minecraft.entity.ai.EntityAIHurtByTarget;
+import net.minecraft.entity.ai.EntityAILookIdle;
+import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAIWander;
+import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.monster.EntityMob;
@@ -15,10 +21,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -26,23 +33,25 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
+import fi.dy.masa.enderutilities.entity.base.IEntityDoubleTargeting;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class EntityEndermanFighter extends EntityMob
+public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting
 {
     private static final UUID attackingSpeedBoostModifierUUID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
-    private static final AttributeModifier attackingSpeedBoostModifier = (new AttributeModifier(attackingSpeedBoostModifierUUID, "Attacking speed boost", 6.199999809265137D, 0)).setSaved(false);
+    private static final AttributeModifier attackingSpeedBoostModifier = (new AttributeModifier(attackingSpeedBoostModifierUUID, "Attacking speed boost", 0.15d, 0)).setSaved(false);
     /** Counter to delay the teleportation of an enderman towards the currently attacked target */
     private int teleportDelay;
     private Entity lastEntityToAttack;
-    /** The target entity set by a Summon item */
-    private Entity attackTargetCommanded;
-    private UUID attackTargetUUID;
+    /** The primary target entity, set by a Summon item */
+    private EntityLivingBase primaryTarget;
     /** The revenge target, if someone has attacked this entity */
-    private Entity revengeTarget;
-    private UUID revengeTargetUUID;
+    private EntityLivingBase secondaryTarget;
+    private UUID primaryTargetUUID;
+    private UUID secondaryTargetUUID;
+    private boolean activeTargetIsPrimary;
     private boolean isAggressive;
     private boolean isBeingControlled;
     private int timer;
@@ -53,11 +62,18 @@ public class EntityEndermanFighter extends EntityMob
         super(world);
         this.setSize(0.6f, 2.9f);
         this.stepHeight = 1.0f;
-        this.attackTargetCommanded = null;
-        this.attackTargetUUID = null;
-        this.revengeTarget = null;
-        this.revengeTargetUUID = null;
+        this.primaryTarget = null;
+        this.secondaryTarget = null;
+        this.primaryTargetUUID = null;
+        this.secondaryTargetUUID = null;
         this.isBeingControlled = false;
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(2, new EntityAIAttackOnCollide(this, 1.0D, false));
+        this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
+        this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        //this.targetTasks.addTask(2, new EntityEnderman.AIFindPlayer());
     }
 
     @Override
@@ -65,8 +81,9 @@ public class EntityEndermanFighter extends EntityMob
     {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(40.0d);
-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.4d);
-        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(5.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.35d);
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(7.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(64.0d);
     }
 
     @Override
@@ -78,20 +95,26 @@ public class EntityEndermanFighter extends EntityMob
     }
 
     @Override
+    public float getEyeHeight()
+    {
+        return 2.55f;
+    }
+
+    @Override
     public void writeEntityToNBT(NBTTagCompound nbt)
     {
         super.writeEntityToNBT(nbt);
 
-        if (this.revengeTargetUUID != null)
+        if (this.primaryTargetUUID != null)
         {
-            nbt.setLong("RTUUIDM", this.revengeTargetUUID.getMostSignificantBits());
-            nbt.setLong("RTUUIDL", this.revengeTargetUUID.getLeastSignificantBits());
+            nbt.setLong("PTUUIDM", this.primaryTargetUUID.getMostSignificantBits());
+            nbt.setLong("PTUUIDL", this.primaryTargetUUID.getLeastSignificantBits());
         }
 
-        if (this.attackTargetUUID != null)
+        if (this.secondaryTargetUUID != null)
         {
-            nbt.setLong("ATUUIDM", this.attackTargetUUID.getMostSignificantBits());
-            nbt.setLong("ATUUIDL", this.attackTargetUUID.getLeastSignificantBits());
+            nbt.setLong("STUUIDM", this.secondaryTargetUUID.getMostSignificantBits());
+            nbt.setLong("STUUIDL", this.secondaryTargetUUID.getLeastSignificantBits());
         }
     }
 
@@ -100,14 +123,14 @@ public class EntityEndermanFighter extends EntityMob
     {
         super.readEntityFromNBT(nbt);
 
-        if (nbt.hasKey("RTUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("RTUUIDL", Constants.NBT.TAG_LONG))
+        if (nbt.hasKey("PTUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("PTUUIDL", Constants.NBT.TAG_LONG))
         {
-            this.revengeTargetUUID = new UUID(nbt.getLong("RTUUIDM"), nbt.getLong("RTUUIDL"));
+            this.primaryTargetUUID = new UUID(nbt.getLong("PTUUIDM"), nbt.getLong("PTUUIDL"));
         }
 
-        if (nbt.hasKey("ATUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("ATUUIDL", Constants.NBT.TAG_LONG))
+        if (nbt.hasKey("STUUIDM", Constants.NBT.TAG_LONG) && nbt.hasKey("STUUIDL", Constants.NBT.TAG_LONG))
         {
-            this.attackTargetUUID = new UUID(nbt.getLong("ATUUIDM"), nbt.getLong("ATUUIDL"));
+            this.secondaryTargetUUID = new UUID(nbt.getLong("STUUIDM"), nbt.getLong("STUUIDL"));
         }
     }
 
@@ -126,46 +149,93 @@ public class EntityEndermanFighter extends EntityMob
         return false;
     }
 
-    public void setTargetCommanded(Entity entity)
+    @Override
+    public void setPrimaryTarget(EntityLivingBase livingBase)
     {
-        //System.out.println("setTargetCommanded(): " + entity);
-        this.attackTargetCommanded = entity;
+        //System.out.println("setPrimaryTarget(): " + livingBase);
+        this.primaryTarget = livingBase;
 
-        if (entity != null)
+        if (livingBase != null)
         {
-            this.attackTargetUUID = entity.getUniqueID();
+            this.primaryTargetUUID = livingBase.getUniqueID();
+        }
+        else
+        {
+            this.primaryTargetUUID = null;
         }
     }
 
     @Override
-    public void setTarget(Entity entity)
+    public void setSecondaryTarget(EntityLivingBase livingBase)
     {
-        //System.out.println("setTarget(): " + entity);
-        super.setTarget(entity);
+        //System.out.println("setSecondaryTarget(): " + livingBase);
+        this.secondaryTarget = livingBase;
 
-        if (entity == null)
+        if (livingBase != null)
+        {
+            this.secondaryTargetUUID = livingBase.getUniqueID();
+        }
+        else
+        {
+            this.secondaryTargetUUID = null;
+        }
+    }
+
+    @Override
+    public EntityLivingBase getPrimaryTarget()
+    {
+        return this.primaryTarget;
+    }
+
+    @Override
+    public EntityLivingBase getSecondaryTarget()
+    {
+        return this.secondaryTarget;
+    }
+
+    @Override
+    public void setActiveTarget(boolean primaryIsActive)
+    {
+        this.activeTargetIsPrimary = primaryIsActive;
+    }
+
+    @Override
+    public boolean getPrimaryTargetIsActive()
+    {
+        return this.activeTargetIsPrimary;
+    }
+
+    @Override
+    public EntityLivingBase getActiveTargetEntity()
+    {
+        return this.activeTargetIsPrimary == true ? this.primaryTarget : this.secondaryTarget;
+    }
+
+    @Override
+    public void setAttackTarget(EntityLivingBase livingBase)
+    {
+        //System.out.println("setAttackTarget(): " + livingBase);
+        super.setAttackTarget(livingBase);
+
+        if (livingBase == null)
         {
             this.setScreaming(false);
         }
-        else if (entity instanceof EntityPlayer)
+        else if (livingBase instanceof EntityPlayer)
         {
             this.setScreaming(true);
             this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.stare", 0.5f, 1.2f);
         }
     }
 
-    @Override
-    protected Entity findPlayerToAttack()
+    protected EntityPlayer findPlayerToAttack()
     {
-        if (this.timer == 0)
+        //if (this.timer == 0)
         {
             EntityPlayer player = this.getClosestVulnerablePlayer(this.posX, this.posY, this.posZ, 64.0d);
 
             if (player != null && this.shouldAttackPlayer(player) == true)
             {
-                this.isAggressive = true;
-                this.setTarget(player);
-
                 return player;
             }
         }
@@ -220,13 +290,13 @@ public class EntityEndermanFighter extends EntityMob
     {
         // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
         // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
-        if (this.hasCustomNameTag() == true || player.isEntityAlive() == false
-            || this.isPlayerHoldingSummonItem(player) == true || player.capabilities.disableDamage == true)
+        if (this.isBeingControlled == true || this.hasCustomName() == true || player.isEntityAlive() == false
+            || player.capabilities.disableDamage == true || this.isPlayerHoldingSummonItem(player) == true)
         {
             return false;
         }
 
-        return this.isBeingControlled == false;
+        return true;
     }
 
     private void updateIsBeingControlled()
@@ -247,39 +317,39 @@ public class EntityEndermanFighter extends EntityMob
         this.isBeingControlled = false;
     }
 
-    private Entity getLivingEntityNearbyByUUID(UUID uuid, double bbRadius)
+    public EntityLivingBase getLivingEntityNearbyByUUID(UUID uuid, double bbRadius)
     {
         double r = bbRadius;
-        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
-        List<Entity> list = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+        AxisAlignedBB bb = AxisAlignedBB.fromBounds(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
+        List<EntityLivingBase> list = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, bb);
 
         return EntityUtils.findEntityByUUID(list, uuid);
     }
 
     private void checkTargetsNotDead()
     {
-        if (this.revengeTarget != null && this.revengeTarget.isEntityAlive() == false)
+        EntityLivingBase primary = this.getPrimaryTarget();
+        if (primary != null && primary.isEntityAlive() == false)
         {
-            if (this.entityToAttack == this.revengeTarget)
-            {
-                this.setTarget(null);
-            }
+            //System.out.println("primary target is dead, clearing...");
+            this.setPrimaryTarget(null);
 
-            //System.out.println("clearing revenge target");
-            this.revengeTarget = null;
-            this.revengeTargetUUID = null;
+            if (this.getAttackTarget() == primary)
+            {
+                this.setAttackTarget(null);
+            }
         }
 
-        if (this.attackTargetCommanded != null && this.attackTargetCommanded.isEntityAlive() == false)
+        EntityLivingBase secondary = this.getSecondaryTarget();
+        if (secondary != null && secondary.isEntityAlive() == false)
         {
-            if (this.entityToAttack == this.attackTargetCommanded)
-            {
-                this.setTarget(null);
-            }
+            //System.out.println("secondary target is dead, clearing...");
+            this.setSecondaryTarget(null);
 
-            //System.out.println("clearing commanded target");
-            this.attackTargetCommanded = null;
-            this.attackTargetUUID = null;
+            if (this.getAttackTarget() == secondary)
+            {
+                this.setAttackTarget(null);
+            }
         }
     }
 
@@ -287,39 +357,44 @@ public class EntityEndermanFighter extends EntityMob
     {
         if (this.isBeingControlled == true)
         {
-            if (this.attackTargetCommanded == null && this.attackTargetUUID != null)
+            if (this.getPrimaryTarget() == null && this.primaryTargetUUID != null)
             {
-                this.attackTargetCommanded = this.getLivingEntityNearbyByUUID(this.attackTargetUUID, 64.0d);
+                this.setPrimaryTarget(this.getLivingEntityNearbyByUUID(this.primaryTargetUUID, 64.0d));
             }
 
             // This entity is being controlled and is currently attacking something other than the commanded target,
             // switch to the commanded target.
-            if (this.attackTargetCommanded != null && this.entityToAttack != this.attackTargetCommanded)
+            if (this.getPrimaryTarget() != null && this.getAttackTarget() != this.getPrimaryTarget())
             {
-                //System.out.println("is controlled, switching to commanded target");
-                this.setTarget(this.attackTargetCommanded);
+                //System.out.println("is being controlled, switching to primary target");
+                this.setAttackTarget(this.getPrimaryTarget());
             }
         }
         // Not controlled by a Summon item
         else
         {
-            if (this.revengeTarget == null && this.revengeTargetUUID != null)
+            if (this.getSecondaryTarget() == null && this.secondaryTargetUUID != null)
             {
-                this.revengeTarget = this.getLivingEntityNearbyByUUID(this.revengeTargetUUID, 64.0d);
+                this.setSecondaryTarget(this.getLivingEntityNearbyByUUID(this.secondaryTargetUUID, 64.0d));
             }
 
             // This entity is NOT being controlled at the moment, has a revenge target but is not currently attacking it,
             // switch to the revenge target.
-            if (this.revengeTarget != null && this.entityToAttack != this.revengeTarget)
+            if (this.getSecondaryTarget() != null && this.getAttackTarget() != this.getSecondaryTarget())
             {
-                //System.out.println("not controlled, switching to revenge target");
-                this.setTarget(this.revengeTarget);
+                //System.out.println("not being controlled, switching to secondary target");
+                this.setAttackTarget(this.getSecondaryTarget());
             }
             // Not controlled, has no revenge target and is attacking a commanded target, switch to the closest player. 
-            else if (this.revengeTarget == null && this.entityToAttack == this.attackTargetCommanded)
+            else if (this.getSecondaryTarget() == null && this.getAttackTarget() == this.getPrimaryTarget())
             {
-                //System.out.println("not controlled, switching to player");
-                this.findPlayerToAttack();
+                //System.out.println("not being controlled, switching to closest player");
+                EntityPlayer player = this.findPlayerToAttack();
+                if (player != null)
+                {
+                    this.isAggressive = true;
+                    this.setAttackTarget(player);
+                }
             }
         }
     }
@@ -336,9 +411,10 @@ public class EntityEndermanFighter extends EntityMob
                 double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width;
                 double vx = (this.rand.nextDouble() - 0.5d) * 2.0d;
                 double vz = (this.rand.nextDouble() - 0.5d) * 2.0d;
-                this.worldObj.spawnParticle("portal", x, y, z, vx, -this.rand.nextDouble(), vz);
+                this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, -this.rand.nextDouble(), vz);
             }
 
+            this.isJumping = false;
             super.onLivingUpdate();
             return;
         }
@@ -349,17 +425,17 @@ public class EntityEndermanFighter extends EntityMob
             this.timer = 0;
         }
 
-        if (this.lastEntityToAttack != this.entityToAttack)
+        if (this.lastEntityToAttack != this.getAttackTarget())
         {
             IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
             iattributeinstance.removeModifier(attackingSpeedBoostModifier);
 
-            if (this.entityToAttack != null)
+            if (this.getAttackTarget() != null)
             {
                 iattributeinstance.applyModifier(attackingSpeedBoostModifier);
             }
 
-            this.lastEntityToAttack = this.entityToAttack;
+            this.lastEntityToAttack = this.getAttackTarget();
         }
 
         if (this.isWet())
@@ -385,16 +461,16 @@ public class EntityEndermanFighter extends EntityMob
             this.updateIsBeingControlled();
             this.switchTargets();
 
-            if (this.entityToAttack != null)
+            if (this.getAttackTarget() != null)
             {
-                this.faceEntity(this.entityToAttack, 100.0f, 100.0f);
+                this.faceEntity(this.getAttackTarget(), 100.0f, 100.0f);
 
                 // is a player and should attack him
-                if (this.entityToAttack instanceof EntityPlayer)
+                if (this.getAttackTarget() instanceof EntityPlayer)
                 {
-                    if (this.shouldAttackPlayer((EntityPlayer)this.entityToAttack) == true)
+                    if (this.shouldAttackPlayer((EntityPlayer)this.getAttackTarget()) == true)
                     {
-                        if (this.entityToAttack.getDistanceSqToEntity(this) < 16.0d && this.worldObj.rand.nextFloat() < 0.03f)
+                        if (this.getAttackTarget().getDistanceSqToEntity(this) < 16.0d && this.worldObj.rand.nextFloat() < 0.03f)
                         {
                             this.teleportRandomly();
                         }
@@ -404,7 +480,7 @@ public class EntityEndermanFighter extends EntityMob
                     else
                     {
                         //System.out.println("should not attack player");
-                        this.setTarget(null);
+                        this.setAttackTarget(null);
                         this.setRaging(false);
                     }
                 }
@@ -413,7 +489,7 @@ public class EntityEndermanFighter extends EntityMob
                     this.setRaging(false);
                 }
 
-                if (this.entityToAttack != null && this.entityToAttack.getDistanceSqToEntity(this) > 256.0d && this.teleportDelay++ >= 30 && this.teleportToEntity(this.entityToAttack))
+                if (this.getAttackTarget() != null && this.getAttackTarget().getDistanceSqToEntity(this) > 256.0d && this.teleportDelay++ >= 30 && this.teleportToEntity(this.getAttackTarget()))
                 {
                     this.teleportDelay = 0;
                 }
@@ -426,7 +502,7 @@ public class EntityEndermanFighter extends EntityMob
             }
         }
 
-        if (this.entityToAttack == null && this.isNoDespawnRequired() == false)
+        if (this.getAttackTarget() == null && this.isNoDespawnRequired() == false)
         {
             // Despawn ("teleport away") the entity sometime after 10 seconds of not attacking anything
             if (++this.idleTimer >= 200 && this.worldObj.rand.nextFloat() < 0.03f)
@@ -439,7 +515,7 @@ public class EntityEndermanFighter extends EntityMob
                     double x = this.posX + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                     double y = this.posY + this.rand.nextDouble() * (double)this.height;
                     double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
-                    this.worldObj.spawnParticle("portal", x, y, z, vx, vy, vz);
+                    this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
                 this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.portal", 0.7f, 1.0f);
@@ -471,7 +547,7 @@ public class EntityEndermanFighter extends EntityMob
      */
     protected boolean teleportToEntity(Entity target)
     {
-        Vec3 vec3 = Vec3.createVectorHelper(this.posX - target.posX, this.boundingBox.minY + (this.height / 2.0d) - target.posY + (double)target.getEyeHeight(), this.posZ - target.posZ);
+        Vec3 vec3 = new Vec3(this.posX - target.posX, this.posY + (this.height / 2.0d) - target.posY + (double)target.getEyeHeight(), this.posZ - target.posZ);
         vec3 = vec3.normalize();
         double d = 16.0d;
         double x = this.posX + (this.rand.nextDouble() - 0.5d) * (d / 2) - vec3.xCoord * d;
@@ -496,19 +572,18 @@ public class EntityEndermanFighter extends EntityMob
         this.posX = event.targetX;
         this.posY = event.targetY;
         this.posZ = event.targetZ;
-        int blockX = MathHelper.floor_double(this.posX);
-        int blockY = MathHelper.floor_double(this.posY);
-        int blockZ = MathHelper.floor_double(this.posZ);
 
         boolean foundValidLocation = false;
+        BlockPos pos = new BlockPos(this.posX, this.posY, this.posZ);
 
-        if (this.worldObj.blockExists(blockX, blockY, blockZ))
+        if (this.worldObj.isBlockLoaded(pos))
         {
             boolean foundSolidFloor = false;
 
-            while (foundSolidFloor == false && blockY > 0)
+            while (foundSolidFloor == false && pos.getY() > 0)
             {
-                Block block = this.worldObj.getBlock(blockX, blockY - 1, blockZ);
+                BlockPos pos1 = pos.down();
+                Block block = this.worldObj.getBlockState(pos1).getBlock();
 
                 if (block.getMaterial().blocksMovement())
                 {
@@ -517,7 +592,7 @@ public class EntityEndermanFighter extends EntityMob
                 else
                 {
                     --this.posY;
-                    --blockY;
+                    pos = pos1;
                 }
             }
 
@@ -525,7 +600,7 @@ public class EntityEndermanFighter extends EntityMob
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox).isEmpty() && this.worldObj.isAnyLiquid(this.boundingBox) == false)
+                if (this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
                 {
                     foundValidLocation = true;
                 }
@@ -550,7 +625,7 @@ public class EntityEndermanFighter extends EntityMob
                 double d7 = oldX + (this.posX - oldX) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                 double d8 = oldY + (this.posY - oldY) * d6 + this.rand.nextDouble() * (double)this.height;
                 double d9 = oldZ + (this.posZ - oldZ) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
-                this.worldObj.spawnParticle("portal", d7, d8, d9, (double)f, (double)f1, (double)f2);
+                this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
             this.worldObj.playSoundEffect(oldX, oldY, oldZ, "mob.endermen.portal", 0.7f, 1.0f);
@@ -591,7 +666,7 @@ public class EntityEndermanFighter extends EntityMob
     @Override
     public boolean attackEntityFrom(DamageSource source, float damage)
     {
-        if (this.isEntityInvulnerable())
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -600,9 +675,8 @@ public class EntityEndermanFighter extends EntityMob
 
         if (source instanceof EntityDamageSource && source.getEntity() instanceof EntityLivingBase)
         {
-            //System.out.println("setting revenge target");
-            this.revengeTarget = (EntityLivingBase)source.getEntity();
-            this.revengeTargetUUID = this.revengeTarget.getUniqueID();
+            System.out.println("setting secondary target");
+            this.setSecondaryTarget((EntityLivingBase)source.getEntity());
             this.isAggressive = true;
         }
 

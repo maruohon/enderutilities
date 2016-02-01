@@ -59,7 +59,7 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
@@ -72,7 +72,7 @@ public class ItemRuler extends ItemModular
         if (last == null || (world.getTotalWorldTime() - last) >= 6)
         {
             // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
-            this.setOrRemovePosition(stack, new BlockPosEU(x, y, z, player.dimension, side), POS_START, player.isSneaking() == false);
+            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
@@ -408,7 +408,7 @@ public class ItemRuler extends ItemModular
         {
             if (adjustPosition == true)
             {
-                pos = pos.offset(ForgeDirection.getOrientation(pos.face), 1);
+                pos = pos.offset(pos.side, 1);
             }
 
             int selected = this.getLocationSelection(rulerStack);
@@ -437,7 +437,7 @@ public class ItemRuler extends ItemModular
             }
             else
             {
-                tagList.func_150304_a(selected, tag);
+                tagList.set(selected, tag);
             }
 
             NBTUtils.setTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, tagList);
@@ -463,7 +463,7 @@ public class ItemRuler extends ItemModular
             }
             else
             {
-                tagList.func_150304_a(selected, tag);
+                tagList.set(selected, tag);
             }
 
             NBTUtils.setTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, tagList);

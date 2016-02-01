@@ -23,7 +23,7 @@ public class InventoryUtils
      * Tries to move all items from the inventory invSrc into invDst within the provided slot range.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
+    public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst)
     {
         return tryMoveAllItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, slotMinSrc, slotMaxSrc, slotMinDst, slotMaxDst, false);
@@ -33,7 +33,7 @@ public class InventoryUtils
      * Tries to move all items from the inventory invSrc into invDst within the provided slot range.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
+    public static boolean tryMoveAllItemsWithinSlotRange(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst, boolean ignoreStackLimit)
     {
         // TODO change the sides into facings
@@ -41,9 +41,8 @@ public class InventoryUtils
 
         if (invSrc instanceof ISidedInventory)
         {
-            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(sideSrc);
 
             for (int slotNum : slotsSrc)
             {
@@ -51,7 +50,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(slotNum);
 
-                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, faceSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, sideSrc) == true)
                     {
                         stack = tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, sideDst, slotMinDst, slotMaxDst, ignoreStackLimit);
                         invSrc.setInventorySlotContents(slotNum, stack);
@@ -92,7 +91,7 @@ public class InventoryUtils
      * Tries to move all items from the inventory invSrc into invDst.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveAllItems(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst)
+    public static boolean tryMoveAllItems(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst)
     {
         return tryMoveAllItems(invSrc, invDst, sideSrc, sideDst, false);
     }
@@ -101,25 +100,28 @@ public class InventoryUtils
      * Tries to move all items from the inventory invSrc into invDst.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveAllItems(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, boolean ignoreStackLimit)
+    public static boolean tryMoveAllItems(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst, boolean ignoreStackLimit)
     {
-        return tryMoveAllItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, ignoreStackLimit);
+        return tryMoveAllItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst,
+                0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, ignoreStackLimit);
     }
 
     /**
      * Tries to move matching/existing items from the inventory invSrc into invDst.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveMatchingItems(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst, boolean ignoreStackLimit)
+    public static boolean tryMoveMatchingItems(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
+            boolean ignoreStackLimit)
     {
-        return tryMoveMatchingItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, ignoreStackLimit);
+        return tryMoveMatchingItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst,
+                0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, ignoreStackLimit);
     }
 
     /**
      * Tries to move matching/existing items from the inventory invSrc into invDst within the provided slot range.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
+    public static boolean tryMoveMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst)
     {
         return tryMoveMatchingItemsWithinSlotRange(invSrc, invDst, sideSrc, sideDst, slotMinSrc, slotMaxSrc, slotMinDst, slotMaxDst, false);
@@ -129,16 +131,15 @@ public class InventoryUtils
      * Tries to move matching/existing items from the inventory invSrc into invDst within the provided slot range.
      * @return true if all items were successfully moved, false if none or just some were moved
      */
-    public static boolean tryMoveMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
+    public static boolean tryMoveMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst, boolean ignoreStackLimit)
     {
         boolean movedAll = true;
 
         if (invSrc instanceof ISidedInventory)
         {
-            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(sideSrc);
 
             for (int slotNum : slotsSrc)
             {
@@ -146,7 +147,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(slotNum);
 
-                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, faceSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(slotNum, stack, sideSrc) == true)
                     {
                         if (getSlotOfFirstMatchingItemStackWithinSlotRange(invDst, stack, slotMinDst, slotMaxDst) != -1)
                         {
@@ -194,21 +195,21 @@ public class InventoryUtils
      */
     public static void fillStacksOfMatchingItems(IInventory invSrc, IInventory invDst)
     {
-        fillStacksOfMatchingItemsWithinSlotRange(invSrc, invDst, 0, 0, 0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, false);
+        fillStacksOfMatchingItemsWithinSlotRange(invSrc, invDst, EnumFacing.UP, EnumFacing.UP,
+                0, invSrc.getSizeInventory() - 1, 0, invDst.getSizeInventory() - 1, false);
     }
 
     /**
      * Tries to fill all the existing stacks in invDst from invSrc within the provided slot ranges.
      * Set ignoreStackLimit to true to ignore the ItemStack.getMaxStackSize() and only check the IInventory.getInventoryStackLimit().
      */
-    public static void fillStacksOfMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, int sideSrc, int sideDst,
+    public static void fillStacksOfMatchingItemsWithinSlotRange(IInventory invSrc, IInventory invDst, EnumFacing sideSrc, EnumFacing sideDst,
             int slotMinSrc, int slotMaxSrc, int slotMinDst, int slotMaxDst, boolean ignoreStackLimit)
     {
         if (invSrc instanceof ISidedInventory)
         {
-            EnumFacing faceSrc = EnumFacing.getFront(sideSrc);
             ISidedInventory sidedSrc = (ISidedInventory) invSrc;
-            int[] slotsSrc = sidedSrc.getSlotsForFace(faceSrc);
+            int[] slotsSrc = sidedSrc.getSlotsForFace(sideSrc);
 
             for (int i : slotsSrc)
             {
@@ -216,7 +217,7 @@ public class InventoryUtils
                 {
                     ItemStack stack = invSrc.getStackInSlot(i);
 
-                    if (stack != null && sidedSrc.canExtractItem(i, stack, faceSrc) == true)
+                    if (stack != null && sidedSrc.canExtractItem(i, stack, sideSrc) == true)
                     {
                         List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacksWithinSlotRange(invDst, stack, slotMinDst, slotMaxDst);
 
@@ -263,7 +264,8 @@ public class InventoryUtils
      * The return value is the stack of remaining items that couldn't be inserted.
      * If all items were successfully inserted, then null is returned.
      */
-    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IInventory inv, ItemStack stackIn, int side, int slotMin, int slotMax)
+    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IInventory inv, ItemStack stackIn, EnumFacing side,
+            int slotMin, int slotMax)
     {
         return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, side, slotMin, slotMax, false);
     }
@@ -274,16 +276,15 @@ public class InventoryUtils
      * The return value is the stack of remaining items that couldn't be inserted.
      * If all items were successfully inserted, then null is returned.
      */
-    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IInventory inv, ItemStack stackIn, int side,
+    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IInventory inv, ItemStack stackIn, EnumFacing side,
             int slotMin, int slotMax, boolean ignoreStackLimit)
     {
         // FIXME should we make a copy of the stack here?
 
         if (inv instanceof ISidedInventory)
         {
-            EnumFacing face = EnumFacing.getFront(side);
             ISidedInventory sided = (ISidedInventory) inv;
-            int[] slots = sided.getSlotsForFace(face);
+            int[] slots = sided.getSlotsForFace(side);
 
             // First try to add to existing stacks
             for (int i : slots)
@@ -357,7 +358,7 @@ public class InventoryUtils
      * @param side The side of the block we try to insert from, in case of ISidedInventory
      * @return null if all items were successfully inserted, otherwise the stack containing the remaining items
      */
-    public static ItemStack tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, int side)
+    public static ItemStack tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, EnumFacing side)
     {
         return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, side, 0, inv.getSizeInventory() - 1);
     }
@@ -374,7 +375,7 @@ public class InventoryUtils
      * @param ignoreStackLimit Ignore the stack limit of the item, only use the inventory stack limit
      * @return null if all items were successfully inserted, otherwise the stack containing the remaining items
      */
-    public static ItemStack tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, int side, boolean ignoreStackLimit)
+    public static ItemStack tryInsertItemStackToInventory(IInventory inv, ItemStack stackIn, EnumFacing side, boolean ignoreStackLimit)
     {
         return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, side, 0, inv.getSizeInventory() - 1, ignoreStackLimit);
     }
@@ -387,7 +388,8 @@ public class InventoryUtils
      * @param ignoreStackLimit
      * @return null if all items were successfully inserted, otherwise the stack containing the remaining items
      */
-    public static ItemStack tryInsertItemStackToExistingStacksInInventory(IInventory inv, ItemStack stackIn, int side, boolean ignoreStackLimit)
+    public static ItemStack tryInsertItemStackToExistingStacksInInventory(IInventory inv, ItemStack stackIn,
+            EnumFacing side, boolean ignoreStackLimit)
     {
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItemStacks(inv, stackIn);
 
@@ -432,7 +434,7 @@ public class InventoryUtils
      */
     public static ItemStack tryInsertItemStackToSlot(IInventory inv, ItemStack stackIn, int slotNum, boolean ignoreStackLimit)
     {
-        return tryInsertItemStackToSlot(inv, stackIn, slotNum, 0, ignoreStackLimit);
+        return tryInsertItemStackToSlot(inv, stackIn, slotNum, EnumFacing.UP, ignoreStackLimit);
     }
 
     /**
@@ -447,7 +449,7 @@ public class InventoryUtils
      * @param ignoreStackLimit true to ignore the ItemStack.getMaxStackSize() and only check the IInventory.getInventoryStackLimit()
      * @return null if all items were successfully inserted, otherwise the stack containing the remaining items
      */
-    public static ItemStack tryInsertItemStackToSlot(IInventory inv, ItemStack stackIn, int slotNum, int side, boolean ignoreStackLimit)
+    public static ItemStack tryInsertItemStackToSlot(IInventory inv, ItemStack stackIn, int slotNum, EnumFacing side, boolean ignoreStackLimit)
     {
         if (inv instanceof ISidedInventory)
         {
@@ -517,9 +519,9 @@ public class InventoryUtils
      * @param side
      * @return true if stackIn is valid for slotNum in sided from side
      */
-    public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, int side)
+    public static boolean isItemStackValidForSlot(ISidedInventory sided, ItemStack stackIn, int slotNum, EnumFacing side)
     {
-        return (sided.isItemValidForSlot(slotNum, stackIn) && sided.canInsertItem(slotNum, stackIn, EnumFacing.getFront(side)));
+        return (sided.isItemValidForSlot(slotNum, stackIn) && sided.canInsertItem(slotNum, stackIn, side));
     }
 
     /**
@@ -921,7 +923,7 @@ public class InventoryUtils
         for (int slot : slots)
         {
             ItemStack stackTmp = invTarget.getStackInSlot(slot);
-            stackTmp = tryInsertItemStackToInventory(invStorage, stackTmp, 0, ignoreStackLimitOnStorage);
+            stackTmp = tryInsertItemStackToInventory(invStorage, stackTmp, EnumFacing.UP, ignoreStackLimitOnStorage);
             invTarget.setInventorySlotContents(slot, stackTmp);
         }
 
@@ -970,7 +972,8 @@ public class InventoryUtils
     /**
      * Checks if there is a matching ItemStack in the inventory inside the given slot range.
      */
-    public static boolean matchingStackFoundInSlotRange(IInventory inv, SlotRange slotRange, ItemStack stackTemplate, boolean ignoreMeta, boolean ignoreNbt)
+    public static boolean matchingStackFoundInSlotRange(IInventory inv, SlotRange slotRange, ItemStack stackTemplate,
+            boolean ignoreMeta, boolean ignoreNbt)
     {
         if (stackTemplate == null)
         {

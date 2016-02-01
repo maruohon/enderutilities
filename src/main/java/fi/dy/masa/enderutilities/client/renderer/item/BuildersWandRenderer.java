@@ -101,7 +101,7 @@ public class BuildersWandRenderer
             }
             else
             {
-                item.getBlockPositions(stack, posTargeted, world, this.positions);
+                item.getBlockPositions(stack, posTargeted.toBlockPos(), posTargeted.side, world, this.positions);
             }
         }
 

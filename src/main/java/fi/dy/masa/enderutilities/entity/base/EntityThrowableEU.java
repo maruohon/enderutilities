@@ -10,6 +10,8 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -40,7 +42,6 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         this.setThrower(entity);
         this.setSize(0.25F, 0.25F);
-        this.yOffset = 0.0f;
 
         this.setLocationAndAngles(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
 
@@ -53,9 +54,9 @@ public abstract class EntityThrowableEU extends EntityThrowable
         float f = 0.4f;
         double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
         double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.func_70183_g()) / 180.0f * (float)Math.PI) * f);
+        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.getInaccuracy()) / 180.0f * (float)Math.PI) * f);
 
-        this.setThrowableHeading(motionX, motionY, motionZ, this.func_70182_d(), 1.0f);
+        this.setThrowableHeading(motionX, motionY, motionZ, this.getVelocity(), 1.0f);
     }
 
     @Override
@@ -73,7 +74,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (this.inGround)
         {
-            if (this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ) == this.inBlock)
+            if (this.worldObj.getBlockState(new BlockPos(this.blockX, this.blockY, this.blockZ)).getBlock() == this.inBlock)
             {
                 if (++this.ticksInGround >= 1200)
                 {
@@ -95,24 +96,24 @@ public abstract class EntityThrowableEU extends EntityThrowable
             ++this.ticksInAir;
         }
 
-        Vec3 vec3 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        Vec3 vec31 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3 vec3 = new Vec3(this.posX, this.posY, this.posZ);
+        Vec3 vec31 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
         MovingObjectPosition mopImpact = this.worldObj.rayTraceBlocks(vec3, vec31);
 
-        vec3 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        vec31 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        vec3 = new Vec3(this.posX, this.posY, this.posZ);
+        vec31 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
         if (mopImpact != null)
         {
-            vec31 = Vec3.createVectorHelper(mopImpact.hitVec.xCoord, mopImpact.hitVec.yCoord, mopImpact.hitVec.zCoord);
+            vec31 = new Vec3(mopImpact.hitVec.xCoord, mopImpact.hitVec.yCoord, mopImpact.hitVec.zCoord);
         }
 
         if (this.worldObj.isRemote == false)
         {
             EntityLivingBase thrower = this.getThrower();
             Entity entity = null;
-            List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+            List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
             double distance = 0.0d;
 
             for (int j = 0; j < list.size(); ++j)
@@ -125,7 +126,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
                 if (entityIter.canBeCollidedWith() && (thrower == null || EntityUtils.doesEntityStackContainEntity(entityIter, thrower) == false))
                 {
                     double s = 0.1d;
-                    AxisAlignedBB axisalignedbb = entityIter.boundingBox.expand(s, s, s);
+                    AxisAlignedBB axisalignedbb = entityIter.getEntityBoundingBox().expand(s, s, s);
                     MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec31);
 
                     if (movingobjectposition1 != null)
@@ -149,11 +150,11 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (mopImpact != null)
         {
-            if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlock(mopImpact.blockX, mopImpact.blockY, mopImpact.blockZ) == Blocks.portal)
+            if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlockState(mopImpact.getBlockPos()).getBlock() == Blocks.portal)
             {
-                this.setInPortal();
+                this.setPortal(mopImpact.getBlockPos());
             }
-            else if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlock(mopImpact.blockX, mopImpact.blockY, mopImpact.blockZ) == Blocks.web)
+            else if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlockState(mopImpact.getBlockPos()).getBlock() == Blocks.web)
             {
                 this.setInWeb();
             }
@@ -198,7 +199,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
             for (int i = 0; i < 4; ++i)
             {
                 float f4 = 0.25F;
-                this.worldObj.spawnParticle("bubble", this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
+                this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
             }
 
             motionFactor = 0.8F;
@@ -263,7 +264,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
     {
         if (this.throwerUUID != null)
         {
-            return this.worldObj.func_152378_a(this.throwerUUID); // getPlayerEntityByUUID()
+            return this.worldObj.getPlayerEntityByUUID(this.throwerUUID);
         }
 
         return null;

@@ -10,7 +10,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -28,7 +30,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -50,9 +51,6 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_SELECT_MODULE = 0;
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemHandyBag()
     {
         super();
@@ -71,15 +69,15 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking() == true)
         {
-            return this.tryMoveItems(stack, world, player, x, y, z, side);
+            return this.tryMoveItems(stack, world, player, pos, side);
         }
 
-        return super.onItemUse(stack, player,world, x, y, z, side, hitX, hitY, hitZ);
+        return super.onItemUse(stack, player,world, pos, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -235,9 +233,9 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, int x, int y, int z, int side)
+    public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (world.isRemote == false && te != null && te instanceof IInventory)
         {
             InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
@@ -249,7 +247,7 @@ public class ItemHandyBag extends ItemInventoryModular
             int mode = this.getModeByName(stack, "RestockMode");
             if (mode == MODE_RESTOCK_ENABLED)
             {
-                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, 0, side);
+                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, EnumFacing.UP, side);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
@@ -257,13 +255,13 @@ public class ItemHandyBag extends ItemInventoryModular
             mode = this.getModeByName(stack, "PickupMode");
             if (mode == MODE_PICKUP_MATCHING)
             {
-                InventoryUtils.tryMoveMatchingItems((IInventory)te, inv, side, 0, true);
+                InventoryUtils.tryMoveMatchingItems((IInventory)te, inv, side, EnumFacing.UP, true);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
             else if (mode == MODE_PICKUP_ALL)
             {
-                InventoryUtils.tryMoveAllItems((IInventory)te, inv, side, 0, true);
+                InventoryUtils.tryMoveAllItems((IInventory)te, inv, side, EnumFacing.UP, true);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
@@ -301,7 +299,7 @@ public class ItemHandyBag extends ItemInventoryModular
             }
 
             // If all the items fit into existing stacks in the player's inventory
-            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, 0, false) == null)
+            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, EnumFacing.UP, false) == null)
             {
                 iter.remove();
                 pickedUp = true;
@@ -322,7 +320,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
                     {
                         // All items successfully inserted
-                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, 0, true) == null)
+                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, EnumFacing.UP, true) == null)
                         {
                             iter.remove();
                             pickedUp = true;
@@ -342,7 +340,8 @@ public class ItemHandyBag extends ItemInventoryModular
         // At least some items were picked up
         if (pickedUp == true)
         {
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
         return ret;
@@ -367,11 +366,12 @@ public class ItemHandyBag extends ItemInventoryModular
         EntityPlayer player = event.entityPlayer;
 
         // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
-        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), 0, false) == null)
+        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), EnumFacing.UP, false) == null)
         {
             event.setCanceled(true);
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
             return false;
         }
@@ -392,7 +392,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == null)
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), EnumFacing.UP, true) == null)
                     {
                         event.item.setDead();
                         event.setCanceled(true);
@@ -505,25 +505,27 @@ public class ItemHandyBag extends ItemInventoryModular
                 {
                     int bagMaxSlot = inv.getSizeInventory() - 1;
                     int playerMaxSlot = player.inventory.getSizeInventory() - 5;
+                    EnumFacing up = EnumFacing.UP;
+
                     switch(element)
                     {
                         case 0: // Move all items to Bag
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, inv, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, inv, 0, 0, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, bagMaxSlot, true);
                             break;
                         case 2: // Leave one stack of each item type and fill that stack
                             InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, inv, false, false, true);
                             break;
                         case 3: // Fill stacks in player inventory from bag
-                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 4: // Move matching items to player inventory
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                         case 5: // Move all items to player inventory
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, 0, 0, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
                             break;
                     }
                 }
@@ -623,66 +625,9 @@ public class ItemHandyBag extends ItemInventoryModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0)); // Tier 1
         list.add(new ItemStack(this, 1, 1)); // Tier 2
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 4;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".0");
-        this.iconArray = new IIcon[7];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".0");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".1");
-        this.iconArray[2] = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-
-        // Overlay textures
-        this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".overlay.locked");
-        this.iconArray[4] = iconRegister.registerIcon(this.getIconString() + ".overlay.pickup.matching");
-        this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".overlay.pickup.all");
-        this.iconArray[6] = iconRegister.registerIcon(this.getIconString() + ".overlay.restock");
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        switch (renderPass)
-        {
-            case 0: // Main texture
-                int damage = stack.getItemDamage();
-                return this.iconArray[damage <= 1 ? damage : 0];
-            case 1: // Locked icon
-                return bagIsOpenable(stack) ? this.iconArray[2] : this.iconArray[3];
-            case 2: // Pickup mode; 0: None, 1: Matching, 2: All
-                int index = this.getModeByName(stack, "PickupMode");
-                if (index == MODE_PICKUP_MATCHING || index == MODE_PICKUP_ALL)
-                {
-                    return this.iconArray[index - 1 + 4];
-                }
-                return this.iconArray[2]; // empty
-            case 3:
-                return this.getModeByName(stack, "RestockMode") != 0 ? this.iconArray[6] : this.iconArray[2];
-        }
-
-        return this.itemIcon;
     }
 }

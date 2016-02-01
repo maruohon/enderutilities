@@ -25,9 +25,6 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class ItemEnderPorter extends ItemLocationBoundModular
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public static final int ENDER_CHARGE_COST_INTER_DIM_TP = 5000;
     public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 25000;
     private static final int USE_TIME = 40;
@@ -192,100 +189,9 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".stage.1");
-        this.iconArray = new IIcon[14];
-
-        for (int i = 0; i < 7; ++i)
-        {
-            this.iconArray[i] = iconRegister.registerIcon(this.getIconString() + ".stage." + (i + 1));
-        }
-
-        for (int i = 0; i < 7; ++i)
-        {
-            this.iconArray[7 + i] = iconRegister.registerIcon(this.getIconString() + ".advanced.stage." + (i + 1));
-        }
-    }
-
-    /**
-     * Used to cycle through icons based on their used duration, i.e. for the bow
-     */
-    @SideOnly(Side.CLIENT)
-    public IIcon getItemIconForUseDuration(int index)
-    {
-        if (index >= this.iconArray.length)
-        {
-            index = this.iconArray.length - 1;
-        }
-        if (index < 0)
-        {
-            index = 0;
-        }
-
-        return this.iconArray[index];
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        return this.getIcon(stack, renderPass, null, null, 0);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
-    {
-        int index = 0;
-
-        if (player != null && player.getItemInUse() != null && stack != null)
-        {
-            int inUse = stack.getMaxItemUseDuration() - useRemaining;
-            int useTime = USE_TIME;
-
-            // Use a shorter delay in creative mode
-            if (player.capabilities.isCreativeMode == true)
-            {
-                useTime >>= 2;
-            }
-
-            index += (7 * inUse / useTime); // 7 stages/icons
-
-            if (index > 6)
-            {
-                index = 6;
-            }
-        }
-
-        // damage 1: 'Ender Porter (Advanced)', offset the icon range
-        if (stack.getItemDamage() == 1)
-        {
-            index += 7;
-        }
-
-        return this.getItemIconForUseDuration(index);
     }
 }

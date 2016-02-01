@@ -11,14 +11,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -40,9 +40,6 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     public static final String TAG_NAME_MODE = "Mode";
     public static final String TAG_NAME_POS = "Position";
 
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemLivingManipulator()
     {
         super();
@@ -52,7 +49,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
@@ -62,7 +59,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.NORMAL || mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, world, x + hitX, y + hitY, z + hitZ, side);
+            return this.releaseEntity(stack, world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
         }
 
         return false;
@@ -78,7 +75,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, player.worldObj, livingBase.posX, livingBase.posY, livingBase.posZ, 1);
+            return this.releaseEntity(stack, player.worldObj, livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
         }
 
         return this.captureEntity(stack, player, livingBase);
@@ -102,7 +99,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return false;
     }
 
-    public boolean releaseEntity(ItemStack containerStack, World world, double x, double y, double z, int side)
+    public boolean releaseEntity(ItemStack containerStack, World world, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
         if (moduleStack == null)
@@ -521,22 +518,5 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             return (id >= 0 && id < values().length) ? values()[id] : NORMAL;
         }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.iconArray = new IIcon[3];
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".capture");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".release");
-    }
-
-    @Override
-    public IIcon getIconIndex(ItemStack stack)
-    {
-        return this.iconArray[Mode.getMode(stack).ordinal()];
     }
 }

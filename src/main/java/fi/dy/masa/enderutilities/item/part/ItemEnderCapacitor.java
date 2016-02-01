@@ -18,16 +18,12 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeable, IModule
 {
     public static final int CHARGE_RATE_FROM_ENERGY_BRIDGE = 100;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
 
     public ItemEnderCapacitor()
     {
@@ -200,7 +196,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         for (int i = 0; i <= 3; i++)
         {
@@ -212,54 +208,5 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             this.setCharge(tmp.getTagCompound(), this.getCapacityFromItemType(tmp));
             list.add(tmp);
         }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".empty.0");
-        this.iconArray = new IIcon[8];
-
-        for (int i = 0; i <= 3; ++i)
-        {
-            this.iconArray[i]     = iconRegister.registerIcon(this.getIconString() + ".empty." + i);
-            this.iconArray[i + 4] = iconRegister.registerIcon(this.getIconString() + ".charged." + i);
-        }
-
-        // The background icon for empty slots for this item type
-        this.slotBackground = iconRegister.registerIcon(ReferenceTextures.getSlotBackgroundName(this.name));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int pass)
-    {
-        int index = stack.getItemDamage();
-        if (index >= 0 && index <= 3)
-        {
-            if (this.getCharge(stack) > 0)
-            {
-                index += 4;
-            }
-
-            return this.iconArray[index];
-        }
-
-        return this.itemIcon;
     }
 }

@@ -29,9 +29,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemMobHarness extends ItemEnderUtilities
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
-
     public ItemMobHarness()
     {
         super();
@@ -155,7 +152,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, true);
 
         byte mode = (byte)(entity instanceof EntityPlayer ? 2 : 1);
-        nbt.setString("TargetName", entity.getCommandSenderName());
+        nbt.setString("TargetName", entity.getName());
         nbt.setLong("TargetUUIDMost", entity.getUniqueID().getMostSignificantBits());
         nbt.setLong("TargetUUIDLeast", entity.getUniqueID().getLeastSignificantBits());
         nbt.setByte("Mode", mode);
@@ -191,13 +188,15 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Mode 1: mount non-player entities to each other or to the player
             if (mode == 1)
             {
-                List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player, AxisAlignedBB.getBoundingBox(player.posX - r, player.posY - r, player.posZ - r, player.posX + r, player.posY + r, player.posZ + r));
+                List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player,
+                        AxisAlignedBB.fromBounds(player.posX - r, player.posY - r, player.posZ - r,
+                                player.posX + r, player.posY + r, player.posZ + r));
                 storedEntity = EntityUtils.findEntityByUUID(entities, storedUUID);
             }
             // Mode 2: mount a player
             else if (mode == 2)
             {
-                storedEntity = world.func_152378_a(storedUUID); // getPlayerEntityByUUID()
+                storedEntity = world.getPlayerEntityByUUID(storedUUID);
             }
 
             // Matching (stored) entity found
@@ -237,41 +236,5 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         String target = stack.getTagCompound().getString("TargetName");
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.GRAY);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 1;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.iconArray = new IIcon[2];
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".active");
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int pass)
-    {
-        if (this.hasTarget(stack) == true)
-        {
-            return this.iconArray[1];
-        }
-
-        return this.iconArray[0];
     }
 }

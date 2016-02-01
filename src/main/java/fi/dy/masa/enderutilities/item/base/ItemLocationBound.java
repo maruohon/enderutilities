@@ -7,7 +7,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -27,14 +29,14 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player != null && player.isSneaking() == true)
         {
             if (world.isRemote == false)
             {
                 boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
-                this.setTarget(stack, player, x, y, z, side, hitX, hitY, hitZ, adjustPosHit, false);
+                this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
 
             return true;
@@ -68,7 +70,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         if (stack.hasDisplayName() == true)
         {
             // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back here ;_;
-            NBTTagCompound tag = stack.stackTagCompound.getCompoundTag("display");
+            NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
             return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
         }
 
@@ -109,7 +111,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             if (item instanceof IModule && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_LINKCRYSTAL) && ((IModule)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
             {
                 Block block = Block.getBlockFromName(target.blockName);
-                ItemStack targetStack = new ItemStack(block, 1, block.damageDropped(target.blockMeta & 0xF));
+                ItemStack targetStack = new ItemStack(block, 1, target.itemMeta);
                 if (targetStack != null && targetStack.getItem() != null)
                 {
                     blockName = targetStack.getDisplayName();
@@ -133,7 +135,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                     list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
                     if (advancedTooltips == true)
                     {
-                        list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, ForgeDirection.getOrientation(target.blockFace).toString(), target.blockFace));
+                        list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
                     }
                 }
             }
@@ -250,18 +252,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         double hitZ = player.posZ - z;
         boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
 
-        this.setTarget(stack, player, x, y, z, ForgeDirection.UP.ordinal(), hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        this.setTarget(stack, player, player.getPosition(), EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     @Override
-    public void setTarget(ItemStack stack, EntityPlayer player, int x, int y, int z, int side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
         if (NBTHelperPlayer.canAccessItem(stack, player) == false)
         {
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToItem(stack, x, y, z, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
         {

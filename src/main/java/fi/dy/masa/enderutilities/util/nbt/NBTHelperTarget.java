@@ -142,7 +142,7 @@ public class NBTHelperTarget
     }
 
     public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, double dx, double dy, double dz, int dim,
-            String dimName, String blockName, int blockMeta, int itemMeta, int blockFace, float yaw, float pitch, boolean hasAngle)
+            String dimName, String blockName, int blockMeta, int itemMeta, EnumFacing side, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
         {
@@ -161,7 +161,7 @@ public class NBTHelperTarget
         tag.setString("BlockName", blockName);
         tag.setByte("BlockMeta", (byte)blockMeta);
         tag.setShort("ItemMeta", (short)itemMeta);
-        tag.setByte("BlockFace", (byte)blockFace);
+        tag.setByte("BlockFace", (byte)side.getIndex());
 
         if (hasAngle == true)
         {
@@ -174,7 +174,7 @@ public class NBTHelperTarget
         return nbt;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, int blockFace,
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, EnumFacing side,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
@@ -218,13 +218,13 @@ public class NBTHelperTarget
             }
         }
 
-        return writeTargetTagToNBT(nbt, pos, dPosX, dPosY, dPosZ, dim, dimName, blockName, blockMeta, itemMeta, blockFace, yaw, pitch, hasAngle);
+        return writeTargetTagToNBT(nbt, pos, dPosX, dPosY, dPosZ, dim, dimName, blockName, blockMeta, itemMeta, side, yaw, pitch, hasAngle);
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         return writeTargetTagToNBT(nbt, this.pos, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
-            this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.blockFace, this.yaw, this.pitch, this.hasAngle);
+            this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.facing, this.yaw, this.pitch, this.hasAngle);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)
@@ -254,22 +254,22 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, int blockFace,
+    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, EnumFacing side,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (stack != null)
         {
-            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, side, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
     }
 
-    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, BlockPos pos, int dim, int blockFace,
+    public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, BlockPos pos, int dim, EnumFacing side,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack != null)
         {
-            writeTargetTagToItem(moduleStack, pos, dim, blockFace, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
+            writeTargetTagToItem(moduleStack, pos, dim, side, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
 
             return true;

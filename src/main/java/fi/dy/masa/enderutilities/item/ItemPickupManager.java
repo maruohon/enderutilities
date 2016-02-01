@@ -32,7 +32,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -72,9 +71,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
     public static final SlotRange TRANSPORT_FILTER_SLOTS = new SlotRange(0, 18);
     public static final SlotRange INVENTORY_FILTER_SLOTS = new SlotRange(18, 18);
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] iconArray;
 
     public ItemPickupManager()
     {
@@ -279,12 +275,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             if (world != null)
             {
                 // Force load the target chunk with a 30 second unload delay.
-                if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension, target.posX >> 4, target.posZ >> 4, 30) == false)
+                if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
+                        target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)
                 {
                     return itemsIn;
                 }
 
-                TileEntity te = world.getTileEntity(target.posX, target.posY, target.posZ);
+                TileEntity te = world.getTileEntity(target.pos);
                 if (te instanceof IInventory)
                 {
                     //return InventoryUtils.tryInsertItemStackToInventory((IInventory)te, itemsIn, target.blockFace);
@@ -304,7 +301,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                     }
 
                     int numTransported = stackToSend.stackSize;
-                    ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory((IInventory)te, stackToSend, target.blockFace);
+                    ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory((IInventory)te, stackToSend, target.facing);
 
                     if (itemsRemaining != null)
                     {
@@ -669,50 +666,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         return 0;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        return 2;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.iconArray = new IIcon[3];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString());
-
-        // Overlay textures
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".locked");
-        this.iconArray[2] = iconRegister.registerIcon(ReferenceTextures.getItemTextureName("empty"));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        switch (renderPass)
-        {
-            case 0: // Main texture
-                return this.iconArray[0];
-            case 1: // Locked icon
-                boolean isLocked = NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
-                return isLocked == true ? this.iconArray[1] : this.iconArray[2];
-        }
-
-        return this.itemIcon;
     }
 
     public enum Result

@@ -20,9 +20,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
-    @SideOnly(Side.CLIENT)
-    private IIcon eliteIcon;
-
     public ItemEnderPearlReusable()
     {
         this.setMaxStackSize(4);
@@ -80,32 +77,12 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
         if (Configs.disableItemEnderPearl.getBoolean(false) == false)
         {
             list.add(new ItemStack(this, 1, 0)); // Regular
             list.add(new ItemStack(this, 1, 1)); // Elite
         }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString());
-        this.eliteIcon = iconRegister.registerIcon(this.getIconString() + ".elite");
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIconFromDamage(int damage)
-    {
-        if (damage == 1)
-        {
-            return this.eliteIcon;
-        }
-
-        return this.itemIcon;
     }
 }

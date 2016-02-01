@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -12,9 +13,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -39,9 +42,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
     public static final int ENDER_CHARGE_COST = 200;
-
-    @SideOnly(Side.CLIENT)
-    private IIcon iconArray[];
 
     public ItemEnderBag()
     {
@@ -112,7 +112,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
-        if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 60) == true)
+        if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension,
+                targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 60) == true)
         {
             MinecraftServer server = MinecraftServer.getServer();
             if (server == null)
@@ -137,25 +138,26 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             bagNbt.setBoolean("ChunkLoadingRequired", true);
             bagNbt.setBoolean("IsOpen", true);
 
-            float hx = (float)targetData.dPosX - targetData.posX;
-            float hy = (float)targetData.dPosY - targetData.posY;
-            float hz = (float)targetData.dPosZ - targetData.posZ;
+            float hx = (float)targetData.dPosX - targetData.pos.getX();
+            float hy = (float)targetData.dPosY - targetData.pos.getY();
+            float hz = (float)targetData.dPosZ - targetData.pos.getZ();
 
-            Block block = targetWorld.getBlock(targetData.posX, targetData.posY, targetData.posZ);
+            IBlockState state = targetWorld.getBlockState(targetData.pos);
+            Block block = state.getBlock();
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-            block.onBlockActivated(targetWorld, targetData.posX, targetData.posY, targetData.posZ, player, targetData.blockFace, hx, hy, hz);
+            block.onBlockActivated(targetWorld, targetData.pos, state, player, targetData.facing, hx, hy, hz);
         }
 
         return stack;
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
         {
-            return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
+            return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
         }
 
         return false;
@@ -211,7 +213,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
 
         WorldServer world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-        return ! (player instanceof EntityPlayerMP && world != null && world.getPlayerManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.posX >> 4, target.posZ >> 4));
+        if ((player instanceof EntityPlayerMP) == false ||
+             world == null ||
+             world.getPlayerManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public static boolean isTargetBlockWhitelisted(String name, int meta)
@@ -272,7 +281,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public boolean doesSneakBypassUse(World world, int x, int y, int z, EntityPlayer player)
+    public boolean doesSneakBypassUse(World world, BlockPos pos, EntityPlayer player)
     {
         return false;
     }
@@ -292,73 +301,5 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 nbt.removeTag("IsOpenDummy");
             }
         }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderPasses(int metadata)
-    {
-        return 2;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconRegister)
-    {
-        this.itemIcon = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
-        this.iconArray = new IIcon[6];
-
-        this.iconArray[0] = iconRegister.registerIcon(this.getIconString() + ".regular.closed");
-        this.iconArray[1] = iconRegister.registerIcon(this.getIconString() + ".regular.open");
-        this.iconArray[2] = iconRegister.registerIcon(this.getIconString() + ".enderchest.closed");
-        this.iconArray[3] = iconRegister.registerIcon(this.getIconString() + ".enderchest.open");
-        this.iconArray[4] = iconRegister.registerIcon(this.getIconString() + ".locked.closed");
-        this.iconArray[5] = iconRegister.registerIcon(this.getIconString() + ".locked.open");
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(ItemStack stack, int renderPass)
-    {
-        int index = 0;
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-
-        if (target != null)
-        {
-            int isOpen = 0;
-
-            // Bag currently open
-            if (stack.getTagCompound().getBoolean("IsOpen") == true)
-            {
-                isOpen = 1;
-                index += 1;
-            }
-
-            // Currently linked to a vanilla Ender Chest
-            if ("minecraft:ender_chest".equals(target.blockName))
-            {
-                index += 2;
-            }
-
-            // The is-locked layer
-            if (renderPass == 1)
-            {
-                NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-                if (playerData != null && playerData.isPublic == false)
-                {
-                    index = 4 + isOpen;
-                }
-            }
-        }
-
-        // NOTE: We don't have an empty texture for the lock overlay, so we use the same bag texture in case it is not locked
-        return this.iconArray[(index < this.iconArray.length ? index : 0)];
     }
 }

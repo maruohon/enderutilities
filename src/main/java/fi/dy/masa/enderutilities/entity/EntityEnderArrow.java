@@ -6,16 +6,18 @@ import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -50,44 +52,43 @@ public class EntityEnderArrow extends EntityArrow
     public UUID shooterUUID;
     public float teleportDamage = 2.0f;
 
-    public EntityEnderArrow(World par1World)
+    public EntityEnderArrow(World worldIn)
     {
-        super(par1World);
+        super(worldIn);
         this.renderDistanceWeight = 10.0D;
         this.setSize(0.5F, 0.5F);
         this.shooterUUID = UUID.randomUUID();
     }
 
-    public EntityEnderArrow(World par1World, double par2, double par4, double par6)
+    public EntityEnderArrow(World worldIn, double x, double y, double z)
     {
-        super(par1World);
+        super(worldIn);
         this.renderDistanceWeight = 10.0D;
         this.setSize(0.5F, 0.5F);
-        this.setPosition(par2, par4, par6);
-        this.yOffset = 0.0F;
+        this.setPosition(x, y, z);
     }
 
-    public EntityEnderArrow(World par1World, EntityLivingBase par2EntityLivingBase, EntityLivingBase par3EntityLivingBase, float par4, float par5)
+    public EntityEnderArrow(World worldIn, EntityLivingBase shooter, EntityLivingBase par3EntityLivingBase, float par4, float par5)
     {
-        super(par1World);
+        super(worldIn);
         this.renderDistanceWeight = 10.0D;
-        this.shootingEntity = par2EntityLivingBase;
-        this.shooterUUID = par2EntityLivingBase.getUniqueID();
+        this.shootingEntity = shooter;
+        this.shooterUUID = shooter.getUniqueID();
 
-        if (par2EntityLivingBase instanceof EntityPlayer)
+        if (shooter instanceof EntityPlayer)
         {
             this.canBePickedUp = 1;
 
-            if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
+            if (((EntityPlayer)shooter).capabilities.isCreativeMode == true)
             {
                 this.canBePickedUp = 2;
             }
         }
 
-        this.posY = par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight() - 0.10000000149011612D;
-        double d0 = par3EntityLivingBase.posX - par2EntityLivingBase.posX;
-        double d1 = par3EntityLivingBase.boundingBox.minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
-        double d2 = par3EntityLivingBase.posZ - par2EntityLivingBase.posZ;
+        this.posY = shooter.posY + (double)shooter.getEyeHeight() - 0.10000000149011612D;
+        double d0 = par3EntityLivingBase.posX - shooter.posX;
+        double d1 = par3EntityLivingBase.getEntityBoundingBox().minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
+        double d2 = par3EntityLivingBase.posZ - shooter.posZ;
         double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
 
         if (d3 >= 1.0E-7D)
@@ -96,32 +97,31 @@ public class EntityEnderArrow extends EntityArrow
             float f3 = (float)(-(Math.atan2(d1, d3) * 180.0D / Math.PI));
             double d4 = d0 / d3;
             double d5 = d2 / d3;
-            this.setLocationAndAngles(par2EntityLivingBase.posX + d4, this.posY, par2EntityLivingBase.posZ + d5, f2, f3);
-            this.yOffset = 0.0F;
+            this.setLocationAndAngles(shooter.posX + d4, this.posY, shooter.posZ + d5, f2, f3);
             float f4 = (float)d3 * 0.2F;
             this.setThrowableHeading(d0, d1 + (double)f4, d2, par4, par5);
         }
     }
 
-    public EntityEnderArrow(World par1World, EntityLivingBase par2EntityLivingBase, float par3)
+    public EntityEnderArrow(World worldIn, EntityLivingBase shooter, float velocity)
     {
-        super(par1World);
+        super(worldIn);
         this.renderDistanceWeight = 10.0D;
-        this.shootingEntity = par2EntityLivingBase;
-        this.shooterUUID = par2EntityLivingBase.getUniqueID();
+        this.shootingEntity = shooter;
+        this.shooterUUID = shooter.getUniqueID();
 
-        if (par2EntityLivingBase instanceof EntityPlayer)
+        if (shooter instanceof EntityPlayer)
         {
             this.canBePickedUp = 1;
 
-            if (((EntityPlayer)par2EntityLivingBase).capabilities.isCreativeMode == true)
+            if (((EntityPlayer)shooter).capabilities.isCreativeMode == true)
             {
                 this.canBePickedUp = 2;
             }
         }
 
         this.setSize(0.5F, 0.5F);
-        this.setLocationAndAngles(par2EntityLivingBase.posX, par2EntityLivingBase.posY + (double)par2EntityLivingBase.getEyeHeight(), par2EntityLivingBase.posZ, par2EntityLivingBase.rotationYaw, par2EntityLivingBase.rotationPitch);
+        this.setLocationAndAngles(shooter.posX, shooter.posY + (double)shooter.getEyeHeight(), shooter.posZ, shooter.rotationYaw, shooter.rotationPitch);
         double x, y, z;
         x = this.posX - (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
         z = this.posZ - (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
@@ -131,17 +131,16 @@ public class EntityEnderArrow extends EntityArrow
         y = this.posY - 0.10000000149011612d;
         z += (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.74f) * (double)(MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI));
         z -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.1f);
-        if (par1World.getBlock((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z)) == Blocks.air)
+        if (worldIn.isAirBlock(new BlockPos((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z))) == true)
         {
             this.posX = x;
             this.posZ = z;
         }
         this.setPosition(this.posX, this.posY, this.posZ);
-        this.yOffset = 0.0F;
         this.motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionY = (double)(-MathHelper.sin(this.rotationPitch / 180.0F * (float)Math.PI));
-        this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, par3 * 1.8F, 1.0F);
+        this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, velocity * 1.8F, 1.0F);
     }
 
     public void setTpMode(byte mode)
@@ -173,7 +172,7 @@ public class EntityEnderArrow extends EntityArrow
         entityitem.motionX = 0.01d * r.nextGaussian();
         entityitem.motionY = 0.01d * r.nextGaussian() + 0.05d;
         entityitem.motionZ = 0.01d * r.nextGaussian();
-        entityitem.delayBeforeCanPickup = 10;
+        entityitem.setDefaultPickupDelay();
 
         this.worldObj.spawnEntityInWorld(entityitem);
     }
@@ -192,14 +191,16 @@ public class EntityEnderArrow extends EntityArrow
             this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f) * 180.0D / Math.PI);
         }
 
-        Block block = this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ);
+        BlockPos pos = new BlockPos(this.blockX, this.blockY, this.blockZ);
+        IBlockState state = this.worldObj.getBlockState(pos);
+        Block block = state.getBlock();
 
         if (block.getMaterial() != Material.air)
         {
-            block.setBlockBoundsBasedOnState(this.worldObj, this.blockX, this.blockY, this.blockZ);
-            AxisAlignedBB axisalignedbb = block.getCollisionBoundingBoxFromPool(this.worldObj, this.blockX, this.blockY, this.blockZ);
+            block.setBlockBoundsBasedOnState(this.worldObj, pos);
+            AxisAlignedBB axisalignedbb = block.getCollisionBoundingBox(this.worldObj, pos, state);
 
-            if (axisalignedbb != null && axisalignedbb.isVecInside(Vec3.createVectorHelper(this.posX, this.posY, this.posZ)))
+            if (axisalignedbb != null && axisalignedbb.isVecInside(new Vec3(this.posX, this.posY, this.posZ)) == true)
             {
                 this.inGround = true;
             }
@@ -212,9 +213,9 @@ public class EntityEnderArrow extends EntityArrow
 
         if (this.inGround)
         {
-            int j = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
+            int meta = block.getMetaFromState(state);
 
-            if (block == this.inBlock && j == this.inData)
+            if (block == this.inBlock && meta == this.inData)
             {
                 ++this.ticksInGround;
 
@@ -237,20 +238,20 @@ public class EntityEnderArrow extends EntityArrow
         }
 
         ++this.ticksInAir;
-        Vec3 vec31 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        Vec3 vec3 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-        MovingObjectPosition movingobjectposition = this.worldObj.func_147447_a(vec31, vec3, false, true, false);
-        vec31 = Vec3.createVectorHelper(this.posX, this.posY, this.posZ);
-        vec3 = Vec3.createVectorHelper(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3 vec31 = new Vec3(this.posX, this.posY, this.posZ);
+        Vec3 vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        MovingObjectPosition movingobjectposition = this.worldObj.rayTraceBlocks(vec31, vec3, false, true, false);
+        vec31 = new Vec3(this.posX, this.posY, this.posZ);
+        vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3 = Vec3.createVectorHelper(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3 = new Vec3(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         Entity shooter = this.getShooter();
         Entity entity = null;
-        List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
@@ -262,7 +263,7 @@ public class EntityEnderArrow extends EntityArrow
             if (entity1.canBeCollidedWith() && EntityUtils.doesEntityStackContainEntity(shooter, entity1) == false)
             {
                 f1 = 0.3F;
-                AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double)f1, (double)f1, (double)f1);
+                AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().expand((double)f1, (double)f1, (double)f1);
                 MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);
 
                 if (movingobjectposition1 != null)
@@ -352,11 +353,13 @@ public class EntityEnderArrow extends EntityArrow
             // hit something else, so a block
             else
             {
-                this.blockX = movingobjectposition.blockX;
-                this.blockY = movingobjectposition.blockY;
-                this.blockZ = movingobjectposition.blockZ;
-                this.inBlock = this.worldObj.getBlock(this.blockX, this.blockY, this.blockZ);
-                this.inData = this.worldObj.getBlockMetadata(this.blockX, this.blockY, this.blockZ);
+                BlockPos mopPos = movingobjectposition.getBlockPos();
+                this.blockX = mopPos.getX();
+                this.blockY = mopPos.getY();
+                this.blockZ = mopPos.getZ();
+                state = this.worldObj.getBlockState(mopPos);
+                this.inBlock = state.getBlock();
+                this.inData = block.getMetaFromState(state);
                 this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
                 this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
                 this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));
@@ -371,7 +374,7 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (this.inBlock.getMaterial() != Material.air)
                 {
-                    this.inBlock.onEntityCollidedWithBlock(this.worldObj, this.blockX, this.blockY, this.blockZ, this);
+                    this.inBlock.onEntityCollidedWithBlock(this.worldObj, mopPos, state, this);
                 }
             }
         }
@@ -380,7 +383,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             for (i = 0; i < 4; ++i)
             {
-                this.worldObj.spawnParticle("crit", this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
+                this.worldObj.spawnParticle(EnumParticleTypes.CRIT, this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
             }
         }
 
@@ -408,7 +411,7 @@ public class EntityEnderArrow extends EntityArrow
             for (int l = 0; l < 4; ++l)
             {
                 f4 = 0.25F;
-                this.worldObj.spawnParticle("bubble", this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
+                this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
             }
             f3 = 0.8F;
         }
@@ -423,7 +426,7 @@ public class EntityEnderArrow extends EntityArrow
         this.motionZ *= (double)f3;
         this.motionY -= (double)f1;
         this.setPosition(this.posX, this.posY, this.posZ);
-        this.func_145775_I();
+        this.doBlockCollisions();
     }
 
     /**
@@ -439,7 +442,7 @@ public class EntityEnderArrow extends EntityArrow
         tagCompound.setShort("life", (short)this.ticksInGround);
         tagCompound.setByte("shake", (byte)this.arrowShake);
         tagCompound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
-        tagCompound.setByte("pickup", (byte)this.canBePickedUp);;
+        tagCompound.setByte("pickup", (byte)this.canBePickedUp);
         tagCompound.setLong("shooterUUIDMost", this.shooterUUID.getMostSignificantBits());
         tagCompound.setLong("shooterUUIDLeast", this.shooterUUID.getLeastSignificantBits());
         if (this.tpTarget != null)
@@ -474,7 +477,7 @@ public class EntityEnderArrow extends EntityArrow
         if (tagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && tagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
         {
             this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
-            this.shootingEntity = this.worldObj.func_152378_a(this.shooterUUID);
+            this.shootingEntity = this.worldObj.getPlayerEntityByUUID(this.shooterUUID);
         }
         this.tpTarget = NBTHelperTarget.readTargetFromNBT(tagCompound);
         this.tpMode = tagCompound.getByte("tpMode");
@@ -511,7 +514,7 @@ public class EntityEnderArrow extends EntityArrow
     {
         if (this.shootingEntity == null && this.shooterUUID != null)
         {
-            this.shootingEntity = this.worldObj.func_152378_a(this.shooterUUID);
+            this.shootingEntity = this.worldObj.getPlayerEntityByUUID(this.shooterUUID);
         }
 
         return this.shootingEntity;
