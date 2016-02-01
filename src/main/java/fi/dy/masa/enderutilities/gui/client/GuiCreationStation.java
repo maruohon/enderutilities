@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -216,20 +216,20 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                         {
                             this.bindTexture(this.guiTextureWidgets);
 
-                            GL11.glDisable(GL11.GL_LIGHTING);
+                            GlStateManager.disableLighting();
                             this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
-                            GL11.glEnable(GL11.GL_LIGHTING);
+                            GlStateManager.enableLighting();
 
                             RenderHelper.enableGUIStandardItemLighting();
-                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+                            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                            GlStateManager.enableRescaleNormal();
                             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
                             this.zLevel = 100.0F;
                             itemRender.zLevel = 100.0F;
-                            GL11.glEnable(GL11.GL_DEPTH_TEST);
-                            GL11.glEnable(GL11.GL_BLEND);
+                            GlStateManager.enableDepth();
+                            GlStateManager.enableBlend();
                             OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
                             itemRender.renderItemAndEffectIntoGUI(recipeStack, x + 1, y + 1);
 
@@ -242,18 +242,18 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                         else if (recipeStack == null)
                         {
                             this.bindTexture(this.guiTextureWidgets);
-                            GL11.glDisable(GL11.GL_LIGHTING);
+                            GlStateManager.disableLighting();
                             this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
-                            GL11.glEnable(GL11.GL_LIGHTING);
+                            GlStateManager.enableLighting();
                             //itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
                         }
                         // Wrong items, red background
                         else
                         {
                             this.bindTexture(this.guiTextureWidgets);
-                            GL11.glDisable(GL11.GL_LIGHTING);
+                            GlStateManager.disableLighting();
                             this.drawTexturedModalRect(x, y, 102, 72, 18, 18);
-                            GL11.glEnable(GL11.GL_LIGHTING);
+                            GlStateManager.enableLighting();
                         }
                     }
                 }

@@ -42,8 +42,8 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         int b_o = (powered ? 230 : 160);
 
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
-        GL11.glPushMatrix();
-        GL11.glTranslated(x, y, z);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
 
         this.bindTexture(TEXTURE);
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
@@ -101,7 +101,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         GlStateManager.enableLighting();
         GlStateManager.enableTexture2D();
         GlStateManager.depthMask(true);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     public void renderTileEntityAt(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage)

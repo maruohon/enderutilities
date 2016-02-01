@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
@@ -98,8 +98,8 @@ public class GuiTemplatedChest extends GuiEnderUtilities
 
         // Draw a faint version of the template item for empty locked slots
         RenderHelper.enableGUIStandardItemLighting();
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableRescaleNormal();
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
         this.zLevel = 100.0F;
         itemRender.zLevel = 100.0F;
@@ -119,11 +119,11 @@ public class GuiTemplatedChest extends GuiEnderUtilities
                     stack = this.tetc.getTemplateStack(i);
                     if (stack != null)
                     {
-                        GL11.glEnable(GL11.GL_LIGHTING);
-                        GL11.glEnable(GL11.GL_DEPTH_TEST);
-                        GL11.glEnable(GL11.GL_BLEND);
+                        GlStateManager.enableLighting();
+                        GlStateManager.enableDepth();
+                        GlStateManager.enableBlend();
                         OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-                        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
                         itemRender.renderItemAndEffectIntoGUI(stack, x, y);
                     }
                 }
@@ -132,9 +132,9 @@ public class GuiTemplatedChest extends GuiEnderUtilities
 
         itemRender.zLevel = 0.0F;
         this.zLevel = 0.0F;
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GlStateManager.disableBlend();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
     }
 

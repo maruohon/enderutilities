@@ -2,10 +2,9 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
@@ -96,7 +95,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
     @Override
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.bindTexture(this.guiTexture);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 

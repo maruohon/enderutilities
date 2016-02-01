@@ -31,9 +31,9 @@ public class RenderEntityProjectile<T extends Entity> extends Render<T>
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y, (float)z);
         GlStateManager.enableRescaleNormal();
-        GlStateManager.scale(0.5F, 0.5F, 0.5F);
-        GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
+        GlStateManager.scale(0.5f, 0.5f, 0.5f);
+        GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
         this.bindTexture(TextureMap.locationBlocksTexture);
 
         this.renderItem.renderItem(this.getItemStack(entity), ItemCameraTransforms.TransformType.GROUND);

@@ -158,7 +158,7 @@ public class RulerRenderer
         GlStateManager.disableCull();
         GlStateManager.disableTexture2D();
         GlStateManager.disableBlend();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.disablePolygonOffset(); //GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         GlStateManager.enableAlpha();
         GlStateManager.pushMatrix();

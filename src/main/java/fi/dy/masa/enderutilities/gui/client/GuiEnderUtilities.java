@@ -2,10 +2,9 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
@@ -39,7 +38,7 @@ public class GuiEnderUtilities extends GuiContainer
     @Override
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.bindTexture(this.guiTexture);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
     }
