@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.block;
+package fi.dy.masa.enderutilities.block.base;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,11 @@ public class ItemBlockEnderUtilities extends ItemBlock
         super(block);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
+
+        if (block instanceof BlockEnderUtilities)
+        {
+            this.setNames(((BlockEnderUtilities)block).getUnlocalizedNames());
+        }
     }
 
     public void setNames(String[] names)
@@ -33,9 +38,9 @@ public class ItemBlockEnderUtilities extends ItemBlock
     }
 
     @Override
-    public int getMetadata(int meta)
+    public int getMetadata(int damage)
     {
-        return meta;
+        return damage;
     }
 
     @Override
@@ -76,5 +81,11 @@ public class ItemBlockEnderUtilities extends ItemBlock
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public boolean isFull3D()
+    {
+        return true;
     }
 }

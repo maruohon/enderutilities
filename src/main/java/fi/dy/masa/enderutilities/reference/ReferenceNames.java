@@ -45,7 +45,7 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_MACHINE_0              = "machine.0";
-    public static final String NAME_TILE_MACHINE_1              = "machine.1";
+    public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
     public static final String NAME_TILE_STORAGE_0              = "storage.0";
 
     public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge.transmitter";

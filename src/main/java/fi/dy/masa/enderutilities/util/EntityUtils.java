@@ -14,12 +14,14 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -628,5 +630,58 @@ public class EntityUtils
         living.tasks.addTask(priority, task);
 
         return true;
+    }
+
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amount.
+     * If amount is >= 0, then stack is only the ItemStack template; amount can also be larger than stack.stackSize.
+     * However, if amount is < 0, then stack.stackSize is used.
+     * @param worldIn
+     * @param pos
+     * @param stack The template ItemStack of the dropped items.
+     * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     */
+    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks)
+    {
+        if (stack == null)
+        {
+            return;
+        }
+
+        double xr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
+        double yr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
+        double zr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();
+        double motionScale = 0.04d;
+
+        int amount = stack.stackSize;
+        int max = stack.getMaxStackSize();
+        int num = max;
+
+        if (amountOverride > 0)
+        {
+            amount = amountOverride;
+        }
+
+        while (amount > 0)
+        {
+            if (dropFullStacks == false)
+            {
+                num = Math.min(worldIn.rand.nextInt(23) + 10, max);
+            }
+
+            num = Math.min(num, amount);
+            ItemStack dropStack = stack.copy();
+            dropStack.stackSize = num;
+            amount -= num;
+
+            EntityItem entityItem = new EntityItem(worldIn, xr, yr, zr, dropStack);
+            entityItem.motionX = worldIn.rand.nextGaussian() * motionScale;
+            entityItem.motionY = worldIn.rand.nextGaussian() * motionScale + 0.3d;
+            entityItem.motionZ = worldIn.rand.nextGaussian() * motionScale;
+
+            worldIn.spawnEntityInWorld(entityItem);
+        }
     }
 }

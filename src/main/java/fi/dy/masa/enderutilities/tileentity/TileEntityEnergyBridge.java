@@ -195,7 +195,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         TileEntity te = worldIn.getTileEntity(pos);
 
         // Check that the position is either a resonator or the type of master we are checking for
-        if (block != EnderUtilitiesBlocks.machine_1 || (meta != type.getMeta() && meta != Type.RESONATOR.getMeta()) ||
+        if (block != EnderUtilitiesBlocks.blockEnergyBridge || (meta != type.getMeta() && meta != Type.RESONATOR.getMeta()) ||
            (te instanceof TileEntityEnergyBridge) == false)
         {
             return false;
@@ -231,7 +231,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     protected boolean isStructureValid(World world, BlockPos pos, Type type, List<BlockPos> positions)
     {
-        Block blockEb = EnderUtilitiesBlocks.machine_1;
+        Block blockEb = EnderUtilitiesBlocks.blockEnergyBridge;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
         boolean isValid = false;
 
@@ -411,7 +411,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             return;
         }
 
-        Block blockEb = EnderUtilitiesBlocks.machine_1;
+        Block blockEb = EnderUtilitiesBlocks.blockEnergyBridge;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
 
         this.setStateWithCheck(worldIn, blockPositions.get(0), blockEb, type, classTEEB, null, false);
@@ -475,12 +475,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         int y = posY;
 
         // Energy Bridge Transmitter
-        if (this.getBlockMetadata() == 0)
+        if (Type.fromMeta(this.getBlockMetadata()) == Type.TRANSMITTER)
         {
             this.beamYMin = posY - 2;
         }
         // Energy Bridge Receiver
-        else if (this.getBlockMetadata() == 1)
+        else if (Type.fromMeta(this.getBlockMetadata()) == Type.RECEIVER)
         {
             for (y = posY; y >= 0; y--)
             {
@@ -521,9 +521,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     public enum Type
     {
-        TRANSMITTER,
-        RECEIVER,
         RESONATOR,
+        RECEIVER,
+        TRANSMITTER,
         INVALID;
 
         public static Type fromMeta(int meta)
