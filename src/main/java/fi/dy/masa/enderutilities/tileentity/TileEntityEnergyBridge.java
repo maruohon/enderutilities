@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -159,7 +158,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             return;
         }
 
-        boolean isValid = this.isStructureValid(worldIn, pos, type, positions);
+        Type masterType = worldIn.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+        boolean isValid = this.isStructureValid(worldIn, pos, masterType, positions);
 
         if (isValid == true)
         {
@@ -190,14 +190,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         positions.clear();
 
-        IBlockState state = worldIn.getBlockState(pos);
-        Block block = state.getBlock();
-        int meta = block.getMetaFromState(state);
         TileEntity te = worldIn.getTileEntity(pos);
 
-        // Check that the position is either a resonator or the type of master we are checking for
-        if (block != EnderUtilitiesBlocks.blockEnergyBridge || (meta != type.getMeta() && meta != Type.RESONATOR.getMeta()) ||
-           (te instanceof TileEntityEnergyBridge) == false)
+        if ((te instanceof TileEntityEnergyBridge) == false)
         {
             return false;
         }
@@ -210,7 +205,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         int yOffset = type == Type.TRANSMITTER ? 3 : 0;
 
         // The given location is a resonator, not the master block; get the master block's location
-        if (meta != type.getMeta())
+        if (type == Type.RESONATOR)
         {
             posMaster = posMaster.add(0, yOffset, 0).offset(facing, 3);
             posResonatorBase = posResonatorBase.offset(facing, 3);
