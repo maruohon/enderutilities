@@ -31,9 +31,10 @@ public class Configs
     public static Property teleportBlacklist;
 
     // Block disable
+    public static Property disableBlockEnergyBridge;
     public static Property disableBlockMachine_0;
     public static Property disableBlockMachine_1;
-    public static Property disableBlockStorage0;
+    public static Property disableBlockStorage_0;
 
     // Item disable
     public static Property disableItemCraftingPart;
@@ -70,13 +71,13 @@ public class Configs
 
     public static Property disableRecipeCreationStation;
 
-    public static Property disableRecipeHandyChest0;
-    public static Property disableRecipeHandyChest1;
-    public static Property disableRecipeHandyChest2;
+    public static Property disableRecipeHandyChest_0;
+    public static Property disableRecipeHandyChest_1;
+    public static Property disableRecipeHandyChest_2;
 
-    public static Property disableRecipeTemplatedChest0;
-    public static Property disableRecipeTemplatedChest1;
-    public static Property disableRecipeTemplatedChest2;
+    public static Property disableRecipeMemoryChest_0;
+    public static Property disableRecipeMemoryChest_1;
+    public static Property disableRecipeMemoryChest_2;
 
     // Items
     public static Property disableRecipeBuildersWand;

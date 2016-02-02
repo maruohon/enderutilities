@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
@@ -122,8 +123,13 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
         if (te instanceof TileEntityEnergyBridge)
         {
             TileEntityEnergyBridge teeb = (TileEntityEnergyBridge)te;
-            state = state.withProperty(FACING, EnumFacing.getFront(teeb.getRotation()))
-                    .withProperty(ACTIVE, teeb.getIsActive());
+            state = state.withProperty(ACTIVE, teeb.getIsActive());
+
+            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
+            if (facing.getAxis().isHorizontal() == true)
+            {
+                state = state.withProperty(FACING, facing);
+            }
         }
 
         return state;

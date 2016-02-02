@@ -118,11 +118,26 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void registerModels()
+    public void registerItemBlockModels()
     {
-        this.registerItemBlockModels(EnderUtilitiesBlocks.blockMachine0, "facing=north,machine=", "");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0, 0,  "facing=north,mode=off");
+
+        this.registerItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
         this.registerItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
-        this.registerItemBlockModels(EnderUtilitiesBlocks.blockStorage0, "facing=north,type=", "");
+        this.registerItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
+    }
+
+    public void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
+    {
+        ItemStack stack = new ItemStack(blockIn, 1, meta);
+        Item item = stack.getItem();
+        if (item == null)
+        {
+            return;
+        }
+
+        ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), fullVariant);
+        ModelLoader.setCustomModelResourceLocation(item, stack.getItemDamage(), mrl);
     }
 
     public void registerItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)

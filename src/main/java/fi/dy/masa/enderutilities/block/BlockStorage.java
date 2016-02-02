@@ -135,7 +135,11 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnderUtilities)
         {
-            state = state.withProperty(FACING, EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation()));
+            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
+            if (facing.getAxis().isHorizontal() == true)
+            {
+                state = state.withProperty(FACING, facing);
+            }
         }
 
         return state;

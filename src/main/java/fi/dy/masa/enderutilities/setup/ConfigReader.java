@@ -83,12 +83,14 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
+        Configs.disableBlockEnergyBridge          = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
+        Configs.disableBlockEnergyBridge.comment = "Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter";
         Configs.disableBlockMachine_0             = conf.get(category, "disableBlockMachine_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_0.comment = "Info: Machine 0 meta values: 0 = Ender Furnace; 1 = Tool Workstation; 2 = Ender Infuser, 3 = Creation Station";
+        Configs.disableBlockMachine_0.comment = "Info: Machine_0 meta values: 0 = Ender Furnace";
         Configs.disableBlockMachine_1             = conf.get(category, "disableBlockMachine_1", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_1.comment = "Info: Machine 1 meta values: 0 = Energy Bridge Transmitter; 1 = Energy Bridge Receiver; 2 = Energy Bridge Resonator";
-        Configs.disableBlockStorage0             = conf.get(category, "disableBlockStorage_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockStorage0.comment = "Meta values: 0..2 = Templated Chests, 3..5 = Handy Chests";
+        Configs.disableBlockMachine_1.comment = "Info: Machine_1 meta values: 0 = Ender Infuser; 1 = Tool Workstation, 2 = Creation Station";
+        Configs.disableBlockStorage_0             = conf.get(category, "disableBlockStorage_0", false).setRequiresMcRestart(true);
+        Configs.disableBlockStorage_0.comment = "Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests";
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");
@@ -130,13 +132,13 @@ public class ConfigReader
         Configs.disableRecipeEnergyBridgeReceiver       = conf.get(category, "disableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true);
         Configs.disableRecipeEnergyBridgeResonator      = conf.get(category, "disableRecipeEnergyBridgeResonator", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipeHandyChest0      = conf.get(category, "disableRecipeHandyChest0", false).setRequiresMcRestart(true);
-        Configs.disableRecipeHandyChest1      = conf.get(category, "disableRecipeHandyChest1", false).setRequiresMcRestart(true);
-        Configs.disableRecipeHandyChest2      = conf.get(category, "disableRecipeHandyChest2", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest_0      = conf.get(category, "disableRecipeHandyChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest_1      = conf.get(category, "disableRecipeHandyChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeHandyChest_2      = conf.get(category, "disableRecipeHandyChest2", false).setRequiresMcRestart(true);
 
-        Configs.disableRecipeTemplatedChest0      = conf.get(category, "disableRecipeMemoryChest0", false).setRequiresMcRestart(true);
-        Configs.disableRecipeTemplatedChest1      = conf.get(category, "disableRecipeMemoryChest1", false).setRequiresMcRestart(true);
-        Configs.disableRecipeTemplatedChest2      = conf.get(category, "disableRecipeMemoryChest2", false).setRequiresMcRestart(true);
+        Configs.disableRecipeMemoryChest_0      = conf.get(category, "disableRecipeMemoryChest0", false).setRequiresMcRestart(true);
+        Configs.disableRecipeMemoryChest_1      = conf.get(category, "disableRecipeMemoryChest1", false).setRequiresMcRestart(true);
+        Configs.disableRecipeMemoryChest_2      = conf.get(category, "disableRecipeMemoryChest2", false).setRequiresMcRestart(true);
 
         // Items
         Configs.disableRecipeBuildersWand         = conf.get(category, "disableRecipeBuildersWand", false).setRequiresMcRestart(true);

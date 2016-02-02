@@ -45,7 +45,7 @@ public class EnderUtilities
         EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
         PacketHandler.init(); // Initialize network stuff
 
-        proxy.registerModels();
+        proxy.registerItemBlockModels();
         proxy.registerEntities();
         proxy.registerTileEntities();
         proxy.registerKeyBindings();
