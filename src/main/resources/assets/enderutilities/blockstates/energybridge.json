@@ -1,0 +1,69 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_individual",
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "type": {
+            "energybridge.resonator": {
+                "textures": {
+                    "front":    "#resonator.front",
+                    "back":     "enderutilities:blocks/energybridge.resonator.back",
+                    "left":     "#resonator.side",
+                    "right":    "#resonator.side",
+                    "top":      "#resonator.top",
+                    "bottom":   "#resonator.top"
+                }
+            },
+            "energybridge.receiver":    {
+                "textures": {
+                    "front":    "#transmitter.top",
+                    "back":     "#transmitter.top",
+                    "left":     "#transmitter.top",
+                    "right":    "#transmitter.top",
+                    "top":      "#transmitter.top",
+                    "bottom":   "#transmitter.top"
+                }
+            },
+            "energybridge.transmitter": {
+                "textures": {
+                    "front":    "#transmitter.side",
+                    "back":     "#transmitter.side",
+                    "left":     "#transmitter.side",
+                    "right":    "#transmitter.side",
+                    "top":      "#transmitter.top",
+                    "bottom":   "#transmitter.top"
+                }
+            }
+        },
+        "active": {
+            "true": {
+                "textures": {
+                    "resonator.front":  "enderutilities:blocks/energybridge.resonator.front.active",
+                    "resonator.top":    "enderutilities:blocks/energybridge.resonator.top.active",
+                    "resonator.side":   "enderutilities:blocks/energybridge.resonator.side.active",
+                    "transmitter.top":  "enderutilities:blocks/energybridge.transmitter.top.active",
+                    "transmitter.side": "enderutilities:blocks/energybridge.transmitter.side.active"
+                }
+            },
+            "false": {
+                "textures": {
+                    "resonator.front":  "enderutilities:blocks/energybridge.resonator.front.off",
+                    "resonator.top":    "enderutilities:blocks/energybridge.resonator.top.off",
+                    "resonator.side":   "enderutilities:blocks/energybridge.resonator.side.off",
+                    "transmitter.top":  "enderutilities:blocks/energybridge.transmitter.top.off",
+                    "transmitter.side": "enderutilities:blocks/energybridge.transmitter.side.off"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y": 90 },
+            "up":    {},
+            "down":  {}
+        }
+    }
+}

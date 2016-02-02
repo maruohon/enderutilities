@@ -58,7 +58,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
     public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
-    public static final String NAME_TILE_ENTITY_TEMPLATED_CHEST      = "templatedchest";
+    public static final String NAME_TILE_ENTITY_MEMORY_CHEST         = "memorychest";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 
 

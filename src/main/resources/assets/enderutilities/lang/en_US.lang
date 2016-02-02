@@ -17,7 +17,7 @@ enderutilities.container.handybag=Handy Bag
 enderutilities.container.handychest=Handy Chest
 enderutilities.container.inventoryswapper=Inventory Swapper
 enderutilities.container.pickupmanager=Pickup Manager
-enderutilities.container.templatedchest=Memory Chest
+enderutilities.container.memorychest=Memory Chest
 enderutilities.container.toolworkstation=Tool Workstation
 
 
@@ -34,9 +34,9 @@ tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
 tile.enderutilities.handychest.0.name=Handy Chest
 tile.enderutilities.handychest.1.name=Large Handy Chest
 tile.enderutilities.handychest.2.name=Extended Handy Chest
-tile.enderutilities.templatedchest.0.name=Small Memory Chest
-tile.enderutilities.templatedchest.1.name=Memory Chest
-tile.enderutilities.templatedchest.2.name=Large Memory Chest
+tile.enderutilities.memorychest.0.name=Small Memory Chest
+tile.enderutilities.memorychest.1.name=Memory Chest
+tile.enderutilities.memorychest.2.name=Large Memory Chest
 tile.enderutilities.toolworkstation.name=Ender Tool Workstation
 
 

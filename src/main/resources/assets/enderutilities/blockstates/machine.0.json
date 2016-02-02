@@ -1,0 +1,57 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "textures": {
+            "front":    "enderutilities:blocks/enderinfuser.front",
+            "side":     "enderutilities:blocks/enderinfuser.side",
+            "top":      "enderutilities:blocks/enderinfuser.top",
+            "bottom":   "enderutilities:blocks/enderinfuser.bottom"
+        },
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "machine": {
+            "enderfurnace": {
+                "textures": {
+                    "front":    "enderutilities:blocks/enderfurnace.front.off",
+                    "side":     "enderutilities:blocks/enderfurnace.side",
+                    "top":      "enderutilities:blocks/enderfurnace.top",
+                    "bottom":   "enderutilities:blocks/enderfurnace.top"
+                }
+            },
+            "enderinfuser":    {
+                "textures": {
+                    "front":    "enderutilities:blocks/enderinfuser.front",
+                    "side":     "enderutilities:blocks/enderinfuser.side",
+                    "top":      "enderutilities:blocks/enderinfuser.top",
+                    "bottom":   "enderutilities:blocks/enderinfuser.bottom"
+                }
+            },
+            "toolworkstation": {
+                "textures": {
+                    "front":    "enderutilities:blocks/toolworkstation.front",
+                    "side":     "enderutilities:blocks/toolworkstation.side",
+                    "top":      "enderutilities:blocks/toolworkstation.top",
+                    "bottom":   "enderutilities:blocks/toolworkstation.bottom"
+                }
+            },
+            "creationstation": {
+                "textures": {
+                    "front":    "enderutilities:blocks/creationstation.front",
+                    "side":     "enderutilities:blocks/creationstation.side",
+                    "top":      "enderutilities:blocks/creationstation.top",
+                    "bottom":   "enderutilities:blocks/creationstation.top"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y": 90 },
+            "up":    {},
+            "down":  {}
+        }
+    }
+}

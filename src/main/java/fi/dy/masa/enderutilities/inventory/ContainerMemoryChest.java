@@ -11,17 +11,17 @@ import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
-import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerTemplatedChest extends ContainerEnderUtilities implements ICustomSlotSync
+public class ContainerMemoryChest extends ContainerEnderUtilities implements ICustomSlotSync
 {
-    protected TileEntityTemplatedChest tetc;
+    protected TileEntityMemoryChest tetc;
     protected List<ItemStack> templateStacksLast;
     protected long templateMask;
 
-    public ContainerTemplatedChest(EntityPlayer player, TileEntityTemplatedChest te)
+    public ContainerMemoryChest(EntityPlayer player, TileEntityMemoryChest te)
     {
         super(player, te);
         this.tetc = te;
@@ -39,7 +39,7 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities implements 
         int posY = 26;
 
         int tier = this.tetc.getStorageTier();
-        int rows = TileEntityTemplatedChest.INV_SIZES[tier] / 9;
+        int rows = TileEntityMemoryChest.INV_SIZES[tier] / 9;
 
         for (int i = 0; i < rows; i++)
         {
@@ -134,7 +134,7 @@ public class ContainerTemplatedChest extends ContainerEnderUtilities implements 
         return stack;
     }
 
-    public TileEntityTemplatedChest getTileEntity()
+    public TileEntityMemoryChest getTileEntity()
     {
         return this.tetc;
     }

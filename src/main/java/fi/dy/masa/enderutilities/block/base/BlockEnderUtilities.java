@@ -28,7 +28,7 @@ public class BlockEnderUtilities extends Block
         return this.getMetaFromState(state);
     }
 
-    protected String[] getUnlocalizedNames()
+    public String[] getUnlocalizedNames()
     {
         return new String[] { this.blockName };
     }

@@ -14,12 +14,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.gui.client.GuiTemplatedChest;
-import fi.dy.masa.enderutilities.inventory.ContainerTemplatedChest;
+import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
+import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
+public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
     public static final int[] INV_SIZES = new int[] { 9, 27, 54 };
 
@@ -28,9 +28,9 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     protected int chestTier;
     protected long templateMask;
 
-    public TileEntityTemplatedChest()
+    public TileEntityMemoryChest()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST, 9);
+        super(ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST, 9);
         this.templateStacks = new ItemStack[54];
         this.enabledTemplateSlots = new ArrayList<Integer>();
     }
@@ -190,15 +190,15 @@ public class TileEntityTemplatedChest extends TileEntityEnderUtilitiesInventory 
     }
 
     @Override
-    public ContainerTemplatedChest getContainer(EntityPlayer player)
+    public ContainerMemoryChest getContainer(EntityPlayer player)
     {
-        return new ContainerTemplatedChest(player, this);
+        return new ContainerMemoryChest(player, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        return new GuiTemplatedChest(this.getContainer(player), this);
+        return new GuiMemoryChest(this.getContainer(player), this);
     }
 }

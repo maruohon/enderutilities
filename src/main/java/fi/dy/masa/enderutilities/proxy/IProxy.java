@@ -16,6 +16,8 @@ public interface IProxy
 
     public void registerKeyBindings();
 
+    public void registerModels();
+
     public void registerRenderers();
 
     public void registerTileEntities();

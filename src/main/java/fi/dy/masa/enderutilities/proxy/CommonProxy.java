@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -76,7 +76,7 @@ public abstract class CommonProxy implements IProxy
         GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION));
         GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
         GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
-        GameRegistry.registerTileEntity(TileEntityTemplatedChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST));
+        GameRegistry.registerTileEntity(TileEntityMemoryChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST));
         GameRegistry.registerTileEntity(TileEntityHandyChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST));
         GameRegistry.registerTileEntity(TileEntityCreationStation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION));
     }

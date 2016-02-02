@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.setup;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -12,14 +11,15 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.BlockMachine;
 import fi.dy.masa.enderutilities.block.BlockStorage;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
 {
-    public static final Block blockMachine0 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.iron);
-    public static final Block blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.iron);
-    public static final Block blockStorage0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.iron);
+    public static final BlockEnderUtilities blockMachine0 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.iron);
+    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.iron);
+    public static final BlockEnderUtilities blockStorage0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.iron);
 
     public static void init()
     {

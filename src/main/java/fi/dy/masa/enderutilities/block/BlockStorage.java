@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -21,16 +20,13 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
@@ -55,12 +51,12 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    protected String[] getUnlocalizedNames()
+    public String[] getUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".0",
-                ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".1",
-                ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".2",
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".0",
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".1",
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".2",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".0",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".1",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".2"
@@ -73,15 +69,15 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         EnumStorageType type = state.getValue(TYPE);
         switch(type)
         {
-            case MEMORY_CHEST_0: return new TileEntityTemplatedChest();
-            case MEMORY_CHEST_1: return new TileEntityTemplatedChest();
-            case MEMORY_CHEST_2: return new TileEntityTemplatedChest();
+            case MEMORY_CHEST_0: return new TileEntityMemoryChest();
+            case MEMORY_CHEST_1: return new TileEntityMemoryChest();
+            case MEMORY_CHEST_2: return new TileEntityMemoryChest();
             case HANDY_CHEST_0: return new TileEntityHandyChest();
             case HANDY_CHEST_1: return new TileEntityHandyChest();
             case HANDY_CHEST_2: return new TileEntityHandyChest();
         }
 
-        return new TileEntityTemplatedChest();
+        return new TileEntityMemoryChest();
     }
 
     @Override
@@ -145,20 +141,20 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         return state;
     }
 
-    @SideOnly(Side.CLIENT)
-    public static void getSubBlocks(int blockIndex, Block block, Item item, CreativeTabs tab, List<ItemStack> list)
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
         for (int meta = 0; meta < 6; meta++)
         {
-            list.add(new ItemStack(block, 1, meta));
+            list.add(new ItemStack(item, 1, meta));
         }
     }
 
     public static enum EnumStorageType implements IStringSerializable
     {
-        MEMORY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".0"),
-        MEMORY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".1"),
-        MEMORY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_TEMPLATED_CHEST + ".2"),
+        MEMORY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".0"),
+        MEMORY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".1"),
+        MEMORY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".2"),
         HANDY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".0"),
         HANDY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".1"),
         HANDY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".2");

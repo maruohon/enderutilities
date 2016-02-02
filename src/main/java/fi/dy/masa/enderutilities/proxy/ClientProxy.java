@@ -1,15 +1,22 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Util;
 
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -18,6 +25,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
@@ -31,6 +39,7 @@ import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
@@ -106,5 +115,28 @@ public class ClientProxy extends CommonProxy
     public boolean isAltKeyDown()
     {
         return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+    }
+
+    @Override
+    public void registerModels()
+    {
+        this.registerItemBlockModels(EnderUtilitiesBlocks.blockMachine0, "facing=north,machine=", "");
+        this.registerItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
+        this.registerItemBlockModels(EnderUtilitiesBlocks.blockStorage0, "facing=north,type=", "");
+    }
+
+    public void registerItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
+    {
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+        String[] names = blockIn.getUnlocalizedNames();
+
+        for (ItemStack stack : stacks)
+        {
+            Item item = stack.getItem();
+            int damage = stack.getItemDamage();
+            ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), variantPre + names[damage] + variantPost);
+            ModelLoader.setCustomModelResourceLocation(item, damage, mrl);
+        }
     }
 }

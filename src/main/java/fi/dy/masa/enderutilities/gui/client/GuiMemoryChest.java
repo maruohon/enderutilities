@@ -12,16 +12,16 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.inventory.ContainerTemplatedChest;
+import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityTemplatedChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
-public class GuiTemplatedChest extends GuiEnderUtilities
+public class GuiMemoryChest extends GuiEnderUtilities
 {
-    protected TileEntityTemplatedChest tetc;
+    protected TileEntityMemoryChest tetc;
     protected int chestTier;
 
-    public GuiTemplatedChest(ContainerTemplatedChest container, TileEntityTemplatedChest te)
+    public GuiMemoryChest(ContainerMemoryChest container, TileEntityMemoryChest te)
     {
         super(container, 176, 176, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
         this.tetc = te;
@@ -60,7 +60,7 @@ public class GuiTemplatedChest extends GuiEnderUtilities
             default:
         }
 
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.templatedchest", new Object[0]), 8, 15, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.memorychest", new Object[0]), 8, 15, 0x404040);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, y, 0x404025);
     }
 

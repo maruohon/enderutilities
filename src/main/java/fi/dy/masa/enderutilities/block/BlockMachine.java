@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.block;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -22,9 +21,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
@@ -60,7 +56,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    protected String[] getUnlocalizedNames()
+    public String[] getUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE,
@@ -174,13 +170,6 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         return state;
     }
 
-    /*@Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
-    {
-        return super.getExtendedState(state, world, pos);
-    }*/
-
-    @SideOnly(Side.CLIENT)
     @Override
     public void randomDisplayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
@@ -194,12 +183,12 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    public static void getSubBlocks(int blockIndex, Block block, Item item, CreativeTabs tab, List<ItemStack> list)
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
         for (int meta = 0; meta < 4; meta++)
         {
-            list.add(new ItemStack(block, 1, meta));
+            list.add(new ItemStack(item, 1, meta));
         }
     }
 

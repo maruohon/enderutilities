@@ -18,7 +18,6 @@ import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -42,10 +41,11 @@ public class EnderUtilities
         logger = event.getModLog();
         ConfigReader.loadConfigsAll(event.getSuggestedConfigurationFile());
 
-        EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
+        //EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
         EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
         PacketHandler.init(); // Initialize network stuff
 
+        proxy.registerModels();
         proxy.registerEntities();
         proxy.registerTileEntities();
         proxy.registerKeyBindings();

@@ -2,9 +2,9 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockState;
@@ -21,18 +21,15 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 {
     public static final PropertyDirection FACING = BlockProperties.FACING;
+    public static final PropertyBool ACTIVE = PropertyBool.create("active");
 
     public static final PropertyEnum<BlockEnergyBridge.EnumMachineType> TYPE =
             PropertyEnum.<BlockEnergyBridge.EnumMachineType>create("type", BlockEnergyBridge.EnumMachineType.class);
@@ -42,18 +39,19 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
         super(name, hardness, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(ACTIVE, false)
+                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR));
     }
 
     @Override
     protected BlockState createBlockState()
     {
-        return new BlockState(this, new IProperty[] { TYPE, FACING });
+        return new BlockState(this, new IProperty[] { ACTIVE, FACING, TYPE });
     }
 
     @Override
-    protected String[] getUnlocalizedNames()
+    public String[] getUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR,
@@ -121,9 +119,11 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
+        if (te instanceof TileEntityEnergyBridge)
         {
-            state = state.withProperty(FACING, EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation()));
+            TileEntityEnergyBridge teeb = (TileEntityEnergyBridge)te;
+            state = state.withProperty(FACING, EnumFacing.getFront(teeb.getRotation()))
+                    .withProperty(ACTIVE, teeb.getIsActive());
         }
 
         return state;
@@ -135,12 +135,12 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
         return 15;
     }
 
-    @SideOnly(Side.CLIENT)
-    public static void getSubBlocks(int blockIndex, Block block, Item item, CreativeTabs tab, List<ItemStack> list)
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
         for (int meta = 0; meta < 3; meta++)
         {
-            list.add(new ItemStack(block, 1, meta));
+            list.add(new ItemStack(item, 1, meta));
         }
     }
 
