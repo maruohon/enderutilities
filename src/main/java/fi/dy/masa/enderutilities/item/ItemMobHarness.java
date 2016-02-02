@@ -3,17 +3,20 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -224,7 +227,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         return true;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
@@ -236,5 +238,29 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         String target = stack.getTagCompound().getString("TargetName");
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.GRAY);
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name),
+                new ResourceLocation(name + ".linked")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        if (this.hasTarget(stack) == true)
+        {
+            return new ModelResourceLocation(name + ".linked", "inventory");
+        }
+
+        return new ModelResourceLocation(name, "inventory");
     }
 }

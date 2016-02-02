@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -676,5 +679,29 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         BLACKLISTED,
         NOT_BLACKLISTED,
         NOT_HANDLED;
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name),
+                new ResourceLocation(name + ".locked")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED) == true)
+        {
+            return new ModelResourceLocation(name + ".locked", "inventory");
+        }
+
+        return new ModelResourceLocation(name, "inventory");
     }
 }

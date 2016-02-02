@@ -117,13 +117,6 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
             return;
         }
 
-        // Don't collide with blocks without a collision box
-        IBlockState state = this.worldObj.getBlockState(mop.getBlockPos());
-        if (mop.typeOfHit == MovingObjectType.BLOCK && state.getBlock().getCollisionBoundingBox(this.worldObj, mop.getBlockPos(), state) == null)
-        {
-            return;
-        }
-
         Entity thrower = this.getThrower();
 
         // Thrower not found, drop the item if applicable and bail out
@@ -139,14 +132,26 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         // Don't collide with the thrower or the entities in the 'stack' with the thrower
-        if (mop.typeOfHit == MovingObjectType.ENTITY && EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
+        if (mop.typeOfHit == MovingObjectType.ENTITY)
         {
-            return;
-        }
+            if (EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
+            {
+                return;
+            }
 
-        if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase)
+            if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase)
+            {
+                mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
+            }
+        }
+        // Don't collide with blocks without a collision box
+        else if (mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos() != null)
         {
-            mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
+            IBlockState state = this.worldObj.getBlockState(mop.getBlockPos());
+            if (state.getBlock().getCollisionBoundingBox(this.worldObj, mop.getBlockPos(), state) == null)
+            {
+                return;
+            }
         }
 
         // A regular pearl lands, teleport the thrower

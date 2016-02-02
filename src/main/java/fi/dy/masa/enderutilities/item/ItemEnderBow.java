@@ -2,12 +2,16 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -15,6 +19,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -315,5 +321,73 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         return 0;
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name + ".mode.0.standby"),
+                new ResourceLocation(name + ".mode.0.broken"),
+                new ResourceLocation(name + ".mode.0.pulling.0"),
+                new ResourceLocation(name + ".mode.0.pulling.1"),
+                new ResourceLocation(name + ".mode.0.pulling.2"),
+                new ResourceLocation(name + ".mode.1.standby"),
+                new ResourceLocation(name + ".mode.1.broken"),
+                new ResourceLocation(name + ".mode.1.pulling.0"),
+                new ResourceLocation(name + ".mode.1.pulling.1"),
+                new ResourceLocation(name + ".mode.1.pulling.2")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String modeStr = ".mode.";
+        int mode = 0;
+
+        if (stack.getTagCompound() != null)
+        {
+            mode = MathHelper.clamp_int(stack.getTagCompound().getByte("Mode"), 0, 1);
+        }
+
+        modeStr += mode;
+
+        if (this.isBroken(stack) == true)
+        {
+            return new ModelResourceLocation(name + modeStr + ".broken", "inventory");
+        }
+
+        int inUse = stack.getMaxItemUseDuration() - useRemaining;
+        //System.out.println("max: " + stack.getMaxItemUseDuration() + " remaining: " + useRemaining + " inUse: " + inUse);
+
+        if (player != null && player.getItemInUse() != null)
+        {
+            if (inUse >= 18)
+            {
+                return new ModelResourceLocation(name + modeStr + ".pulling.2", "inventory");
+            }
+            else if (inUse >= 13)
+            {
+                return new ModelResourceLocation(name + modeStr + ".pulling.1", "inventory");
+            }
+            else if (inUse > 0)
+            {
+                return new ModelResourceLocation(name + modeStr + ".pulling.0", "inventory");
+            }
+        }
+
+        return new ModelResourceLocation(name + modeStr + ".standby", "inventory");
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return this.getModel(stack, null, 0);
     }
 }

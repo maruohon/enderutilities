@@ -2,12 +2,14 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,10 +17,13 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -493,20 +498,27 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public enum Mode
     {
-        NORMAL ("enderutilities.tooltip.item.normal"),
-        CAPTURE ("enderutilities.tooltip.item.capture"),
-        RELEASE ("enderutilities.tooltip.item.release");
+        NORMAL ("enderutilities.tooltip.item.normal", ""),
+        CAPTURE ("enderutilities.tooltip.item.capture", ".capture"),
+        RELEASE ("enderutilities.tooltip.item.release", ".release");
 
         private String unlocName;
+        private String variant;
 
-        Mode (String unlocName)
+        Mode (String unlocName, String variant)
         {
             this.unlocName = unlocName;
+            this.variant = variant;
         }
 
         public String getDisplayName()
         {
             return StatCollector.translateToLocal(this.unlocName);
+        }
+
+        public String getVariant()
+        {
+            return this.variant;
         }
 
         public static Mode getMode(ItemStack stack)
@@ -518,5 +530,25 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             return (id >= 0 && id < values().length) ? values()[id] : NORMAL;
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name),
+                new ResourceLocation(name + ".capture"),
+                new ResourceLocation(name + ".release")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        return new ModelResourceLocation(name + Mode.getMode(stack).getVariant(), "inventory");
     }
 }

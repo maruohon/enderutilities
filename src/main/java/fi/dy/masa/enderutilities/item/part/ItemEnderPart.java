@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -78,7 +79,7 @@ public class ItemEnderPart extends ItemModule
                 return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
 
             case 45: // Damage 45: Mob Persistence
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MOBPERSISTENCE;
+                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_JAILER;
 
             case 50: // Damage 50: Memory Card (misc)
                 return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
@@ -326,5 +327,32 @@ public class ItemEnderPart extends ItemModule
             list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
             list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name + ".enderalloy.0"),
+                new ResourceLocation(name + ".enderalloy.1"),
+                new ResourceLocation(name + ".enderalloy.2"),
+                new ResourceLocation(name + ".endercore.inactive.0"),
+                new ResourceLocation(name + ".endercore.inactive.1"),
+                new ResourceLocation(name + ".endercore.inactive.2"),
+                new ResourceLocation(name + ".endercore.active.0"),
+                new ResourceLocation(name + ".endercore.active.1"),
+                new ResourceLocation(name + ".endercore.active.2"),
+                new ResourceLocation(name + ".enderstick"),
+                new ResourceLocation(name + ".enderrope"),
+                new ResourceLocation(name + ".enderrelic"),
+                new ResourceLocation(name + ".jailer"),
+                new ResourceLocation(name + ".memorycard.misc"),
+                new ResourceLocation(name + ".memorycard.items.6b"),
+                new ResourceLocation(name + ".memorycard.items.8b"),
+                new ResourceLocation(name + ".memorycard.items.10b"),
+                new ResourceLocation(name + ".memorycard.items.12b")
+        };
     }
 }

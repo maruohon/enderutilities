@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -96,10 +97,22 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
         {
             // FIXME Disabled the Portal type Link Crystal until it is actually used
-            for (int i = 0; i <= 1; i++)
+            for (int i = 0; i < 2; i++)
             {
                 list.add(new ItemStack(this, 1, i));
             }
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name + ".location"),
+                new ResourceLocation(name + ".block"),
+                new ResourceLocation(name + ".portal")
+        };
     }
 }

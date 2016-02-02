@@ -14,6 +14,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 
 import net.minecraftforge.client.model.ModelLoader;
@@ -30,6 +31,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
+import fi.dy.masa.enderutilities.client.renderer.item.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -37,6 +39,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
@@ -118,13 +121,75 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
+    public void registerModels()
+    {
+        this.registerItemBlockModels();
+        this.registerAllItemModels();
+    }
+
+    public void registerAllItemModels()
+    {
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderCapacitor);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPart);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.linkCrystal);
+
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.buildersWand);
+        this.registerItemModel(EnderUtilitiesItems.enderArrow);
+        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBow);
+        this.registerItemModel(EnderUtilitiesItems.enderLasso);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
+        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
+        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
+        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.mobHarness);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
+        this.registerItemModel(EnderUtilitiesItems.portalScaler);
+        this.registerItemModel(EnderUtilitiesItems.ruler);
+    }
+
+    public void registerItemModel(ItemEnderUtilities item)
+    {
+        this.registerItemModel(item, 0);
+    }
+
+    public void registerItemModel(ItemEnderUtilities item, int meta)
+    {
+        ResourceLocation rl = Item.itemRegistry.getNameForObject(item);
+        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(rl, "inventory"));
+    }
+
+    public void registerItemModelWithVariants(ItemEnderUtilities item)
+    {
+        ResourceLocation[] variants = item.getItemVariants();
+        List<ItemStack> items = new ArrayList<ItemStack>();
+        item.getSubItems(item, item.getCreativeTab(), items);
+
+        int i = 0;
+        for (ItemStack stack : items)
+        {
+            ModelResourceLocation mrl = new ModelResourceLocation(variants[i++], "inventory");
+            ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getItemDamage(), mrl);
+        }
+    }
+
+    public void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
+    {
+        ModelLoader.registerItemVariants(item, item.getItemVariants());
+        ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
+        //ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getItemVariants()[0], "inventory"));
+    }
+
     public void registerItemBlockModels()
     {
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0, 0,  "facing=north,mode=off");
 
-        this.registerItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
-        this.registerItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
-        this.registerItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
     }
 
     public void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
@@ -140,7 +205,7 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomModelResourceLocation(item, stack.getItemDamage(), mrl);
     }
 
-    public void registerItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
+    public void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
     {
         List<ItemStack> stacks = new ArrayList<ItemStack>();
         blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);

@@ -2,12 +2,15 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -193,5 +196,51 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name + ".basic.stage.0"),
+                new ResourceLocation(name + ".basic.stage.1"),
+                new ResourceLocation(name + ".basic.stage.2"),
+                new ResourceLocation(name + ".basic.stage.3"),
+                new ResourceLocation(name + ".basic.stage.4"),
+                new ResourceLocation(name + ".basic.stage.5"),
+                new ResourceLocation(name + ".basic.stage.6"),
+                new ResourceLocation(name + ".advanced.stage.0"),
+                new ResourceLocation(name + ".advanced.stage.1"),
+                new ResourceLocation(name + ".advanced.stage.2"),
+                new ResourceLocation(name + ".advanced.stage.3"),
+                new ResourceLocation(name + ".advanced.stage.4"),
+                new ResourceLocation(name + ".advanced.stage.5"),
+                new ResourceLocation(name + ".advanced.stage.6")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        int index = 0;
+        String pre = stack.getItemDamage() == 1 ? ".advanced.stage." : ".basic.stage.";
+
+        if (player != null && player.getItemInUse() != null)
+        {
+            index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 6);
+        }
+
+        return new ModelResourceLocation(name + pre + index, "inventory");
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return this.getModel(stack, null, 0);
     }
 }

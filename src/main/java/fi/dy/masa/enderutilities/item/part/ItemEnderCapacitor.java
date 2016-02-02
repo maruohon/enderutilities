@@ -2,11 +2,14 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import net.minecraftforge.common.util.Constants;
@@ -198,15 +201,43 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
-        for (int i = 0; i <= 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             list.add(new ItemStack(this, 1, i));
 
-            // Add a fully charged version for creative tab and NEI
+            // Add a fully charged version for creative tab
             ItemStack tmp = new ItemStack(this, 1, i);
             tmp.setTagCompound(new NBTTagCompound());
             this.setCharge(tmp.getTagCompound(), this.getCapacityFromItemType(tmp));
             list.add(tmp);
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name + ".empty.0"),
+                new ResourceLocation(name + ".empty.1"),
+                new ResourceLocation(name + ".empty.2"),
+                new ResourceLocation(name + ".empty.3"),
+                new ResourceLocation(name + ".charged.0"),
+                new ResourceLocation(name + ".charged.1"),
+                new ResourceLocation(name + ".charged.2"),
+                new ResourceLocation(name + ".charged.3")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String pre = this.getCharge(stack) > 0 ? ".charged." : ".empty.";
+        int index = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
+
+        return new ModelResourceLocation(name + pre + index, "inventory");
     }
 }

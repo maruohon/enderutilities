@@ -359,7 +359,7 @@ public class EntityEnderArrow extends EntityArrow
                 this.blockZ = mopPos.getZ();
                 state = this.worldObj.getBlockState(mopPos);
                 this.inBlock = state.getBlock();
-                this.inData = block.getMetaFromState(state);
+                this.inData = this.inBlock.getMetaFromState(state);
                 this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
                 this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
                 this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));

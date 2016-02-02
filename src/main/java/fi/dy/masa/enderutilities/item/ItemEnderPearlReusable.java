@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -84,5 +85,16 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             list.add(new ItemStack(this, 1, 0)); // Regular
             list.add(new ItemStack(this, 1, 1)); // Elite
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String name = Item.itemRegistry.getNameForObject(this).toString();
+
+        return new ResourceLocation[] {
+                new ResourceLocation(name),
+                new ResourceLocation(name + ".elite")
+        };
     }
 }

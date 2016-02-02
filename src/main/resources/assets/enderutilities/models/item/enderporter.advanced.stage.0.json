@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/standard_item",
+    "textures": {
+        "layer0": "enderutilities:items/enderporter.advanced.stage.0"
+    }
+}

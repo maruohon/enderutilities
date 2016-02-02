@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -36,12 +38,10 @@ public class ItemEnderUtilities extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
-    @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
@@ -84,7 +84,6 @@ public class ItemEnderUtilities extends Item
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public static void addTooltips(String key, List<String> list, boolean verbose)
     {
         String translated = StatCollector.translateToLocal(key);
@@ -107,9 +106,19 @@ public class ItemEnderUtilities extends Item
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    public ResourceLocation[] getItemVariants()
+    {
+        return new ResourceLocation[] { Item.itemRegistry.getNameForObject(this) };
+    }
+
+    @SideOnly(Side.CLIENT)
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return null;
     }
 }

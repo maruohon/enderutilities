@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/standard_item",
+    "textures": {
+        "layer0": "enderutilities:items/endercapacitor.empty.0"
+    }
+}
