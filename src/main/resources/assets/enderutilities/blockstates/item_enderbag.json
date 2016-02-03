@@ -1,8 +1,7 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:item_default",
-        "transform": "forge:default-item"
+        "model": "enderutilities:item_default"
     },
     "variants": {
         "locked": {
@@ -11,7 +10,6 @@
                 "submodel": {
                     "overlay_l": {
                         "model": "enderutilities:item_default",
-                        "transform": "forge:default-item",
                         "textures": {
                             "layer0": "enderutilities:items/item_overlay_locked"
                         }

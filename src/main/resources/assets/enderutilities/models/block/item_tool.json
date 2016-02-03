@@ -1,8 +1,5 @@
 {
     "parent": "minecraft:builtin/generated",
-    "textures": {
-        "layer0": "enderutilities:items/enderarrow"
-    },
     "display": {
         "thirdperson": {
             "rotation": [ 0, 90, -35 ],

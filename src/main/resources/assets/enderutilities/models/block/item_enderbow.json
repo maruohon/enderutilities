@@ -1,0 +1,15 @@
+{
+    "parent": "minecraft:builtin/generated",
+    "display": {
+        "thirdperson": {
+            "rotation": [ 6, -100, -46 ],
+            "translation": [ 0.75, 0, 0.25 ],
+            "scale": [ 1, 1, 1 ]
+        },
+        "firstperson": {
+            "rotation": [ 0, -136, 26 ],
+            "translation": [ 0, 4, 2 ],
+            "scale": [ 1.7, 1.7, 1.7 ]
+        }
+    }
+}

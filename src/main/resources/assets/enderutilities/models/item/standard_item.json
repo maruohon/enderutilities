@@ -2,14 +2,14 @@
     "parent": "minecraft:builtin/generated",
     "display": {
         "thirdperson": {
-            "rotation": [ -45, 45, 45 ],
-            "translation": [ 0, 1, -3 ],
+            "rotation": [ -90, 0, 0 ],
+            "translation": [ -0.25, 1.25, -3.25 ],
             "scale": [ 0.55, 0.55, 0.55 ]
         },
         "firstperson": {
-            "rotation": [ 0, -135, 25 ],
-            "translation": [ 0, 4, 2 ],
-            "scale": [ 1.7, 1.7, 1.7 ]
+            "rotation": [ 0, -120, 20 ],
+            "translation": [ 0, 4, 2.5 ],
+            "scale": [ 1.5, 1.5, 1.5 ]
         }
     }
 }
