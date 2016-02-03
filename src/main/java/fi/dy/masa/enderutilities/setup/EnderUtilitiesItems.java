@@ -58,7 +58,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemEnderPorter.getBoolean(false) == false) { GameRegistry.registerItem(enderPorter, ReferenceNames.NAME_ITEM_ENDER_PORTER); }
         //if (Configs.disableItemEnderSword.getBoolean(false) == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
         //if (Configs.disableItemEnderTools.getBoolean(false) == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
-        //if (Configs.disableItemHandyBag.getBoolean(false) == false) { GameRegistry.registerItem(handyBag, ReferenceNames.NAME_ITEM_HANDY_BAG); }
+        if (Configs.disableItemHandyBag.getBoolean(false) == false) { GameRegistry.registerItem(handyBag, ReferenceNames.NAME_ITEM_HANDY_BAG); }
         if (Configs.disableItemInventorySwapper.getBoolean(false) == false) { GameRegistry.registerItem(inventorySwapper, ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER); }
         if (Configs.disableItemLivingManipulator.getBoolean(false) == false) { GameRegistry.registerItem(livingManipulator, ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR); }
         if (Configs.disableItemMobHarness.getBoolean(false) == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }

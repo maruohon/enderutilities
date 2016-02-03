@@ -142,7 +142,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
         //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
         //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
-        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.mobHarness);

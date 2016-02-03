@@ -1,0 +1,75 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "locked": {
+            "false": {},
+            "true": {
+                "submodel": {
+                    "overlay_l": {
+                        "model": "enderutilities:item_default",
+                        "transform": "forge:default-item",
+                        "textures": {
+                            "layer0": "enderutilities:items/item_overlay_locked"
+                        }
+                    }
+                }
+            }
+        },
+        "pickupmode": {
+            "none": {},
+            "matching": {
+                "submodel": {
+                    "overlay_pum": {
+                        "model": "enderutilities:item_default",
+                        "transform": "forge:default-item",
+                        "textures": {
+                            "layer0": "enderutilities:items/handybag.overlay.pickup.matching"
+                        }
+                    }
+                }
+            },
+            "all": {
+                "submodel": {
+                    "overlay_pum": {
+                        "model": "enderutilities:item_default",
+                        "transform": "forge:default-item",
+                        "textures": {
+                            "layer0": "enderutilities:items/handybag.overlay.pickup.all"
+                        }
+                    }
+                }
+            }
+        },
+        "restockmode": {
+            "false": {},
+            "true": {
+                "submodel": {
+                    "overlay_rm": {
+                        "model": "enderutilities:item_default",
+                        "transform": "forge:default-item",
+                        "textures": {
+                            "layer0": "enderutilities:items/handybag.overlay.restock"
+                        }
+                    }
+                }
+            }
+        },
+        "tier": {
+            "0": {
+                "textures": {
+                    "layer0": "enderutilities:items/handybag.0"
+                }
+            },
+            "1": {
+                "textures": {
+                    "layer0": "enderutilities:items/handybag.1"
+                }
+            }
+        }
+
+    }
+}

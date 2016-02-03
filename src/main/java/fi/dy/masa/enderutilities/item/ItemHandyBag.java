@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +14,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -28,6 +31,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -38,6 +42,8 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
+    public static final String[] VARIANT_PICKUP_MODES = new String[] { "none", "matching", "all" };
+
     public static final int MODE_RESTOCK_ENABLED = 1;
     public static final int MODE_PICKUP_MATCHING = 1;
     public static final int MODE_PICKUP_ALL = 2;
@@ -160,6 +166,17 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             list.add(strPickupMode + " / " + strRestockMode);
         }
+
+        String str;
+        if (bagIsOpenable(containerStack) == true)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+        }
+        else
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+        }
+        list.add(str);
 
         int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
         if (installed > 0)
@@ -629,5 +646,41 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         list.add(new ItemStack(this, 1, 0)); // Tier 1
         list.add(new ItemStack(this, 1, 1)); // Tier 2
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        ResourceLocation[] variants = new ResourceLocation[24];
+        int i = 0;
+        for (String strL : new String[] { "false", "true" })
+        {
+            for (String strP : new String[] { "none", "matching", "all" })
+            {
+                for (String strR : new String[] { "false", "true" })
+                {
+                    for (String strT : new String[] { "0", "1" })
+                    {
+                        String variant = String.format("locked=%s,pickupmode=%s,restockmode=%s,tier=%s", strL, strP, strR, strT);
+                        variants[i++] = new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
+                    }
+                }
+            }
+        }
+
+        return variants;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        int p = MathHelper.clamp_int(this.getModeByName(stack, "PickupMode"), 0, 2);
+        String variant = "locked=" + (bagIsOpenable(stack) == true ? "false" : "true") +
+                         ",pickupmode=" + VARIANT_PICKUP_MODES[p] +
+                         ",restockmode=" + (this.getModeByName(stack, "RestockMode") != 0 ? "true" : "false") +
+                         ",tier=" + MathHelper.clamp_int(stack.getItemDamage(), 0, 1);
+
+        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
     }
 }
