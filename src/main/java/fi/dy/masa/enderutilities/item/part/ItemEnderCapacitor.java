@@ -20,6 +20,7 @@ import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -216,17 +217,17 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".empty.0"),
-                new ResourceLocation(name + ".empty.1"),
-                new ResourceLocation(name + ".empty.2"),
-                new ResourceLocation(name + ".empty.3"),
-                new ResourceLocation(name + ".charged.0"),
-                new ResourceLocation(name + ".charged.1"),
-                new ResourceLocation(name + ".charged.2"),
-                new ResourceLocation(name + ".charged.3")
+                new ModelResourceLocation(rl, "tex=empty.0"),
+                new ModelResourceLocation(rl, "tex=empty.1"),
+                new ModelResourceLocation(rl, "tex=empty.2"),
+                new ModelResourceLocation(rl, "tex=empty.3"),
+                new ModelResourceLocation(rl, "tex=charged.0"),
+                new ModelResourceLocation(rl, "tex=charged.1"),
+                new ModelResourceLocation(rl, "tex=charged.2"),
+                new ModelResourceLocation(rl, "tex=charged.3")
         };
     }
 
@@ -234,10 +235,9 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
-        String pre = this.getCharge(stack) > 0 ? ".charged." : ".empty.";
+        String pre = this.getCharge(stack) > 0 ? "tex=charged." : "tex=empty.";
         int index = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
 
-        return new ModelResourceLocation(name + pre + index, "inventory");
+        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);
     }
 }

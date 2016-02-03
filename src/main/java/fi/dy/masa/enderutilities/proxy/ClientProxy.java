@@ -135,8 +135,9 @@ public class ClientProxy extends CommonProxy
 
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.buildersWand);
         this.registerItemModel(EnderUtilitiesItems.enderArrow);
-        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBow);
+        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBucket);
         this.registerItemModel(EnderUtilitiesItems.enderLasso);
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
@@ -171,8 +172,10 @@ public class ClientProxy extends CommonProxy
         int i = 0;
         for (ItemStack stack : items)
         {
-            ModelResourceLocation mrl = new ModelResourceLocation(variants[i++], "inventory");
+            ModelResourceLocation mrl = (variants[i] instanceof ModelResourceLocation) ?
+                                        (ModelResourceLocation)variants[i] : new ModelResourceLocation(variants[i], "inventory");
             ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getItemDamage(), mrl);
+            i++;
         }
     }
 
@@ -180,7 +183,6 @@ public class ClientProxy extends CommonProxy
     {
         ModelLoader.registerItemVariants(item, item.getItemVariants());
         ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
-        //ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getItemVariants()[0], "inventory"));
     }
 
     public void registerItemBlockModels()

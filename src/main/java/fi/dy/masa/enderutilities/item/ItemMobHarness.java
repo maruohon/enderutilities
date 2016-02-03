@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -26,6 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -243,11 +243,11 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name),
-                new ResourceLocation(name + ".linked")
+                new ModelResourceLocation(rl, "linked=false"),
+                new ModelResourceLocation(rl, "linked=true")
         };
     }
 
@@ -255,12 +255,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
-        if (this.hasTarget(stack) == true)
-        {
-            return new ModelResourceLocation(name + ".linked", "inventory");
-        }
-
-        return new ModelResourceLocation(name, "inventory");
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        return new ModelResourceLocation(rl, "linked=" + this.hasTarget(stack));
     }
 }

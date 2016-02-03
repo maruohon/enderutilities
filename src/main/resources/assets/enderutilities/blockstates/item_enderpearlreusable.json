@@ -1,0 +1,21 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "elite": {
+            "false": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpearlreusable.regular"
+                }
+            },
+            "true": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpearlreusable.elite"
+                }
+            }
+        }
+    }
+}

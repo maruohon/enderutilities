@@ -1,0 +1,26 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "type": {
+            "location": {
+                "textures": {
+                    "layer0": "enderutilities:items/linkcrystal.location"
+                }
+            },
+            "block": {
+                "textures": {
+                    "layer0": "enderutilities:items/linkcrystal.block"
+                }
+            },
+            "portal": {
+                "textures": {
+                    "layer0": "enderutilities:items/linkcrystal.portal"
+                }
+            }
+        }
+    }
+}

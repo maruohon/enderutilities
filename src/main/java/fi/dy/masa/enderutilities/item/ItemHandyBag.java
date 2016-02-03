@@ -651,8 +651,10 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
         ResourceLocation[] variants = new ResourceLocation[24];
         int i = 0;
+
         for (String strL : new String[] { "false", "true" })
         {
             for (String strP : new String[] { "none", "matching", "all" })
@@ -662,7 +664,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     for (String strT : new String[] { "0", "1" })
                     {
                         String variant = String.format("locked=%s,pickupmode=%s,restockmode=%s,tier=%s", strL, strP, strR, strT);
-                        variants[i++] = new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
+                        variants[i++] = new ModelResourceLocation(rl, variant);
                     }
                 }
             }

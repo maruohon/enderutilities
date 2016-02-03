@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -26,6 +25,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -326,19 +326,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".mode.0.standby"),
-                new ResourceLocation(name + ".mode.0.broken"),
-                new ResourceLocation(name + ".mode.0.pulling.0"),
-                new ResourceLocation(name + ".mode.0.pulling.1"),
-                new ResourceLocation(name + ".mode.0.pulling.2"),
-                new ResourceLocation(name + ".mode.1.standby"),
-                new ResourceLocation(name + ".mode.1.broken"),
-                new ResourceLocation(name + ".mode.1.pulling.0"),
-                new ResourceLocation(name + ".mode.1.pulling.1"),
-                new ResourceLocation(name + ".mode.1.pulling.2")
+                new ModelResourceLocation(rl, "tex=mode.0.standby"),
+                new ModelResourceLocation(rl, "tex=mode.0.broken"),
+                new ModelResourceLocation(rl, "tex=mode.0.pulling.0"),
+                new ModelResourceLocation(rl, "tex=mode.0.pulling.1"),
+                new ModelResourceLocation(rl, "tex=mode.0.pulling.2"),
+                new ModelResourceLocation(rl, "tex=mode.1.standby"),
+                new ModelResourceLocation(rl, "tex=mode.1.broken"),
+                new ModelResourceLocation(rl, "tex=mode.1.pulling.0"),
+                new ModelResourceLocation(rl, "tex=mode.1.pulling.1"),
+                new ModelResourceLocation(rl, "tex=mode.1.pulling.2")
         };
     }
 
@@ -346,20 +346,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
-        String modeStr = ".mode.";
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        String modeStr = "tex=mode.";
         int mode = 0;
 
         if (stack.getTagCompound() != null)
         {
             mode = MathHelper.clamp_int(stack.getTagCompound().getByte("Mode"), 0, 1);
         }
-
         modeStr += mode;
 
         if (this.isBroken(stack) == true)
         {
-            return new ModelResourceLocation(name + modeStr + ".broken", "inventory");
+            return new ModelResourceLocation(rl, modeStr + ".broken");
         }
 
         int inUse = stack.getMaxItemUseDuration() - useRemaining;
@@ -369,19 +368,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         {
             if (inUse >= 18)
             {
-                return new ModelResourceLocation(name + modeStr + ".pulling.2", "inventory");
+                return new ModelResourceLocation(rl, modeStr + ".pulling.2");
             }
             else if (inUse >= 13)
             {
-                return new ModelResourceLocation(name + modeStr + ".pulling.1", "inventory");
+                return new ModelResourceLocation(rl, modeStr + ".pulling.1");
             }
             else if (inUse > 0)
             {
-                return new ModelResourceLocation(name + modeStr + ".pulling.0", "inventory");
+                return new ModelResourceLocation(rl, modeStr + ".pulling.0");
             }
         }
 
-        return new ModelResourceLocation(name + modeStr + ".standby", "inventory");
+        return new ModelResourceLocation(rl, modeStr + ".standby");
     }
 
     @SideOnly(Side.CLIENT)

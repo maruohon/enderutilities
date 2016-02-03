@@ -1,0 +1,61 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "tex": {
+            "mode.0.broken": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.0.broken"
+                }
+            },
+            "mode.0.standby": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.0.standby"
+                }
+            },
+            "mode.0.pulling.0": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.0.pulling.0"
+                }
+            },
+            "mode.0.pulling.1": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.0.pulling.1"
+                }
+            },
+            "mode.0.pulling.2": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.0.pulling.2"
+                }
+            },
+            "mode.1.broken": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.1.broken"
+                }
+            },
+            "mode.1.standby": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.1.standby"
+                }
+            },
+            "mode.1.pulling.0": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.1.pulling.0"
+                }
+            },
+            "mode.1.pulling.1": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.1.pulling.1"
+                }
+            },
+            "mode.1.pulling.2": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbow.mode.1.pulling.2"
+                }
+            }
+        }
+    }
+}

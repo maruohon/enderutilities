@@ -7,7 +7,6 @@ import java.util.List;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -32,6 +31,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -684,11 +684,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name),
-                new ResourceLocation(name + ".locked")
+                new ModelResourceLocation(rl, "locked=false"),
+                new ModelResourceLocation(rl, "locked=true")
         };
     }
 
@@ -696,12 +696,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
-        if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED) == true)
-        {
-            return new ModelResourceLocation(name + ".locked", "inventory");
-        }
-
-        return new ModelResourceLocation(name, "inventory");
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        return new ModelResourceLocation(rl, "locked=" + NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED));
     }
 }

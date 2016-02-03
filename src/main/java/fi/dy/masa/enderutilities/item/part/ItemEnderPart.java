@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -332,27 +334,27 @@ public class ItemEnderPart extends ItemModule
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".enderalloy.0"),
-                new ResourceLocation(name + ".enderalloy.1"),
-                new ResourceLocation(name + ".enderalloy.2"),
-                new ResourceLocation(name + ".endercore.inactive.0"),
-                new ResourceLocation(name + ".endercore.inactive.1"),
-                new ResourceLocation(name + ".endercore.inactive.2"),
-                new ResourceLocation(name + ".endercore.active.0"),
-                new ResourceLocation(name + ".endercore.active.1"),
-                new ResourceLocation(name + ".endercore.active.2"),
-                new ResourceLocation(name + ".enderstick"),
-                new ResourceLocation(name + ".enderrope"),
-                new ResourceLocation(name + ".enderrelic"),
-                new ResourceLocation(name + ".jailer"),
-                new ResourceLocation(name + ".memorycard.misc"),
-                new ResourceLocation(name + ".memorycard.items.6b"),
-                new ResourceLocation(name + ".memorycard.items.8b"),
-                new ResourceLocation(name + ".memorycard.items.10b"),
-                new ResourceLocation(name + ".memorycard.items.12b")
+                new ModelResourceLocation(rl, "tex=enderalloy.0"),
+                new ModelResourceLocation(rl, "tex=enderalloy.1"),
+                new ModelResourceLocation(rl, "tex=enderalloy.2"),
+                new ModelResourceLocation(rl, "tex=endercore.inactive.0"),
+                new ModelResourceLocation(rl, "tex=endercore.inactive.1"),
+                new ModelResourceLocation(rl, "tex=endercore.inactive.2"),
+                new ModelResourceLocation(rl, "tex=endercore.active.0"),
+                new ModelResourceLocation(rl, "tex=endercore.active.1"),
+                new ModelResourceLocation(rl, "tex=endercore.active.2"),
+                new ModelResourceLocation(rl, "tex=enderstick"),
+                new ModelResourceLocation(rl, "tex=enderrope"),
+                new ModelResourceLocation(rl, "tex=enderrelic"),
+                new ModelResourceLocation(rl, "tex=jailer"),
+                new ModelResourceLocation(rl, "tex=memorycard.misc"),
+                new ModelResourceLocation(rl, "tex=memorycard.items.6b"),
+                new ModelResourceLocation(rl, "tex=memorycard.items.8b"),
+                new ModelResourceLocation(rl, "tex=memorycard.items.10b"),
+                new ModelResourceLocation(rl, "tex=memorycard.items.12b")
         };
     }
 }

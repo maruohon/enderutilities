@@ -14,7 +14,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,6 +37,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -1394,14 +1394,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".0"),
-                new ResourceLocation(name + ".1"),
-                new ResourceLocation(name + ".2"),
-                new ResourceLocation(name + ".3"),
-                new ResourceLocation(name + ".4")
+                new ModelResourceLocation(rl, "stage=0"),
+                new ModelResourceLocation(rl, "stage=1"),
+                new ModelResourceLocation(rl, "stage=2"),
+                new ModelResourceLocation(rl, "stage=3"),
+                new ModelResourceLocation(rl, "stage=4")
         };
     }
 
@@ -1409,7 +1409,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
         int index = 0;
 
         if (player != null && player.getItemInUse() != null)
@@ -1417,7 +1416,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 4);
         }
 
-        return new ModelResourceLocation(name + "." + index, "inventory");
+        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, "stage=" + index);
     }
 
     @SideOnly(Side.CLIENT)

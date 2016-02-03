@@ -19,6 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.effects.Sounds;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -201,23 +202,23 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".basic.stage.0"),
-                new ResourceLocation(name + ".basic.stage.1"),
-                new ResourceLocation(name + ".basic.stage.2"),
-                new ResourceLocation(name + ".basic.stage.3"),
-                new ResourceLocation(name + ".basic.stage.4"),
-                new ResourceLocation(name + ".basic.stage.5"),
-                new ResourceLocation(name + ".basic.stage.6"),
-                new ResourceLocation(name + ".advanced.stage.0"),
-                new ResourceLocation(name + ".advanced.stage.1"),
-                new ResourceLocation(name + ".advanced.stage.2"),
-                new ResourceLocation(name + ".advanced.stage.3"),
-                new ResourceLocation(name + ".advanced.stage.4"),
-                new ResourceLocation(name + ".advanced.stage.5"),
-                new ResourceLocation(name + ".advanced.stage.6")
+                new ModelResourceLocation(rl, "tex=basic.stage.0"),
+                new ModelResourceLocation(rl, "tex=basic.stage.1"),
+                new ModelResourceLocation(rl, "tex=basic.stage.2"),
+                new ModelResourceLocation(rl, "tex=basic.stage.3"),
+                new ModelResourceLocation(rl, "tex=basic.stage.4"),
+                new ModelResourceLocation(rl, "tex=basic.stage.5"),
+                new ModelResourceLocation(rl, "tex=basic.stage.6"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.0"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.1"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.2"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.3"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.4"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.5"),
+                new ModelResourceLocation(rl, "tex=advanced.stage.6")
         };
     }
 
@@ -225,16 +226,15 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
         int index = 0;
-        String pre = stack.getItemDamage() == 1 ? ".advanced.stage." : ".basic.stage.";
+        String pre = stack.getItemDamage() == 1 ? "tex=advanced.stage." : "tex=basic.stage.";
 
         if (player != null && player.getItemInUse() != null)
         {
             index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 6);
         }
 
-        return new ModelResourceLocation(name + pre + index, "inventory");
+        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);
     }
 
     @SideOnly(Side.CLIENT)

@@ -50,7 +50,7 @@ public class EnderUtilitiesItems
         if (Configs.disableItemLinkCrystal.getBoolean(false) == false) { GameRegistry.registerItem(linkCrystal, ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL); }
         if (Configs.disableItemBuildersWand.getBoolean(false) == false) { GameRegistry.registerItem(buildersWand, ReferenceNames.NAME_ITEM_BUILDERS_WAND); }
         if (Configs.disableItemEnderArrow.getBoolean(false) == false) { GameRegistry.registerItem(enderArrow, ReferenceNames.NAME_ITEM_ENDER_ARROW); }
-        //if (Configs.disableItemEnderBag.getBoolean(false) == false) { GameRegistry.registerItem(enderBag, ReferenceNames.NAME_ITEM_ENDER_BAG); }
+        if (Configs.disableItemEnderBag.getBoolean(false) == false) { GameRegistry.registerItem(enderBag, ReferenceNames.NAME_ITEM_ENDER_BAG); }
         if (Configs.disableItemEnderBow.getBoolean(false) == false) { GameRegistry.registerItem(enderBow, ReferenceNames.NAME_ITEM_ENDER_BOW); }
         //if (Configs.disableItemEnderBucket.getBoolean(false) == false) { GameRegistry.registerItem(enderBucket, ReferenceNames.NAME_ITEM_ENDER_BUCKET); }
         if (Configs.disableItemEnderLasso.getBoolean(false) == false) { GameRegistry.registerItem(enderLasso, ReferenceNames.NAME_ITEM_ENDER_LASSO); }

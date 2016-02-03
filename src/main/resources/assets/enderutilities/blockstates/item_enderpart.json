@@ -1,0 +1,101 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "tex": {
+            "enderalloy.0": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderalloy.0"
+                }
+            },
+            "enderalloy.1": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderalloy.1"
+                }
+            },
+            "enderalloy.2": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderalloy.2"
+                }
+            },
+            "endercore.active.0": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.active.0"
+                }
+            },
+            "endercore.active.1": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.active.1"
+                }
+            },
+            "endercore.active.2": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.active.2"
+                }
+            },
+            "endercore.inactive.0": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.inactive.0"
+                }
+            },
+            "endercore.inactive.1": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.inactive.1"
+                }
+            },
+            "endercore.inactive.2": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.endercore.inactive.2"
+                }
+            },
+            "enderrelic": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderrelic"
+                }
+            },
+            "enderrope": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderrope"
+                }
+            },
+            "enderstick": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.enderstick"
+                }
+            },
+            "jailer": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.jailer"
+                }
+            },
+            "memorycard.items.6b": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.memorycard.items.6b"
+                }
+            },
+            "memorycard.misc": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.memorycard.misc"
+                }
+            },
+            "memorycard.items.8b": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.memorycard.items.8b"
+                }
+            },
+            "memorycard.items.10b": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.memorycard.items.10b"
+                }
+            },
+            "memorycard.items.12b": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart.memorycard.items.12b"
+                }
+            }
+        }
+    }
+}

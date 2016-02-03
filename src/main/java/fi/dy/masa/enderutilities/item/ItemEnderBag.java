@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,6 +19,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -31,6 +33,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Registry;
@@ -301,5 +304,36 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 nbt.removeTag("IsOpenDummy");
             }
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        ModelResourceLocation[] variants = new ModelResourceLocation[8];
+        int i = 0;
+
+        for (String strL : new String[] { "false", "true" })
+        {
+            for (String strM : new String[] { "ender_closed", "ender_open", "normal_closed", "normal_open" })
+            {
+                variants[i++] = new ModelResourceLocation(rl, String.format("locked=%s,mode=%s", strL, strM));
+            }
+        }
+
+        return variants;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        String locked = (playerData != null && playerData.isPublic == false) ? "locked=true" : "locked=false";
+        String mode = (target != null && "minecraft:ender_chest".equals(target.blockName)) ? ",mode=ender" : ",mode=normal";
+        String isOpen = (stack.getTagCompound() != null && stack.getTagCompound().getBoolean("IsOpen") == true) ? "_open" : "_closed";
+
+        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, locked + mode + isOpen);
     }
 }

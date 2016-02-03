@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
@@ -107,12 +109,12 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name + ".location"),
-                new ResourceLocation(name + ".block"),
-                new ResourceLocation(name + ".portal")
+                new ModelResourceLocation(rl, "type=location"),
+                new ModelResourceLocation(rl, "type=block"),
+                new ModelResourceLocation(rl, "type=portal")
         };
     }
 }

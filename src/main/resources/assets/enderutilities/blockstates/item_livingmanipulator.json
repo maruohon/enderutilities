@@ -1,0 +1,25 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default"
+    },
+    "variants": {
+        "mode": {
+            "normal": {
+                "textures": {
+                    "layer0": "enderutilities:items/livingmanipulator.normal"
+                }
+            },
+            "capture": {
+                "textures": {
+                    "layer0": "enderutilities:items/livingmanipulator.capture"
+                }
+            },
+            "release": {
+                "textures": {
+                    "layer0": "enderutilities:items/livingmanipulator.release"
+                }
+            }
+        }
+    }
+}

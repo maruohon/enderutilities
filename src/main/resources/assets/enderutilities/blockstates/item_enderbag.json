@@ -1,0 +1,46 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "locked": {
+            "false": {},
+            "true": {
+                "submodel": {
+                    "overlay_l": {
+                        "model": "enderutilities:item_default",
+                        "transform": "forge:default-item",
+                        "textures": {
+                            "layer0": "enderutilities:items/item_overlay_locked"
+                        }
+                    }
+                }
+            }
+        },
+        "mode": {
+            "normal_closed": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbag.regular.closed"
+                }
+            },
+            "normal_open": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbag.regular.open"
+                }
+            },
+            "ender_closed": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbag.enderchest.closed"
+                }
+            },
+            "ender_open": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderbag.enderchest.open"
+                }
+            }
+        }
+
+    }
+}

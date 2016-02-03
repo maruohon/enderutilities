@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -30,6 +29,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -498,9 +498,9 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public enum Mode
     {
-        NORMAL ("enderutilities.tooltip.item.normal", ""),
-        CAPTURE ("enderutilities.tooltip.item.capture", ".capture"),
-        RELEASE ("enderutilities.tooltip.item.release", ".release");
+        NORMAL ("enderutilities.tooltip.item.normal", "normal"),
+        CAPTURE ("enderutilities.tooltip.item.capture", "capture"),
+        RELEASE ("enderutilities.tooltip.item.release", "release");
 
         private String unlocName;
         private String variant;
@@ -535,12 +535,12 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ResourceLocation(name),
-                new ResourceLocation(name + ".capture"),
-                new ResourceLocation(name + ".release")
+                new ModelResourceLocation(rl, "mode=normal"),
+                new ModelResourceLocation(rl, "mode=capture"),
+                new ModelResourceLocation(rl, "mode=release")
         };
     }
 
@@ -548,7 +548,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String name = Item.itemRegistry.getNameForObject(this).toString();
-        return new ModelResourceLocation(name + Mode.getMode(stack).getVariant(), "inventory");
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        return new ModelResourceLocation(rl, "mode=" + Mode.getMode(stack).getVariant());
     }
 }
