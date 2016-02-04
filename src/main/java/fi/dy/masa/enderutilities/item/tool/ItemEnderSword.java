@@ -44,7 +44,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.client.renderer.model.SmartItemModelWrapper;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -54,6 +53,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -745,13 +745,13 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        return new ResourceLocation[] { };
+        return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory") };
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        return SmartItemModelWrapper.RESOURCE;
+        return new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory");
     }
 }

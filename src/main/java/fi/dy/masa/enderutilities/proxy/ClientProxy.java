@@ -34,14 +34,13 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
-import fi.dy.masa.enderutilities.client.renderer.model.ModelModularItem;
+import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
-import fi.dy.masa.enderutilities.event.ModelBakeEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
@@ -94,7 +93,6 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter(renderManager));
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
-        MinecraftForge.EVENT_BUS.register(new ModelBakeEventHandler());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
         MinecraftForge.EVENT_BUS.register(new RulerRenderer());
     }
@@ -155,7 +153,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
 
-        ModelLoaderRegistry.registerLoader(ModelModularItem.LoaderModularItem.instance);
+        ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
     }
 
     private void registerItemModel(ItemEnderUtilities item)

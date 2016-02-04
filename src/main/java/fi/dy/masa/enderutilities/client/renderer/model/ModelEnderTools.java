@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.client.renderer.model;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -20,28 +21,26 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-import net.minecraftforge.client.model.IFlexibleBakedModel;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IModelPart;
-import net.minecraftforge.client.model.IModelState;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.client.model.ISmartItemModel;
-import net.minecraftforge.client.model.ItemLayerModel;
-import net.minecraftforge.client.model.SimpleModelState;
-import net.minecraftforge.client.model.TRSRTransformation;
+import net.minecraftforge.client.model.*;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 @SuppressWarnings("deprecation")
-public class ModelEnderTools extends ModelModularItem
+public class ModelEnderTools implements IModel, IModelCustomData
 {
+    public static final IModel MODEL = new ModelEnderTools();
     /*private static final float NORTH_Z_BASE = 7.496f / 16f;
     private static final float SOUTH_Z_BASE = 8.504f / 16f;
     private static final float NORTH_Z_MODULE = 7.2f / 16f;
@@ -58,15 +57,20 @@ public class ModelEnderTools extends ModelModularItem
         this(null, false, false, 0, 0, 0, 0);
     }
 
-    public ModelEnderTools(ItemEnderTool.ToolType tool, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
+    public ModelEnderTools(String toolClass, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
     {
-        String toolClass = tool != null ? tool.getToolClass() : "none";
         String strHead = toolClass + ".head." + (broken ? "broken." : "") + (powered ? "glow." : "normal.") + mode;
         this.resourceRod = ReferenceTextures.getItemTexture("endertool." + toolClass + ".rod");
         this.resourceHead = ReferenceTextures.getItemTexture("endertool." + strHead);
         this.resourceCore = core >= 1 && core <= 3 ? ReferenceTextures.getItemTexture("endertool.module.core." + core) : null;
         this.resourceCapacitor = capacitor >= 1 && capacitor <= 3 ? ReferenceTextures.getItemTexture("endertool.module.capacitor." + capacitor) : null;
         this.resourceLinkCrystal = linkCrystal >= 1 && linkCrystal <= 3 ? ReferenceTextures.getItemTexture("endertool.module.linkcrystal." + linkCrystal) : null;
+    }
+
+    @Override
+    public IModelState getDefaultState()
+    {
+        return TRSRTransformation.identity();
     }
 
     @Override
@@ -150,6 +154,18 @@ public class ModelEnderTools extends ModelModularItem
         builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.glow.2"));
         builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.glow.3"));
 
+        // Sword
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.4"));
+
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.4"));
+
         // Modules
         builder.add(ReferenceTextures.getItemTexture("endertool.module.core.1"));
         builder.add(ReferenceTextures.getItemTexture("endertool.module.core.2"));
@@ -166,7 +182,7 @@ public class ModelEnderTools extends ModelModularItem
     @Override
     public IModel process(ImmutableMap<String, String> customData)
     {
-        ItemEnderTool.ToolType tool = ItemEnderTool.ToolType.fromToolClass(customData.get("toolClass"));
+        String toolClass = customData.get("toolClass");
         boolean broken = (customData.get("broken") != null ? customData.get("broken").equals("true") : false);
         boolean powered = (customData.get("powered") != null ? customData.get("powered").equals("true") : false);
         int mode = 1;
@@ -186,7 +202,7 @@ public class ModelEnderTools extends ModelModularItem
             EnderUtilities.logger.warn("ModelEnderTools: Failed to parse tool/module types");
         }
 
-        return new ModelEnderTools(tool, powered, broken, mode, core, capacitor, linkCrystal);
+        return new ModelEnderTools(toolClass, powered, broken, mode, core, capacitor, linkCrystal);
     }
 
     @Override
@@ -258,15 +274,35 @@ public class ModelEnderTools extends ModelModularItem
         public IBakedModel handleItemState(ItemStack stack)
         {
             //System.out.println("handleItemState()");
-            ItemEnderTool item = (ItemEnderTool)stack.getItem();
-            String toolClass = ItemEnderTool.ToolType.fromStack(stack).getToolClass();
-            String broken = String.valueOf(item.isToolBroken(stack));
-            String powered = String.valueOf(ItemEnderTool.PowerStatus.fromStack(stack) == ItemEnderTool.PowerStatus.POWERED);
-            String mode = String.valueOf(ItemEnderTool.DropsMode.fromStack(stack).ordinal());
+            boolean isTool = stack.getItem() == EnderUtilitiesItems.enderTool;
+            ItemLocationBoundModular item = (ItemLocationBoundModular)stack.getItem();
             String core = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE));
             String cap = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR));
             String lc = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL));
-            String key = toolClass + broken + powered + mode + core + cap + lc;
+            String toolClass;
+            String broken;
+            String powered;
+            String mode;
+            String key;
+
+            if (isTool == true)
+            {
+                ItemEnderTool itemTool = (ItemEnderTool)stack.getItem();
+                toolClass = ItemEnderTool.ToolType.fromStack(stack).getToolClass();
+                broken = String.valueOf(itemTool.isToolBroken(stack));
+                powered = String.valueOf(ItemEnderTool.PowerStatus.fromStack(stack) == ItemEnderTool.PowerStatus.POWERED);
+                mode = String.valueOf(ItemEnderTool.DropsMode.fromStack(stack).ordinal());
+                key = toolClass + broken + powered + mode + core + cap + lc;
+            }
+            else
+            {
+                ItemEnderSword itemSword = (ItemEnderSword)stack.getItem();
+                toolClass = "sword";
+                broken = String.valueOf(itemSword.isToolBroken(stack));
+                powered = "false";
+                mode = String.valueOf(ItemEnderSword.SwordMode.fromStack(stack).ordinal());
+                key = broken + powered + mode + core + cap + lc;
+            }
 
             if (this.cache.containsKey(key) == false)
             {
@@ -296,6 +332,29 @@ public class ModelEnderTools extends ModelModularItem
             }
 
             return this.cache.get(key);
+        }
+    }
+
+    public enum LoaderEnderTools implements ICustomModelLoader
+    {
+        instance;
+
+        @Override
+        public boolean accepts(ResourceLocation modelLocation)
+        {
+            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) && modelLocation.getResourcePath().contains("modular_model_item_endertool");
+        }
+
+        @Override
+        public IModel loadModel(ResourceLocation modelLocation) throws IOException
+        {
+            return MODEL;
+        }
+
+        @Override
+        public void onResourceManagerReload(IResourceManager resourceManager)
+        {
+            // no need to clear cache since we create a new model instance
         }
     }
 }
