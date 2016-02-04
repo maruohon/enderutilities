@@ -139,8 +139,8 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         if (player.getCurrentEquippedItem() != null)
         {
             ItemStack stack = player.getCurrentEquippedItem();
-            if (stack.getItem() == EnderUtilitiesItems.enderSword
-                && ((ItemEnderSword)stack.getItem()).getSwordMode(stack) == ItemEnderSword.MODE_SUMMON)
+            if (stack.getItem() == EnderUtilitiesItems.enderSword &&
+                ItemEnderSword.SwordMode.fromStack(stack) == ItemEnderSword.SwordMode.SUMMON)
             {
                 return true;
             }

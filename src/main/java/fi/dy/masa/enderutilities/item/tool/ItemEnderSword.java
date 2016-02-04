@@ -21,8 +21,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
@@ -31,6 +29,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -42,15 +41,11 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
-import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -67,23 +62,21 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
+public class ItemEnderSword extends ItemLocationBoundModular
 {
     public static final int ENDER_CHARGE_COST = 50;
-    public static final int MODE_SUMMON = 3;
     private float damageVsEntity;
     private final Item.ToolMaterial material;
 
     public ItemEnderSword()
     {
-        super(ItemEnderTool.ENDER_ALLOY_ADVANCED);
+        super();
         this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
         this.damageVsEntity = 5.0f + this.material.getDamageVsEntity();
-        this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setUnlocalizedName(ReferenceNames.getPrefixedName(ReferenceNames.NAME_ITEM_ENDER_SWORD));
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_SWORD);
     }
 
     @Override
@@ -122,12 +115,12 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     // This is used for determining which weapon is better when mobs pick up items
-    @Override
+    /*@Override
     public float getDamageVsEntity()
     {
         // FIXME no way to check if the item is broken without ItemStack and NBT data
         return this.damageVsEntity;
-    }
+    }*/
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
@@ -146,12 +139,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         }
 
         return true;
-    }
-
-    @Override
-    public int getMaxDamage(ItemStack stack)
-    {
-        return this.material.getMaxUses();
     }
 
     public boolean isToolBroken(ItemStack stack)
@@ -194,7 +181,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     public boolean hitEntity(ItemStack stack, EntityLivingBase targetEntity, EntityLivingBase attacker)
     {
         // Summon fighters mode
-        if (targetEntity != null && targetEntity.worldObj.isRemote == false && this.getSwordMode(stack) == MODE_SUMMON)
+        if (targetEntity != null && targetEntity.worldObj.isRemote == false && SwordMode.fromStack(stack) == SwordMode.SUMMON)
         {
             this.summonFighterEndermen(targetEntity.worldObj, targetEntity, 3);
         }
@@ -224,23 +211,23 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
     {
-        byte mode = this.getSwordMode(toolStack);
+        SwordMode mode = SwordMode.fromStack(toolStack);
         // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
 
         // 0: normal mode; do nothing
-        if (mode == 0)
+        if (mode == SwordMode.NORMAL)
         {
             return null;
         }
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == 1 && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        if (mode == SwordMode.PLAYER && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
         {
             return player.inventory;
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
-        else if (mode == 2 && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
+        else if (mode == SwordMode.REMOTE && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
                 && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
@@ -256,10 +243,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             return;
         }
 
-        byte mode = this.getSwordMode(toolStack);
+        SwordMode mode = SwordMode.fromStack(toolStack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
 
-        if (mode == 0 || mode == MODE_SUMMON)
+        if (mode == SwordMode.NORMAL || mode == SwordMode.SUMMON)
         {
             return;
         }
@@ -276,7 +263,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
             EntityItem item = iter.next();
 
             // Pickup event not canceled, do further processing to those items
-            if (mode == 2 || MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
+            if (mode == SwordMode.REMOTE || MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
             {
                 if (item.getEntityItem() != null && item.getEntityItem().stackSize > 0)
                 {
@@ -391,7 +378,7 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         if (transported == true)
         {
             // Transported the drops to somewhere remote
-            if (mode == 2)
+            if (mode == SwordMode.REMOTE)
             {
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
@@ -476,22 +463,9 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean isRepairable()
-    {
-        return false;
-    }
-
-    @Override
     public int getItemEnchantability(ItemStack stack)
     {
         return this.material.getEnchantability();
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean isFull3D()
-    {
-        return true;
     }
 
     @Override
@@ -551,18 +525,12 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
     }
 
     @Override
-    public boolean getIsRepairable(ItemStack stack1, ItemStack stack2)
-    {
-        return false;
-    }
-
-    @Override
     public Multimap<String, AttributeModifier> getAttributeModifiers(ItemStack stack)
     {
         double dmg = this.damageVsEntity;
 
         // Broken sword, or in Summon fighters mode, only deal minimal damage directly
-        if (this.isToolBroken(stack) == true || this.getSwordMode(stack) == 3)
+        if (this.isToolBroken(stack) == true || SwordMode.fromStack(stack) == SwordMode.SUMMON)
         {
             dmg = 0.0d;
         }
@@ -572,15 +540,10 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return multimap;
     }
 
-    public byte getSwordMode(ItemStack stack)
-    {
-        return NBTUtils.getByte(stack, null, "Mode");
-    }
-
     public void cycleSwordMode(ItemStack stack)
     {
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
-        NBTUtils.cycleByteValue(stack, null, "Mode", MODE_SUMMON);
+        NBTUtils.cycleByteValue(stack, null, "SwordMode", 3);
     }
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
@@ -627,12 +590,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         {
             this.changePrivacyMode(stack, player);
         }
-    }
-
-    @Override
-    public int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
-    {
-        return UtilItemModular.getInstalledModuleCount(containerStack, moduleType);
     }
 
     @Override
@@ -684,52 +641,6 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         return 0;
     }
 
-    @Override
-    public int getMaxModuleTier(ItemStack containerStack, ModuleType moduleType)
-    {
-        return UtilItemModular.getMaxModuleTier(containerStack, moduleType);
-    }
-
-    public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
-    {
-        return UtilItemModular.getSelectedModuleTier(containerStack, moduleType);
-    }
-
-    @Override
-    public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
-    {
-        return UtilItemModular.getSelectedModuleStack(containerStack, moduleType);
-    }
-
-    public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
-    {
-        return UtilItemModular.setSelectedModuleStack(containerStack, moduleType, moduleStack);
-    }
-
-    @Override
-    public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
-    {
-        return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
-    }
-
-    @Override
-    public List<NBTTagCompound> getAllModules(ItemStack containerStack)
-    {
-        return UtilItemModular.getAllModules(containerStack);
-    }
-
-    @Override
-    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
-    {
-        return UtilItemModular.setAllModules(containerStack, modules);
-    }
-
-    @Override
-    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
-    {
-        return UtilItemModular.setModule(containerStack, index, nbt);
-    }
-
     @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
@@ -741,8 +652,11 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
         String preBlue = EnumChatFormatting.BLUE.toString();
 
         // Drops mode
-        byte mode = this.getSwordMode(stack);
-        String str = (mode == 0 ? "enderutilities.tooltip.item.normal" : mode == 1 ? "enderutilities.tooltip.item.endertool.playerinv" : mode == 2 ? "enderutilities.tooltip.item.endertool.remote" : "enderutilities.tooltip.item.endersword.summon");
+        SwordMode mode = SwordMode.fromStack(stack);
+        String str = (mode == SwordMode.NORMAL ? "enderutilities.tooltip.item.normal"
+                    : mode == SwordMode.PLAYER ? "enderutilities.tooltip.item.endertool.playerinv"
+                    : mode == SwordMode.REMOTE ? "enderutilities.tooltip.item.endertool.remote"
+                    : "enderutilities.tooltip.item.endersword.summon");
         str = StatCollector.translateToLocal(str);
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
 
@@ -794,58 +708,34 @@ public class ItemEnderSword extends ItemSword implements IKeyBound, IModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
-    {
-        ArrayList<String> tmpList = new ArrayList<String>();
-        boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
-
-        // "Fresh" items "without" NBT data: display the tips before the usual tooltip data
-        // We check for the ench and Items tags so that creative spawned items won't show the tooltip
-        // once they have some other NBT data on them
-        if (stack != null && stack.getTagCompound() == null)
-        {
-            this.addTooltips(stack, tmpList, verbose);
-
-            if (verbose == false && tmpList.size() > 1)
-            {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
-            }
-            else
-            {
-                list.addAll(tmpList);
-            }
-            return;
-        }
-
-        tmpList.clear();
-        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
-
-        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
-        // plus the "Hold Shift for more" tooltip.
-        if (verbose == false && tmpList.size() > 2)
-        {
-            tmpList.clear();
-            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
-            list.add(tmpList.get(0));
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
-        }
-        else
-        {
-            list.addAll(tmpList);
-        }
-        //list.add(StatCollector.translateToLocal("enderutilities.tooltip.durability") + ": " + (this.getMaxDamage(stack) - this.getDamage(stack) + " / " + this.getMaxDamage(stack)));
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
     public boolean hasEffect(ItemStack stack)
     {
         return false;
+    }
+
+    public static enum SwordMode
+    {
+        NORMAL ("enderutilities.tooltip.item.normal"),
+        PLAYER ("enderutilities.tooltip.item.endertool.playerinv"),
+        REMOTE ("enderutilities.tooltip.item.endertool.remote"),
+        SUMMON ("enderutilities.tooltip.item.endersword.summon");
+
+        private final String unlocalized;
+
+        private SwordMode(String unlocalized)
+        {
+            this.unlocalized = unlocalized;
+        }
+
+        public static SwordMode fromStack(ItemStack stack)
+        {
+            int mode = MathHelper.clamp_int(NBTUtils.getByte(stack, null, "SwordMode"), 0, 3);
+            return values()[mode];
+        }
+
+        public String getDisplayName()
+        {
+            return StatCollector.translateToLocal(this.unlocalized);
+        }
     }
 }

@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.event;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
@@ -23,7 +24,10 @@ public class AnvilUpdateEventHandler
             {
                 fullyRepairItem(event, 1, 15);
             }
-            else if (event.right.getItem() != Items.enchanted_book)
+            else if (event.right.getItem() == Items.enchanted_book)
+            {
+            }
+            else
             {
                 // Cancel vanilla behaviour, otherwise it would allow repairing tools with different types of tools (and lose the modules)
                 event.setCanceled(true);

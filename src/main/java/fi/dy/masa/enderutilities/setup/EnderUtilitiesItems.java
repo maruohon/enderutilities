@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -33,8 +32,8 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities enderLasso = new ItemEnderLasso();
     public static final ItemEnderUtilities enderPearlReusable = new ItemEnderPearlReusable();
     public static final ItemEnderUtilities enderPorter = new ItemEnderPorter();
-    public static final Item enderSword = new ItemEnderSword();
-    public static final Item enderTool = new ItemEnderTool();
+    public static final ItemEnderUtilities enderSword = new ItemEnderSword();
+    public static final ItemEnderUtilities enderTool = new ItemEnderTool();
     public static final ItemEnderUtilities handyBag = new ItemHandyBag();
     public static final ItemEnderUtilities inventorySwapper = new ItemInventorySwapper();
     public static final ItemEnderUtilities livingManipulator = new ItemLivingManipulator();
@@ -56,8 +55,8 @@ public class EnderUtilitiesItems
         if (Configs.disableItemEnderLasso.getBoolean(false) == false) { GameRegistry.registerItem(enderLasso, ReferenceNames.NAME_ITEM_ENDER_LASSO); }
         if (Configs.disableItemEnderPearl.getBoolean(false) == false) { GameRegistry.registerItem(enderPearlReusable, ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE); }
         if (Configs.disableItemEnderPorter.getBoolean(false) == false) { GameRegistry.registerItem(enderPorter, ReferenceNames.NAME_ITEM_ENDER_PORTER); }
-        //if (Configs.disableItemEnderSword.getBoolean(false) == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
-        //if (Configs.disableItemEnderTools.getBoolean(false) == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
+        if (Configs.disableItemEnderSword.getBoolean(false) == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
+        if (Configs.disableItemEnderTools.getBoolean(false) == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
         if (Configs.disableItemHandyBag.getBoolean(false) == false) { GameRegistry.registerItem(handyBag, ReferenceNames.NAME_ITEM_HANDY_BAG); }
         if (Configs.disableItemInventorySwapper.getBoolean(false) == false) { GameRegistry.registerItem(inventorySwapper, ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER); }
         if (Configs.disableItemLivingManipulator.getBoolean(false) == false) { GameRegistry.registerItem(livingManipulator, ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR); }
@@ -168,27 +167,19 @@ public class EnderUtilitiesItems
         // Tools and weapons
         if (Configs.disableRecipeEnderPickaxe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
-            ItemStack pick = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(pick, ItemEnderTool.ToolType.PICKAXE);
-            GameRegistry.addRecipe(pick, "AAA", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 1), "AAA", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderAxe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
-            ItemStack axe = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(axe, ItemEnderTool.ToolType.AXE);
-            GameRegistry.addRecipe(axe, "AA ", "AS ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 2), "AA ", "AS ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderShovel.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
-            ItemStack shovel = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(shovel, ItemEnderTool.ToolType.SHOVEL);
-            GameRegistry.addRecipe(shovel, " A ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 0), " A ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderHoe.getBoolean(false) == false && Configs.disableItemEnderTools.getBoolean(false) == false)
         {
-            ItemStack hoe = new ItemStack(enderTool, 1, 0);
-            ((ItemEnderTool)enderTool).setToolType(hoe, ItemEnderTool.ToolType.HOE);
-            GameRegistry.addRecipe(hoe, "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 3), "AA ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderSword.getBoolean(false) == false && Configs.disableItemEnderSword.getBoolean(false) == false)
         {
