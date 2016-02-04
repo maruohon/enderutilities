@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.event;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
@@ -22,10 +21,11 @@ public class AnvilUpdateEventHandler
             // Advanced Ender Alloy
             if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 2)
             {
-                fullyRepairItem(event, 1, 15);
+                this.fullyRepairItem(event, 1, 15);
             }
             else if (event.right.getItem() == Items.enchanted_book)
             {
+                this.enhantItem(event);
             }
             else
             {
@@ -38,7 +38,7 @@ public class AnvilUpdateEventHandler
             // Enhanced Ender Alloy
             if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 1)
             {
-                fullyRepairItem(event, 1, 15);
+                this.fullyRepairItem(event, 1, 15);
             }
             else if (event.right.getItem() != Items.enchanted_book)
             {
@@ -48,7 +48,7 @@ public class AnvilUpdateEventHandler
         }
     }
 
-    private static void fullyRepairItem(AnvilUpdateEvent event, int materialCost, int xpCost)
+    private void fullyRepairItem(AnvilUpdateEvent event, int materialCost, int xpCost)
     {
         ItemStack repaired = event.left.copy();
 
@@ -71,5 +71,11 @@ public class AnvilUpdateEventHandler
 
             event.output = repaired;
         }
+    }
+
+    private void enhantItem(AnvilUpdateEvent event)
+    {
+        ItemStack toolStack = event.left.copy();
+        //EnchantmentHelper.setEnchantments(map, toolStack);
     }
 }

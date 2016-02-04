@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -31,14 +32,16 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
-import fi.dy.masa.enderutilities.client.renderer.item.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
+import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
+import fi.dy.masa.enderutilities.client.renderer.model.ModelModularItem;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
+import fi.dy.masa.enderutilities.event.ModelBakeEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceReflection;
@@ -91,6 +94,7 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, new RenderEndermanFighter(renderManager));
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
+        MinecraftForge.EVENT_BUS.register(new ModelBakeEventHandler());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
         MinecraftForge.EVENT_BUS.register(new RulerRenderer());
     }
@@ -141,8 +145,8 @@ public class ClientProxy extends CommonProxy
         this.registerItemModel(EnderUtilitiesItems.enderLasso);
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
-        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
-        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
@@ -150,20 +154,22 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
+
+        ModelLoaderRegistry.registerLoader(ModelModularItem.LoaderModularItem.instance);
     }
 
-    public void registerItemModel(ItemEnderUtilities item)
+    private void registerItemModel(ItemEnderUtilities item)
     {
         this.registerItemModel(item, 0);
     }
 
-    public void registerItemModel(ItemEnderUtilities item, int meta)
+    private void registerItemModel(ItemEnderUtilities item, int meta)
     {
         ResourceLocation rl = Item.itemRegistry.getNameForObject(item);
         ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(rl, "inventory"));
     }
 
-    public void registerItemModelWithVariants(ItemEnderUtilities item)
+    private void registerItemModelWithVariants(ItemEnderUtilities item)
     {
         ResourceLocation[] variants = item.getItemVariants();
         List<ItemStack> items = new ArrayList<ItemStack>();
@@ -179,13 +185,19 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    public void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
+    private void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
     {
         ModelLoader.registerItemVariants(item, item.getItemVariants());
         ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
     }
 
-    public void registerItemBlockModels()
+    /*private void registerSmartItemModelWrapper(ItemEnderUtilities item)
+    {
+        ModelLoader.registerItemVariants(item, item.getItemVariants());
+        ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
+    }*/
+
+    private void registerItemBlockModels()
     {
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0, 0,  "facing=north,mode=off");
 
@@ -194,7 +206,7 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
     }
 
-    public void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
+    private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
     {
         ItemStack stack = new ItemStack(blockIn, 1, meta);
         Item item = stack.getItem();
@@ -207,7 +219,7 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomModelResourceLocation(item, stack.getItemDamage(), mrl);
     }
 
-    public void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
+    private void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
     {
         List<ItemStack> stacks = new ArrayList<ItemStack>();
         blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);

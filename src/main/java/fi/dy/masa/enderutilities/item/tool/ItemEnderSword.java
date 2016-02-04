@@ -9,6 +9,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -30,6 +31,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -42,6 +44,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.renderer.model.SmartItemModelWrapper;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -737,5 +740,18 @@ public class ItemEnderSword extends ItemLocationBoundModular
         {
             return StatCollector.translateToLocal(this.unlocalized);
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        return new ResourceLocation[] { };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return SmartItemModelWrapper.RESOURCE;
     }
 }

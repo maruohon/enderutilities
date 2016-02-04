@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.renderer.item;
+package fi.dy.masa.enderutilities.client.renderer.model;
 
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.resources.model.ModelResourceLocation;

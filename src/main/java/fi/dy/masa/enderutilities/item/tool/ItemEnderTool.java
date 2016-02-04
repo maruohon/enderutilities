@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.item.tool;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -12,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -36,6 +39,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -59,6 +63,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -971,7 +976,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     {
         if (Configs.disableItemEnderTools.getBoolean(false) == false)
         {
-            for (int i = 0; i <= 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 list.add(new ItemStack(this, 1, i));
             }
@@ -1041,6 +1046,16 @@ public class ItemEnderTool extends ItemLocationBoundModular
         private final String name;
         private final float attackDamage;
 
+        private static final Map<String, ToolType> mapType = new HashMap<String, ToolType>();
+
+        static
+        {
+            for (ToolType type : ToolType.values())
+            {
+                mapType.put(type.getToolClass(), type);
+            }
+        }
+
         private ToolType(int id, String toolClass, String name, float attackDamage)
         {
             this.id = id;
@@ -1074,10 +1089,29 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return this.id == other.id;
         }
 
+        public static ToolType fromToolClass(String toolClass)
+        {
+            ToolType type = mapType.get(toolClass);
+            return type != null ? type : SHOVEL;
+        }
+
         public static ToolType fromStack(ItemStack stack)
         {
             int meta = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
             return values()[meta];
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory") };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory");
     }
 }
