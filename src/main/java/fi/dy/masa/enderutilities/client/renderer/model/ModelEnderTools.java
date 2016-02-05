@@ -23,8 +23,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -43,17 +41,14 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 public class ModelEnderTools implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderTools();
-    protected static final ModelManager modelManager = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager();
-    /*private static final float NORTH_Z_BASE = 7.496f / 16f;
-    private static final float SOUTH_Z_BASE = 8.504f / 16f;
-    private static final float NORTH_Z_MODULE = 7.2f / 16f;
-    private static final float SOUTH_Z_MODULE = 8.8f / 16f;*/
-
+    //protected static final ModelManager modelManager = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager();
     private final ResourceLocation resourceRod;
     private final ResourceLocation resourceHead;
     private final ResourceLocation resourceCore;
     private final ResourceLocation resourceCapacitor;
     private final ResourceLocation resourceLinkCrystal;
+    private final String tool;
+    protected final Map<String, String> moduleTransforms;
 
     public ModelEnderTools()
     {
@@ -62,6 +57,8 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
     public ModelEnderTools(String toolClass, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
     {
+        this.moduleTransforms = Maps.newHashMap();
+        this.tool = toolClass;
         String strHead = toolClass + ".head." + (broken ? "broken." : "") + (powered ? "glow." : "normal.") + mode;
         this.resourceRod = ReferenceTextures.getItemTexture("endertool." + toolClass + ".rod");
         this.resourceHead = ReferenceTextures.getItemTexture("endertool." + strHead);
@@ -79,7 +76,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public Collection<ResourceLocation> getDependencies()
     {
-        ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
+        /*ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
         String[] tools = new String[] { "pickaxe", "axe", "hoe", "shovel", "sword" };
         String loc = Reference.MOD_ID + ":item_endertool_modules";
 
@@ -101,9 +98,9 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 }
             }
         }
+        return builder.build();*/
         //return ImmutableList.<ResourceLocation>of(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
-        //return ImmutableList.of();
-        return builder.build();
+        return ImmutableList.of();
     }
 
     @Override
@@ -209,6 +206,17 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public IModel process(ImmutableMap<String, String> customData)
     {
+        //System.out.printf("============== process() start ==============\n");
+        for (Map.Entry<String, String> entry : customData.entrySet())
+        {
+            String key = entry.getKey();
+            //System.out.printf("customData: %s => %s\n", key, entry.getValue());
+            if (key != null && key.startsWith("tr_") == true)
+            {
+                this.moduleTransforms.put(key, entry.getValue());
+            }
+        }
+
         String toolClass = customData.get("toolClass");
         boolean broken = (customData.get("broken") != null ? customData.get("broken").equals("true") : false);
         boolean powered = (customData.get("powered") != null ? customData.get("powered").equals("true") : false);
@@ -229,6 +237,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
             EnderUtilities.logger.warn("ModelEnderTools: Failed to parse tool/module types");
         }
 
+        //System.out.printf("============== process() end ==============\n");
         return new ModelEnderTools(toolClass, powered, broken, mode, core, capacitor, linkCrystal);
     }
 
@@ -257,28 +266,81 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
         if (this.resourceCore != null)
         {
-            /*String loc = Reference.MOD_ID + ":item_endertool_modules";
-            ModelResourceLocation mrl = new ModelResourceLocation(loc, "capacitor=0,core=2,linkcrystal=0,type=pickaxe_core");
-            IBakedModel model = modelManager.getModel(mrl);
-            System.out.println("core: mrl: " + mrl + "\nmodel: " + model);*/
-            state = new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(new TRSRTransformation(null, null, new Vector3f(1.02f, 1.02f, 1.6f), null)));
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(state, format, bakedTextureGetter);
+            IModelState stateTmp = this.getTransformedModelState(state, "co");
+            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceCapacitor != null)
         {
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCapacitor))).bake(state, format, bakedTextureGetter);
+            IModelState stateTmp = this.getTransformedModelState(state, "ca");
+            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCapacitor))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceLinkCrystal != null)
         {
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceLinkCrystal))).bake(state, format, bakedTextureGetter);
+            IModelState stateTmp = this.getTransformedModelState(state, "lc");
+            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceLinkCrystal))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         return new BakedEnderTool(this, builder.build(), rodSprite, format, Maps.immutableEnumMap(transformMap), Maps.<String, IFlexibleBakedModel>newHashMap());
+    }
+
+    private IModelState getTransformedModelState(IModelState state, String module)
+    {
+        ModuleTransforms mt = new ModuleTransforms(this, this.tool, module);
+        TRSRTransformation tr = new TRSRTransformation(new Vector3f(mt.tx, mt.ty, mt.tz), null, new Vector3f(mt.sx, mt.sy, mt.sz), null);
+        return new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(tr));
+    }
+
+    protected static class ModuleTransforms
+    {
+        public final float tx;
+        public final float ty;
+        public final float tz;
+        public final float sx;
+        public final float sy;
+        public final float sz;
+
+        private ModuleTransforms(ModelEnderTools parent, String tool, String module)
+        {
+            float tx = 0f, ty = 0f, tz = 0f, sx = 1.02f, sy = 1.02f, sz = 1.6f;
+            String id = tool.equals("sword") == true ? "w" : tool.substring(0, 1);
+
+            try
+            {
+                String str = parent.moduleTransforms.get("tr_tx_" + id + "_" + module);
+                if (str != null) tx = Float.valueOf(str);
+
+                str = parent.moduleTransforms.get("tr_ty_" + id + "_" + module);
+                if (str != null) ty = Float.valueOf(str);
+
+                str = parent.moduleTransforms.get("tr_tz_" + id + "_" + module);
+                if (str != null) tz = Float.valueOf(str);
+
+                str = parent.moduleTransforms.get("tr_sx_" + id + "_" + module);
+                if (str != null) sx = Float.valueOf(str);
+
+                str = parent.moduleTransforms.get("tr_sy_" + id + "_" + module);
+                if (str != null) sy = Float.valueOf(str);
+
+                str = parent.moduleTransforms.get("tr_sz_" + id + "_" + module);
+                if (str != null) sz = Float.valueOf(str);
+            }
+            catch (NumberFormatException e)
+            {
+                EnderUtilities.logger.warn("Exception while parsing Ender Tool module transformations");
+            }
+
+            this.tx = tx;
+            this.ty = ty;
+            this.tz = tz;
+            this.sx = sx;
+            this.sy = sy;
+            this.sz = sz;
+        }
     }
 
     protected static class BakedEnderTool extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
