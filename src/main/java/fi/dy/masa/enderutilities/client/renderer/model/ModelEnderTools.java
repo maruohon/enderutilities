@@ -9,7 +9,6 @@ import javax.vecmath.Matrix4f;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -76,6 +75,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public Collection<ResourceLocation> getDependencies()
     {
+        //return ImmutableList.<ResourceLocation>of(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
         return ImmutableList.of();
     }
 
@@ -209,8 +209,18 @@ public class ModelEnderTools implements IModel, IModelCustomData
     public IFlexibleBakedModel bake(IModelState state, VertexFormat format,
                                     Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
+        /*try
+        {
+            IModel base = ModelLoaderRegistry.getModel(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
+            state = base.getDefaultState();
+        }
+        catch (IOException e)
+        {
+            EnderUtilities.logger.warn("Failed to get base model for tool transformations");
+        }*/
+
         ImmutableMap<TransformType, TRSRTransformation> transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
-        TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
+        //TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
         TextureAtlasSprite rodSprite = null;
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 
@@ -314,7 +324,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 map.put("core", core);
                 map.put("capacitor", cap);
                 map.put("lc", lc);
-                IModel model = parent.process(map.build());
+                IModel model = this.parent.process(map.build());
 
                 Function<ResourceLocation, TextureAtlasSprite> textureGetter;
                 textureGetter = new Function<ResourceLocation, TextureAtlasSprite>()

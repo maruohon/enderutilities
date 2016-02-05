@@ -1105,13 +1105,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory") };
+        return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":item_endertool", "inventory") };
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        return new ModelResourceLocation(Reference.MOD_ID + ":modular_model_item_endertool", "inventory");
+        return new ModelResourceLocation(Reference.MOD_ID + ":item_endertool", "inventory");
     }
 }
