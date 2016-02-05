@@ -41,14 +41,13 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 public class ModelEnderTools implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderTools();
-    //protected static final ModelManager modelManager = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager();
     private final ResourceLocation resourceRod;
     private final ResourceLocation resourceHead;
     private final ResourceLocation resourceCore;
     private final ResourceLocation resourceCapacitor;
     private final ResourceLocation resourceLinkCrystal;
     private final String tool;
-    protected final Map<String, String> moduleTransforms;
+    protected static final Map<String, String> moduleTransforms = Maps.newHashMap();
 
     public ModelEnderTools()
     {
@@ -57,13 +56,12 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
     public ModelEnderTools(String toolClass, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
     {
-        this.moduleTransforms = Maps.newHashMap();
         this.tool = toolClass;
         String strHead = toolClass + ".head." + (broken ? "broken." : "") + (powered ? "glow." : "normal.") + mode;
         this.resourceRod = ReferenceTextures.getItemTexture("endertool." + toolClass + ".rod");
         this.resourceHead = ReferenceTextures.getItemTexture("endertool." + strHead);
         this.resourceCore = core >= 1 && core <= 3 ? ReferenceTextures.getItemTexture("endertool.module.core." + core) : null;
-        this.resourceCapacitor = capacitor >= 1 && capacitor <= 3 ? ReferenceTextures.getItemTexture("endertool.module.capacitor." + capacitor) : null;
+        this.resourceCapacitor = capacitor >= 1 && capacitor <= 4 ? ReferenceTextures.getItemTexture("endertool.module.capacitor." + capacitor) : null;
         this.resourceLinkCrystal = linkCrystal >= 1 && linkCrystal <= 3 ? ReferenceTextures.getItemTexture("endertool.module.linkcrystal." + linkCrystal) : null;
     }
 
@@ -76,30 +74,6 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public Collection<ResourceLocation> getDependencies()
     {
-        /*ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
-        String[] tools = new String[] { "pickaxe", "axe", "hoe", "shovel", "sword" };
-        String loc = Reference.MOD_ID + ":item_endertool_modules";
-
-        for (String tool : tools)
-        {
-            for (int cap = 0; cap < 5; cap++)
-            {
-                for (int core = 0; core < 4; core++)
-                {
-                    for (int lc = 0; lc < 3; lc++)
-                    {
-                        String variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_capacitor";
-                        builder.add(new ModelResourceLocation(loc, variant));
-                        variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_core";
-                        builder.add(new ModelResourceLocation(loc, variant));
-                        variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_linkcrystal";
-                        builder.add(new ModelResourceLocation(loc, variant));
-                    }
-                }
-            }
-        }
-        return builder.build();*/
-        //return ImmutableList.<ResourceLocation>of(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
         return ImmutableList.of();
     }
 
@@ -197,6 +171,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.1"));
         builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.2"));
         builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.4"));
         builder.add(ReferenceTextures.getItemTexture("endertool.module.linkcrystal.1"));
         builder.add(ReferenceTextures.getItemTexture("endertool.module.linkcrystal.2"));
 
@@ -206,14 +181,13 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public IModel process(ImmutableMap<String, String> customData)
     {
-        //System.out.printf("============== process() start ==============\n");
         for (Map.Entry<String, String> entry : customData.entrySet())
         {
             String key = entry.getKey();
             //System.out.printf("customData: %s => %s\n", key, entry.getValue());
             if (key != null && key.startsWith("tr_") == true)
             {
-                this.moduleTransforms.put(key, entry.getValue());
+                moduleTransforms.put(key, entry.getValue());
             }
         }
 
@@ -225,19 +199,21 @@ public class ModelEnderTools implements IModel, IModelCustomData
         int capacitor = 0;
         int linkCrystal = 0;
 
-        try
+        if (customData.containsKey("mode") == true)
         {
-            mode = Integer.parseInt(customData.get("mode")) + 1;
-            core = Integer.parseInt(customData.get("core")) + 1;
-            capacitor = Integer.parseInt(customData.get("capacitor")) + 1;
-            linkCrystal = Integer.parseInt(customData.get("lc")) + 1;
-        }
-        catch (NumberFormatException e)
-        {
-            EnderUtilities.logger.warn("ModelEnderTools: Failed to parse tool/module types");
+            try
+            {
+                mode = Integer.parseInt(customData.get("mode")) + 1;
+                core = Integer.parseInt(customData.get("core")) + 1;
+                capacitor = Integer.parseInt(customData.get("capacitor")) + 1;
+                linkCrystal = Integer.parseInt(customData.get("lc")) + 1;
+            }
+            catch (NumberFormatException e)
+            {
+                EnderUtilities.logger.warn("ModelEnderTools: Failed to parse tool/module types");
+            }
         }
 
-        //System.out.printf("============== process() end ==============\n");
         return new ModelEnderTools(toolClass, powered, broken, mode, core, capacitor, linkCrystal);
     }
 
@@ -311,22 +287,22 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
             try
             {
-                String str = parent.moduleTransforms.get("tr_tx_" + id + "_" + module);
+                String str = moduleTransforms.get("tr_tx_" + id + "_" + module);
                 if (str != null) tx = Float.valueOf(str);
 
-                str = parent.moduleTransforms.get("tr_ty_" + id + "_" + module);
+                str = moduleTransforms.get("tr_ty_" + id + "_" + module);
                 if (str != null) ty = Float.valueOf(str);
 
-                str = parent.moduleTransforms.get("tr_tz_" + id + "_" + module);
+                str = moduleTransforms.get("tr_tz_" + id + "_" + module);
                 if (str != null) tz = Float.valueOf(str);
 
-                str = parent.moduleTransforms.get("tr_sx_" + id + "_" + module);
+                str = moduleTransforms.get("tr_sx_" + id + "_" + module);
                 if (str != null) sx = Float.valueOf(str);
 
-                str = parent.moduleTransforms.get("tr_sy_" + id + "_" + module);
+                str = moduleTransforms.get("tr_sy_" + id + "_" + module);
                 if (str != null) sy = Float.valueOf(str);
 
-                str = parent.moduleTransforms.get("tr_sz_" + id + "_" + module);
+                str = moduleTransforms.get("tr_sz_" + id + "_" + module);
                 if (str != null) sz = Float.valueOf(str);
             }
             catch (NumberFormatException e)
@@ -334,6 +310,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 EnderUtilities.logger.warn("Exception while parsing Ender Tool module transformations");
             }
 
+            //System.out.printf("tx: %.2f, ty: %.2f, tz: %.2f, sx: %.2f, sy: %.2f, sz: %.2f\n", tx, ty, tz, sx, sy, sz);
             this.tx = tx;
             this.ty = ty;
             this.tz = tz;
@@ -367,7 +344,6 @@ public class ModelEnderTools implements IModel, IModelCustomData
         @Override
         public IBakedModel handleItemState(ItemStack stack)
         {
-            //System.out.println("handleItemState()");
             boolean isTool = stack.getItem() == EnderUtilitiesItems.enderTool;
             ItemLocationBoundModular item = (ItemLocationBoundModular)stack.getItem();
             String core = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE));

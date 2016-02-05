@@ -5,23 +5,23 @@
             "model": "enderutilities:modular_model_item_endertool",
             "transform": "forge:default-tool",
 
-            "__comment": "this custom data is the individual module translations and scales for each tool type from the same base module texture",
+            "__comment": "this custom data is the individual module translations and scales for each tool type from the same base module textures",
             "custom": {
-                "tr_sx_p_co": 1.02, "tr_sy_p_co": 1.02, "tr_sz_p_co": 1.6, "tr_tx_p_co":   0, "tr_ty_p_co":   0, "tr_tz_p_co":   0,
-                "tr_sx_a_co": 1.02, "tr_sy_a_co": 1.02, "tr_sz_a_co": 1.6, "tr_tx_a_co":   0, "tr_ty_a_co":   0, "tr_tz_a_co":   0,
-                "tr_sx_h_co": 1.02, "tr_sy_h_co": 1.02, "tr_sz_h_co": 1.6, "tr_tx_h_co":   0, "tr_ty_h_co":   0, "tr_tz_h_co":   0,
-                "tr_sx_s_co": 1.02, "tr_sy_s_co": 1.02, "tr_sz_s_co": 1.6, "tr_tx_s_co":   0, "tr_ty_s_co":   0, "tr_tz_s_co":   0,
-                "tr_sx_w_co": 1.02, "tr_sy_w_co": 1.02, "tr_sz_w_co": 1.6, "tr_tx_w_co":   0, "tr_ty_w_co":   0, "tr_tz_w_co":   0,
-                "tr_sx_p_ca": 1.02, "tr_sy_p_ca": 1.02, "tr_sz_p_ca": 1.6, "tr_tx_p_ca":   0, "tr_ty_p_ca":   0, "tr_tz_p_ca":   0,
-                "tr_sx_a_ca": 1.02, "tr_sy_a_ca": 1.02, "tr_sz_a_ca": 1.6, "tr_tx_a_ca":   0, "tr_ty_a_ca":   0, "tr_tz_a_ca":   0,
-                "tr_sx_h_ca": 1.02, "tr_sy_h_ca": 1.02, "tr_sz_h_ca": 1.6, "tr_tx_h_ca":   0, "tr_ty_h_ca":   0, "tr_tz_h_ca":   0,
-                "tr_sx_s_ca": 1.02, "tr_sy_s_ca": 1.02, "tr_sz_s_ca": 1.6, "tr_tx_s_ca":   0, "tr_ty_s_ca":   0, "tr_tz_s_ca":   0,
-                "tr_sx_w_ca": 1.02, "tr_sy_w_ca": 1.02, "tr_sz_w_ca": 1.6, "tr_tx_w_ca":   0, "tr_ty_w_ca":   0, "tr_tz_w_ca":   0,
-                "tr_sx_p_lc": 1.02, "tr_sy_p_lc": 1.02, "tr_sz_p_lc": 1.6, "tr_tx_p_lc":   0, "tr_ty_p_lc":   0, "tr_tz_p_lc":   0,
-                "tr_sx_a_lc": 1.02, "tr_sy_a_lc": 1.02, "tr_sz_a_lc": 1.6, "tr_tx_a_lc":   0, "tr_ty_a_lc":   0, "tr_tz_a_lc":   0,
-                "tr_sx_h_lc": 1.02, "tr_sy_h_lc": 1.02, "tr_sz_h_lc": 1.6, "tr_tx_h_lc":   0, "tr_ty_h_lc":   0, "tr_tz_h_lc":   0,
-                "tr_sx_s_lc": 1.02, "tr_sy_s_lc": 1.02, "tr_sz_s_lc": 1.6, "tr_tx_s_lc":   0, "tr_ty_s_lc":   0, "tr_tz_s_lc":   0,
-                "tr_sx_w_lc": 1.02, "tr_sy_w_lc": 1.02, "tr_sz_w_lc": 1.6, "tr_tx_w_lc":   0, "tr_ty_w_lc":   0, "tr_tz_w_lc":   0
+                "tr_sx_p_co": 1.02, "tr_sy_p_co": 1.02, "tr_sz_p_co": 2.0, "tr_tx_p_co":  0.625, "tr_ty_p_co": -0.1875, "tr_tz_p_co": 0,
+                "tr_sx_a_co": 1.02, "tr_sy_a_co": 1.02, "tr_sz_a_co": 2.0, "tr_tx_a_co": 0.5625, "tr_ty_a_co":   -0.25, "tr_tz_a_co": 0,
+                "tr_sx_h_co": 1.02, "tr_sy_h_co": 1.02, "tr_sz_h_co": 2.0, "tr_tx_h_co":  0.625, "tr_ty_h_co": -0.1875, "tr_tz_h_co": 0,
+                "tr_sx_s_co": 1.02, "tr_sy_s_co": 1.02, "tr_sz_s_co": 2.0, "tr_tx_s_co": 0.5625, "tr_ty_s_co":   -0.25, "tr_tz_s_co": 0,
+                "tr_sx_w_co": 1.02, "tr_sy_w_co": 1.02, "tr_sz_w_co": 2.0, "tr_tx_w_co": 0.3125, "tr_ty_w_co": -0.4375, "tr_tz_w_co": 0,
+                "tr_sx_p_ca": 1.02, "tr_sy_p_ca": 1.02, "tr_sz_p_ca": 1.7, "tr_tx_p_ca":    0.5, "tr_ty_p_ca": -0.3125, "tr_tz_p_ca": 0,
+                "tr_sx_a_ca": 1.02, "tr_sy_a_ca": 1.02, "tr_sz_a_ca": 1.7, "tr_tx_a_ca": 0.4375, "tr_ty_a_ca":  -0.375, "tr_tz_a_ca": 0,
+                "tr_sx_h_ca": 1.02, "tr_sy_h_ca": 1.02, "tr_sz_h_ca": 1.7, "tr_tx_h_ca":    0.5, "tr_ty_h_ca": -0.3125, "tr_tz_h_ca": 0,
+                "tr_sx_s_ca": 1.02, "tr_sy_s_ca": 1.02, "tr_sz_s_ca": 1.7, "tr_tx_s_ca": 0.4375, "tr_ty_s_ca":  -0.375, "tr_tz_s_ca": 0,
+                "tr_sx_w_ca": 1.02, "tr_sy_w_ca": 1.02, "tr_sz_w_ca": 1.7, "tr_tx_w_ca": 0.1875, "tr_ty_w_ca": -0.5625, "tr_tz_w_ca": 0,
+                "tr_sx_p_lc": 1.02, "tr_sy_p_lc": 1.02, "tr_sz_p_lc": 1.5, "tr_tx_p_lc": 0.8125, "tr_ty_p_lc":  -0.125, "tr_tz_p_lc": 0,
+                "tr_sx_a_lc": 1.02, "tr_sy_a_lc": 1.02, "tr_sz_a_lc": 1.5, "tr_tx_a_lc":   0.75, "tr_ty_a_lc": -0.1875, "tr_tz_a_lc": 0,
+                "tr_sx_h_lc": 1.02, "tr_sy_h_lc": 1.02, "tr_sz_h_lc": 1.5, "tr_tx_h_lc": 0.8125, "tr_ty_h_lc":  -0.125, "tr_tz_h_lc": 0,
+                "tr_sx_s_lc": 1.02, "tr_sy_s_lc": 1.02, "tr_sz_s_lc": 1.5, "tr_tx_s_lc":  0.125, "tr_ty_s_lc": -0.8125, "tr_tz_s_lc": 0,
+                "tr_sx_w_lc": 1.02, "tr_sy_w_lc": 1.02, "tr_sz_w_lc": 1.5, "tr_tx_w_lc":      0, "tr_ty_w_lc":  -0.875, "tr_tz_w_lc": 0
             }
         }
     }
