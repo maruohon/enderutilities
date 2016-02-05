@@ -1,9 +1,10 @@
 {
     "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:modular_model_item_endertool",
+        "transform": "forge:default-tool"
+    },
     "variants": {
-        "inventory": {
-            "model": "enderutilities:modular_model_item_endertool",
-            "transform": "forge:default-tool"
-        }
+        "inventory": [{}]
     }
 }

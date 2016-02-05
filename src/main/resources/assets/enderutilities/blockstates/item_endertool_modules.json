@@ -1,0 +1,42 @@
+{
+    "forge_marker": 1,
+    "variants": {
+        "type": {
+            "pickaxe_core":         { "model": "enderutilities:item_endertool_module_pickaxe_core"           },
+            "axe_core":             { "model": "enderutilities:item_endertool_module_pickaxe_core"           },
+            "hoe_core":             { "model": "enderutilities:item_endertool_module_pickaxe_core"           },
+            "shovel_core":          { "model": "enderutilities:item_endertool_module_pickaxe_core"            },
+            "sword_core":           { "model": "enderutilities:item_endertool_module_pickaxe_core"             },
+
+            "pickaxe_capacitor":    { "model": "enderutilities:item_endertool_module_pickaxe_capacitor"      },
+            "axe_capacitor":        { "model": "enderutilities:item_endertool_module_pickaxe_capacitor"      },
+            "hoe_capacitor":        { "model": "enderutilities:item_endertool_module_pickaxe_capacitor"      },
+            "shovel_capacitor":     { "model": "enderutilities:item_endertool_module_pickaxe_capacitor"       },
+            "sword_capacitor":      { "model": "enderutilities:item_endertool_module_pickaxe_capacitor"        },
+
+            "pickaxe_linkcrystal":  { "model": "enderutilities:item_endertool_module_pickaxe_linkcrystal"    },
+            "axe_linkcrystal":      { "model": "enderutilities:item_endertool_module_pickaxe_linkcrystal"    },
+            "hoe_linkcrystal":      { "model": "enderutilities:item_endertool_module_pickaxe_linkcrystal"    },
+            "shovel_linkcrystal":   { "model": "enderutilities:item_endertool_module_pickaxe_linkcrystal"     },
+            "sword_linkcrystal":    { "model": "enderutilities:item_endertool_module_pickaxe_linkcrystal"      }
+        },
+        "core": {
+            "0": {},
+            "1": { "textures": { "layer0": "enderutilities:items/endertool.module.core.1" } },
+            "2": { "textures": { "layer0": "enderutilities:items/endertool.module.core.2" } },
+            "3": { "textures": { "layer0": "enderutilities:items/endertool.module.core.3" } }
+        },
+        "capacitor": {
+            "0": {},
+            "1": { "textures": { "layer0": "enderutilities:items/endertool.module.capacitor.1" } },
+            "2": { "textures": { "layer0": "enderutilities:items/endertool.module.capacitor.2" } },
+            "3": { "textures": { "layer0": "enderutilities:items/endertool.module.capacitor.3" } },
+            "4": { "textures": { "layer0": "enderutilities:items/endertool.module.capacitor.3" } }
+        },
+        "linkcrystal": {
+            "0": {},
+            "1": { "textures": { "layer0": "enderutilities:items/endertool.module.core.1" } },
+            "2": { "textures": { "layer0": "enderutilities:items/endertool.module.core.2" } }
+        }
+    }
+}

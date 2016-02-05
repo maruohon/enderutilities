@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -22,6 +23,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -40,6 +43,7 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 public class ModelEnderTools implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderTools();
+    protected static final ModelManager modelManager = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager();
     /*private static final float NORTH_Z_BASE = 7.496f / 16f;
     private static final float SOUTH_Z_BASE = 8.504f / 16f;
     private static final float NORTH_Z_MODULE = 7.2f / 16f;
@@ -75,8 +79,31 @@ public class ModelEnderTools implements IModel, IModelCustomData
     @Override
     public Collection<ResourceLocation> getDependencies()
     {
+        ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
+        String[] tools = new String[] { "pickaxe", "axe", "hoe", "shovel", "sword" };
+        String loc = Reference.MOD_ID + ":item_endertool_modules";
+
+        for (String tool : tools)
+        {
+            for (int cap = 0; cap < 5; cap++)
+            {
+                for (int core = 0; core < 4; core++)
+                {
+                    for (int lc = 0; lc < 3; lc++)
+                    {
+                        String variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_capacitor";
+                        builder.add(new ModelResourceLocation(loc, variant));
+                        variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_core";
+                        builder.add(new ModelResourceLocation(loc, variant));
+                        variant = "capacitor=" + cap + ",core=" + core + ",linkcrystal=" + lc + ",type=" + tool + "_linkcrystal";
+                        builder.add(new ModelResourceLocation(loc, variant));
+                    }
+                }
+            }
+        }
         //return ImmutableList.<ResourceLocation>of(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
-        return ImmutableList.of();
+        //return ImmutableList.of();
+        return builder.build();
     }
 
     @Override
@@ -209,16 +236,6 @@ public class ModelEnderTools implements IModel, IModelCustomData
     public IFlexibleBakedModel bake(IModelState state, VertexFormat format,
                                     Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        /*try
-        {
-            IModel base = ModelLoaderRegistry.getModel(new ModelResourceLocation(Reference.MOD_ID + ":item_standard_tool", "inventory"));
-            state = base.getDefaultState();
-        }
-        catch (IOException e)
-        {
-            EnderUtilities.logger.warn("Failed to get base model for tool transformations");
-        }*/
-
         ImmutableMap<TransformType, TRSRTransformation> transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
         //TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
         TextureAtlasSprite rodSprite = null;
@@ -240,6 +257,11 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
         if (this.resourceCore != null)
         {
+            /*String loc = Reference.MOD_ID + ":item_endertool_modules";
+            ModelResourceLocation mrl = new ModelResourceLocation(loc, "capacitor=0,core=2,linkcrystal=0,type=pickaxe_core");
+            IBakedModel model = modelManager.getModel(mrl);
+            System.out.println("core: mrl: " + mrl + "\nmodel: " + model);*/
+            state = new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(new TRSRTransformation(null, null, new Vector3f(1.02f, 1.02f, 1.6f), null)));
             IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(state, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
