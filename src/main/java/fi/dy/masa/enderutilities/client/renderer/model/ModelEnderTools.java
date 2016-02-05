@@ -412,7 +412,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) && modelLocation.getResourcePath().contains("modular_model_item_endertool");
+            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) && modelLocation.getResourcePath().contains("generated_model_endertool");
         }
 
         @Override

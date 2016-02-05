@@ -2,7 +2,7 @@
     "forge_marker": 1,
     "variants": {
         "inventory": {
-            "model": "enderutilities:modular_model_item_endertool",
+            "model": "enderutilities:generated_model_endertool",
             "transform": "forge:default-tool",
 
             "__comment": "this custom data is the individual module translations and scales for each tool type from the same base module textures",

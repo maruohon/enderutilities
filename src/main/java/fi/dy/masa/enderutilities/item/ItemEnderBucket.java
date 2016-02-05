@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -38,6 +40,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -1223,5 +1226,18 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             super.doKeyBindingAction(player, stack, key);
         }
+    }
+
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":item_enderbucket", "inventory") };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        return new ModelResourceLocation(Reference.MOD_ID + ":item_enderbucket", "inventory");
     }
 }

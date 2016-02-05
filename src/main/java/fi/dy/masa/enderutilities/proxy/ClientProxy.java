@@ -34,6 +34,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityProjectile;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
+import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -139,7 +140,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModel(EnderUtilitiesItems.enderArrow);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBow);
-        //this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBucket);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBucket);
         this.registerItemModel(EnderUtilitiesItems.enderLasso);
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
@@ -153,6 +154,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
 
+        ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
     }
 

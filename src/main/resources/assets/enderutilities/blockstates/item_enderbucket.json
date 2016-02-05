@@ -1,0 +1,9 @@
+{
+    "forge_marker": 1,
+    "variants": {
+        "inventory": {
+            "model": "enderutilities:generated_model_enderbucket",
+            "transform": "forge:default-item"
+        }
+    }
+}
