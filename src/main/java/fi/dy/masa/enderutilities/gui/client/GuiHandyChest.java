@@ -126,26 +126,14 @@ public class GuiHandyChest extends GuiEnderUtilities
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
-        // TODO Remove this in 1.8 and enable the slot background icon method override instead
-        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
-        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        //this.bindTexture(TextureMap.locationBlocksTexture);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_BLEND);
-
         // Draw the background icon over empty storage module slots
-        /*IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-        for (int i = 0; icon != null && i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             if (this.tehc.getStackInSlot(i) == null)
             {
-                this.drawTexturedModelRectFromIcon(this.guiLeft + 98 + i * 18, this.guiTop + 8, icon, 16, 16);
+                this.drawTexturedModalRect(this.guiLeft + 98 + i * 18, this.guiTop + 8, 240, 80, 16, 16);
             }
-        }*/
-
-        //GL11.glDisable(GL11.GL_BLEND);
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        // TODO end of to-be-removed code in 1.8*/
+        }
     }
 
     protected void createButtons()

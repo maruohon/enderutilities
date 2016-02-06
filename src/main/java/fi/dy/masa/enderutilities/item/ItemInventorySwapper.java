@@ -108,8 +108,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String preGreen = EnumChatFormatting.GREEN.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
-        int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD);
-        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, slotNum, ModuleType.TYPE_MEMORY_CARD);
+        int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
             // If the currently selected module has been renamed, show that name
@@ -154,25 +154,27 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String str;
         if (isEnabled(containerStack) == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
         list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
 
-        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (installed > 0)
         {
-            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
-            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD);
-            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
             {
@@ -192,7 +194,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public int getSizeModuleInventory(ItemStack containerStack)
     {
-        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
     }
 
     @Override
@@ -259,8 +261,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 ItemStack tmpStack = swapperInv.getStackInSlot(i);
 
                 // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
-                if (tmpStack == null ||
-                   (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) && externalInv.isItemValidForSlot(i, tmpStack) == true))
+                if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
+                    externalInv.isItemValidForSlot(i, tmpStack) == true))
                 {
                     swapperInv.setInventorySlotContents(i, externalInv.getStackInSlot(i));
                     externalInv.setInventorySlotContents(i, tmpStack);
@@ -284,8 +286,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 ItemStack tmpStack = swapperInv.getStackInSlot(slotNum);
 
                 // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
-                if (tmpStack == null ||
-                   (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) && externalInv.isItemValidForSlot(slotNum, tmpStack) == true))
+                if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
+                   externalInv.isItemValidForSlot(slotNum, tmpStack) == true))
                 {
                     ItemStack externalInvStack = externalInv.getStackInSlot(slotNum);
 
@@ -302,7 +304,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
     public void swapExternalInventory(ItemStack swapperStack, IInventory externalInv, EntityPlayer player, EnumFacing side)
     {
-        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
+        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (swapperInv.isUseableByPlayer(player) == false)
         {
             return;
@@ -330,7 +332,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             return;
         }
 
-        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD);
+        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (inv.isUseableByPlayer(player) == false)
         {
             return;
@@ -416,7 +418,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         }
         // Just Toggle mode: Fire the swapping action
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -437,13 +439,15 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             && ReferenceKeys.keypressContainsShift(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1, ReferenceKeys.keypressActionIsReversed(key));
+            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
+                    ReferenceKeys.keypressActionIsReversed(key));
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
@@ -454,11 +458,11 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getModularItem();
             if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
             {
-                int max = ((ItemInventorySwapper)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD);
+                int max = ((ItemInventorySwapper)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 // Changing the selected module via the GUI buttons
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
-                    UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD, element);
+                    UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, element);
                     ((ContainerInventorySwapper)player.openContainer).inventoryItemModular.readFromContainerItemStack();
                 }
                 else if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
@@ -469,7 +473,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 {
                     long mask = getEnabledSlotsMask(stack);
                     mask ^= (0x1FFL << (element * 9));
-                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
+                            TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
                 }
                 else if (action == GUI_ACTION_TOGGLE_COLUMNS)
                 {
@@ -486,7 +491,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                         mask ^= 0xF000000000L; // toggle bits 39..36
                     }
 
-                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
+                            TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
                 }
             }
         }
@@ -507,7 +513,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD) ? this.getMaxModules(containerStack) : 0;
+        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) ? this.getMaxModules(containerStack) : 0;
     }
 
     @Override
@@ -517,7 +523,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         {
             IModule imodule = (IModule)moduleStack.getItem();
 
-            if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD) &&
+            if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) &&
                 imodule.getModuleTier(moduleStack) == ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B)
             {
                 return this.getMaxModules(containerStack);

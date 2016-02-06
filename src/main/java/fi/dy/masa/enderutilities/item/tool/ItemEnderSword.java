@@ -50,6 +50,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -224,14 +225,16 @@ public class ItemEnderSword extends ItemLocationBoundModular
         }
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == SwordMode.PLAYER && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        if (mode == SwordMode.PLAYER && (player instanceof FakePlayer) == false &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
             return player.inventory;
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
-        else if (mode == SwordMode.REMOTE && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+        else if (mode == SwordMode.REMOTE &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
@@ -332,7 +335,8 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
             if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+                || (target.dimension != player.dimension &&
+                    this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
             {
                 return;
             }
@@ -570,7 +574,8 @@ public class ItemEnderSword extends ItemLocationBoundModular
         // Ctrl + (Shift + ) Toggle mode
         if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + Alt + Toggle mode: Store the player's current location
         else if (ReferenceKeys.keypressContainsShift(key) == true
@@ -604,7 +609,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE))
         {
             return 1;
         }
@@ -632,16 +637,22 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         IModule imodule = (IModule) moduleStack.getItem();
         ModuleType moduleType = imodule.getModuleType(moduleStack);
+        int tier = imodule.getModuleTier(moduleStack);
 
         // Allow the in-world/location and block/inventory type Link Crystals
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == true &&
+            (tier != ItemLinkCrystal.TYPE_LOCATION && tier != ItemLinkCrystal.TYPE_BLOCK))
         {
-            return this.getMaxModules(containerStack, moduleType);
+            return 0;
         }
 
-        return 0;
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE) &&
+           (tier < ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC || tier > ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
+        {
+            return 0;
+        }
+
+        return this.getMaxModules(containerStack, moduleType);
     }
 
     @SideOnly(Side.CLIENT)
@@ -649,7 +660,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE);
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
         String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
         String preBlue = EnumChatFormatting.BLUE.toString();
@@ -667,9 +678,11 @@ public class ItemEnderSword extends ItemLocationBoundModular
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
         if (coreTier >= 0)
         {
-            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" :
+                (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
             coreType = StatCollector.translateToLocal(coreType);
-            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") +
+                    " " + (coreTier + 1) + rst + ")";
         }
         else
         {
@@ -695,7 +708,8 @@ public class ItemEnderSword extends ItemLocationBoundModular
             int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+                    String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
         }
         else
         {

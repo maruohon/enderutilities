@@ -34,11 +34,18 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderPart extends ItemModule
 {
-    public static final int MEMORY_CARD_TYPE_MISC = 0;
-    public static final int MEMORY_CARD_TYPE_ITEMS_6B  = 6;
-    public static final int MEMORY_CARD_TYPE_ITEMS_8B  = 8;
-    public static final int MEMORY_CARD_TYPE_ITEMS_10B = 10;
-    public static final int MEMORY_CARD_TYPE_ITEMS_12B = 12;
+    public static final int ENDER_CORE_TYPE_INACTIVE_BASIC      = 10;
+    public static final int ENDER_CORE_TYPE_INACTIVE_ENHANCED   = 11;
+    public static final int ENDER_CORE_TYPE_INACTIVE_ADVANCED   = 12;
+    public static final int ENDER_CORE_TYPE_ACTIVE_BASIC        = 1;
+    public static final int ENDER_CORE_TYPE_ACTIVE_ENHANCED     = 2;
+    public static final int ENDER_CORE_TYPE_ACTIVE_ADVANCED     = 3;
+
+    public static final int MEMORY_CARD_TYPE_MISC       = 0;
+    public static final int MEMORY_CARD_TYPE_ITEMS_6B   = 6;
+    public static final int MEMORY_CARD_TYPE_ITEMS_8B   = 8;
+    public static final int MEMORY_CARD_TYPE_ITEMS_10B  = 10;
+    public static final int MEMORY_CARD_TYPE_ITEMS_12B  = 12;
 
     public ItemEnderPart()
     {
@@ -226,15 +233,11 @@ public class ItemEnderPart extends ItemModule
     public ModuleType getModuleType(ItemStack stack)
     {
         // Inactive Ender Cores
-        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
-        {
-            return ModuleType.TYPE_ENDERCORE_INACTIVE;
-        }
-
         // Active Ender Cores
-        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+        if ((stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12) ||
+            (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17))
         {
-            return ModuleType.TYPE_ENDERCORE_ACTIVE;
+            return ModuleType.TYPE_ENDERCORE;
         }
 
         // Mob Persistence
@@ -243,10 +246,16 @@ public class ItemEnderPart extends ItemModule
             return ModuleType.TYPE_MOBPERSISTENCE;
         }
 
-        // Memory Card
-        if (stack.getItemDamage() >= 50 && stack.getItemDamage() <= 54)
+        // Memory Card (misc)
+        if (stack.getItemDamage() == 50)
         {
-            return ModuleType.TYPE_MEMORY_CARD;
+            return ModuleType.TYPE_MEMORY_CARD_MISC;
+        }
+
+        // Memory Card (items)
+        if (stack.getItemDamage() >= 51 && stack.getItemDamage() <= 54)
+        {
+            return ModuleType.TYPE_MEMORY_CARD_ITEMS;
         }
 
         return ModuleType.TYPE_INVALID;
@@ -256,15 +265,15 @@ public class ItemEnderPart extends ItemModule
     public int getModuleTier(ItemStack stack)
     {
         // Inactive Ender Cores
-        if (this.getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_INACTIVE))
+        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
         {
-            return stack.getItemDamage() - 10;
+            return stack.getItemDamage() - 10 + ENDER_CORE_TYPE_INACTIVE_BASIC;
         }
 
         // Active Ender Cores
-        if (this.getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
+        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
         {
-            return stack.getItemDamage() - 15;
+            return stack.getItemDamage() - 15 + ENDER_CORE_TYPE_ACTIVE_BASIC;
         }
 
         // Mob Persistence
@@ -280,7 +289,7 @@ public class ItemEnderPart extends ItemModule
         }
 
         // Memory Card (items)
-        if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD))
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
             int tier = stack.getItemDamage() - 51;
             switch (tier)

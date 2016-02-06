@@ -52,7 +52,6 @@ public class EnderUtilities
         proxy.registerRenderers();
         proxy.registerEventHandlers();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
-        proxy.setupReflection();
     }
 
     @EventHandler

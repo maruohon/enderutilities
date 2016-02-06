@@ -7,7 +7,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
-import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
@@ -38,18 +37,6 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        // Empty input slot, draw the slot background
-        if (this.inventorySlots.getSlot(0).getStack() == null)
-        {
-            this.drawTexturedModalRect(x + 43, y + 23, 194, 0, 18, 18);
-        }
-
-        // Empty chargeable item slot, draw the slot background
-        if (this.inventorySlots.getSlot(1).getStack() == null)
-        {
-            this.drawTexturedModalRect(x + 133, y + 7, 176, 0, 18, 18);
-        }
-
         // Some charge stored, draw the "fluid" into the tank
         if (this.teei.amountStored > 0)
         {
@@ -72,6 +59,20 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
             progress = progress * 15 / 100;
             this.drawTexturedModalRect(x + 116, y + 39, 204, 18, progress, 11);
         }
+
+        this.bindTexture(this.guiTextureWidgets);
+
+        // Empty input slot, draw the slot background
+        if (this.inventorySlots.getSlot(0).getStack() == null)
+        {
+            this.drawTexturedModalRect(x + 44, y + 24, 240, 160, 16, 16);
+        }
+
+        // Empty chargeable item slot, draw the slot background
+        if (this.inventorySlots.getSlot(1).getStack() == null)
+        {
+            this.drawTexturedModalRect(x + 134, y + 8, 240, 16, 16, 16);
+        }
     }
 
     @Override
@@ -81,7 +82,7 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
         int y = (this.height - this.ySize) / 2;
 
         // Hovering over the "tank" area
-        if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 68)
+        if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 71)
         {
             List<String> list = new ArrayList<String>();
             int ec = this.teei.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
@@ -92,16 +93,7 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
             return;
         }
 
-        Slot slot = null;
-        try
-        {
-            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
-        }
-        catch (IllegalAccessException e)
-        {
-            return;
-        }
-
+        Slot slot = this.getSlotUnderMouse();
         // Hovering over an empty material slot
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {

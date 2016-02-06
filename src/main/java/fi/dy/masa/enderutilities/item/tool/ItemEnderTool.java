@@ -60,6 +60,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -261,8 +262,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
                         sound.soundName, (sound.getVolume() + 1.0f) / 2.0f, sound.frequency * 0.8f);
 
                 world.setBlockState(pos, blockFarmland.getDefaultState(), 3);
-                // FIXME?
-                world.markBlockForUpdate(pos);  // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
+                // FIXME
+                // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
+                world.markBlockForUpdate(pos);
                 this.addToolDamage(stack, 1, player, player);
             }
 
@@ -272,7 +274,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return false;
     }
 
-    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
+    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
+            float hitX, float hitY, float hitZ, int rWidth, int rHeight)
     {
         boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
@@ -474,14 +477,16 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == DropsMode.PLAYER && (player instanceof FakePlayer) == false && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 0)
+        if (mode == DropsMode.PLAYER && (player instanceof FakePlayer) == false &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
         {
             return player.inventory;
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
-        else if (mode == DropsMode.REMOTE && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) >= 1
-                && UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+        else if (mode == DropsMode.REMOTE &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
@@ -563,7 +568,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
             if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+                || (target.dimension != player.dimension &&
+                    this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
             {
                 return;
             }
@@ -851,7 +857,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        if (moduleType.equals(ModuleType.TYPE_ENDERCORE_ACTIVE))
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE))
         {
             return 1;
         }
@@ -879,16 +885,22 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         IModule imodule = (IModule) moduleStack.getItem();
         ModuleType moduleType = imodule.getModuleType(moduleStack);
+        int tier = imodule.getModuleTier(moduleStack);
 
         // Allow the in-world/location and block/inventory type Link Crystals
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == false
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_LOCATION
-            || imodule.getModuleTier(moduleStack) == ItemLinkCrystal.TYPE_BLOCK)
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == true &&
+            (tier != ItemLinkCrystal.TYPE_LOCATION && tier != ItemLinkCrystal.TYPE_BLOCK))
         {
-            return this.getMaxModules(containerStack, moduleType);
+            return 0;
         }
 
-        return 0;
+        if (moduleType.equals(ModuleType.TYPE_ENDERCORE) &&
+           (tier < ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC || tier > ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
+        {
+            return 0;
+        }
+
+        return this.getMaxModules(containerStack, moduleType);
     }
 
     @SideOnly(Side.CLIENT)
@@ -896,7 +908,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE);
+        int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE);
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
         String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
         String preBlue = EnumChatFormatting.BLUE.toString();
@@ -928,9 +940,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
         if (coreTier >= 0)
         {
-            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" : (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" :
+                (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
             coreType = StatCollector.translateToLocal(coreType);
-            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") + " " + (coreTier + 1) + rst + ")";
+            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") +
+                    " " + (coreTier + 1) + rst + ")";
         }
         else
         {
@@ -956,7 +970,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
             int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+                    String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
         }
         else
         {

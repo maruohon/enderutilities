@@ -124,10 +124,10 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
         mode = (modeMask >> 11) & 0x7;
         this.drawTexturedModalRect(this.guiLeft + 202, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
 
-        // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
+        // The inventory is not accessible (because there is no valid Memory Card selected, or something else...)
         if (this.tecs.isInventoryAccessible(this.container.getPlayer()) == false)
         {
-            // Draw the dark background icon over the disabled inventory slots
+            // Draw the dark background over the disabled inventory slots
             for (int i = 0; i < invSize; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
@@ -136,7 +136,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
 
-            // Draw the dark background icon over the disabled crafting slots (left side)
+            // Draw the dark background over the disabled crafting slots (left side)
             for (int i = 31; i <= 39; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
@@ -145,7 +145,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
 
-            // Draw the dark background icon over the disabled crafting slots (right side)
+            // Draw the dark background over the disabled crafting slots (right side)
             for (int i = 41; i <= 49; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
@@ -159,6 +159,15 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
         {
             Slot slot = this.container.getSlot(this.containerCS.getSelectedSlot());
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
+        }
+
+        // Draw the background icon over empty storage module slots
+        for (int i = 0; i < this.tecs.getSizeInventory(); i++)
+        {
+            if (this.tecs.getStackInSlot(i) == null)
+            {
+                this.drawTexturedModalRect(this.guiLeft + 216, this.guiTop + 102 + i * 18, 240, 80, 16, 16);
+            }
         }
 
         // Left side furnace progress icons
@@ -260,32 +269,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
             }
         }
 
-        //GL11.glEnable(GL11.GL_BLEND);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_DEPTH_TEST);
-        //RenderHelper.enableStandardItemLighting();
         RenderHelper.enableGUIStandardItemLighting();
-
-        // TODO Remove this in 1.8 and enable the slot background icon method override instead
-        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
-        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        //this.bindTexture(TextureMap.locationBlocksTexture);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_BLEND);
-
-        // Draw the background icon over empty storage module slots
-        //IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-        /*for (int i = 0; icon != null && i < 4; i++)
-        {
-            if (this.tecs.getStackInSlot(i) == null)
-            {
-                this.drawTexturedModelRectFromIcon(this.guiLeft + 216, this.guiTop + 102 + i * 18, icon, 16, 16);
-            }
-        }*/
-
-        //GL11.glDisable(GL11.GL_BLEND);
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        // TODO end of to-be-removed code in 1.8*/
     }
 
     @Override

@@ -66,12 +66,12 @@ public class ContainerCreationStation extends ContainerLargeStacks
         posY = 102;
 
         int min = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B;
-        int max = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_10B;
+        int max = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
 
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.tecs, i, posX, posY + i * 18, ModuleType.TYPE_MEMORY_CARD).setMinAndMaxModuleTier(min, max));
+            this.addSlotToContainer(new SlotModule(this.tecs, i, posX, posY + i * 18, ModuleType.TYPE_MEMORY_CARD_ITEMS).setMinAndMaxModuleTier(min, max));
         }
 
         // Crafting slots, left side

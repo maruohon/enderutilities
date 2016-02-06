@@ -145,14 +145,13 @@ public class GuiHandyBag extends InventoryEffectRenderer
         //GL11.glEnable(GL11.GL_BLEND);
 
         // Draw the background icon over empty storage module slots
-        /*IIcon icon = EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-        for (int i = 0; icon != null && i < this.numModuleSlots; i++)
+        for (int i = 0; i < this.numModuleSlots; i++)
         {
             if (this.invModular.getModuleInventory().getStackInSlot(i) == null)
             {
-                this.drawTexturedModelRectFromIcon(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, icon, 16, 16);
+                this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 80, 16, 16);
             }
-        }*/
+        }
 
         // Draw the background icon for empty player armor slots
         //IInventory inv = this.player.inventory;

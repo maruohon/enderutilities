@@ -18,6 +18,8 @@ public class SlotModule extends SlotGeneric
         super(inventory, slot, posX, posY);
         this.moduleType = moduleType;
         this.stackLimit = 1;
+        this.moduleTierMin = -1;
+        this.moduleTierMax = -1;
     }
 
     public ModuleType getModuleType()
@@ -81,6 +83,11 @@ public class SlotModule extends SlotGeneric
             // Matching basic module type, check for the sub-type/tier
             if (this.moduleType.equals(type))
             {
+                if (this.moduleTierMin == -1 && this.moduleTierMax == -1)
+                {
+                    return true;
+                }
+
                 return module.getModuleTier(stack) >= this.moduleTierMin && module.getModuleTier(stack) <= this.moduleTierMax;
             }
         }
@@ -88,13 +95,33 @@ public class SlotModule extends SlotGeneric
         return false;
     }
 
-    /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-     * these background icons to render incorrectly if there is an item with the glint effect
-     * before the slot with the background icon.
-    @SideOnly(Side.CLIENT)
-    public IIcon getBackgroundIconIndex()
+    /**
+     * Get the texture u coordinate on the widgets sheet for this type of module.
+     * If the type is ANY, then -1 is returned
+     * @return
+     */
+    public int getBackgroundIconU()
     {
-        return EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(this.moduleType);
+        if (this.moduleType.equals(ModuleType.TYPE_INVALID) == true)
+        {
+            return 102;
+        }
+
+        return this.moduleType.equals(ModuleType.TYPE_ANY) ? -1 : 240;
     }
-    */
+
+    /**
+     * Get the texture u coordinate on the widgets sheet for this type of module.
+     * If the type is ANY, then -1 is returned
+     * @return
+     */
+    public int getBackgroundIconV()
+    {
+        if (this.moduleType.equals(ModuleType.TYPE_INVALID) == true)
+        {
+            return 0;
+        }
+
+        return this.moduleType.equals(ModuleType.TYPE_ANY) ? -1 : this.moduleType.getIndex() * 16;
+    }
 }

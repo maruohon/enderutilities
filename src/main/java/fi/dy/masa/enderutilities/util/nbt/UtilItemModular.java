@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -1041,7 +1042,8 @@ public class UtilItemModular
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
         if (NBTHelperPlayer.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-            || (target.dimension != player.dimension && iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE_ACTIVE) < 2))
+            || (target.dimension != player.dimension &&
+                iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
         {
             return null;
         }

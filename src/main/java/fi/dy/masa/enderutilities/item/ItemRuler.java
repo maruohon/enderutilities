@@ -20,7 +20,6 @@ import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -233,15 +232,15 @@ public class ItemRuler extends ItemModular
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.selected") + ": ";
         list.add(str + preBlue + (selected + 1) + rst + " / " + preBlue + count + rst);
 
-        int installed = this.getInstalledModuleCount(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        int installed = this.getInstalledModuleCount(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (installed > 0)
         {
-            int slotNum = UtilItemModular.getClampedModuleSelection(rulerStack, ModuleType.TYPE_MEMORY_CARD);
-            int max = this.getMaxModules(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+            int slotNum = UtilItemModular.getClampedModuleSelection(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
+            int max = this.getMaxModules(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
             String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
 
-            ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+            ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
@@ -264,7 +263,7 @@ public class ItemRuler extends ItemModular
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD))
+        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD_MISC))
         {
             return this.getMaxModules(containerStack);
         }
@@ -275,17 +274,12 @@ public class ItemRuler extends ItemModular
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack != null && (moduleStack.getItem() instanceof IModule))
+        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
-            IModule module = (IModule)moduleStack.getItem();
-
-            if (ModuleType.TYPE_MEMORY_CARD.equals(module.getModuleType(moduleStack)) && module.getModuleTier(moduleStack) == ItemEnderPart.MEMORY_CARD_TYPE_MISC)
-            {
-                return this.getMaxModules(containerStack);
-            }
+            return 0;
         }
 
-        return 0;
+        return this.getMaxModules(containerStack, ((IModule) moduleStack.getItem()).getModuleType(moduleStack));
     }
 
     public boolean getDistanceMode(ItemStack rulerStack)
@@ -320,7 +314,7 @@ public class ItemRuler extends ItemModular
 
     public int getLocationSelection(ItemStack rulerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             return NBTUtils.getByte(moduleStack, TAG_WRAPPER, TAG_SELECTED_LOCATION);
@@ -331,7 +325,7 @@ public class ItemRuler extends ItemModular
 
     public int getLocationCount(ItemStack rulerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             NBTTagList tagList = NBTUtils.getTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, Constants.NBT.TAG_COMPOUND, false);
@@ -343,7 +337,7 @@ public class ItemRuler extends ItemModular
 
     public void cycleLocationSelection(ItemStack rulerStack, boolean reverse)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             int max = Math.min(this.getLocationCount(rulerStack), 7);
@@ -353,7 +347,7 @@ public class ItemRuler extends ItemModular
 
     public boolean getAlwaysRenderLocation(ItemStack rulerStack, int index)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             if (index < 0)
@@ -374,7 +368,7 @@ public class ItemRuler extends ItemModular
 
     public BlockPosEU getPosition(ItemStack rulerStack, int index, boolean isPos1)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             NBTTagList tagList = NBTUtils.getTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, Constants.NBT.TAG_COMPOUND, false);
@@ -403,7 +397,7 @@ public class ItemRuler extends ItemModular
      */
     public void setOrRemovePosition(ItemStack rulerStack, BlockPosEU pos, boolean isPos1, boolean adjustPosition)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             if (adjustPosition == true)
@@ -442,13 +436,13 @@ public class ItemRuler extends ItemModular
 
             NBTUtils.setTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, tagList);
 
-            this.setSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+            this.setSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
         }
     }
 
     public void toggleAlwaysRenderSelectedLocation(ItemStack rulerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             int selected = this.getLocationSelection(rulerStack);
@@ -468,7 +462,7 @@ public class ItemRuler extends ItemModular
 
             NBTUtils.setTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, tagList);
 
-            this.setSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+            this.setSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
         }
     }
 
@@ -519,7 +513,8 @@ public class ItemRuler extends ItemModular
         else if (ReferenceKeys.keypressContainsControl(key) == true &&
                  ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(rulerStack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 }

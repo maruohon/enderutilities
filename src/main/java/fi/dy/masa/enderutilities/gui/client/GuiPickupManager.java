@@ -19,7 +19,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -135,27 +134,15 @@ public class GuiPickupManager extends GuiEnderUtilities
             this.drawTexturedModalRect(x + 101 + sel * 18, y + 162, 120, 0, 10, 10);
         }
 
-        // TODO Remove this in 1.8 and enable the slot background icon method override instead
-        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
-        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        //this.bindTexture(TextureMap.locationBlocksTexture);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_BLEND);
-
         // Draw the background icon over empty storage module slots
-        /*IIcon icon = EnderUtilitiesItems.linkCrystal.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_LINKCRYSTAL);
-        for (int i = 0; icon != null && i < this.numModuleSlots; i++)
+        for (int i = 0; i < this.numModuleSlots; i++)
         {
             // FIXME the +1 is after adding the capacitor module...
             if (this.inventoryItemModules.getStackInSlot(i + 1) == null)
             {
-                this.drawTexturedModelRectFromIcon(x + 116 + i * 18, y + 29, icon, 16, 16);
+                this.drawTexturedModalRect(x + 116 + i * 18, y + 29, 240, 32, 16, 16);
             }
-        }*/
-
-        //GL11.glDisable(GL11.GL_BLEND);
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        // TODO end of to-be-removed code in 1.8*/
+        }
     }
 
     @Override
@@ -163,16 +150,7 @@ public class GuiPickupManager extends GuiEnderUtilities
     {
         super.drawTooltips(mouseX, mouseY);
 
-        Slot slot = null;
-        try
-        {
-            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
-        }
-        catch (IllegalAccessException e)
-        {
-            return;
-        }
-
+        Slot slot = this.getSlotUnderMouse();
         // Hovering over the tool slot
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {

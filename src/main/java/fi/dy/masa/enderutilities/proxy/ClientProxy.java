@@ -6,7 +6,6 @@ import java.util.List;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -25,7 +24,6 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
@@ -45,7 +43,6 @@ import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
@@ -109,12 +106,6 @@ public class ClientProxy extends CommonProxy
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
         MinecraftForge.EVENT_BUS.register(new RulerRenderer());
-    }
-
-    @Override
-    public void setupReflection()
-    {
-        ReferenceReflection.fieldGuiContainerTheSlot = ReflectionHelper.findField(GuiContainer.class, "u", "field_147006_u", "theSlot");
     }
 
     @Override

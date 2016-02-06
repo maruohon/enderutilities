@@ -57,7 +57,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.tehc, i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD).setMinAndMaxModuleTier(min, max));
+            this.addSlotToContainer(new SlotModule(this.tehc, i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS).setMinAndMaxModuleTier(min, max));
         }
     }
 

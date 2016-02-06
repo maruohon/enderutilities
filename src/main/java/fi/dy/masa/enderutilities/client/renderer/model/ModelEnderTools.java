@@ -346,7 +346,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         {
             boolean isTool = stack.getItem() == EnderUtilitiesItems.enderTool;
             ItemLocationBoundModular item = (ItemLocationBoundModular)stack.getItem();
-            String core = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE_ACTIVE));
+            String core = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE));
             String cap = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCAPACITOR));
             String lc = String.valueOf(item.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL));
             String toolClass;

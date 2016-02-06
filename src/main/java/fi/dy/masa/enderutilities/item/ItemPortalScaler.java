@@ -22,7 +22,6 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -116,7 +115,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
     public BlockPosEU getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
     {
-        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
         NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
         byte scaleX = tag.getByte("scaleX");
@@ -192,7 +191,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public String getItemStackDisplayName(ItemStack stack)
     {
         String str = "";
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
@@ -230,7 +229,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return;
         }
 
-        ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
         String preBlue = EnumChatFormatting.BLUE.toString();
         String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
@@ -257,10 +256,11 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
             if (verbose == true)
             {
-                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD);
-                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1;
+                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
+                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                         String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else
@@ -290,7 +290,8 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
         if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + (Ctrl + ) Alt + Toggle Mode: Change scaling factor
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == true)
@@ -316,14 +317,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
     public boolean itemHasScaleFactor(ItemStack stack)
     {
-        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
         return cardStack != null && this.memoryCardHasScaleFactor(cardStack);
     }
 
     public void changeCoordinateScaleFactor(ItemStack stack, EntityPlayer player, int amount)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             NBTTagCompound tag = NBTUtils.getCompoundTag(moduleStack, "PortalScaler", true);
@@ -350,7 +351,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             tag.setByte("scaleY", (byte)y);
             tag.setByte("scaleZ", (byte)z);
 
-            this.setSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+            this.setSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
         }
     }
 
@@ -368,7 +369,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return 1;
         }
 
-        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD))
+        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD_MISC))
         {
             return 4;
         }
@@ -384,15 +385,6 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return 0;
         }
 
-        IModule imodule = (IModule) moduleStack.getItem();
-        ModuleType moduleType = imodule.getModuleType(moduleStack);
-
-        // Only allow the "Miscellaneous" type Memory Cards
-        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD) == true && imodule.getModuleTier(moduleStack) != ItemEnderPart.MEMORY_CARD_TYPE_MISC)
-        {
-            return 0;
-        }
-
-        return this.getMaxModules(containerStack, moduleType);
+        return this.getMaxModules(containerStack, ((IModule) moduleStack.getItem()).getModuleType(moduleStack));
     }
 }

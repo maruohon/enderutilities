@@ -28,7 +28,6 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -106,7 +105,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public boolean releaseEntity(ItemStack containerStack, World world, double x, double y, double z, EnumFacing side)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return false;
@@ -157,14 +156,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", (byte)current);
-        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
 
         return true;
     }
 
     public boolean storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return false;
@@ -189,7 +188,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         tagList = NBTUtils.insertToTagList(tagList, nbtEntity, NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current"));
         NBTUtils.setTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", tagList);
 
-        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
 
         livingBase.isDead = true;
 
@@ -198,7 +197,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public int getStoredEntityCount(ItemStack containerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return 0;
@@ -213,7 +212,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
      */
     public int getCurrentIndex(ItemStack containerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return 0;
@@ -224,19 +223,19 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public void setCurrentIndex(ItemStack containerStack, byte index)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return;
         }
 
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", index);
-        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
     }
 
     public String getEntityName(ItemStack containerStack, int index)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return null;
@@ -272,7 +271,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public void changeEntitySelection(ItemStack containerStack, boolean reverse)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
             return;
@@ -297,7 +296,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", (byte)current);
-        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD, moduleStack);
+        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
     }
 
     @Override
@@ -308,7 +307,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         String preGreenIta = preGreen + EnumChatFormatting.ITALIC.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
 
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
             if (str.length() >= 14)
@@ -323,7 +322,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             }
             else
             {
-                str = str + " MC: " + preGreen + (UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1) + rst;
+                str = str + " MC: " + preGreen + (UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1) + rst;
             }
 
             int index = this.getCurrentIndex(stack);
@@ -348,7 +347,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return;
         }
 
-        ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
         String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
         String preBlue = EnumChatFormatting.BLUE.toString();
@@ -365,11 +364,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 String s;
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
+                            EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
+                            EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);
@@ -381,10 +382,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             if (verbose == true)
             {
-                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD);
-                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD) + 1;
+                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
+                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                         String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
 
                 NBTTagList tagList = NBTUtils.getTagList(memoryCardStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
                 if (tagList == null)
@@ -436,7 +438,8 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         if (ReferenceKeys.keypressContainsControl(key) == true &&
             ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
         // Shift + Toggle Mode: Change entity selection within the current module
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
@@ -463,7 +466,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD))
+        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD_MISC))
         {
             return 4;
         }
@@ -484,16 +487,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return 0;
         }
 
-        IModule imodule = (IModule) moduleStack.getItem();
-        ModuleType moduleType = imodule.getModuleType(moduleStack);
-
-        // Only allow the "Miscellaneous" type Memory Cards
-        if (moduleType.equals(ModuleType.TYPE_MEMORY_CARD) == true && imodule.getModuleTier(moduleStack) != ItemEnderPart.MEMORY_CARD_TYPE_MISC)
-        {
-            return 0;
-        }
-
-        return this.getMaxModules(containerStack, moduleType);
+        return this.getMaxModules(containerStack, ((IModule) moduleStack.getItem()).getModuleType(moduleStack));
     }
 
     public enum Mode

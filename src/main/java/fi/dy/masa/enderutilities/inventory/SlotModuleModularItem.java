@@ -7,26 +7,14 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class SlotModuleModularItem extends SlotGeneric
+public class SlotModuleModularItem extends SlotModule
 {
     protected IContainerModularItem container;
-    protected ModuleType moduleType = ModuleType.TYPE_ANY;
 
     public SlotModuleModularItem(IInventory inventory, int slot, int posX, int posY, ModuleType moduleType, IContainerModularItem container)
     {
-        super(inventory, slot, posX, posY);
-        this.moduleType = moduleType;
+        super(inventory, slot, posX, posY, moduleType);
         this.container = container;
-    }
-
-    public ModuleType getModuleType()
-    {
-        return this.moduleType;
-    }
-
-    public void setModuleType(ModuleType type)
-    {
-        this.moduleType = type;
     }
 
     /**
@@ -58,7 +46,7 @@ public class SlotModuleModularItem extends SlotGeneric
             }
 
             // Matching basic module type, check for the sub-type based on the host modular item
-            if (this.moduleType.equals(type) && modularStack.getItem() instanceof IModular)
+            if (this.moduleType.equals(type) == true && modularStack.getItem() instanceof IModular)
             {
                 return ((IModular)modularStack.getItem()).getMaxModules(modularStack, stack) > 0;
             }
@@ -72,14 +60,4 @@ public class SlotModuleModularItem extends SlotGeneric
     {
         return 1;
     }
-
-    /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-     * these background icons to render incorrectly if there is an item with the glint effect
-     * before the slot with the background icon.
-    @SideOnly(Side.CLIENT)
-    public IIcon getBackgroundIconIndex()
-    {
-        return EnderUtilitiesItems.enderPart.getGuiSlotBackgroundIconIndex(ModuleType.TYPE_MEMORY_CARD);
-    }
-    */
 }

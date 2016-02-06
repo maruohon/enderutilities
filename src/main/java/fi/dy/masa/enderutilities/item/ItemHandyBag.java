@@ -116,7 +116,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
             String itemName = super.getItemStackDisplayName(stack); //StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
@@ -183,23 +183,25 @@ public class ItemHandyBag extends ItemInventoryModular
         String str;
         if (bagIsOpenable(containerStack) == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
-        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (installed > 0)
         {
-            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             String preBlue = EnumChatFormatting.BLUE.toString();
             String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
             String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
-            ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
-            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+            ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
             {
@@ -244,7 +246,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else
                 {
-                    inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
+                    inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 }
 
                 if (inv.isUseableByPlayer(player) == false)
@@ -268,7 +270,7 @@ public class ItemHandyBag extends ItemInventoryModular
         TileEntity te = world.getTileEntity(pos);
         if (world.isRemote == false && te != null && te instanceof IInventory)
         {
-            InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             if (inv.isUseableByPlayer(player) == false)
             {
                 return false;
@@ -343,7 +345,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 // Bag is not locked
                 if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
                 {
-                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                     int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                     // Pickup mode is All, or Matching and the bag already contains the same item type
@@ -415,7 +417,7 @@ public class ItemHandyBag extends ItemInventoryModular
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
@@ -437,7 +439,8 @@ public class ItemHandyBag extends ItemInventoryModular
         if (event.item.getEntityItem().stackSize != origStackSize)
         {
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
         }
 
@@ -490,7 +493,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getSizeModuleInventory(ItemStack containerStack)
     {
-        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
     }
 
     @Override
@@ -502,7 +505,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getInventoryStackLimit(ItemStack containerStack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD);
+        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (moduleStack != null && moduleStack.getItem() instanceof IModule)
         {
             int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
@@ -524,11 +527,11 @@ public class ItemHandyBag extends ItemInventoryModular
             ItemStack stack = inv.getModularItemStack();
             if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
             {
-                int max = ((ItemHandyBag)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD);
+                int max = ((ItemHandyBag)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 // Changing the selected module via the GUI buttons
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
-                    UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD, element);
+                    UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, element);
                     inv.readFromContainerItemStack();
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
@@ -581,7 +584,7 @@ public class ItemHandyBag extends ItemInventoryModular
             && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsControl(key) == false)
         {
-            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD);
+            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         }
         // Just Toggle mode: Cycle Pickup Mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
@@ -610,7 +613,8 @@ public class ItemHandyBag extends ItemInventoryModular
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
@@ -629,7 +633,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
     {
-        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD) ? this.getMaxModules(containerStack) : 0;
+        return moduleType.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) ? this.getMaxModules(containerStack) : 0;
     }
 
     @Override
@@ -639,7 +643,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             IModule imodule = (IModule)moduleStack.getItem();
 
-            if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD))
+            if (imodule.getModuleType(moduleStack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
             {
                 int tier = imodule.getModuleTier(moduleStack);
                 if (tier >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&

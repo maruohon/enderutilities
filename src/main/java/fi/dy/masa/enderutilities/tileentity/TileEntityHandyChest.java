@@ -188,9 +188,10 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         if (type.equals(ModuleType.TYPE_INVALID) == false)
         {
             // Matching basic module type, check for the sub-type/tier
-            if (type.equals(ModuleType.TYPE_MEMORY_CARD) == true)
+            if (type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true)
             {
-                return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B && module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
+                return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
+                       module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
             }
         }
 

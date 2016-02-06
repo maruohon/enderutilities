@@ -83,9 +83,13 @@ public class EntityInteractEventHandler
                 IChargeable chargeable = (IChargeable)item;
                 chargeable.addCharge(stack, chargeable.getCapacity(stack) >> 2, true);
             }
-            else if (item instanceof IModule && item == EnderUtilitiesItems.enderPart && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE_INACTIVE))
+            else if (item instanceof IModule && item == EnderUtilitiesItems.enderPart && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE))
             {
-                ((ItemEnderPart)item).activateEnderCore(stack);
+                int tier = ((IModule)item).getModuleTier(stack);
+                if (tier >= ItemEnderPart.ENDER_CORE_TYPE_INACTIVE_BASIC && tier <= ItemEnderPart.ENDER_CORE_TYPE_INACTIVE_ADVANCED)
+                {
+                    ((ItemEnderPart)item).activateEnderCore(stack);
+                }
             }
         }
     }

@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
 
-
-
 public abstract class ItemModule extends ItemEnderUtilities implements IModule
 {
     public ItemModule()
@@ -13,14 +11,14 @@ public abstract class ItemModule extends ItemEnderUtilities implements IModule
     public enum ModuleType
     {
         // The name is used for storing the selected module in modular items
-        TYPE_ENDERCORE_ACTIVE       (0, "endercore"),
-        TYPE_ENDERCORE_INACTIVE     (1, "endercore_inactive"),
-        TYPE_ENDERCAPACITOR         (2, "endercapacitor"),
-        TYPE_LINKCRYSTAL            (3, "linkcrystal"),
-        TYPE_MOBPERSISTENCE         (4, "mobpersistence"),
-        TYPE_MEMORY_CARD            (5, "memorycard"),
-        TYPE_ANY                    (-1, "any"),
-        TYPE_INVALID                (-10, "invalid");
+        TYPE_ENDERCORE              (0, "endercore"),
+        TYPE_ENDERCAPACITOR         (1, "endercapacitor"),
+        TYPE_LINKCRYSTAL            (2, "linkcrystal"),
+        TYPE_MOBPERSISTENCE         (3, "mobpersistence"),
+        TYPE_MEMORY_CARD_MISC       (4, "memorycard_misc"),
+        TYPE_MEMORY_CARD_ITEMS      (5, "memorycard_items"),
+        TYPE_ANY                    (-10, "any"),
+        TYPE_INVALID                (-1, "invalid");
 
         private final int index;
         private final String name;
@@ -31,7 +29,7 @@ public abstract class ItemModule extends ItemEnderUtilities implements IModule
             this.name = name;
         }
 
-        public int getOrdinal()
+        public int getIndex()
         {
             return this.index;
         }
@@ -43,7 +41,7 @@ public abstract class ItemModule extends ItemEnderUtilities implements IModule
 
         public boolean equals(ModuleType val)
         {
-            return val.getOrdinal() == this.index;
+            return val.getIndex() == this.index;
         }
     }
 }

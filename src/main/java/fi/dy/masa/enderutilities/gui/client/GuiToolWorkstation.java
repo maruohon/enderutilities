@@ -8,10 +8,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.SlotModuleModularItem;
+import fi.dy.masa.enderutilities.inventory.SlotModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.ReferenceReflection;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiTileEntityInventory
@@ -19,16 +17,6 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
     public GuiToolWorkstation(ContainerToolWorkstation container, TileEntityToolWorkstation te)
     {
         super(container, 176, 176, "gui.container." + te.getTEName(), te);
-    }
-
-    protected int getModuleBackgroundOffset(ModuleType moduleType)
-    {
-        if (moduleType.equals(ModuleType.TYPE_INVALID) || moduleType.equals(ModuleType.TYPE_ANY))
-        {
-            return -1;
-        }
-
-        return moduleType.getOrdinal() * 18;
     }
 
     @Override
@@ -47,6 +35,8 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
+        this.bindTexture(this.guiTextureWidgets);
+
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
         int maxModules = 0;
@@ -59,7 +49,7 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
         // No tool in the tool slot, draw the background
         else
         {
-            this.drawTexturedModalRect(x + 7, y + 18, 230, 18, 18, 18);
+            this.drawTexturedModalRect(x + 8, y + 19, 240, 176, 16, 16);
         }
 
         // Module slots
@@ -70,16 +60,17 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
             // Draw a darker background over the disabled slots
             if (toolStack == null || i >= maxModules)
             {
-                this.drawTexturedModalRect(x + dx, y + dy, 230, 0, 18, 18);
+                this.drawTexturedModalRect(x + dx, y + dy, 102, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
-            else if (slot instanceof SlotModuleModularItem && slot.getHasStack() == false)
+            else if (slot instanceof SlotModule && slot.getHasStack() == false)
             {
-                int offset = this.getModuleBackgroundOffset(((SlotModuleModularItem)slot).getModuleType());
+                int u = ((SlotModule)slot).getBackgroundIconU();
+                int v = ((SlotModule)slot).getBackgroundIconV();
                 // Only one type of module is allowed in this slot
-                if (offset >= 0)
+                if (u >= 0 && v >= 0)
                 {
-                    this.drawTexturedModalRect(x + dx, y + dy, 176, offset, 18, 18);
+                    this.drawTexturedModalRect(x + dx + 1, y + dy + 1, u, v, 16, 16);
                 }
             }
 
@@ -95,16 +86,7 @@ public class GuiToolWorkstation extends GuiTileEntityInventory
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        Slot slot = null;
-        try
-        {
-            slot = (Slot)ReferenceReflection.fieldGuiContainerTheSlot.get(this);
-        }
-        catch (IllegalAccessException e)
-        {
-            return;
-        }
-
+        Slot slot = this.getSlotUnderMouse();
         // Hovering over the tool slot
         if (slot != null && slot == this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM) && slot.getHasStack() == false)
         {
