@@ -32,8 +32,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
     protected InventoryItemModular invModular;
     protected ResourceLocation guiTexture;
     protected ResourceLocation guiTextureWidgets;
-    protected float mouseXFloat;
-    protected float mouseYFloat;
+    protected float oldMouseX;
+    protected float oldMouseY;
     protected int invSize;
     protected int numModuleSlots;
     protected int bagTier;
@@ -59,9 +59,10 @@ public class GuiHandyBag extends InventoryEffectRenderer
     }
 
     @Override
-    public void initGui()
+    public void updateScreen()
     {
-        super.initGui();
+        super.updateScreen();
+        this.updateActivePotionEffects();
     }
 
     @Override
@@ -88,8 +89,8 @@ public class GuiHandyBag extends InventoryEffectRenderer
         super.drawScreen(mouseX, mouseY, gameTicks);
 
         this.drawTooltips(mouseX, mouseY);
-        this.mouseXFloat = (float)mouseX;
-        this.mouseYFloat = (float)mouseY;
+        this.oldMouseX = (float)mouseX;
+        this.oldMouseY = (float)mouseY;
     }
 
     @Override
@@ -173,7 +174,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
 
         int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
         // Draw the player model
-        GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.mouseXFloat, this.guiTop + 25 - this.mouseYFloat, this.mc.thePlayer);
+        GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.thePlayer);
     }
 
     @Override

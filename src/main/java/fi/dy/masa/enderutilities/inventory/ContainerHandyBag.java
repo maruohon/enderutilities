@@ -6,8 +6,12 @@ import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -59,15 +63,12 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                     return stack.getItem().isValidArmor(stack, slotNum, ContainerHandyBag.this.player);
                 }
 
-                /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-                 * the Slot background icons to render incorrectly if there is an item with the glint effect
-                 * before the Slot in question in the Container.
                 @SideOnly(Side.CLIENT)
-                public IIcon getBackgroundIconIndex()
+                @Override
+                public String getSlotTexture()
                 {
-                    return ItemArmor.func_94602_b(slotNum);
+                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
                 }
-                */
             });
         }
 

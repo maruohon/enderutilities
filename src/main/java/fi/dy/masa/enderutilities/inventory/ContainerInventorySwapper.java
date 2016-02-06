@@ -2,7 +2,11 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -49,15 +53,12 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
                     return stack.getItem().isValidArmor(stack, slotNum, ContainerInventorySwapper.this.player);
                 }
 
-                /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-                 * the Slot background icons to render incorrectly if there is an item with the glint effect
-                 * before the Slot in question in the Container.
                 @SideOnly(Side.CLIENT)
-                public IIcon getBackgroundIconIndex()
+                @Override
+                public String getSlotTexture()
                 {
-                    return ItemArmor.func_94602_b(slotNum);
+                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
                 }
-                */
             });
         }
 
@@ -107,15 +108,12 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
                     return stack.getItem().isValidArmor(stack, slotNum, ContainerInventorySwapper.this.player);
                 }
 
-                /* TODO: Enable this in 1.8; in 1.7.10, there is a Forge bug that causes
-                 * the Slot background icons to render incorrectly if there is an item with the glint effect
-                 * before the Slot in question in the Container.
                 @SideOnly(Side.CLIENT)
-                public IIcon getBackgroundIconIndex()
+                @Override
+                public String getSlotTexture()
                 {
-                    return ItemArmor.func_94602_b(slotNum);
+                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
                 }
-                */
             });
         }
 
