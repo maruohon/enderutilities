@@ -159,8 +159,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
 
         super.onDataPacket(net, packet);
 
-        // FIXME
-        //this.worldObj.updateLightByType(EnumSkyBlock.BLOCK, this.getPos());
+        this.worldObj.checkLight(this.getPos());
     }
 
     public int getOutputBufferAmount()
@@ -342,6 +341,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
             this.worldObj.markBlockForUpdate(this.getPos());
+            this.worldObj.checkLight(this.getPos());
         }
 
         this.isBurningLast = this.isBurning();
