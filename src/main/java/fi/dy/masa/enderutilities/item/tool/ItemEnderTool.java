@@ -385,12 +385,6 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean isDamageable()
-    {
-        return true;
-    }
-
-    @Override
     public boolean isItemTool(ItemStack stack)
     {
         return true;
@@ -404,15 +398,51 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
 
+    @Override
+    public boolean isDamageable()
+    {
+        return true;
+    }
+
+    @Override
+    public int getMaxDamage(ItemStack stack)
+    {
+        return this.material.getMaxUses();
+    }
+
+    @Override
+    public boolean isDamaged(ItemStack stack)
+    {
+        return false;
+    }
+
+    @Override
+    public void setDamage(ItemStack stack, int damage)
+    {
+        damage = MathHelper.clamp_int(damage, 0, this.material.getMaxUses());
+        NBTUtils.setShort(stack, null, "ToolDamage", (short)damage);
+    }
+
+    @Override
+    public boolean showDurabilityBar(ItemStack stack)
+    {
+        return this.getToolDamage(stack) > 0;
+    }
+
+    @Override
+    public double getDurabilityForDisplay(ItemStack stack)
+    {
+        return (double)this.getToolDamage(stack) / (double)this.getMaxDamage(stack);
+    }
+
     public boolean isToolBroken(ItemStack stack)
     {
-        // FIXME move damage to NBT
-        /*if (stack == null || stack.getItemDamage() >= this.getMaxDamage(stack))
-        {
-            return true;
-        }*/
+        return NBTUtils.getShort(stack, null, "ToolDamage") >= this.material.getMaxUses();
+    }
 
-        return false;
+    public int getToolDamage(ItemStack stack)
+    {
+        return NBTUtils.getShort(stack, null, "ToolDamage");
     }
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
@@ -423,17 +453,33 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return false;
         }
 
-        // FIXME move damage to NBT
-        /*amount = Math.min(amount, this.getMaxDamage(stack) - stack.getItemDamage());
-        stack.damageItem(amount, living2);
+        int damage = NBTUtils.getShort(stack, null, "ToolDamage");
+        damage = Math.min(damage + amount, this.material.getMaxUses());
+        this.setDamage(stack, damage);
 
         // Tool just broke
-        if (this.isToolBroken(stack) == true)
+        if (damage == this.material.getMaxUses())
         {
             living1.renderBrokenItemStack(stack);
-        }*/
+        }
 
         return true;
+    }
+
+    /**
+     * Repair the tool by the provided amount of uses.
+     * If amount is -1, then the tool will be fully repaired.
+     */
+    public void repairTool(ItemStack stack, int amount)
+    {
+        if (amount == -1)
+        {
+            amount = this.material.getMaxUses();
+        }
+
+        int damage = Math.max(NBTUtils.getShort(stack, null, "ToolDamage") - amount, 0);
+
+        this.setDamage(stack, damage);
     }
 
     @Override
@@ -980,6 +1026,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
         if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
         {
             ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+        }
+
+        if (advancedTooltips == true)
+        {
+            str = StatCollector.translateToLocal("enderutilities.tooltip.item.durability");
+            list.add(str + ": " + (this.getMaxDamage(stack) - this.getToolDamage(stack)) + " / " + this.getMaxDamage(stack));
         }
     }
 

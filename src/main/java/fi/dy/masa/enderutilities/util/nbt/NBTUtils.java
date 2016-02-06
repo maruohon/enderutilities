@@ -301,10 +301,30 @@ public class NBTUtils
     }
 
     /**
+     * Return the short value from a tag <b>tagName</b>, or 0 if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static short getShort(ItemStack stack, String containerTagName, String tagName)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getShort(tagName) : 0;
+    }
+
+    /**
+     * Set an integer value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void setShort(ItemStack stack, String containerTagName, String tagName, short value)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        nbt.setShort(tagName, value);
+    }
+
+    /**
      * Return the integer value from a tag <b>tagName</b>, or 0 if it doesn't exist.
      * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
      */
-    public static long getInteger(ItemStack stack, String containerTagName, String tagName)
+    public static int getInteger(ItemStack stack, String containerTagName, String tagName)
     {
         NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
         return nbt != null ? nbt.getInteger(tagName) : 0;

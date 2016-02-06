@@ -244,6 +244,7 @@ enderutilities.tooltip.item.craftingingredient=Crafting ingredient
 enderutilities.tooltip.item.difference=Difference
 enderutilities.tooltip.item.dimensions=Dimensions
 enderutilities.tooltip.item.disabled=Disabled
+enderutilities.tooltip.item.durability=Durability
 enderutilities.tooltip.item.enabled=Enabled
 enderutilities.tooltip.item.end=End
 enderutilities.tooltip.item.endercore=Ender Core
