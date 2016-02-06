@@ -129,7 +129,7 @@ item.enderutilities.enderpart.endercore.2.active.tooltips=- Right click an Ender
 item.enderutilities.enderpart.endercore.0.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpart.endercore.1.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on the Bedrock block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires a least a 3x3x6 base|lf  of Obsidian under a block of Bedrock|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals elsewhere
+item.enderutilities.enderpart.enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on an Obsidian block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires at least a 3x3x6 base of Obsidian|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals|lf  in other dimensions (no special requirements there)
 item.enderutilities.enderpart.memorycard.items.0.tooltips=- Can store items in stacks up to 2^(bits) = 64
 item.enderutilities.enderpart.memorycard.items.1.tooltips=- Can store items in stacks up to 2^(bits) = 256
 item.enderutilities.enderpart.memorycard.items.2.tooltips=- Can store items in stacks up to 2^(bits) = 1024

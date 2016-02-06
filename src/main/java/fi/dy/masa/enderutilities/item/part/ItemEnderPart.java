@@ -109,7 +109,7 @@ public class ItemEnderPart extends ItemModule
         {
             if (EntityUtils.spawnEnderCrystal(world, pos) == true)
             {
-                --stack.stackSize;
+                stack.stackSize--;
                 return true;
             }
         }
