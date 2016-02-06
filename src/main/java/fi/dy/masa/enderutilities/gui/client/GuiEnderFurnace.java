@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -81,7 +83,9 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
             this.drawTexturedModalRect(x + 57, y + 34, 176, 14 + vOffset, w, 16);
         }
 
-        itemRender.renderItemAndEffectIntoGUI(new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        this.itemRender.renderItemAndEffectIntoGUI(new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
     }
 
     protected void createButtons()

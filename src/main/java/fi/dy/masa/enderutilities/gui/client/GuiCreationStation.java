@@ -231,12 +231,12 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                             OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
                             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
-                            itemRender.renderItemAndEffectIntoGUI(recipeStack, x + 1, y + 1);
+                            this.itemRender.renderItemAndEffectIntoGUI(recipeStack, x + 1, y + 1);
 
-                            itemRender.zLevel = 0.0F;
+                            this.itemRender.zLevel = 0.0F;
                             this.zLevel = 0.0F;
 
-                            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, recipeStack, x + 1, y + 1, "0");
+                            this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, recipeStack, x + 1, y + 1, "0");
                         }
                         // Extra items, purple background
                         else if (recipeStack == null)
@@ -245,7 +245,7 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                             GlStateManager.disableLighting();
                             this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
                             GlStateManager.enableLighting();
-                            //itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
+                            //this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
                         }
                         // Wrong items, red background
                         else
