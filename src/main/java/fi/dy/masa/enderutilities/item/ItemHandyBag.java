@@ -24,6 +24,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
@@ -32,6 +33,7 @@ import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -84,6 +86,17 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         return super.onItemUse(stack, player,world, pos, side, hitX, hitY, hitZ);
+    }
+
+    @Override
+    public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn)
+    {
+        if (worldIn.isRemote == false)
+        {
+            playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK, worldIn, (int)playerIn.posX, (int)playerIn.posY, (int)playerIn.posZ);
+        }
+
+        return itemStackIn;
     }
 
     @Override
