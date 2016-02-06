@@ -30,9 +30,6 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
-        // This is for handling custom storage stuff like buffers, which are not regular
-        // ItemStacks and thus not handled by the breakBlock() in BlockEnderUtilitiesInventory
-
         TileEntity te = world.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
         {

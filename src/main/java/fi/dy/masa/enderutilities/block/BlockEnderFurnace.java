@@ -67,13 +67,14 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-
         if (te instanceof TileEntityEnderFurnace)
         {
             // Drop the items from the output buffer
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
             EntityUtils.dropItemStacksInWorld(worldIn, pos, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
         }
+
+        super.breakBlock(worldIn, pos, state);
     }
 
     @Override

@@ -96,7 +96,6 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-
         if (te instanceof TileEntityCreationStation)
         {
             // Drop the items from the furnace inventories
@@ -111,6 +110,8 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
                 }
             }
         }
+
+        super.breakBlock(worldIn, pos, state);
     }
 
     @Override
