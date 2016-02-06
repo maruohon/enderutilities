@@ -54,7 +54,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -517,6 +517,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // Don't try to handle the drops via other means in the Remote mode
         if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
         {
+            Effects.addItemTeleportEffects(event.world, event.pos);
             return;
         }
 
@@ -595,7 +596,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
                     if (targetWorld.spawnEntityInWorld(entityItem) == true)
                     {
-                        Particles.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+                        Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
                     }
                 }
@@ -611,10 +612,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
-            PacketHandler.INSTANCE.sendToAllAround(
-                new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                    event.pos.getX() + 0.5d, event.pos.getY() + 0.5d, event.pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
-                    new NetworkRegistry.TargetPoint(event.world.provider.getDimensionId(), event.pos.getX(), event.pos.getY(), event.pos.getZ(), 24.0d));
+            Effects.addItemTeleportEffects(event.world, event.pos);
         }
 
         // All items successfully transported somewhere, cancel the drops

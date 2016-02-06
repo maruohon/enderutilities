@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
-import fi.dy.masa.enderutilities.client.effects.Particles;
+import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -161,7 +161,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         {
             if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
-                Particles.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
+                Effects.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
             }
         }
     }

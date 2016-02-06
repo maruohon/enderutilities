@@ -330,14 +330,6 @@ public class ItemHandyBag extends ItemInventoryModular
                 continue;
             }
 
-            // If all the items fit into existing stacks in the player's inventory
-            if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, EnumFacing.UP, false) == null)
-            {
-                iter.remove();
-                pickedUp = true;
-                continue;
-            }
-
             // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
             for (int slot : bagSlots)
             {
@@ -347,6 +339,15 @@ public class ItemHandyBag extends ItemInventoryModular
                 {
                     InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                     int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
+
+                    // Some pickup mode enabled and all the items fit into existing stacks in the player's inventory
+                    if ((pickupMode == 1 || pickupMode == 2) &&
+                       (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, EnumFacing.UP, false) == null))
+                    {
+                        iter.remove();
+                        pickedUp = true;
+                        break;
+                    }
 
                     // Pickup mode is All, or Matching and the bag already contains the same item type
                     if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))

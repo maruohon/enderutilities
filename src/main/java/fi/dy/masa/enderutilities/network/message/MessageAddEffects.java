@@ -12,8 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.client.effects.Particles;
-import fi.dy.masa.enderutilities.client.effects.Sounds;
+import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 
@@ -121,22 +120,22 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
             if ((message.flags & SOUND) == SOUND)
             {
                 float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
-                Sounds.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
+                Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
             }
             if ((message.flags & PARTICLES) == PARTICLES)
             {
-                Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
             }
         }
         else if (message.effectType == EFFECT_ENDER_TOOLS)
         {
             if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
             {
-                Sounds.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
+                Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
             }
             if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
             {
-                Particles.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
             }
         }
     }
