@@ -63,7 +63,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             {
                 world.setBlockToAir(pos);
                 world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                        block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.frequency * 0.8f);
+                        block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.getFrequency() * 0.8f);
             }
 
             return true;

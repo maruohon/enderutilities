@@ -12,6 +12,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Block.SoundType;
+import net.minecraft.block.BlockDirt;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -47,10 +48,7 @@ import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -62,8 +60,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -126,6 +122,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
             {
                 UtilItemModular.setTarget(stack, playerIn,pos, side, hitX, hitY, hitZ, false, false);
             }
+
+            return true;
         }
         // Hoe
         else if (ToolType.fromStack(stack).equals(ToolType.HOE) == true)
@@ -239,30 +237,50 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return false;
         }
 
-        UseHoeEvent event = new UseHoeEvent(player, stack, world, pos);
-        if (MinecraftForge.EVENT_BUS.post(event))
+        int hook = net.minecraftforge.event.ForgeEventFactory.onHoeUse(stack, player, world, pos);
+        if (hook != 0)
         {
-            return false;
+            return hook > 0;
         }
 
-        if (event.getResult() == Result.ALLOW)
-        {
-            this.addToolDamage(stack, 1, player, player);
-            return true;
-        }
+        IBlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
 
-        Block block = world.getBlockState(pos).getBlock();
-        if (side != EnumFacing.DOWN && world.isAirBlock(pos.up()) && (block == Blocks.grass || block == Blocks.dirt))
+        if (side != EnumFacing.DOWN && world.isAirBlock(pos.up()) == true)
         {
+            IBlockState newBlockState = null;
+
+            if (block == Blocks.grass)
+            {
+                newBlockState = Blocks.farmland.getDefaultState();
+            }
+            else if (block == Blocks.dirt)
+            {
+                if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT)
+                {
+                    newBlockState = Blocks.farmland.getDefaultState();
+                }
+                else if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.COARSE_DIRT)
+                {
+                    newBlockState = Blocks.dirt.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            SoundType sound = newBlockState.getBlock().stepSound;
+            world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                    sound.getStepSound(), (sound.getVolume() + 1.0f) / 2.0f, sound.getFrequency() * 0.8f);
+
             if (world.isRemote == false)
             {
-                Block blockFarmland = Blocks.farmland;
-                SoundType sound = blockFarmland.stepSound;
-                world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                        sound.soundName, (sound.getVolume() + 1.0f) / 2.0f, sound.frequency * 0.8f);
-
-                world.setBlockState(pos, blockFarmland.getDefaultState(), 3);
-                // FIXME
+                world.setBlockState(pos, newBlockState);
                 // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
                 world.markBlockForUpdate(pos);
                 this.addToolDamage(stack, 1, player, player);
@@ -321,10 +339,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     {
                         UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
 
-                        PacketHandler.INSTANCE.sendToAllAround(
-                            new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
-                                new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+                        Effects.addItemTeleportEffects(world, pos);
                     }
                 }
             }
@@ -341,10 +356,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                             UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
                         }
 
-                        PacketHandler.INSTANCE.sendToAllAround(
-                                new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                                    pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
-                                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+                        Effects.addItemTeleportEffects(world, pos);
                     }
                 }
             }
