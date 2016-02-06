@@ -512,8 +512,8 @@ public class EntityUtils
             if (canDespawn == true)
             {
                 // Sets the persistenceRequired boolean
-                living.isNoDespawnRequired();
-                living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 1.0f, 1.2f);
+                living.enablePersistence();
+                living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 0.8f, 1.2f);
 
                 return true;
             }
