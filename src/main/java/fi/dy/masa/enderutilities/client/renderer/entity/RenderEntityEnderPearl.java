@@ -6,19 +6,20 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.base.IItemData;
 
-public class RenderEntityProjectile<T extends Entity> extends Render<T>
+@SuppressWarnings("deprecation")
+public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
 {
     private Item item;
     private final RenderItem renderItem;
 
-    public RenderEntityProjectile(RenderManager renderManager, Item item, RenderItem renderItem)
+    public RenderEntityEnderPearl(RenderManager renderManager, Item item, RenderItem renderItem)
     {
         super(renderManager);
         this.item = item;
@@ -26,7 +27,7 @@ public class RenderEntityProjectile<T extends Entity> extends Render<T>
     }
 
     @Override
-    public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
+    public void doRender(EntityEnderPearlReusable entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y, (float)z);
@@ -43,7 +44,7 @@ public class RenderEntityProjectile<T extends Entity> extends Render<T>
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
-    protected ItemStack getItemStack(T entity)
+    protected ItemStack getItemStack(EntityEnderPearlReusable entity)
     {
         if (entity instanceof IItemData)
         {
@@ -54,7 +55,7 @@ public class RenderEntityProjectile<T extends Entity> extends Render<T>
     }
 
     @Override
-    protected ResourceLocation getEntityTexture(Entity entity)
+    protected ResourceLocation getEntityTexture(EntityEnderPearlReusable entity)
     {
         return TextureMap.locationBlocksTexture;
     }
