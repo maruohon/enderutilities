@@ -88,27 +88,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-        if (world.isRemote == true || (player.dimension != 0 && player.dimension != -1) || this.itemHasScaleFactor(stack) == false)
+        if (world.isRemote == true || EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == false)
         {
             return stack;
         }
 
-        int dim = player.dimension == 0 ? -1 : 0;
-        BlockPosEU normalDest = this.getNormalDestinationPosition(player, dim);
-        BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
-        int cost = this.getTeleportCost(player, posDest, dim);
-
-        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true
-            && UtilItemModular.useEnderCharge(stack, cost, false) == true)
-        {
-            TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
-            Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
-            if (entity != null)
-            {
-                cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
-                UtilItemModular.useEnderCharge(stack, cost, true);
-            }
-        }
+        this.usePortalWithPortalScaler(stack, world, player);
 
         return stack;
     }
@@ -117,6 +102,33 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
         return slotChanged == true || oldStack.getItem() != newStack.getItem();
+    }
+
+    public boolean usePortalWithPortalScaler(ItemStack stack, World world, EntityPlayer player)
+    {
+        if ((player.dimension != 0 && player.dimension != -1) || this.itemHasScaleFactor(stack) == false)
+        {
+            return false;
+        }
+
+        int dim = player.dimension == 0 ? -1 : 0;
+        BlockPosEU normalDest = this.getNormalDestinationPosition(player, dim);
+        BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
+        int cost = this.getTeleportCost(player, posDest, dim);
+
+        if (UtilItemModular.useEnderCharge(stack, cost, false) == true)
+        {
+            TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
+            Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
+            if (entity != null)
+            {
+                cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
+                UtilItemModular.useEnderCharge(stack, cost, true);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public BlockPosEU getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)

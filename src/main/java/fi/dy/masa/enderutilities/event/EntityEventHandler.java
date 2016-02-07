@@ -3,15 +3,19 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -24,7 +28,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class EntityInteractEventHandler
+public class EntityEventHandler
 {
     @SubscribeEvent
     public void onEntityInteractEvent(EntityInteractEvent event)
@@ -90,6 +94,30 @@ public class EntityInteractEventHandler
                 {
                     ((ItemEnderPart)item).activateEnderCore(stack);
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onTravelToDimensionEvent(EntityTravelToDimensionEvent event)
+    {
+        // Check that the entity is traveling between the overworld and the nether, and that it is a player
+        if ((event.dimension != 0 && event.dimension != -1) ||
+            (event.entity.dimension != 0 && event.entity.dimension != -1 ) ||
+            (event.entity instanceof EntityPlayer) == false)
+        {
+            return;
+        }
+
+        // If the player is holding a Portal Scaler, then try to use that and cancel the regular
+        // teleport if the Portal Scaler teleportation succeeds
+        ItemStack stack = ((EntityPlayer)event.entity).getCurrentEquippedItem();
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.portalScaler &&
+            EntityUtils.isEntityCollidingWithBlockSpace(event.entity.worldObj, event.entity, Blocks.portal))
+        {
+            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, event.entity.worldObj, (EntityPlayer)event.entity) == true)
+            {
+                event.setCanceled(true);
             }
         }
     }
