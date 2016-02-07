@@ -188,18 +188,18 @@ public class EntityUtils
         // First get the rotations to match p1Up to p2Up
         if (p2Up == p1Right)
         {
-            rot = p1Up.rotateAround(p1Right.getOpposite().getAxis());
+            rot = BlockPosEU.getRotation(p1Up, p1Right.getOpposite());
             //System.out.printf("TR right - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
-            p1Right = p1Right.rotateAround(rot.getAxis());
+            p1Right = BlockPosEU.getRotation(p1Right, rot);
             p1Up = p2Up;
         }
         else if (p2Up == p1Right.getOpposite())
         {
-            rot = p1Up.rotateAround(p1Right.getAxis());
+            rot = BlockPosEU.getRotation(p1Up, p1Right);
             //System.out.printf("TR left - p1Up: %s p2Up: %s p1Right: %s p2Right: %s rot: %s\n", p1Up, p2Up, p1Right, p2Right, rot);
             list.add(rot);
-            p1Right = p1Right.rotateAround(rot.getAxis());
+            p1Right = BlockPosEU.getRotation(p1Right, rot);
             p1Up = p2Up;
         }
         else
@@ -212,7 +212,7 @@ public class EntityUtils
                 }
 
                 //System.out.printf("TR loop 1 - p1Right %s ", p1Right);
-                tmp1 = tmp1.rotateAround(p1Right.getAxis());
+                tmp1 = BlockPosEU.getRotation(tmp1, p1Right);
                 list.add(p1Right);
             }
         }
@@ -230,7 +230,7 @@ public class EntityUtils
             }
 
             //System.out.printf("TR loop 2: %s ", p2Up);
-            tmp1 = tmp1.rotateAround(p2Up.getAxis());
+            tmp1 = BlockPosEU.getRotation(tmp1, p2Up);
             list.add(p2Up);
         }
 

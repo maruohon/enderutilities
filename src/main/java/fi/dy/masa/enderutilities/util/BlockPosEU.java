@@ -147,7 +147,16 @@ public class BlockPosEU
             return;
         }
 
-        nbt.removeTag("BlockPos");;
+        nbt.removeTag("BlockPos");
+    }
+
+    /**
+     * Helper method to add back a way to do left hand rotations, like ForgeDirection had.
+     */
+    public static EnumFacing getRotation(EnumFacing facing, EnumFacing axis)
+    {
+        EnumFacing newFacing = facing.rotateAround(axis.getAxis());
+        return axis.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE ? newFacing : newFacing.getOpposite();
     }
 
     @Override

@@ -660,22 +660,22 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public EnumFacing getAxisRight(ItemStack stack, BlockPosEU pos)
     {
         EnumFacing face = pos.side;
-        EnumFacing axisRight = face.rotateYCCW();
+        EnumFacing axisRight = BlockPosEU.getRotation(face, EnumFacing.DOWN);
 
         if (face == EnumFacing.UP)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
         }
         // FIXME wtf? both are south?
         else if (face == EnumFacing.DOWN)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
         }
 
         if (this.getAreaFlipped(stack) == true)
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, face);
-            axisRight = axisRight.rotateAround(flipAxis.getAxis());
+            axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
         }
 
         return axisRight;
@@ -684,25 +684,25 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public EnumFacing getAxisUp(ItemStack stack, BlockPosEU pos)
     {
         EnumFacing face = pos.side;
-        //EnumFacing axisRight = face.getRotation(ForgeDirection.DOWN);
-        EnumFacing axisRight = face.rotateAround(EnumFacing.DOWN.getAxis());
-        EnumFacing axisUp = face.rotateAround(axisRight.getAxis());
+        EnumFacing axisRight = BlockPosEU.getRotation(face, EnumFacing.DOWN);
+        EnumFacing axisUp = BlockPosEU.getRotation(face, axisRight);
 
         if (face == EnumFacing.UP)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
-            axisUp = face.rotateAround(axisRight.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
+            axisUp = BlockPosEU.getRotation(face, axisRight);
         }
+        // FIXME wtf? both are south?
         else if (face == EnumFacing.DOWN)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
-            axisUp = face.rotateAround(axisRight.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
+            axisUp = BlockPosEU.getRotation(face, axisRight);
         }
 
         if (this.getAreaFlipped(stack) == true)
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, face);
-            axisUp = axisUp.rotateAround(flipAxis.getAxis());
+            axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
         }
 
         return axisUp;
@@ -734,7 +734,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         boolean isFlipped = this.getAreaFlipped(stack);
         EnumFacing flipAxis = this.getAreaFlipAxis(stack, faceAxis);
-        EnumFacing faceAxisFlipped = isFlipped == true ? faceAxis.rotateAround(flipAxis.getAxis()) : faceAxis;
+        EnumFacing faceAxisFlipped = isFlipped == true ? BlockPosEU.getRotation(faceAxis, flipAxis) : faceAxis;
 
         EnumFacing lookDir = EnumFacing.NORTH;
 
@@ -755,8 +755,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             {
                 LeftRight leftRight = EntityUtils.getLookLeftRight(player, faceAxisFlipped);
                 lookDir = leftRight == LeftRight.RIGHT ?
-                    faceAxisFlipped.rotateAround(EnumFacing.DOWN.getAxis()) :
-                    faceAxisFlipped.rotateAround(EnumFacing.UP.getAxis());
+                    BlockPosEU.getRotation(faceAxisFlipped, EnumFacing.DOWN) :
+                    BlockPosEU.getRotation(faceAxisFlipped, EnumFacing.UP);
             }
         }
 
@@ -896,25 +896,25 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted);
         BlockInfo biBound = getSelectedFixedBlockType(stack);
 
-        EnumFacing axisRight = face.rotateAround(EnumFacing.DOWN.getAxis());
-        EnumFacing axisUp = face.rotateAround(axisRight.getAxis());
+        EnumFacing axisRight = BlockPosEU.getRotation(face, EnumFacing.DOWN);
+        EnumFacing axisUp = BlockPosEU.getRotation(face, axisRight);
 
         if (face == EnumFacing.UP)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
-            axisUp = face.rotateAround(axisRight.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
+            axisUp = BlockPosEU.getRotation(face, axisRight);
         }
         else if (face == EnumFacing.DOWN)
         {
-            axisRight = face.rotateAround(EnumFacing.SOUTH.getAxis());
-            axisUp = face.rotateAround(axisRight.getAxis());
+            axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
+            axisUp = BlockPosEU.getRotation(face, axisRight);
         }
 
         if (this.getAreaFlipped(stack) == true)
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, face);
-            axisRight = axisRight.rotateAround(flipAxis.getAxis());
-            axisUp = axisUp.rotateAround(flipAxis.getAxis());
+            axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
+            axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
         }
 
         // Move the position forward by one from the targeted block
