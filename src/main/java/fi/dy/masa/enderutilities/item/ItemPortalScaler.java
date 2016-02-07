@@ -113,6 +113,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return stack;
     }
 
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return slotChanged == true || oldStack.getItem() != newStack.getItem();
+    }
+
     public BlockPosEU getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);

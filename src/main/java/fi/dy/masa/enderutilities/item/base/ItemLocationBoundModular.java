@@ -57,6 +57,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return slotChanged == true || oldStack.getItem() != newStack.getItem();
+    }
+
+    @Override
     public String getTargetDisplayName(ItemStack stack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
