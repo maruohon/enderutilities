@@ -34,7 +34,6 @@ import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -70,7 +69,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BUCKET);
-        this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
     }
 
@@ -95,12 +93,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             // If we are in bind mode, bind the bucket to the targeted tank and then return
             if (this.getBucketMode(stack) == OPERATION_MODE_BINDING)
             {
-                super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
-                return true;
+                return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
             }
 
-            this.useBucketOnTank(stack, player, world, pos, side, this.getBucketMode(stack));
-            return true;
+            return this.useBucketOnTank(stack, player, world, pos, side, this.getBucketMode(stack));
         }
 
         return false;
@@ -114,7 +110,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return true;
         }
 
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
+            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return false;
         }
@@ -133,8 +130,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         // Do nothing on the client side
-        if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED
-                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+        if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
+            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return stack;
         }
@@ -372,7 +369,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return false;
     }
 
-    public boolean useBucketOnBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, byte bucketMode)
+    public boolean useBucketOnBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
+            float hitX, float hitY, float hitZ, byte bucketMode)
     {
         if (this.isTargetUsable(stack, player, world, pos, side) == false)
         {
@@ -381,32 +379,32 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
 
-        // Non-fluid block, adjust the target block position to be the block touching the side we targeted
-        if (world.getBlockState(pos.offset(side)).getBlock().getMaterial().isLiquid() == true)
+        // Adjust the target block position to be the block touching the side of the block we targeted
+        pos = pos.offset(side);
+
+        // Check if there is a fluid block on the side of the targeted block
+        if (world.getBlockState(pos).getBlock().getMaterial().isLiquid() == true)
         {
             // Note: the side is technically wrong unless we ray trace it again, but it won't matter with fluid blocks... right?
             return this.useBucketOnFluidBlock(stack, world, player, pos, side, bucketMode);
         }
-        else
+
+        // There was no fluid block where we are targeting
+
+        // Get the stored fluid, if any
+        FluidStack fluidStack = this.getFluidWorker(stack, player);
+        int storedFluidAmount = fluidStack != null ? fluidStack.amount : 0;
+
+        // target block is not fluid, try to place a fluid block in world in the adjusted block position
+        if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME && bucketMode != OPERATION_MODE_FILL_BUCKET)
         {
-            // Get the stored fluid, if any
-            FluidStack storedFluidStack = this.getFluidWorker(stack, player);
-            int storedFluidAmount = 0;
+            fluidStack = this.drainWorker(stack, FluidContainerRegistry.BUCKET_VOLUME, false, player);
 
-            if (storedFluidStack != null)
+            if (fluidStack != null && fluidStack.amount == FluidContainerRegistry.BUCKET_VOLUME &&
+                this.tryPlaceFluidBlock(world, pos, fluidStack) == true)
             {
-                storedFluidAmount = storedFluidStack.amount;
-            }
-
-            // target block is not fluid, try to place a fluid block in world in the adjusted block position
-            if (storedFluidAmount >= FluidContainerRegistry.BUCKET_VOLUME && bucketMode != OPERATION_MODE_FILL_BUCKET)
-            {
-                FluidStack fs = this.drainWorker(stack, FluidContainerRegistry.BUCKET_VOLUME, false, player);
-                if (fs != null && fs.amount == FluidContainerRegistry.BUCKET_VOLUME && this.tryPlaceFluidBlock(world, pos, storedFluidStack) == true)
-                {
-                    this.drainWorker(stack, FluidContainerRegistry.BUCKET_VOLUME, true, player);
-                    return true;
-                }
+                this.drainWorker(stack, FluidContainerRegistry.BUCKET_VOLUME, true, player);
+                return true;
             }
         }
 
@@ -438,26 +436,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return false;
         }
 
-        // Flowing fluid does not get detected by ray tracing
-        /*if (targetBlock.getMaterial().isLiquid() == false)
-        {
-            ForgeDirection dir = ForgeDirection.getOrientation(side);
-            x += dir.offsetX;
-            y += dir.offsetY;
-            z += dir.offsetZ;
-            targetBlock = world.getBlock(x, y, z);
-        }*/
-
         // Get the stored fluid, if any
         FluidStack storedFluidStack = this.getFluidWorker(stack, player);
         FluidStack targetFluidStack = null;
         IFluidBlock iFluidBlock = null;
-        int storedFluidAmount = 0;
-
-        if (storedFluidStack != null)
-        {
-            storedFluidAmount = storedFluidStack.amount;
-        }
+        int storedFluidAmount = storedFluidStack != null ? storedFluidStack.amount : 0;
 
         if (targetBlock instanceof IFluidBlock)
         {
@@ -468,8 +451,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             // We need to convert flowing water and lava to the still variant for logic stuffs
             // We will always convert them to the flowing variant before placing
-            if (targetBlock == Blocks.flowing_water) { targetBlock = Blocks.water; }
-            else if (targetBlock == Blocks.flowing_lava) { targetBlock = Blocks.lava; }
+            if (targetBlock == Blocks.flowing_water)
+            {
+                targetBlock = Blocks.water;
+            }
+            else if (targetBlock == Blocks.flowing_lava)
+            {
+                targetBlock = Blocks.lava;
+            }
 
             Fluid fluid = FluidRegistry.lookupFluidForBlock(targetBlock);
             if (fluid != null)
@@ -479,9 +468,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // Not in drain-only mode && (Empty || (space && same fluid && (not sneaking || fill-only mode))) => trying to pick up fluid
-        if (bucketMode != OPERATION_MODE_DRAIN_BUCKET
-            && (storedFluidAmount == 0 || (this.getCapacityAvailable(stack, targetFluidStack, player) >= FluidContainerRegistry.BUCKET_VOLUME && storedFluidStack.isFluidEqual(targetFluidStack) &&
-            (player.isSneaking() == false || bucketMode == OPERATION_MODE_FILL_BUCKET))))
+        if (bucketMode != OPERATION_MODE_DRAIN_BUCKET && (storedFluidAmount == 0 ||
+                (this.getCapacityAvailable(stack, targetFluidStack, player) >= FluidContainerRegistry.BUCKET_VOLUME &&
+                    storedFluidStack.isFluidEqual(targetFluidStack) == true &&
+                    (player.isSneaking() == false || bucketMode == OPERATION_MODE_FILL_BUCKET))))
         {
             // Implements IFluidBlock
             if (iFluidBlock != null)
@@ -554,8 +544,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         Block block = fluidStack.getFluid().getBlock();
 
         // We need to convert water and lava to the flowing variant, otherwise we get non-flowing source blocks
-        if (block == Blocks.water) { block = Blocks.flowing_water; }
-        else if (block == Blocks.lava) { block = Blocks.flowing_lava; }
+        if (block == Blocks.water)
+        {
+            block = Blocks.flowing_water;
+        }
+        else if (block == Blocks.lava)
+        {
+            block = Blocks.flowing_lava;
+        }
 
         Material material = world.getBlockState(pos).getBlock().getMaterial();
 
