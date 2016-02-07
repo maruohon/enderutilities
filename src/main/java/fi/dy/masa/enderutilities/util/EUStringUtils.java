@@ -74,7 +74,16 @@ public class EUStringUtils
 
         for (String s : split)
         {
-            sb.append(s.substring(0,  1)).append(".");
+            int i = 0;
+            while (i < s.length())
+            {
+                if (Character.isAlphabetic(s.charAt(i)) == true)
+                {
+                    sb.append(s.substring(i, i + 1)).append(".");
+                    break;
+                }
+                i++;
+            }
         }
 
         return sb.toString();
