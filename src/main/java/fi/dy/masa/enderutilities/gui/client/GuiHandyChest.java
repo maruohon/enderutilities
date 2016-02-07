@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
-public class GuiHandyChest extends GuiEnderUtilities
+public class GuiHandyChest extends GuiContainerLargeStacks
 {
     //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityHandyChest tehc;
@@ -34,6 +34,7 @@ public class GuiHandyChest extends GuiEnderUtilities
         this.tehc = te;
         this.containerHC = container;
         this.chestTier = te.getStorageTier();
+        this.scaledStackSizeTextTargetInventories.add(this.tehc.getItemInventory());
     }
 
     @Override

@@ -22,7 +22,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class GuiPickupManager extends GuiEnderUtilities
+public class GuiPickupManager extends GuiContainerLargeStacks
 {
     public static final int NUM_LINK_CRYSTAL_SLOTS = 3;
     public final ContainerPickupManager container;
@@ -42,6 +42,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         this.inventoryItemFilters = container.inventoryItemFilters;
         this.firstLinkCrystalSlot = UtilItemModular.getFirstIndexOfModuleType(
                 this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
+        this.scaledStackSizeTextTargetInventories.add(this.inventoryItemTransmit);
     }
 
     @Override

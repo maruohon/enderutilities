@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -23,9 +22,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class GuiCreationStation extends GuiEnderUtilities implements IButtonCallback
+public class GuiCreationStation extends GuiContainerLargeStacks implements IButtonCallback
 {
-    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityCreationStation tecs;
     protected ContainerCreationStation containerCS;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
@@ -49,6 +47,8 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
         super(container, 240, 256, "gui.container.creationstation");
         this.tecs = te;
         this.containerCS = container;
+        this.scaledStackSizeTextTargetInventories.add(this.tecs.getFurnaceInventory());
+        this.scaledStackSizeTextTargetInventories.add(this.tecs.getItemInventory());
     }
 
     @Override
@@ -58,22 +58,6 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
 
         this.createButtons();
     }
-
-    /*@Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        if (ModRegistry.isModLoadedNEI() == false)
-        {
-            // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
-            RenderItem ri = this.setItemRender(itemRenderCustom);
-            super.drawScreen(mouseX, mouseY, gameTicks);
-            this.setItemRender(ri);
-        }
-        else
-        {
-            super.drawScreen(mouseX, mouseY, gameTicks);
-        }
-    }*/
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
@@ -435,28 +419,4 @@ public class GuiCreationStation extends GuiEnderUtilities implements IButtonCall
                     this.tecs.getPos(), ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }
-
-    protected RenderItem setItemRender(RenderItem itemRenderIn)
-    {
-        RenderItem ri = itemRender;
-        itemRender = itemRenderIn;
-        return ri;
-    }
-
-    /*@Optional.Method(modid = "NotEnoughItems")
-    @Override
-    public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
-    {
-        // Slot is in the external inventory, render using the smaller font for stack size
-        if (slot.inventory == this.tecs.getItemInventory() || slot.inventory == this.tecs.getFurnaceInventory())
-        {
-            itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-        else
-        {
-            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-    }*/
 }

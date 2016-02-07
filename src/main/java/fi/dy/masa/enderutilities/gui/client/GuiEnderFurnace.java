@@ -16,16 +16,17 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
-public class GuiEnderFurnace extends GuiTileEntityInventory
+public class GuiEnderFurnace extends GuiContainerLargeStacks
 {
     public ContainerEnderFurnace containerEnderFurnace;
     public TileEntityEnderFurnace teef;
 
     public GuiEnderFurnace(ContainerEnderFurnace container, TileEntityEnderFurnace te)
     {
-        super(container, 176, 166, "gui.container." + te.getTEName(), te);
+        super(container, 176, 166, "gui.container." + te.getTEName());
         this.containerEnderFurnace = container;
         this.teef = te;
+        this.scaledStackSizeTextTargetInventories.add(this.teef);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
+        String s = this.teef.hasCustomName() ? this.teef.getName() : I18n.format(this.teef.getName(), new Object[0]);
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 4, 0x404025);
 
@@ -121,7 +122,7 @@ public class GuiEnderFurnace extends GuiTileEntityInventory
     {
         super.actionPerformed(btn);
 
-        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.te.getWorld().provider.getDimensionId(), this.te.getPos(),
+        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.teef.getWorld().provider.getDimensionId(), this.teef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, 0));
     }
 }

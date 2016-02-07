@@ -1,18 +1,21 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
+import fi.dy.masa.enderutilities.client.renderer.item.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -26,17 +29,19 @@ public class GuiHandyBag extends InventoryEffectRenderer
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
 
-    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
-    protected EntityPlayer player;
-    protected ContainerHandyBag container;
-    protected InventoryItemModular invModular;
-    protected ResourceLocation guiTexture;
-    protected ResourceLocation guiTextureWidgets;
+    protected final RenderItemLargeStacks renderItemLargeStacks;
+    protected final List<IInventory> scaledStackSizeTextTargetInventories;
+    protected final EntityPlayer player;
+    protected final ContainerHandyBag container;
+    protected final InventoryItemModular invModular;
+    protected final ResourceLocation guiTexture;
+    protected final ResourceLocation guiTextureWidgets;
+    protected final int invSize;
+    protected final int numModuleSlots;
+    protected final int bagTier;
+
     protected float oldMouseX;
     protected float oldMouseY;
-    protected int invSize;
-    protected int numModuleSlots;
-    protected int bagTier;
     protected int firstModuleSlotX;
     protected int firstModuleSlotY;
     protected int firstArmorSlotX;
@@ -56,12 +61,24 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
         this.xSize = this.bagTier == 1 ? 256 : 176;
         this.ySize = 256;
+        this.scaledStackSizeTextTargetInventories = new ArrayList<IInventory>();
+        this.scaledStackSizeTextTargetInventories.add(this.invModular);
+        this.renderItemLargeStacks = new RenderItemLargeStacks(this.itemRender, this.container, this.scaledStackSizeTextTargetInventories);
+    }
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+
+        this.itemRender = this.renderItemLargeStacks;
     }
 
     @Override
     public void updateScreen()
     {
         super.updateScreen();
+
         this.updateActivePotionEffects();
     }
 
@@ -73,18 +90,6 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
         this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
         this.createButtons();
-
-        /*if (ModRegistry.isModLoadedNEI() == false)
-        {
-            // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
-            RenderItem ri = this.setItemRender(itemRenderCustom);
-            super.drawScreen(mouseX, mouseY, gameTicks);
-            this.setItemRender(ri);
-        }
-        else
-        {
-            super.drawScreen(mouseX, mouseY, gameTicks);
-        }*/
 
         super.drawScreen(mouseX, mouseY, gameTicks);
 
@@ -138,13 +143,6 @@ public class GuiHandyBag extends InventoryEffectRenderer
             this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
-        // TODO Remove this in 1.8 and enable the slot background icon method override instead
-        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
-        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        //this.bindTexture(TextureMap.locationBlocksTexture);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_BLEND);
-
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.numModuleSlots; i++)
         {
@@ -153,24 +151,6 @@ public class GuiHandyBag extends InventoryEffectRenderer
                 this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 80, 16, 16);
             }
         }
-
-        // Draw the background icon for empty player armor slots
-        //IInventory inv = this.player.inventory;
-        // Note: We use the original actual inventory size for these!
-        // Otherwise stuff would mess up when the bag is picked up with the cursor, since
-        // the number of slots in the container doesn't change.
-        /*for (int i = 0; i < 4; i++)
-        {
-            if (inv.getStackInSlot(39 - i) == null)
-            {
-                icon = ItemArmor.func_94602_b(i);
-                this.drawTexturedModelRectFromIcon(this.firstArmorSlotX, this.firstArmorSlotY + i * 18, icon, 16, 16);
-            }
-        }*/
-
-        //GL11.glDisable(GL11.GL_BLEND);
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        // TODO end of to-be-removed code in 1.8
 
         int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
         // Draw the player model
@@ -256,28 +236,4 @@ public class GuiHandyBag extends InventoryEffectRenderer
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
         }
     }
-
-    protected RenderItem setItemRender(RenderItem itemRenderIn)
-    {
-        RenderItem ri = itemRender;
-        itemRender = itemRenderIn;
-        return ri;
-    }
-
-    /*@Optional.Method(modid = "NotEnoughItems")
-    @Override
-    public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
-    {
-        // Slot is in the bag's inventory, render using the smaller font for stack size
-        if (slot.inventory == this.invModular)
-        {
-            itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-        else
-        {
-            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-    }*/
 }
