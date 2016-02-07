@@ -591,7 +591,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, false);
         NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, false);
 
-        if (tag != null && tag.hasKey("Block", Constants.NBT.TAG_STRING) == true)
+        if (tag != null && tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true)
         {
             return new BlockInfo(new ResourceLocation(tag.getString("BlockName")), tag.getByte("BlockMeta"), tag.getShort("ItemMeta"));
         }
