@@ -144,6 +144,7 @@ public class UtilItemModular
     public static int getSelectedModuleTierAbs(ItemStack containerStack, ModuleType moduleType)
     {
         int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        slotNum += getFirstIndexOfModuleType(containerStack, moduleType);
         ItemStack moduleStack = getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
         {
@@ -269,8 +270,9 @@ public class UtilItemModular
      */
     public static ItemStack getSelectedModuleStackAbs(ItemStack containerStack, ModuleType moduleType)
     {
-        int index = getStoredModuleSelection(containerStack, moduleType);
-        return getModuleStackBySlotNumber(containerStack, index, moduleType);
+        int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        slotNum += getFirstIndexOfModuleType(containerStack, moduleType);
+        return getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
     }
 
     /**
@@ -308,6 +310,7 @@ public class UtilItemModular
     public static boolean setSelectedModuleStackAbs(ItemStack containerStack, ModuleType moduleType, ItemStack newModuleStack)
     {
         int slotNum = getStoredModuleSelection(containerStack, moduleType);
+        slotNum += getFirstIndexOfModuleType(containerStack, moduleType);
         return setModuleStackBySlotNumber(containerStack, slotNum, newModuleStack);
     }
 
@@ -448,46 +451,32 @@ public class UtilItemModular
      */
     public static boolean changeSelectedModuleAbs(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        if ((containerStack.getItem() instanceof IModular) == false)
+        if ((containerStack.getItem() instanceof IModular) == false ||
+           ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) <= 0)
         {
             return false;
         }
 
-        int maxModules = ((IModular)containerStack.getItem()).getMaxModules(containerStack);
-        if (maxModules <= 0)
-        {
-            return false;
-        }
-
-        ItemStack modules[] = new ItemStack[maxModules];
-        readItemsFromContainerItem(containerStack, modules);
+        int maxOfType = ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType);
         int current = getStoredModuleSelection(containerStack, moduleType);
 
-        for (int i = 0; i < maxModules; i++)
+        if (reverse == true)
         {
-            if (reverse == true)
+            if (--current < 0)
             {
-                if (--current < 0)
-                {
-                    current = maxModules - 1;
-                }
+                current = maxOfType - 1;
             }
-            else
+        }
+        else
+        {
+            if (++current >= maxOfType)
             {
-                if (++current >= maxModules)
-                {
-                    current = 0;
-                }
-            }
-
-            if (modules[current] != null && moduleTypeEquals(modules[current], moduleType) == true)
-            {
-                setModuleSelection(containerStack, moduleType, current);
-                return true;
+                current = 0;
             }
         }
 
-        return false;
+        setModuleSelection(containerStack, moduleType, current);
+        return true;
     }
 
     /**
@@ -984,35 +973,33 @@ public class UtilItemModular
     }
 
     /**
-     * This method is for compatibility adjustment of the installed modules on modular items,
-     * after the inventory/container change to the Tool Workstation.
-     * It will check if slot 0 is empty, and if there is an installed module at the position
-     * that is now one slot after the last available slot.
-     * If so, then it will move all the modules by one slot, so that they start from slot 0
-     * instead of slot 1 like they did before.
-     * @param containerStack the ItemStack of the modular item
+     * Returns the first index for the modules of the given type inside the modular item's module inventory.
+     * This assumes they are stored/assigned in the enum's order.
+     * Note: Thus this depends on the Tool Workstation's Container implementation
+     * @param containerStack
+     * @param moduleType
+     * @return
      */
-    public static void compatibilityAdjustInstalledModulePositions(ItemStack containerStack)
+    public static int getFirstIndexOfModuleType(ItemStack containerStack, ModuleType moduleType)
     {
         if (containerStack == null || (containerStack.getItem() instanceof IModular) == false)
         {
-            return;
+            return 0;
         }
 
-        ItemStack items[] = new ItemStack[11];
-        UtilItemModular.readItemsFromContainerItem(containerStack, items);
-        int max = ((IModular)containerStack.getItem()).getMaxModules(containerStack);
-        if (max <= 10 && items[0] == null && items[max] != null)
+        IModular item = (IModular)containerStack.getItem();
+        int start = 0;
+        for (ModuleType type : ModuleType.values())
         {
-            for (int i = 0; i < 10; i++)
+            if (type.equals(moduleType) == true)
             {
-                items[i] = items[i + 1];
+                break;
             }
 
-            items[10] = null;
-
-            UtilItemModular.writeItemsToContainerItem(containerStack, items, false);
+            start += item.getMaxModules(containerStack, type);
         }
+
+        return start;
     }
 
     /**

@@ -15,10 +15,13 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
 {
-    public static final int NUM_MODULE_SLOTS = 3;
+    // Note: This includes the capacitor, which is not accessible through the GUI though
+    public static final int NUM_MODULES = 4;
+    public static final int NUM_LINK_CRYSTAL_SLOTS = 3;
     public InventoryItem inventoryItemTransmit;
     public InventoryItemModules inventoryItemModules;
     public InventoryItem inventoryItemFilters;
@@ -31,8 +34,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 
-        // FIXME the +1 is after adding the capacitor module
-        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULE_SLOTS + 1, player.worldObj.isRemote, player);
+        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.worldObj.isRemote, player);
         this.inventoryItemModules.setHostInventory(player.inventory, this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
@@ -89,11 +91,10 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         posX = 116;
         posY = 29;
         // The Storage Module slots
-        for (int i = 0; i < NUM_MODULE_SLOTS; i++)
+        int first = UtilItemModular.getFirstIndexOfModuleType(this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
+        for (int slot = first, i = 0; i < NUM_LINK_CRYSTAL_SLOTS; slot++, i++)
         {
-            // FIXME after adding the Ender Capacitor to the item, we now need this offset of 1 in the slot numbers...
-            // And the module ordering depends on the ModuleType enum... So this is a bit hacky, how should it be improved?
-            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, i + 1, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, slot, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
         }
     }
 

@@ -24,12 +24,13 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class GuiPickupManager extends GuiEnderUtilities
 {
-    public ContainerPickupManager container;
-    public InventoryItem inventoryItemTransmit;
-    public InventoryItemModules inventoryItemModules;
-    public InventoryItem inventoryItemFilters;
-    public EntityPlayer player;
-    public int numModuleSlots;
+    public static final int NUM_LINK_CRYSTAL_SLOTS = 3;
+    public final ContainerPickupManager container;
+    public final InventoryItem inventoryItemTransmit;
+    public final InventoryItemModules inventoryItemModules;
+    public final InventoryItem inventoryItemFilters;
+    public final EntityPlayer player;
+    public final int firstLinkCrystalSlot;
 
     public GuiPickupManager(ContainerPickupManager container)
     {
@@ -39,8 +40,8 @@ public class GuiPickupManager extends GuiEnderUtilities
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;
         this.inventoryItemFilters = container.inventoryItemFilters;
-        // FIXME the -1 is after adding the capacitor module...
-        this.numModuleSlots = this.inventoryItemModules.getSizeInventory() - 1;
+        this.firstLinkCrystalSlot = UtilItemModular.getFirstIndexOfModuleType(
+                this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
     }
 
     @Override
@@ -89,7 +90,7 @@ public class GuiPickupManager extends GuiEnderUtilities
         // Draw the dark background icon over the disabled slots
         if (this.inventoryItemModules.isUseableByPlayer(this.player) == false)
         {
-            for (int i = 0; i < this.numModuleSlots; i++)
+            for (int i = 0; i < NUM_LINK_CRYSTAL_SLOTS; i++)
             {
                 this.drawTexturedModalRect(x + 116 - 1 + i * 18, y + 29 - 1, 102, 0, 18, 18);
             }
@@ -135,10 +136,9 @@ public class GuiPickupManager extends GuiEnderUtilities
         }
 
         // Draw the background icon over empty storage module slots
-        for (int i = 0; i < this.numModuleSlots; i++)
+        for (int slot = this.firstLinkCrystalSlot, i = 0; i < NUM_LINK_CRYSTAL_SLOTS; slot++, i++)
         {
-            // FIXME the +1 is after adding the capacitor module...
-            if (this.inventoryItemModules.getStackInSlot(i + 1) == null)
+            if (this.inventoryItemModules.getStackInSlot(slot) == null)
             {
                 this.drawTexturedModalRect(x + 116 + i * 18, y + 29, 240, 32, 16, 16);
             }
@@ -181,7 +181,7 @@ public class GuiPickupManager extends GuiEnderUtilities
 
         int id = 0;
         // Add the Link Crystal selection buttons
-        for (int i = 0; i < this.numModuleSlots; i++)
+        for (int i = 0; i < NUM_LINK_CRYSTAL_SLOTS; i++)
         {
             this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
@@ -230,13 +230,13 @@ public class GuiPickupManager extends GuiEnderUtilities
         super.actionPerformed(button);
 
         int first = 0;
-        if (button.id >= first && button.id < (first + this.numModuleSlots))
+        if (button.id >= first && button.id < (first + NUM_LINK_CRYSTAL_SLOTS))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_SELECT_MODULE, button.id - first));
             return;
         }
-        first += this.numModuleSlots;
+        first += NUM_LINK_CRYSTAL_SLOTS;
 
         if (button.id >= first && button.id < (first + ItemPickupManager.NUM_PRESETS))
         {

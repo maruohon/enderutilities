@@ -84,6 +84,10 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         return this.getSlot(SLOT_MODULAR_ITEM).getStack();
     }
 
+    /**
+     * Note: If this implementation (how the module types are assigned to slots)
+     * is ever changed, it will then affect UtilItemModular.getFirstIndexOfModuleType too!
+     */
     private void setUpgradeSlotTypes()
     {
         int slotNum = 0;

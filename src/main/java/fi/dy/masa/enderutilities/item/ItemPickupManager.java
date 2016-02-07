@@ -257,8 +257,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
     public ItemStack tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
-        //int index = UtilItemModular.getStoredModuleSelection(manager, ModuleType.TYPE_LINKCRYSTAL);
-        //ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(manager, index, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack moduleStack = this.getSelectedModuleStack(manager, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack == null || itemsIn == null)
         {
@@ -563,13 +561,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             && ReferenceKeys.keypressContainsShift(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1, ReferenceKeys.keypressActionIsReversed(key));
+            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
+                    ReferenceKeys.keypressActionIsReversed(key));
         }
-        // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
+        // Ctrl (+ Shift) + Toggle mode: Change the selected Link Crystal
         else if (ReferenceKeys.keypressContainsControl(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
+                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
         }
     }
 
@@ -622,7 +622,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public boolean useAbsoluteModuleIndexing(ItemStack stack)
     {
-        return false;
+        return true;
     }
 
     @Override
