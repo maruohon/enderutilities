@@ -45,7 +45,7 @@ public class NBTUtils
      */
     public static ItemStack setRootCompoundTag(ItemStack stack, NBTTagCompound nbt)
     {
-        if (nbt.hasNoTags() == true)
+        if (nbt != null && nbt.hasNoTags() == true)
         {
             nbt = null;
         }
@@ -366,11 +366,11 @@ public class NBTUtils
      * @param containerStack
      * @return the number of tags in the NBTTagList, or -1 of the TagList doesn't exist
      */
-    public static int getNumberOfStoredItemStacks(ItemStack containerStack)
+    /*public static int getNumberOfStoredItemStacks(ItemStack containerStack)
     {
         NBTTagList list = getStoredItemsList(containerStack, false);
         return list != null ? list.tagCount() : -1;
-    }
+    }*/
 
     /**
      * Returns a TagList for the key <b<tagName</b> and creates and adds it if one isn't found.
@@ -454,7 +454,7 @@ public class NBTUtils
      * @param containerStack
      * @param tagList
      */
-    public static void setStoredItemsList(ItemStack containerStack, NBTTagList tagList)
+    /*public static void setStoredItemsList(ItemStack containerStack, NBTTagList tagList)
     {
         if (tagList == null)
         {
@@ -470,7 +470,7 @@ public class NBTUtils
 
         NBTTagCompound nbt = getCompoundTag(containerStack, null, true);
         nbt.setTag("Items", tagList);
-    }
+    }*/
 
     /**
      * Reads the stored items from the provided NBTTagCompound, from a NBTTagList by the name <b>tagName</b>
@@ -485,9 +485,10 @@ public class NBTUtils
         {
             return;
         }
-        NBTTagList nbtTagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
 
+        NBTTagList nbtTagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
         int num = nbtTagList.tagCount();
+
         for (int i = 0; i < num; ++i)
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
@@ -529,9 +530,9 @@ public class NBTUtils
             if (items[slotNum] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte)slotNum);
-                tag.setInteger("ActualCount", items[slotNum].stackSize);
                 items[slotNum].writeToNBT(tag);
+                tag.setInteger("ActualCount", items[slotNum].stackSize);
+                tag.setByte("Slot", (byte)slotNum);
                 nbtTagList.appendTag(tag);
             }
         }

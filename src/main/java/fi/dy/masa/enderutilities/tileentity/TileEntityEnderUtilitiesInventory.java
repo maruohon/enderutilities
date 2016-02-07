@@ -21,6 +21,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory, ILockableContainer
 {
@@ -106,29 +107,9 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
      * @param nbt
      * @param tagName
      */
-    public void writeItemsToNBT(NBTTagCompound nbt, ItemStack[] stacks, String tagName)
+    public void writeItemsToNBT(NBTTagCompound nbt, ItemStack[] items, String tagName)
     {
-        if (stacks == null)
-        {
-            return;
-        }
-
-        NBTTagList nbtTagList = new NBTTagList();
-        int numSlots = (stacks != null ? stacks.length : 0);
-
-        for (int i = 0; i < numSlots; ++i)
-        {
-            if (stacks[i] != null)
-            {
-                NBTTagCompound tagItem = new NBTTagCompound();
-                stacks[i].writeToNBT(tagItem);
-                tagItem.setByte("Slot", (byte)i);
-                tagItem.setInteger("ActualCount", stacks[i].stackSize);
-                nbtTagList.appendTag(tagItem);
-            }
-        }
-
-        nbt.setTag(tagName, nbtTagList);
+        NBTUtils.writeItemsToTag(nbt, items, tagName, false);
     }
 
     @Override

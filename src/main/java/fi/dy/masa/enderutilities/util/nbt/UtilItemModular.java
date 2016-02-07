@@ -626,17 +626,6 @@ public class UtilItemModular
 
     /**
      * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
-     * them in the array <b>items</b>. <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
-     * @param containerStack
-     * @param items
-     */
-    public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items)
-    {
-        readItemsFromContainerItem(containerStack, items, "Items");
-    }
-
-    /**
-     * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
      * them in the array <b>items</b>. The items are read from a tag by the name <b>tagName</b>.
      * <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
      * @param containerStack
@@ -644,28 +633,7 @@ public class UtilItemModular
      */
     public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items, String tagName)
     {
-        NBTTagList nbtTagList = NBTUtils.getTagList(containerStack, null, tagName, Constants.NBT.TAG_COMPOUND, false);
-        if (nbtTagList == null)
-        {
-            return;
-        }
-
-        int num = nbtTagList.tagCount();
-        for (int i = 0; i < num; ++i)
-        {
-            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            byte slotNum = tag.getByte("Slot");
-
-            if (slotNum >= 0 && slotNum < items.length)
-            {
-                items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
-
-                if (items[slotNum] != null && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
-                {
-                    items[slotNum].stackSize = tag.getInteger("ActualCount");
-                }
-            }
-        }
+        NBTUtils.readStoredItemsFromTag(containerStack.getTagCompound(), items, tagName);
     }
 
     /**
@@ -691,18 +659,6 @@ public class UtilItemModular
     }
 
     /**
-     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>.
-     * The items will be written in a NBTTagList called "Items".
-     * @param containerStack
-     * @param items
-     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
-     */
-    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, boolean keepExtraSlots)
-    {
-        writeItemsToContainerItem(containerStack, items, "Items", keepExtraSlots);
-    }
-
-    /**
      * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>
      * in a NBTTagList by the name <b>tagName</b>.
      * @param containerStack
@@ -712,52 +668,11 @@ public class UtilItemModular
      */
     public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, String tagName, boolean keepExtraSlots)
     {
-        NBTTagList nbtTagList = new NBTTagList();
-
-        int invSlots = items.length;
-        // Write all the ItemStacks into a TAG_List
-        for (int slotNum = 0; slotNum < invSlots && slotNum <= 127; ++slotNum)
-        {
-            if (items[slotNum] != null)
-            {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte)slotNum);
-                tag.setInteger("ActualCount", items[slotNum].stackSize);
-                items[slotNum].writeToNBT(tag);
-                nbtTagList.appendTag(tag);
-            }
-        }
-
-        if (keepExtraSlots == true)
-        {
-            // Read the old items and append any existing items that are outside the current written slot range
-            NBTTagList nbtTagListExisting = NBTUtils.getTagList(containerStack, null, tagName, Constants.NBT.TAG_COMPOUND, false);
-            if (nbtTagListExisting != null)
-            {
-                for (int i = 0; i < nbtTagListExisting.tagCount(); i++)
-                {
-                    NBTTagCompound tag = nbtTagListExisting.getCompoundTagAt(i);
-                    byte slotNum = tag.getByte("Slot");
-                    if (slotNum >= invSlots && slotNum <= 127)
-                    {
-                        nbtTagList.appendTag(tag);
-                    }
-                }
-            }
-        }
-
         // Write the module list to the tool
         NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
+        NBTUtils.writeItemsToTag(nbt, items, tagName, keepExtraSlots);
 
-        if (nbtTagList.tagCount() > 0)
-        {
-            nbt.setTag(tagName, nbtTagList);
-        }
-        else
-        {
-            nbt.removeTag(tagName);
-        }
-
+        // This checks for hasNoTags and then removes the tag if it's empty
         NBTUtils.setRootCompoundTag(containerStack, nbt);
     }
 
