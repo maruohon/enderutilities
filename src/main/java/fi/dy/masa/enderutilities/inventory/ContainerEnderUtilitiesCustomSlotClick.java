@@ -101,6 +101,11 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     public void leftClickSlot(int slotNum, EntityPlayer player)
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        if (slot == null)
+        {
+            return;
+        }
+
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
 
@@ -213,6 +218,11 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     public void rightClickSlot(int slotNum, EntityPlayer player)
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        if (slot == null)
+        {
+            return;
+        }
+
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
 
@@ -337,15 +347,15 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
-
         if (stackSlot == null)
         {
             return;
         }
-        ItemStack stackOrig = stackSlot.copy();
 
         if (slot instanceof SlotCrafting)
         {
+            ItemStack stackOrig = stackSlot.copy();
+
             while (this.transferStackFromSlot(player, slotNum) == true)
             {
                 // Ran out of some of the items, so the crafting result changed, bail out now
@@ -399,6 +409,11 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     public void pressHotbarKey(int slotNum, int button, EntityPlayer player)
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        if (slot == null)
+        {
+            return;
+        }
+
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
         ItemStack stackHotbar = this.inventoryPlayer.getStackInSlot(button);
 
@@ -460,6 +475,9 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
 
         // slotNum: real button: 0 type: 1 - shift + left click - on button down with empty cursor, on button up with stack in cursor
         // slotNum: real button: 1 type: 1 - shift + right click - on button down with empty cursor, on button up with stack in cursor
+
+        // slotNum: -1 button: 0 type: 0 - left click with a stack in cursor inside inventory but not on a slot - on button up
+        // slotNum: -1 button: 1 type: 0 - right click with a stack in cursor inside inventory but not on a slot - on button up
 
         // slotNum: -999 button: 0 type: 0 - left click outside of inventory screen with stack on cursor - on button up
         // slotNum: -999 button: 1 type: 0 - right click outside of inventory screen with stack on cursor - on button up
