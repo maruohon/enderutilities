@@ -459,10 +459,31 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
-        //System.out.println("hitEntity(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
+        //System.out.println("addToolDamage(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
         if (stack == null || this.isToolBroken(stack) == true)
         {
             return false;
+        }
+
+        if (amount > 0)
+        {
+            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.unbreaking.effectId, stack);
+            int amountNegated = 0;
+
+            for (int i = 0; unbreakingLevel > 0 && i < amount; i++)
+            {
+                if (itemRand.nextInt(amount + 1) > 0)
+                {
+                    amountNegated++;
+                }
+            }
+
+            amount -= amountNegated;
+
+            if (amount <= 0)
+            {
+                return false;
+            }
         }
 
         int damage = NBTUtils.getShort(stack, null, "ToolDamage");
@@ -497,7 +518,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public boolean hitEntity(ItemStack stack, EntityLivingBase living1, EntityLivingBase living2)
     {
-        return this.addToolDamage(stack, 2, living1, living2);
+        this.addToolDamage(stack, 2, living1, living2);
+        return true;
     }
 
     @Override
@@ -517,7 +539,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
             // Fast mode uses double the durability
             int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED ? 2 : 1);
 
-            return this.addToolDamage(stack, dmg, living, living);
+            this.addToolDamage(stack, dmg, living, living);
+            return true;
         }
 
         return false;
