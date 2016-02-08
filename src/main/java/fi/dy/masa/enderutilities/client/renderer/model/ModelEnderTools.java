@@ -38,7 +38,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 @SuppressWarnings("deprecation")
-public class ModelEnderTools implements IModel, IModelCustomData
+public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools>
 {
     public static final IModel MODEL = new ModelEnderTools();
     private final ResourceLocation resourceRod;

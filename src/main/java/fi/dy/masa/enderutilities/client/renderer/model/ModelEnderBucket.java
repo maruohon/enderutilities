@@ -38,7 +38,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 @SuppressWarnings("deprecation")
-public class ModelEnderBucket implements IModel, IModelCustomData
+public class ModelEnderBucket implements IModel, IModelCustomData<ModelEnderBucket>
 {
     public static final IModel MODEL = new ModelEnderBucket();
     private final ResourceLocation resourceMain;
