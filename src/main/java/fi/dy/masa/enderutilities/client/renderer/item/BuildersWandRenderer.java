@@ -203,6 +203,8 @@ public class BuildersWandRenderer
                 IBlockState state = blockInfo.block.getStateFromMeta(blockInfo.blockMeta);
 
                 GlStateManager.pushMatrix();
+                GlStateManager.enableCull();
+                GlStateManager.enableDepth();
                 GlStateManager.translate(pos.posX - dx + 0.0d, pos.posY - dy + 0.0d, pos.posZ - dz + 1.0d);
 
                 Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
