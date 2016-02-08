@@ -14,7 +14,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
-import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -47,17 +46,6 @@ public class EntityEventHandler
             if (event.target instanceof EntityLivingBase)
             {
                 ((ItemLivingManipulator)item).handleInteraction(stack, event.entityPlayer, (EntityLivingBase)event.target);
-                event.setCanceled(true);
-            }
-        }
-        else if (item == EnderUtilitiesItems.mobHarness)
-        {
-            if (event.target instanceof EntityLivingBase)
-            {
-                if (event.entityPlayer.worldObj.isRemote == false)
-                {
-                    ((ItemMobHarness)stack.getItem()).handleInteraction(stack, event.entityPlayer, event.target);
-                }
                 event.setCanceled(true);
             }
         }

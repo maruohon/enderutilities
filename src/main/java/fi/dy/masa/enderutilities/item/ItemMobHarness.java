@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.player.EntityPlayer;
@@ -71,6 +72,12 @@ public class ItemMobHarness extends ItemEnderUtilities
         }
 
         return stack;
+    }
+
+    @Override
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target)
+    {
+        return this.handleInteraction(stack, playerIn, target);
     }
 
     @SuppressWarnings("unchecked")
