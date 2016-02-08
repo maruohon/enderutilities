@@ -1,7 +1,8 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:item_tool"
+        "model": "enderutilities:item_default",
+        "transform": "forge:default-tool"
     },
     "variants": {
         "stage": {
