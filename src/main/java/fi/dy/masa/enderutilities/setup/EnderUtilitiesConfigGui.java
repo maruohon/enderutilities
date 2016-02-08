@@ -20,7 +20,7 @@ public class EnderUtilitiesConfigGui extends GuiConfig
 
     private static List<IConfigElement> getConfigElements()
     {
-        List<IConfigElement> configElements = new ArrayList<>();
+        List<IConfigElement> configElements = new ArrayList<IConfigElement>();
 
         configElements.addAll(new ConfigElement(ConfigReader.config.getCategory(ConfigReader.CATEGORY_GENERIC)).getChildElements());
         configElements.addAll(new ConfigElement(ConfigReader.config.getCategory(ConfigReader.CATEGORY_CLIENT)).getChildElements());
