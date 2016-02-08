@@ -153,13 +153,6 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             }
         }
 
-        // TODO Remove this in 1.8 and enable the slot background icon method override instead
-        // In Forge 1.7.10 there is a Forge bug that causes Slot background icons to render
-        // incorrectly, if there is an item with the glint effect before the Slot in question in the Container.
-        //this.bindTexture(TextureMap.locationBlocksTexture);
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_BLEND);
-
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.numModuleSlots; i++)
         {
@@ -168,31 +161,6 @@ public class GuiInventorySwapper extends GuiEnderUtilities
                 this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 144, 16, 16);
             }
         }
-
-        // Draw the background icon for empty player armor slots
-        /*for (int i = 0; i < 4; i++)
-        {
-            if (this.player.inventory.getStackInSlot(39 - i) == null)
-            {
-                icon = ItemArmor.func_94602_b(i);
-                this.drawTexturedModelRectFromIcon(this.firstArmorSlotX, this.firstArmorSlotY + i * 18, icon, 16, 16);
-            }
-        }
-
-        // Draw the background icon for empty armor slots in the swapper's inventory
-        for (int i = 0; i < 4; i++)
-        {
-            if (this.inventory.getStackInSlot(39 - i) == null)
-            {
-                //System.out.println("plop");
-                icon = ItemArmor.func_94602_b(i);
-                this.drawTexturedModelRectFromIcon(this.firstArmorSlotX + 23 + i * 18, this.firstArmorSlotY - 20, icon, 16, 16);
-            }
-        }*/
-
-        //GL11.glDisable(GL11.GL_BLEND);
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        // TODO end of to-be-removed code in 1.8*/
     }
 
     @Override

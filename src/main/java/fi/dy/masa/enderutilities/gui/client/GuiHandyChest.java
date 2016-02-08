@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 
@@ -15,7 +14,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
 public class GuiHandyChest extends GuiContainerLargeStacks
 {
-    //protected static RenderItem itemRenderCustom = new RenderItemLargeStacks();
     protected TileEntityHandyChest tehc;
     protected ContainerHandyChest containerHC;
     protected int chestTier;
@@ -57,22 +55,6 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             default:
         }
     }
-
-    /*@Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        if (ModRegistry.isModLoadedNEI() == false)
-        {
-            // Swap the RenderItem() instance for the duration of rendering the ItemStacks to the GUI
-            RenderItem ri = this.setItemRender(itemRenderCustom);
-            super.drawScreen(mouseX, mouseY, gameTicks);
-            this.setItemRender(ri);
-        }
-        else
-        {
-            super.drawScreen(mouseX, mouseY, gameTicks);
-        }
-    }*/
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
@@ -188,28 +170,4 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             }
         }
     }
-
-    protected RenderItem setItemRender(RenderItem itemRenderIn)
-    {
-        RenderItem ri = itemRender;
-        itemRender = itemRenderIn;
-        return ri;
-    }
-
-    /*@Optional.Method(modid = "NotEnoughItems")
-    @Override
-    public void drawSlotItem(Slot slot, ItemStack stack, int x, int y, String quantity)
-    {
-        // Slot is in the external inventory, render using the smaller font for stack size
-        if (slot.inventory == this.tehc.getItemInventory())
-        {
-            itemRenderCustom.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRenderCustom.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-        else
-        {
-            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
-            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y, quantity);
-        }
-    }*/
 }
