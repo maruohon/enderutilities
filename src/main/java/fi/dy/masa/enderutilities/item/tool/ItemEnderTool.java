@@ -77,7 +77,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 {
     public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
         EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
-            Configs.harvestLevelEnderAlloyAdvanced.getInt(3), 2560, 12.0f, 4.0f, 15);
+            Configs.harvestLevelEnderAlloyAdvanced.getInt(3), 3120, 12.0f, 4.0f, 15);
 
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
