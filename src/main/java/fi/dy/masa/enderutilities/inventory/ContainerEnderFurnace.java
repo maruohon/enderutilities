@@ -20,7 +20,6 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
     public int cookTimeFresh;
     public int fuelProgress;
     public int smeltingProgress;
-    public int outputBufferAmount;
     public boolean outputToEnderChest;
 
     public ContainerEnderFurnace(EntityPlayer player, TileEntityEnderFurnace te)
@@ -66,20 +65,14 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
                 icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
             }
 
-            if (this.teef.getOutputBufferAmount() != this.outputBufferAmount)
-            {
-                icrafting.sendProgressBarUpdate(this, 1, this.teef.getOutputBufferAmount());
-            }
-
             if (this.teef.outputToEnderChest != this.outputToEnderChest)
             {
-                icrafting.sendProgressBarUpdate(this, 2, this.teef.outputToEnderChest ? 1 : 0);
+                icrafting.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
             }
 
             this.burnTimeRemaining = this.teef.burnTimeRemaining;
             this.burnTimeFresh = this.teef.burnTimeFresh;
             this.cookTime = this.teef.cookTime;
-            this.outputBufferAmount = this.teef.getOutputBufferAmount();
             this.outputToEnderChest = this.teef.outputToEnderChest;
         }
     }
@@ -98,8 +91,7 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
         int c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
         icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
-        icrafting.sendProgressBarUpdate(this, 1, this.teef.getOutputBufferAmount());
-        icrafting.sendProgressBarUpdate(this, 2, this.teef.outputToEnderChest ? 1 : 0);
+        icrafting.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
     }
 
     @SideOnly(Side.CLIENT)
@@ -113,9 +105,6 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
                 this.smeltingProgress = MathHelper.clamp_int((val >>> 8) & 0x7F, 0, 100);
                 break;
             case 1:
-                this.outputBufferAmount = val;
-                break;
-            case 2:
                 this.outputToEnderChest = (val == 1);
                 break;
             default:

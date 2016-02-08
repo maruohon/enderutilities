@@ -19,7 +19,6 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
@@ -45,8 +44,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     public static final int BURNTIME_USAGE_SLOW = 20; // Slow/eco mode base usage
     public static final int BURNTIME_USAGE_FAST = 120; // Fast mode: use fuel 6x faster over time
 
-    public static final int OUTPUT_BUFFER_SIZE = 1024; // How many items can we store in the output buffer?
-
     public static final int OUTPUT_INTERVAL = 20; // Only try outputting items to an Ender Chest once every 1 seconds, to try to reduce server load
 
     protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
@@ -56,7 +53,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
 
     public boolean fastMode;
     public boolean outputToEnderChest;
-    private ItemStack outputBufferStack;
     private ItemStack smeltingResultCache;
 
     private boolean inputDirty;
@@ -96,12 +92,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         this.burnTimeFresh      = nbt.getInteger("BurnTimeFresh");
         this.cookTime           = nbt.getInteger("CookTime");
 
-        if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
-        {
-            this.outputBufferStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
-            this.outputBufferStack.stackSize = nbt.getInteger("OutputBufferAmount");
-        }
-
         this.inputDirty = true;
     }
 
@@ -124,12 +114,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
         nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
         nbt.setShort("CookTime", (short)this.cookTime);
-
-        if (this.outputBufferStack != null)
-        {
-            nbt.setTag("OutputBufferStack", this.outputBufferStack.writeToNBT(new NBTTagCompound()));
-            nbt.setInteger("OutputBufferAmount", this.outputBufferStack.stackSize);
-        }
     }
 
     @Override
@@ -160,21 +144,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         super.onDataPacket(net, packet);
 
         this.worldObj.checkLight(this.getPos());
-    }
-
-    public int getOutputBufferAmount()
-    {
-        if (this.outputBufferStack == null)
-        {
-            return 0;
-        }
-
-        return this.outputBufferStack.stackSize;
-    }
-
-    public ItemStack getOutputBufferStack()
-    {
-        return this.outputBufferStack;
     }
 
     public boolean isBurning()
@@ -327,11 +296,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             this.timer = 0;
         }
 
-        if (this.fillOutputSlotFromBuffer() == true)
-        {
-            dirty = true;
-        }
-
         if (dirty == true)
         {
             this.markDirty();
@@ -355,13 +319,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     {
         if (this.canSmelt() == true)
         {
-            if (this.outputBufferStack == null)
+            if (this.itemStacks[SLOT_OUTPUT] == null)
             {
-                this.outputBufferStack = this.smeltingResultCache.copy();
+                this.itemStacks[SLOT_OUTPUT] = this.smeltingResultCache.copy();
             }
             else
             {
-                this.outputBufferStack.stackSize += this.smeltingResultCache.stackSize;
+                this.itemStacks[SLOT_OUTPUT].stackSize += this.smeltingResultCache.stackSize;
             }
 
             if (--this.itemStacks[SLOT_INPUT].stackSize <= 0)
@@ -409,47 +373,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         }
 
         return burnTime;
-    }
-
-    /**
-     * Transfers items from the output buffer to the output slot.
-     * @return true if some items were moved
-     */
-    private boolean fillOutputSlotFromBuffer()
-    {
-        if (this.outputBufferStack == null)
-        {
-            return false;
-        }
-
-        if (this.itemStacks[SLOT_OUTPUT] == null)
-        {
-            this.itemStacks[SLOT_OUTPUT] = this.outputBufferStack.copy();
-            this.itemStacks[SLOT_OUTPUT].stackSize = 0;
-        }
-        else if (InventoryUtils.areItemStacksEqual(this.itemStacks[SLOT_OUTPUT], this.outputBufferStack) == false)
-        {
-            return false;
-        }
-
-        int size = this.itemStacks[SLOT_OUTPUT].stackSize;
-        int max = Math.min(this.getInventoryStackLimit(), this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
-
-        if (size >= max)
-        {
-            return false;
-        }
-
-        int amount = Math.min(max - size, this.outputBufferStack.stackSize);
-        this.itemStacks[SLOT_OUTPUT].stackSize += amount;
-        this.outputBufferStack.stackSize -= amount;
-
-        if (this.outputBufferStack.stackSize <= 0)
-        {
-            this.outputBufferStack = null;
-        }
-
-        return true;
     }
 
     /**
@@ -565,20 +488,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
             return false;
         }
 
-        int amount = 0;
-        if (this.outputBufferStack != null)
+        if (this.itemStacks[SLOT_OUTPUT] != null)
         {
-            if (InventoryUtils.areItemStacksEqual(this.smeltingResultCache, this.outputBufferStack) == false)
+            if (InventoryUtils.areItemStacksEqual(this.smeltingResultCache, this.itemStacks[SLOT_OUTPUT]) == false)
             {
                 return false;
             }
 
-            amount = this.outputBufferStack.stackSize;
-        }
-
-        if ((OUTPUT_BUFFER_SIZE - amount) < this.smeltingResultCache.stackSize)
-        {
-            return false;
+            return (this.getInventoryStackLimit() - this.itemStacks[SLOT_OUTPUT].stackSize) >= this.smeltingResultCache.stackSize;
         }
 
         return true;
@@ -724,7 +641,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     public void setInventorySlotContents(int slotNum, ItemStack stack)
     {
         //System.out.println("setInventorySlotContents(slot: " + slotNum + ", " + stack + ")");
-        if (slotNum == SLOT_INPUT && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == false)
+        if (slotNum == SLOT_INPUT && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[SLOT_INPUT]) == false)
         {
             this.inputDirty = true;
         }

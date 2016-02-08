@@ -25,7 +25,6 @@ import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 {
@@ -61,20 +60,6 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
         return new TileEntityEnderFurnace();
-    }
-
-    @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderFurnace)
-        {
-            // Drop the items from the output buffer
-            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-            EntityUtils.dropItemStacksInWorld(worldIn, pos, teef.getOutputBufferStack(), teef.getOutputBufferAmount(), true);
-        }
-
-        super.breakBlock(worldIn, pos, state);
     }
 
     @Override
