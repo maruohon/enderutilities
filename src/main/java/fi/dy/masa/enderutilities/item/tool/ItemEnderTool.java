@@ -1203,6 +1203,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

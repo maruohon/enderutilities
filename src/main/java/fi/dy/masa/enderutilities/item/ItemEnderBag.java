@@ -306,6 +306,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

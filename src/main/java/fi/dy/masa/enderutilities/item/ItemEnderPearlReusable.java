@@ -89,6 +89,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -106,6 +106,7 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

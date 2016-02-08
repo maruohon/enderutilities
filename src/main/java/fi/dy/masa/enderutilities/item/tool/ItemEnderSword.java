@@ -757,6 +757,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

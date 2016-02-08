@@ -214,6 +214,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

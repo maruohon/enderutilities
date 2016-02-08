@@ -526,6 +526,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -111,6 +111,7 @@ public class ItemEnderUtilities extends Item
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
+    @SideOnly(Side.CLIENT)
     public ResourceLocation[] getItemVariants()
     {
         return new ResourceLocation[] { Item.itemRegistry.getNameForObject(this) };

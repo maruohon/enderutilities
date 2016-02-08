@@ -533,6 +533,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return 0;
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -1391,6 +1391,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

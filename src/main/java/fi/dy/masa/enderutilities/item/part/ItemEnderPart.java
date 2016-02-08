@@ -340,6 +340,7 @@ public class ItemEnderPart extends ItemModule
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

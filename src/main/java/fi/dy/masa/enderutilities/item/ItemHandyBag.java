@@ -666,6 +666,7 @@ public class ItemHandyBag extends ItemInventoryModular
         list.add(new ItemStack(this, 1, 1)); // Tier 2
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -681,6 +681,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         NOT_HANDLED;
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

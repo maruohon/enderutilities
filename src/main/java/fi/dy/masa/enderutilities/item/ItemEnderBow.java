@@ -323,6 +323,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         return 0;
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -199,6 +199,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         list.add(new ItemStack(this, 1, 1));
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
