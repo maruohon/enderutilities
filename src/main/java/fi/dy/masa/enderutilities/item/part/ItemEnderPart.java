@@ -37,9 +37,9 @@ public class ItemEnderPart extends ItemModule
     public static final int ENDER_CORE_TYPE_INACTIVE_BASIC      = 10;
     public static final int ENDER_CORE_TYPE_INACTIVE_ENHANCED   = 11;
     public static final int ENDER_CORE_TYPE_INACTIVE_ADVANCED   = 12;
-    public static final int ENDER_CORE_TYPE_ACTIVE_BASIC        = 1;
-    public static final int ENDER_CORE_TYPE_ACTIVE_ENHANCED     = 2;
-    public static final int ENDER_CORE_TYPE_ACTIVE_ADVANCED     = 3;
+    public static final int ENDER_CORE_TYPE_ACTIVE_BASIC        = 0;
+    public static final int ENDER_CORE_TYPE_ACTIVE_ENHANCED     = 1;
+    public static final int ENDER_CORE_TYPE_ACTIVE_ADVANCED     = 2;
 
     public static final int MEMORY_CARD_TYPE_MISC       = 0;
     public static final int MEMORY_CARD_TYPE_ITEMS_6B   = 6;

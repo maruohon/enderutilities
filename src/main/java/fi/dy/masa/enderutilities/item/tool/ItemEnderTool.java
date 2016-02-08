@@ -994,10 +994,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         // Installed Ender Core type
         str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
-        if (coreTier >= 0)
+        if (coreTier >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC && coreTier <= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
-            String coreType = (coreTier == 0 ? "enderutilities.tooltip.item.basic" :
-                (coreTier == 1 ? "enderutilities.tooltip.item.enhanced" : "enderutilities.tooltip.item.advanced"));
+            String coreType = (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC ? "enderutilities.tooltip.item.basic" :
+                              (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED ? "enderutilities.tooltip.item.enhanced" :
+                                      "enderutilities.tooltip.item.advanced"));
             coreType = StatCollector.translateToLocal(coreType);
             str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") +
                     " " + (coreTier + 1) + rst + ")";
