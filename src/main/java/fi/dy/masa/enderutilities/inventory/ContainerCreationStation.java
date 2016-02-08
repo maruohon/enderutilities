@@ -27,6 +27,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public final InventoryStackArray furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
+    private int lastInteractedCraftingGridId;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -37,6 +38,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
         this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
+        this.lastInteractedCraftingGridId = 0;
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -122,6 +124,20 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.onCraftMatrixChanged(this.craftMatrices[0]);
     }
 
+    /**
+     * Get the SlotRange for the given crafting grid id.
+     * 0 = Left, 1 = Right
+     */
+    public SlotRange getCraftingGridSlotRange(int id)
+    {
+        return id == 1 ? this.craftingGridSlotsRight : this.craftingGridSlotsLeft;
+    }
+
+    public int getLastInteractedCraftingGridId()
+    {
+        return this.lastInteractedCraftingGridId;
+    }
+
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
@@ -192,6 +208,16 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
     {
+        // Update the "last interacted on" crafting grid id, used for JEI recipe filling
+        if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || slotNum == 40)
+        {
+            this.lastInteractedCraftingGridId = 0;
+        }
+        else if (this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true || slotNum == 50)
+        {
+            this.lastInteractedCraftingGridId = 1;
+        }
+
         // Crafting output slots; if "keep one item" is enabled and the minimum remaining
         // stack size is 1 and the auto-use feature is not enabled, then we bail out
         if (slotNum == 40 || slotNum == 50)

@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.compat.jei;
 
+import fi.dy.masa.enderutilities.compat.jei.crafting.RecipeHandlerCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
-import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import mezz.jei.api.IItemRegistry;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
@@ -28,12 +28,12 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
     @Override
     public void register(IModRegistry registry)
     {
-        registry.addRecipeClickArea(GuiEnderFurnace.class,     58, 35, 22, 15, VanillaRecipeCategoryUid.SMELTING);
-        // FIXME Add the custom fuel to a custom handler(?)
-        /*registry.addRecipeClickArea(GuiEnderFurnace.class,     34, 36, 15, 14, VanillaRecipeCategoryUid.FUEL);
+        registry.addRecipeClickArea(GuiEnderFurnace.class,     58, 35, 22, 15, VanillaRecipeCategoryUid.SMELTING, VanillaRecipeCategoryUid.FUEL);
+        // FIXME Add the custom fuels to a custom handler(?)
+        //registry.addRecipeClickArea(GuiEnderFurnace.class,     34, 36, 15, 14, VanillaRecipeCategoryUid.FUEL);
 
         // FIXME Only the last added click area per Gui class works (stored in a HashMap by JEI)
-        registry.addRecipeClickArea(GuiCreationStation.class,  27, 11, 10, 10, VanillaRecipeCategoryUid.SMELTING);
+        /*registry.addRecipeClickArea(GuiCreationStation.class,  27, 11, 10, 10, VanillaRecipeCategoryUid.SMELTING);
         registry.addRecipeClickArea(GuiCreationStation.class,   9, 29, 15, 14, VanillaRecipeCategoryUid.FUEL);
 
         registry.addRecipeClickArea(GuiCreationStation.class, 203, 11, 10, 10, VanillaRecipeCategoryUid.SMELTING);
@@ -43,8 +43,7 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
         registry.addRecipeClickArea(GuiCreationStation.class, 133, 72, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
 
         IRecipeTransferRegistry recipeTransferRegistry = registry.getRecipeTransferRegistry();
-        // FIXME Add a custom handler
-        recipeTransferRegistry.addRecipeTransferHandler(ContainerCreationStation.class, VanillaRecipeCategoryUid.CRAFTING, 31, 9, 57, 36);
+        recipeTransferRegistry.addRecipeTransferHandler(new RecipeHandlerCreationStation());
     }
 
     @Override

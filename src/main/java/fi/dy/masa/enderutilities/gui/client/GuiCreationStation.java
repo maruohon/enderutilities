@@ -98,15 +98,19 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         {
             if ((mode & bit) != 0)
             {
-                this.drawTexturedModalRect(this.guiLeft + CRAFTING_BUTTON_POSX[i], this.guiTop + 87, 120, 0, 10, 10);
+                this.drawTexturedModalRect(this.guiLeft + CRAFTING_BUTTON_POSX[i], this.guiTop + 88, 120, 0, 10, 10);
             }
         }
 
         // Draw the selection border around the selected crafting preset buttons
         mode = (modeMask >> 8) & 0x7;
-        this.drawTexturedModalRect(this.guiLeft +  28, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
+        this.drawTexturedModalRect(this.guiLeft +  27, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
         mode = (modeMask >> 11) & 0x7;
-        this.drawTexturedModalRect(this.guiLeft + 202, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
+        this.drawTexturedModalRect(this.guiLeft + 203, this.guiTop + 32 + mode * 11, 120, 0, 10, 10);
+
+        // Draw the hilight border around the last interacted on crafting grid, which will be used for JEI recipe filling
+        x = this.containerCS.getLastInteractedCraftingGridId() == 1 ? 146 : 38;
+        this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + 31, 184, 200, 56, 56);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or something else...)
         if (this.tecs.isInventoryAccessible(this.container.getPlayer()) == false)
@@ -295,18 +299,18 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
 
         // Crafting grid clear buttons
-        this.buttonList.add(new GuiButtonHoverText(10, x +  84, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-        this.buttonList.add(new GuiButtonHoverText(11, x + 148, y + 88, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+        this.buttonList.add(new GuiButtonHoverText(10, x +  84, y + 89, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+        this.buttonList.add(new GuiButtonHoverText(11, x + 148, y + 89, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
 
         // Add other left side crafting grid buttons
-        this.buttonList.add(new GuiButtonHoverText(12, x + 45, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
-        this.buttonList.add(new GuiButtonHoverText(13, x + 58, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
-        this.buttonList.add(new GuiButtonHoverText(14, x + 71, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonHoverText(12, x + 45, y + 89, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonHoverText(13, x + 58, y + 89, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonHoverText(14, x + 71, y + 89, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
 
         // Add other right side crafting grid buttons
-        this.buttonList.add(new GuiButtonHoverText(15, x + 161, y + 88, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
-        this.buttonList.add(new GuiButtonHoverText(16, x + 174, y + 88, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
-        this.buttonList.add(new GuiButtonHoverText(17, x + 187, y + 88, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonHoverText(15, x + 161, y + 89, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonHoverText(16, x + 174, y + 89, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonHoverText(17, x + 187, y + 89, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
 
         // Add the left and right side furnace mode buttons
         this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
@@ -317,8 +321,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         // Add the recipe recall buttons
         for (int i = 0; i < 5; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(20 + i, x +  29, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
-            this.buttonList.add(new GuiButtonIcon(25 + i, x + 203, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(20 + i, x +  28, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(25 + i, x + 204, y + 33 + i * 11, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
     }
 

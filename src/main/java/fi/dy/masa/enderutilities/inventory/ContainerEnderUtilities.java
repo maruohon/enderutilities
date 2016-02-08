@@ -79,6 +79,16 @@ public class ContainerEnderUtilities extends Container
         return this.player;
     }
 
+    public SlotRange getPlayerMainInventorySlotRange()
+    {
+        return this.playerMainSlots;
+    }
+
+    public SlotRange getCustomInventorySlotRange()
+    {
+        return this.customInventorySlots;
+    }
+
     @Override
     public boolean canInteractWith(EntityPlayer player)
     {
