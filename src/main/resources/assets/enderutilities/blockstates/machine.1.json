@@ -27,7 +27,7 @@
                     "front":    "enderutilities:blocks/creationstation.front",
                     "side":     "enderutilities:blocks/creationstation.side",
                     "top":      "enderutilities:blocks/creationstation.top",
-                    "bottom":   "enderutilities:blocks/creationstation.top"
+                    "bottom":   "enderutilities:blocks/creationstation.side"
                 }
             }
         },
