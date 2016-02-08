@@ -3,32 +3,49 @@ package fi.dy.masa.enderutilities.setup;
 import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
+import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ConfigReader
 {
-    public static final int CURRENT_CONFIG_VERSION = 4000;
+    public static final int CURRENT_CONFIG_VERSION = 5000;
+    public static final String CATEGORY_CLIENT = "Client";
+    public static final String CATEGORY_GENERIC = "Generic";
     public static int confVersion = 0;
+    public static File configurationFile;
+    public static Configuration config;
 
     public static void loadConfigsAll(File configFile)
     {
         EnderUtilities.logger.info("Loading configuration...");
 
-        Configuration conf = new Configuration(configFile);
-        conf.load();
+        configurationFile = configFile;
+        config = new Configuration(configFile, "0.5.0", true);
+        config.load();
 
-        ConfigReader.loadConfigGeneric(conf);
-        ConfigReader.loadConfigItemControl(conf);
-        ConfigReader.loadConfigLists(conf);
+        ConfigReader.loadConfigGeneric(config);
+        ConfigReader.loadConfigItemControl(config);
+        ConfigReader.loadConfigLists(config);
+    }
+
+    @SubscribeEvent
+    public void onConfigChangedEvent(OnConfigChangedEvent event)
+    {
+        if (Reference.MOD_ID.equals(event.modID) == true)
+        {
+            loadConfigGeneric(config);
+        }
     }
 
     public static void loadConfigGeneric(Configuration conf)
     {
         String category;
 
-        category = "Generic";
+        category = CATEGORY_GENERIC;
         Configs.buildersWandBlocksPerTick = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 10";
         Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(10);
@@ -52,7 +69,7 @@ public class ConfigReader
         Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
 
-        category = "Client";
+        category = CATEGORY_CLIENT;
         conf.addCustomCategoryComment(category, "Client side configs");
 
         Configs.useToolParticles = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
@@ -62,7 +79,7 @@ public class ConfigReader
         Configs.useToolSounds.comment = "Does the block drops teleporting by Ender tools play the sound effect";
 
         category = "Version";
-        Configs.configFileVersion = conf.get(category, "configFileVersion", 500).setRequiresMcRestart(false);
+        Configs.configFileVersion = conf.get(category, "configFileVersion", 5000).setRequiresMcRestart(false);
         Configs.configFileVersion.comment = "Internal config file version tracking. DO NOT CHANGE!!";
         confVersion = Configs.configFileVersion.getInt();
 

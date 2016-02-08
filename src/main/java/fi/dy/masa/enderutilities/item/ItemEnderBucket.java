@@ -105,6 +105,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
+
         if (world.isRemote == true)
         {
             return true;
@@ -129,6 +131,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
+        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
+
         // Do nothing on the client side
         if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
             NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
@@ -292,7 +296,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return false;
         }
 
-        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
         TileEntity te = world.getTileEntity(pos);
 
         // Is this a TileEntity that is also some sort of a fluid storage device?
@@ -376,8 +379,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             return false;
         }
-
-        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
 
         // Adjust the target block position to be the block touching the side of the block we targeted
         pos = pos.offset(side);
