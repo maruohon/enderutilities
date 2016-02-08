@@ -103,7 +103,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
 
         // Add the furnace slots as priority merge slots
-        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
+        //this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
 
         // Furnace slots, left side
         // Smeltable items
