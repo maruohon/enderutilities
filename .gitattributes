@@ -15,6 +15,7 @@ gradle/wrapper/gradle-wrapper.properties text eol=lf
 .gitattributes text eol=lf
 COPYING.txt text eol=lf
 COPYING.LESSER.txt text eol=lf
+mcmod.info text eol=lf
 
 #binary
 *.dat binary
