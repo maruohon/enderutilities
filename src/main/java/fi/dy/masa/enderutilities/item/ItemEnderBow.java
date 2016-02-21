@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
@@ -11,12 +12,12 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
+
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.ArrowNockEvent;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -81,16 +82,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        int j = this.getMaxItemUseDuration(stack) - itemInUseCount;
-
-        ArrowLooseEvent event = new ArrowLooseEvent(player, stack, j);
-        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
-        {
-            return;
-        }
-
-        j = event.charge;
-        float f = (float)j / 20.0f;
+        float f = (float)(this.getMaxItemUseDuration(stack) - itemInUseCount) / 20.0f;
         f = (f * f + f * 2.0f) / 3.0f;
         if (f < 0.1f) { return; }
         if (f > 1.0f) { f = 1.0f; }
@@ -183,12 +175,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return stack;
-        }
-
-        ArrowNockEvent event = new ArrowNockEvent(player, stack);
-        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
-        {
-            return event.result;
         }
 
         // Don't shoot when sneaking and looking at a block, aka. binding the bow to a new location
