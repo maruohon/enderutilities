@@ -126,6 +126,9 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
             this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModular.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS, this));
         }
 
+        // Add Memory Card slots as a priority slot range for shift+click merging
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size() - moduleSlots, moduleSlots);
+
         this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
