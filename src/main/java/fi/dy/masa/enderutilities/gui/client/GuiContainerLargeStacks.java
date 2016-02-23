@@ -10,14 +10,14 @@ import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
 {
-    protected final RenderItemLargeStacks renderItemLargeStacks;
+    private static RenderItemLargeStacks renderItemLargeStacks;
     protected final List<IInventory> scaledStackSizeTextTargetInventories;
 
     public GuiContainerLargeStacks(ContainerEnderUtilities container, int xSize, int ySize, String textureName)
     {
         super(container, xSize, ySize, textureName);
+
         this.scaledStackSizeTextTargetInventories = new ArrayList<IInventory>();
-        this.renderItemLargeStacks = new RenderItemLargeStacks(this.itemRender, this.container, this.scaledStackSizeTextTargetInventories);
     }
 
     @Override
@@ -25,6 +25,23 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
     {
         super.initGui();
 
-        this.itemRender = this.renderItemLargeStacks;
+        this.initCustomRenderItem();
+    }
+
+    protected void initCustomRenderItem()
+    {
+        renderItemLargeStacks.setContainer(this.inventorySlots);
+        renderItemLargeStacks.setScaledTextInventories(this.scaledStackSizeTextTargetInventories);
+        this.itemRender = renderItemLargeStacks;
+    }
+
+    public static void setRenderItem(RenderItemLargeStacks renderItem)
+    {
+        renderItemLargeStacks = renderItem;
+    }
+
+    public static RenderItemLargeStacks getRenderItemLargeStacks()
+    {
+        return renderItemLargeStacks;
     }
 }

@@ -63,7 +63,14 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.ySize = 256;
         this.scaledStackSizeTextTargetInventories = new ArrayList<IInventory>();
         this.scaledStackSizeTextTargetInventories.add(this.invModular);
-        this.renderItemLargeStacks = new RenderItemLargeStacks(this.itemRender, this.container, this.scaledStackSizeTextTargetInventories);
+        this.renderItemLargeStacks = GuiContainerLargeStacks.getRenderItemLargeStacks();
+    }
+
+    protected void initCustomRenderItem()
+    {
+        this.renderItemLargeStacks.setContainer(this.inventorySlots);
+        this.renderItemLargeStacks.setScaledTextInventories(this.scaledStackSizeTextTargetInventories);
+        this.itemRender = this.renderItemLargeStacks;
     }
 
     @Override
@@ -71,7 +78,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
     {
         super.initGui();
 
-        this.itemRender = this.renderItemLargeStacks;
+        this.initCustomRenderItem();
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,21 +18,28 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+@SideOnly(Side.CLIENT)
 public class RenderItemLargeStacks extends RenderItem
 {
-    protected final Container container;
-    protected final List<IInventory> targetInventories;
+    protected Container container;
+    protected List<IInventory> targetInventories;
 
-    public RenderItemLargeStacks(RenderItem parent, Container container, List<IInventory> targetInvs)
-    {
-        this(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), container, targetInvs);
-    }
-
-    public RenderItemLargeStacks(TextureManager textureManager, ModelManager modelManager, Container container, List<IInventory> targetInvs)
+    public RenderItemLargeStacks(TextureManager textureManager, ModelManager modelManager)
     {
         super(textureManager, modelManager);
+    }
+
+    public void setContainer(Container container)
+    {
         this.container = container;
-        this.targetInventories = targetInvs;
+    }
+
+    public void setScaledTextInventories(List<IInventory> invs)
+    {
+        this.targetInventories = invs;
     }
 
     @Override
@@ -57,7 +63,8 @@ public class RenderItemLargeStacks extends RenderItem
             GlStateManager.disableDepth();
             GlStateManager.disableBlend();
 
-            if (this.shouldRenderStackSizeAsScaled(stack))
+            //if (this.shouldRenderStackSizeAsScaled(stack) == true)
+            if (this.shouldRenderStackSizeAsScaled(xPosition, yPosition) == true)
             {
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(xPosition, yPosition, 0.0d);
@@ -109,6 +116,23 @@ public class RenderItemLargeStacks extends RenderItem
         for (Slot slot : this.container.inventorySlots)
         {
             if (slot.getStack() == stack)
+            {
+                return this.targetInventories.contains(slot.inventory);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * A hacky way to find out if the ItemStack being rendered is part of the inventories
+     * for which we want to render the stackSize as scaled...
+     */
+    protected boolean shouldRenderStackSizeAsScaled(int slotX, int slotY)
+    {
+        for (Slot slot : this.container.inventorySlots)
+        {
+            if (slot.xDisplayPosition == slotX && slot.yDisplayPosition == slotY)
             {
                 return this.targetInventories.contains(slot.inventory);
             }
