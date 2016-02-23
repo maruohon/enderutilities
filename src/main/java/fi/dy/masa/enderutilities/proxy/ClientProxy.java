@@ -3,9 +3,8 @@ package fi.dy.masa.enderutilities.proxy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -14,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -79,7 +77,9 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerKeyBindings()
     {
-        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_NAME_TOGGLE_MODE, ReferenceKeys.DEFAULT_KEYBIND_TOGGLE_MODE, ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
+        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_NAME_TOGGLE_MODE,
+                                                   ReferenceKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
+                                                   ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
 
         ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
     }
@@ -114,20 +114,19 @@ public class ClientProxy extends CommonProxy
     @Override
     public boolean isShiftKeyDown()
     {
-        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+        return GuiScreen.isShiftKeyDown();
     }
 
     @Override
     public boolean isControlKeyDown()
     {
-        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
-                || (Util.getOSType() == Util.EnumOS.OSX && ((Keyboard.isKeyDown(28) && Keyboard.getEventCharacter() == 0) || Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220)));
+        return GuiScreen.isCtrlKeyDown();
     }
 
     @Override
     public boolean isAltKeyDown()
     {
-        return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+        return GuiScreen.isAltKeyDown();
     }
 
     @Override
