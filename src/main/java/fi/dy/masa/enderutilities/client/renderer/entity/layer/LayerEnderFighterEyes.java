@@ -48,7 +48,7 @@ public class LayerEnderFighterEyes implements LayerRenderer<EntityEndermanFighte
         GlStateManager.enableLighting();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderEnderFighter.getMainModel().render(entityEnderFighter, p_177201_2, p_177201_3, p_177201_5_, p_177201_6_, p_177201_7_, scale);
-        this.renderEnderFighter.func_177105_a(entityEnderFighter, partialTicks);
+        this.renderEnderFighter.setLightmap(entityEnderFighter, partialTicks);
         GlStateManager.disableBlend();
         GlStateManager.enableAlpha();
     }
