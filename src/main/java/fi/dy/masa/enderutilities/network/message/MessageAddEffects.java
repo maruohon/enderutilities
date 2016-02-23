@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 
-public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEffects, IMessage>
+public class MessageAddEffects implements IMessage
 {
     public static final int SOUND = 1;
     public static final int PARTICLES = 2;
@@ -85,57 +85,60 @@ public class MessageAddEffects implements IMessage, IMessageHandler<MessageAddEf
         buf.writeFloat((float)this.velocity);
     }
 
-    @Override
-    public IMessage onMessage(final MessageAddEffects message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageAddEffects, IMessage>
     {
-        if (ctx.side != Side.CLIENT)
+        @Override
+        public IMessage onMessage(final MessageAddEffects message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageAddEffects: " + ctx.side);
+            if (ctx.side != Side.CLIENT)
+            {
+                EnderUtilities.logger.error("Wrong side in MessageAddEffects: " + ctx.side);
+                return null;
+            }
+
+            Minecraft mc = FMLClientHandler.instance().getClient();
+            final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+            if (mc == null || player == null)
+            {
+                EnderUtilities.logger.error("Minecraft or player was null in MessageAddEffects");
+                return null;
+            }
+
+            mc.addScheduledTask(new Runnable()
+            {
+                public void run()
+                {
+                    processMessage(message, player, player.worldObj);
+                }
+            });
+
             return null;
         }
 
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
-        if (mc == null || player == null)
+        protected void processMessage(final MessageAddEffects message, EntityPlayer player, World world)
         {
-            EnderUtilities.logger.error("Minecraft or player was null in MessageAddEffects");
-            return null;
-        }
-
-        mc.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (message.effectType == EFFECT_TELEPORT)
             {
-                processMessage(message, player, player.worldObj);
+                if ((message.flags & SOUND) == SOUND)
+                {
+                    float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
+                    Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
+                }
+                if ((message.flags & PARTICLES) == PARTICLES)
+                {
+                    Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                }
             }
-        });
-
-        return null;
-    }
-
-    protected void processMessage(final MessageAddEffects message, EntityPlayer player, World world)
-    {
-        if (message.effectType == EFFECT_TELEPORT)
-        {
-            if ((message.flags & SOUND) == SOUND)
+            else if (message.effectType == EFFECT_ENDER_TOOLS)
             {
-                float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
-                Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
-            }
-            if ((message.flags & PARTICLES) == PARTICLES)
-            {
-                Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
-            }
-        }
-        else if (message.effectType == EFFECT_ENDER_TOOLS)
-        {
-            if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
-            {
-                Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
-            }
-            if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
-            {
-                Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
+                {
+                    Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
+                }
+                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
+                {
+                    Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                }
             }
         }
     }

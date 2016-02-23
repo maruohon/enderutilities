@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import io.netty.buffer.ByteBuf;
 
-public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPressed, IMessage>
+public class MessageKeyPressed implements IMessage
 {
     private int keyPressed;
 
@@ -41,54 +41,57 @@ public class MessageKeyPressed implements IMessage, IMessageHandler<MessageKeyPr
         buf.writeInt(this.keyPressed);
     }
 
-    @Override
-    public IMessage onMessage(final MessageKeyPressed message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageKeyPressed, IMessage>
     {
-        if (ctx.side != Side.SERVER)
+        @Override
+        public IMessage onMessage(final MessageKeyPressed message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageKeyPressed: " + ctx.side);
-            return null;
-        }
-
-        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
-        if (sendingPlayer == null)
-        {
-            EnderUtilities.logger.error("Sending player was null in MessageKeyPressed");
-            return null;
-        }
-
-        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
-        if (playerWorldServer == null)
-        {
-            EnderUtilities.logger.error("World was null in MessageKeyPressed");
-            return null;
-        }
-
-        playerWorldServer.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (ctx.side != Side.SERVER)
             {
-                processMessage(message, sendingPlayer);
+                EnderUtilities.logger.error("Wrong side in MessageKeyPressed: " + ctx.side);
+                return null;
             }
-        });
 
-        return null;
-    }
-
-    protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
-    {
-        ItemStack stack = player.getCurrentEquippedItem();
-
-        if (stack != null && stack.getItem() instanceof IKeyBound)
-        {
-            if ((message.keyPressed & ReferenceKeys.KEYBIND_ID_TOGGLE_MODE) != 0)
+            final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+            if (sendingPlayer == null)
             {
-                ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
+                EnderUtilities.logger.error("Sending player was null in MessageKeyPressed");
+                return null;
             }
+
+            final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+            if (playerWorldServer == null)
+            {
+                EnderUtilities.logger.error("World was null in MessageKeyPressed");
+                return null;
+            }
+
+            playerWorldServer.addScheduledTask(new Runnable()
+            {
+                public void run()
+                {
+                    processMessage(message, sendingPlayer);
+                }
+            });
+
+            return null;
         }
-        else if (ItemInventorySwapper.getSlotContainingEnabledItem(player) != -1)
+
+        protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
         {
-            ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
+            ItemStack stack = player.getCurrentEquippedItem();
+
+            if (stack != null && stack.getItem() instanceof IKeyBound)
+            {
+                if ((message.keyPressed & ReferenceKeys.KEYBIND_ID_TOGGLE_MODE) != 0)
+                {
+                    ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
+                }
+            }
+            else if (ItemInventorySwapper.getSlotContainingEnabledItem(player) != -1)
+            {
+                ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
+            }
         }
     }
 }

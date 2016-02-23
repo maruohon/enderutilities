@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import io.netty.buffer.ByteBuf;
 
-public class MessageSyncCustomSlot implements IMessage, IMessageHandler<MessageSyncCustomSlot, IMessage>
+public class MessageSyncCustomSlot implements IMessage
 {
     private int windowId;
     private int typeId;
@@ -61,40 +61,43 @@ public class MessageSyncCustomSlot implements IMessage, IMessageHandler<MessageS
         ByteBufUtils.writeItemStackToBuffer(buf, this.stack);
     }
 
-    @Override
-    public IMessage onMessage(final MessageSyncCustomSlot message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageSyncCustomSlot, IMessage>
     {
-        if (ctx.side != Side.CLIENT)
+        @Override
+        public IMessage onMessage(final MessageSyncCustomSlot message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageSyncCustomSlot: " + ctx.side);
-            return null;
-        }
-
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
-        if (mc == null || player == null)
-        {
-            EnderUtilities.logger.error("Minecraft or player was null in MessageSyncCustomSlot");
-            return null;
-        }
-
-        mc.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (ctx.side != Side.CLIENT)
             {
-                processMessage(message, player);
+                EnderUtilities.logger.error("Wrong side in MessageSyncCustomSlot: " + ctx.side);
+                return null;
             }
-        });
 
-        return null;
-    }
+            Minecraft mc = FMLClientHandler.instance().getClient();
+            final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+            if (mc == null || player == null)
+            {
+                EnderUtilities.logger.error("Minecraft or player was null in MessageSyncCustomSlot");
+                return null;
+            }
 
-    protected void processMessage(final MessageSyncCustomSlot message, EntityPlayer player)
-    {
-        if (player.openContainer instanceof ICustomSlotSync && message.windowId == player.openContainer.windowId)
+            mc.addScheduledTask(new Runnable()
+            {
+                public void run()
+                {
+                    processMessage(message, player);
+                }
+            });
+
+            return null;
+        }
+
+        protected void processMessage(final MessageSyncCustomSlot message, EntityPlayer player)
         {
-            ICustomSlotSync target = (ICustomSlotSync)player.openContainer;
-            target.putCustomStack(message.typeId, message.slotNum, message.stack);
+            if (player.openContainer instanceof ICustomSlotSync && message.windowId == player.openContainer.windowId)
+            {
+                ICustomSlotSync target = (ICustomSlotSync)player.openContainer;
+                target.putCustomStack(message.typeId, message.slotNum, message.stack);
+            }
         }
     }
 }

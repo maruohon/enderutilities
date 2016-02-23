@@ -21,7 +21,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
 
-public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAction, IMessage>
+public class MessageGuiAction implements IMessage
 {
     private int guiId;
     private int action;
@@ -70,69 +70,72 @@ public class MessageGuiAction implements IMessage, IMessageHandler<MessageGuiAct
         buf.writeShort(this.elementId);
     }
 
-    @Override
-    public IMessage onMessage(final MessageGuiAction message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageGuiAction, IMessage>
     {
-        if (ctx.side != Side.SERVER)
+        @Override
+        public IMessage onMessage(final MessageGuiAction message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageGuiAction: " + ctx.side);
-            return null;
-        }
-
-        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
-        if (sendingPlayer == null)
-        {
-            EnderUtilities.logger.error("Sending player was null in MessageGuiAction");
-            return null;
-        }
-
-        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
-        if (playerWorldServer == null)
-        {
-            EnderUtilities.logger.error("World was null in MessageGuiAction");
-            return null;
-        }
-
-        playerWorldServer.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (ctx.side != Side.SERVER)
             {
-                processMessage(message, sendingPlayer);
+                EnderUtilities.logger.error("Wrong side in MessageGuiAction: " + ctx.side);
+                return null;
             }
-        });
 
-        return null;
-    }
-
-    protected void processMessage(final MessageGuiAction message, EntityPlayer player)
-    {
-        World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
-
-        if (world != null)
-        {
-            switch(message.guiId)
+            final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+            if (sendingPlayer == null)
             {
-                case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                    TileEntity te = world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
-                    if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
-                    {
-                        ((TileEntityEnderUtilitiesInventory)te).performGuiAction(player, message.action, message.elementId);
-                    }
-                    break;
+                EnderUtilities.logger.error("Sending player was null in MessageGuiAction");
+                return null;
+            }
 
-                case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                    ItemHandyBag.performGuiAction(player, message.action, message.elementId);
-                    break;
+            final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+            if (playerWorldServer == null)
+            {
+                EnderUtilities.logger.error("World was null in MessageGuiAction");
+                return null;
+            }
 
-                case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                    ItemInventorySwapper.performGuiAction(player, message.action, message.elementId);
-                    break;
+            playerWorldServer.addScheduledTask(new Runnable()
+            {
+                public void run()
+                {
+                    processMessage(message, sendingPlayer);
+                }
+            });
 
-                case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                    ItemPickupManager.performGuiAction(player, message.action, message.elementId);
-                    break;
+            return null;
+        }
 
-                default:
+        protected void processMessage(final MessageGuiAction message, EntityPlayer player)
+        {
+            World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
+
+            if (world != null)
+            {
+                switch(message.guiId)
+                {
+                    case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
+                        TileEntity te = world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
+                        if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+                        {
+                            ((TileEntityEnderUtilitiesInventory)te).performGuiAction(player, message.action, message.elementId);
+                        }
+                        break;
+
+                    case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                        ItemHandyBag.performGuiAction(player, message.action, message.elementId);
+                        break;
+
+                    case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
+                        ItemInventorySwapper.performGuiAction(player, message.action, message.elementId);
+                        break;
+
+                    case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
+                        ItemPickupManager.performGuiAction(player, message.action, message.elementId);
+                        break;
+
+                    default:
+                }
             }
         }
     }

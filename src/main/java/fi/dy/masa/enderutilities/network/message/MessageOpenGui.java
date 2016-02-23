@@ -17,7 +17,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import io.netty.buffer.ByteBuf;
 
-public class MessageOpenGui implements IMessage, IMessageHandler<MessageOpenGui, IMessage>
+public class MessageOpenGui implements IMessage
 {
     private int dimension;
     private double posX;
@@ -58,54 +58,56 @@ public class MessageOpenGui implements IMessage, IMessageHandler<MessageOpenGui,
         buf.writeInt(this.guiId);
     }
 
-    @Override
-    public IMessage onMessage(final MessageOpenGui message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageOpenGui, IMessage>
     {
-        if (ctx.side != Side.SERVER)
+        @Override
+        public IMessage onMessage(final MessageOpenGui message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageOpenGui: " + ctx.side);
-            return null;
-        }
-
-        final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
-        if (sendingPlayer == null)
-        {
-            EnderUtilities.logger.error("player was null in MessageOpenGui");
-            return null;
-        }
-
-        final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
-        if (playerWorldServer == null)
-        {
-            EnderUtilities.logger.error("World was null in MessageOpenGui");
-            return null;
-        }
-
-        playerWorldServer.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (ctx.side != Side.SERVER)
             {
-                processMessage(message, sendingPlayer);
+                EnderUtilities.logger.error("Wrong side in MessageOpenGui: " + ctx.side);
+                return null;
             }
-        });
 
-        return null;
-    }
+            final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+            if (sendingPlayer == null)
+            {
+                EnderUtilities.logger.error("player was null in MessageOpenGui");
+                return null;
+            }
 
-    protected void processMessage(final MessageOpenGui message, EntityPlayer player)
-    {
-        switch(message.guiId)
-        {
-            case ReferenceGuiIds.GUI_ID_HANDY_BAG:
-                ItemStack stack = ItemHandyBag.getOpenableBag(player);
-                if (stack != null)
+            final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+            if (playerWorldServer == null)
+            {
+                EnderUtilities.logger.error("World was null in MessageOpenGui");
+                return null;
+            }
+
+            playerWorldServer.addScheduledTask(new Runnable()
+            {
+                public void run()
                 {
-                    World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
-                    player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+                    processMessage(message, sendingPlayer);
                 }
-                break;
-            default:
+            });
+
+            return null;
+        }
+
+        protected void processMessage(final MessageOpenGui message, EntityPlayer player)
+        {
+            switch(message.guiId)
+            {
+                case ReferenceGuiIds.GUI_ID_HANDY_BAG:
+                    ItemStack stack = ItemHandyBag.getOpenableBag(player);
+                    if (stack != null)
+                    {
+                        World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
+                        player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+                    }
+                    break;
+                default:
+            }
         }
     }
-
 }

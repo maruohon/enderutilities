@@ -18,11 +18,11 @@ public class PacketHandler
 
     public static void init()
     {
-        INSTANCE.registerMessage(MessageKeyPressed.class, MessageKeyPressed.class, 0, Side.SERVER);
-        INSTANCE.registerMessage(MessageAddEffects.class, MessageAddEffects.class, 1, Side.CLIENT);
-        INSTANCE.registerMessage(MessageGuiAction.class, MessageGuiAction.class, 2, Side.SERVER);
-        INSTANCE.registerMessage(MessageOpenGui.class, MessageOpenGui.class, 3, Side.SERVER);
-        INSTANCE.registerMessage(MessageSyncSlot.class, MessageSyncSlot.class, 4, Side.CLIENT);
-        INSTANCE.registerMessage(MessageSyncCustomSlot.class, MessageSyncCustomSlot.class, 5, Side.CLIENT);
+        INSTANCE.registerMessage(MessageKeyPressed.Handler.class, MessageKeyPressed.class, 0, Side.SERVER);
+        INSTANCE.registerMessage(MessageAddEffects.Handler.class, MessageAddEffects.class, 1, Side.CLIENT);
+        INSTANCE.registerMessage(MessageGuiAction.Handler.class, MessageGuiAction.class, 2, Side.SERVER);
+        INSTANCE.registerMessage(MessageOpenGui.Handler.class, MessageOpenGui.class, 3, Side.SERVER);
+        INSTANCE.registerMessage(MessageSyncSlot.Handler.class, MessageSyncSlot.class, 4, Side.CLIENT);
+        INSTANCE.registerMessage(MessageSyncCustomSlot.Handler.class, MessageSyncCustomSlot.class, 5, Side.CLIENT);
     }
 }

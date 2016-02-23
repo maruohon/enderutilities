@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerLargeStacks;
 import io.netty.buffer.ByteBuf;
 
-public class MessageSyncSlot implements IMessage, IMessageHandler<MessageSyncSlot, IMessage>
+public class MessageSyncSlot implements IMessage
 {
     private int windowId;
     private int slotNum;
@@ -57,39 +57,42 @@ public class MessageSyncSlot implements IMessage, IMessageHandler<MessageSyncSlo
         ByteBufUtils.writeItemStackToBuffer(buf, this.stack);
     }
 
-    @Override
-    public IMessage onMessage(final MessageSyncSlot message, MessageContext ctx)
+    public static class Handler implements IMessageHandler<MessageSyncSlot, IMessage>
     {
-        if (ctx.side != Side.CLIENT)
+        @Override
+        public IMessage onMessage(final MessageSyncSlot message, MessageContext ctx)
         {
-            EnderUtilities.logger.error("Wrong side in MessageSyncSlot: " + ctx.side);
-            return null;
-        }
-
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
-        if (mc == null || player == null)
-        {
-            EnderUtilities.logger.error("Minecraft or player was null in MessageSyncSlot");
-            return null;
-        }
-
-        mc.addScheduledTask(new Runnable()
-        {
-            public void run()
+            if (ctx.side != Side.CLIENT)
             {
-                processMessage(message, player);
+                EnderUtilities.logger.error("Wrong side in MessageSyncSlot: " + ctx.side);
+                return null;
             }
-        });
 
-        return null;
-    }
+            Minecraft mc = FMLClientHandler.instance().getClient();
+            final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+            if (mc == null || player == null)
+            {
+                EnderUtilities.logger.error("Minecraft or player was null in MessageSyncSlot");
+                return null;
+            }
 
-    protected void processMessage(final MessageSyncSlot message, EntityPlayer player)
-    {
-        if (player.openContainer instanceof ContainerLargeStacks && message.windowId == player.openContainer.windowId)
+            mc.addScheduledTask(new Runnable()
+            {
+                public void run()
+                {
+                    processMessage(message, player);
+                }
+            });
+
+            return null;
+        }
+
+        protected void processMessage(final MessageSyncSlot message, EntityPlayer player)
         {
-            player.openContainer.putStackInSlot(message.slotNum, message.stack);
+            if (player.openContainer instanceof ContainerLargeStacks && message.windowId == player.openContainer.windowId)
+            {
+                player.openContainer.putStackInSlot(message.slotNum, message.stack);
+            }
         }
     }
 }
