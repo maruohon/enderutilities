@@ -1,41 +1,34 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.InventoryEffectRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
-import fi.dy.masa.enderutilities.client.renderer.item.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-public class GuiHandyBag extends InventoryEffectRenderer
+public class GuiHandyBag extends GuiContainerLargeStacks
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
 
-    protected final RenderItemLargeStacks renderItemLargeStacks;
-    protected final List<IInventory> scaledStackSizeTextTargetInventories;
     protected final EntityPlayer player;
     protected final ContainerHandyBag container;
     protected final InventoryItemModular invModular;
-    protected final ResourceLocation guiTexture;
-    protected final ResourceLocation guiTextureWidgets;
     protected final int invSize;
     protected final int numModuleSlots;
     protected final int bagTier;
@@ -46,10 +39,12 @@ public class GuiHandyBag extends InventoryEffectRenderer
     protected int firstModuleSlotY;
     protected int firstArmorSlotX;
     protected int firstArmorSlotY;
+    private boolean hasActivePotionEffects;
 
     public GuiHandyBag(ContainerHandyBag container)
     {
-        super(container);
+        super(container, 256, 256, "gui.container.handybag." + container.getBagTier());
+
         this.player = container.player;
         this.container = container;
         this.invModular = container.inventoryItemModular;
@@ -57,20 +52,7 @@ public class GuiHandyBag extends InventoryEffectRenderer
         this.numModuleSlots = this.invModular.getModuleInventory().getSizeInventory();
         this.bagTier = this.container.getBagTier();
 
-        this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.handybag." + this.bagTier);
-        this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
-        this.xSize = this.bagTier == 1 ? 256 : 176;
-        this.ySize = 256;
-        this.scaledStackSizeTextTargetInventories = new ArrayList<IInventory>();
         this.scaledStackSizeTextTargetInventories.add(this.invModular);
-        this.renderItemLargeStacks = GuiContainerLargeStacks.getRenderItemLargeStacks();
-    }
-
-    protected void initCustomRenderItem()
-    {
-        this.renderItemLargeStacks.setContainer(this.inventorySlots);
-        this.renderItemLargeStacks.setScaledTextInventories(this.scaledStackSizeTextTargetInventories);
-        this.itemRender = this.renderItemLargeStacks;
     }
 
     @Override
@@ -78,7 +60,13 @@ public class GuiHandyBag extends InventoryEffectRenderer
     {
         super.initGui();
 
-        this.initCustomRenderItem();
+        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 5 * 18;
+        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(0).yDisplayPosition - 33;
+        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
+        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
+
+        this.createButtons();
+        this.updateActivePotionEffects();
     }
 
     @Override
@@ -92,13 +80,12 @@ public class GuiHandyBag extends InventoryEffectRenderer
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
-        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 5 * 18;
-        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(0).yDisplayPosition - 33;
-        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
-        this.createButtons();
-
         super.drawScreen(mouseX, mouseY, gameTicks);
+
+        if (this.hasActivePotionEffects == true)
+        {
+            this.drawActivePotionEffects();
+        }
 
         this.drawTooltips(mouseX, mouseY);
         this.oldMouseX = (float)mouseX;
@@ -241,6 +228,82 @@ public class GuiHandyBag extends InventoryEffectRenderer
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
+        }
+    }
+
+    protected void updateActivePotionEffects()
+    {
+        boolean hasVisibleEffect = false;
+        for(PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects()) {
+            Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+            if(potion.shouldRender(potioneffect)) { hasVisibleEffect = true; break; }
+        }
+        if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+        {
+            this.guiLeft = 160 + (this.width - this.xSize - 200) / 2;
+            this.hasActivePotionEffects = true;
+        }
+        else
+        {
+            this.guiLeft = (this.width - this.xSize) / 2;
+            this.hasActivePotionEffects = false;
+        }
+    }
+
+    private void drawActivePotionEffects()
+    {
+        int i = this.guiLeft - 124;
+        int j = this.guiTop;
+
+        Collection<PotionEffect> collection = this.mc.thePlayer.getActivePotionEffects();
+
+        if (!collection.isEmpty())
+        {
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.disableLighting();
+            int l = 33;
+
+            if (collection.size() > 5)
+            {
+                l = 132 / (collection.size() - 1);
+            }
+
+            for (PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects())
+            {
+                Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+                if(!potion.shouldRender(potioneffect)) continue;
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                this.mc.getTextureManager().bindTexture(inventoryBackground);
+                this.drawTexturedModalRect(i, j, 0, 166, 140, 32);
+
+                if (potion.hasStatusIcon())
+                {
+                    int i1 = potion.getStatusIconIndex();
+                    this.drawTexturedModalRect(i + 6, j + 7, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
+                }
+
+                potion.renderInventoryEffect(i, j, potioneffect, mc);
+                if (!potion.shouldRenderInvText(potioneffect)) { j += l; continue; }
+                String s1 = I18n.format(potion.getName(), new Object[0]);
+
+                if (potioneffect.getAmplifier() == 1)
+                {
+                    s1 = s1 + " " + I18n.format("enchantment.level.2", new Object[0]);
+                }
+                else if (potioneffect.getAmplifier() == 2)
+                {
+                    s1 = s1 + " " + I18n.format("enchantment.level.3", new Object[0]);
+                }
+                else if (potioneffect.getAmplifier() == 3)
+                {
+                    s1 = s1 + " " + I18n.format("enchantment.level.4", new Object[0]);
+                }
+
+                this.fontRendererObj.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
+                String s = Potion.getDurationString(potioneffect);
+                this.fontRendererObj.drawStringWithShadow(s, (float)(i + 10 + 18), (float)(j + 6 + 10), 8355711);
+                j += l;
+            }
         }
     }
 }

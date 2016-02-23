@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,7 +30,6 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
-import fi.dy.masa.enderutilities.client.renderer.item.RenderItemLargeStacks;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
@@ -42,7 +40,6 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
-import fi.dy.masa.enderutilities.gui.client.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
@@ -116,11 +113,6 @@ public class ClientProxy extends CommonProxy
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
         MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
         MinecraftForge.EVENT_BUS.register(new RulerRenderer());
-
-
-        RenderItemLargeStacks renderItemLargeStacks = new RenderItemLargeStacks(mc.renderEngine, renderItem.getItemModelMesher().getModelManager());
-        ((IReloadableResourceManager) mc.getResourceManager()).registerReloadListener(renderItemLargeStacks);
-        GuiContainerLargeStacks.setRenderItem(renderItemLargeStacks);
     }
 
     @Override

@@ -51,15 +51,15 @@ public class EnderUtilities
         proxy.registerModels();
         proxy.registerEntities();
         proxy.registerTileEntities();
-        proxy.registerKeyBindings();
-        proxy.registerEventHandlers();
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+        proxy.registerKeyBindings();
+        proxy.registerEventHandlers();
         proxy.registerRenderers();
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 
     @EventHandler
