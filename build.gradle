@@ -37,9 +37,6 @@ minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     runDir = "run"
 
-    // For JEI
-    useDepAts = true
-
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
@@ -50,8 +47,8 @@ minecraft {
 
     ext.mod_version = "${config.mod_version}"
 
-    if (mod_version.endsWith('-dev')) {
-        mod_version = mod_version + "-" + new Date().format('yyyy-MM-dd_HH.mm.ss')
+    if (mod_version.endsWith('+dev')) {
+        mod_version = mod_version + "+" + new Date().format('yyyyMMdd.HHmmss')
     }
 
     replaceIn "reference/Reference.java"

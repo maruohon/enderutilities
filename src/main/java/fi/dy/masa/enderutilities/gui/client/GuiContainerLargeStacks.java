@@ -31,7 +31,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
     }
 
     @Override
-    protected void drawSlot(Slot slotIn)
+    public void drawSlot(Slot slotIn)
     {
         int slotPosX = slotIn.xDisplayPosition;
         int slotPosY = slotIn.yDisplayPosition;
