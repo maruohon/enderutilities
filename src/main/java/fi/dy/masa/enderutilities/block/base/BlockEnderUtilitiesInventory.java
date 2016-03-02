@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -47,7 +48,7 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        PlayerInteractEvent e = new PlayerInteractEvent(playerIn, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, pos, side, worldIn);
+        PlayerInteractEvent e = new PlayerInteractEvent(playerIn, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, pos, side, worldIn, new Vec3(hitX, hitY, hitZ));
         if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
         {
             return false;
