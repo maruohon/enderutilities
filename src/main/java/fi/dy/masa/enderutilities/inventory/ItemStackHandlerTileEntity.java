@@ -1,28 +1,29 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.tileentity.TileEntity;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class ItemStackHandlerTileEntity extends ItemStackHandlerBasic
 {
-    protected final TileEntity te;
+    protected final TileEntityEnderUtilitiesInventory te;
 
-    public ItemStackHandlerTileEntity(int invSize, TileEntity te)
+    public ItemStackHandlerTileEntity(int invSize, TileEntityEnderUtilitiesInventory te)
     {
         super(invSize);
         this.te = te;
     }
 
-    public ItemStackHandlerTileEntity(int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName, TileEntity te)
+    public ItemStackHandlerTileEntity(int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName, TileEntityEnderUtilitiesInventory te)
     {
         super(invSize, stackLimit, allowCustomStackSizes, tagName);
         this.te = te;
     }
 
     @Override
-    protected void onContentsChanged()
+    protected void onContentsChanged(int slot)
     {
-        super.onContentsChanged();
+        super.onContentsChanged(slot);
 
+        this.te.inventoryChanged(slot);
         this.te.markDirty();
     }
 }

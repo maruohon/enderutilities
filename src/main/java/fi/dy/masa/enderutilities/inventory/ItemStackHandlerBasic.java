@@ -44,22 +44,31 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public ItemStack getStackInSlot(int slot)
     {
+        /*
         if (slot >= 0 && slot < this.items.length)
         {
             return this.items[slot];
         }
 
         return null;
+        */
+
+        return this.items[slot];
     }
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack)
     {
+        /*
         if (slot >= 0 && slot < this.items.length)
         {
             this.items[slot] = stack;
-            this.onContentsChanged();
+            this.onContentsChanged(slot);
         }
+        */
+
+        this.items[slot] = stack;
+        this.onContentsChanged(slot);
     }
 
     @Override
@@ -109,7 +118,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
                 this.items[slot].stackSize = amount;
             }
 
-            this.onContentsChanged();
+            this.onContentsChanged(slot);
         }
 
         if (amount < stack.stackSize)
@@ -161,12 +170,12 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
             }
         }
 
-        this.onContentsChanged();
+        this.onContentsChanged(slot);
 
         return stack;
     }
 
-    protected void onContentsChanged() { }
+    protected void onContentsChanged(int slot) { }
 
     @Override
     public NBTTagCompound serializeNBT()
@@ -194,6 +203,6 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     public void setStackInSlotDirect(int slot, ItemStack stack)
     {
         this.items[slot] = stack;
-        this.onContentsChanged();
+        this.onContentsChanged(slot);
     }
 }

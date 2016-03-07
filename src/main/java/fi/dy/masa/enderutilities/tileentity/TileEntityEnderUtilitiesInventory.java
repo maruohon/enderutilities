@@ -7,12 +7,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
 
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -22,7 +25,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
 {
-    protected IItemHandler itemHandler;
+    protected IItemHandlerModifiable itemHandler;
     protected String customInventoryName;
     protected ItemStack[] itemStacks;
     protected int invSize;
@@ -134,6 +137,31 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 
         this.writeItemsToNBT(nbt, this.itemStacks, "Items");
     }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    {
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        {
+            return true;
+        }
+
+        return super.hasCapability(capability, facing);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    {
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        {
+            return (T) this.itemHandler;
+        }
+
+        return super.getCapability(capability, facing);
+    }
+
+    public void inventoryChanged(int slot) { }
 
     @Override
     public int getSizeInventory()

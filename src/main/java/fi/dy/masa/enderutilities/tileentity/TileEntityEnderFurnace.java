@@ -5,7 +5,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemHoe;
@@ -19,21 +18,26 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implements ITickable
+public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory implements ITickable
 {
     // The values that define how fuels burn and items smelt
     public static final int COOKTIME_INC_NOFUEL = 1; // No fuel mode: 60 seconds per item
@@ -54,6 +58,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     public boolean fastMode;
     public boolean outputToEnderChest;
     private ItemStack smeltingResultCache;
+    private IItemHandler itemHandlerExternal;
 
     private boolean inputDirty;
     //private boolean fuelDirty;
@@ -78,6 +83,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         this.burnTimeRemaining = 0;
         this.cookTime = 0;
         this.timer = 0;
+        this.itemHandler = new ItemStackHandlerTileEntity(3, 1024, true, "Items", this);
+        this.itemHandlerExternal = new ItemHandlerEnderFurnace(this, this.itemHandler);
     }
 
     @Override
@@ -159,9 +166,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     {
         if (this.inputDirty == true)
         {
-            if (this.itemStacks[SLOT_INPUT] != null)
+            if (this.itemHandler.getStackInSlot(SLOT_INPUT) != null)
             {
-                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.itemStacks[SLOT_INPUT]);
+                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.itemHandler.getStackInSlot(SLOT_INPUT));
             }
             else
             {
@@ -179,7 +186,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     {
         if (this.fuelDirty == true)
         {
-            if (this.itemStacks[SLOT_FUEL] != null)
+            if (this.itemHandler.getStackInSlot(SLOT_FUEL) != null)
             {
                 this.fuelBurnTimeCache = 0;
             }
@@ -286,7 +293,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         }
 
         // Output to Ender Chest enabled
-        if (this.outputToEnderChest == true && this.itemStacks[SLOT_OUTPUT] != null && ++this.timer >= OUTPUT_INTERVAL)
+        if (this.outputToEnderChest == true && this.itemHandler.getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
         {
             if (this.moveItemsToEnderChest() == true)
             {
@@ -319,18 +326,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
     {
         if (this.canSmelt() == true)
         {
-            if (this.itemStacks[SLOT_OUTPUT] == null)
-            {
-                this.itemStacks[SLOT_OUTPUT] = this.smeltingResultCache.copy();
-            }
-            else
-            {
-                this.itemStacks[SLOT_OUTPUT].stackSize += this.smeltingResultCache.stackSize;
-            }
+            this.itemHandler.insertItem(SLOT_OUTPUT, this.smeltingResultCache, false);
+            this.itemHandler.extractItem(SLOT_INPUT, 1, false);
 
-            if (--this.itemStacks[SLOT_INPUT].stackSize <= 0)
+            if (this.itemHandler.getStackInSlot(SLOT_INPUT) == null)
             {
-                this.itemStacks[SLOT_INPUT] = null;
                 this.inputDirty = true;
             }
         }
@@ -342,33 +342,37 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
      */
     public int consumeFuelItem()
     {
-        if (this.itemStacks[SLOT_FUEL] == null)
+        if (this.itemHandler.getStackInSlot(SLOT_FUEL) == null)
         {
             return 0;
         }
 
-        int burnTime = consumeFluidFuelDosage(this.itemStacks[SLOT_FUEL]);
+        ItemStack fuelStack = this.itemHandler.extractItem(SLOT_FUEL, 1, false);
+        int burnTime = consumeFluidFuelDosage(fuelStack);
 
         // IFluidContainerItem items with lava
         if (burnTime > 0)
         {
+            // Put the fuel/fluid container item back
+            this.itemHandler.insertItem(SLOT_FUEL, fuelStack, false);
             this.burnTimeFresh = burnTime;
             //this.fuelDirty = true;
         }
         // Regular solid fuels
         else
         {
-            burnTime = getItemBurnTime(this.itemStacks[SLOT_FUEL]);
+            burnTime = getItemBurnTime(fuelStack);
 
             if (burnTime > 0)
             {
-                if (--this.itemStacks[SLOT_FUEL].stackSize <= 0)
+                this.burnTimeFresh = burnTime;
+                ItemStack containerStack = fuelStack.getItem().getContainerItem(fuelStack);
+
+                if (this.itemHandler.getStackInSlot(SLOT_FUEL) == null && containerStack != null)
                 {
-                    this.itemStacks[SLOT_FUEL] = this.itemStacks[SLOT_FUEL].getItem().getContainerItem(this.itemStacks[SLOT_FUEL]);
+                    this.itemHandler.insertItem(SLOT_FUEL, containerStack, false);
                     //this.fuelDirty = true;
                 }
-
-                this.burnTimeFresh = burnTime;
             }
         }
 
@@ -382,84 +386,52 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
      */
     private boolean moveItemsToEnderChest()
     {
-        if (this.itemStacks[SLOT_OUTPUT] == null)
+        if (this.itemHandler.getStackInSlot(SLOT_OUTPUT) == null)
         {
             return false;
         }
 
         EntityPlayer player = EntityUtils.findPlayerByUUID(this.ownerUUID);
-        boolean movedSomething = false;
-
-        // Player is online
-        if (player != null)
+        if (player == null)
         {
-            InventoryEnderChest invEnderChest = player.getInventoryEnderChest();
-            ItemStack enderChestStack;
+            return false;
+        }
+        // Player is online
 
-            int invSize = invEnderChest.getSizeInventory();
-            int amount = 0;
+        IItemHandler enderChestHandler = new InvWrapper(player.getInventoryEnderChest());
+        ItemStack stack = this.itemHandler.extractItem(SLOT_OUTPUT, 64, false);
 
-            // First loop through the Ender Chest: fill matching stacks
-            for (int i = 0; i < invSize; ++i)
+        int origSize = stack.stackSize;
+        int invSize = enderChestHandler.getSlots();
+
+        // First loop through the Ender Chest: fill matching stacks
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            if (enderChestHandler.getStackInSlot(slot) != null)
             {
-                enderChestStack = invEnderChest.getStackInSlot(i);
+                stack = enderChestHandler.insertItem(slot, stack, false);
 
-                if (enderChestStack == null)
+                if (stack == null)
                 {
-                    continue;
-                }
-
-                if (InventoryUtils.areItemStacksEqual(this.itemStacks[SLOT_OUTPUT], enderChestStack) == true)
-                {
-                    amount = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit() - enderChestStack.stackSize);
-                    amount = Math.min(amount, this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
-
-                    if (amount > 0)
-                    {
-                        enderChestStack.stackSize += amount;
-                        this.itemStacks[SLOT_OUTPUT].stackSize -= amount;
-                        movedSomething = true;
-
-                        if (this.itemStacks[SLOT_OUTPUT].stackSize <= 0)
-                        {
-                            this.itemStacks[SLOT_OUTPUT] = null;
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            // Second loop (if we still have more items): move items to an empty slot
-            for (int i = 0; i < invSize; ++i)
-            {
-                enderChestStack = invEnderChest.getStackInSlot(i);
-
-                if (enderChestStack != null)
-                {
-                    continue;
-                }
-
-                amount = Math.min(this.itemStacks[SLOT_OUTPUT].stackSize, invEnderChest.getInventoryStackLimit());
-                amount = Math.min(amount, this.itemStacks[SLOT_OUTPUT].getMaxStackSize());
-
-                if (amount > 0)
-                {
-                    ItemStack newStack = this.itemStacks[SLOT_OUTPUT].copy();
-                    newStack.stackSize = amount;
-                    this.itemStacks[SLOT_OUTPUT].stackSize -= amount;
-                    invEnderChest.setInventorySlotContents(i, newStack);
-                    movedSomething = true;
-
-                    if (this.itemStacks[SLOT_OUTPUT].stackSize <= 0)
-                    {
-                        this.itemStacks[SLOT_OUTPUT] = null;
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
 
-        return movedSomething;
+        // Second loop (if we still have more items): move items to an empty slot
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            stack = enderChestHandler.insertItem(slot, stack, false);
+
+            if (stack == null)
+            {
+                return true;
+            }
+        }
+
+        this.itemHandler.insertItem(SLOT_OUTPUT, stack, false);
+
+        return origSize != stack.stackSize;
     }
 
     /**
@@ -468,12 +440,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
      */
     public boolean hasFuelAvailable()
     {
-        if (this.itemStacks[SLOT_FUEL] == null)
+        ItemStack fuelStack = this.itemHandler.getStackInSlot(SLOT_FUEL);
+        if (fuelStack == null)
         {
             return false;
         }
 
-        return (itemContainsFluidFuel(this.itemStacks[SLOT_FUEL]) == true || getItemBurnTime(this.itemStacks[SLOT_FUEL]) > 0);
+        return (itemContainsFluidFuel(fuelStack) == true || getItemBurnTime(fuelStack) > 0);
     }
 
     /**
@@ -483,22 +456,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
      */
     public boolean canSmelt()
     {
-        if (this.itemStacks[SLOT_INPUT] == null || this.smeltingResultCache == null)
+        if (this.itemHandler.getStackInSlot(SLOT_INPUT) == null || this.smeltingResultCache == null)
         {
             return false;
         }
 
-        if (this.itemStacks[SLOT_OUTPUT] != null)
-        {
-            if (InventoryUtils.areItemStacksEqual(this.smeltingResultCache, this.itemStacks[SLOT_OUTPUT]) == false)
-            {
-                return false;
-            }
-
-            return (this.getInventoryStackLimit() - this.itemStacks[SLOT_OUTPUT].stackSize) >= this.smeltingResultCache.stackSize;
-        }
-
-        return true;
+        return this.itemHandler.insertItem(SLOT_OUTPUT, this.smeltingResultCache, true) == null;
     }
 
     /**
@@ -605,112 +568,114 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ItemStack decrStackSize(int slotNum, int maxAmount)
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
     {
-        //System.out.println("decrStackSize(slot: " + slotNum + " maxAmount: " + maxAmount + ")");
-        if (slotNum == SLOT_INPUT)
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        {
+            return (T) this.itemHandlerExternal;
+        }
+
+        return super.getCapability(capability, facing);
+    }
+
+    private class ItemHandlerEnderFurnace implements IItemHandlerModifiable
+    {
+        private final TileEntityEnderFurnace teef;
+        private final IItemHandlerModifiable baseHandler;
+
+        public ItemHandlerEnderFurnace(TileEntityEnderFurnace te, IItemHandlerModifiable baseHandler)
+        {
+            this.teef = te;
+            this.baseHandler = baseHandler;
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return this.baseHandler.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return this.baseHandler.getStackInSlot(slot);
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack)
+        {
+            if ( slot == SLOT_OUTPUT ||
+                (slot == SLOT_INPUT && stack != null && FurnaceRecipes.instance().getSmeltingResult(stack) == null) ||
+                (slot == SLOT_FUEL && stack != null && isItemFuel(stack) == false))
+            {
+                return;
+            }
+
+            this.baseHandler.setStackInSlot(slot, stack);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            if ( slot == SLOT_OUTPUT ||
+                (slot == SLOT_INPUT && stack != null && FurnaceRecipes.instance().getSmeltingResult(stack) == null) ||
+                (slot == SLOT_FUEL && stack != null && isItemFuel(stack) == false))
+            {
+                return stack;
+            }
+
+            return this.baseHandler.insertItem(slot, stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            if ( slot == SLOT_INPUT ||
+                (slot == SLOT_FUEL && isItemFuel(this.baseHandler.getStackInSlot(SLOT_FUEL)) == true) ||
+                (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == true))
+            {
+                return null;
+            }
+
+            return this.baseHandler.extractItem(slot, amount, simulate);
+        }
+    }
+
+    @Override
+    public void inventoryChanged(int slot)
+    {
+        if (slot == SLOT_INPUT)
         {
             this.inputDirty = true;
         }
-        /*else if (slotNum == SLOT_FUEL)
-        {
-            this.fuelDirty = true;
-        }*/
-
-        return super.decrStackSize(slotNum, maxAmount);
     }
 
-    @Override
-    public ItemStack removeStackFromSlot(int slotNum)
+    /**
+     * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
+     * @param i
+     * @return
+     */
+    public int getCookProgressScaled(int i)
     {
-        //System.out.println("getStackInSlotOnClosing(slot: " + slotNum + ")");
-        if (slotNum == SLOT_INPUT)
-        {
-            this.inputDirty = true;
-        }
-        /*else if (slotNum == SLOT_FUEL)
-        {
-            this.fuelDirty = true;
-        }*/
-
-        return super.removeStackFromSlot(slotNum);
+        return this.cookTime * i / COOKTIME_DEFAULT;
     }
 
-    @Override
-    public void setInventorySlotContents(int slotNum, ItemStack stack)
+    /**
+     * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
+     * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
+     * @param i
+     * @return
+     */
+    public int getBurnTimeRemainingScaled(int i)
     {
-        //System.out.println("setInventorySlotContents(slot: " + slotNum + ", " + stack + ")");
-        if (slotNum == SLOT_INPUT && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[SLOT_INPUT]) == false)
+        if (this.burnTimeFresh == 0)
         {
-            this.inputDirty = true;
-        }
-        /*else if (slotNum == SLOT_FUEL && InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == false)
-        {
-            this.fuelDirty = true;
-        }*/
-
-        super.setInventorySlotContents(slotNum, stack);
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
-    {
-        //System.out.println("isItemvalidForSlot(slot: " + slotNum + ", " + stack + ")");
-        // Don't allow inserting anything to the output slot
-        if (slotNum == 2)
-        {
-            return false;
+            return 0;
         }
 
-        // Only accept fuels into the fuel slot
-        if (slotNum == 1)
-        {
-            return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || isItemFuel(stack) == true;
-        }
-
-        return InventoryUtils.areItemStacksEqual(stack, this.itemStacks[slotNum]) == true || FurnaceRecipes.instance().getSmeltingResult(stack) != null;
-    }
-
-    @Override
-    public int[] getSlotsForFace(EnumFacing side)
-    {
-        //System.out.println("getAccessibleSlotsFromSide(side: " + side + ")");
-        // Allow access to all slots from all sides
-        return SLOTS_SIDES;
-    }
-
-    @Override
-    public boolean canExtractItem(int slotNum, ItemStack stack, EnumFacing direction)
-    {
-        //System.out.println("canExtractItem(slot: " + slot + ", " + stack + " side: " + side + ")");
-        // Only allow pulling out items that are not fuel from the fuel slot (like empty buckets)
-        if (slotNum == 1)
-        {
-            return isItemFuel(stack) == false;
-        }
-
-        // Allow pulling out output items from any side, but only when not outputting to Ender Chest
-        if (slotNum == 2 && this.outputToEnderChest == false)
-        {
-            return true;
-        }
-
-        // Don't allow pulling out items from the input slot, or from the output slot when outputting to an Ender Chest
-        return false;
-    }
-
-    @Override
-    public ContainerEnderFurnace getContainer(EntityPlayer player)
-    {
-        return new ContainerEnderFurnace(player, this);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
-    {
-        return new GuiEnderFurnace(this.getContainer(player), this);
+        return this.burnTimeRemaining * i / this.burnTimeFresh;
     }
 
     @Override
@@ -731,31 +696,16 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided implem
         this.markDirty();
     }
 
-    /**
-     * Returns an integer between 0 and the passed value representing how close the current item is to being completely cooked
-     * @param i
-     * @return
-     */
-    @SideOnly(Side.CLIENT)
-    public int getCookProgressScaled(int i)
+    @Override
+    public ContainerEnderFurnace getContainer(EntityPlayer player)
     {
-        return this.cookTime * i / COOKTIME_DEFAULT;
+        return new ContainerEnderFurnace(player, this);
     }
 
-    /**
-     * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
-     * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
-     * @param i
-     * @return
-     */
+    @Override
     @SideOnly(Side.CLIENT)
-    public int getBurnTimeRemainingScaled(int i)
+    public GuiEnderUtilities getGui(EntityPlayer player)
     {
-        if (this.burnTimeFresh == 0)
-        {
-            return 0;
-        }
-
-        return this.burnTimeRemaining * i / this.burnTimeFresh;
+        return new GuiEnderFurnace(this.getContainer(player), this);
     }
 }
