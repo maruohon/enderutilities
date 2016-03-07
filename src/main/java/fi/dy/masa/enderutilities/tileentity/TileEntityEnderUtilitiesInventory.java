@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,12 +8,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.world.ILockableContainer;
-import net.minecraft.world.LockCode;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -23,9 +20,9 @@ import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory, ILockableContainer
+public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities implements IInventory
 {
-    protected LockCode lockCode = LockCode.EMPTY_CODE;
+    protected IItemHandler itemHandler;
     protected String customInventoryName;
     protected ItemStack[] itemStacks;
     protected int invSize;
@@ -302,34 +299,5 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities 
 
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
-    }
-
-    @Override
-    public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)
-    {
-        return null;
-    }
-
-    @Override
-    public String getGuiID()
-    {
-        return Reference.MOD_ID + ":" + this.tileEntityName;
-    }
-
-    @Override
-    public boolean isLocked()
-    {
-        return this.lockCode != null && this.lockCode.isEmpty() == false;
-    }
-
-    @Override
-    public void setLockCode(LockCode code)
-    {
-    }
-
-    @Override
-    public LockCode getLockCode()
-    {
-        return this.lockCode;
     }
 }

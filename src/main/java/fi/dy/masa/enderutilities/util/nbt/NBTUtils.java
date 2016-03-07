@@ -9,6 +9,8 @@ import net.minecraft.nbt.NBTTagList;
 
 import net.minecraftforge.common.util.Constants;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
+
 public class NBTUtils
 {
     public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTBase tag)
@@ -503,6 +505,10 @@ public class NBTUtils
                     items[slotNum].stackSize = tag.getInteger("ActualCount");
                 }
             }
+            else
+            {
+                EnderUtilities.logger.warn("Failed to read items from NBT, invalid slot: " + slotNum + " (max: " + (items.length - 1) + ")");
+            }
         }
     }
 
@@ -514,11 +520,11 @@ public class NBTUtils
      * @param tagName the NBTTagList tag name where the items will be written to
      * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
-    public static void writeItemsToTag(NBTTagCompound nbt, ItemStack[] items, String tagName, boolean keepExtraSlots)
+    public static NBTTagCompound writeItemsToTag(NBTTagCompound nbt, ItemStack[] items, String tagName, boolean keepExtraSlots)
     {
         if (nbt == null || items == null)
         {
-            return;
+            return nbt;
         }
 
         int invSlots = items.length;
@@ -561,5 +567,7 @@ public class NBTUtils
         {
             nbt.removeTag(tagName);
         }
+
+        return nbt;
     }
 }
