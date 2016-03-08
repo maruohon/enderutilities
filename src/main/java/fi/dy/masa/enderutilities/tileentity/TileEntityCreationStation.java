@@ -37,7 +37,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided implements IModularInventoryCallback, ITickable
+public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryCallback, ITickable
 {
     public static final int GUI_ACTION_SELECT_MODULE       = 0;
     public static final int GUI_ACTION_MOVE_ITEMS          = 1;
@@ -98,7 +98,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesSided imp
 
     public TileEntityCreationStation()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION, 4);
+        super(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, false, null, this);
 

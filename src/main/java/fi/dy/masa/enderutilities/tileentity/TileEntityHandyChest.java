@@ -21,13 +21,14 @@ import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implements ITieredStorage, IModularInventoryCallback
+public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryCallback
 {
     public static final int GUI_ACTION_SELECT_MODULE    = 0;
     public static final int GUI_ACTION_MOVE_ITEMS       = 1;
@@ -40,14 +41,21 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
     protected int chestTier;
     protected int actionMode;
     protected int invSizeItems;
-    protected Map<UUID, Long> clickTimes;
+    protected final Map<UUID, Long> clickTimes;
 
     public TileEntityHandyChest()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST, 4);
+        super(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
 
         this.itemInventory = new InventoryItemCallback(null, 18, false, null, this);
         this.clickTimes = new HashMap<UUID, Long>();
+        this.initStorage();
+    }
+
+    private void initStorage()
+    {
+        this.itemHandler = new ItemStackHandlerTileEntity(4, 1, false, "Items", this);
+        this.itemHandlerExternal = new ItemStackHandlerTileEntity(this.invSizeItems, 256, true, "ItemsTemp", this); // FIXME needs a custom modular IItemHandler
     }
 
     @Override
@@ -57,12 +65,13 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         this.invSizeItems = INV_SIZES[this.chestTier];
         this.setSelectedModule(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
+        this.initStorage();
 
         super.readFromNBTCustom(nbt);
 
         //this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], this.invSizeItems, false, null, this);
         this.itemInventory.setInventorySize(this.invSizeItems);
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+        this.itemInventory.setContainerItemStack(this.itemHandler.getStackInSlot(this.selectedModule));
     }
 
     @Override
@@ -94,8 +103,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         this.chestTier = nbt.getByte("tier");
         this.selectedModule = nbt.getByte("msel");
         this.invSizeItems = INV_SIZES[this.chestTier];
+        this.initStorage();
 
-        this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], this.invSizeItems, true, null, this);
+        this.itemInventory = new InventoryItemCallback(this.itemHandler.getStackInSlot(this.selectedModule), this.invSizeItems, true, null, this);
 
         super.onDataPacket(net, packet);
     }
@@ -127,19 +137,19 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
 
     public void setSelectedModule(int index)
     {
-        this.selectedModule = MathHelper.clamp_int(index, 0, this.invSize - 1);
+        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandler.getSlots() - 1);
     }
 
     @Override
     public ItemStack getContainerStack()
     {
-        return this.itemStacks[this.selectedModule];
+        return this.itemHandler.getStackInSlot(this.selectedModule);
     }
 
     @Override
     public void inventoryChanged(int invId)
     {
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+        this.itemInventory.setContainerItemStack(this.itemHandler.getStackInSlot(this.selectedModule));
     }
 
     @Override
@@ -154,19 +164,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesSided implemen
         tier = MathHelper.clamp_int(tier, 0, 2);
         this.chestTier = tier;
         this.invSizeItems = INV_SIZES[this.chestTier];
+        this.initStorage();
         this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
-    }
-
-    @Override
-    public int getSizeInventory()
-    {
-        return this.invSize;
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        return 1;
     }
 
     @Override

@@ -513,20 +513,11 @@ public class NBTUtils
     }
 
     /**
-     * Writes the ItemStacks in <b>items</b> to the NBTTagCompound <b>nbt</b>
-     * in a NBTTagList by the name <b>tagName</b>.
-     * @param nbt
+     * Writes the ItemStacks in <b>items</b> to a new NBTTagList and returns that list.
      * @param items
-     * @param tagName the NBTTagList tag name where the items will be written to
-     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
-    public static NBTTagCompound writeItemsToTag(NBTTagCompound nbt, ItemStack[] items, String tagName, boolean keepExtraSlots)
+    public static NBTTagList createTagListForItems(ItemStack[] items)
     {
-        if (nbt == null || items == null)
-        {
-            return nbt;
-        }
-
         int invSlots = items.length;
         NBTTagList nbtTagList = new NBTTagList();
 
@@ -542,6 +533,27 @@ public class NBTUtils
                 nbtTagList.appendTag(tag);
             }
         }
+
+        return nbtTagList;
+    }
+
+    /**
+     * Writes the ItemStacks in <b>items</b> to the NBTTagCompound <b>nbt</b>
+     * in a NBTTagList by the name <b>tagName</b>.
+     * @param nbt
+     * @param items
+     * @param tagName the NBTTagList tag name where the items will be written to
+     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
+     */
+    public static NBTTagCompound writeItemsToTag(NBTTagCompound nbt, ItemStack[] items, String tagName, boolean keepExtraSlots)
+    {
+        if (nbt == null || items == null)
+        {
+            return nbt;
+        }
+
+        int invSlots = items.length;
+        NBTTagList nbtTagList = createTagListForItems(items);
 
         if (keepExtraSlots == true && nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == true)
         {

@@ -30,6 +30,11 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         this.items = new ItemStack[invSize];
     }
 
+    public int getInventoryStackLimit()
+    {
+        return this.stackLimit;
+    }
+
     @Override
     public int getSlots()
     {

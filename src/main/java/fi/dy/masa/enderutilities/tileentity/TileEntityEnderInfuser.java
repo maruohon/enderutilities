@@ -5,25 +5,28 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implements ITickable
+public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory implements ITickable
 {
-    protected static final int[] SLOTS_SIDES = new int[] {0, 1, 2};
+    private static final int SLOT_MATERIAL = 0;
+    private static final int SLOT_CAP_IN   = 1;
+    private static final int SLOT_CAP_OUT  = 2;
     public static final int AMOUNT_PER_ENDERPEARL = 250;
     public static final int AMOUNT_PER_ENDEREYE = 500;
     public static final int ENDER_CHARGE_PER_MILLIBUCKET = 4;
@@ -37,7 +40,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
 
     public TileEntityEnderInfuser()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER, 3);
+        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.itemHandler = new ItemStackHandlerTileEntity(3, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperEnderInfuser(this.itemHandler);
     }
 
     @Override
@@ -78,9 +83,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
         boolean dirty = false;
 
         // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo?
-        if (this.itemStacks[0] != null)
+        if (this.itemHandler.getStackInSlot(SLOT_MATERIAL) != null)
         {
-            Item item = this.itemStacks[0].getItem();
+            Item item = this.itemHandler.getStackInSlot(0).getItem();
             int amount = 0;
 
             if (item == Items.ender_pearl)
@@ -100,11 +105,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
                 {
                     this.amountStored += amount;
                     this.meltingProgress = 0;
-
-                    if (--this.itemStacks[0].stackSize <= 0)
-                    {
-                        this.itemStacks[0] = null;
-                    }
+                    this.itemHandler.extractItem(SLOT_MATERIAL, 1, false);
                 }
 
                 dirty = true;
@@ -115,11 +116,17 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
             this.meltingProgress = 0;
         }
 
-        ItemStack chargeableStack = this.itemStacks[1];
+        // NOTE: This does break the IItemHandler contract of not modifying the items
+        // you get from getStackInSlot(), but since this is internal usage, whatever...
+        // Otherwise we would be constantly extracting and inserting it back.
+        ItemStack inputStack = this.itemHandler.getStackInSlot(SLOT_CAP_IN);
+
         // Charge IChargeable items with the Ender Goo
-        if (chargeableStack != null)
+        if (inputStack != null)
         {
-            Item item = chargeableStack.getItem();
+            ItemStack chargeableStack = inputStack;
+            Item item = inputStack.getItem();
+
             if (item instanceof IChargeable || item instanceof IModular)
             {
                 boolean isModular = false;
@@ -131,15 +138,12 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
                 }
                 else // if (item instanceof IModular)
                 {
-                    chargeableStack = UtilItemModular.getSelectedModuleStack(chargeableStack, ModuleType.TYPE_ENDERCAPACITOR);
-                    if (chargeableStack != null)
+                    chargeableStack = UtilItemModular.getSelectedModuleStack(inputStack, ModuleType.TYPE_ENDERCAPACITOR);
+
+                    if (chargeableStack != null && chargeableStack.getItem() instanceof IChargeable)
                     {
-                        item = chargeableStack.getItem();
-                        if ((item instanceof IChargeable) == true)
-                        {
-                            iChargeable = (IChargeable) item;
-                            isModular = true;
-                        }
+                        iChargeable = (IChargeable) chargeableStack.getItem();
+                        isModular = true;
                     }
                 }
 
@@ -172,8 +176,12 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
 
                         if (isModular == true)
                         {
-                            UtilItemModular.setSelectedModuleStack(this.itemStacks[1], ModuleType.TYPE_ENDERCAPACITOR, chargeableStack);
+                            UtilItemModular.setSelectedModuleStack(inputStack, ModuleType.TYPE_ENDERCAPACITOR, chargeableStack);
                         }
+
+                        // Put the item back into the slot
+                        //this.itemHandler.insertItem(SLOT_CAP_IN, inputStack, false);
+                        //this.itemHandler.setStackInSlot(SLOT_CAP_IN, inputStack);
                     }
                 }
 
@@ -185,11 +193,10 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
                     this.chargeableItemStartingCharge = 0;
                     this.chargeableItemCapacity = 0;
 
-                    // Output slot is currently empty, move the item
-                    if (this.itemStacks[2] == null)
+                    // Move the item from the input slot to the output slot
+                    if (this.itemHandler.insertItem(SLOT_CAP_OUT, this.itemHandler.extractItem(SLOT_CAP_IN, 1, true), true) == null)
                     {
-                        this.itemStacks[2] = this.itemStacks[1];
-                        this.itemStacks[1] = null;
+                        this.itemHandler.insertItem(SLOT_CAP_OUT, this.itemHandler.extractItem(SLOT_CAP_IN, 1, false), false);
                         dirty = true;
                     }
                 }
@@ -209,42 +216,75 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesSided implem
         }
     }
 
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
+    private class ItemHandlerWrapperEnderInfuser implements IItemHandlerModifiable
     {
-        if (stack == null)
+        private final IItemHandlerModifiable baseHandler;
+
+        public ItemHandlerWrapperEnderInfuser(IItemHandlerModifiable baseHandler)
         {
-            return true;
+            this.baseHandler = baseHandler;
         }
 
-        Item item = stack.getItem();
-        // Only allow Ender Pearls and Eyes of Ender to the melting slot
-        if (slotNum == 0)
+        @Override
+        public int getSlots()
         {
-            return (item == Items.ender_pearl || item == Items.ender_eye);
+            return this.baseHandler.getSlots();
         }
 
-        // Only accept chargeable items to the item input slot
-        if (slotNum == 1)
+        @Override
+        public ItemStack getStackInSlot(int slot)
         {
-            return (item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getInstalledModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0));
+            return this.baseHandler.getStackInSlot(slot);
         }
 
-        return false;
-    }
+        private boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return true;
+            }
 
-    @Override
-    public int[] getSlotsForFace(EnumFacing side)
-    {
-        // Allow access to all slots from all sides
-        return SLOTS_SIDES;
-    }
+            // Only accept chargeable items to the item input slot
+            if (slot == SLOT_CAP_IN)
+            {
+                Item item = stack.getItem();
+                return item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getInstalledModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0);
+            }
 
-    @Override
-    public boolean canExtractItem(int slotNum, ItemStack stack, EnumFacing direction)
-    {
-        // Only allow pulling out items from the output slot
-        return slotNum == 2;
+            // Only allow Ender Pearls and Eyes of Ender to the material slot
+            return slot == SLOT_MATERIAL && (stack.getItem() == Items.ender_pearl || stack.getItem() == Items.ender_eye) == true;
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack)
+        {
+            if (this.isItemValidForSlot(slot, stack) == true)
+            {
+                this.baseHandler.setStackInSlot(slot, stack);
+            }
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            if (this.isItemValidForSlot(slot, stack) == true)
+            {
+                return this.baseHandler.insertItem(slot, stack, simulate);
+            }
+
+            return stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            if (slot == SLOT_CAP_OUT)
+            {
+                return this.baseHandler.extractItem(slot, amount, simulate);
+            }
+
+            return null;
+        }
     }
 
     @Override

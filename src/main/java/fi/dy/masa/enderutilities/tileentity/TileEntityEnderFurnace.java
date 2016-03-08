@@ -15,17 +15,14 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -58,8 +55,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     public boolean fastMode;
     public boolean outputToEnderChest;
     private ItemStack smeltingResultCache;
-    private IItemHandler itemHandlerExternal;
-
     private boolean inputDirty;
     //private boolean fuelDirty;
 
@@ -74,7 +69,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
     public TileEntityEnderFurnace()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE, 3);
+        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.smeltingResultCache = null;
         this.inputDirty = true;
         //this.fuelDirty = true;
@@ -84,7 +79,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         this.cookTime = 0;
         this.timer = 0;
         this.itemHandler = new ItemStackHandlerTileEntity(3, 1024, true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerEnderFurnace(this, this.itemHandler);
+        this.itemHandlerExternal = new ItemHandlerWrapperEnderFurnace(this.itemHandler, this);
     }
 
     @Override
@@ -568,27 +563,15 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    private class ItemHandlerWrapperEnderFurnace implements IItemHandlerModifiable
     {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            return (T) this.itemHandlerExternal;
-        }
-
-        return super.getCapability(capability, facing);
-    }
-
-    private class ItemHandlerEnderFurnace implements IItemHandlerModifiable
-    {
-        private final TileEntityEnderFurnace teef;
         private final IItemHandlerModifiable baseHandler;
+        private final TileEntityEnderFurnace teef;
 
-        public ItemHandlerEnderFurnace(TileEntityEnderFurnace te, IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperEnderFurnace(IItemHandlerModifiable baseHandler, TileEntityEnderFurnace te)
         {
-            this.teef = te;
             this.baseHandler = baseHandler;
+            this.teef = te;
         }
 
         @Override
@@ -603,43 +586,51 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             return this.baseHandler.getStackInSlot(slot);
         }
 
+        private boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return true;
+            }
+
+            if (slot == SLOT_INPUT)
+            {
+                return FurnaceRecipes.instance().getSmeltingResult(stack) != null;
+            }
+
+            return slot == SLOT_FUEL && isItemFuel(stack) == true;
+        }
+
         @Override
         public void setStackInSlot(int slot, ItemStack stack)
         {
-            if ( slot == SLOT_OUTPUT ||
-                (slot == SLOT_INPUT && stack != null && FurnaceRecipes.instance().getSmeltingResult(stack) == null) ||
-                (slot == SLOT_FUEL && stack != null && isItemFuel(stack) == false))
+            if (this.isItemValidForSlot(slot, stack) == true)
             {
-                return;
+                this.baseHandler.setStackInSlot(slot, stack);
             }
-
-            this.baseHandler.setStackInSlot(slot, stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            if ( slot == SLOT_OUTPUT ||
-                (slot == SLOT_INPUT && stack != null && FurnaceRecipes.instance().getSmeltingResult(stack) == null) ||
-                (slot == SLOT_FUEL && stack != null && isItemFuel(stack) == false))
+            if (this.isItemValidForSlot(slot, stack) == true)
             {
-                return stack;
+                return this.baseHandler.insertItem(slot, stack, simulate);
             }
 
-            return this.baseHandler.insertItem(slot, stack, simulate);
+            return stack;
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            if ( slot == SLOT_INPUT ||
-                (slot == SLOT_FUEL && isItemFuel(this.baseHandler.getStackInSlot(SLOT_FUEL)) == true) ||
-                (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == true))
+            if ((slot == SLOT_FUEL && isItemFuel(this.baseHandler.getStackInSlot(SLOT_FUEL)) == false) ||
+                (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == false))
             {
-                return null;
+                return this.baseHandler.extractItem(slot, amount, simulate);
             }
 
-            return this.baseHandler.extractItem(slot, amount, simulate);
+            return null;
         }
     }
 
