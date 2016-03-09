@@ -117,9 +117,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super.onDataPacket(net, packet);
     }
 
-    public IInventory getItemInventory()
+    public IItemHandlerModifiable getModuleInventory()
     {
-        return this.itemInventory;
+        return this.itemHandlerMemoryCards;
     }
 
     public int getQuickMode()

@@ -24,8 +24,8 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class GuiCreationStation extends GuiContainerLargeStacks implements IButtonCallback
 {
-    protected TileEntityCreationStation tecs;
-    protected ContainerCreationStation containerCS;
+    private final TileEntityCreationStation tecs;
+    private final ContainerCreationStation containerCS;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
     public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
     public static final String[] BUTTON_STRINGS = new String[] {
@@ -48,7 +48,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         this.tecs = te;
         this.containerCS = container;
         this.scaledStackSizeTextTargetInventories.add(this.tecs.getFurnaceInventory());
-        this.scaledStackSizeTextTargetInventories.add(this.tecs.getItemInventory());
+        this.scaledStackSizeTextTargetInventories.add(container.inventory);
     }
 
     @Override
@@ -150,9 +150,9 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
 
         // Draw the background icon over empty storage module slots
-        for (int i = 0; i < this.tecs.getSizeInventory(); i++)
+        for (int i = 0; i < this.tecs.getMemoryCardInventory().getSlots(); i++)
         {
-            if (this.tecs.getStackInSlot(i) == null)
+            if (this.tecs.getMemoryCardInventory().getStackInSlot(i) == null)
             {
                 this.drawTexturedModalRect(this.guiLeft + 216, this.guiTop + 102 + i * 18, 240, 80, 16, 16);
             }

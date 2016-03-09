@@ -5,12 +5,14 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
-import net.minecraft.inventory.SlotFurnaceOutput;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.EnumFacing;
 
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
+
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -24,14 +26,14 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public final IInventory[] craftResults;
     public final InventoryItemCrafting[] craftMatrices;
-    public final InventoryStackArray furnaceInventory;
+    public final IItemHandlerModifiable furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
     private int lastInteractedCraftingGridId;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
-        super(player, te);
+        super(player, te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
         this.tecs = te;
         this.tecs.openInventory(player);
 
@@ -51,6 +53,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         int posX = 40;
         int posY = 102;
 
+        // Item inventory slots
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 9; j++)
@@ -67,13 +70,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
         posX = 216;
         posY = 102;
 
-        int min = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B;
-        int max = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.tecs, i, posX, posY + i * 18, ModuleType.TYPE_MEMORY_CARD_ITEMS).setMinAndMaxModuleTier(min, max));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tecs.getMemoryCardInventory(), i, posX, posY + i * 18));
         }
 
         // Crafting slots, left side
@@ -107,19 +107,19 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
         // Furnace slots, left side
         // Smeltable items
-        this.addSlotToContainer(new SlotSmeltable(this.furnaceInventory, 0, 8, 8));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.furnaceInventory, 0, 8, 8));
         // Fuel
-        this.addSlotToContainer(new SlotFuel(this.furnaceInventory, 1, 8, 51));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.furnaceInventory, 1, 8, 51));
         // Output
-        this.addSlotToContainer(new SlotFurnaceOutput(this.player, this.furnaceInventory, 2, 40, 8));
+        this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.furnaceInventory, 2, 40, 8));
 
         // Furnace slots, right side
         // Smeltable items
-        this.addSlotToContainer(new SlotSmeltable(this.furnaceInventory, 3, 216, 8));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.furnaceInventory, 3, 216, 8));
         // Fuel
-        this.addSlotToContainer(new SlotFuel(this.furnaceInventory, 4, 216, 51));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.furnaceInventory, 4, 216, 51));
         // Output
-        this.addSlotToContainer(new SlotFurnaceOutput(this.player, this.furnaceInventory, 5, 184, 8));
+        this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.furnaceInventory, 5, 184, 8));
 
         this.onCraftMatrixChanged(this.craftMatrices[0]);
     }
@@ -165,9 +165,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
         // Our main item inventory or the furnace inventory
-        if (slot.inventory == this.tecs.getItemInventory() || slot.inventory == this.tecs.getFurnaceInventory())
+        if (slot instanceof SlotItemHandler)
         {
-            return slot.getSlotStackLimit();
+            SlotItemHandler slotItemHandler = (SlotItemHandler)slot;
+            if (slotItemHandler.itemHandler == this.tecs.getItemInventory() || slotItemHandler.itemHandler == this.tecs.getFurnaceInventory())
+            {
+                return slotItemHandler.getItemStackLimit(stack);
+            }
         }
 
         // Player inventory, module slots or crafting slots
@@ -343,7 +347,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
             case 1:
                 this.tecs.setSelectedModule(val & 0x3); // 0..3
                 this.tecs.setQuickMode((val >> 2) & 0x7); // 0..5
-                this.tecs.inventoryChanged(TileEntityCreationStation.INV_ID_MODULES);
+                this.tecs.inventoryChanged(TileEntityCreationStation.INV_ID_MODULES, 0); // The slot is not used
                 break;
             case 2:
                 this.fuelProgress = val; // value is 0..100, left furnace is in the lower bits 7..0

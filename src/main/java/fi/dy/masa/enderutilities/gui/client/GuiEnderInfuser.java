@@ -10,13 +10,13 @@ import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
-public class GuiEnderInfuser extends GuiTileEntityInventory
+public class GuiEnderInfuser extends GuiEnderUtilities
 {
     public TileEntityEnderInfuser teei;
 
     public GuiEnderInfuser(ContainerEnderInfuser container, TileEntityEnderInfuser te)
     {
-        super(container, 176, 176, "gui.container." + te.getTEName(), te);
+        super(container, 176, 176, "gui.container." + te.getTEName());
         this.teei = te;
     }
 
@@ -25,7 +25,7 @@ public class GuiEnderInfuser extends GuiTileEntityInventory
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
+        String s = this.teei.hasCustomName() ? this.teei.getName() : I18n.format(this.teei.getName(), new Object[0]);
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
         this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 84, 0x404025);
     }

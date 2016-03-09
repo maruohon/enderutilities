@@ -3,17 +3,19 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
+
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 
 public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
 {
-    public ContainerLargeStacks(EntityPlayer player, IInventory inventory)
+    public ContainerLargeStacks(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
     }
@@ -21,14 +23,14 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
     @Override
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        // Player inventory
-        if (slot.inventory != this.inventory)
+        // Our inventory
+        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).itemHandler == this.inventory)
         {
-            return super.getMaxStackSizeFromSlotAndStack(slot, stack);
+            return slot.getItemStackLimit(stack);
         }
 
-        // Our inventory
-        return slot.getSlotStackLimit();
+        // Player inventory
+        return super.getMaxStackSizeFromSlotAndStack(slot, stack);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
     {
         for (int i = 0; i < this.inventorySlots.size(); ++i)
         {
-            ItemStack stack = ((Slot)this.inventorySlots.get(i)).getStack();
+            ItemStack stack = this.inventorySlots.get(i).getStack();
             PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, stack), player);
         }
     }
@@ -66,8 +68,8 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
     {
         for (int i = 0; i < this.inventorySlots.size(); ++i)
         {
-            ItemStack currentStack = ((Slot)this.inventorySlots.get(i)).getStack();
-            ItemStack prevStack = (ItemStack)this.inventoryItemStacks.get(i);
+            ItemStack currentStack = this.inventorySlots.get(i).getStack();
+            ItemStack prevStack = this.inventoryItemStacks.get(i);
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {

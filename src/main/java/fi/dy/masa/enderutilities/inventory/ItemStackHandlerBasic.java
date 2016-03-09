@@ -35,6 +35,16 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         return this.stackLimit;
     }
 
+    public int getInventoryStackLimit(ItemStack stack)
+    {
+        if (this.allowCustomStackSizes == true)
+        {
+            return this.getInventoryStackLimit();
+        }
+
+        return stack != null ? stack.getMaxStackSize() : 64;
+    }
+
     @Override
     public int getSlots()
     {

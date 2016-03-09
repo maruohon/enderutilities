@@ -107,7 +107,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j, xOff + j * 18, yOff + i * 18));
             }
         }
 
@@ -119,16 +119,16 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             // Left side extra slots
             for(int i = 0; i < 7; i++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, 27 + i * 2, xOffXtra +  0, yOff + i * 18));
-                this.addSlotToContainer(new SlotGeneric(this.inventory, 28 + i * 2, xOffXtra + 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 27 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 28 + i * 2, xOffXtra + 18, yOff + i * 18));
             }
 
             xOffXtra = 214;
             // Right side extra slots
             for(int i = 0; i < 7; i++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, 41 + i * 2, xOffXtra +  0, yOff + i * 18));
-                this.addSlotToContainer(new SlotGeneric(this.inventory, 42 + i * 2, xOffXtra + 18, yOff + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 41 + i * 2, xOffXtra +  0, yOff + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 42 + i * 2, xOffXtra + 18, yOff + i * 18));
             }
         }
 

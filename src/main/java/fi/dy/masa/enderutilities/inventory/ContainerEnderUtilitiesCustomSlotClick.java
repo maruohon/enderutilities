@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
@@ -18,7 +20,7 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
     protected int selectedSlot = -1;
 
-    public ContainerEnderUtilitiesCustomSlotClick(EntityPlayer player, IInventory inventory)
+    public ContainerEnderUtilitiesCustomSlotClick(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
     }
@@ -314,11 +316,12 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
 
     public void middleClickSlot(int slotNum, EntityPlayer player)
     {
-        // TODO add the "main inventory" as a getter method for the container, so this method doesn't have to be overridden
-        Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        Slot slotTmp = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandler slot1 = slotTmp instanceof SlotItemHandler ? (SlotItemHandler)slotTmp : null;
 
         // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isHere(this.inventory, slotNum) == true)
+        // NOTE: This assumes that the swappable "main" inventory is the "inventory" reference in this Container
+        if (slot1 != null && slot1.itemHandler == this.inventory)
         {
             if (this.selectedSlot != -1)
             {

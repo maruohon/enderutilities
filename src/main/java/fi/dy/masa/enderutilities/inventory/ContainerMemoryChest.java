@@ -15,16 +15,16 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerMemoryChest extends ContainerEnderUtilities implements ICustomSlotSync
+public class ContainerMemoryChest extends ContainerTileEntityInventory implements ICustomSlotSync
 {
-    protected TileEntityMemoryChest tetc;
+    protected TileEntityMemoryChest temc;
     protected List<ItemStack> templateStacksLast;
     protected long templateMask;
 
     public ContainerMemoryChest(EntityPlayer player, TileEntityMemoryChest te)
     {
         super(player, te);
-        this.tetc = te;
+        this.temc = te;
         this.templateStacksLast = new ArrayList<ItemStack>();
 
         this.addCustomInventorySlots();
@@ -38,14 +38,14 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
         int posX = 8;
         int posY = 26;
 
-        int tier = this.tetc.getStorageTier();
+        int tier = this.temc.getStorageTier();
         int rows = TileEntityMemoryChest.INV_SIZES[tier] / 9;
 
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
             }
         }
 
@@ -58,12 +58,6 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
         posY = ((Slot)this.inventorySlots.get(this.inventorySlots.size() - 1)).yDisplayPosition + 32;
 
         super.addPlayerInventorySlots(posX, posY);
-    }
-
-    @Override
-    public boolean canInteractWith(EntityPlayer player)
-    {
-        return super.canInteractWith(player) && this.tetc.isInvalid() == false;
     }
 
     @Override
@@ -84,9 +78,9 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
         ItemStack stackSlot = slot.getStack();
         int origSize = stackSlot.stackSize;
 
-        for (int i = 0; i < this.tetc.getSizeInventory(); i++)
+        for (int i = 0; i < this.inventory.getSlots(); i++)
         {
-            ItemStack stackTmp = this.tetc.getTemplateStack(i);
+            ItemStack stackTmp = this.temc.getTemplateStack(i);
 
             if (stackTmp != null && InventoryUtils.areItemStacksEqual(stackTmp, stackSlot) == true)
             {
@@ -113,16 +107,15 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
     public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
     {
         // Middle click
-        if (button == 2 && type == 3 && slotNum >= 0 && slotNum < (this.tetc.getSizeInventory()))
+        if (button == 2 && type == 3 && slotNum >= 0 && slotNum < this.inventory.getSlots())
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
-            if (invSlotNum == -1)
-            {
-                return null;
-            }
 
-            this.tetc.setTemplateStack(invSlotNum, this.tetc.getStackInSlot(invSlotNum));
-            this.tetc.toggleTemplateMask(invSlotNum);
+            if (invSlotNum != -1)
+            {
+                this.temc.setTemplateStack(invSlotNum, this.inventory.getStackInSlot(invSlotNum));
+                this.temc.toggleTemplateMask(invSlotNum);
+            }
 
             return null;
         }
@@ -136,7 +129,7 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
 
     public TileEntityMemoryChest getTileEntity()
     {
-        return this.tetc;
+        return this.temc;
     }
 
     @Override
@@ -150,7 +143,7 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
     @Override
     public void putCustomStack(int typeId, int slotNum, ItemStack stack)
     {
-        this.tetc.setTemplateStack(slotNum, stack);
+        this.temc.setTemplateStack(slotNum, stack);
     }
 
     @Override
@@ -158,14 +151,14 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
     {
         super.detectAndSendChanges();
 
-        if (this.tetc.getWorld().isRemote == true)
+        if (this.temc.getWorld().isRemote == true)
         {
             return;
         }
 
         for (int i = 0; i < this.templateStacksLast.size(); i++)
         {
-            ItemStack currentStack = this.tetc.getTemplateStack(i);
+            ItemStack currentStack = this.temc.getTemplateStack(i);
             ItemStack prevStack = this.templateStacksLast.get(i);
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
@@ -184,7 +177,7 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
             }
         }
 
-        long mask = this.tetc.getTemplateMask();
+        long mask = this.temc.getTemplateMask();
 
         for (int j = 0; j < this.crafters.size(); ++j)
         {
@@ -209,7 +202,7 @@ public class ContainerMemoryChest extends ContainerEnderUtilities implements ICu
         {
             this.templateMask &= ~(0xFFFFL << (var * 16));
             this.templateMask |= (((long)val) << (var * 16));
-            this.tetc.setTemplateMask(this.templateMask);
+            this.temc.setTemplateMask(this.templateMask);
         }
     }
 }

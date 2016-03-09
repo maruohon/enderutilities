@@ -6,9 +6,10 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -17,14 +18,14 @@ public class ContainerEnderUtilities extends Container
 {
     public final EntityPlayer player;
     public final InventoryPlayer inventoryPlayer;
-    public final IInventory inventory;
+    public final IItemHandler inventory;
     protected SlotRange customInventorySlots;
     protected SlotRange playerArmorSlots;
     protected SlotRange playerMainSlots;
     protected List<SlotRange> mergeSlotRangesExtToPlayer;
     protected List<SlotRange> mergeSlotRangesPlayerToExt;
 
-    public ContainerEnderUtilities(EntityPlayer player, IInventory inventory)
+    public ContainerEnderUtilities(EntityPlayer player, IItemHandler inventory)
     {
         this.player = player;
         this.inventoryPlayer = player.inventory;
@@ -92,7 +93,7 @@ public class ContainerEnderUtilities extends Container
     @Override
     public boolean canInteractWith(EntityPlayer player)
     {
-        return this.inventory.isUseableByPlayer(player);
+        return true;
     }
 
     public boolean isSlotInRange(SlotRange range, int slotNum)
@@ -200,7 +201,7 @@ public class ContainerEnderUtilities extends Container
      */
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        return stack != null ? Math.min(slot.getSlotStackLimit(), stack.getMaxStackSize()) : slot.getSlotStackLimit();
+        return stack != null ? Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
     @Override

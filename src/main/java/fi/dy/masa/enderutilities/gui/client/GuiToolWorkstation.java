@@ -12,11 +12,14 @@ import fi.dy.masa.enderutilities.inventory.SlotModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
-public class GuiToolWorkstation extends GuiTileEntityInventory
+public class GuiToolWorkstation extends GuiEnderUtilities
 {
+    private final TileEntityToolWorkstation te;
+
     public GuiToolWorkstation(ContainerToolWorkstation container, TileEntityToolWorkstation te)
     {
-        super(container, 176, 176, "gui.container." + te.getTEName(), te);
+        super(container, 176, 176, "gui.container." + te.getTEName());
+        this.te = te;
     }
 
     @Override

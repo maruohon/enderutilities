@@ -12,19 +12,23 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import net.minecraftforge.items.IItemHandler;
+
 import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class GuiMemoryChest extends GuiEnderUtilities
 {
-    protected TileEntityMemoryChest tetc;
-    protected int chestTier;
+    private final TileEntityMemoryChest temc;
+    private final IItemHandler inventory;
+    private final int chestTier;
 
     public GuiMemoryChest(ContainerMemoryChest container, TileEntityMemoryChest te)
     {
         super(container, 176, 176, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
-        this.tetc = te;
+        this.temc = te;
+        this.inventory = this.container.inventory;
         this.chestTier = te.getStorageTier();
     }
 
@@ -71,10 +75,10 @@ public class GuiMemoryChest extends GuiEnderUtilities
 
         this.bindTexture(this.guiTextureWidgets);
 
-        int invSize = this.tetc.getSizeInventory();
+        int invSize = this.inventory.getSlots();
 
         // Draw the colored background icon for locked/"templated" slots
-        long mask = this.tetc.getTemplateMask();
+        long mask = this.temc.getTemplateMask();
         long bit = 0x1;
 
         for (int i = 0; i < invSize; i++, bit <<= 1)
@@ -87,7 +91,7 @@ public class GuiMemoryChest extends GuiEnderUtilities
                 int v = 18;
 
                 // Empty locked slots are in a different color
-                if (this.tetc.getStackInSlot(i) == null)
+                if (this.inventory.getStackInSlot(i) == null)
                 {
                     v = 36;
                 }
@@ -113,10 +117,10 @@ public class GuiMemoryChest extends GuiEnderUtilities
                 int x = this.guiLeft + slot.xDisplayPosition;
                 int y = this.guiTop + slot.yDisplayPosition;
 
-                ItemStack stack = this.tetc.getStackInSlot(i);
+                ItemStack stack = this.inventory.getStackInSlot(i);
                 if (stack == null)
                 {
-                    stack = this.tetc.getTemplateStack(i);
+                    stack = this.temc.getTemplateStack(i);
                     if (stack != null)
                     {
                         GlStateManager.enableLighting();

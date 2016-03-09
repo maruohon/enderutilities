@@ -21,9 +21,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         super(player, te);
         this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL),
-                NUM_MODULE_SLOTS, this.te.getWorld().isRemote, inventoryPlayer.player);
+                NUM_MODULE_SLOTS, te.getWorld().isRemote, inventoryPlayer.player);
         this.inventoryItem.readFromContainerItemStack();
-        this.isRemote = this.te.getWorld().isRemote;
+        this.isRemote = te.getWorld().isRemote;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
     }
@@ -51,13 +51,13 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         // thus the slot numbering starts from 0 here again.
 
         // The modular item's slot
-        this.addSlotToContainer(new SlotGeneric(this.inventory, TileEntityToolWorkstation.SLOT_TOOL, 8, 19));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_TOOL, 8, 19));
 
         // Module storage inventory slots
         x = 8; y = 66;
         for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
         {
-            this.addSlotToContainer(new SlotGeneric(this.inventory, TileEntityToolWorkstation.SLOT_MODULES_START + i, x, y));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_MODULES_START + i, x, y));
         }
 
         this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());

@@ -12,22 +12,24 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
 {
-    protected final List<IInventory> scaledStackSizeTextTargetInventories;
+    protected final List<IItemHandler> scaledStackSizeTextTargetInventories;
 
     public GuiContainerLargeStacks(ContainerEnderUtilities container, int xSize, int ySize, String textureName)
     {
         super(container, xSize, ySize, textureName);
 
-        this.scaledStackSizeTextTargetInventories = new ArrayList<IInventory>();
+        this.scaledStackSizeTextTargetInventories = new ArrayList<IItemHandler>();
     }
 
     @Override
@@ -106,7 +108,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             this.itemRender.renderItemAndEffectIntoGUI(itemstack, slotPosX, slotPosY);
 
             // This slot belongs to a "large stacks" type inventory, render the stack size text scaled to 0.5x
-            if (this.scaledStackSizeTextTargetInventories.contains(slotIn.inventory) == true)
+            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextTargetInventories.contains(((SlotItemHandler)slotIn).itemHandler) == true)
             {
                 this.renderLargeStackItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY);
             }

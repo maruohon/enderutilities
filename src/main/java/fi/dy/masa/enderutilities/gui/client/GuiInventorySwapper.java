@@ -56,8 +56,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
 
         this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(40).xDisplayPosition;
         this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(40).yDisplayPosition;
-        this.firstInvSlotX   = this.guiLeft + this.container.getSlot(44).xDisplayPosition;
-        this.firstInvSlotY   = this.guiTop  + this.container.getSlot(44).yDisplayPosition;
+        this.firstInvSlotX     = this.guiLeft + this.container.getSlot(44).xDisplayPosition;
+        this.firstInvSlotY     = this.guiTop  + this.container.getSlot(44).yDisplayPosition;
         this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(44 + 36).xDisplayPosition;
         this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(44 + 36).yDisplayPosition;
 

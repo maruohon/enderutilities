@@ -15,7 +15,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlotClick implements IContainerModularItem
 {
-    public InventoryItemModular inventoryItemModular;
+    public final InventoryItemModular inventoryItemModular;
 
     public ContainerInventorySwapper(EntityPlayer player, InventoryItemModular inventory)
     {
@@ -77,14 +77,14 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventory, i * 9 + j + 9, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j + 9, posX + j * 18, posY + i * 18));
             }
         }
 
         // Inventory Swapper's player inventory hotbar
         for (int i = 0; i < 9; i++)
         {
-            this.addSlotToContainer(new SlotGeneric(this.inventory, i, posX + i * 18, posY + 58));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i, posX + i * 18, posY + 58));
         }
 
         // Add the armor slots inside the Inventory Swapper as a priority slot range for shift+click merging
@@ -95,7 +95,7 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
-            this.addSlotToContainer(new SlotGeneric(this.inventory, 39 - i, posX + i * 18, posY)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 39 - i, posX + i * 18, posY)
             {
                 public int getSlotStackLimit()
                 {

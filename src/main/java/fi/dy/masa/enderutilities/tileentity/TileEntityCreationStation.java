@@ -229,6 +229,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.craftResults[id];
     }
 
+    public IItemHandlerModifiable getMemoryCardInventory()
+    {
+        return this.itemHandlerMemoryCards;
+    }
+
     public IItemHandlerModifiable getFurnaceInventory()
     {
         return this.furnaceInventoryWrapper;

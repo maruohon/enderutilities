@@ -4,9 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
+
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -18,7 +20,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
     public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
-        super(player, te);
+        super(player, te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
         this.tehc = te;
 
         this.addCustomInventorySlots();
@@ -35,11 +37,12 @@ public class ContainerHandyChest extends ContainerLargeStacks
         int tier = this.tehc.getStorageTier();
         int rows = tier >= 0 && tier <= 2 ? (tier + 1) * 2 : 2;
 
+        // Item inventory slots
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.tehc.getItemInventory(), i * 9 + j, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
             }
         }
 
@@ -51,13 +54,10 @@ public class ContainerHandyChest extends ContainerLargeStacks
         posX = 98;
         posY = 8;
 
-        int min = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B;
-        int max = ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotModule(this.tehc, i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS).setMinAndMaxModuleTier(min, max));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tehc.getModuleInventory(), i, posX + i * 18, posY));
         }
     }
 
@@ -73,45 +73,14 @@ public class ContainerHandyChest extends ContainerLargeStacks
     @Override
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        // Player inventory or module slots
-        if (slot.inventory != this.tehc.getItemInventory())
-        {
-            return super.getMaxStackSizeFromSlotAndStack(slot, stack);
-        }
-
         // Our main item inventory
-        return slot.getSlotStackLimit();
-    }
-
-    @Override
-    public void middleClickSlot(int slotNum, EntityPlayer player)
-    {
-        Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-
-        // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isHere(this.tehc.getItemInventory(), slotNum) == true)
+        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).itemHandler == this.inventory)
         {
-            if (this.selectedSlot != -1)
-            {
-                // Don't swap with self
-                if (this.selectedSlot != slotNum)
-                {
-                    Slot slot2 = this.getSlot(this.selectedSlot);
-                    ItemStack stackTmp1 = slot1.getStack();
-                    ItemStack stackTmp2 = slot2.getStack();
-                    slot1.putStack(stackTmp2);
-                    slot2.putStack(stackTmp1);
-
-                    slot1.onPickupFromSlot(player, stackTmp1);
-                    slot2.onPickupFromSlot(player, stackTmp2);
-                }
-                this.selectedSlot = -1;
-            }
-            else
-            {
-                this.selectedSlot = slotNum;
-            }
+            return slot.getItemStackLimit(stack);
         }
+
+        // Player inventory or module slots
+        return super.getMaxStackSizeFromSlotAndStack(slot, stack);
     }
 
     @Override

@@ -9,6 +9,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -26,7 +29,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
         super(container, 176, 166, "gui.container." + te.getTEName());
         this.containerEnderFurnace = container;
         this.teef = te;
-        this.scaledStackSizeTextTargetInventories.add(this.teef);
+        this.scaledStackSizeTextTargetInventories.add(te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
     }
 
     @Override

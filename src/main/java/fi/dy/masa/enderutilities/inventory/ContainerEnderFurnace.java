@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.SlotFurnaceOutput;
 import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -33,9 +32,9 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
     @Override
     protected void addCustomInventorySlots()
     {
-        this.addSlotToContainer(new SlotGeneric(this.inventory, 0, 34, 17));
-        this.addSlotToContainer(new SlotGeneric(this.inventory, 1, 34, 53));
-        this.addSlotToContainer(new SlotFurnaceOutput(this.inventoryPlayer.player, this.inventory, 2, 88, 35));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 34, 17));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 34, 53));
+        this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.inventoryPlayer.player, this.inventory, 2, 88, 35));
         this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
     }
 
