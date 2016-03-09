@@ -27,10 +27,10 @@ public class InventoryItemCrafting extends InventoryCrafting
     protected int stackLimit;
     protected boolean ignoreMaxStackSize;
     protected Container container;
-    protected IModularInventoryCallback callback;
+    protected IModularInventoryHolder callback;
 
     public InventoryItemCrafting(Container container, int width, int height, ItemStack containerStack, boolean isRemote,
-            EntityPlayer player, IModularInventoryCallback callback, String tagName)
+            EntityPlayer player, IModularInventoryHolder callback, String tagName)
     {
         super(container, width, height);
         this.container = container;
@@ -44,7 +44,7 @@ public class InventoryItemCrafting extends InventoryCrafting
         this.initInventory();
     }
 
-    public void setCallback(IModularInventoryCallback callback)
+    public void setCallback(IModularInventoryHolder callback)
     {
         this.callback = callback;
     }

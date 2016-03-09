@@ -15,12 +15,14 @@ import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
-import fi.dy.masa.enderutilities.inventory.IModularInventoryCallback;
+import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -28,14 +30,17 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryCallback
+public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryHolder
 {
     public static final int GUI_ACTION_SELECT_MODULE    = 0;
     public static final int GUI_ACTION_MOVE_ITEMS       = 1;
     public static final int GUI_ACTION_SET_QUICK_ACTION = 2;
 
+    public static final int INV_ID_MEMORY_CARDS         = 0;
+    public static final int INV_ID_ITEMS                = 1;
     public static final int[] INV_SIZES = new int[] { 18, 36, 54 };
 
+    private final IItemHandlerModifiable itemHandlerMemoryCards;
     protected InventoryItemCallback itemInventory;
     protected int selectedModule;
     protected int chestTier;
@@ -47,6 +52,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         super(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
 
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
+        this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
         this.itemInventory = new InventoryItemCallback(null, 18, false, null, this);
         this.clickTimes = new HashMap<UUID, Long>();
         this.initStorage();
@@ -54,8 +61,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     private void initStorage()
     {
-        this.itemHandler = new ItemStackHandlerTileEntity(4, 1, false, "Items", this);
-        this.itemHandlerExternal = new ItemStackHandlerTileEntity(this.invSizeItems, 256, true, "ItemsTemp", this); // FIXME needs a custom modular IItemHandler
+        // FIXME needs a custom modular-item aware IItemHandler, which should be the same one as this.itemInventory
+        this.itemHandlerExternal = new ItemStackHandlerTileEntity(INV_ID_ITEMS, this.invSizeItems, 256, true, "ItemsTemp", this);
     }
 
     @Override
@@ -71,7 +78,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         //this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], this.invSizeItems, false, null, this);
         this.itemInventory.setInventorySize(this.invSizeItems);
-        this.itemInventory.setContainerItemStack(this.itemHandler.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
     }
 
     @Override
@@ -105,7 +112,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.invSizeItems = INV_SIZES[this.chestTier];
         this.initStorage();
 
-        this.itemInventory = new InventoryItemCallback(this.itemHandler.getStackInSlot(this.selectedModule), this.invSizeItems, true, null, this);
+        this.itemInventory = new InventoryItemCallback(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule), this.invSizeItems, true, null, this);
 
         super.onDataPacket(net, packet);
     }
@@ -137,19 +144,19 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     public void setSelectedModule(int index)
     {
-        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandler.getSlots() - 1);
+        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
 
     @Override
     public ItemStack getContainerStack()
     {
-        return this.itemHandler.getStackInSlot(this.selectedModule);
+        return this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
     }
 
     @Override
-    public void inventoryChanged(int invId)
+    public void inventoryChanged(int inventoryId, int slot)
     {
-        this.itemInventory.setContainerItemStack(this.itemHandler.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
     }
 
     @Override
@@ -166,42 +173,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.invSizeItems = INV_SIZES[this.chestTier];
         this.initStorage();
         this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
-    {
-        if (stack == null)
-        {
-            return true;
-        }
-
-        if ((stack.getItem() instanceof IModule) == false)
-        {
-            return false;
-        }
-
-        IModule module = (IModule)stack.getItem();
-        ModuleType type = module.getModuleType(stack);
-
-        if (type.equals(ModuleType.TYPE_INVALID) == false)
-        {
-            // Matching basic module type, check for the sub-type/tier
-            if (type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true)
-            {
-                return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
-                       module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void markDirty()
-    {
-        super.markDirty();
-        this.inventoryChanged(0);
     }
 
     public void onLeftClickBlock(EntityPlayer player)
@@ -225,6 +196,36 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
     }
 
+    private class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelective
+    {
+        public ItemHandlerWrapperMemoryCards(IItemHandlerModifiable baseHandler)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return true;
+            }
+
+            if ((stack.getItem() instanceof IModule) == false)
+            {
+                return false;
+            }
+
+            IModule module = (IModule)stack.getItem();
+            ModuleType type = module.getModuleType(stack);
+
+            // Check for a valid item-type Memory Card
+            return  type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true &&
+                    module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
+                    module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
+        }
+    }
+
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
@@ -232,7 +233,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         {
             this.itemInventory.markDirty();
             this.setSelectedModule(element);
-            this.inventoryChanged(0);
+            this.inventoryChanged(0, element);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {

@@ -10,6 +10,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -25,32 +26,19 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
     public TileEntityToolWorkstation()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-        this.itemHandler = new ItemStackHandlerTileEntity(3, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperToolWorkstation(this.itemHandler);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(11, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperToolWorkstation(this.itemHandlerBase);
     }
 
-    private class ItemHandlerWrapperToolWorkstation implements IItemHandlerModifiable
+    private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelective
     {
-        private final IItemHandlerModifiable baseHandler;
-
         public ItemHandlerWrapperToolWorkstation(IItemHandlerModifiable baseHandler)
         {
-            this.baseHandler = baseHandler;
+            super(baseHandler);
         }
 
         @Override
-        public int getSlots()
-        {
-            return this.baseHandler.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.baseHandler.getStackInSlot(slot);
-        }
-
-        private boolean isItemValidForSlot(int slot, ItemStack stack)
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {
@@ -63,26 +51,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
             }
 
             return (stack.getItem() instanceof IModule) && (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false);
-        }
-
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack)
-        {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                this.baseHandler.setStackInSlot(slot, stack);
-            }
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                return this.baseHandler.insertItem(slot, stack, simulate);
-            }
-
-            return stack;
         }
 
         @Override

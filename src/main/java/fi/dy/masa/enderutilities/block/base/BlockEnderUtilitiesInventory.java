@@ -14,11 +14,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
@@ -32,13 +33,13 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
         {
-            TileEntityEnderUtilitiesInventory teeui = (TileEntityEnderUtilitiesInventory)te;
+            IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
 
-            for (int i = 0; i < teeui.getSizeInventory(); ++i)
+            for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
             {
-                EntityUtils.dropItemStacksInWorld(world, pos, teeui.getStackInSlot(i), -1, false);
+                EntityUtils.dropItemStacksInWorld(world, pos, itemHandler.getStackInSlot(i), -1, false);
             }
         }
 

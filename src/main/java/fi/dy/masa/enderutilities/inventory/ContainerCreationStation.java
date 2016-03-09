@@ -33,7 +33,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super(player, te);
         this.tecs = te;
-        te.openInventory(player);
+        this.tecs.openInventory(player);
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
         this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };

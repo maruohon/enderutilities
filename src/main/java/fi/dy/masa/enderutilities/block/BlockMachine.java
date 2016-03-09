@@ -11,7 +11,6 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -21,6 +20,8 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
@@ -99,14 +100,14 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         if (te instanceof TileEntityCreationStation)
         {
             // Drop the items from the furnace inventories
-            IInventory inv = ((TileEntityCreationStation)te).getFurnaceInventory();
+            IItemHandler inv = ((TileEntityCreationStation)te).getFurnaceInventory();
 
-            for (int i = 0; i < inv.getSizeInventory(); i++)
+            for (int i = 0; i < inv.getSlots(); i++)
             {
                 ItemStack stack = inv.getStackInSlot(i);
                 if (stack != null)
                 {
-                    EntityUtils.dropItemStacksInWorld(worldIn, pos, stack, stack.stackSize, true);
+                    EntityUtils.dropItemStacksInWorld(worldIn, pos, stack, -1, true);
                 }
             }
         }

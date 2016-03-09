@@ -18,15 +18,13 @@ import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 {
-    protected ItemStackHandlerTileEntity itemHandler;
+    protected ItemStackHandlerTileEntity itemHandlerBase;
     protected IItemHandlerModifiable itemHandlerExternal;
     protected String customInventoryName;
-    protected int invStackLimit;
 
     public TileEntityEnderUtilitiesInventory(String name)
     {
         super(name);
-        this.invStackLimit = 64;
     }
 
     public void setInventoryName(String name)
@@ -46,12 +44,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        this.itemHandler.deserializeNBT(nbt);
+        this.itemHandlerBase.deserializeNBT(nbt);
     }
 
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        nbt.merge(this.itemHandler.serializeNBT());
+        nbt.merge(this.itemHandlerBase.serializeNBT());
     }
 
     @Override
@@ -103,12 +101,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
         return super.getCapability(capability, facing);
     }
 
-    public void inventoryChanged(int slot) { }
-
-    public int getInventoryStackLimit()
-    {
-        return this.invStackLimit;
-    }
+    public void inventoryChanged(int inventoryId, int slot) { }
 
     public boolean isUseableByPlayer(EntityPlayer player)
     {

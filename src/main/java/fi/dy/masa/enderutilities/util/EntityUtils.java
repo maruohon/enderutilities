@@ -639,8 +639,9 @@ public class EntityUtils
     /**
      * Drops/spawns EntityItems to the world from the provided ItemStack stack.
      * The number of items dropped is dictated by the parameter amount.
-     * If amount is >= 0, then stack is only the ItemStack template; amount can also be larger than stack.stackSize.
-     * However, if amount is < 0, then stack.stackSize is used.
+     * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
+     * (Thus amountOverride can also be larger than stack.stackSize.)
+     * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
      * @param worldIn
      * @param pos
      * @param stack The template ItemStack of the dropped items.

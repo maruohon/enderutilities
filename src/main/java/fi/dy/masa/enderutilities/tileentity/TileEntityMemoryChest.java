@@ -12,11 +12,11 @@ import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -42,8 +42,8 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
     private void initStorage()
     {
-        this.itemHandler = new ItemStackHandlerTileEntity(this.invSize, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.itemHandler, this);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(this.invSize, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.itemHandlerBase, this);
     }
 
     @Override
@@ -165,40 +165,29 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         }
     }
 
-    private class ItemHandlerWrapperMemoryChest implements IItemHandlerModifiable
+    private class ItemHandlerWrapperMemoryChest extends ItemHandlerWrapperSelective
     {
-        private final ItemStackHandlerBasic baseHandler;
         private final TileEntityMemoryChest temc;
 
         public ItemHandlerWrapperMemoryChest(ItemStackHandlerBasic baseHandler, TileEntityMemoryChest te)
         {
-            this.baseHandler = baseHandler;
+            super(baseHandler);
             this.temc = te;
         }
 
         @Override
-        public int getSlots()
-        {
-            return this.baseHandler.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.baseHandler.getStackInSlot(slot);
-        }
-
-        private boolean isItemValidForSlot(int slot, ItemStack stack)
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             // Simple cases for allowing items in: no templated slots, or matching item already in the slot 
-            if (this.temc.templateMask == 0 || stack == null || this.baseHandler.getStackInSlot(slot) != null)
+            if (this.temc.templateMask == 0 || stack == null || this.getStackInSlot(slot) != null)
             {
                 return true;
             }
 
             // If trying to add into an empty slot, first make sure that there aren't templated slots
             // for this item type, that still have free space
-            int max = Math.min(this.baseHandler.getInventoryStackLimit(), stack.getMaxStackSize());
+            //int max = Math.min(((ItemStackHandlerBasic)this.getBaseHandler()).getInventoryStackLimit(), stack.getMaxStackSize());
+            int max = stack.getMaxStackSize();
 
             for (int i : this.temc.enabledTemplateSlots)
             {
@@ -210,7 +199,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
                 // Space in the inventory slot for this template slot, and the input item matches the template item
                 // => disallow putting the input item in slotNum, unless slotNum was this slot (see above check)
-                if ((this.baseHandler.getStackInSlot(i) == null || this.baseHandler.getStackInSlot(i).stackSize < max) &&
+                if ((this.getStackInSlot(i) == null || this.getStackInSlot(i).stackSize < max) &&
                      InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[i]) == true)
                 {
                     //System.out.println("isValid denied - " + (this.worldObj.isRemote ? "client" : "server"));
@@ -228,32 +217,6 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
             return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
             */
-        }
-
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack)
-        {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                this.baseHandler.setStackInSlot(slot, stack);
-            }
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                return this.baseHandler.insertItem(slot, stack, simulate);
-            }
-
-            return stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return this.baseHandler.extractItem(slot, amount, simulate);
         }
     }
 

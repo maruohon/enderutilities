@@ -8,15 +8,15 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 public class InventoryItemCallback extends InventoryItem
 {
-    IModularInventoryCallback callback;
+    IModularInventoryHolder callback;
 
-    public InventoryItemCallback(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, IModularInventoryCallback callback)
+    public InventoryItemCallback(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player, IModularInventoryHolder callback)
     {
         super(containerStack, invSize, isRemote, player);
         this.callback = callback;
     }
 
-    public void setCallback(IModularInventoryCallback callback)
+    public void setCallback(IModularInventoryHolder callback)
     {
         this.callback = callback;
     }

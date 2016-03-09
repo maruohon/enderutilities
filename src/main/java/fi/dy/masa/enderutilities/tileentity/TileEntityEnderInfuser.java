@@ -15,6 +15,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderInfuser;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -41,8 +42,8 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
     public TileEntityEnderInfuser()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.itemHandler = new ItemStackHandlerTileEntity(3, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperEnderInfuser(this.itemHandler);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(3, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperEnderInfuser(this.itemHandlerBase);
     }
 
     @Override
@@ -83,9 +84,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         boolean dirty = false;
 
         // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo?
-        if (this.itemHandler.getStackInSlot(SLOT_MATERIAL) != null)
+        if (this.itemHandlerBase.getStackInSlot(SLOT_MATERIAL) != null)
         {
-            Item item = this.itemHandler.getStackInSlot(0).getItem();
+            Item item = this.itemHandlerBase.getStackInSlot(0).getItem();
             int amount = 0;
 
             if (item == Items.ender_pearl)
@@ -105,7 +106,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                 {
                     this.amountStored += amount;
                     this.meltingProgress = 0;
-                    this.itemHandler.extractItem(SLOT_MATERIAL, 1, false);
+                    this.itemHandlerBase.extractItem(SLOT_MATERIAL, 1, false);
                 }
 
                 dirty = true;
@@ -119,7 +120,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         // NOTE: This does break the IItemHandler contract of not modifying the items
         // you get from getStackInSlot(), but since this is internal usage, whatever...
         // Otherwise we would be constantly extracting and inserting it back.
-        ItemStack inputStack = this.itemHandler.getStackInSlot(SLOT_CAP_IN);
+        ItemStack inputStack = this.itemHandlerBase.getStackInSlot(SLOT_CAP_IN);
 
         // Charge IChargeable items with the Ender Goo
         if (inputStack != null)
@@ -194,9 +195,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                     this.chargeableItemCapacity = 0;
 
                     // Move the item from the input slot to the output slot
-                    if (this.itemHandler.insertItem(SLOT_CAP_OUT, this.itemHandler.extractItem(SLOT_CAP_IN, 1, true), true) == null)
+                    if (this.itemHandlerBase.insertItem(SLOT_CAP_OUT, this.itemHandlerBase.extractItem(SLOT_CAP_IN, 1, true), true) == null)
                     {
-                        this.itemHandler.insertItem(SLOT_CAP_OUT, this.itemHandler.extractItem(SLOT_CAP_IN, 1, false), false);
+                        this.itemHandlerBase.insertItem(SLOT_CAP_OUT, this.itemHandlerBase.extractItem(SLOT_CAP_IN, 1, false), false);
                         dirty = true;
                     }
                 }
@@ -216,28 +217,15 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         }
     }
 
-    private class ItemHandlerWrapperEnderInfuser implements IItemHandlerModifiable
+    private class ItemHandlerWrapperEnderInfuser extends ItemHandlerWrapperSelective
     {
-        private final IItemHandlerModifiable baseHandler;
-
         public ItemHandlerWrapperEnderInfuser(IItemHandlerModifiable baseHandler)
         {
-            this.baseHandler = baseHandler;
+            super(baseHandler);
         }
 
         @Override
-        public int getSlots()
-        {
-            return this.baseHandler.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.baseHandler.getStackInSlot(slot);
-        }
-
-        private boolean isItemValidForSlot(int slot, ItemStack stack)
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {
@@ -256,34 +244,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         }
 
         @Override
-        public void setStackInSlot(int slot, ItemStack stack)
+        protected boolean canExtractFromSlot(int slot)
         {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                this.baseHandler.setStackInSlot(slot, stack);
-            }
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.isItemValidForSlot(slot, stack) == true)
-            {
-                return this.baseHandler.insertItem(slot, stack, simulate);
-            }
-
-            return stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            if (slot == SLOT_CAP_OUT)
-            {
-                return this.baseHandler.extractItem(slot, amount, simulate);
-            }
-
-            return null;
+            return slot == SLOT_CAP_OUT;
         }
     }
 

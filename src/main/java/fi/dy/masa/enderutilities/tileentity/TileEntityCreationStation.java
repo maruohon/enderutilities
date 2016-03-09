@@ -21,14 +21,16 @@ import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
-import fi.dy.masa.enderutilities.inventory.IModularInventoryCallback;
+import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCrafting;
-import fi.dy.masa.enderutilities.inventory.InventoryStackArray;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -37,7 +39,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryCallback, ITickable
+public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder, ITickable
 {
     public static final int GUI_ACTION_SELECT_MODULE       = 0;
     public static final int GUI_ACTION_MOVE_ITEMS          = 1;
@@ -75,13 +77,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public static final int MODE_BIT_SHOW_RECIPE_LEFT       = 0x4000;
     public static final int MODE_BIT_SHOW_RECIPE_RIGHT      = 0x8000;
 
+    private final IItemHandlerModifiable itemHandlerMemoryCards;
+    private final InventoryItemCallback itemInventory;
+    private final ItemStackHandlerTileEntity furnaceInventory;
+    private final IItemHandlerModifiable furnaceInventoryWrapper;
+
     protected InventoryItemCrafting[] craftingInventories;
     private final ItemStack[][] craftingGridTemplates;
     protected final IInventory[] craftResults;
     protected final ItemStack[][] recipeItems;
-    protected final InventoryStackArray furnaceInventory;
-    protected InventoryItemCallback itemInventory;
-    protected ItemStack[] furnaceItems;
     protected int selectedModule;
     protected int actionMode;
     protected Map<UUID, Long> clickTimes;
@@ -100,6 +104,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         super(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
 
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MODULES, 4, 1, false, "Items", this);
+        this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
+        // FIXME
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, false, null, this);
 
         this.craftingInventories = new InventoryItemCrafting[2];
@@ -107,8 +114,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.craftResults = new InventoryCraftResult[] { new InventoryCraftResult(), new InventoryCraftResult() };
         this.recipeItems = new ItemStack[][] { new ItemStack[10], new ItemStack[10] };
 
-        this.furnaceItems = new ItemStack[6];
-        this.furnaceInventory = new InventoryStackArray(this.furnaceItems, 1024, 6, true, this, INV_ID_FURNACE);
+        this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
+        this.furnaceInventoryWrapper = new ItemHandlerWrapperFurnace(this.furnaceInventory);
 
         this.clickTimes = new HashMap<UUID, Long>();
         this.numPlayersUsing = 0;
@@ -137,13 +144,19 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         super.readFromNBTCustom(nbt);
 
-        this.furnaceItems = this.readItemsFromNBT(nbt, 6, "FurnaceItems");
-        this.furnaceInventory.setStackArray(this.furnaceItems);
-
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
         this.readModeMaskFromModule();
         this.loadRecipe(0, this.getRecipeId(0));
         this.loadRecipe(1, this.getRecipeId(1));
+    }
+
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
+        super.readItemsFromNBT(nbt);
+
+        this.furnaceInventory.deserializeNBT(nbt);
+
+        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
     }
 
     @Override
@@ -160,9 +173,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             nbt.setInteger("CookTime" + i, this.cookTime[i]);
         }
 
-        this.writeItemsToNBT(nbt, this.furnaceItems, "FurnaceItems");
-
         super.writeToNBT(nbt);
+    }
+
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        super.writeItemsToNBT(nbt);
+
+        nbt.merge(this.furnaceInventory.serializeNBT());
     }
 
     @Override
@@ -183,7 +202,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.selectedModule = nbt.getByte("msel");
 
         this.itemInventory.setIsRemote(true);
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
 
         super.onDataPacket(net, packet);
     }
@@ -210,9 +229,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.craftResults[id];
     }
 
-    public InventoryStackArray getFurnaceInventory()
+    public IItemHandlerModifiable getFurnaceInventory()
     {
-        return this.furnaceInventory;
+        return this.furnaceInventoryWrapper;
     }
 
     public int getQuickMode()
@@ -237,7 +256,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     public void setSelectedModule(int index)
     {
-        this.selectedModule = MathHelper.clamp_int(index, 0, this.invSize - 1);
+        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
 
     public int getModeMask()
@@ -250,9 +269,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.modeMask &= (MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST);
 
         // Furnace modes are stored in the TileEntity itself, other modes are on the modules
-        if (this.itemStacks[this.selectedModule] != null)
+        if (this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule) != null)
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(this.itemStacks[this.selectedModule], null, "CreationStation", false);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule), null, "CreationStation", false);
             if (tag != null)
             {
                 this.modeMask |= tag.getShort("ConfigMask");
@@ -264,11 +283,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void writeModeMaskToModule()
     {
-        if (this.itemStacks[this.selectedModule] != null)
+        //ItemStack stack = this.itemHandlerMemoryCards.extractItem(this.selectedModule, 1, false);
+        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        if (stack != null)
         {
             // Furnace modes are stored in the TileEntity itself, other modes are on the modules
-            NBTTagCompound tag = NBTUtils.getCompoundTag(this.itemStacks[this.selectedModule], null, "CreationStation", true);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(stack, null, "CreationStation", true);
             tag.setShort("ConfigMask", (short)(this.modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
+            //this.itemHandlerMemoryCards.insertItem(this.selectedModule, stack, false);
+            this.itemHandlerMemoryCards.setStackInSlot(this.selectedModule, stack);
         }
     }
 
@@ -327,7 +350,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     public NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
     {
-        ItemStack stack = this.itemStacks[this.selectedModule];
+        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
         if (stack == null)
         {
             return null;
@@ -578,11 +601,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public ItemStack getContainerStack()
     {
-        return this.itemStacks[this.selectedModule];
+        return this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
     }
 
     @Override
-    public void inventoryChanged(int invId)
+    public void inventoryChanged(int inventoryId, int slot)
     {
         /*if (this.worldObj != null && this.worldObj.isRemote == true)
         {
@@ -590,24 +613,24 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }*/
 
         //System.out.printf("%s - inventoryChanged\n", (this.worldObj.isRemote ? "client" : "server"));
-        if (invId == INV_ID_FURNACE)
+        if (inventoryId == INV_ID_FURNACE)
         {
             // This gets called from the furnace inventory's markDirty
             this.inputDirty[0] = this.inputDirty[1] = true;
             return;
         }
 
-        this.itemInventory.setContainerItemStack(this.itemStacks[this.selectedModule]);
+        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
         this.readModeMaskFromModule();
 
         if (this.craftingInventories[0] != null)
         {
-            this.craftingInventories[0].setContainerItemStack(this.itemStacks[this.selectedModule]);
+            this.craftingInventories[0].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
         }
 
         if (this.craftingInventories[1] != null)
         {
-            this.craftingInventories[1].setContainerItemStack(this.itemStacks[this.selectedModule]);
+            this.craftingInventories[1].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
         }
 
         //if (this.worldObj.isRemote == false)
@@ -617,75 +640,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    @Override
-    public int getSizeInventory()
-    {
-        return this.invSize;
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        return 1;
-    }
-
-    @Override
-    public void setInventorySlotContents(int slotNum, ItemStack stack)
-    {
-        super.setInventorySlotContents(slotNum, stack);
-        this.inventoryChanged(INV_ID_MODULES);
-    }
-
-    @Override
-    public ItemStack decrStackSize(int slotNum, int maxAmount)
-    {
-        ItemStack stack = super.decrStackSize(slotNum, maxAmount);
-        this.inventoryChanged(INV_ID_MODULES);
-        return stack;
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotNum, ItemStack stack)
-    {
-        if (stack == null)
-        {
-            return true;
-        }
-
-        if ((stack.getItem() instanceof IModule) == false)
-        {
-            return false;
-        }
-
-        IModule module = (IModule)stack.getItem();
-        ModuleType type = module.getModuleType(stack);
-
-        if (type.equals(ModuleType.TYPE_INVALID) == false)
-        {
-            // Matching basic module type, check for the sub-type/tier
-            if (type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true)
-            {
-                return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
-                       module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void markDirty()
-    {
-        super.markDirty();
-    }
-
-    @Override
     public void openInventory(EntityPlayer player)
     {
         this.numPlayersUsing++;
     }
 
-    @Override
     public void closeInventory(EntityPlayer player)
     {
         if (--this.numPlayersUsing <= 0)
@@ -724,7 +683,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             this.itemInventory.markDirty();
             this.setSelectedModule(element);
-            this.inventoryChanged(INV_ID_MODULES);
+            this.inventoryChanged(INV_ID_MODULES, element);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
@@ -926,18 +885,19 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     public int consumeFuelItem(int id)
     {
-        ItemStack fuelStack = this.furnaceInventory.getStackInSlot(id * 3 + 1);
-
-        if (fuelStack == null)
+        if (this.furnaceInventory.getStackInSlot(id * 3 + 1) == null)
         {
             return 0;
         }
 
+        ItemStack fuelStack = this.furnaceInventory.extractItem(id * 3 + 1, 1, false);
         int burnTime = TileEntityEnderFurnace.consumeFluidFuelDosage(fuelStack);
 
         // IFluidContainerItem items with lava
         if (burnTime > 0)
         {
+            // Put the fuel/fluid container item back
+            this.furnaceInventory.insertItem(id * 3 + 1, fuelStack, false);
             this.burnTimeFresh[id] = burnTime;
         }
         // Regular solid fuels
@@ -947,13 +907,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
             if (burnTime > 0)
             {
-                if (--fuelStack.stackSize <= 0)
-                {
-                    fuelStack = fuelStack.getItem().getContainerItem(fuelStack);
-                }
-
                 this.burnTimeFresh[id] = burnTime;
-                this.furnaceInventory.setInventorySlotContents(id * 3 + 1, fuelStack);
+                ItemStack containerStack = fuelStack.getItem().getContainerItem(fuelStack);
+
+                if (this.furnaceInventory.getStackInSlot(id * 3 + 1) == null && containerStack != null)
+                {
+                    this.furnaceInventory.insertItem(id * 3 + 1, containerStack, false);
+                }
             }
         }
 
@@ -1001,30 +961,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         if (this.canSmelt(id) == true)
         {
-            // Output stack
-            ItemStack stack = this.furnaceInventory.getStackInSlot(id * 3 + 2);
+            this.furnaceInventory.insertItem(id * 3 + 2, this.smeltingResultCache[id], false);
+            this.furnaceInventory.extractItem(id * 3, 1, false);
 
-            if (stack == null)
+            if (this.furnaceInventory.getStackInSlot(id * 3) == null)
             {
-                stack = this.smeltingResultCache[id].copy();
-            }
-            else
-            {
-                stack.stackSize += this.smeltingResultCache[id].stackSize;
-            }
-
-            this.furnaceInventory.setInventorySlotContents(id * 3 + 2, stack);
-
-            // Input stack
-            stack = this.furnaceInventory.getStackInSlot(id * 3);
-
-            if (--stack.stackSize <= 0)
-            {
-                stack = null;
                 this.inputDirty[id] = true;
             }
-
-            this.furnaceInventory.setInventorySlotContents(id * 3, stack);
         }
     }
 
@@ -1154,6 +1097,76 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         return this.burnTimeRemaining[id] * i / this.burnTimeFresh[id];
+    }
+
+    private class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelective
+    {
+        public ItemHandlerWrapperMemoryCards(IItemHandlerModifiable baseHandler)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return true;
+            }
+
+            if ((stack.getItem() instanceof IModule) == false)
+            {
+                return false;
+            }
+
+            IModule module = (IModule)stack.getItem();
+            ModuleType type = module.getModuleType(stack);
+
+            // Check for a valid item-type Memory Card
+            return  type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true &&
+                    module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
+                    module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
+        }
+
+    }
+
+    private class ItemHandlerWrapperFurnace extends ItemHandlerWrapperSelective
+    {
+        public ItemHandlerWrapperFurnace(IItemHandlerModifiable baseHandler)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return true;
+            }
+
+            if (slot == 0 || slot == 3)
+            {
+                return FurnaceRecipes.instance().getSmeltingResult(stack) != null;
+            }
+
+            return (slot == 1 || slot == 4) && TileEntityEnderFurnace.isItemFuel(stack) == true;
+        }
+
+        /*
+        @Override
+        protected boolean canExtractFromSlot(int slot)
+        {
+            // 2 & 5: output slots; 1 & 4: fuel slots => allow pulling out from output slots, and non-fuel items (like empty buckets) from fuel slots
+            if (  slot == 2 || slot == 5 ||
+                ((slot == 1 || slot == 4) && TileEntityEnderFurnace.isItemFuel(this.getStackInSlot(slot)) == false))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        */
     }
 
     @Override
