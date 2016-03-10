@@ -83,7 +83,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
         {
-            return true;
+            return this.itemHandlerExternal != null;
         }
 
         return super.hasCapability(capability, facing);

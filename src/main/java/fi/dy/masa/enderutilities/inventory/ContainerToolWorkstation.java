@@ -9,21 +9,21 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
+public class ContainerToolWorkstation extends ContainerEnderUtilities implements IContainerModularItem
 {
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
     public static final int SLOT_MODULAR_ITEM = NUM_MODULE_SLOTS;
-    public InventoryItemModules inventoryItem;
-    protected boolean isRemote;
+    private final TileEntityToolWorkstation te;
+    public final InventoryItemModules inventoryItem;
 
     public ContainerToolWorkstation(EntityPlayer player, TileEntityToolWorkstation te)
     {
-        super(player, te);
-        this.inventoryItem = new InventoryItemModules(this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL),
-                NUM_MODULE_SLOTS, te.getWorld().isRemote, inventoryPlayer.player);
+        super(player, te.getInventory());
+        this.te = te;
+        ItemStack tool = this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL);
+        this.inventoryItem = new InventoryItemModules(tool, NUM_MODULE_SLOTS, te.getWorld().isRemote, player);
         this.inventoryItem.readFromContainerItemStack();
-        this.isRemote = te.getWorld().isRemote;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 94);
     }
@@ -62,6 +62,12 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
 
         this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
         this.setUpgradeSlotTypes();
+    }
+
+    @Override
+    public boolean canInteractWith(EntityPlayer player)
+    {
+        return super.canInteractWith(player) && this.te.isInvalid() == false;
     }
 
     @Override
