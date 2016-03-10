@@ -1,19 +1,20 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class SlotModule extends SlotGeneric
+public class SlotModule extends SlotItemHandlerGeneric
 {
     protected ModuleType moduleType;
     protected int moduleTierMin;
     protected int moduleTierMax;
     protected int stackLimit;
 
-    public SlotModule(IInventory inventory, int slot, int posX, int posY, ModuleType moduleType)
+    public SlotModule(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType)
     {
         super(inventory, slot, posX, posY);
         this.moduleType = moduleType;
@@ -44,6 +45,12 @@ public class SlotModule extends SlotGeneric
     {
         this.stackLimit = limit;
         return this;
+    }
+
+    @Override
+    public int getItemStackLimit(ItemStack stack)
+    {
+        return this.stackLimit;
     }
 
     @Override

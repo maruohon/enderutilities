@@ -152,7 +152,7 @@ public class ContainerToolWorkstation extends ContainerEnderUtilities implements
         // The clicked on slot is inside the modular item's inventory
         if (slot != null && slot.inventory == this.inventoryItem)
         {
-            this.inventoryItem.markDirty();
+            this.inventoryItem.onContentsChanged(slot.getSlotIndex());
         }
         // Changing the item in the tool slot, update the InventoryItem
         else if (this.inventoryItem.getContainerItemStack() != this.inventory.getStackInSlot(TileEntityToolWorkstation.SLOT_TOOL))

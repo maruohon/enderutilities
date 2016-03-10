@@ -7,10 +7,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.item.base.IModular;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -126,7 +124,7 @@ public class InventoryItemModular extends InventoryItem
         //System.out.println("InventoryItemModular#getSelectedModuleStack() - " + (this.isRemote ? "client" : "server"));
         //return UtilItemModular.getModuleStackBySlotNumber(this.getModularItemStack(), this.getSelectedModuleIndex(), this.moduleType);
         int index = this.getSelectedModuleIndex();
-        return index >= 0 && index < this.moduleInventory.getSizeInventory() ? this.moduleInventory.getStackInSlot(index) : null;
+        return index >= 0 && index < this.moduleInventory.getSlots() ? this.moduleInventory.getStackInSlot(index) : null;
     }
 
     @Override
@@ -141,7 +139,7 @@ public class InventoryItemModular extends InventoryItem
         return 64;
     }
 
-    @Override
+    /*@Override
     public boolean hasCustomName()
     {
         ItemStack stack = this.getSelectedModuleStack();
@@ -177,7 +175,7 @@ public class InventoryItemModular extends InventoryItem
         }
 
         return stack.getItem().getUnlocalizedName(stack);
-    }
+    }*/
 
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
@@ -218,18 +216,4 @@ public class InventoryItemModular extends InventoryItem
         //this.moduleInventory.writeToContainerItemStack();
         //this.moduleInventory.markDirty();
     }*/
-
-    @Override
-    public void openInventory(EntityPlayer player)
-    {
-        super.openInventory(player);
-        this.moduleInventory.openInventory(player);
-    }
-
-    @Override
-    public void closeInventory(EntityPlayer player)
-    {
-        super.closeInventory(player);
-        this.moduleInventory.closeInventory(player);
-    }
 }

@@ -30,7 +30,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, new InventoryItem(containerStack, 1, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
+        super(player, new InventoryItem(containerStack, 1, 1024, true, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 
@@ -39,14 +39,12 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
-        this.inventoryItemFilters = new InventoryItem(containerStack, 36, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
         this.inventoryItemFilters.setHostInventory(player.inventory, this.containerUUID);
-        this.inventoryItemFilters.setInventoryStackLimit(1);
         this.inventoryItemFilters.readFromContainerItemStack();
 
         this.inventoryItemTransmit = (InventoryItem)this.inventory;
         this.inventoryItemTransmit.setHostInventory(player.inventory, this.containerUUID);
-        this.inventoryItemTransmit.setInventoryStackLimit(1024);
         this.inventoryItemTransmit.readFromContainerItemStack();
 
         this.addCustomInventorySlots();
@@ -61,7 +59,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         int posY = 29;
 
         // The item transmit slot
-        this.addSlotToContainer(new SlotGeneric(this.inventoryItemTransmit, 0, 89, posY));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventoryItemTransmit, 0, 89, posY));
 
         this.customInventorySlots = new SlotRange(start, 1);
         start = this.inventorySlots.size();
@@ -72,7 +70,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemFilters, i * 9 + j, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventoryItemFilters, i * 9 + j, posX + j * 18, posY + i * 18));
             }
         }
 
@@ -82,7 +80,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.inventoryItemFilters, i * 9 + j + 18, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventoryItemFilters, i * 9 + j + 18, posX + j * 18, posY + i * 18));
             }
         }
 
@@ -108,16 +106,6 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     public boolean canInteractWith(EntityPlayer player)
     {
         return true;
-    }
-
-    @Override
-    public void onContainerClosed(EntityPlayer player)
-    {
-        super.onContainerClosed(player);
-
-        this.inventory.closeInventory(player);
-        this.inventoryItemModules.closeInventory(player);
-        this.inventoryItemFilters.closeInventory(player);
     }
 
     protected boolean fakeSlotClick(int slotNum, int button, int type, EntityPlayer player)

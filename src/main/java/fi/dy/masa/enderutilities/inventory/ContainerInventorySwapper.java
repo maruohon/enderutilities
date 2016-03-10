@@ -119,7 +119,7 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
 
         posX = 126;
         posY = 18;
-        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSizeInventory();
+        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSlots();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
         {
@@ -142,14 +142,6 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
     public boolean canInteractWith(EntityPlayer player)
     {
         return true;
-    }
-
-    @Override
-    public void onContainerClosed(EntityPlayer player)
-    {
-        super.onContainerClosed(player);
-
-        this.inventoryItemModular.closeInventory(player);
     }
 
     @Override

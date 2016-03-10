@@ -48,8 +48,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.player = container.player;
         this.container = container;
         this.invModular = container.inventoryItemModular;
-        this.invSize = this.invModular.getSizeInventory();
-        this.numModuleSlots = this.invModular.getModuleInventory().getSizeInventory();
+        this.invSize = this.invModular.getSlots();
+        this.numModuleSlots = this.invModular.getModuleInventory().getSlots();
         this.bagTier = this.container.getBagTier();
 
         this.scaledStackSizeTextTargetInventories.add(this.invModular);
@@ -165,7 +165,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.buttonList.clear();
 
         // Add the Memory Card selection buttons
-        int numModules = this.invModular.getModuleInventory().getSizeInventory();
+        int numModules = this.invModular.getModuleInventory().getSlots();
         for (int i = 0; i < numModules; i++)
         {
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));

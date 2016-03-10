@@ -227,32 +227,25 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         int sizeOrig = stack.stackSize;
         int max = stack.getMaxStackSize();
+        stack = inv.extractItem(0, max, false);
 
-        while (stack.stackSize > 0)
+        while (stack != null && stack.stackSize > 0)
         {
-            int size = Math.min(max, stack.stackSize);
-            if (size <= 0)
+            stack = this.tryTransportItems(player, manager, stack);
+
+            // Could not transport the whole stack (anymore)
+            if (stack != null)
             {
+                inv.insertItem(0, stack, false);
                 break;
             }
 
-            ItemStack stackTmp = stack.copy();
-            stackTmp.stackSize = size;
-            stackTmp = this.tryTransportItems(player, manager, stackTmp);
-
-            // Could not transport he whole stack (anymore)
-            if (stackTmp != null)
-            {
-                stack.stackSize -= (size - stackTmp.stackSize);
-                break;
-            }
-
-            stack.stackSize -= size;
+            stack = inv.extractItem(0, max, false);
         }
 
-        inv.setInventorySlotContents(0, stack.stackSize > 0 ? stack : null);
+        stack = inv.getStackInSlot(0);
 
-        return stack.stackSize != sizeOrig;
+        return stack == null || stack.stackSize != sizeOrig;
     }
 
     public ItemStack tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
@@ -282,6 +275,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                     return itemsIn;
                 }
 
+                // TODO update to IItemHandler
                 TileEntity te = world.getTileEntity(target.pos);
                 if (te instanceof IInventory)
                 {
@@ -332,7 +326,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     {
         byte preset = NBTUtils.getByte(manager, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
 
-        InventoryItem inv = new InventoryItem(manager, 36, player.worldObj.isRemote, player, TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        InventoryItem inv = new InventoryItem(manager, 36, 1, false, player.worldObj.isRemote, player, TAG_NAME_FILTER_INVENTORY_PRE + preset);
         inv.readFromContainerItemStack();
 
         // Transport filters/functionality enabled

@@ -7,9 +7,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.EnumFacing;
 
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 
@@ -33,7 +31,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
-        super(player, te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
+        super(player, te.getItemInventory());
         this.tecs = te;
         this.tecs.openInventory(player);
 
@@ -58,7 +56,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotGeneric(this.tecs.getItemInventory(), i * 9 + j, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
             }
         }
 
@@ -168,7 +166,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         if (slot instanceof SlotItemHandler)
         {
             SlotItemHandler slotItemHandler = (SlotItemHandler)slot;
-            if (slotItemHandler.itemHandler == this.tecs.getItemInventory() || slotItemHandler.itemHandler == this.tecs.getFurnaceInventory())
+            if (slotItemHandler.itemHandler == this.inventory || slotItemHandler.itemHandler == this.tecs.getFurnaceInventory())
             {
                 return slotItemHandler.getItemStackLimit(stack);
             }
@@ -240,37 +238,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
 
         return super.slotClick(slotNum, button, type, player);
-    }
-
-    @Override
-    public void middleClickSlot(int slotNum, EntityPlayer player)
-    {
-        Slot slot1 = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-
-        // Only allow swapping in this inventory (which supports the large stacks)
-        if (slot1 != null && slot1.isHere(this.tecs.getItemInventory(), slotNum) == true)
-        {
-            if (this.selectedSlot != -1)
-            {
-                // Don't swap with self
-                if (this.selectedSlot != slotNum)
-                {
-                    Slot slot2 = this.getSlot(this.selectedSlot);
-                    ItemStack stackTmp1 = slot1.getStack();
-                    ItemStack stackTmp2 = slot2.getStack();
-                    slot1.putStack(stackTmp2);
-                    slot2.putStack(stackTmp1);
-
-                    slot1.onPickupFromSlot(player, stackTmp1);
-                    slot2.onPickupFromSlot(player, stackTmp2);
-                }
-                this.selectedSlot = -1;
-            }
-            else
-            {
-                this.selectedSlot = slotNum;
-            }
-        }
     }
 
     @Override

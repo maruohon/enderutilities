@@ -45,8 +45,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         this.player = container.player;
         this.container = container;
         this.inventory = container.inventoryItemModular;
-        this.invSize = this.inventory.getSizeInventory();
-        this.numModuleSlots = this.inventory.getModuleInventory().getSizeInventory();
+        this.invSize = this.inventory.getSlots();
+        this.numModuleSlots = this.inventory.getModuleInventory().getSlots();
     }
 
     @Override

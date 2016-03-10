@@ -537,7 +537,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {
-                    int bagMaxSlot = inv.getSizeInventory() - 1;
+                    int bagMaxSlot = inv.getSlots() - 1;
                     int playerMaxSlot = player.inventory.getSizeInventory() - 5;
                     EnumFacing up = EnumFacing.UP;
 

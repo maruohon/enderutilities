@@ -27,7 +27,7 @@ public class ItemStackHandlerTileEntity extends ItemStackHandlerBasic
     }
 
     @Override
-    protected void onContentsChanged(int slot)
+    public void onContentsChanged(int slot)
     {
         super.onContentsChanged(slot);
 

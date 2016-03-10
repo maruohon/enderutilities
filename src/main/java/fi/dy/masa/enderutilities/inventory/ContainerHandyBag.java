@@ -136,7 +136,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         xOff += 90;
         yOff = 69;
-        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSizeInventory();
+        int moduleSlots = this.inventoryItemModular.getModuleInventory().getSlots();
         // Add the Memory Card slots as a priority merge slot range
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), moduleSlots);
 
@@ -197,8 +197,6 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         // Drop the items in the crafting grid
         this.dropCraftingGridContents();
-
-        this.inventoryItemModular.closeInventory(player);
     }
 
     @Override

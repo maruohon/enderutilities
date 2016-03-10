@@ -260,11 +260,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             {
                 ItemStack tmpStack = swapperInv.getStackInSlot(i);
 
+                // TODO update to IItemHandler
                 // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
                 if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
                     externalInv.isItemValidForSlot(i, tmpStack) == true))
                 {
-                    swapperInv.setInventorySlotContents(i, externalInv.getStackInSlot(i));
+                    swapperInv.setStackInSlot(i, externalInv.getStackInSlot(i));
                     externalInv.setInventorySlotContents(i, tmpStack);
                 }
             }
@@ -285,6 +286,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             {
                 ItemStack tmpStack = swapperInv.getStackInSlot(slotNum);
 
+                // TODO update to IItemHandler
                 // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
                 if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
                    externalInv.isItemValidForSlot(slotNum, tmpStack) == true))
@@ -294,7 +296,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                     if (externalInv.canExtractItem(slotNum, externalInvStack, side) == true &&
                         (tmpStack == null || externalInv.canInsertItem(slotNum, tmpStack, side) == true))
                     {
-                        swapperInv.setInventorySlotContents(slotNum, externalInvStack);
+                        swapperInv.setStackInSlot(slotNum, externalInvStack);
                         externalInv.setInventorySlotContents(slotNum, tmpStack);
                     }
                 }
@@ -312,6 +314,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         long slotMask = getEnabledSlotsMask(swapperStack);
 
+        // TODO update to IItemHandler
         if (externalInv instanceof ISidedInventory)
         {
             this.swapInventoryWithISided(slotMask, swapperInv, (ISidedInventory)externalInv, side);
@@ -362,13 +365,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                         int pos = tmpStack != null ? EntityLiving.getArmorPosition(tmpStack) : (i - mainInvSize + 1);
                         if (pos > 0 && pos == (i - mainInvSize + 1))
                         {
-                            inv.setInventorySlotContents(i, player.inventory.getStackInSlot(i));
+                            inv.setStackInSlot(i, player.inventory.getStackInSlot(i));
                             player.inventory.setInventorySlotContents(i, tmpStack);
                         }
                     }
                     else
                     {
-                        inv.setInventorySlotContents(i, player.inventory.getStackInSlot(i));
+                        inv.setStackInSlot(i, player.inventory.getStackInSlot(i));
                         player.inventory.setInventorySlotContents(i, tmpStack);
                     }
                 }

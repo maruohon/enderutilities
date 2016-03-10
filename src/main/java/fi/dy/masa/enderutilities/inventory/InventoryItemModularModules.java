@@ -20,12 +20,12 @@ public class InventoryItemModularModules extends InventoryItemModules
     }
 
     @Override
-    public void markDirty()
+    public void onContentsChanged(int slot)
     {
         if (this.isRemote == false)
         {
             //System.out.println("InventoryItemModularModules#markDirty() - " + (this.isRemote ? "client" : "server"));
-            super.markDirty();
+            super.onContentsChanged(slot);
             this.inventoryItemModular.readFromContainerItemStack();
         }
     }

@@ -72,7 +72,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         this.bindTexture(this.guiTextureWidgets);
 
-        int invSize = this.tecs.getItemInventory().getSizeInventory();
+        int invSize = this.tecs.getItemInventory().getSlots();
         int modeMask = this.tecs.getModeMask();
 
         // Draw the selection marker around the selected module's button

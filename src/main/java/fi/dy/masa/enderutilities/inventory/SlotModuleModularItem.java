@@ -1,7 +1,8 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -11,7 +12,7 @@ public class SlotModuleModularItem extends SlotModule
 {
     protected IContainerModularItem container;
 
-    public SlotModuleModularItem(IInventory inventory, int slot, int posX, int posY, ModuleType moduleType, IContainerModularItem container)
+    public SlotModuleModularItem(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType, IContainerModularItem container)
     {
         super(inventory, slot, posX, posY, moduleType);
         this.container = container;
@@ -53,6 +54,12 @@ public class SlotModuleModularItem extends SlotModule
         }
 
         return false;
+    }
+
+    @Override
+    public int getItemStackLimit(ItemStack stack)
+    {
+        return 1;
     }
 
     @Override

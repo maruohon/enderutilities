@@ -10,11 +10,11 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>
 {
-    protected ItemStack[] items;
     protected final int invSize;
     protected final int stackLimit;
     protected final boolean allowCustomStackSizes;
-    protected final String tagName;
+    protected ItemStack[] items;
+    protected String tagName;
 
     public ItemStackHandlerBasic(int invSize)
     {
@@ -48,12 +48,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public int getSlots()
     {
-        if (this.items != null)
-        {
-            return this.items.length;
-        }
-
-        return 0;
+        return this.items.length;
     }
 
     @Override
@@ -74,22 +69,17 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public void setStackInSlot(int slot, ItemStack stack)
     {
-        /*
-        if (slot >= 0 && slot < this.items.length)
+        if (this.isItemValidForSlot(slot, stack) == true) // && slot >= 0 && slot < this.items.length)
         {
             this.items[slot] = stack;
             this.onContentsChanged(slot);
         }
-        */
-
-        this.items[slot] = stack;
-        this.onContentsChanged(slot);
     }
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        if (slot < 0 || slot >= this.items.length || stack == null)
+        if (slot < 0 || slot >= this.items.length || stack == null || this.isItemValidForSlot(slot, stack) == false)
         {
             return stack;
         }
@@ -190,8 +180,6 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         return stack;
     }
 
-    protected void onContentsChanged(int slot) { }
-
     @Override
     public NBTTagCompound serializeNBT()
     {
@@ -204,20 +192,12 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         NBTUtils.readStoredItemsFromTag(nbt, this.items, this.tagName);
     }
 
-    /**
-     * A raw, no-checks version of getStackInSlot
-     */
-    public ItemStack getStackInSlotDirect(int slot)
+    public void onContentsChanged(int slot)
     {
-        return this.items[slot];
     }
 
-    /**
-     * A raw, no-checks version of setStackInSlot
-     */
-    public void setStackInSlotDirect(int slot, ItemStack stack)
+    public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
-        this.items[slot] = stack;
-        this.onContentsChanged(slot);
+        return true;
     }
 }

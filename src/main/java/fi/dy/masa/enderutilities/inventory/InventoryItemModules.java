@@ -9,8 +9,7 @@ public class InventoryItemModules extends InventoryItem
 {
     public InventoryItemModules(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
-        super(containerStack, invSize, isRemote, player);
-        this.stackLimit = 1;
+        super(containerStack, invSize, 1, false, isRemote, player);
     }
 
     @Override
