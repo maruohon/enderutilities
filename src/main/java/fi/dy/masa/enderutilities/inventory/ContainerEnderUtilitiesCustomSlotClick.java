@@ -190,12 +190,13 @@ public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilit
 
     public void leftDoubleClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        Slot slotTmp = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandler slot = slotTmp instanceof SlotItemHandler ? (SlotItemHandler)slotTmp : null;
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
 
         if (slot != null && stackCursor != null)
         {
-            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.inventory, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
+            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.itemHandler, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
             if (stackTmp != null)
             {
                 stackCursor.stackSize += stackTmp.stackSize;

@@ -61,7 +61,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     private void initStorage()
     {
         // FIXME needs a custom modular-item aware IItemHandler, which should be the same one as this.itemInventory
-        this.itemHandlerExternal = new ItemStackHandlerTileEntity(INV_ID_ITEMS, this.invSizeItems, 256, true, "ItemsTemp", this);
+        this.itemHandlerExternal = new ItemStackHandlerTileEntity(INV_ID_ITEMS, this.invSizeItemsssss, 256, true, "ItemsTemp", this);
     }
 
     @Override

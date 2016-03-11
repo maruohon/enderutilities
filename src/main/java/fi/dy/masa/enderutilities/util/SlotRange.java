@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
+import net.minecraftforge.items.IItemHandler;
+
 public class SlotRange
 {
     public final int first;
@@ -7,6 +9,11 @@ public class SlotRange
     public final int lastInc;
     /** The end of the slot range, exclusive (meaning one larger than the last slot number) */
     public final int lastExc;
+
+    public SlotRange(IItemHandler inv)
+    {
+        this(0, inv.getSlots());
+    }
 
     public SlotRange(int start, int numSlots)
     {

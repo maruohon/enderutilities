@@ -67,6 +67,16 @@ public class InventoryItem extends ItemStackHandlerBasic
         }
     }
 
+    public UUID getContainerUUID()
+    {
+        return this.containerUUID;
+    }
+
+    public void setHostInventory(IInventory inv)
+    {
+        this.hostInventory = inv;
+    }
+
     /**
      * Sets the host inventory and the UUID of the container ItemStack, so that the correct
      * container ItemStack can be fetched from the host inventory.
@@ -173,41 +183,4 @@ public class InventoryItem extends ItemStackHandlerBasic
             this.writeToContainerItemStack();
         }
     }
-
-    /*public boolean hasCustomName()
-    {
-        if (this.customInventoryName != null)
-        {
-            return true;
-        }
-
-        ItemStack stack = this.getContainerItemStack();
-        if (stack != null)
-        {
-            return stack.hasDisplayName();
-        }
-
-        return false;
-    }
-
-    public String getName()
-    {
-        if (this.customInventoryName != null)
-        {
-            return this.customInventoryName;
-        }
-
-        ItemStack stack = this.getContainerItemStack();
-        if (stack != null)
-        {
-            return stack.getDisplayName();
-        }
-
-        return "";
-    }
-
-    public void setCustomInventoryName(String name)
-    {
-        this.customInventoryName = name;
-    }*/
 }
