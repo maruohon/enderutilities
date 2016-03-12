@@ -4,17 +4,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.IChatComponent;
+
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class InventoryItemCrafting extends InventoryCrafting
+public class InventoryItemCrafting extends InventoryCrafting implements IItemHandler
 {
     protected ItemStack containerStack;
     protected int invSize;
@@ -28,6 +28,7 @@ public class InventoryItemCrafting extends InventoryCrafting
     protected boolean ignoreMaxStackSize;
     protected Container container;
     protected IModularInventoryHolder callback;
+    private final IItemHandler itemHandler;
 
     public InventoryItemCrafting(Container container, int width, int height, ItemStack containerStack, boolean isRemote,
             EntityPlayer player, IModularInventoryHolder callback, String tagName)
@@ -42,6 +43,7 @@ public class InventoryItemCrafting extends InventoryCrafting
         this.callback = callback;
         this.itemsTagName = tagName;
         this.initInventory();
+        this.itemHandler = new InvWrapper(this);
     }
 
     public void setCallback(IModularInventoryHolder callback)
@@ -265,40 +267,6 @@ public class InventoryItemCrafting extends InventoryCrafting
     }
 
     @Override
-    public String getName()
-    {
-        if (this.customInventoryName != null)
-        {
-            return this.customInventoryName;
-        }
-
-        ItemStack stack = this.getContainerItemStack();
-        if (stack != null)
-        {
-            return stack.getDisplayName();
-        }
-
-        return "";
-    }
-
-    @Override
-    public boolean hasCustomName()
-    {
-        if (this.customInventoryName != null)
-        {
-            return true;
-        }
-
-        ItemStack stack = this.getContainerItemStack();
-        if (stack != null)
-        {
-            return stack.hasDisplayName();
-        }
-
-        return false;
-    }
-
-    @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
         //System.out.println("InventoryItemCrafting#isUseableByPlayer() - " + (this.isRemote ? "client" : "server"));
@@ -326,34 +294,20 @@ public class InventoryItemCrafting extends InventoryCrafting
     }
 
     @Override
-    public IChatComponent getDisplayName()
+    public int getSlots()
     {
-        return new ChatComponentTranslation(Reference.MOD_ID + ":" + this.getName());
+        return this.invSize;
     }
 
     @Override
-    public int getField(int id)
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        return 0;
+        return this.itemHandler.insertItem(slot, stack, simulate);
     }
 
     @Override
-    public void setField(int id, int value)
+    public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public void clear()
-    {
-        for (int i = 0; i < this.getSizeInventory(); i++)
-        {
-            this.items[i] = null;
-        }
+        return this.itemHandler.extractItem(slot, amount, simulate);
     }
 }

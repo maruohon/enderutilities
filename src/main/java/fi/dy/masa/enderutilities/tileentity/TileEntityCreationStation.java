@@ -385,7 +385,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void storeRecipe(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IInventory invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventories[invId];
         if (invCrafting == null)
         {
             return;
@@ -394,8 +394,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         NBTTagCompound tag = this.getRecipeTag(invId, recipeId, true);
         if (tag != null)
         {
-            int invSize = invCrafting.getSizeInventory();
-            //ItemStack items[] = new ItemStack[invCrafting.getSizeInventory() + 1];
+            int invSize = invCrafting.getSlots();
+            //ItemStack items[] = new ItemStack[invCrafting.getSlots() + 1];
             ItemStack items[] = this.getRecipeItems(invId);
             for (int i = 0; i < invSize; i++)
             {
@@ -444,7 +444,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected boolean addOneSetOfRecipeItemsIntoGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IInventory invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventories[invId];
         if (invCrafting == null)
         {
             return false;
@@ -459,7 +459,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void fillCraftingGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IInventory invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventories[invId];
         if (invCrafting == null)
         {
             return;
@@ -479,7 +479,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         Map<ItemType, Integer> slotCounts = InventoryUtils.getSlotCountPerItem(invCrafting);
 
         // Clear old contents and then fill all the slots back up
-        if (InventoryUtils.tryMoveAllItems(invCrafting, this.itemInventory) == true)
+        if (InventoryUtils.tryMoveAllItems(invCrafting, this.itemInventory) == InvResult.MOVED_ALL)
         {
             // Next we find out how many items we have available for each item type on the crafting grid
             // and we cap the max stack size to that value, so the stacks will be balanced
@@ -538,7 +538,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.craftingGridTemplates[invId] = null;
 
-        IInventory invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventories[invId];
         if (invCrafting == null)
         {
             return false;
@@ -700,8 +700,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 return;
             }
 
-            int playerMaxSlot = player.inventory.getSizeInventory() - 5;
-            int chestMaxSlot = this.itemInventory.getSlots() - 1;
             IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
 
             switch (element)
@@ -793,7 +791,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             int invId = element / 5;
             int recipeId = element % 5;
 
-            /*IInventory inv = this.craftingInventories[invId];
+            /*IItemHandler inv = this.craftingInventories[invId];
             if (InventoryUtils.isInventoryEmpty(inv) == true)
             {
                 this.setShowRecipe(invId, false);

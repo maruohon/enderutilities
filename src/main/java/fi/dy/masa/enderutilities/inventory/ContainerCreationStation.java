@@ -82,7 +82,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
@@ -95,7 +95,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
