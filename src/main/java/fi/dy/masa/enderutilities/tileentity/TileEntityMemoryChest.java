@@ -36,13 +36,14 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     public TileEntityMemoryChest()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.templateStacks = new ItemStack[54];
         this.enabledTemplateSlots = new ArrayList<Integer>();
+        this.initStorage(54);
     }
 
-    private void initStorage()
+    private void initStorage(int invSize)
     {
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(this.invSize, this);
+        this.templateStacks = new ItemStack[invSize];
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(invSize, this);
         this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.itemHandlerBase, this);
     }
 
@@ -59,9 +60,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        this.initStorage();
-
-        this.templateStacks = new ItemStack[this.invSize];
+        this.initStorage(this.invSize);
         NBTUtils.readStoredItemsFromTag(nbt, this.templateStacks, "TemplateItems");
 
         super.readItemsFromNBT(nbt);
@@ -101,7 +100,8 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
         this.chestTier = nbt.getByte("tier");
         this.invSize = INV_SIZES[this.chestTier];
-        this.templateStacks = new ItemStack[this.invSize];
+        //this.templateStacks = new ItemStack[this.invSize];
+        this.initStorage(this.invSize);
 
         super.onDataPacket(net, packet);
     }
@@ -118,8 +118,8 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         tier = MathHelper.clamp_int(tier, 0, 2);
         this.chestTier = tier;
         this.invSize = INV_SIZES[this.chestTier];
-        this.templateStacks = new ItemStack[this.invSize];
-        this.initStorage();
+
+        this.initStorage(this.invSize);
     }
 
     public long getTemplateMask()
