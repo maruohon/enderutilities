@@ -27,8 +27,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -51,6 +49,9 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
@@ -113,9 +114,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
+        // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (playerIn != null && playerIn.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+        if (playerIn != null && playerIn.isSneaking() == true && te != null &&
+            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             if (worldIn.isRemote == false)
@@ -323,41 +325,23 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return false;
         }
 
-        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
 
         if (inv != null)
         {
-            if (inv instanceof ISidedInventory)
+            for (int slot = 0; slot < inv.getSlots(); slot++)
             {
-                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-                ISidedInventory sided = (ISidedInventory) inv;
-                int[] slots = sided.getSlotsForFace(target.facing);
-                for (int slotNum : slots)
+                if (this.plantItemFromInventorySlot(world, player, inv, slot, pos, side, hitX, hitY, hitZ) == true)
                 {
-                    if (sided.canExtractItem(slotNum, sided.getStackInSlot(slotNum), target.facing) == true
-                        && this.plantItemFromInventorySlot(world, player, sided, slotNum, pos, side, hitX, hitY, hitZ) == true)
+                    // Use Ender Charge if planting from a remote inventory
+                    if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
                     {
                         UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
-
-                        Effects.addItemTeleportEffects(world, pos);
                     }
-                }
-            }
-            else
-            {
-                int size = inv.getSizeInventory();
-                for (int slotNum = 0; slotNum < size; ++slotNum)
-                {
-                    if (this.plantItemFromInventorySlot(world, player, inv, slotNum, pos, side, hitX, hitY, hitZ) == true)
-                    {
-                        // Use Ender Charge if planting from a remote inventory
-                        if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
-                        {
-                            UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
-                        }
 
-                        Effects.addItemTeleportEffects(world, pos);
-                    }
+                    Effects.addItemTeleportEffects(world, pos);
+
+                    return true;
                 }
             }
         }
@@ -365,24 +349,17 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return false;
     }
 
-    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IInventory inv, int slotNum, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IItemHandler inv, int slot, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        ItemStack plantStack = inv.getStackInSlot(slotNum);
+        ItemStack plantStack = inv.extractItem(slot, 1, false);
         if (plantStack != null && plantStack.getItem() instanceof IPlantable)
         {
-            ItemStack newStack = plantStack.copy();
-            if (newStack.onItemUse(player, world, pos, side, hitX, hitY, hitZ) == true)
+            if (plantStack.onItemUse(player, world, pos, side, hitX, hitY, hitZ) == true)
             {
-                if (newStack.stackSize > 0)
+                if (plantStack.stackSize > 0)
                 {
-                    inv.setInventorySlotContents(slotNum, newStack);
+                    inv.insertItem(slot, plantStack, false);
                 }
-                else
-                {
-                    inv.setInventorySlotContents(slotNum, null);
-                }
-
-                inv.markDirty();
 
                 if (inv instanceof InventoryPlayer)
                 {
@@ -546,7 +523,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return false;
     }
 
-    private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
+    private IItemHandler getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
     {
         DropsMode mode = DropsMode.fromStack(toolStack);
         // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
@@ -561,7 +538,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         if (mode == DropsMode.PLAYER && (player instanceof FakePlayer) == false &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
         {
-            return player.inventory;
+            return new PlayerMainInvWrapper(player.inventory);
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
@@ -602,43 +579,24 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return;
         }
 
-        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
         if (inv != null)
         {
             Iterator<ItemStack> iter = event.drops.iterator();
 
-            if (inv instanceof InventoryPlayer)
+            while (iter.hasNext() == true)
             {
-                while (iter.hasNext() == true)
+                ItemStack stack = iter.next();
+                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
                 {
-                    ItemStack stack = iter.next();
-                    if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                    ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
+                    if (stackTmp == null)
                     {
-                        if (player.inventory.addItemStackToInventory(stack.copy()) == true)
-                        {
-                            iter.remove();
-                        }
+                        iter.remove();
                     }
-                }
-            }
-            else
-            {
-                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-                while (iter.hasNext() == true)
-                {
-                    ItemStack stack = iter.next();
-                    if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                    else
                     {
-                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.facing);
-                        if (stackTmp == null)
-                        {
-                            iter.remove();
-                        }
-                        else
-                        {
-                            stack.stackSize = stackTmp.stackSize;
-                        }
+                        stack.stackSize = stackTmp.stackSize;
                     }
                 }
             }

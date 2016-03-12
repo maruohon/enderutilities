@@ -15,7 +15,6 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.MathHelper;
 
@@ -23,6 +22,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -37,6 +38,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -477,7 +479,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         Map<ItemType, Integer> slotCounts = InventoryUtils.getSlotCountPerItem(invCrafting);
 
         // Clear old contents and then fill all the slots back up
-        if (InventoryUtils.tryMoveAllItems(invCrafting, this.itemInventory, EnumFacing.UP, EnumFacing.UP, true) == true)
+        if (InventoryUtils.tryMoveAllItems(invCrafting, this.itemInventory) == true)
         {
             // Next we find out how many items we have available for each item type on the crafting grid
             // and we cap the max stack size to that value, so the stacks will be balanced
@@ -506,20 +508,20 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    protected boolean clearCraftingGrid(int invId, EntityPlayer player)
+    protected InvResult clearCraftingGrid(int invId, EntityPlayer player)
     {
-        IInventory inv = this.craftingInventories[MathHelper.clamp_int(invId, 0, 1)];
+        IItemHandler inv = this.craftingInventories[MathHelper.clamp_int(invId, 0, 1)];
         if (inv == null)
         {
-            return false;
+            return InvResult.MOVED_NOTHING;
         }
 
-        if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory, EnumFacing.UP, EnumFacing.UP, true) == false)
+        if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory) != InvResult.MOVED_ALL)
         {
-            return InventoryUtils.tryMoveAllItems(inv, player.inventory, EnumFacing.UP, EnumFacing.UP, false);
+            return InventoryUtils.tryMoveAllItems(inv, new PlayerInvWrapper(player.inventory));
         }
 
-        return true;
+        return InvResult.MOVED_ALL;
     }
 
     /**
@@ -700,27 +702,27 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
             int playerMaxSlot = player.inventory.getSizeInventory() - 5;
             int chestMaxSlot = this.itemInventory.getSlots() - 1;
-            EnumFacing up = EnumFacing.UP;
+            IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
 
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, this.itemInventory, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveAllItems(playerInv, this.itemInventory);
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, this.itemInventory, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
-                    InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, this.itemInventory, false, false, true);
+                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, this.itemInventory, true);
                     break;
                 case 3: // Fill stacks in player inventory from Chest
-                    InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.fillStacksOfMatchingItems(this.itemInventory, playerInv);
                     break;
                 case 4: // Move matching items to player inventory
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveMatchingItems(this.itemInventory, playerInv);
                     break;
                 case 5: // Move all items to player inventory
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveAllItems(this.itemInventory, playerInv);
                     break;
             }
         }
@@ -730,7 +732,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
         else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element < 2)
         {
-            IInventory inv = this.craftingInventories[element];
+            IItemHandler inv = this.craftingInventories[element];
 
             // Already empty crafting grid, set the "show recipe" mode to disabled
             if (InventoryUtils.isInventoryEmpty(inv) == true)

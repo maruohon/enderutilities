@@ -6,8 +6,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
@@ -19,6 +17,9 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
@@ -74,12 +75,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         if (player.isSneaking() == true)
         {
             TileEntity te = world.getTileEntity(pos);
-            if (te != null && te instanceof IInventory)
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
             {
-                if (world.isRemote == false)
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+                if (world.isRemote == false && inv != null)
                 {
-                    this.swapExternalInventory(stack, (IInventory)te, player, side);
+                    this.swapInventory(stack, inv, player);
                 }
+
                 return true;
             }
         }
@@ -219,7 +222,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
      */
     public static int getSlotContainingEnabledItem(EntityPlayer player)
     {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.inventorySwapper);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.inventorySwapper);
         for (int slot : slots)
         {
             if (isEnabled(player.inventory.getStackInSlot(slot)) == true)
@@ -246,11 +249,10 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
     }
 
-    public void swapInventoryWithIInventory(long slotMask, InventoryItemModular swapperInv, IInventory externalInv)
+    public void swapInventory(long slotMask, InventoryItemModular swapperInv, IItemHandler externalInv)
     {
-        final int invMax = externalInv.getInventoryStackLimit();
         // Only swap up to 36 slots (which fit in the swapper's GUI, excluding armor slots)
-        final int invSize = Math.min(36, externalInv.getSizeInventory());
+        final int invSize = Math.min(36, externalInv.getSlots());
 
         long bit = 0x1;
         for (int i = 0; i < invSize; i++)
@@ -258,15 +260,20 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             // Only swap slots that have been enabled
             if ((slotMask & bit) != 0)
             {
-                ItemStack tmpStack = swapperInv.getStackInSlot(i);
+                ItemStack stackSwapper = swapperInv.extractItem(i, 64, false);
+                ItemStack stackExternal = externalInv.extractItem(i, 64, false);
 
-                // TODO update to IItemHandler
-                // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
-                if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
-                    externalInv.isItemValidForSlot(i, tmpStack) == true))
+                // Check that both stacks can be successfully inserted into the other inventory
+                if (swapperInv.insertItem(i, stackExternal, true) == null && externalInv.insertItem(i, stackSwapper, true) == null)
                 {
-                    swapperInv.setStackInSlot(i, externalInv.getStackInSlot(i));
-                    externalInv.setInventorySlotContents(i, tmpStack);
+                    swapperInv.insertItem(i, stackExternal, false);
+                    externalInv.insertItem(i, stackSwapper, false);
+                }
+                // Can't swap the stacks, return them to the original inventories
+                else
+                {
+                    swapperInv.insertItem(i, stackSwapper, false);
+                    externalInv.insertItem(i, stackExternal, false);
                 }
             }
 
@@ -274,37 +281,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    public void swapInventoryWithISided(long slotMask, InventoryItemModular swapperInv, ISidedInventory externalInv, EnumFacing side)
-    {
-        final int invMax = externalInv.getInventoryStackLimit();
-        final int[] slots = externalInv.getSlotsForFace(side);
-
-        for (int slotNum : slots)
-        {
-            // Only swap slots that have been enabled, and only up to 36 slots (which fit in the swapper's GUI, excluding armor slots)
-            if (slotNum < 36 && (slotMask & (0x1 << slotNum)) != 0)
-            {
-                ItemStack tmpStack = swapperInv.getStackInSlot(slotNum);
-
-                // TODO update to IItemHandler
-                // Check that the stack from the swapper can fit and is valid to be put into the external inventory's slot
-                if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
-                   externalInv.isItemValidForSlot(slotNum, tmpStack) == true))
-                {
-                    ItemStack externalInvStack = externalInv.getStackInSlot(slotNum);
-
-                    if (externalInv.canExtractItem(slotNum, externalInvStack, side) == true &&
-                        (tmpStack == null || externalInv.canInsertItem(slotNum, tmpStack, side) == true))
-                    {
-                        swapperInv.setStackInSlot(slotNum, externalInvStack);
-                        externalInv.setInventorySlotContents(slotNum, tmpStack);
-                    }
-                }
-            }
-        }
-    }
-
-    public void swapExternalInventory(ItemStack swapperStack, IInventory externalInv, EntityPlayer player, EnumFacing side)
+    public void swapInventory(ItemStack swapperStack, IItemHandler inv, EntityPlayer player)
     {
         InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (swapperInv.isUseableByPlayer(player) == false)
@@ -312,17 +289,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             return;
         }
 
-        long slotMask = getEnabledSlotsMask(swapperStack);
-
-        // TODO update to IItemHandler
-        if (externalInv instanceof ISidedInventory)
-        {
-            this.swapInventoryWithISided(slotMask, swapperInv, (ISidedInventory)externalInv, side);
-        }
-        else
-        {
-            this.swapInventoryWithIInventory(slotMask, swapperInv, externalInv);
-        }
+        this.swapInventory(getEnabledSlotsMask(swapperStack), swapperInv, inv);
 
         player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
     }
@@ -346,6 +313,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         final int invSize = player.inventory.getSizeInventory();
         final int mainInvSize = player.inventory.mainInventory.length;
 
+        // TODO Update to IItemHandler ?
         long bit = 0x1;
         for (int i = 0; i < invSize; i++)
         {

@@ -16,9 +16,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -42,6 +40,9 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
@@ -213,7 +214,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         return false;
     }
 
-    private IInventory getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
+    private IItemHandler getLinkedInventoryWithChecks(ItemStack toolStack, EntityPlayer player)
     {
         SwordMode mode = SwordMode.fromStack(toolStack);
         // Modes: 0: normal; 1: Add drops to player's inventory; 2: Transport drops to Link Crystal's bound destination
@@ -228,7 +229,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         if (mode == SwordMode.PLAYER && (player instanceof FakePlayer) == false &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
-            return player.inventory;
+            return new PlayerMainInvWrapper(player.inventory);
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
@@ -285,45 +286,25 @@ public class ItemEnderSword extends ItemLocationBoundModular
             }
         }
 
-        IInventory inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
         if (inv != null)
         {
             iter = items.iterator();
 
-            if (inv instanceof InventoryPlayer)
+            while (iter.hasNext() == true)
             {
-                while (iter.hasNext() == true)
+                ItemStack stack = iter.next().getEntityItem();
+                if (stack != null)
                 {
-                    ItemStack stack = iter.next().getEntityItem();
-                    if (stack != null)
+                    ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
+                    if (stackTmp == null)
                     {
-                        if (player.inventory.addItemStackToInventory(stack.copy()) == true)
-                        {
-                            iter.remove();
-                            transported = true;
-                        }
+                        iter.remove();
+                        transported = true;
                     }
-                }
-            }
-            else
-            {
-                NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-                while (iter.hasNext() == true)
-                {
-                    ItemStack stack = iter.next().getEntityItem();
-                    if (stack != null)
+                    else
                     {
-                        ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy(), target.facing);
-                        if (stackTmp == null)
-                        {
-                            iter.remove();
-                            transported = true;
-                        }
-                        else
-                        {
-                            stack.stackSize = stackTmp.stackSize;
-                        }
+                        stack.stackSize = stackTmp.stackSize;
                     }
                 }
             }
@@ -498,9 +479,10 @@ public class ItemEnderSword extends ItemLocationBoundModular
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
-        // When sneak-right-clicking on an IInventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
+        // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class)
+        if (player != null && player.isSneaking() == true && te != null &&
+            (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             if (world.isRemote == false)

@@ -3,8 +3,6 @@ package fi.dy.masa.enderutilities.block.base;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -21,6 +19,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
 {
@@ -82,12 +81,13 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     public int getComparatorInputOverride(World worldIn, BlockPos pos)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        if ((te instanceof IInventory) == false)
+        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN) == false)
         {
             return 0;
         }
 
-        // FIXME this won't work for custom stack sizes
-        return Container.calcRedstoneFromInventory((IInventory)te);
+        IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
+
+        return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
     }
 }

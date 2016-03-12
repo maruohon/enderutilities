@@ -12,6 +12,7 @@ import net.minecraft.item.crafting.CraftingManager;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -27,7 +28,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         super(player, inventory);
         this.inventoryItemModular = inventory;
-        this.inventoryItemModular.setHostInventory(player.inventory);
+        this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);

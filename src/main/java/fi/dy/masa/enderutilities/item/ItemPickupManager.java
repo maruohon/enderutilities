@@ -6,7 +6,6 @@ import java.util.List;
 
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -21,6 +20,9 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
@@ -193,7 +195,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      */
     public static List<ItemStack> getEnabledItems(EntityPlayer player)
     {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.pickupManager);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.pickupManager);
         List<ItemStack> enabledItems = new ArrayList<ItemStack>();
 
         for (int slot : slots)
@@ -266,52 +268,54 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (target != null)
         {
             World world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-            if (world != null)
+            // Force load the target chunk with a 30 second unload delay.
+            if (world == null || ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
+                    target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)
             {
-                // Force load the target chunk with a 30 second unload delay.
-                if (ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
-                        target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)
+                return itemsIn;
+            }
+
+            TileEntity te = world.getTileEntity(target.pos);
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == true)
+            {
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
+                if (inv == null)
                 {
                     return itemsIn;
                 }
 
-                // TODO update to IItemHandler
-                TileEntity te = world.getTileEntity(target.pos);
-                if (te instanceof IInventory)
+                //return InventoryUtils.tryInsertItemStackToInventory(inv, itemsIn);
+                ItemStack stackToSend = itemsIn.copy();
+
+                int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
+                // Not enough Ender Charge to send all the items
+                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, false) == false)
                 {
-                    //return InventoryUtils.tryInsertItemStackToInventory((IInventory)te, itemsIn, target.blockFace);
-                    ItemStack stackToSend = itemsIn.copy();
-
-                    int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
-                    // Not enough Ender Charge to send all the items
-                    if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, false) == false)
+                    int available = UtilItemModular.getAvailableEnderCharge(manager);
+                    if (available < cost)
                     {
-                        int available = UtilItemModular.getAvailableEnderCharge(manager);
-                        if (available < cost)
-                        {
-                            return itemsIn;
-                        }
-
-                        stackToSend.stackSize = Math.min(itemsIn.stackSize, available / cost);
+                        return itemsIn;
                     }
 
-                    int numTransported = stackToSend.stackSize;
-                    ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory((IInventory)te, stackToSend, target.facing);
+                    stackToSend.stackSize = Math.min(itemsIn.stackSize, available / cost);
+                }
 
-                    if (itemsRemaining != null)
-                    {
-                        numTransported -= itemsRemaining.stackSize;
-                    }
+                int numTransported = stackToSend.stackSize;
+                ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory(inv, stackToSend);
 
-                    itemsIn.stackSize -= numTransported;
+                if (itemsRemaining != null)
+                {
+                    numTransported -= itemsRemaining.stackSize;
+                }
 
-                    // Get the final charge amount
-                    UtilItemModular.useEnderCharge(manager, numTransported * cost, true);
+                itemsIn.stackSize -= numTransported;
 
-                    if (itemsIn.stackSize <= 0)
-                    {
-                        return null;
-                    }
+                // Get the final charge amount
+                UtilItemModular.useEnderCharge(manager, numTransported * cost, true);
+
+                if (itemsIn.stackSize <= 0)
+                {
+                    return null;
                 }
             }
         }

@@ -8,7 +8,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -26,6 +25,7 @@ import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
@@ -89,7 +89,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
-        // FIXME: How should we properly check if the player is within range?
         if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player) == true)
         {
             player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
@@ -158,7 +157,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (player.isSneaking() == true && te != null && (te instanceof IInventory || te.getClass() == TileEntityEnderChest.class))
+        if (player.isSneaking() == true && te != null &&
+            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true))
         {
             return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
         }

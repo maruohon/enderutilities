@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -21,7 +22,7 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
     {
         super(player, inventory);
         this.inventoryItemModular = inventory;
-        this.inventoryItemModular.setHostInventory(player.inventory);
+        this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(36, 163);

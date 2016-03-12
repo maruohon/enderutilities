@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.util.nbt;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -19,6 +18,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -921,7 +923,7 @@ public class UtilItemModular
      * Returns the inventory that the selected Link Crystal in the given modular item is currently bound to,
      * or null in case of errors.
      */
-    public static IInventory getBoundInventory(ItemStack modularStack, EntityPlayer player, int chunkLoadDuration)
+    public static IItemHandler getBoundInventory(ItemStack modularStack, EntityPlayer player, int chunkLoadDuration)
     {
         if (modularStack == null || (modularStack.getItem() instanceof IModular) == false)
         {
@@ -939,7 +941,7 @@ public class UtilItemModular
         // Bound to a vanilla Ender Chest
         if ("minecraft:ender_chest".equals(target.blockName) == true)
         {
-            return player.getInventoryEnderChest();
+            return new InvWrapper(player.getInventoryEnderChest());
         }
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
@@ -964,9 +966,8 @@ public class UtilItemModular
         }
 
         TileEntity te = targetWorld.getTileEntity(target.pos);
-        // Block has changed since binding, or does not implement IInventory, abort
-        // FIXME add IItemHandler support
-        if (te == null || (te instanceof IInventory) == false || target.isTargetBlockUnchanged() == false)
+        // Block has changed since binding, or does not have IItemHandler capability
+        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == false || target.isTargetBlockUnchanged() == false)
         {
             // Remove the bind
             NBTHelperTarget.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
@@ -974,6 +975,6 @@ public class UtilItemModular
             return null;
         }
 
-        return (IInventory) te;
+        return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
     }
 }

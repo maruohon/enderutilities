@@ -7,7 +7,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -23,6 +22,9 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
@@ -254,7 +256,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     return;
                 }
 
-                InventoryUtils.fillStacksOfMatchingItems(inv, player.inventory);
+                InventoryUtils.fillStacksOfMatchingItems(inv, new PlayerMainInvWrapper(player.inventory));
 
                 //if (player.openContainer instanceof ContainerHandyBag)
                 {
@@ -268,10 +270,11 @@ public class ItemHandyBag extends ItemInventoryModular
     public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (world.isRemote == false && te != null && te instanceof IInventory)
+        if (world.isRemote == false && te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
         {
-            InventoryItemModular inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-            if (inv.isUseableByPlayer(player) == false)
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+            InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
             {
                 return false;
             }
@@ -279,7 +282,7 @@ public class ItemHandyBag extends ItemInventoryModular
             int mode = this.getModeByName(stack, "RestockMode");
             if (mode == MODE_RESTOCK_ENABLED)
             {
-                InventoryUtils.tryMoveAllItems(inv, (IInventory)te, EnumFacing.UP, side);
+                InventoryUtils.tryMoveAllItems(bagInvnv, inv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
@@ -287,13 +290,13 @@ public class ItemHandyBag extends ItemInventoryModular
             mode = this.getModeByName(stack, "PickupMode");
             if (mode == MODE_PICKUP_MATCHING)
             {
-                InventoryUtils.tryMoveMatchingItems((IInventory)te, inv, side, EnumFacing.UP, true);
+                InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
             else if (mode == MODE_PICKUP_ALL)
             {
-                InventoryUtils.tryMoveAllItems((IInventory)te, inv, side, EnumFacing.UP, true);
+                InventoryUtils.tryMoveAllItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
                 return true;
             }
@@ -319,7 +322,7 @@ public class ItemHandyBag extends ItemInventoryModular
         boolean ret = true;
         boolean pickedUp = false;
         EntityPlayer player = event.entityPlayer;
-        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
 
         Iterator<ItemStack> iter = event.drops.iterator();
         while (iter.hasNext() == true)
@@ -342,7 +345,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
                     // Some pickup mode enabled and all the items fit into existing stacks in the player's inventory
                     if ((pickupMode == 1 || pickupMode == 2) &&
-                       (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, stack, EnumFacing.UP, false) == null))
+                       (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), stack) == null))
                     {
                         iter.remove();
                         pickedUp = true;
@@ -353,7 +356,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
                     {
                         // All items successfully inserted
-                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack, EnumFacing.UP, true) == null)
+                        if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack) == null)
                         {
                             iter.remove();
                             pickedUp = true;
@@ -399,7 +402,7 @@ public class ItemHandyBag extends ItemInventoryModular
         EntityPlayer player = event.entityPlayer;
 
         // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
-        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(player.inventory, event.item.getEntityItem(), EnumFacing.UP, false) == null)
+        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), event.item.getEntityItem()) == null)
         {
             event.setCanceled(true);
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
@@ -411,7 +414,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         boolean ret = true;
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
             ItemStack bagStack = player.inventory.getStackInSlot(slot);
@@ -425,7 +428,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), EnumFacing.UP, true) == null)
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem()) == null)
                     {
                         event.item.setDead();
                         event.setCanceled(true);
@@ -470,7 +473,7 @@ public class ItemHandyBag extends ItemInventoryModular
      */
     public static int getSlotContainingOpenableBag(EntityPlayer player)
     {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
             if (bagIsOpenable(player.inventory.getStackInSlot(slot)) == true)
@@ -537,29 +540,27 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
                 {
-                    int bagMaxSlot = inv.getSlots() - 1;
-                    int playerMaxSlot = player.inventory.getSizeInventory() - 5;
-                    EnumFacing up = EnumFacing.UP;
+                    IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
 
                     switch(element)
                     {
                         case 0: // Move all items to Bag
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveAllItems(playerInv, inv);
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, inv, up, up, 0, playerMaxSlot, 0, bagMaxSlot, true);
+                            InventoryUtils.tryMoveMatchingItems(playerInv, inv);
                             break;
                         case 2: // Leave one stack of each item type and fill that stack
-                            InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, inv, false, false, true);
+                            InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, inv, true);
                             break;
                         case 3: // Fill stacks in player inventory from bag
-                            InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.fillStacksOfMatchingItems(inv, playerInv);
                             break;
                         case 4: // Move matching items to player inventory
-                            InventoryUtils.tryMoveMatchingItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveMatchingItems(inv, playerInv);
                             break;
                         case 5: // Move all items to player inventory
-                            InventoryUtils.tryMoveAllItemsWithinSlotRange(inv, player.inventory, up, up, 0, bagMaxSlot, 0, playerMaxSlot, false);
+                            InventoryUtils.tryMoveAllItems(inv, playerInv);
                             break;
                     }
                 }

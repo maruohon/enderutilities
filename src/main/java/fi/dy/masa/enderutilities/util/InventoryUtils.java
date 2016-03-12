@@ -17,6 +17,11 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
+    public static int calcRedstoneFromInventory(IItemHandler inv)
+    {
+        return 0;
+    }
+
     /**
      * Tries to move all items from the inventory invSrc into invDst.
      */

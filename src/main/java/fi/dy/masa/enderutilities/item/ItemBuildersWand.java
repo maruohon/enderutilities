@@ -12,12 +12,12 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
@@ -30,6 +30,9 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
@@ -123,7 +126,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (te instanceof IInventory)
+        if (te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class))
         {
             return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
         }
@@ -500,7 +503,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         else
         {
             ItemStack templateStack = new ItemStack(block, 1, itemMeta);
-            IInventory inv = getInventoryWithItems(wandStack, templateStack, player);
+            IItemHandler inv = getInventoryWithItems(wandStack, templateStack, player);
             ItemStack targetStack = getItemToBuildWith(inv, templateStack, 1);
 
             if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
@@ -509,7 +512,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == false ||
                     ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f) == false)
                 {
-                    targetStack = InventoryUtils.tryInsertItemStackToInventory(inv, targetStack, EnumFacing.UP);
+                    targetStack = InventoryUtils.tryInsertItemStackToInventory(inv, targetStack);
                     if (targetStack != null)
                     {
                         EntityItem item = new EntityItem(world, player.posX, player.posY, player.posZ, targetStack);
@@ -527,9 +530,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return false;
     }
 
-    public static IInventory getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
+    public static IItemHandler getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
     {
-        IInventory inv = player.inventory;
+        IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
         int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
         if (slot != -1)
         {
@@ -549,14 +552,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return null;
     }
 
-    public static ItemStack getItemToBuildWith(IInventory inv, ItemStack templateStack, int amount)
+    public static ItemStack getItemToBuildWith(IItemHandler inv, ItemStack templateStack, int amount)
     {
         if (inv != null)
         {
             int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
             if (slot != -1)
             {
-                return inv.decrStackSize(slot, amount);
+                return inv.extractItem(slot, amount, false);
             }
         }
 

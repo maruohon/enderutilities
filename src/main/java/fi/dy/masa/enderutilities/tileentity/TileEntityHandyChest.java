@@ -9,12 +9,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
@@ -60,8 +61,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     private void initStorage()
     {
-        // FIXME needs a custom modular-item aware IItemHandler, which should be the same one as this.itemInventory
-        this.itemHandlerExternal = new ItemStackHandlerTileEntity(INV_ID_ITEMS, this.invSizeItemsssss, 256, true, "ItemsTemp", this);
+        this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
+        this.itemHandlerExternal = this.itemInventory;
     }
 
     @Override
@@ -76,7 +77,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super.readFromNBTCustom(nbt);
 
         //this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], this.invSizeItems, false, null, this);
-        this.itemInventory.setInventorySize(this.invSizeItems);
         this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
     }
 
@@ -241,29 +241,27 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
                 return;
             }
 
-            int playerMaxSlot = player.inventory.getSizeInventory() - 5;
-            int chestMaxSlot = this.itemInventory.getSlots() - 1;
-            EnumFacing up = EnumFacing.UP;
+            IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
 
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(player.inventory, this.itemInventory, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveAllItems(playerInv, this.itemInventory);
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(player.inventory, this.itemInventory, up, up, 0, playerMaxSlot, 0, chestMaxSlot, true);
+                    InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
-                    InventoryUtils.leaveOneFullStackOfEveryItem(player.inventory, this.itemInventory, false, false, true);
+                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, this.itemInventory, true);
                     break;
                 case 3: // Fill stacks in player inventory from Chest
-                    InventoryUtils.fillStacksOfMatchingItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.fillStacksOfMatchingItems(this.itemInventory, playerInv);
                     break;
                 case 4: // Move matching items to player inventory
-                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveMatchingItems(this.itemInventory, playerInv);
                     break;
                 case 5: // Move all items to player inventory
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(this.itemInventory, player.inventory, up, up, 0, chestMaxSlot, 0, playerMaxSlot, false);
+                    InventoryUtils.tryMoveAllItems(this.itemInventory, playerInv);
                     break;
             }
 

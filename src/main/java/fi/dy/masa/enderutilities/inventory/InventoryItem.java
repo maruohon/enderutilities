@@ -3,9 +3,10 @@ package fi.dy.masa.enderutilities.inventory;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -18,7 +19,7 @@ public class InventoryItem extends ItemStackHandlerBasic
     //protected String customInventoryName;
     protected boolean isRemote;
     protected UUID containerUUID;
-    protected IInventory hostInventory;
+    protected IItemHandler hostInventory;
 
     public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
     {
@@ -35,7 +36,7 @@ public class InventoryItem extends ItemStackHandlerBasic
         this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, tagName, null, null);
     }
 
-    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IInventory hostInv)
+    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IItemHandler hostInv)
     {
         super(invSize, stackLimit, allowCustomStackSizes, tagName);
         this.containerStack = containerStack;
@@ -72,7 +73,7 @@ public class InventoryItem extends ItemStackHandlerBasic
         return this.containerUUID;
     }
 
-    public void setHostInventory(IInventory inv)
+    public void setHostInventory(IItemHandler inv)
     {
         this.hostInventory = inv;
     }
@@ -81,7 +82,7 @@ public class InventoryItem extends ItemStackHandlerBasic
      * Sets the host inventory and the UUID of the container ItemStack, so that the correct
      * container ItemStack can be fetched from the host inventory.
      */
-    public void setHostInventory(IInventory inv, UUID uuid)
+    public void setHostInventory(IItemHandler inv, UUID uuid)
     {
         this.hostInventory = inv;
         this.containerUUID = uuid;

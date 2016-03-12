@@ -23,6 +23,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -80,7 +81,7 @@ public class RulerRenderer
         ItemStack stack = player.getCurrentEquippedItem();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
-            stack = InventoryUtils.getFirstMatchingItem(player.inventory, EnderUtilitiesItems.ruler);
+            stack = InventoryUtils.getFirstMatchingItem(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.ruler);
             if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;
@@ -146,7 +147,7 @@ public class RulerRenderer
         ItemStack stack = player.getCurrentEquippedItem();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
-            stack = InventoryUtils.getFirstMatchingItem(player.inventory, EnderUtilitiesItems.ruler);
+            stack = InventoryUtils.getFirstMatchingItem(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.ruler);
             if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;

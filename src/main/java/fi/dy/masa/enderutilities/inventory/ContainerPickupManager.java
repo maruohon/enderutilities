@@ -7,6 +7,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -35,16 +37,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.filterSlots = new SlotRange(0, 0);
 
         this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.worldObj.isRemote, player);
-        this.inventoryItemModules.setHostInventory(player.inventory, this.containerUUID);
+        this.inventoryItemModules.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
         this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
-        this.inventoryItemFilters.setHostInventory(player.inventory, this.containerUUID);
+        this.inventoryItemFilters.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 
         this.inventoryItemTransmit = (InventoryItem)this.inventory;
-        this.inventoryItemTransmit.setHostInventory(player.inventory, this.containerUUID);
+        this.inventoryItemTransmit.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemTransmit.readFromContainerItemStack();
 
         this.addCustomInventorySlots();
@@ -99,7 +101,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     @Override
     public ItemStack getModularItem()
     {
-        return InventoryUtils.getItemStackByUUID(this.player.inventory, this.containerUUID, "UUID");
+        return InventoryUtils.getItemStackByUUID(new PlayerMainInvWrapper(this.player.inventory), this.containerUUID, "UUID");
     }
 
     @Override
