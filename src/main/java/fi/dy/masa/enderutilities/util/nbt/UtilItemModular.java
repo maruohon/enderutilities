@@ -627,18 +627,6 @@ public class UtilItemModular
     }
 
     /**
-     * Reads the stored ItemStacks from the container ItemStack <b>containerStack</b> and stores
-     * them in the array <b>items</b>. The items are read from a tag by the name <b>tagName</b>.
-     * <b>Note:</b> The <b>items</b> array must have been allocated before calling this method!
-     * @param containerStack
-     * @param items
-     */
-    public static void readItemsFromContainerItem(ItemStack containerStack, ItemStack[] items, String tagName)
-    {
-        NBTUtils.readStoredItemsFromTag(containerStack.getTagCompound(), items, tagName);
-    }
-
-    /**
      * Returns the position of the ItemStack in the NBTTagList that is stored in the slot slotNum
      * in whatever container handles it.
      * @param tagList
@@ -658,24 +646,6 @@ public class UtilItemModular
         }
 
         return -1;
-    }
-
-    /**
-     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>
-     * in a NBTTagList by the name <b>tagName</b>.
-     * @param containerStack
-     * @param items
-     * @param tagName the NBTTagList tag name where the items will be written to
-     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
-     */
-    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, String tagName, boolean keepExtraSlots)
-    {
-        // Write the module list to the tool
-        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
-        NBTUtils.writeItemsToTag(nbt, items, tagName, keepExtraSlots);
-
-        // This checks for hasNoTags and then removes the tag if it's empty
-        NBTUtils.setRootCompoundTag(containerStack, nbt);
     }
 
     /**

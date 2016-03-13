@@ -12,7 +12,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryItemCrafting extends InventoryCrafting implements IItemHandler
 {
@@ -124,7 +124,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
-                UtilItemModular.readItemsFromContainerItem(stack, this.items, this.itemsTagName);
+                NBTUtils.readStoredItemsFromTag(stack.getTagCompound(), this.items, this.itemsTagName);
             }
         }
     }
@@ -140,7 +140,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
-                UtilItemModular.writeItemsToContainerItem(stack, this.items, this.itemsTagName, true);
+                NBTUtils.writeItemsToContainerItem(stack, this.items, this.itemsTagName, true);
             }
         }
     }

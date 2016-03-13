@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import net.minecraftforge.items.IItemHandler;
 
@@ -130,8 +129,6 @@ public class InventoryItem extends ItemStackHandlerBasic
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && stack.hasTagCompound() == true && this.isUseableByPlayer(this.player) == true)
             {
-                //System.out.println("read - inner");
-                //UtilItemModular.readItemsFromContainerItem(stack, this.items, this.tagName);
                 this.deserializeNBT(stack.getTagCompound());
             }
         }
@@ -148,10 +145,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
-                //System.out.println("write - inner");
-                //UtilItemModular.writeItemsToContainerItem(stack, this.items, this.tagName, true);
-                NBTTagCompound tag = NBTUtils.getRootCompoundTag(stack, true);
-                tag.merge(this.serializeNBT());
+                NBTUtils.writeItemsToContainerItem(stack, this.items, this.tagName, true);
             }
         }
     }

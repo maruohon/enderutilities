@@ -9,8 +9,6 @@ import net.minecraft.nbt.NBTTagList;
 
 import net.minecraftforge.common.util.Constants;
 
-import fi.dy.masa.enderutilities.EnderUtilities;
-
 public class NBTUtils
 {
     public static NBTTagCompound writeTagToNBT(NBTTagCompound nbt, String name, NBTBase tag)
@@ -505,10 +503,10 @@ public class NBTUtils
                     items[slotNum].stackSize = tag.getInteger("ActualCount");
                 }
             }
-            else
+            /*else
             {
                 EnderUtilities.logger.warn("Failed to read items from NBT, invalid slot: " + slotNum + " (max: " + (items.length - 1) + ")");
-            }
+            }*/
         }
     }
 
@@ -581,5 +579,23 @@ public class NBTUtils
         }
 
         return nbt;
+    }
+
+    /**
+     * Writes the ItemStacks in <b>items</b> to the container ItemStack <b>containerStack</b>
+     * in a NBTTagList by the name <b>tagName</b>.
+     * @param containerStack
+     * @param items
+     * @param tagName the NBTTagList tag name where the items will be written to
+     * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
+     */
+    public static void writeItemsToContainerItem(ItemStack containerStack, ItemStack[] items, String tagName, boolean keepExtraSlots)
+    {
+        // Write the items to the "container" ItemStack's NBT
+        NBTTagCompound nbt = getRootCompoundTag(containerStack, true);
+        writeItemsToTag(nbt, items, tagName, keepExtraSlots);
+
+        // This checks for hasNoTags and then removes the tag if it's empty
+        setRootCompoundTag(containerStack, nbt);
     }
 }
