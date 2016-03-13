@@ -9,6 +9,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -40,6 +41,14 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     public String getName()
     {
         return this.hasCustomName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+    }
+
+    /**
+     * Returns the "base" IItemHandler that this TileEntity uses to store items into NBT when it saves.
+     */
+    public IItemHandler getBaseItemHandler()
+    {
+        return this.itemHandlerBase;
     }
 
     protected void readItemsFromNBT(NBTTagCompound nbt)

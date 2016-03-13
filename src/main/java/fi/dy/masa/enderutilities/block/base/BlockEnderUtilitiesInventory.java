@@ -18,6 +18,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
@@ -32,9 +33,10 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
+        if (te instanceof TileEntityEnderUtilitiesInventory)
         {
-            IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+            //IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+            IItemHandler itemHandler = ((TileEntityEnderUtilitiesInventory)te).getBaseItemHandler();
 
             for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
             {

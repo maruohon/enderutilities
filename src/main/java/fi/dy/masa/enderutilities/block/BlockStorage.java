@@ -97,7 +97,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             IBlockState iBlockState = worldIn.getBlockState(pos);
             int meta = iBlockState.getBlock().getMetaFromState(iBlockState);
 
-            // This will work as long as there are three tiers of every type of storage...
+            // FIXME This will only work as long as there are three tiers of every type of storage...
             ((ITieredStorage)te).setStorageTier(meta % 3);
         }
     }
