@@ -51,9 +51,12 @@ public class InventoryItem extends ItemStackHandlerBasic
         this.isRemote = isRemote;
     }
 
-    protected void initInventory()
+    protected void clearInventory()
     {
-        this.items = new ItemStack[this.invSize]; // This obviously also needs to happen on the client side
+        for (int i = 0; i < this.invSize; i++)
+        {
+            this.items[i] = null;
+        }
     }
 
     /**
@@ -118,16 +121,16 @@ public class InventoryItem extends ItemStackHandlerBasic
      */
     public void readFromContainerItemStack()
     {
-        //System.out.println("InventoryItem#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
-
         // Only read the contents on the server side, they get synced to the client via the open Container
         if (this.isRemote == false)
         {
-            this.initInventory();
+            //System.out.println("InventoryItem#readFromContainerItemStack() - " + (this.isRemote ? "client" : "server"));
+            this.clearInventory();
 
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && stack.hasTagCompound() == true && this.isUseableByPlayer(this.player) == true)
             {
+                //System.out.println("read - inner");
                 //UtilItemModular.readItemsFromContainerItem(stack, this.items, this.tagName);
                 this.deserializeNBT(stack.getTagCompound());
             }
@@ -145,8 +148,9 @@ public class InventoryItem extends ItemStackHandlerBasic
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
             {
+                //System.out.println("write - inner");
                 //UtilItemModular.writeItemsToContainerItem(stack, this.items, this.tagName, true);
-                NBTTagCompound tag = NBTUtils.getCompoundTag(stack, this.tagName, true);
+                NBTTagCompound tag = NBTUtils.getRootCompoundTag(stack, true);
                 tag.merge(this.serializeNBT());
             }
         }

@@ -13,7 +13,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     protected final int invSize;
     protected final int stackLimit;
     protected final boolean allowCustomStackSizes;
-    protected ItemStack[] items;
+    protected final ItemStack[] items;
     protected String tagName;
 
     public ItemStackHandlerBasic(int invSize)
@@ -69,8 +69,10 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public void setStackInSlot(int slot, ItemStack stack)
     {
-        if (this.isItemValidForSlot(slot, stack) == true) // && slot >= 0 && slot < this.items.length)
+        //System.out.println("ItemStackHandlerBasic#setStackInSlot(), slot: " + slot);
+        //if (this.isItemValidForSlot(slot, stack) == true) // && slot >= 0 && slot < this.items.length)
         {
+            //System.out.println("isItemValid == true");
             this.items[slot] = stack;
             this.onContentsChanged(slot);
         }

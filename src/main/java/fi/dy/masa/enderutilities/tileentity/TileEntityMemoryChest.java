@@ -60,9 +60,11 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
+        // This creates the inventories themselves...
         this.initStorage(this.invSize);
         NBTUtils.readStoredItemsFromTag(nbt, this.templateStacks, "TemplateItems");
 
+        // ... and this de-serializes the items from NBT into the inventory
         super.readItemsFromNBT(nbt);
     }
 

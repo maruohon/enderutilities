@@ -45,7 +45,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     protected int selectedModule;
     protected int chestTier;
     protected int actionMode;
-    protected int invSizeItems;
+    protected int invSize;
     protected final Map<UUID, Long> clickTimes;
 
     public TileEntityHandyChest()
@@ -54,14 +54,15 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
-        this.itemInventory = new InventoryItemCallback(null, 18, false, null, this);
+        this.itemInventory = new InventoryItemCallback(null, 54, false, null, this);
+        this.itemHandlerExternal = this.itemInventory;
         this.clickTimes = new HashMap<UUID, Long>();
-        this.initStorage();
     }
 
-    private void initStorage()
+    private void initStorage(int invSize, boolean isRemote)
     {
-        this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
+        this.itemInventory = new InventoryItemCallback(null, invSize, isRemote, null, this);
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.itemHandlerExternal = this.itemInventory;
     }
 
@@ -69,15 +70,21 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, 2);
-        this.invSizeItems = INV_SIZES[this.chestTier];
+        this.invSize = INV_SIZES[this.chestTier];
         this.setSelectedModule(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
-        this.initStorage();
 
         super.readFromNBTCustom(nbt);
+    }
 
-        //this.itemInventory = new InventoryItemCallback(this.itemStacks[this.selectedModule], this.invSizeItems, false, null, this);
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
+        // This will read the Memory Cards themselves into the Memory Card inventory
+        super.readItemsFromNBT(nbt);
+
+        // ... and this will read the item inventory from the selected Memory Card
+        this.initStorage(this.invSize, false);
     }
 
     @Override
@@ -108,10 +115,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.chestTier = nbt.getByte("tier");
         this.selectedModule = nbt.getByte("msel");
-        this.invSizeItems = INV_SIZES[this.chestTier];
-        this.initStorage();
+        this.invSize = INV_SIZES[this.chestTier];
 
-        this.itemInventory = new InventoryItemCallback(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule), this.invSizeItems, true, null, this);
+        this.initStorage(this.invSize, true);
 
         super.onDataPacket(net, packet);
     }
@@ -169,9 +175,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         tier = MathHelper.clamp_int(tier, 0, 2);
         this.chestTier = tier;
-        this.invSizeItems = INV_SIZES[this.chestTier];
-        this.initStorage();
-        this.itemInventory = new InventoryItemCallback(null, this.invSizeItems, this.worldObj.isRemote, null, this);
+        this.invSize = INV_SIZES[this.chestTier];
+
+        this.initStorage(this.invSize, this.worldObj.isRemote);
     }
 
     public void onLeftClickBlock(EntityPlayer player)
@@ -230,7 +236,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 4)
         {
-            this.itemInventory.onContentsChanged(element);;
+            this.itemInventory.onContentsChanged(element);
             this.setSelectedModule(element);
             this.inventoryChanged(0, element);
         }

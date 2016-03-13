@@ -40,10 +40,12 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.itemHandler instanceof IItemHandlerModifiable)
         {
+            //System.out.println("SlotItemHandlerGeneric#putStack() - setStackInSlot()");
             ((IItemHandlerModifiable)this.itemHandler).setStackInSlot(this.getSlotIndex(), stack);
         }
         else
         {
+            //System.out.println("SlotItemHandlerGeneric#putStack() - insertItem()");
             this.itemHandler.insertItem(this.getSlotIndex(), stack, false);
         }
 

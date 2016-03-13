@@ -100,8 +100,6 @@ public class ContainerHandyChest extends ContainerLargeStacks
             return;
         }
 
-        super.detectAndSendChanges();
-
         for (int i = 0; i < this.crafters.size(); ++i)
         {
             ICrafting icrafting = (ICrafting)this.crafters.get(i);
@@ -119,6 +117,8 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
         this.selectedModule = this.tehc.getSelectedModule();
         this.actionMode = this.tehc.getQuickMode();
+
+        super.detectAndSendChanges();
     }
 
     @Override

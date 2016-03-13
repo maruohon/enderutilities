@@ -56,25 +56,25 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
 
     protected void syncAllSlots(EntityPlayerMP player)
     {
-        for (int i = 0; i < this.inventorySlots.size(); ++i)
+        for (int slot = 0; slot < this.inventorySlots.size(); slot++)
         {
-            ItemStack stack = this.inventorySlots.get(i).getStack();
-            PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, stack), player);
+            ItemStack stack = this.inventorySlots.get(slot).getStack();
+            PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, stack), player);
         }
     }
 
     @Override
     public void detectAndSendChanges()
     {
-        for (int i = 0; i < this.inventorySlots.size(); ++i)
+        for (int slot = 0; slot < this.inventorySlots.size(); slot++)
         {
-            ItemStack currentStack = this.inventorySlots.get(i).getStack();
-            ItemStack prevStack = this.inventoryItemStacks.get(i);
+            ItemStack currentStack = this.inventorySlots.get(slot).getStack();
+            ItemStack prevStack = this.inventoryItemStacks.get(slot);
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {
                 prevStack = currentStack != null ? currentStack.copy() : null;
-                this.inventoryItemStacks.set(i, prevStack);
+                this.inventoryItemStacks.set(slot, prevStack);
 
                 for (int j = 0; j < this.crafters.size(); ++j)
                 {
@@ -82,7 +82,7 @@ public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
                     if (ic instanceof EntityPlayerMP)
                     {
                         EntityPlayerMP player = (EntityPlayerMP)ic;
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, i, prevStack), player);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), player);
                     }
                 }
             }

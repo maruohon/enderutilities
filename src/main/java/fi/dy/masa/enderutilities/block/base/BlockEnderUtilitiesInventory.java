@@ -29,20 +29,22 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
     {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = worldIn.getTileEntity(pos);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
         {
             IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
 
             for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
             {
-                EntityUtils.dropItemStacksInWorld(world, pos, itemHandler.getStackInSlot(i), -1, false);
+                EntityUtils.dropItemStacksInWorld(worldIn, pos, itemHandler.getStackInSlot(i), -1, false);
             }
+
+            worldIn.updateComparatorOutputLevel(pos, this);
         }
 
-        world.removeTileEntity(pos);
+        worldIn.removeTileEntity(pos);
     }
 
     @Override
