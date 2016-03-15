@@ -56,14 +56,4 @@ public class ItemHandlerWrapperSelective implements IItemHandler
     {
         return true;
     }
-
-    /**
-     * Returns a wrapper to be used in the Container.
-     * The returned wrapper should override canExtractFromSlot() to always return true
-     * so that the stacks can be taken from the slots in the GUI.
-     */
-    public IItemHandler getInventoryForContainer()
-    {
-        return this;
-    }
 }

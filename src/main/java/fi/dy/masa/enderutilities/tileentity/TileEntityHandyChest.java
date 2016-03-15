@@ -14,6 +14,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -21,7 +22,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -206,9 +207,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
     }
 
-    private class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelective
+    public static class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelectiveModifiable
     {
-        public ItemHandlerWrapperMemoryCards(IItemHandler baseHandler)
+        public ItemHandlerWrapperMemoryCards(IItemHandlerModifiable baseHandler)
         {
             super(baseHandler);
         }

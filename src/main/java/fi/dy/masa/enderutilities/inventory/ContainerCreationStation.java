@@ -22,9 +22,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int fuelProgress;
     public int smeltProgress;
 
-    public final IInventory[] craftResults;
     public final InventoryItemCrafting[] craftMatrices;
-    public final IItemHandler furnaceInventory;
+    private final IInventory[] craftResults;
+    private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
     private int lastInteractedCraftingGridId;

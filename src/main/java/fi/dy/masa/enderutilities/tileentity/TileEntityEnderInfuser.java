@@ -248,19 +248,6 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         {
             return slot == SLOT_CAP_OUT;
         }
-
-        @Override
-        public IItemHandler getInventoryForContainer()
-        {
-            return new ItemHandlerWrapperEnderInfuser(this.baseHandler)
-            {
-                @Override
-                protected boolean canExtractFromSlot(int slot)
-                {
-                    return true;
-                }
-            };
-        }
     }
 
     @Override

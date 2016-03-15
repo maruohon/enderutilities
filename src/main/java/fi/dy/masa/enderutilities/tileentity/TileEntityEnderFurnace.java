@@ -600,19 +600,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
             return false;
         }
-
-        @Override
-        public IItemHandler getInventoryForContainer()
-        {
-            return new ItemHandlerWrapperEnderFurnace(this.baseHandler, this.teef)
-            {
-                @Override
-                protected boolean canExtractFromSlot(int slot)
-                {
-                    return true;
-                }
-            };
-        }
     }
 
     @Override

@@ -6,11 +6,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -32,20 +34,15 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerToolWorkstation = new ItemHandlerWrapperToolWorkstation(this.itemHandlerBase);
     }
 
-    public IItemHandler getInventory()
-    {
-        return this.itemHandlerToolWorkstation;
-    }
-
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
         return this.itemHandlerToolWorkstation;
     }
 
-    private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelective
+    private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelectiveModifiable
     {
-        public ItemHandlerWrapperToolWorkstation(IItemHandler baseHandler)
+        public ItemHandlerWrapperToolWorkstation(IItemHandlerModifiable baseHandler)
         {
             super(baseHandler);
         }

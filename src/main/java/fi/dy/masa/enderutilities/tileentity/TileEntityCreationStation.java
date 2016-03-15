@@ -30,11 +30,8 @@ import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCrafting;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
@@ -107,7 +104,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MODULES, 4, 1, false, "Items", this);
-        this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
+        this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, false, null, this);
 
@@ -1109,40 +1106,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.burnTimeRemaining[id] * i / this.burnTimeFresh[id];
     }
 
-    private class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelective
+    private class ItemHandlerWrapperFurnace extends ItemHandlerWrapperSelectiveModifiable
     {
-        public ItemHandlerWrapperMemoryCards(IItemHandlerModifiable baseHandler)
-        {
-            super(baseHandler);
-        }
-
-        @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
-        {
-            if (stack == null)
-            {
-                return true;
-            }
-
-            if ((stack.getItem() instanceof IModule) == false)
-            {
-                return false;
-            }
-
-            IModule module = (IModule)stack.getItem();
-            ModuleType type = module.getModuleType(stack);
-
-            // Check for a valid item-type Memory Card
-            return  type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true &&
-                    module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
-                    module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
-        }
-
-    }
-
-    private class ItemHandlerWrapperFurnace extends ItemHandlerWrapperSelective
-    {
-        public ItemHandlerWrapperFurnace(IItemHandler baseHandler)
+        public ItemHandlerWrapperFurnace(IItemHandlerModifiable baseHandler)
         {
             super(baseHandler);
         }
