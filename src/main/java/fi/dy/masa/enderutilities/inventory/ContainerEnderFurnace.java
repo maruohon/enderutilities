@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerEnderFurnace extends ContainerTileEntityInventory
+public class ContainerEnderFurnace extends ContainerLargeStacks
 {
     protected TileEntityEnderFurnace teef;
     public int burnTimeRemaining;
@@ -23,7 +23,7 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
 
     public ContainerEnderFurnace(EntityPlayer player, TileEntityEnderFurnace te)
     {
-        super(player, te);
+        super(player, te.getWrappedInventoryForContainer());
         this.teef = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 84);
@@ -36,6 +36,12 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 34, 53));
         this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.inventory, 2, 88, 35));
         this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+    }
+
+    @Override
+    public boolean canInteractWith(EntityPlayer player)
+    {
+        return super.canInteractWith(player) && this.teef.isInvalid() == false;
     }
 
     @Override
