@@ -16,6 +16,12 @@ public class InventoryItemCallback extends InventoryItem
         this.callback = callback;
     }
 
+    public InventoryItemCallback(ItemStack containerStack, int invSize, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player, IModularInventoryHolder callback)
+    {
+        super(containerStack, invSize, 64, allowCustomStackSizes, isRemote, player);
+        this.callback = callback;
+    }
+
     @Override
     public ItemStack getContainerItemStack()
     {

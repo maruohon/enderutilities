@@ -54,14 +54,14 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
-        this.itemInventory = new InventoryItemCallback(null, 54, false, null, this);
+        this.itemInventory = new InventoryItemCallback(null, 54, true, false, null, this);
         this.itemHandlerExternal = this.itemInventory;
         this.clickTimes = new HashMap<UUID, Long>();
     }
 
     private void initStorage(int invSize, boolean isRemote)
     {
-        this.itemInventory = new InventoryItemCallback(null, invSize, isRemote, null, this);
+        this.itemInventory = new InventoryItemCallback(null, invSize, true, isRemote, null, this);
         this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.itemHandlerExternal = this.itemInventory;
     }

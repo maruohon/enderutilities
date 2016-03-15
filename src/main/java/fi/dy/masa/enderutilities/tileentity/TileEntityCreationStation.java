@@ -106,7 +106,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MODULES, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
 
-        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, false, null, this);
+        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
 
         this.craftingInventories = new InventoryItemCrafting[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
