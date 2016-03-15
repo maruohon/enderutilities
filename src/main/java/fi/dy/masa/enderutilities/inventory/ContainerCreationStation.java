@@ -8,7 +8,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
@@ -24,7 +24,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public final IInventory[] craftResults;
     public final InventoryItemCrafting[] craftMatrices;
-    public final IItemHandlerModifiable furnaceInventory;
+    public final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
     private int lastInteractedCraftingGridId;

@@ -10,7 +10,7 @@ import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -219,7 +219,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
 
     private class ItemHandlerWrapperEnderInfuser extends ItemHandlerWrapperSelective
     {
-        public ItemHandlerWrapperEnderInfuser(IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperEnderInfuser(IItemHandler baseHandler)
         {
             super(baseHandler);
         }
@@ -247,6 +247,19 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         protected boolean canExtractFromSlot(int slot)
         {
             return slot == SLOT_CAP_OUT;
+        }
+
+        @Override
+        public IItemHandler getInventoryForContainer()
+        {
+            return new ItemHandlerWrapperEnderInfuser(this.baseHandler)
+            {
+                @Override
+                protected boolean canExtractFromSlot(int slot)
+                {
+                    return true;
+                }
+            };
         }
     }
 

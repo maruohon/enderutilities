@@ -315,32 +315,32 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         // TODO Update to IItemHandler ?
         long bit = 0x1;
-        for (int i = 0; i < invSize; i++)
+        for (int slot = 0; slot < invSize; slot++)
         {
             // Don't swap the swapper itself, and only swap slots that have been enabled
-            if (i != swapperSlot && (mask & bit) != 0)
+            if (slot != swapperSlot && (mask & bit) != 0)
             {
-                ItemStack tmpStack = inv.getStackInSlot(i);
+                ItemStack tmpStack = inv.getStackInSlot(slot);
 
                 // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
                 if (tmpStack == null ||
                     (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
-                        player.inventory.isItemValidForSlot(i, tmpStack)))
+                        player.inventory.isItemValidForSlot(slot, tmpStack)))
                 {
                     // Armor slots
-                    if (i >= mainInvSize)
+                    if (slot >= mainInvSize)
                     {
-                        int pos = tmpStack != null ? EntityLiving.getArmorPosition(tmpStack) : (i - mainInvSize + 1);
-                        if (pos > 0 && pos == (i - mainInvSize + 1))
+                        int pos = tmpStack != null ? EntityLiving.getArmorPosition(tmpStack) : (slot - mainInvSize + 1);
+                        if (pos > 0 && pos == (slot - mainInvSize + 1))
                         {
-                            inv.setStackInSlot(i, player.inventory.getStackInSlot(i));
-                            player.inventory.setInventorySlotContents(i, tmpStack);
+                            inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                            player.inventory.setInventorySlotContents(slot, tmpStack);
                         }
                     }
                     else
                     {
-                        inv.setStackInSlot(i, player.inventory.getStackInSlot(i));
-                        player.inventory.setInventorySlotContents(i, tmpStack);
+                        inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                        player.inventory.setInventorySlotContents(slot, tmpStack);
                     }
                 }
             }

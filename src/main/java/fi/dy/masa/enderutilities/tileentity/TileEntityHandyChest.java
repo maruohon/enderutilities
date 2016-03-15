@@ -14,7 +14,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -40,7 +39,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public static final int INV_ID_ITEMS                = 1;
     public static final int[] INV_SIZES = new int[] { 18, 36, 54 };
 
-    private final IItemHandlerModifiable itemHandlerMemoryCards;
+    private final IItemHandler itemHandlerMemoryCards;
     protected InventoryItemCallback itemInventory;
     protected int selectedModule;
     protected int chestTier;
@@ -122,7 +121,13 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super.onDataPacket(net, packet);
     }
 
-    public IItemHandlerModifiable getModuleInventory()
+    @Override
+    public IItemHandler getWrappedInventoryForContainer()
+    {
+        return this.itemHandlerExternal;
+    }
+
+    public IItemHandler getModuleInventory()
     {
         return this.itemHandlerMemoryCards;
     }
@@ -203,7 +208,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     private class ItemHandlerWrapperMemoryCards extends ItemHandlerWrapperSelective
     {
-        public ItemHandlerWrapperMemoryCards(IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperMemoryCards(IItemHandler baseHandler)
         {
             super(baseHandler);
         }

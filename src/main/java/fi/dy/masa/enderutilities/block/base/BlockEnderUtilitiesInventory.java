@@ -35,7 +35,6 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnderUtilitiesInventory)
         {
-            //IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
             IItemHandler itemHandler = ((TileEntityEnderUtilitiesInventory)te).getBaseItemHandler();
 
             for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)

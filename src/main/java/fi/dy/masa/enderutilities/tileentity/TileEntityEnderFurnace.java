@@ -24,7 +24,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
@@ -568,7 +567,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         private final TileEntityEnderFurnace teef;
 
-        public ItemHandlerWrapperEnderFurnace(IItemHandlerModifiable baseHandler, TileEntityEnderFurnace te)
+        public ItemHandlerWrapperEnderFurnace(IItemHandler baseHandler, TileEntityEnderFurnace te)
         {
             super(baseHandler);
             this.teef = te;
@@ -600,6 +599,19 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             }
 
             return false;
+        }
+
+        @Override
+        public IItemHandler getInventoryForContainer()
+        {
+            return new ItemHandlerWrapperEnderFurnace(this.baseHandler, this.teef)
+            {
+                @Override
+                protected boolean canExtractFromSlot(int slot)
+                {
+                    return true;
+                }
+            };
         }
     }
 

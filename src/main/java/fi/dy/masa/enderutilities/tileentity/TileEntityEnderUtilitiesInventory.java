@@ -10,17 +10,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 {
     protected ItemStackHandlerTileEntity itemHandlerBase;
-    protected IItemHandlerModifiable itemHandlerExternal;
+    protected IItemHandler itemHandlerExternal;
     protected String customInventoryName;
 
     public TileEntityEnderUtilitiesInventory(String name)
@@ -49,6 +49,17 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     public IItemHandler getBaseItemHandler()
     {
         return this.itemHandlerBase;
+    }
+
+    /**
+     * Returns the wrapped main inventory for this TileEntity. This inventory
+     * does item validity and extraction checks based on the slot.<br>
+     * <b>NOTE:</b> Override this for any TileEntity that doesn't have an
+     * ItemHandlerWrapperSelective in the itemHandlerExternal field!!
+     */
+    public IItemHandler getWrappedInventoryForContainer()
+    {
+        return ((ItemHandlerWrapperSelective)this.itemHandlerExternal).getInventoryForContainer();
     }
 
     protected void readItemsFromNBT(NBTTagCompound nbt)

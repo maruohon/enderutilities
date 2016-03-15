@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
@@ -21,7 +20,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 {
-    private IItemHandlerModifiable itemHandlerTW;
+    private ItemHandlerWrapperSelective itemHandlerToolWorkstation;
     public static final int SLOT_TOOL = 0;
     public static final int SLOT_MODULES_START = 1;
 
@@ -30,17 +29,23 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
         this.itemHandlerBase = new ItemStackHandlerTileEntity(11, this);
         // itemHandlerExternal is left as null, because this block should not expose it's inventory ie. connect to other blocks
-        this.itemHandlerTW = new ItemHandlerWrapperToolWorkstation(this.itemHandlerBase);
+        this.itemHandlerToolWorkstation = new ItemHandlerWrapperToolWorkstation(this.itemHandlerBase);
     }
 
     public IItemHandler getInventory()
     {
-        return this.itemHandlerTW;
+        return this.itemHandlerToolWorkstation;
+    }
+
+    @Override
+    public IItemHandler getWrappedInventoryForContainer()
+    {
+        return this.itemHandlerToolWorkstation;
     }
 
     private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelective
     {
-        public ItemHandlerWrapperToolWorkstation(IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperToolWorkstation(IItemHandler baseHandler)
         {
             super(baseHandler);
         }
@@ -59,12 +64,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
             }
 
             return (stack.getItem() instanceof IModule) && (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return null;
         }
     }
 

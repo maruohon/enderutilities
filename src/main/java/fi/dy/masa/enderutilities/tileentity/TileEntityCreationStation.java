@@ -22,7 +22,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
@@ -80,10 +79,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public static final int MODE_BIT_SHOW_RECIPE_LEFT       = 0x4000;
     public static final int MODE_BIT_SHOW_RECIPE_RIGHT      = 0x8000;
 
-    private final IItemHandlerModifiable itemHandlerMemoryCards;
+    private final IItemHandler itemHandlerMemoryCards;
     private final InventoryItemCallback itemInventory;
     private final ItemStackHandlerTileEntity furnaceInventory;
-    private final IItemHandlerModifiable furnaceInventoryWrapper;
+    private final IItemHandler furnaceInventoryWrapper;
 
     protected InventoryItemCrafting[] craftingInventories;
     private final ItemStack[][] craftingGridTemplates;
@@ -215,6 +214,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.itemInventory;
     }
 
+    @Override
+    public IItemHandler getWrappedInventoryForContainer()
+    {
+        return this.getFurnaceInventory();
+    }
+
     public InventoryItemCrafting getCraftingInventory(int id, Container container, EntityPlayer player)
     {
         if (this.craftingInventories[id] == null)
@@ -232,12 +237,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.craftResults[id];
     }
 
-    public IItemHandlerModifiable getMemoryCardInventory()
+    public IItemHandler getMemoryCardInventory()
     {
         return this.itemHandlerMemoryCards;
     }
 
-    public IItemHandlerModifiable getFurnaceInventory()
+    public IItemHandler getFurnaceInventory()
     {
         return this.furnaceInventoryWrapper;
     }
@@ -291,15 +296,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void writeModeMaskToModule()
     {
-        //ItemStack stack = this.itemHandlerMemoryCards.extractItem(this.selectedModule, 1, false);
-        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        ItemStack stack = this.itemHandlerMemoryCards.extractItem(this.selectedModule, 1, false);
+        //ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
         if (stack != null)
         {
             // Furnace modes are stored in the TileEntity itself, other modes are on the modules
             NBTTagCompound tag = NBTUtils.getCompoundTag(stack, null, "CreationStation", true);
             tag.setShort("ConfigMask", (short)(this.modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
-            //this.itemHandlerMemoryCards.insertItem(this.selectedModule, stack, false);
-            this.itemHandlerMemoryCards.setStackInSlot(this.selectedModule, stack);
+            this.itemHandlerMemoryCards.insertItem(this.selectedModule, stack, false);
+            //this.itemHandlerMemoryCards.setStackInSlot(this.selectedModule, stack);
         }
     }
 
@@ -518,7 +523,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory) != InvResult.MOVED_ALL)
         {
-            return InventoryUtils.tryMoveAllItems(inv, new PlayerInvWrapper(player.inventory));
+            return InventoryUtils.tryMoveAllItems(inv, new PlayerMainInvWrapper(player.inventory));
         }
 
         return InvResult.MOVED_ALL;
@@ -1137,7 +1142,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private class ItemHandlerWrapperFurnace extends ItemHandlerWrapperSelective
     {
-        public ItemHandlerWrapperFurnace(IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperFurnace(IItemHandler baseHandler)
         {
             super(baseHandler);
         }

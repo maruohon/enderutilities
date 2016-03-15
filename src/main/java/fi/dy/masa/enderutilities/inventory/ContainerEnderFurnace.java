@@ -34,7 +34,7 @@ public class ContainerEnderFurnace extends ContainerTileEntityInventory
     {
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 34, 17));
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 34, 53));
-        this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.inventoryPlayer.player, this.inventory, 2, 88, 35));
+        this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.inventory, 2, 88, 35));
         this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
     }
 

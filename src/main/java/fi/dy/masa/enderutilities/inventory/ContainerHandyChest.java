@@ -4,9 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
@@ -20,7 +18,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
     public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
-        super(player, te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
+        super(player, te.getWrappedInventoryForContainer());
         this.tehc = te;
 
         this.addCustomInventorySlots();

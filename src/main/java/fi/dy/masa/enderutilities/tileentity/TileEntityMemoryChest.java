@@ -12,12 +12,12 @@ import net.minecraft.util.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -171,7 +171,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     {
         private final TileEntityMemoryChest temc;
 
-        public ItemHandlerWrapperMemoryChest(ItemStackHandlerBasic baseHandler, TileEntityMemoryChest te)
+        public ItemHandlerWrapperMemoryChest(IItemHandler baseHandler, TileEntityMemoryChest te)
         {
             super(baseHandler);
             this.temc = te;

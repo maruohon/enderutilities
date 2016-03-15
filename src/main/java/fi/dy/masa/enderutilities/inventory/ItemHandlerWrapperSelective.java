@@ -2,13 +2,13 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.item.ItemStack;
 
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 
-public class ItemHandlerWrapperSelective implements IItemHandlerModifiable
+public class ItemHandlerWrapperSelective implements IItemHandler
 {
-    private final IItemHandlerModifiable baseHandler;
+    protected final IItemHandler baseHandler;
 
-    public ItemHandlerWrapperSelective(IItemHandlerModifiable baseHandler)
+    public ItemHandlerWrapperSelective(IItemHandler baseHandler)
     {
         this.baseHandler = baseHandler;
     }
@@ -23,15 +23,6 @@ public class ItemHandlerWrapperSelective implements IItemHandlerModifiable
     public ItemStack getStackInSlot(int slot)
     {
         return this.baseHandler.getStackInSlot(slot);
-    }
-
-    @Override
-    public void setStackInSlot(int slot, ItemStack stack)
-    {
-        if (this.isItemValidForSlot(slot, stack) == true)
-        {
-            this.baseHandler.setStackInSlot(slot, stack);
-        }
     }
 
     @Override
@@ -66,10 +57,13 @@ public class ItemHandlerWrapperSelective implements IItemHandlerModifiable
         return true;
     }
 
-    /*
-    protected IItemHandlerModifiable getBaseHandler()
+    /**
+     * Returns a wrapper to be used in the Container.
+     * The returned wrapper should override canExtractFromSlot() to always return true
+     * so that the stacks can be taken from the slots in the GUI.
+     */
+    public IItemHandler getInventoryForContainer()
     {
-        return this.baseHandler;
+        return this;
     }
-    */
 }
