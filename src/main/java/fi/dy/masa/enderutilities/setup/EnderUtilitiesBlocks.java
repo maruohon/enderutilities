@@ -59,7 +59,7 @@ public class EnderUtilitiesBlocks
         }
         if (Configs.disableRecipeEnderInfuser.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockMachine_1, 1, 2), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
+            GameRegistry.addRecipe(new ItemStack(blockMachine_1, 1, 0), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
         }
         if (Configs.disableRecipeToolWorkstation.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
@@ -67,20 +67,20 @@ public class EnderUtilitiesBlocks
         }
         if (Configs.disableRecipeCreationStation.getBoolean(false) == false && Configs.disableBlockMachine_1.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 3), "FRF", "ACA", "OAO", 'F', new ItemStack(blockMachine_1, 1, 0), 'R', craftingtable, 'A', alloy2, 'C', active_core1, 'O', obsidian));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 2), "FRF", "ACA", "OAO", 'F', new ItemStack(blockMachine_0, 1, 0), 'R', craftingtable, 'A', alloy2, 'C', active_core1, 'O', obsidian));
         }
 
-        if (Configs.disableRecipeEnergyBridgeTransmitter.getBoolean(false) == false && Configs.disableBlockEnergyBridge.getBoolean(false) == false)
+        if (Configs.disableRecipeEnergyBridgeResonator.getBoolean(false) == false && Configs.disableBlockEnergyBridge.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 0), "ASA", "ACA", "AGA", 'S', Items.nether_star, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 0), "AGA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', active_core1));
         }
         if (Configs.disableRecipeEnergyBridgeReceiver.getBoolean(false) == false && Configs.disableBlockEnergyBridge.getBoolean(false) == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 1), "AGA", "GCG", "AGA", 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
         }
-        if (Configs.disableRecipeEnergyBridgeResonator.getBoolean(false) == false && Configs.disableBlockEnergyBridge.getBoolean(false) == false)
+        if (Configs.disableRecipeEnergyBridgeTransmitter.getBoolean(false) == false && Configs.disableBlockEnergyBridge.getBoolean(false) == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 2), "AGA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', active_core1));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 2), "ASA", "ACA", "AGA", 'S', Items.nether_star, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
         }
 
         if (Configs.disableRecipeMemoryChest_0.getBoolean(false) == false && Configs.disableBlockStorage_0.getBoolean(false) == false)
