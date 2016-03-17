@@ -13,7 +13,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 
-public class ContainerLargeStacks extends ContainerEnderUtilitiesCustomSlotClick
+public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
     public ContainerLargeStacks(EntityPlayer player, IItemHandler inventory)
     {

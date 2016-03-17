@@ -14,7 +14,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlotClick implements IContainerModularItem
+public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerModularItem
 {
     public final InventoryItemModular inventoryItemModular;
 

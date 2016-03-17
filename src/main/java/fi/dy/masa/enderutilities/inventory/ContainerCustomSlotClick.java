@@ -13,14 +13,14 @@ import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class ContainerEnderUtilitiesCustomSlotClick extends ContainerEnderUtilities
+public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
     protected boolean isDragging;
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
     protected int selectedSlot = -1;
 
-    public ContainerEnderUtilitiesCustomSlotClick(EntityPlayer player, IItemHandler inventory)
+    public ContainerCustomSlotClick(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
     }
