@@ -14,9 +14,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiPickupManager;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
-import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -48,7 +46,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = ItemHandyBag.getOpenableBag(player);
                 if (stack != null)
                 {
-                    return new ContainerHandyBag(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+                    return new ContainerHandyBag(player, stack);
                 }
                 break;
 
@@ -56,7 +54,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
                 {
-                    return new ContainerHandyBag(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+                    return new ContainerHandyBag(player, stack);
                 }
                 break;
 
@@ -64,7 +62,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
-                    return new ContainerInventorySwapper(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+                    return new ContainerInventorySwapper(player, stack);
                 }
                 break;
 
@@ -104,7 +102,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 ItemStack stack = ItemHandyBag.getOpenableBag(player);
                 if (stack != null)
                 {
-                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS)));
+                    return new GuiHandyBag(new ContainerHandyBag(player, stack));
                 }
                 break;
 
@@ -112,7 +110,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
                 {
-                    return new GuiHandyBag(new ContainerHandyBag(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS)));
+                    return new GuiHandyBag(new ContainerHandyBag(player, stack));
                 }
                 break;
 
@@ -120,7 +118,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 stack = player.getCurrentEquippedItem();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
-                    return new GuiInventorySwapper(new ContainerInventorySwapper(player, new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS)));
+                    return new GuiInventorySwapper(new ContainerInventorySwapper(player, stack));
                 }
                 break;
 

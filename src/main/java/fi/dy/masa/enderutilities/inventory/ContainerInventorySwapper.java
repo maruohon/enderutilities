@@ -18,10 +18,10 @@ public class ContainerInventorySwapper extends ContainerEnderUtilitiesCustomSlot
 {
     public final InventoryItemModular inventoryItemModular;
 
-    public ContainerInventorySwapper(EntityPlayer player, InventoryItemModular inventory)
+    public ContainerInventorySwapper(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, inventory);
-        this.inventoryItemModular = inventory;
+        super(player, new InventoryItemModular(containerStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+        this.inventoryItemModular = (InventoryItemModular)this.inventory;
         this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();

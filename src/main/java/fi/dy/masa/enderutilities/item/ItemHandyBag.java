@@ -248,7 +248,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else
                 {
-                    inv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+                    inv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 }
 
                 if (inv.isUseableByPlayer(player) == false)
@@ -273,7 +273,7 @@ public class ItemHandyBag extends ItemInventoryModular
         if (world.isRemote == false && te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
         {
             IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-            InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
             {
                 return false;
@@ -340,7 +340,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 // Bag is not locked
                 if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
                 {
-                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                     int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                     // Some pickup mode enabled and all the items fit into existing stacks in the player's inventory
@@ -421,7 +421,7 @@ public class ItemHandyBag extends ItemInventoryModular
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+                InventoryItemModular inv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
@@ -495,31 +495,9 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public int getSizeModuleInventory(ItemStack containerStack)
-    {
-        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-    }
-
-    @Override
     public int getSizeInventory(ItemStack containerStack)
     {
         return containerStack.getItemDamage() == DAMAGE_TIER_2 ? INV_SIZE_TIER_2 : INV_SIZE_TIER_1;
-    }
-
-    @Override
-    public int getInventoryStackLimit(ItemStack containerStack)
-    {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (moduleStack != null && moduleStack.getItem() instanceof IModule)
-        {
-            int tier = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
-            if (tier >= 6 && tier <= 12)
-            {
-                return (int)Math.pow(2, tier);
-            }
-        }
-
-        return 0;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)

@@ -3,9 +3,6 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-
 public class InventoryItemCallback extends InventoryItem
 {
     private final IModularInventoryHolder callback;
@@ -31,21 +28,5 @@ public class InventoryItemCallback extends InventoryItem
         }
 
         return super.getContainerItemStack();
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        ItemStack stack = this.getContainerItemStack();
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
-        {
-            int tier = ((IModule) stack.getItem()).getModuleTier(stack);
-            if (tier >= 6 && tier <= 12)
-            {
-                return (int)Math.pow(2, tier);
-            }
-        }
-
-        return super.getInventoryStackLimit();
     }
 }

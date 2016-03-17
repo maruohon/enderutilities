@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 
+import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -162,6 +164,26 @@ public class InventoryItem extends ItemStackHandlerBasic
 
         NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
         return ownerData == null || ownerData.canAccess(player) == true;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+        return this.getInventoryStackLimitFromContainerStack(this.getContainerItemStack());
+    }
+
+    public int getInventoryStackLimitFromContainerStack(ItemStack stack)
+    {
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
+        {
+            int tier = ((IModule) stack.getItem()).getModuleTier(stack);
+            if (tier >= 6 && tier <= 12)
+            {
+                return (int)Math.pow(2, tier);
+            }
+        }
+
+        return super.getInventoryStackLimit();
     }
 
     @Override

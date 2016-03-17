@@ -29,7 +29,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.itemHandler instanceof ItemStackHandlerBasic)
         {
-            return ((ItemStackHandlerBasic)this.itemHandler).getInventoryStackLimit(stack);
+            return ((ItemStackHandlerBasic)this.itemHandler).getItemStackLimit(stack);
         }
 
         return super.getItemStackLimit(stack);

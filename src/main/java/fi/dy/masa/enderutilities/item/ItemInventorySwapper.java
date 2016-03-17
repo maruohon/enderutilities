@@ -195,21 +195,9 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public int getSizeModuleInventory(ItemStack containerStack)
-    {
-        return this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-    }
-
-    @Override
     public int getSizeInventory(ItemStack containerStack)
     {
         return 40;
-    }
-
-    @Override
-    public int getInventoryStackLimit(ItemStack containerStack)
-    {
-        return 64;
     }
 
     public static boolean isEnabled(ItemStack stack)
@@ -283,7 +271,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
     public void swapInventory(ItemStack swapperStack, IItemHandler inv, EntityPlayer player)
     {
-        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (swapperInv.isUseableByPlayer(player) == false)
         {
             return;
@@ -302,7 +290,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             return;
         }
 
-        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (inv.isUseableByPlayer(player) == false)
         {
             return;

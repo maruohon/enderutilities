@@ -24,10 +24,10 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
     public IInventory craftResult = new InventoryCraftResult();
 
-    public ContainerHandyBag(EntityPlayer player, InventoryItemModular inventory)
+    public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, inventory);
-        this.inventoryItemModular = inventory;
+        super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+        this.inventoryItemModular = (InventoryItemModular)this.inventory;
         this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();

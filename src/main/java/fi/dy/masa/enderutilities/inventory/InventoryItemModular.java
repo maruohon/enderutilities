@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -16,14 +15,14 @@ public class InventoryItemModular extends InventoryItem
     protected InventoryItemMemoryCards moduleInventory;
     protected ModuleType moduleType;
 
-    public InventoryItemModular(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
+    public InventoryItemModular(ItemStack containerStack, EntityPlayer player, boolean allowCustomStackSizes, ModuleType moduleType)
     {
-        this(containerStack, ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack), player, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType), moduleType);
+        this(containerStack, ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack), allowCustomStackSizes, player, ((ItemInventoryModular)containerStack.getItem()).getSizeModuleInventory(containerStack), moduleType);
     }
 
-    public InventoryItemModular(ItemStack containerStack, int mainInvSize, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
+    public InventoryItemModular(ItemStack containerStack, int mainInvSize, boolean allowCustomStackSizes, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
     {
-        super(containerStack, mainInvSize, player.worldObj.isRemote, player);
+        super(containerStack, mainInvSize, 64, allowCustomStackSizes, player.worldObj.isRemote, player);
 
         this.modularItemStack = containerStack;
         this.moduleType = moduleType;
@@ -115,13 +114,7 @@ public class InventoryItemModular extends InventoryItem
     @Override
     public int getInventoryStackLimit()
     {
-        ItemStack stack = this.getModularItemStack();
-        if (stack != null && stack.getItem() instanceof ItemInventoryModular)
-        {
-            return ((ItemInventoryModular)stack.getItem()).getInventoryStackLimit(stack);
-        }
-
-        return 64;
+        return this.getInventoryStackLimitFromContainerStack(this.getSelectedModuleStack());
     }
 
     @Override
