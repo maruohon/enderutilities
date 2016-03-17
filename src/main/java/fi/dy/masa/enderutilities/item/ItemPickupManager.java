@@ -580,7 +580,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         ContainerPickupManager container = (ContainerPickupManager)player.openContainer;
         ItemStack stack = container.getModularItem();
-        if (stack == null)
+        if (stack == null || (stack.getItem() instanceof ItemPickupManager) == false)
         {
             return;
         }
@@ -588,6 +588,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 3)
         {
             UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL, element);
+            ((ItemPickupManager) stack.getItem()).tryTransportItemsFromTransportSlot(container.inventoryItemTransmit, player, stack);
         }
         else if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
         {
