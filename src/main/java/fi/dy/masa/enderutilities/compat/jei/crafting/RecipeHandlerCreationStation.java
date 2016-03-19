@@ -8,8 +8,6 @@ import net.minecraft.inventory.Slot;
 
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
-import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 
 public class RecipeHandlerCreationStation implements IRecipeTransferInfo
 {

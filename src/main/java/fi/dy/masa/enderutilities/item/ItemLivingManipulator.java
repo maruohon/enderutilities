@@ -2,22 +2,23 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -53,11 +54,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         Mode mode = Mode.getMode(stack);
@@ -66,14 +67,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return this.releaseEntity(stack, world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
-    public boolean handleInteraction(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    public EnumActionResult handleInteraction(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
         if (player.worldObj.isRemote == true)
         {
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
         Mode mode = Mode.getMode(stack);
@@ -85,11 +86,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return this.captureEntity(stack, player, livingBase);
     }
 
-    public boolean captureEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    public EnumActionResult captureEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
-        if (livingBase == null || livingBase instanceof EntityPlayer || livingBase instanceof IBossDisplayData)
+        if (livingBase == null || livingBase instanceof EntityPlayer || livingBase.isNonBoss() == false)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         int count = this.getStoredEntityCount(stack);
@@ -98,23 +99,23 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return this.storeEntity(stack, livingBase);
         }
 
-        player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.memorycard.full"));
+        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"));
 
-        return false;
+        return EnumActionResult.FAIL;
     }
 
-    public boolean releaseEntity(ItemStack containerStack, World world, double x, double y, double z, EnumFacing side)
+    public EnumActionResult releaseEntity(ItemStack containerStack, World world, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
         if (tagList == null || tagList.tagCount() == 0)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         int current = NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
@@ -130,7 +131,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             Entity entity = EntityList.createEntityFromNBT(tag, world);
             if (entity == null)
             {
-                return false;
+                return EnumActionResult.FAIL;
             }
 
             PositionHelper pos = new PositionHelper(x, y, z);
@@ -158,29 +159,25 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", (byte)current);
         this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
 
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 
-    public boolean storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
+    public EnumActionResult storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         // Dismount the entity from its rider and the entity it's riding, if any
-        livingBase.mountEntity(null);
-
-        if (livingBase.riddenByEntity != null)
-        {
-            livingBase.riddenByEntity.mountEntity(null);
-        }
+        livingBase.dismountRidingEntity();
+        livingBase.removePassengers();
 
         NBTTagCompound nbtEntity = new NBTTagCompound();
         if (livingBase.writeToNBTOptional(nbtEntity) == false)
         {
-            return false;
+            return EnumActionResult.FAIL;
         }
 
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, true);
@@ -192,7 +189,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         livingBase.isDead = true;
 
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 
     public int getStoredEntityCount(ItemStack containerStack)
@@ -247,14 +244,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             NBTTagCompound tag = tagList.getCompoundTagAt(index);
             if (tag != null)
             {
-                String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
-                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+                String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
+                String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
                 String name = tag.getString("CustomName");
                 if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                 {
                     String id = tag.getString("id");
-                    String translated = StatCollector.translateToLocal("entity." + id + ".name");
+                    String translated = I18n.translateToLocal("entity." + id + ".name");
                     if (id.equals(translated) == false)
                     {
                         id = translated;
@@ -303,9 +300,9 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     public String getItemStackDisplayName(ItemStack stack)
     {
         String str = super.getItemStackDisplayName(stack);
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String preGreenIta = preGreen + EnumChatFormatting.ITALIC.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String preGreenIta = preGreen + TextFormatting.ITALIC.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
@@ -343,18 +340,18 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
         ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
-        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
-        String preBlue = EnumChatFormatting.BLUE.toString();
-        String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preDGreen = TextFormatting.DARK_GREEN.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
 
         if (verbose == true)
         {
@@ -364,13 +361,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 String s;
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
-                            EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
-                            EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);
@@ -385,7 +382,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
 
                 NBTTagList tagList = NBTUtils.getTagList(memoryCardStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
@@ -400,13 +397,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                     NBTTagCompound tag = tagList.getCompoundTagAt(i);
                     if (tag != null)
                     {
-                        String pre = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+                        String pre = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
                         String name = tag.getString("CustomName");
 
                         if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                         {
                             String id = tag.getString("id");
-                            String translated = StatCollector.translateToLocal("entity." + id + ".name");
+                            String translated = I18n.translateToLocal("entity." + id + ".name");
                             if (id.equals(translated) == false)
                             {
                                 id = translated;
@@ -422,7 +419,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 
@@ -507,7 +504,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         public String getDisplayName()
         {
-            return StatCollector.translateToLocal(this.unlocName);
+            return I18n.translateToLocal(this.unlocName);
         }
 
         public String getVariant()

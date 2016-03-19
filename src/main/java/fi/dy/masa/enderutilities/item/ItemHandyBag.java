@@ -3,19 +3,22 @@ package fi.dy.masa.enderutilities.item;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -79,7 +82,7 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking() == true)
@@ -87,18 +90,18 @@ public class ItemHandyBag extends ItemInventoryModular
             return this.tryMoveItems(stack, world, player, pos, side);
         }
 
-        return super.onItemUse(stack, player,world, pos, side, hitX, hitY, hitZ);
+        return super.onItemUse(stack, player,world, pos, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK, worldIn, (int)playerIn.posX, (int)playerIn.posY, (int)playerIn.posZ);
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK, world, (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
-        return itemStackIn;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
@@ -121,13 +124,13 @@ public class ItemHandyBag extends ItemInventoryModular
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
-            String itemName = super.getItemStackDisplayName(stack); //StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+            String itemName = super.getItemStackDisplayName(stack); //I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
             if (moduleStack.hasDisplayName() == true)
             {
-                String pre = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
+                String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
                 if (itemName.length() >= 14)
                 {
                     return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
@@ -150,27 +153,27 @@ public class ItemHandyBag extends ItemInventoryModular
             return;
         }
 
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String preYellow = EnumChatFormatting.YELLOW.toString();
-        String preRed = EnumChatFormatting.RED.toString();
-        String preWhite = EnumChatFormatting.WHITE.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String preYellow = TextFormatting.YELLOW.toString();
+        String preRed = TextFormatting.RED.toString();
+        String preWhite = TextFormatting.WHITE.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
-        String strPickupMode = StatCollector.translateToLocal("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
-        String strRestockMode = StatCollector.translateToLocal("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
+        String strPickupMode = I18n.translateToLocal("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
+        String strRestockMode = I18n.translateToLocal("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
         int mode = this.getModeByName(containerStack, "PickupMode");
         if (mode == 0)
-            strPickupMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
+            strPickupMode += preRed + I18n.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
         else if (mode == MODE_PICKUP_MATCHING)
-            strPickupMode += preYellow + StatCollector.translateToLocal("enderutilities.tooltip.item.matching") + rst;
+            strPickupMode += preYellow + I18n.translateToLocal("enderutilities.tooltip.item.matching") + rst;
         else// if (mode == 2)
-            strPickupMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.all") + rst;
+            strPickupMode += preGreen + I18n.translateToLocal("enderutilities.tooltip.item.all") + rst;
 
         mode = this.getModeByName(containerStack, "RestockMode");
         if (mode == 0)
-            strRestockMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
+            strRestockMode += preRed + I18n.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
         else
-            strRestockMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + rst;
+            strRestockMode += preGreen + I18n.translateToLocal("enderutilities.tooltip.item.enabled") + rst;
 
         if (verbose == true)
         {
@@ -185,13 +188,13 @@ public class ItemHandyBag extends ItemInventoryModular
         String str;
         if (bagIsOpenable(containerStack) == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + I18n.translateToLocal("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
@@ -199,9 +202,9 @@ public class ItemHandyBag extends ItemInventoryModular
         if (installed > 0)
         {
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-            String preBlue = EnumChatFormatting.BLUE.toString();
-            String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
-            String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            String preBlue = TextFormatting.BLUE.toString();
+            String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
+            String strShort = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
@@ -215,13 +218,13 @@ public class ItemHandyBag extends ItemInventoryModular
             }
             else
             {
-                String strNo = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                String strNo = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
                 list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
             }
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 
@@ -267,7 +270,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
+    public EnumActionResult tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
         TileEntity te = world.getTileEntity(pos);
         if (world.isRemote == false && te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
@@ -276,7 +279,7 @@ public class ItemHandyBag extends ItemInventoryModular
             InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
             {
-                return false;
+                return EnumActionResult.FAIL;
             }
 
             int mode = this.getModeByName(stack, "RestockMode");
@@ -284,7 +287,7 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 InventoryUtils.tryMoveAllItems(bagInvnv, inv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
+                return EnumActionResult.SUCCESS;
             }
 
             mode = this.getModeByName(stack, "PickupMode");
@@ -292,17 +295,17 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
+                return EnumActionResult.SUCCESS;
             }
             else if (mode == MODE_PICKUP_ALL)
             {
                 InventoryUtils.tryMoveAllItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
+                return EnumActionResult.SUCCESS;
             }
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     /**

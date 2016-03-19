@@ -11,15 +11,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.Block.SoundType;
 import net.minecraft.block.BlockDirt;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -30,16 +29,17 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.IPlantable;
@@ -47,6 +47,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -67,7 +68,6 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -111,69 +111,57 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = world.getTileEntity(pos);
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (playerIn != null && playerIn.isSneaking() == true && te != null &&
+        if (player != null && player.isSneaking() == true && te != null &&
             (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
-            if (worldIn.isRemote == false)
+            if (world.isRemote == false)
             {
-                UtilItemModular.setTarget(stack, playerIn,pos, side, hitX, hitY, hitZ, false, false);
+                UtilItemModular.setTarget(stack, player,pos, side, hitX, hitY, hitZ, false, false);
             }
 
-            return true;
+            return EnumActionResult.SUCCESS;
         }
         // Hoe
         else if (ToolType.fromStack(stack).equals(ToolType.HOE) == true)
         {
-            if (worldIn.isRemote == true)
+            if (world.isRemote == true)
             {
-                return true;
+                return EnumActionResult.SUCCESS;
             }
 
             if (PowerStatus.fromStack(stack) == PowerStatus.POWERED)
             {
                 // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoeArea(stack, playerIn, worldIn, pos, side, 1, 1) == false)
+                if (this.useHoeArea(stack, player, world, pos, side, 1, 1) == false)
                 {
-                    this.useHoeToPlantArea(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, 1, 1);
+                    this.useHoeToPlantArea(stack, player, world, pos, side, hitX, hitY, hitZ, 1, 1);
                 }
             }
             else
             {
                 // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoe(stack, playerIn, worldIn, pos, side) == false)
+                if (this.useHoe(stack, player, world, pos, side) == false)
                 {
-                    this.useHoeToPlant(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+                    this.useHoeToPlant(stack, player, world, pos, side, hitX, hitY, hitZ);
                 }
             }
         }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (playerIn != null && (playerIn instanceof FakePlayer) == false)
+        else if (player != null && (player instanceof FakePlayer) == false)
         {
-            return this.placeBlock(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+            return this.placeBlock(stack, player, world, pos, side, hitX, hitY, hitZ);
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
-    @Override
-    public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
-    {
-        super.onUpdate(stack, world, player, slot, isCurrent);
-
-        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimensionId()) == true &&
-            (world.provider.getDimensionId() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
-        {
-            UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
-        }
-    }
-
-    private boolean placeBlock(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    private EnumActionResult placeBlock(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         int origSlot = playerIn.inventory.currentItem;
         int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
@@ -194,11 +182,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
             {
                 if (worldIn.isRemote == true)
                 {
-                    return true;
+                    return EnumActionResult.SUCCESS;
                 }
 
                 playerIn.inventory.currentItem = slot;
-                boolean success = targetStack.onItemUse(playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+                EnumActionResult success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ);
                 playerIn.inventory.currentItem = origSlot;
                 playerIn.inventory.markDirty();
                 playerIn.inventoryContainer.detectAndSendChanges();
@@ -206,7 +194,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, int rWidth, int rHeight)
@@ -284,7 +272,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             {
                 world.setBlockState(pos, newBlockState);
                 // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
-                world.markBlockForUpdate(pos);
+                world.notifyBlockUpdate(pos, state, state, 3);
                 this.addToolDamage(stack, 1, player, player);
             }
 
@@ -354,7 +342,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         ItemStack plantStack = inv.extractItem(slot, 1, false);
         if (plantStack != null && plantStack.getItem() instanceof IPlantable)
         {
-            if (plantStack.onItemUse(player, world, pos, side, hitX, hitY, hitZ) == true)
+            if (plantStack.onItemUse(player, world, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ) == EnumActionResult.SUCCESS)
             {
                 if (plantStack.stackSize > 0)
                 {
@@ -614,7 +602,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 return;
             }
 
-            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
             if (targetWorld == null)
             {
                 return;
@@ -946,9 +934,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
         int coreTier = this.getSelectedModuleTier(stack, ModuleType.TYPE_ENDERCORE);
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
-        String preBlue = EnumChatFormatting.BLUE.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        String preDGreen = TextFormatting.DARK_GREEN.toString();
+        String preBlue = TextFormatting.BLUE.toString();
 
         // Drops mode
         DropsMode mode = DropsMode.fromStack(stack);
@@ -956,45 +944,45 @@ public class ItemEnderTool extends ItemLocationBoundModular
         String str = (mode == DropsMode.NORMAL ? "enderutilities.tooltip.item.normal"
                     : mode == DropsMode.PLAYER ? "enderutilities.tooltip.item.endertool.playerinv"
                     : "enderutilities.tooltip.item.endertool.remote");
-        str = StatCollector.translateToLocal(str);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
+        str = I18n.translateToLocal(str);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
 
         if (ToolType.fromStack(stack).equals(ToolType.HOE) == true)
         {
             str = (powered == true ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
-            str = StatCollector.translateToLocal(str);
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
+            str = I18n.translateToLocal(str);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
         }
         else
         {
             // Dig mode (normal/fast)
             str = (powered == true ? "enderutilities.tooltip.item.fast" : "enderutilities.tooltip.item.normal");
-            str = StatCollector.translateToLocal(str);
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
+            str = I18n.translateToLocal(str);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
         }
 
         // Installed Ender Core type
-        str = StatCollector.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
+        str = I18n.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
         if (coreTier >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC && coreTier <= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
             String coreType = (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC ? "enderutilities.tooltip.item.basic" :
                               (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED ? "enderutilities.tooltip.item.enhanced" :
                                       "enderutilities.tooltip.item.advanced"));
-            coreType = StatCollector.translateToLocal(coreType);
-            str += preDGreen + coreType + rst + " (" + preBlue + StatCollector.translateToLocal("enderutilities.tooltip.item.tier") +
+            coreType = I18n.translateToLocal(coreType);
+            str += preDGreen + coreType + rst + " (" + preBlue + I18n.translateToLocal("enderutilities.tooltip.item.tier") +
                     " " + (coreTier + 1) + rst + ")";
         }
         else
         {
-            String preRed = EnumChatFormatting.RED.toString();
-            str += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.none") + rst;
+            String preRed = TextFormatting.RED.toString();
+            str += preRed + I18n.translateToLocal("enderutilities.tooltip.item.none") + rst;
         }
         list.add(str);
 
         // Link Crystals installed
         if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
         {
-            String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
+            String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
             // Valid target set in the currently selected Link Crystal
             if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
             {
@@ -1002,18 +990,18 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
             else
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
             }
 
             int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") +
                     String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
         // Capacitor installed
@@ -1024,7 +1012,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         if (advancedTooltips == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.durability");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.durability");
             list.add(str + ": " + (this.getMaxDamage(stack) - this.getToolDamage(stack)) + " / " + this.getMaxDamage(stack));
         }
     }
@@ -1072,7 +1060,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public String getDisplayName()
         {
-            return StatCollector.translateToLocal(this.unlocalized);
+            return I18n.translateToLocal(this.unlocalized);
         }
     }
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,11 +13,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -104,11 +106,11 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == true)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         // Ender Relic
@@ -117,15 +119,15 @@ public class ItemEnderPart extends ItemModule
             if (EntityUtils.spawnEnderCrystal(world, pos) == true)
             {
                 stack.stackSize--;
-                return true;
+                return EnumActionResult.SUCCESS;
             }
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase, EnumHand hand)
     {
         // Jailer module
         if (stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
@@ -144,16 +146,16 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        String preWh = EnumChatFormatting.WHITE.toString();
-        String preRed = EnumChatFormatting.RED.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-        String strOwner = StatCollector.translateToLocal("enderutilities.tooltip.item.owner");
+        String preWh = TextFormatting.WHITE.toString();
+        String preRed = TextFormatting.RED.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        String strOwner = I18n.translateToLocal("enderutilities.tooltip.item.owner");
 
         // Set to private and not the owner
         NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
         if (ownerData != null && ownerData.canAccess(player) == false)
         {
-            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, preRed, StatCollector.translateToLocal("enderutilities.tooltip.item.private"), rst));
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, preRed, I18n.translateToLocal("enderutilities.tooltip.item.private"), rst));
             return;
         }
 
@@ -161,7 +163,7 @@ public class ItemEnderPart extends ItemModule
         NBTTagCompound nbt = stack.getTagCompound();
         if (damage >= 50 && damage <= 54 && (nbt == null || nbt.hasNoTags() == true))
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             return;
         }
 
@@ -180,14 +182,14 @@ public class ItemEnderPart extends ItemModule
 
             if (listDataTypes.size() > 0)
             {
-                String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.1");
-                String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.2");
+                String str1 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.1");
+                String str2 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.2");
                 list.add(String.format("%s %d %s", str1, listDataTypes.size(), str2));
                 list.addAll(listDataTypes);
             }
             else
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
         else if (damage >= 51 && damage <= 54) // Memory Card (items)
@@ -198,23 +200,23 @@ public class ItemEnderPart extends ItemModule
             {
                 NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
                 int stackCount = tagList != null ? tagList.tagCount() : 0;
-                String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
-                String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
-                String str3 = StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
+                String str1 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
+                String str2 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
+                String str3 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
                 list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
             }
             else if (damage != 50)
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.memorycard.unknowndata"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.unknowndata"));
             }
         }
 
         // Print the owner data after the contents if the player can access/see the contents
         if (ownerData != null)
         {
-            String mode = ownerData.isPublic ? StatCollector.translateToLocal("enderutilities.tooltip.item.public") : StatCollector.translateToLocal("enderutilities.tooltip.item.private");
-            String modeColor = ownerData.isPublic ? EnumChatFormatting.GREEN.toString() : preRed;
+            String mode = ownerData.isPublic ? I18n.translateToLocal("enderutilities.tooltip.item.public") : I18n.translateToLocal("enderutilities.tooltip.item.private");
+            String modeColor = ownerData.isPublic ? TextFormatting.GREEN.toString() : preRed;
             list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, modeColor, mode, rst));
         }
     }

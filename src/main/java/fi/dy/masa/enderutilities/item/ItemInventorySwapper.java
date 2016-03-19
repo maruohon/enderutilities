@@ -2,17 +2,20 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -63,14 +66,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking() == true)
         {
@@ -83,11 +86,11 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                     this.swapInventory(stack, inv, player);
                 }
 
-                return true;
+                return EnumActionResult.SUCCESS;
             }
         }
 
-        return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
+        return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -107,9 +110,9 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     public String getItemStackDisplayName(ItemStack stack)
     {
         String itemName = super.getItemStackDisplayName(stack);
-        String preGreenIta = EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString();
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+        String preGreenIta = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
@@ -148,34 +151,34 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             return;
         }
 
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String preBlue = EnumChatFormatting.BLUE.toString();
-        String preRed = EnumChatFormatting.RED.toString();
-        String preWhite = EnumChatFormatting.WHITE.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preRed = TextFormatting.RED.toString();
+        String preWhite = TextFormatting.WHITE.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
         if (isEnabled(containerStack) == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + I18n.translateToLocal("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
 
         int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (installed > 0)
         {
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-            String preWhiteIta = preWhite + EnumChatFormatting.ITALIC.toString();
-            String strShort = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
+            String strShort = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
@@ -190,7 +193,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 

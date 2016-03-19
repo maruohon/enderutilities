@@ -6,8 +6,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,7 +29,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player != null && player.isSneaking() == true)
         {
@@ -35,10 +39,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
 
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     @Override
@@ -70,7 +74,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             {
                 // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back to getItemStackDisplayName ;_;
                 NBTTagCompound tag = moduleStack.getTagCompound().getCompoundTag("display");
-                return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
+                return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
             }
 
             return ((ILocationBound)moduleStack.getItem()).getTargetDisplayName(moduleStack);
@@ -85,10 +89,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         String targetName = this.getTargetDisplayName(stack);
         if (targetName != null && targetName.length() > 0)
         {
-            String preGreen = EnumChatFormatting.GREEN.toString();
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+            String preGreen = TextFormatting.GREEN.toString();
+            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
-            String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String itemName = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
             if (itemName.length() >= 14)
             {
                 itemName = EUStringUtils.getInitialsWithDots(itemName);
@@ -105,15 +109,15 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-        String preBlue = EnumChatFormatting.BLUE.toString();
-        String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         // Link Crystals installed
         if (linkCrystalStack != null)
@@ -125,7 +129,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             }
             else
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
             }
 
             if (verbose == true)
@@ -133,12 +137,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
                 String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
         if (verbose == true)
@@ -149,11 +153,11 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 String s;
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);

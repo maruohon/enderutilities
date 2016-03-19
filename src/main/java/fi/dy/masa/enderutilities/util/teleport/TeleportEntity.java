@@ -202,8 +202,8 @@ public class TeleportEntity
     public static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
     {
         if (entity == null || entity.worldObj == null || entity.worldObj.isRemote == true) { return null; }
-        if (allowMounts == false && entity.ridingEntity != null) { return null; }
-        if (allowRiders == false && entity.riddenByEntity != null) { return null; }
+        if (allowMounts == false && entity.isRiding() == true) { return null; }
+        if (allowRiders == false && entity.isBeingRidden() == true) { return null; }
         if (canTeleportEntity(entity) == false) { return null; }
 
         Entity current, ret = null;
@@ -455,7 +455,6 @@ public class TeleportEntity
         z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
         player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
 
-        ServerConfigurationManager serverCM = player.mcServer.getConfigurationManager();
         WorldServer worldServerSrc = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimSrc);
         WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
 
@@ -480,11 +479,11 @@ public class TeleportEntity
         worldServerDst.spawnEntityInWorld(player);
         worldServerDst.updateEntityWithOptionalForce(player, false);
         player.setWorld(worldServerDst);
-        serverCM.preparePlayer(player, worldServerSrc); // remove player from the source world
+        player.mcServer.getPlayerList().preparePlayer(player, worldServerSrc); // remove player from the source world
         player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
-        player.theItemInWorldManager.setWorld(worldServerDst);
-        player.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(player, worldServerDst);
-        player.mcServer.getConfigurationManager().syncPlayerInventory(player);
+        player.interactionManager.setWorld(worldServerDst);
+        player.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(player, worldServerDst);
+        player.mcServer.getPlayerList().syncPlayerInventory(player);
         player.addExperienceLevel(0);
         player.setPlayerHealthUpdated();
 

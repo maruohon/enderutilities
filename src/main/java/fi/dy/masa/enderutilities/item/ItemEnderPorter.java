@@ -2,15 +2,21 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -88,22 +94,22 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         // This needs to also happen on the client, otherwise the in-use will derp up
 
         if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Don't activate when sneaking and looking at a block, aka. binding to a new location
         if (player.isSneaking() == true)
         {
-            MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-            if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
+            if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);;
             }
         }
 
@@ -116,28 +122,31 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
             if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
             player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
 
             if (world.isRemote == false)
             {
-                Effects.playSoundEffectServer(world, player.posX, player.posY, player.posZ, "portal.travel", 0.06f, 1.2f);
+                Effects.playSoundEffectServer(world, player.posX, player.posY, player.posZ,
+                    SoundEvents.block_portal_trigger, SoundCategory.MASTER, 0.06f, 1.2f);
             }
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int inUseCount)
+    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase livingBase, int itemInUseCount)
     {
-        if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if ((livingBase instanceof EntityPlayer) == false ||
+            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer) livingBase) == false)
         {
             return;
         }
 
+        EntityPlayer player = (EntityPlayer) livingBase;
         int useTime = USE_TIME;
         // Use a shorter delay in creative mode
         if (player.capabilities.isCreativeMode == true)
@@ -145,7 +154,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             useTime >>= 2;
         }
 
-        if ((this.getMaxItemUseDuration(stack) - inUseCount) >= useTime)
+        if ((this.getMaxItemUseDuration(stack) - itemInUseCount) >= useTime)
         {
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (target == null || (stack.getItemDamage() == 0 && target.dimension != player.dimension))

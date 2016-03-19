@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.UUID;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -142,7 +143,8 @@ public class TileEntityEnderUtilities extends TileEntity
             this.ownerName = nbt.getString("o");
         }
 
-        this.worldObj.markBlockForUpdate(this.getPos());
+        IBlockState state = this.worldObj.getBlockState(this.getPos());
+        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     @Override

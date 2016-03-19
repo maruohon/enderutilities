@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -86,10 +87,11 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         super.onDataPacket(net, packet);
     }
 
-    protected void setActiveState(boolean state)
+    protected void setActiveState(boolean isActive)
     {
-        this.isActive = state;
-        this.worldObj.markBlockForUpdate(this.getPos());
+        this.isActive = isActive;
+        IBlockState state = this.worldObj.getBlockState(this.getPos());
+        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     public boolean getIsActive()
@@ -102,7 +104,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         if (this.isPowered != value)
         {
             this.isPowered = value;
-            this.worldObj.markBlockForUpdate(this.getPos());
+            IBlockState state = this.worldObj.getBlockState(this.getPos());
+            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
         }
     }
 
@@ -329,11 +332,11 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             for (int y = posMaster.getY() - 1; y >= 0; y--)
             {
                 BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
-                Block block = worldIn.getBlockState(pos).getBlock();
+                IBlockState state = worldIn.getBlockState(pos);
 
-                if (block.isAir(worldIn, pos) == false && block.getLightOpacity(worldIn, pos) > 3)
+                if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
                 {
-                    if (block != Blocks.bedrock)
+                    if (state.getBlock() != Blocks.bedrock)
                     {
                         return true;
                     }
@@ -347,11 +350,11 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         for (int y = posMaster.getY() + 1; y <= worldIn.getActualHeight(); y++)
         {
             BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
-            Block block = worldIn.getBlockState(pos).getBlock();
+            IBlockState state = worldIn.getBlockState(pos);
 
-            if (block.isAir(worldIn, pos) == false && block.getLightOpacity(worldIn, pos) > 3)
+            if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
             {
-                if (block != Blocks.bedrock)
+                if (state.getBlock() != Blocks.bedrock)
                 {
                     return true;
                 }

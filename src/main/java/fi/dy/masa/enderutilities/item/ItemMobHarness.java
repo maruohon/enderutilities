@@ -3,7 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -12,12 +12,15 @@ import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -50,32 +53,32 @@ public class ItemMobHarness extends ItemEnderUtilities
         }
 
         String target = stack.getTagCompound().getString("TargetName");
-        return super.getItemStackDisplayName(stack) + " " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.WHITE;
+        return super.getItemStackDisplayName(stack) + " " + TextFormatting.GREEN + target + TextFormatting.RESET + TextFormatting.WHITE;
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == true)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         if (player.isSneaking() == true)
         {
-            MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-            if (movingobjectposition != null && movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY
+            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
+            if (rayTraceResult != null && rayTraceResult.typeOfHit != RayTraceResult.Type.ENTITY
                 && player.rotationPitch > 80.0f)
             {
                 this.clearData(stack);
             }
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target)
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand)
     {
         return this.handleInteraction(stack, playerIn, target);
     }
@@ -101,7 +104,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (player.isSneaking() == false)
         {
             EntityUtils.unmountRider(entity);
-            player.mountEntity(entity);
+            player.startRiding(entity, true);
             addAITask(entity, true);
 
             return true;
@@ -116,14 +119,14 @@ public class ItemMobHarness extends ItemEnderUtilities
         else
         {
             // Empty harness, player looking up and ridden by something: dismount the rider
-            if (player.rotationPitch < -80.0f && player.riddenByEntity != null)
+            if (player.rotationPitch < -80.0f && player.isBeingRidden() == true)
             {
-                player.riddenByEntity.mountEntity(null);
+                player.removePassengers();
             }
             // Empty harness, target is riding something: dismount target
-            else if (entity.ridingEntity != null)
+            else if (entity.isRiding() == true)
             {
-                entity.mountEntity(null);
+                entity.dismountRidingEntity();
             }
             // Empty harness, target not riding anything, store/link target
             else
@@ -187,7 +190,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (storedUUID.equals(targetEntity.getUniqueID()))
         {
             EntityUtils.unmountRider(player);
-            targetEntity.mountEntity(player);
+            targetEntity.startRiding(player);
             this.clearData(stack);
 
             return true;
@@ -199,7 +202,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             if (mode == 1)
             {
                 List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player,
-                        AxisAlignedBB.fromBounds(player.posX - r, player.posY - r, player.posZ - r,
+                        new AxisAlignedBB(player.posX - r, player.posY - r, player.posZ - r,
                                 player.posX + r, player.posY + r, player.posZ + r));
                 storedEntity = EntityUtils.findEntityByUUID(entities, storedUUID);
             }
@@ -212,15 +215,16 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Matching (stored) entity found
             if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-                EntityUtils.unmountRider(targetEntity);
-                storedEntity.mountEntity(targetEntity);
+                // FIXME 1.9
+                //EntityUtils.unmountRider(targetEntity);
+                storedEntity.startRiding(targetEntity);
                 this.clearData(stack);
 
                 return true;
             }
             else if (storedEntity == null && world.isRemote == false)
             {
-                player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.mobharness.targetnotfoundoroutofrange"));
+                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.mobharness.targetnotfoundoroutofrange"));
             }
         }
 
@@ -239,12 +243,12 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         if (stack.getTagCompound() == null || this.hasTarget(stack) == false)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notlinked"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.notlinked"));
             return;
         }
 
         String target = stack.getTagCompound().getString("TargetName");
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.linked") + ": " + EnumChatFormatting.GREEN + target + EnumChatFormatting.RESET + EnumChatFormatting.GRAY);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.linked") + ": " + TextFormatting.GREEN + target + TextFormatting.RESET + TextFormatting.GRAY);
     }
 
     @SideOnly(Side.CLIENT)

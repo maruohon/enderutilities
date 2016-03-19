@@ -94,7 +94,7 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class,
                 new IRenderFactory<EntityEnderArrow>() {
                     @Override public Render<? super EntityEnderArrow> createRenderFor (RenderManager manager) {
-                        return new RenderEnderArrow(manager);
+                        return new RenderEnderArrow<EntityEnderArrow>(manager);
                     }
                 });
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class,

@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -306,7 +307,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // Check if we need to sync some stuff to the clients
         if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
-            this.worldObj.markBlockForUpdate(this.getPos());
+            IBlockState state = this.worldObj.getBlockState(this.getPos());
+            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
             this.worldObj.checkLight(this.getPos());
         }
 
@@ -476,7 +478,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.air)
         {
             Block block = Block.getBlockFromItem(item);
-            if (block.getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
+            if (block.getDefaultState().getMaterial() == Material.wood) { return COOKTIME_DEFAULT * 225 / 100; }
             if (block == Blocks.coal_block) { return COOKTIME_DEFAULT * 120; }
             if (block == Blocks.wooden_slab) { return COOKTIME_DEFAULT * 45 / 40; }
             if (block == Blocks.sapling) return COOKTIME_DEFAULT * 3 / 4;
@@ -644,7 +646,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         if (action == 0)
         {
             this.fastMode = ! this.fastMode;
-            this.worldObj.markBlockForUpdate(this.getPos());
+            IBlockState state = this.worldObj.getBlockState(this.getPos());
+            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (action == 1)

@@ -12,16 +12,23 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.ForgeHooks;
@@ -85,12 +92,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         BlockPosEU pos = this.getPosition(stack, POS_START);
         if (pos == null)
         {
-            return super.onItemRightClick(stack, world, player);
+            return super.onItemRightClick(stack, world, player, hand);
         }
 
         Mode mode = Mode.getMode(stack);
@@ -100,12 +107,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (PlayerTaskScheduler.getInstance().hasTask(player, TaskBuildersWand.class) == true)
             {
                 PlayerTaskScheduler.getInstance().removeTask(player, TaskBuildersWand.class);
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
             }
             else if (mode != Mode.CUBE && mode != Mode.WALLS)
             {
-                this.useWand(stack, world, player, pos);
-                return stack;
+                EnumActionResult result = this.useWand(stack, world, player, pos);
+                return new ActionResult<ItemStack>(result, stack);
             }
         }
 
@@ -117,16 +124,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             }
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class))
         {
-            return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
+            return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
         Mode mode = Mode.getMode(stack);
@@ -137,7 +144,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 this.setPosition(stack, new BlockPosEU(pos, player.dimension, side), POS_END);
             }
 
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
         // Don't allow targeting the top face of blocks while sneaking
@@ -147,7 +154,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
         }
 
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, BlockPos pos, int dimension, EnumFacing side)
@@ -177,18 +184,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
+    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase livingBase, int itemInUseCount)
     {
-        if (world.isRemote == false)
+        if (world.isRemote == true || (livingBase instanceof EntityPlayer) == false)
         {
-            if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
+            return;
+        }
+
+        if (this.getMaxItemUseDuration(stack) - itemInUseCount >= 20)
+        {
+            EntityPlayer player = (EntityPlayer) livingBase;
+            BlockPosEU pos = this.getPosition(stack, POS_START);
+            if (pos != null)
             {
-                BlockPosEU pos = this.getPosition(stack, POS_START);
-                if (pos != null)
-                {
-                    this.useWand(stack, world, player, pos);
-                    player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.4f, 0.7f);
-                }
+                this.useWand(stack, world, player, pos);
+                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.4f, 0.7f);
             }
         }
     }
@@ -202,15 +212,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String itemName = StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+        String itemName = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
         if (stack.getTagCompound() == null)
         {
             return itemName;
         }
 
-        String preBT = EnumChatFormatting.AQUA.toString();
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+        String preBT = TextFormatting.AQUA.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         if (itemName.length() >= 14)
         {
@@ -225,7 +235,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
-            itemName = itemName + " F: " + EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            itemName = itemName + " F: " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
 
         int sel = getSelectedBlockType(stack);
@@ -248,11 +258,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             String str;
             if (sel == BLOCK_TYPE_TARGETED)
             {
-                str = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+                str = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
             }
             else
             {
-                str = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+                str = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
             itemName = itemName + " B: " + preBT + str + rst;
@@ -266,15 +276,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
-        String pre = EnumChatFormatting.DARK_GREEN.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String pre = TextFormatting.DARK_GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         Mode mode = Mode.getMode(stack);
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
         int sel = getSelectedBlockType(stack);
         if (sel >= 0)
@@ -285,66 +295,66 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
                 if (blockStack != null && blockStack.getItem() != null)
                 {
-                    String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
+                    String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedblock");
                     list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
                 }
             }
         }
         else
         {
-            String str = StatCollector.translateToLocal("enderutilities.tooltip.item.selectedblock");
+            String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedblock");
             String str2;
             if (sel == BLOCK_TYPE_TARGETED)
             {
-                str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+                str2 = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
             }
             else
             {
-                str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+                str2 = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
             list.add(str + ": " + pre + str2 + rst);
         }
 
-        String str = StatCollector.translateToLocal("enderutilities.tooltip.item.area.flipped");
+        String str = I18n.translateToLocal("enderutilities.tooltip.item.area.flipped");
         String str2;
         if (this.getAreaFlipped(stack) == true)
         {
-            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
             list.add(str + ": " + str2 + rst);
 
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.flipaxis");
-            String preBlue = EnumChatFormatting.BLUE.toString();
+            str = I18n.translateToLocal("enderutilities.tooltip.item.flipaxis");
+            String preBlue = TextFormatting.BLUE.toString();
             list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
         }
         else
         {
-            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
             list.add(str + ": " + str2 + rst);
         }
 
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
+            str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
             if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
             {
-                str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
             }
             else
             {
-                str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
             }
             list.add(str + ": " + str2 + rst);
         }
 
-        str = StatCollector.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
+        str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
-            str2 = EnumChatFormatting.GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str2 = EnumChatFormatting.RED + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
         list.add(str + ": " + str2 + rst);
 
@@ -392,11 +402,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
-    public boolean useWand(ItemStack stack, World world, EntityPlayer player, BlockPosEU targetPos)
+    public EnumActionResult useWand(ItemStack stack, World world, EntityPlayer player, BlockPosEU targetPos)
     {
         if (player.dimension != targetPos.dimension)
         {
-            return false;
+            return EnumActionResult.FAIL;
         }
 
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
@@ -449,7 +459,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 
     public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist pos)
@@ -491,7 +501,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 // Check if we can place the block
                 if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == true)
                 {
-                    if (ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f) == true)
+                    if (ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f, EnumHand.MAIN_HAND) == EnumActionResult.SUCCESS)
                     {
                         return true;
                     }
@@ -508,7 +518,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             {
                 // Check if we can place the block
                 if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == false ||
-                    ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f) == false)
+                    ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f, EnumHand.MAIN_HAND) != EnumActionResult.SUCCESS)
                 {
                     targetStack = InventoryUtils.tryInsertItemStackToInventory(inv, targetStack);
                     if (targetStack != null)
@@ -803,7 +813,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int itemMeta = block.getDamageValue(world, blockPos);
 
         // The block on the back face must not be air or fluid ...
-        if (block.isAir(world, blockPos) == true || block.getMaterial().isLiquid() == true)
+        if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
         {
             return;
         }
@@ -921,7 +931,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         // Move the position forward by one from the targeted block
         BlockPos center = targeted.offset(face, 1);
         Area area = new Area(stack);
-        int dim = world.provider.getDimensionId();
+        int dim = world.provider.getDimension();
 
         Mode mode = Mode.getMode(stack);
         switch(mode)
@@ -1012,7 +1022,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                             // It must also be a matching block with our current build block, or we must have no fixed block requirement.
                             // sel >= 0 means that we want to build with a fixed/bound block type,
                             // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
-                            if (block.isAir(world, posTgt) == false && block.getMaterial().isLiquid() == false)
+                            if (block.isAir(state, world, posTgt) == false && block.getMaterial(state).isLiquid() == false)
                             {
                                 if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
                                    (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta))
@@ -1053,7 +1063,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int blockType = getSelectedBlockType(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int dim = world.provider.getDimensionId();
+        int dim = world.provider.getDimension();
 
         for (int x = startX; x <= endX; x++)
         {
@@ -1133,7 +1143,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int blockType = getSelectedBlockType(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int dim = world.provider.getDimensionId();
+        int dim = world.provider.getDimension();
 
         for (int y = startY; y <= endY; y++)
         {
@@ -1372,7 +1382,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         public String getDisplayName()
         {
-            return StatCollector.translateToLocal(this.unlocName);
+            return I18n.translateToLocal(this.unlocName);
         }
 
         public static Mode getMode(ItemStack stack)

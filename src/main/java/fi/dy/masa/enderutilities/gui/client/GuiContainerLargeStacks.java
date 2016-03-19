@@ -63,13 +63,13 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
                 if (itemstack.stackSize > itemstack.getMaxStackSize())
                 {
-                    str = EnumChatFormatting.YELLOW + "" + itemstack.getMaxStackSize();
+                    str = TextFormatting.YELLOW + "" + itemstack.getMaxStackSize();
                     itemstack.stackSize = itemstack.getMaxStackSize();
                 }
 
                 if (itemstack.stackSize > slotIn.getItemStackLimit(itemstack))
                 {
-                    str = EnumChatFormatting.YELLOW + "" + slotIn.getItemStackLimit(itemstack);
+                    str = TextFormatting.YELLOW + "" + slotIn.getItemStackLimit(itemstack);
                     itemstack.stackSize = slotIn.getItemStackLimit(itemstack);
                 }
             }

@@ -7,8 +7,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -27,7 +32,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player != null && player.isSneaking() == true)
         {
@@ -37,21 +42,21 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
 
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == false && player != null && player.isSneaking() == true)
         {
             this.setTarget(stack, player, true);
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
@@ -69,14 +74,14 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         {
             // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back here ;_;
             NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
-            return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
+            return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
         }
 
         String targetName = this.getTargetDisplayName(stack);
         if (targetName != null && targetName.length() > 0)
         {
-            String pre = EnumChatFormatting.GREEN.toString();
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+            String pre = TextFormatting.GREEN.toString();
+            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             return super.getItemStackDisplayName(stack) + " " + pre + targetName + rst;
         }
@@ -90,13 +95,13 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         NBTHelperTarget target = this.getTarget(stack);
         if (target == null)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.notargetset"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
             return;
         }
 
-        String preBlue = EnumChatFormatting.BLUE.toString();
-        String preDGreen = EnumChatFormatting.DARK_GREEN.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preDGreen = TextFormatting.DARK_GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         if (NBTHelperPlayer.canAccessItem(stack, player) == true)
         {
@@ -120,7 +125,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             // Full tooltip
             if (verbose == true)
             {
-                String s = StatCollector.translateToLocal("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
+                String s = I18n.translateToLocal("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
                 if (dimName.length() > 0)
                 {
                     s = s + " - " + preDGreen + dimName + rst;
@@ -130,7 +135,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
 
                 if (showBlock == true)
                 {
-                    list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
+                    list.add(I18n.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
                     if (advancedTooltips == true)
                     {
                         list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
@@ -143,7 +148,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 String s = preDGreen + dimName + rst;
                 if (dimName.length() == 0)
                 {
-                    s = StatCollector.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
+                    s = I18n.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
                 }
 
                 if (showBlock == true)
@@ -167,18 +172,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         String strPublic = "";
         if (playerData.isPublic == true)
         {
-            strPublic = EnumChatFormatting.GREEN.toString() + StatCollector.translateToLocal("enderutilities.tooltip.item.public") + rst;
+            strPublic = TextFormatting.GREEN.toString() + I18n.translateToLocal("enderutilities.tooltip.item.public") + rst;
         }
         else
         {
-            strPublic = EnumChatFormatting.RED.toString() + StatCollector.translateToLocal("enderutilities.tooltip.item.private") + rst;
+            strPublic = TextFormatting.RED.toString() + I18n.translateToLocal("enderutilities.tooltip.item.private") + rst;
         }
 
         // Full tooltip
         if (verbose == true)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + strPublic);
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.playerName + rst);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + strPublic);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.playerName + rst);
         }
         // Compact/short tooltip
         else

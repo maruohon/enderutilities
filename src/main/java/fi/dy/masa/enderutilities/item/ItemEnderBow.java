@@ -2,22 +2,25 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -54,8 +57,15 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
      * called when the player releases the use item button. Args: itemstack, world, entityplayer, itemInUseCount
      */
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int itemInUseCount)
+    public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase livingBase, int itemInUseCount)
     {
+        EntityPlayer player = null;
+
+        if (livingBase instanceof EntityPlayer)
+        {
+            player = (EntityPlayer) livingBase;
+        }
+
         if (this.isBroken(stack) == true)
         {
             return;
@@ -64,8 +74,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         byte mode = this.getBowMode(stack);
 
         // Do nothing on the client side
-        if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET
-                && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+        if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET && player != null &&
+                NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return;
         }
@@ -76,26 +86,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        if (player.capabilities.isCreativeMode == false && player.inventory.hasItem(EnderUtilitiesItems.enderArrow) == false)
+        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItem(EnderUtilitiesItems.enderArrow) == false)
         {
             return;
         }
 
         int j = this.getMaxItemUseDuration(stack) - itemInUseCount;
 
-        ArrowLooseEvent event = new ArrowLooseEvent(player, stack, j);
-        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
-        {
-            return;
-        }
-
-        j = event.charge;
         float f = (float)j / 20.0f;
         f = (f * f + f * 2.0f) / 3.0f;
         if (f < 0.1f) { return; }
         if (f > 1.0f) { f = 1.0f; }
 
-        EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, player, f * 2.0f);
+        EntityEnderArrow entityenderarrow = new EntityEnderArrow(world, livingBase, f * 2.0f);
         entityenderarrow.setTpMode(mode);
 
         if (mode == BOW_MODE_TP_TARGET)
@@ -116,7 +119,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             }
         }
 
-        if (player.capabilities.isCreativeMode == false)
+        if (player != null && player.capabilities.isCreativeMode == false)
         {
             if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
             {
@@ -138,7 +141,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             entityenderarrow.setIsCritical(true);
         }
 
-        world.playSoundAtEntity(player, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+        world.playSound(null, livingBase.posX, livingBase.posY, livingBase.posZ, SoundEvents.entity_arrow_shoot, SoundCategory.NEUTRAL, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
         world.spawnEntityInWorld(entityenderarrow);
     }
 
@@ -164,40 +167,34 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
 
         if (this.isBroken(stack) == true)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
             && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, false) == false)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
-            return stack;
-        }
-
-        ArrowNockEvent event = new ArrowNockEvent(player, stack);
-        if (MinecraftForge.EVENT_BUS.post(event) == true || event.isCanceled() == true)
-        {
-            return event.result;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Don't shoot when sneaking and looking at a block, aka. binding the bow to a new location
         if (player.isSneaking() == true)
         {
-            MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(world, player, true);
-            if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
+            if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
         }
 
@@ -206,7 +203,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             NBTTagCompound nbt = stack.getTagCompound();
             if (nbt == null)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
             // If the bow is in 'TP target' mode, it has to have a valid target set
@@ -214,14 +211,14 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             {
                 if (NBTHelperTarget.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
                 {
-                    return stack;
+                    return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
                 }
             }
 
             player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     public boolean isBroken(ItemStack stack)
@@ -234,7 +231,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     {
         if (this.getBowMode(stack) == BOW_MODE_TP_SELF)
         {
-            return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            return I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
         }
 
         return super.getItemStackDisplayName(stack);
@@ -244,18 +241,18 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         NBTTagCompound nbt = stack.getTagCompound();
-        String rst = "" + EnumChatFormatting.RESET + EnumChatFormatting.GRAY;
+        String rst = "" + TextFormatting.RESET + TextFormatting.GRAY;
 
         // TP self to impact point
         if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
         }
         // TP the target entity
         else
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.mode") + ": " + EnumChatFormatting.DARK_GREEN + StatCollector.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
         }
     }
 

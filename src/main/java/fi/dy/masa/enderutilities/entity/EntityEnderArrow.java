@@ -19,6 +19,8 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -53,23 +55,19 @@ public class EntityEnderArrow extends EntityArrow
     public EntityEnderArrow(World worldIn)
     {
         super(worldIn);
-        this.renderDistanceWeight = 10.0D;
         this.setSize(0.5F, 0.5F);
         this.shooterUUID = UUID.randomUUID();
     }
 
     public EntityEnderArrow(World worldIn, double x, double y, double z)
     {
-        super(worldIn);
-        this.renderDistanceWeight = 10.0D;
-        this.setSize(0.5F, 0.5F);
+        this(worldIn);
         this.setPosition(x, y, z);
     }
 
     public EntityEnderArrow(World worldIn, EntityLivingBase shooter, EntityLivingBase par3EntityLivingBase, float par4, float par5)
     {
         super(worldIn);
-        this.renderDistanceWeight = 10.0D;
         this.shootingEntity = shooter;
         this.shooterUUID = shooter.getUniqueID();
 
@@ -104,7 +102,6 @@ public class EntityEnderArrow extends EntityArrow
     public EntityEnderArrow(World worldIn, EntityLivingBase shooter, float velocity)
     {
         super(worldIn);
-        this.renderDistanceWeight = 10.0D;
         this.shootingEntity = shooter;
         this.shooterUUID = shooter.getUniqueID();
 
@@ -164,7 +161,7 @@ public class EntityEnderArrow extends EntityArrow
             return;
         }
 
-        EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderArrow, 1, 0));
+        EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, this.getArrowStack());
         Random r = new Random();
 
         entityitem.motionX = 0.01d * r.nextGaussian();
@@ -198,7 +195,7 @@ public class EntityEnderArrow extends EntityArrow
             block.setBlockBoundsBasedOnState(this.worldObj, pos);
             AxisAlignedBB axisalignedbb = block.getCollisionBoundingBox(this.worldObj, pos, state);
 
-            if (axisalignedbb != null && axisalignedbb.isVecInside(new Vec3(this.posX, this.posY, this.posZ)) == true)
+            if (axisalignedbb != null && axisalignedbb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)) == true)
             {
                 this.inGround = true;
             }
@@ -236,15 +233,15 @@ public class EntityEnderArrow extends EntityArrow
         }
 
         ++this.ticksInAir;
-        Vec3 vec31 = new Vec3(this.posX, this.posY, this.posZ);
-        Vec3 vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-        MovingObjectPosition movingobjectposition = this.worldObj.rayTraceBlocks(vec31, vec3, false, true, false);
-        vec31 = new Vec3(this.posX, this.posY, this.posZ);
-        vec3 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3d vec31 = new Vec3d(this.posX, this.posY, this.posZ);
+        Vec3d vec3 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        RayTraceResult rayTraceResult = this.worldObj.rayTraceBlocks(vec31, vec3, false, true, false);
+        vec31 = new Vec3d(this.posX, this.posY, this.posZ);
+        vec3 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-        if (movingobjectposition != null)
+        if (rayTraceResult != null)
         {
-            vec3 = new Vec3(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3 = new Vec3d(rayTraceResult.hitVec.xCoord, rayTraceResult.hitVec.yCoord, rayTraceResult.hitVec.zCoord);
         }
 
         Entity shooter = this.getShooter();
@@ -262,11 +259,11 @@ public class EntityEnderArrow extends EntityArrow
             {
                 f1 = 0.3F;
                 AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().expand((double)f1, (double)f1, (double)f1);
-                MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);
+                RayTraceResult rayTraceResultTmp = axisalignedbb1.calculateIntercept(vec31, vec3);
 
-                if (movingobjectposition1 != null)
+                if (rayTraceResultTmp != null)
                 {
-                    double d1 = vec31.distanceTo(movingobjectposition1.hitVec);
+                    double d1 = vec31.distanceTo(rayTraceResultTmp.hitVec);
 
                     if (d1 < d0 || d0 == 0.0D)
                     {
@@ -279,14 +276,14 @@ public class EntityEnderArrow extends EntityArrow
 
         if (entity != null)
         {
-            movingobjectposition = new MovingObjectPosition(entity);
+            rayTraceResult = new RayTraceResult(entity);
         }
 
         float f2;
         float f4;
 
         // Hit something
-        if (movingobjectposition != null)
+        if (rayTraceResult != null)
         {
             // TP self mode
             if (this.tpMode == ItemEnderBow.BOW_MODE_TP_SELF)
@@ -294,7 +291,7 @@ public class EntityEnderArrow extends EntityArrow
                 // Valid shooter
                 if (this.worldObj.isRemote == false && shooter != null)
                 {
-                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, movingobjectposition, this.teleportDamage, true, true) == true)
+                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true) == true)
                     {
                         this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
@@ -303,22 +300,22 @@ public class EntityEnderArrow extends EntityArrow
                 }
             }
             // TP target mode, hit an entity
-            else if (this.tpMode == ItemEnderBow.BOW_MODE_TP_TARGET && movingobjectposition.entityHit != null)
+            else if (this.tpMode == ItemEnderBow.BOW_MODE_TP_TARGET && rayTraceResult.entityHit != null)
             {
-                if (shooter != null && EntityUtils.doesEntityStackContainEntity(movingobjectposition.entityHit, shooter) == false)
+                if (shooter != null && EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, shooter) == false)
                 {
                     this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-                    if (EntityUtils.doesEntityStackHaveBlacklistedEntities(movingobjectposition.entityHit) == false &&
-                        (EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false
+                    if (EntityUtils.doesEntityStackHaveBlacklistedEntities(rayTraceResult.entityHit) == false &&
+                        (EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false
                         || Configs.enderBowAllowPlayers.getBoolean(false) == true))
                     {
                         if (this.worldObj.isRemote == false)
                         {
-                            this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, movingobjectposition.entityHit);
+                            this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, rayTraceResult.entityHit);
                             if (this.tpTarget != null)
                             {
-                                Entity e = movingobjectposition.entityHit;
+                                Entity e = rayTraceResult.entityHit;
                                 if (this.tpTarget.hasAngle == true && entity != null)
                                 {
                                     entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);
@@ -351,16 +348,16 @@ public class EntityEnderArrow extends EntityArrow
             // hit something else, so a block
             else
             {
-                BlockPos mopPos = movingobjectposition.getBlockPos();
+                BlockPos mopPos = rayTraceResult.getBlockPos();
                 this.blockX = mopPos.getX();
                 this.blockY = mopPos.getY();
                 this.blockZ = mopPos.getZ();
                 state = this.worldObj.getBlockState(mopPos);
                 this.inBlock = state.getBlock();
                 this.inData = this.inBlock.getMetaFromState(state);
-                this.motionX = (double)((float)(movingobjectposition.hitVec.xCoord - this.posX));
-                this.motionY = (double)((float)(movingobjectposition.hitVec.yCoord - this.posY));
-                this.motionZ = (double)((float)(movingobjectposition.hitVec.zCoord - this.posZ));
+                this.motionX = (double)((float)(rayTraceResult.hitVec.xCoord - this.posX));
+                this.motionY = (double)((float)(rayTraceResult.hitVec.yCoord - this.posY));
+                this.motionZ = (double)((float)(rayTraceResult.hitVec.zCoord - this.posZ));
                 f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
                 this.posX -= this.motionX / (double)f2 * 0.05000000074505806D;
                 this.posY -= this.motionY / (double)f2 * 0.05000000074505806D;
@@ -492,7 +489,7 @@ public class EntityEnderArrow extends EntityArrow
             // Normal pick up to inventory
             if (this.canBePickedUp == 1)
             {
-                if (par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderArrow, 1)) == true)
+                if (par1EntityPlayer.inventory.addItemStackToInventory(this.getArrowStack()) == true)
                 {
                     this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     par1EntityPlayer.onItemPickup(this, 1);
@@ -516,5 +513,11 @@ public class EntityEnderArrow extends EntityArrow
         }
 
         return this.shootingEntity;
+    }
+
+    @Override
+    protected ItemStack getArrowStack()
+    {
+        return new ItemStack(EnderUtilitiesItems.enderArrow);
     }
 }

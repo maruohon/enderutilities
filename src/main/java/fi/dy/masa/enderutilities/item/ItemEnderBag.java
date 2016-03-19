@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,16 +13,20 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -55,18 +59,18 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == true || stack == null || stack.getTagCompound() == null)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         NBTTagCompound bagNbt = stack.getTagCompound();
         NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (targetData == null || targetData.blockName == null)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Access is allowed for everyone to a vanilla Ender Chest
@@ -74,25 +78,25 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         {
             if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
             }
 
             bagNbt.setBoolean("IsOpen", true);
             player.displayGUIChest(player.getInventoryEnderChest());
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
         // For other targets, access is only allowed if the mode is set to public, or if the player is the owner
         if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
         if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player) == true)
         {
-            player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
-            return stack;
+            player.addChatMessage(new TextComponentTranslation(I18n.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // The target block has changed since binding the bag, remove the bind (not for vanilla Ender Chests)
@@ -102,31 +106,31 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
-            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
 
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Check that we have sufficient charge left to use the bag.
         if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension,
                 targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 60) == true)
         {
-            MinecraftServer server = MinecraftServer.getServer();
+            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             if (server == null)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
             World targetWorld = server.worldServerForDimension(targetData.dimension);
             if (targetWorld == null)
             {
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
             // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
@@ -134,7 +138,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             {
                 // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
                 //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);
-                return stack;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
             bagNbt.setBoolean("ChunkLoadingRequired", true);
@@ -147,23 +151,23 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             IBlockState state = targetWorld.getBlockState(targetData.pos);
             Block block = state.getBlock();
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
-            block.onBlockActivated(targetWorld, targetData.pos, state, player, targetData.facing, hx, hy, hz);
+            block.onBlockActivated(targetWorld, targetData.pos, state, player, EnumHand.MAIN_HAND, stack, targetData.facing, hx, hy, hz);
         }
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
         if (player.isSneaking() == true && te != null &&
             (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true))
         {
-            return super.onItemUse(stack, player, world, pos, side, hitX, hitY, hitZ);
+            return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     @Override
@@ -215,10 +219,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // We allow a max range of 64 blocks, to hopefully be on the safer side
         //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
 
-        WorldServer world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
         if ((player instanceof EntityPlayerMP) == false ||
              world == null ||
-             world.getPlayerManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
+             world.getPlayerChunkManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
         {
             return true;
         }
@@ -266,9 +270,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
                 String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
 
-                String textPre = EnumChatFormatting.DARK_GREEN.toString();
-                String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
+                String textPre = TextFormatting.DARK_GREEN.toString();
+                String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
                 return;
             }
         }
@@ -284,7 +288,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public boolean doesSneakBypassUse(World world, BlockPos pos, EntityPlayer player)
+    public boolean doesSneakBypassUse(ItemStack stack, IBlockAccess world, BlockPos pos, EntityPlayer player)
     {
         return false;
     }

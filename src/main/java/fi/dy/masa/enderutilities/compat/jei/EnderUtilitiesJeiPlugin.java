@@ -3,14 +3,6 @@ package fi.dy.masa.enderutilities.compat.jei;
 import fi.dy.masa.enderutilities.compat.jei.crafting.RecipeHandlerCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
-import mezz.jei.api.IItemRegistry;
-import mezz.jei.api.IJeiHelpers;
-import mezz.jei.api.IJeiRuntime;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.IRecipeRegistry;
-import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 
 @mezz.jei.api.JEIPlugin
 public class EnderUtilitiesJeiPlugin implements IModPlugin

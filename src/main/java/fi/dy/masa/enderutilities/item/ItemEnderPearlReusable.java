@@ -8,6 +8,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -19,7 +22,6 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
@@ -47,11 +49,11 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == true)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
         // Damage 1: "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
@@ -61,7 +63,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
         if (stack.getItemDamage() == 1)
         {
-            Entity bottomEntity = EntityUtils.getBottomEntity(player);
+            Entity bottomEntity = player.getLowestRidingEntity();
 
             // Dismount the previous pearl if we are already riding one
             if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.riddenByEntity != null)
@@ -75,7 +77,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         --stack.stackSize;
         world.playSoundAtEntity(player, "random.bow", 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @SideOnly(Side.CLIENT)

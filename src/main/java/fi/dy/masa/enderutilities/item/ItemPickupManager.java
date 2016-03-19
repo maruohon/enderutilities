@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -86,10 +88,10 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
@@ -104,8 +106,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public String getItemStackDisplayName(ItemStack stack)
     {
         int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-        String pre = EnumChatFormatting.GREEN.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+        String pre = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         return super.getItemStackDisplayName(stack) + " - P: " + pre + (preset + 1) + rst;
     }
@@ -118,24 +120,24 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return;
         }
 
-        String preGreen = EnumChatFormatting.GREEN.toString();
-        String preRed = EnumChatFormatting.RED.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String preRed = TextFormatting.RED.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
         if (isEnabled(containerStack) == true)
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str = StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
 
         list.add(str);
 
         int preset = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.preset") + ": " + EnumChatFormatting.BLUE.toString() + preset + rst);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.preset") + ": " + TextFormatting.BLUE.toString() + preset + rst);
 
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
     }
@@ -267,7 +269,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(moduleStack);
         if (target != null)
         {
-            World world = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+            World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
             // Force load the target chunk with a 30 second unload delay.
             if (world == null || ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
                     target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)

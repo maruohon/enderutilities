@@ -8,11 +8,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -47,12 +50,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
         if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true)
         {
-            return false;
+            return EnumActionResult.PASS;
         }
 
         Block block = world.getBlockState(pos).getBlock();
@@ -61,12 +64,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         {
             if (world.isRemote == false)
             {
-                world.setBlockToAir(pos);
-                world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                        block.stepSound.getBreakSound(), block.stepSound.getVolume() - 0.5f, block.stepSound.getFrequency() * 0.8f);
+                // FIXME 1.9: verify
+                world.destroyBlock(pos, false);
+                /*world.setBlockToAir(pos);
+                world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                        block.getSoundType().getBreakSound(), SoundCategory.BLOCKS, block.getSoundType().getVolume() - 0.5f, block.getSoundType().getPitch() * 0.8f);
+                */
             }
 
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
         // When right clicking on Obsidian, try to light a Nether Portal
@@ -79,23 +85,23 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
                 world.playAuxSFXAtEntity((EntityPlayer)null, 1009, pos, 0); // Blaze fireball shooting sound
             }
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
-        return false;
+        return EnumActionResult.PASS;
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == true || EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == false)
         {
-            return stack;
+            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         this.usePortalWithPortalScaler(stack, world, player);
 
-        return stack;
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
@@ -212,12 +218,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
-            String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE.toString();
+            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
             if (moduleStack.hasDisplayName() == true)
             {
-                str = " " + EnumChatFormatting.GREEN.toString() + EnumChatFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
+                str = " " + TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
             }
 
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
@@ -243,15 +249,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
         ItemStack memoryCardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
-        String preBlue = EnumChatFormatting.BLUE.toString();
-        String preWhiteIta = EnumChatFormatting.WHITE.toString() + EnumChatFormatting.ITALIC.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         // Memory Cards installed
         if (memoryCardStack != null)
@@ -269,7 +275,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             }
             else
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nodata"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.nodata"));
             }
 
             if (verbose == true)
@@ -277,13 +283,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else
         {
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
         }
 
         if (verbose == true)

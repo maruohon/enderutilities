@@ -93,7 +93,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     public void onUpdate()
     {
         // The pearl has been dismounted, try to return the item to the thrower's inventory, or drop it as an item
-        if (this.worldObj.isRemote == false && this.isElite == true && this.riddenByEntity == null)
+        if (this.worldObj.isRemote == false && this.isElite == true && this.isBeingRidden() == false)
         {
             // Failed to add the pearl straight back to the thrower's inventory: drop the item in the world
             if (this.returnToPlayersInventory() == false)
@@ -157,10 +157,10 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         if (this.isElite == false)
         {
             // If the thrower is currently riding an elite pearl, unmount the pearl
-            Entity bottom = EntityUtils.getBottomEntity(thrower);
-            if (bottom instanceof EntityEnderPearlReusable && bottom.riddenByEntity != null)
+            Entity bottom = thrower.getLowestRidingEntity();
+            if (bottom instanceof EntityEnderPearlReusable && bottom.isBeingRidden() == true)
             {
-                bottom.riddenByEntity.mountEntity(null);
+                bottom.removePassengers();
             }
 
             TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
