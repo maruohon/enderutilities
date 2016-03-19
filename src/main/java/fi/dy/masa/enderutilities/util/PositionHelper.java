@@ -2,8 +2,7 @@ package fi.dy.masa.enderutilities.util;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.math.RayTraceResult;
 
 public class PositionHelper
 {
@@ -25,46 +24,46 @@ public class PositionHelper
         this.posZ = entity.posZ;
     }
 
-    public PositionHelper(MovingObjectPosition mop)
+    public PositionHelper(RayTraceResult rayTraceResult)
     {
-        this.initPos(mop, 0.0d, 0.0d, 0.0d);
+        this.initPos(rayTraceResult, 0.0d, 0.0d, 0.0d);
     }
 
-    public PositionHelper(MovingObjectPosition mop, Entity entity)
+    public PositionHelper(RayTraceResult rayTraceResult, Entity entity)
     {
         if (entity != null)
         {
-            this.initPos(mop, entity.posX, entity.posY, entity.posZ);
+            this.initPos(rayTraceResult, entity.posX, entity.posY, entity.posZ);
         }
         else
         {
-            this.initPos(mop, 0.0d, 0.0d, 0.0d);
+            this.initPos(rayTraceResult, 0.0d, 0.0d, 0.0d);
         }
     }
 
-    public void initPos(MovingObjectPosition mop, double x, double y, double z)
+    public void initPos(RayTraceResult rayTraceResult, double x, double y, double z)
     {
         // Hit a block
-        if (mop.typeOfHit == MovingObjectType.BLOCK && mop.hitVec != null)
+        if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && rayTraceResult.hitVec != null)
         {
-            this.posX = mop.hitVec.xCoord;
-            this.posY = mop.hitVec.yCoord;
-            this.posZ = mop.hitVec.zCoord;
+            this.posX = rayTraceResult.hitVec.xCoord;
+            this.posY = rayTraceResult.hitVec.yCoord;
+            this.posZ = rayTraceResult.hitVec.zCoord;
         }
         // Hit an entity
-        else if (mop.typeOfHit == MovingObjectType.ENTITY)
+        else if (rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
         {
-            if (mop.hitVec != null)
+            if (rayTraceResult.hitVec != null)
             {
-                this.posX = mop.hitVec.xCoord;
-                this.posY = mop.hitVec.yCoord;
-                this.posZ = mop.hitVec.zCoord;
+                this.posX = rayTraceResult.hitVec.xCoord;
+                this.posY = rayTraceResult.hitVec.yCoord;
+                this.posZ = rayTraceResult.hitVec.zCoord;
             }
-            else if (mop.entityHit != null)
+            else if (rayTraceResult.entityHit != null)
             {
-                this.posX = mop.entityHit.posX;
-                this.posY = mop.entityHit.posY;
-                this.posZ = mop.entityHit.posZ;
+                this.posX = rayTraceResult.entityHit.posX;
+                this.posY = rayTraceResult.entityHit.posY;
+                this.posZ = rayTraceResult.entityHit.posZ;
             }
             else
             {

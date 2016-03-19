@@ -9,7 +9,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.InventoryItem;

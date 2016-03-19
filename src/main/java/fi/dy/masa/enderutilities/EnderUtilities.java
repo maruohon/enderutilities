@@ -6,7 +6,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -27,7 +26,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
-     dependencies = "required-after:Forge@[11.15.1.1722,);")
+     acceptedMinecraftVersions = "1.9")
 public class EnderUtilities
 {
     @Instance(Reference.MOD_ID)
@@ -51,11 +50,6 @@ public class EnderUtilities
         proxy.registerModels();
         proxy.registerEntities();
         proxy.registerTileEntities();
-    }
-
-    @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
         proxy.registerKeyBindings();
         proxy.registerEventHandlers();
         proxy.registerRenderers();

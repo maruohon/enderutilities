@@ -119,7 +119,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
     {
         super.actionPerformed(btn);
 
-        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.teef.getWorld().provider.getDimensionId(), this.teef.getPos(),
+        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.teef.getWorld().provider.getDimension(), this.teef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, btn.id, 0));
     }
 }

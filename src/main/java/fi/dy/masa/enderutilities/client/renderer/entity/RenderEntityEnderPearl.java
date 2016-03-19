@@ -1,9 +1,9 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.Item;
@@ -13,7 +13,6 @@ import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.base.IItemData;
 
-@SuppressWarnings("deprecation")
 public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
 {
     private Item item;

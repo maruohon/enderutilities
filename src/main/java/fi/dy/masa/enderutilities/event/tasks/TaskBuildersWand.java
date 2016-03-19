@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -26,7 +28,7 @@ public class TaskBuildersWand implements IPlayerTask
 
     public TaskBuildersWand(World world, UUID playerUUID, List<BlockPosStateDist> positions, int blocksPerTick)
     {
-        this.dimension = world.provider.getDimensionId();
+        this.dimension = world.provider.getDimension();
         this.playerUUID = playerUUID;
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
@@ -43,7 +45,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public boolean canExecute(World world, EntityPlayer player)
     {
-        if (world.provider.getDimensionId() != this.dimension)
+        if (world.provider.getDimension() != this.dimension)
         {
             return false;
         }
@@ -54,7 +56,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public boolean execute(World world, EntityPlayer player)
     {
-        ItemStack stack = player.getCurrentEquippedItem();
+        ItemStack stack = player.getHeldItemMainhand();
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.positions.size();)
@@ -95,7 +97,7 @@ public class TaskBuildersWand implements IPlayerTask
                 }
 
                 //world.playSoundAtEntity(player, "note.harp", 0.7f, 1.0f);
-                world.playSoundAtEntity(player, "note.pling", 0.3f, 1.0f);
+                world.playSound(player, player.playerLocation, SoundEvents.block_note_pling, SoundCategory.BLOCKS, 0.3f, 1.0f);
             }
 
             return true;

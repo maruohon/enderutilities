@@ -55,7 +55,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             {
                 Slot slotTmp = this.getSlot(i);
                 int slotMax = this.getMaxStackSizeFromSlotAndStack(slotTmp, stackCursor);
-                ItemStack stackTmp = slotTmp.getStack();
+                ItemStack stackTmp = ItemStack.copyItemStack(slotTmp.getStack());
                 int num = Math.min(itemsPerSlot, slotMax);
 
                 // Target slot already has items, check how many more can fit to the slot
@@ -305,10 +305,11 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                     slot.onPickupFromSlot(player, stackTmp);
                 }
             }
-            // Can't put items into the slot (for example a crafting output slot); take items instead
+            // Can't put items into the slot (for example an output-only slot); take items instead
             else
             {
-                stackCursor = slot.decrStackSize(stackSlot.stackSize);
+                int amount = Math.min((int)Math.ceil(stackSlot.stackSize / 2), stackSlot.getMaxStackSize() / 2);
+                stackCursor = slot.decrStackSize(amount);
                 this.inventoryPlayer.setItemStack(stackCursor);
                 slot.onPickupFromSlot(player, stackCursor);
             }

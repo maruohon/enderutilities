@@ -2,12 +2,12 @@ package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -108,7 +108,7 @@ public class MessageGuiAction implements IMessage
 
         protected void processMessage(final MessageGuiAction message, EntityPlayer player)
         {
-            World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
+            World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimension);
 
             if (world != null)
             {

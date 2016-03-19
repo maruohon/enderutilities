@@ -9,12 +9,12 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -96,17 +96,17 @@ public abstract class EntityThrowableEU extends EntityThrowable
             ++this.ticksInAir;
         }
 
-        Vec3 vec3 = new Vec3(this.posX, this.posY, this.posZ);
-        Vec3 vec31 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3d vec3 = new Vec3d(this.posX, this.posY, this.posZ);
+        Vec3d vec31 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-        MovingObjectPosition mopImpact = this.worldObj.rayTraceBlocks(vec3, vec31);
+        RayTraceResult rayTraceImpact = this.worldObj.rayTraceBlocks(vec3, vec31);
 
-        vec3 = new Vec3(this.posX, this.posY, this.posZ);
-        vec31 = new Vec3(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        vec3 = new Vec3d(this.posX, this.posY, this.posZ);
+        vec31 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-        if (mopImpact != null)
+        if (rayTraceImpact != null)
         {
-            vec31 = new Vec3(mopImpact.hitVec.xCoord, mopImpact.hitVec.yCoord, mopImpact.hitVec.zCoord);
+            vec31 = new Vec3d(rayTraceImpact.hitVec.xCoord, rayTraceImpact.hitVec.yCoord, rayTraceImpact.hitVec.zCoord);
         }
 
         if (this.worldObj.isRemote == false)
@@ -127,11 +127,11 @@ public abstract class EntityThrowableEU extends EntityThrowable
                 {
                     double s = 0.1d;
                     AxisAlignedBB axisalignedbb = entityIter.getEntityBoundingBox().expand(s, s, s);
-                    MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec31);
+                    RayTraceResult rayTraceResult1 = axisalignedbb.calculateIntercept(vec3, vec31);
 
-                    if (movingobjectposition1 != null)
+                    if (rayTraceResult1 != null)
                     {
-                        double distanceTmp = vec3.distanceTo(movingobjectposition1.hitVec);
+                        double distanceTmp = vec3.distanceTo(rayTraceResult1.hitVec);
 
                         if (distanceTmp < distance || distance == 0.0d)
                         {
@@ -144,23 +144,23 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
             if (entity != null)
             {
-                mopImpact = new MovingObjectPosition(entity);
+                rayTraceImpact = new RayTraceResult(entity);
             }
         }
 
-        if (mopImpact != null)
+        if (rayTraceImpact != null)
         {
-            if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlockState(mopImpact.getBlockPos()).getBlock() == Blocks.portal)
+            if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.portal)
             {
-                this.setPortal(mopImpact.getBlockPos());
+                this.setPortal(rayTraceImpact.getBlockPos());
             }
-            else if (mopImpact.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.worldObj.getBlockState(mopImpact.getBlockPos()).getBlock() == Blocks.web)
+            else if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.web)
             {
                 this.setInWeb();
             }
             else
             {
-                this.onImpact(mopImpact);
+                this.onImpact(rayTraceImpact);
             }
         }
 

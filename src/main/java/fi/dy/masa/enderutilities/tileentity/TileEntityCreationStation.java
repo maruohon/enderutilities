@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -14,9 +15,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -194,7 +196,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.getNbtCompound();
 
@@ -677,7 +679,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             // Double left clicked fast enough (< 5 ticks) - do the selected item moving action
             this.performGuiAction(player, GUI_ACTION_MOVE_ITEMS, this.actionMode);
-            player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+            player.worldObj.playSound(player, this.getPos(), SoundEvents.entity_endermen_teleport, SoundCategory.BLOCKS, 0.2f, 1.8f);
             this.clickTimes.remove(player.getUniqueID());
         }
         else

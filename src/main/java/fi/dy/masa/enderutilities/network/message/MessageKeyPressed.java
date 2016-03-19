@@ -79,7 +79,8 @@ public class MessageKeyPressed implements IMessage
 
         protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
         {
-            ItemStack stack = player.getCurrentEquippedItem();
+            // FIXME 1.9
+            ItemStack stack = player.getHeldItemMainhand();
 
             if (stack != null && stack.getItem() instanceof IKeyBound)
             {

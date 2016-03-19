@@ -6,16 +6,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -579,8 +579,8 @@ public class UtilItemModular
     {
         int itemCount = 0;
         int overflow = 0;
-        String preWhite = EnumChatFormatting.WHITE.toString();
-        String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
+        String preWhite = TextFormatting.WHITE.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
 
         if (nbtTagList != null && nbtTagList.tagCount() > 0)
@@ -618,8 +618,8 @@ public class UtilItemModular
 
         if (overflow > 0)
         {
-            String str1 = StatCollector.translateToLocal("enderutilities.tooltip.item.and");
-            String str2 = StatCollector.translateToLocal("enderutilities.tooltip.item.morestacksnotlisted");
+            String str1 = I18n.translateToLocal("enderutilities.tooltip.item.and");
+            String str2 = I18n.translateToLocal("enderutilities.tooltip.item.morestacksnotlisted");
             listLines.add(String.format("     ... %s %s%d%s %s", str1, preWhite, overflow, rst, str2));
         }
 
@@ -922,7 +922,7 @@ public class UtilItemModular
             return null;
         }
 
-        World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
         if (targetWorld == null)
         {
             return null;
@@ -941,7 +941,7 @@ public class UtilItemModular
         {
             // Remove the bind
             NBTHelperTarget.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
-            player.addChatMessage(new ChatComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
             return null;
         }
 

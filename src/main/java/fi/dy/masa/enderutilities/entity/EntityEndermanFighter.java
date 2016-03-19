@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIAttackOnCollide;
+import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAISwimming;
@@ -20,13 +21,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -68,7 +69,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         this.secondaryTargetUUID = null;
         this.isBeingControlled = false;
         this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(2, new EntityAIAttackOnCollide(this, 1.0D, false));
+        this.tasks.addTask(2, new EntityAIAttackMelee(this, 1.0D, false));
         this.tasks.addTask(7, new EntityAIWander(this, 1.0D));
         this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
         this.tasks.addTask(8, new EntityAILookIdle(this));
@@ -80,10 +81,10 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     protected void applyEntityAttributes()
     {
         super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(40.0d);
-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.35d);
-        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(7.0d);
-        this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(64.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(40.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.35d);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(7.0d);
+        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(64.0d);
     }
 
     @Override
@@ -136,9 +137,9 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
     public boolean isPlayerHoldingSummonItem(EntityPlayer player)
     {
-        if (player.getCurrentEquippedItem() != null)
+        if (player.getHeldItemMainhand() != null)
         {
-            ItemStack stack = player.getCurrentEquippedItem();
+            ItemStack stack = player.getHeldItemMainhand();
             if (stack.getItem() == EnderUtilitiesItems.enderSword &&
                 ItemEnderSword.SwordMode.fromStack(stack) == ItemEnderSword.SwordMode.SUMMON)
             {
@@ -320,7 +321,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     public EntityLivingBase getLivingEntityNearbyByUUID(UUID uuid, double bbRadius)
     {
         double r = bbRadius;
-        AxisAlignedBB bb = AxisAlignedBB.fromBounds(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
+        AxisAlignedBB bb = new AxisAlignedBB(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
         List<EntityLivingBase> list = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, bb);
 
         return EntityUtils.findEntityByUUID(list, uuid);
@@ -427,7 +428,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
         if (this.lastEntityToAttack != this.getAttackTarget())
         {
-            IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+            IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
             iattributeinstance.removeModifier(attackingSpeedBoostModifier);
 
             if (this.getAttackTarget() != null)
@@ -547,7 +548,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
      */
     protected boolean teleportToEntity(Entity target)
     {
-        Vec3 vec3 = new Vec3(this.posX - target.posX, this.posY + (this.height / 2.0d) - target.posY + (double)target.getEyeHeight(), this.posZ - target.posZ);
+        Vec3d vec3 = new Vec3d(this.posX - target.posX, this.posY + (this.height / 2.0d) - target.posY + (double)target.getEyeHeight(), this.posZ - target.posZ);
         vec3 = vec3.normalize();
         double d = 16.0d;
         double x = this.posX + (this.rand.nextDouble() - 0.5d) * (d / 2) - vec3.xCoord * d;
@@ -583,9 +584,10 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             while (foundSolidFloor == false && pos.getY() > 0)
             {
                 BlockPos pos1 = pos.down();
-                Block block = this.worldObj.getBlockState(pos1).getBlock();
+                IBlockState state = this.worldObj.getBlockState(pos1);
+                Block block = state.getBlock();
 
-                if (block.getMaterial().blocksMovement())
+                if (block.getMaterial(state).blocksMovement())
                 {
                     foundSolidFloor = true;
                 }

@@ -9,7 +9,7 @@ import java.util.List;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;

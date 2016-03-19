@@ -2,8 +2,10 @@ package fi.dy.masa.enderutilities.client.effects;
 
 import java.util.Random;
 
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -13,19 +15,19 @@ import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 
 public class Effects
 {
-    public static void playSoundEffectServer(World world, double x, double y, double z, String name, float volume)
+    public static void playSoundEffectServer(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume)
     {
-        world.playSoundEffect(x, y, z, name, volume, 1.0f + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5f);
+        playSoundEffectServer(world, x, y, z, soundIn, category, volume, 1.0f + (world.rand.nextFloat() * 0.5f - world.rand.nextFloat() * 0.5f) * 0.5f);
     }
 
-    public static void playSoundEffectServer(World world, double x, double y, double z, String name, float volume, float pitch)
+    public static void playSoundEffectServer(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
     {
-        world.playSoundEffect(x, y, z, name, volume, pitch);
+        world.playSound(x, y, z, soundIn, category, volume, pitch, false);
     }
 
-    public static void playSoundClient(World world, double x, double y, double z, String name, float volume, float pitch)
+    public static void playSoundClient(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
     {
-        world.playSound(x, y, z, name, volume, pitch, false);
+        world.playSound(x, y, z, soundIn, category, volume, pitch, false);
     }
 
     public static void spawnParticles(World world, EnumParticleTypes type, double x, double y, double z, int count, double offset, double velocity)
@@ -68,6 +70,6 @@ public class Effects
         PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
                     pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
-                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+                    new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
     }
 }

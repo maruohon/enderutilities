@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.S2FPacketSetSlot;
+import net.minecraft.network.play.server.SPacketSetSlot;
 
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -47,7 +47,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
             if (iCrafting instanceof EntityPlayerMP)
             {
                 this.syncAllSlots((EntityPlayerMP)iCrafting);
-                ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new S2FPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
+                ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
             }
 
             this.detectAndSendChanges();

@@ -419,7 +419,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         if (valid == true)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorld().provider.getDimensionId(),
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorld().provider.getDimension(),
                     this.tecs.getPos(), ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }

@@ -7,16 +7,16 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -43,9 +43,9 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    protected BlockState createBlockState()
+    protected BlockStateContainer createBlockState()
     {
-        return new BlockState(this, new IProperty[] { FACING, MODE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, MODE });
     }
 
     @Override
@@ -63,9 +63,9 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public int getLightValue(IBlockAccess worldIn, BlockPos pos)
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEntityEnderFurnace)
         {
             TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
@@ -80,7 +80,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
             }
         }
 
-        return super.getLightValue(worldIn, pos);
+        return super.getLightValue(state, world, pos);
     }
 
     /*@Override
@@ -120,7 +120,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void randomDisplayTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random rand)
     {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te != null && te instanceof TileEntityEnderFurnace)

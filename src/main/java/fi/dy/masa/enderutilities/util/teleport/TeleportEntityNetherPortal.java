@@ -5,11 +5,12 @@ import java.util.List;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class TeleportEntityNetherPortal
 {
@@ -49,7 +50,7 @@ public class TeleportEntityNetherPortal
      */
     public Entity travelToDimension(Entity entity, int dimension, double idealX, double idealY, double idealZ, int portalSearchRadius, boolean placeInsidePortal)
     {
-        WorldServer worldServer = MinecraftServer.getServer().worldServerForDimension(dimension);
+        WorldServer worldServer = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimension);
 
         if (this.searchForExistingPortal(worldServer, idealX, idealY, idealZ, portalSearchRadius) == false)
         {
@@ -187,7 +188,7 @@ public class TeleportEntityNetherPortal
             // Try to find a suitable position on either side of the portal
             for (BlockPos pos : list)
             {
-                if (World.doesBlockHaveSolidTopSurface(world, pos) == true
+                if (world.isSideSolid(pos, EnumFacing.UP) == true
                     && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
                     this.entityPosX = pos.getX() + 0.5d;

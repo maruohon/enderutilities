@@ -8,12 +8,12 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -73,7 +73,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.getNbtCompound();
         byte f = nbt.getByte("f");
@@ -158,7 +158,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             return;
         }
 
-        Type masterType = worldIn.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+        Type masterType = worldIn.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
         boolean isValid = this.isStructureValid(worldIn, pos, masterType, positions);
 
         if (isValid == true)
@@ -166,7 +166,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             if (this.isActive == false)
             {
                 this.activateMultiBlock(worldIn, positions);
-                EnergyBridgeTracker.addBridgeLocation(positions.get(0), worldIn.provider.getDimensionId());
+                EnergyBridgeTracker.addBridgeLocation(positions.get(0), worldIn.provider.getDimension());
             }
 
             this.updatePoweredState(worldIn, positions);
@@ -247,7 +247,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
                 double yd = positions.get(5).getY();
                 double zd = positions.get(5).getZ();
                 double d = 1.0d;
-                List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.fromBounds(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
+                List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
 
                 if (list.size() == 1)
                 {
@@ -387,7 +387,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         if (type == Type.RESONATOR)
         {
             EnumFacing dir = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
-            type = this.worldObj.provider.getDimensionId() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+            type = this.worldObj.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
             int yOffset = type == Type.TRANSMITTER ? 3 : 0;
             posMaster = pos.add(0, yOffset, 0).offset(dir, 3);
         }
@@ -418,7 +418,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         this.setStateWithCheck(worldIn, blockPositions.get(3), blockEb, Type.RESONATOR, classTEEB, EnumFacing.WEST, false);
         this.setStateWithCheck(worldIn, blockPositions.get(4), blockEb, Type.RESONATOR, classTEEB, EnumFacing.EAST, false);
 
-        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0), worldIn.provider.getDimensionId());
+        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0), worldIn.provider.getDimension());
     }
 
     protected void setState(World worldIn, BlockPos pos, boolean state)
@@ -446,7 +446,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             return;
         }
 
-        int dim = worldIn.provider.getDimensionId();
+        int dim = worldIn.provider.getDimension();
         boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) == true && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true);
 
         for (int i = 0; i < 5; ++i)
@@ -500,7 +500,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
 
         this.beamYMax = y;
-        this.renderBB = AxisAlignedBB.fromBounds(posX - 4d, this.beamYMin - 4d, posZ - 4d, posX + 4d, this.beamYMax + 4d, posZ + 4d);
+        this.renderBB = new AxisAlignedBB(posX - 4d, this.beamYMin - 4d, posZ - 4d, posX + 4d, this.beamYMax + 4d, posZ + 4d);
     }
 
     @SideOnly(Side.CLIENT)

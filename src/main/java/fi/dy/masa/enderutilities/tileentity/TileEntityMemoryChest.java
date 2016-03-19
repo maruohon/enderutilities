@@ -7,8 +7,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.util.MathHelper;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.util.math.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -96,7 +96,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.getNbtCompound();
 

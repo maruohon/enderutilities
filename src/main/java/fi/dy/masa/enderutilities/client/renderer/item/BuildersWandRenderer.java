@@ -13,10 +13,9 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -45,7 +44,7 @@ public class BuildersWandRenderer
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        ItemStack stack = this.mc.thePlayer.getCurrentEquippedItem();
+        ItemStack stack = this.mc.thePlayer.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
         {
             return;
@@ -63,7 +62,7 @@ public class BuildersWandRenderer
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-        return AxisAlignedBB.fromBounds(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
+        return new AxisAlignedBB(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
     }
 
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
@@ -71,17 +70,17 @@ public class BuildersWandRenderer
         ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
         BlockPosEU posTargeted = item.getPosition(stack, ItemBuildersWand.POS_START);
 
-        MovingObjectPosition mop = this.mc.objectMouseOver;
-        if (posTargeted == null && mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
+        RayTraceResult rayTraceResult = this.mc.objectMouseOver;
+        if (posTargeted == null && rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
         {
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
-            if (player.isSneaking() == true && mop.sideHit == EnumFacing.UP)
+            if (player.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP)
             {
                 return;
             }
 
-            posTargeted = new BlockPosEU(mop.getBlockPos(), player.dimension, mop.sideHit);
+            posTargeted = new BlockPosEU(rayTraceResult.getBlockPos(), player.dimension, rayTraceResult.sideHit);
         }
 
         if (posTargeted == null || player.dimension != posTargeted.dimension)

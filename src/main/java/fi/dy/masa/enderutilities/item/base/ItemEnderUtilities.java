@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -55,7 +55,7 @@ public class ItemEnderUtilities extends Item
 
             if (verbose == false && tmpList.size() > 1)
             {
-                list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -76,7 +76,7 @@ public class ItemEnderUtilities extends Item
             {
                 list.add(tmpList.get(0));
             }
-            list.add(StatCollector.translateToLocal("enderutilities.tooltip.item.holdshift"));
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshift"));
         }
         else
         {
@@ -86,7 +86,7 @@ public class ItemEnderUtilities extends Item
 
     public static void addTooltips(String key, List<String> list, boolean verbose)
     {
-        String translated = StatCollector.translateToLocal(key);
+        String translated = I18n.translateToLocal(key);
         // Translation found
         if (translated.equals(key) == false)
         {

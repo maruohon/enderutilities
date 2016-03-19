@@ -8,13 +8,13 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
 
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -131,7 +131,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
         if (stack.stackSize != 1)
         {
-            String str = stack.stackSize < 1 ? EnumChatFormatting.RED + String.valueOf(stack.stackSize) : String.valueOf(stack.stackSize);
+            String str = stack.stackSize < 1 ? TextFormatting.RED + String.valueOf(stack.stackSize) : String.valueOf(stack.stackSize);
 
             GlStateManager.disableLighting();
             GlStateManager.disableDepth();
@@ -162,11 +162,11 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             GlStateManager.disableBlend();
 
             Tessellator tessellator = Tessellator.getInstance();
-            WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+            VertexBuffer vertexBuffer = tessellator.getBuffer();
 
-            drawQuad(worldrenderer, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-            drawQuad(worldrenderer, xPosition + 2, yPosition + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
-            drawQuad(worldrenderer, xPosition + 2, yPosition + 13, j, 1, 255 - i, i, 0, 255);
+            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
+            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
+            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, j, 1, 255 - i, i, 0, 255);
 
             GlStateManager.enableAlpha();
             GlStateManager.enableTexture2D();
@@ -175,14 +175,14 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         }
     }
 
-    public void drawQuad(WorldRenderer renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
+    public void drawQuad(VertexBuffer vertexBuffer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
     {
-        renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-        renderer.pos(x +     0, y +      0, 0.0d).color(red, green, blue, alpha).endVertex();
-        renderer.pos(x +     0, y + height, 0.0d).color(red, green, blue, alpha).endVertex();
-        renderer.pos(x + width, y + height, 0.0d).color(red, green, blue, alpha).endVertex();
-        renderer.pos(x + width, y +      0, 0.0d).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(x +     0, y +      0, 0.0d).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(x +     0, y + height, 0.0d).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(x + width, y + height, 0.0d).color(red, green, blue, alpha).endVertex();
+        vertexBuffer.pos(x + width, y +      0, 0.0d).color(red, green, blue, alpha).endVertex();
 
         Tessellator.getInstance().draw();
     }

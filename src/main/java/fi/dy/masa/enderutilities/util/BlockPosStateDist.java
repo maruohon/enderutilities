@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPosStateDist>
 {

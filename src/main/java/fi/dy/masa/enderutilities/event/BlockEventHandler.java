@@ -17,7 +17,7 @@ public class BlockEventHandler
             return;
         }
 
-        ItemStack stack = event.harvester.getCurrentEquippedItem();
+        ItemStack stack = event.harvester.getHeldItemMainhand();
         if (stack != null && stack.getItem() instanceof ItemEnderTool)
         {
             ((ItemEnderTool) stack.getItem()).handleHarvestDropsEvent(stack, event);

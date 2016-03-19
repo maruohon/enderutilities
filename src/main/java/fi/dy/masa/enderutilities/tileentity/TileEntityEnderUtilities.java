@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 import net.minecraftforge.common.util.Constants;
@@ -122,14 +122,14 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (this.worldObj != null)
         {
-            return new S35PacketUpdateTileEntity(this.getPos(), 0, this.getDescriptionPacketTag(new NBTTagCompound()));
+            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getDescriptionPacketTag(new NBTTagCompound()));
         }
 
         return null;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.getNbtCompound();
 

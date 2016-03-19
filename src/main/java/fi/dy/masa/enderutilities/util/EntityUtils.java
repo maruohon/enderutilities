@@ -12,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
-import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
@@ -23,10 +22,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -535,11 +534,11 @@ public class EntityUtils
         int z = pos.getZ();
 
         // The item must be right clicked on an obsidian block on top of the obsidian pillars
-        if (world.provider.getDimensionId() == 1 && world.getBlockState(pos).getBlock() == Blocks.obsidian)
+        if (world.provider.getDimension() == 1 && world.getBlockState(pos).getBlock() == Blocks.obsidian)
         {
             double r = 1.0d;
             // Check that there aren't already Ender Crystals nearby
-            List<EntityEnderCrystal> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, AxisAlignedBB.fromBounds(x - r, y - r, z - r, x + r, y + r, z + r));
+            List<EntityEnderCrystal> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(x - r, y - r, z - r, x + r, y + r, z + r));
             if (entities.isEmpty() == false)
             {
                 return false;
@@ -570,7 +569,7 @@ public class EntityUtils
         }
         // Allow spawning decorative Ender Crystals in other dimensions.
         // They won't be valid for Ender Charge, and spawning them doesn't create an explosion or have block requirements.
-        else if (world.provider.getDimensionId() != 1)
+        else if (world.provider.getDimension() != 1)
         {
             EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
             entityendercrystal.setLocationAndAngles(x + 0.5d, y + 2.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);

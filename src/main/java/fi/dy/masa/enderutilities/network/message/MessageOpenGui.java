@@ -3,10 +3,10 @@ package fi.dy.masa.enderutilities.network.message;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -102,7 +102,7 @@ public class MessageOpenGui implements IMessage
                     ItemStack stack = ItemHandyBag.getOpenableBag(player);
                     if (stack != null)
                     {
-                        World world = MinecraftServer.getServer().worldServerForDimension(message.dimension);
+                        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimension);
                         player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
                     }
                     break;

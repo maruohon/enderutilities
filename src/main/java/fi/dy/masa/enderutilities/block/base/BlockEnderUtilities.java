@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 
@@ -17,7 +18,7 @@ public class BlockEnderUtilities extends Block
         this.setHardness(hardness);
         this.setHarvestLevel("pickaxe", harvestLevel);
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
-        this.setStepSound(soundTypeStone);
+        this.setSoundType(SoundType.STONE);
         this.blockName = name;
         this.unlocalizedNames = this.getUnlocalizedNames();
     }

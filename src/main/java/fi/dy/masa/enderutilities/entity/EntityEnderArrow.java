@@ -15,12 +15,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
@@ -195,7 +193,7 @@ public class EntityEnderArrow extends EntityArrow
         IBlockState state = this.worldObj.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (block.getMaterial() != Material.air)
+        if (block.getMaterial(state) != Material.air)
         {
             block.setBlockBoundsBasedOnState(this.worldObj, pos);
             AxisAlignedBB axisalignedbb = block.getCollisionBoundingBox(this.worldObj, pos, state);

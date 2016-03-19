@@ -27,6 +27,7 @@ import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.OrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.PlayerOrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
@@ -165,7 +166,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             }
         }
 
-        MinecraftServer srv = MinecraftServer.getServer();
+        MinecraftServer srv = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (srv == null)
         {
             EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get the MinecraftServer instance");
@@ -201,7 +202,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
 
     public Ticket requestModTicket(int dimension, boolean isTemporary)
     {
-        MinecraftServer srv = MinecraftServer.getServer();
+        MinecraftServer srv = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (srv == null)
         {
             EnderUtilities.logger.warn("requestModTicket(): Couldn't get the MinecraftServer instance");
@@ -278,7 +279,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             UUID uuid = this.getPlayerUUIDFromTicket(ticket);
             if (ticket.world.provider != null && uuid != null)
             {
-                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.getDimensionId()).remove(ticket);
+                this.playerTickets.get(uuid.toString() + "-" + ticket.world.provider.getDimension()).remove(ticket);
             }
         }
         else
@@ -348,26 +349,27 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
 
     public boolean loadChunkWithoutForce(int dimension, int chunkX, int chunkZ)
     {
-        if (MinecraftServer.getServer() == null)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server == null)
         {
             return false;
         }
 
-        return this.loadChunkWithoutForce(MinecraftServer.getServer().worldServerForDimension(dimension), chunkX, chunkZ);
+        return this.loadChunkWithoutForce(server.worldServerForDimension(dimension), chunkX, chunkZ);
     }
 
     public boolean loadChunkWithoutForce(WorldServer worldServer, int chunkX, int chunkZ)
     {
         //System.out.println("loadChunkWithoutForce() start");
-        if (worldServer == null || worldServer.theChunkProviderServer == null)
+        if (worldServer == null || worldServer.getChunkProvider() == null)
         {
             return false;
         }
 
-        if (worldServer.theChunkProviderServer.chunkExists(chunkX, chunkZ) == false)
+        if (worldServer.getChunkProvider().chunkExists(chunkX, chunkZ) == false)
         {
             //System.out.println("loadChunkWithoutForce() loading chunk");
-            worldServer.theChunkProviderServer.loadChunk(chunkX, chunkZ);
+            worldServer.getChunkProvider().loadChunk(chunkX, chunkZ);
         }
 
         //System.out.println("loadChunkWithoutForce() end");

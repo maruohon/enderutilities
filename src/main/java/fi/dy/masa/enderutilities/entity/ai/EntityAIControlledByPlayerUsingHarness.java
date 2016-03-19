@@ -1,13 +1,14 @@
 package fi.dy.masa.enderutilities.entity.ai;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.math.MathHelper;
 
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -100,8 +101,9 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         entity.limbSwing += entity.limbSwingAmount;
     }
 
-    public boolean isStairsOrSlab(Block block)
+    public boolean isStairsOrSlab(IBlockState state)
     {
-        return block.getRenderType() == 10 || block instanceof BlockSlab;
+        // FIXME 1.9
+        return state.getBlock().getRenderType(state) == EnumBlockRenderType.MODEL || state.getBlock() instanceof BlockSlab;
     }
 }

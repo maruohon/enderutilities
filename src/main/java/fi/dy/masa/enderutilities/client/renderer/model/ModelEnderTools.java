@@ -17,16 +17,24 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-import net.minecraftforge.client.model.*;
+import net.minecraftforge.client.model.ICustomModelLoader;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.IModelCustomData;
+import net.minecraftforge.client.model.IModelState;
+import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.ItemLayerModel;
+import net.minecraftforge.client.model.ModelStateComposition;
+import net.minecraftforge.client.model.SimpleModelState;
+import net.minecraftforge.client.model.TRSRTransformation;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -38,7 +46,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
 @SuppressWarnings("deprecation")
-public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools>
+public class ModelEnderTools implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderTools();
     private final ResourceLocation resourceRod;
@@ -218,7 +226,7 @@ public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools
     }
 
     @Override
-    public IFlexibleBakedModel bake(IModelState state, VertexFormat format,
+    public IBakedModel bake(IModelState state, VertexFormat format,
                                     Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         ImmutableMap<TransformType, TRSRTransformation> transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
@@ -230,34 +238,34 @@ public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools
 
         if (this.resourceRod != null)
         {
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceRod))).bake(state, format, bakedTextureGetter);
+            IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceRod))).bake(state, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceHead != null)
         {
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceHead))).bake(state, format, bakedTextureGetter);
+            IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceHead))).bake(state, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceCore != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "co");
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(stateTmp, format, bakedTextureGetter);
+            IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceCapacitor != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "ca");
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCapacitor))).bake(stateTmp, format, bakedTextureGetter);
+            IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCapacitor))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
         if (this.resourceLinkCrystal != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "lc");
-            IFlexibleBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceLinkCrystal))).bake(stateTmp, format, bakedTextureGetter);
+            IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceLinkCrystal))).bake(stateTmp, format, bakedTextureGetter);
             builder.addAll(model.getGeneralQuads());
         }
 
@@ -323,11 +331,11 @@ public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools
     protected static class BakedEnderTool extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
     {
         private final ModelEnderTools parent;
-        private final Map<String, IFlexibleBakedModel> cache; // contains all the baked models since they'll never change
+        private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
         private final ImmutableMap<TransformType, TRSRTransformation> transforms;
 
         public BakedEnderTool(ModelEnderTools parent, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, VertexFormat format,
-                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IFlexibleBakedModel> cache)
+                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IBakedModel> cache)
         {
             super(quads, particle, format);
             this.parent = parent;
@@ -336,7 +344,7 @@ public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools
         }
 
         @Override
-        public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
+        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
         {
             return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
         }
@@ -395,7 +403,7 @@ public class ModelEnderTools implements IModel, IModelCustomData<ModelEnderTools
                     }
                 };
 
-                IFlexibleBakedModel bakedModel = model.bake(new SimpleModelState(this.transforms), this.getFormat(), textureGetter);
+                IBakedModel bakedModel = model.bake(new SimpleModelState(this.transforms), this.getFormat(), textureGetter);
                 this.cache.put(key, bakedModel);
 
                 return bakedModel;

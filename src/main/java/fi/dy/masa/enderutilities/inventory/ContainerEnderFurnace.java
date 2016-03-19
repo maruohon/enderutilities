@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

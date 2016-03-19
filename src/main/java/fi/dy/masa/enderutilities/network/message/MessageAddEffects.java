@@ -2,7 +2,9 @@ package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -122,7 +124,7 @@ public class MessageAddEffects implements IMessage
                 if ((message.flags & SOUND) == SOUND)
                 {
                     float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
-                    Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.8f, pitch);
+                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 0.8f, pitch);
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
@@ -133,7 +135,7 @@ public class MessageAddEffects implements IMessage
             {
                 if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
                 {
-                    Effects.playSoundClient(world, message.x, message.y, message.z, "mob.endermen.portal", 0.08f, 1.8f);
+                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 0.08f, 1.8f);
                 }
                 if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
                 {

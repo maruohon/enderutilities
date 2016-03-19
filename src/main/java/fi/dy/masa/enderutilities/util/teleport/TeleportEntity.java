@@ -10,16 +10,14 @@ import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.S07PacketRespawn;
-import net.minecraft.network.play.server.S1DPacketEntityEffect;
+import net.minecraft.network.play.server.SPacketEntityEffect;
+import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
@@ -45,7 +43,7 @@ public class TeleportEntity
         if (world.isRemote == false)
         {
             PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_TELEPORT, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND, x, y, z),
-                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), x, y, z, 24.0d));
+                    new NetworkRegistry.TargetPoint(world.provider.getDimension(), x, y, z, 24.0d));
         }
     }
 
@@ -104,19 +102,19 @@ public class TeleportEntity
         return false;
     }
 
-    public static boolean entityTeleportWithProjectile(Entity entity, Entity projectile, MovingObjectPosition mop, float teleportDamage, boolean allowMounts, boolean allowRiders)
+    public static boolean entityTeleportWithProjectile(Entity entity, Entity projectile, RayTraceResult rayTraceResult, float teleportDamage, boolean allowMounts, boolean allowRiders)
     {
         if (canTeleportEntity(entity) == false)
         {
             return false;
         }
 
-        PositionHelper pos = new PositionHelper(mop, projectile);
+        PositionHelper pos = new PositionHelper(rayTraceResult, projectile);
 
         // Hit a block, offset the position to not collide with the block
-        if (mop.typeOfHit == MovingObjectType.BLOCK)
+        if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
         {
-            pos.adjustPositionToTouchFace(entity, mop.sideHit);
+            pos.adjustPositionToTouchFace(entity, rayTraceResult.sideHit);
         }
 
         Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
@@ -274,7 +272,7 @@ public class TeleportEntity
 
         if (entity.worldObj.isRemote == false && entity.worldObj instanceof WorldServer)
         {
-            MinecraftServer minecraftserver = MinecraftServer.getServer();
+            MinecraftServer minecraftserver = FMLCommonHandler.instance().getMinecraftServerInstance();
             WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
             if (worldServerDst == null)
             {
@@ -287,9 +285,9 @@ public class TeleportEntity
             int chunkX = ((int)x) >> 4;
             int chunkZ = ((int)z) >> 4;
 
-            if (worldServerDst.theChunkProviderServer.chunkExists(chunkX, chunkZ) == false)
+            if (worldServerDst.getChunkProvider().chunkExists(chunkX, chunkZ) == false)
             {
-                worldServerDst.theChunkProviderServer.loadChunk(chunkX, chunkZ);
+                worldServerDst.getChunkProvider().loadChunk(chunkX, chunkZ);
             }
 
             if (entity instanceof EntityLiving)
@@ -344,7 +342,7 @@ public class TeleportEntity
             return null;
         }
 
-        WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);
+        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(entitySrc.dimension);
         if (worldServerDst == null)
         {
             EnderUtilities.logger.warn("reCreateEntity(): worldServerDst == null");
@@ -389,8 +387,8 @@ public class TeleportEntity
             return TeleportEntity.transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
         }
 
-        WorldServer worldServerSrc = MinecraftServer.getServer().worldServerForDimension(entitySrc.dimension);
-        WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(dimDst);
+        WorldServer worldServerSrc = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(entitySrc.dimension);
+        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
 
         if (worldServerSrc == null || worldServerDst == null)
         {
@@ -458,8 +456,8 @@ public class TeleportEntity
         player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
 
         ServerConfigurationManager serverCM = player.mcServer.getConfigurationManager();
-        WorldServer worldServerSrc = MinecraftServer.getServer().worldServerForDimension(dimSrc);
-        WorldServer worldServerDst = MinecraftServer.getServer().worldServerForDimension(dimDst);
+        WorldServer worldServerSrc = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimSrc);
+        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
 
         if (worldServerSrc == null || worldServerDst == null)
         {
@@ -468,7 +466,7 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
+        player.playerNetServerHandler.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
@@ -494,7 +492,7 @@ public class TeleportEntity
         while (iterator.hasNext())
         {
             PotionEffect potioneffect = (PotionEffect)iterator.next();
-            player.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(player.getEntityId(), potioneffect));
+            player.playerNetServerHandler.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
         }
 
         FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, dimSrc, dimDst);

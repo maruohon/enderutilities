@@ -13,9 +13,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.translation.I18n;
 
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -45,8 +45,8 @@ public class RulerRenderer
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDim = StatCollector.translateToLocal("enderutilities.tooltip.item.dimensions");
-        this.modeStrDiff = StatCollector.translateToLocal("enderutilities.tooltip.item.difference");
+        this.modeStrDim = I18n.translateToLocal("enderutilities.tooltip.item.dimensions");
+        this.modeStrDiff = I18n.translateToLocal("enderutilities.tooltip.item.difference");
     }
 
     @SubscribeEvent
@@ -78,7 +78,7 @@ public class RulerRenderer
             return;
         }
 
-        ItemStack stack = player.getCurrentEquippedItem();
+        ItemStack stack = player.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
             stack = InventoryUtils.getFirstMatchingItem(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.ruler);
@@ -144,7 +144,7 @@ public class RulerRenderer
             return;
         }
 
-        ItemStack stack = player.getCurrentEquippedItem();
+        ItemStack stack = player.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
             stack = InventoryUtils.getFirstMatchingItem(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.ruler);

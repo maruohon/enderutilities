@@ -14,7 +14,7 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 
 import net.minecraftforge.fluids.Fluid;
@@ -134,7 +134,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         NBTTagCompound nbt = packet.getNbtCompound();
         byte flags = nbt.getByte("f");

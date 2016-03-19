@@ -5,13 +5,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
@@ -198,12 +199,14 @@ public class NBTHelperTarget
         int blockMeta = 0;
         int itemMeta = 0;
 
-        if (MinecraftServer.getServer() != null)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server != null)
         {
-            WorldServer world = MinecraftServer.getServer().worldServerForDimension(dim);
+            WorldServer world = server.worldServerForDimension(dim);
             if (world != null && world.provider != null)
             {
-                dimName = world.provider.getDimensionName();
+                // FIXME 1.9: verify if this will work for modded stuff
+                dimName = world.provider.getDimensionType().getName();
 
                 IBlockState iBlockState = world.getBlockState(pos);
                 Block block = iBlockState.getBlock();
@@ -280,7 +283,7 @@ public class NBTHelperTarget
 
     public boolean isTargetBlockUnchanged()
     {
-        MinecraftServer server = MinecraftServer.getServer();
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server == null)
         {
             return false;

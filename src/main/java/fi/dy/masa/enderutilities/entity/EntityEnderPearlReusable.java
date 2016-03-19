@@ -8,9 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.entity.base.EntityThrowableEU;
@@ -110,7 +109,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     }
 
     @Override
-    protected void onImpact(MovingObjectPosition mop)
+    protected void onImpact(RayTraceResult rayTraceResult)
     {
         if (this.worldObj.isRemote == true)
         {
@@ -132,23 +131,23 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         // Don't collide with the thrower or the entities in the 'stack' with the thrower
-        if (mop.typeOfHit == MovingObjectType.ENTITY)
+        if (rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
         {
-            if (EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
+            if (EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, thrower) == true)
             {
                 return;
             }
 
-            if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase)
+            if (rayTraceResult.entityHit != null && rayTraceResult.entityHit instanceof EntityLivingBase)
             {
-                mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
+                rayTraceResult.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
             }
         }
         // Don't collide with blocks without a collision box
-        else if (mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos() != null)
+        else if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && rayTraceResult.getBlockPos() != null)
         {
-            IBlockState state = this.worldObj.getBlockState(mop.getBlockPos());
-            if (state.getBlock().getCollisionBoundingBox(this.worldObj, mop.getBlockPos(), state) == null)
+            IBlockState state = this.worldObj.getBlockState(rayTraceResult.getBlockPos());
+            if (state.getBlock().getCollisionBoundingBox(this.worldObj, rayTraceResult.getBlockPos(), state) == null)
             {
                 return;
             }
@@ -164,14 +163,14 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
                 bottom.riddenByEntity.mountEntity(null);
             }
 
-            TeleportEntity.entityTeleportWithProjectile(thrower, this, mop, this.teleportDamage, true, true);
+            TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
         }
         // An Elite pearl lands, which is still being ridden by something (see above)
         else //if (this.riddenByEntity != null)
         {
             Entity entity = this.riddenByEntity;
             entity.mountEntity(null);
-            TeleportEntity.entityTeleportWithProjectile(entity, this, mop, this.teleportDamage, true, true);
+            TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
         }
 
         // Try to add the pearl straight back to the player's inventory

@@ -43,32 +43,32 @@ public class EntityEventHandler
 
         if (item == EnderUtilitiesItems.livingManipulator)
         {
-            if (event.target instanceof EntityLivingBase)
+            if (event.getTarget() instanceof EntityLivingBase)
             {
-                ((ItemLivingManipulator)item).handleInteraction(stack, event.entityPlayer, (EntityLivingBase)event.target);
+                ((ItemLivingManipulator)item).handleInteraction(stack, event.entityPlayer, (EntityLivingBase)event.getTarget());
                 event.setCanceled(true);
             }
         }
-        else if (item == EnderUtilitiesItems.enderLasso && event.target instanceof EntityLivingBase)
+        else if (item == EnderUtilitiesItems.enderLasso && event.getTarget() instanceof EntityLivingBase)
         {
-            if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
+            if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
                     UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
                 {
-                    if (event.target instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
+                    if (event.getTarget() instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {
-                        EntityUtils.applyMobPersistence((EntityLiving)event.target);
+                        EntityUtils.applyMobPersistence((EntityLiving)event.getTarget());
                     }
 
-                    if (event.entityPlayer.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.target, stack) != null)
+                    if (event.entityPlayer.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
                     {
                         event.setCanceled(true);
                     }
                 }
             }
         }
-        else if (event.entityPlayer.dimension == 1 && event.target instanceof EntityEnderCrystal && event.entityPlayer.worldObj.isRemote == false)
+        else if (event.entityPlayer.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && event.entityPlayer.worldObj.isRemote == false)
         {
             if (item instanceof IChargeable)
             {
