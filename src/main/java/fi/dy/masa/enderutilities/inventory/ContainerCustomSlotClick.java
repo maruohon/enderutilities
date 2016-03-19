@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
@@ -470,7 +471,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickTypeTmp, EntityPlayer player)
     {
         //String side = this.inventoryPlayer.player.worldObj.isRemote ? "client" : "server";
         //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %d", side, slotNum, button, type));
@@ -506,70 +507,72 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // slotNum: real button: 5 type: 5 - right click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
         // slotNUm: -999 button: 6 type: 5 - right click drag with stack in cursor end - after drag ends, as the last call
 
+        int clickType = clickTypeTmp.ordinal();
+        // FIXME 1.9: re-check all the buttons and click types ;_;
         if (this.isDragging == true)
         {
             // End of dragging
-            if (type == 5 && (button == 2 || button == 6))
+            if (clickType == 5 && (dragType == 2 || dragType == 6))
             {
                 this.endDragging();
             }
             // This gets called for each slot that was dragged over
-            else if (type == 5 && (button == 1 || button == 5))
+            else if (clickType == 5 && (dragType == 1 || dragType == 5))
             {
                 this.dragging(slotNum);
             }
         }
         // Starting a left or right click drag
-        else if (type == 5 && (button == 0 || button == 4))
+        else if (clickType == 5 && (dragType == 0 || dragType == 4))
         {
-            this.startDragging(button == 4);
+            this.startDragging(dragType == 4);
         }
         // Left or right click outside inventory with a stack in cursor
-        else if (slotNum == -999 && type == 0)
+        else if (slotNum == -999 && clickType == 0)
         {
             // Left click outside of inventory screen - drop the stack from the cursor
-            if (button == 0)
+            if (dragType == 0)
             {
                 this.leftClickOutsideInventory(player);
             }
             // Right click outside of inventory screen - drop one item from the cursor
-            else if (button == 1)
+            else if (dragType == 1)
             {
                 this.rightClickOutsideInventory(player);
             }
         }
         // Regular left click on a slot
-        else if (button == 0 && type == 0)
+        else if (dragType == 0 && clickType == 0)
         {
             this.leftClickSlot(slotNum, player);
         }
         // Regular right click on a slot
-        else if (button == 1 && type == 0)
+        else if (dragType == 1 && clickType == 0)
         {
             this.rightClickSlot(slotNum, player);
         }
         // Shift left click or shift right click on a slot, they both do the same
-        else if (type == 1 && (button == 0 || button == 1))
+        else if (clickType == 1 && (dragType == 0 || dragType == 1))
         {
             this.shiftClickSlot(slotNum, player);
         }
         // Pressing the drop key (Q) while hovering over a stack
-        else if (button == 0 && type == 4)
+        else if (dragType == 0 && clickType == 4)
         {
             this.pressDropKey(slotNum, player);
         }
         // Pressing a hotbar hotkey over a slot
-        else if (type == 2 && button >= 0 && button <= 8)
+        else if (clickType == 2 && dragType >= 0 && dragType <= 8)
         {
-            this.pressHotbarKey(slotNum, button, player);
+            this.pressHotbarKey(slotNum, dragType, player);
         }
         // Left double-click with an empty cursor over a slot with items
-        else if (button == 0 && type == 6)
+        else if (dragType == 0 && clickType == 6)
         {
             this.leftDoubleClickSlot(slotNum, player);
         }
         // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-        else if (button == 2 && type == 3)
+        else if (dragType == 2 && clickType == 3)
         {
             this.middleClickSlot(slotNum, player);
         }

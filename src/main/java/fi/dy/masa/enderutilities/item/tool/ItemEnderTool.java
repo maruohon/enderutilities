@@ -36,6 +36,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -264,9 +265,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 return false;
             }
 
-            SoundType sound = newBlockState.getBlock().stepSound;
-            world.playSoundEffect(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                    sound.getStepSound(), (sound.getVolume() + 1.0f) / 2.0f, sound.getFrequency() * 0.8f);
+            SoundType sound = newBlockState.getBlock().getSoundType();
+            world.playSound(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                    sound.getPlaceSound(), SoundCategory.BLOCKS, (sound.getVolume() + 1.0f) / 2.0f, sound.getPitch() * 0.8f, false);
 
             if (world.isRemote == false)
             {

@@ -1,6 +1,9 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
@@ -19,6 +22,13 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
+    public static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[]
+    {
+        EntityEquipmentSlot.HEAD,
+        EntityEquipmentSlot.CHEST,
+        EntityEquipmentSlot.LEGS,
+        EntityEquipmentSlot.FEET
+    };
     public final InventoryItemModular inventoryItemModular;
 
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
@@ -50,7 +60,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         posY = 15;
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
+            final EntityEquipmentSlot entityequipmentslot = VALID_EQUIPMENT_SLOTS[i];
             this.addSlotToContainer(new Slot(this.inventoryPlayer, 39 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
@@ -61,14 +71,16 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                 public boolean isItemValid(ItemStack stack)
                 {
                     if (stack == null) return false;
-                    return stack.getItem().isValidArmor(stack, slotNum, ContainerHandyBag.this.player);
+
+                    EntityEquipmentSlot slot = EntityLiving.getSlotForItemStack(stack);
+                    return stack.getItem().isValidArmor(stack, slot, ContainerHandyBag.this.player);
                 }
 
                 @SideOnly(Side.CLIENT)
                 @Override
                 public String getSlotTexture()
                 {
-                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
+                    return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
                 }
             });
         }
@@ -207,11 +219,11 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int key, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
 
-        ItemStack stack = super.slotClick(slotNum, key, type, player);
+        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
 

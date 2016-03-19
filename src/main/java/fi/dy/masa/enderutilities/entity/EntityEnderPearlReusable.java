@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.entity;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -7,8 +8,11 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
@@ -20,7 +24,8 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEnderPearlReusable extends EntityThrowableEU implements IItemData
 {
-    public float teleportDamage = 2.0f;
+    private static final DataParameter<Boolean> IS_ELITE_PEARL = EntityDataManager.<Boolean>createKey(EntityEnderPearlReusable.class, DataSerializers.BOOLEAN);
+    public float teleportDamage;
     public boolean canPickUp = true;
     public boolean isElite = false;
 
@@ -38,21 +43,6 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         {
             this.canPickUp = false;
         }
-
-        this.setLocationAndAngles(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
-
-        this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
-        this.posY -= 0.10000000149011612d;
-        this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
-
-        this.setPosition(this.posX, this.posY, this.posZ);
-
-        float f = 0.4f;
-        double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.getInaccuracy()) / 180.0f * (float)Math.PI) * f);
-
-        this.setThrowableHeading(motionX, motionY, motionZ, 2.0f, 0.2f);
     }
 
     public EntityEnderPearlReusable(World world, EntityLivingBase entity, boolean isElitePearl)
@@ -60,21 +50,14 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         this(world, entity);
 
         this.isElite = isElitePearl;
-        this.dataWatcher.updateObject(6, (this.isElite ? (short)1 : (short)0));
-
-        if (isElitePearl == true)
-        {
-            this.teleportDamage = 1.0f;
-            //this.motionX *= 1.3d;
-            //this.motionY *= 1.3d;
-            //this.motionZ *= 1.3d;
-        }
+        this.teleportDamage = isElitePearl == true ? 1.0f : 2.0f;
     }
 
     @Override
     protected void entityInit()
     {
-        this.dataWatcher.addObject(6, Short.valueOf((this.isElite ? (short)1 : (short)0)));
+        super.entityInit();
+        this.getDataManager().register(IS_ELITE_PEARL, Boolean.valueOf(this.isElite));
     }
 
     @Override
@@ -147,7 +130,8 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         else if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && rayTraceResult.getBlockPos() != null)
         {
             IBlockState state = this.worldObj.getBlockState(rayTraceResult.getBlockPos());
-            if (state.getBlock().getCollisionBoundingBox(this.worldObj, rayTraceResult.getBlockPos(), state) == null)
+            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, rayTraceResult.getBlockPos());
+            if (aabb == Block.NULL_AABB)
             {
                 return;
             }
@@ -166,10 +150,10 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
             TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
         }
         // An Elite pearl lands, which is still being ridden by something (see above)
-        else //if (this.riddenByEntity != null)
+        else if (this.isBeingRidden() == true)
         {
-            Entity entity = this.riddenByEntity;
-            entity.mountEntity(null);
+            Entity entity = this.getPassengers().get(0);
+            entity.dismountRidingEntity();
             TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
         }
 
@@ -238,13 +222,13 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         super.readEntityFromNBT(nbt);
 
         this.isElite = nbt.getBoolean("Elite");
-        this.dataWatcher.updateObject(6, (this.isElite ? (short)1 : (short)0));
+        this.getDataManager().set(IS_ELITE_PEARL, Boolean.valueOf(this.isElite));
     }
 
     @Override
     public int getItemDamage(Entity entity)
     {
-        return this.dataWatcher.getWatchableObjectShort(6);
+        return this.getDataManager().get(IS_ELITE_PEARL).booleanValue() == true ? 1 : 0;
     }
 
     @Override

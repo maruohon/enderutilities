@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -134,12 +135,12 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int i1, int i2, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", ); isRemote: " + this.te.getWorldObj().isRemote);
 
         Slot slot = slotNum >= 0 && slotNum <= this.inventorySlots.size() ? this.getSlot(slotNum) : null;
-        ItemStack stack = super.slotClick(slotNum, i1, i2, player);
+        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         // The clicked on slot is inside the modular item's inventory
         if (slot != null && slot.inventory == this.inventoryItem)

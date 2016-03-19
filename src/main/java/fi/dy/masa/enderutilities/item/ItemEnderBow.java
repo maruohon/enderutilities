@@ -86,7 +86,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItem(EnderUtilitiesItems.enderArrow) == false)
+        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.enderArrow)) == false)
         {
             return;
         }
@@ -198,7 +198,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             }
         }
 
-        if (player.capabilities.isCreativeMode == true || player.inventory.hasItem(EnderUtilitiesItems.enderArrow))
+        if (player.capabilities.isCreativeMode == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.enderArrow)) == true)
         {
             NBTTagCompound nbt = stack.getTagCompound();
             if (nbt == null)

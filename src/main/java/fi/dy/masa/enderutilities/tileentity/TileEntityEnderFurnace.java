@@ -33,7 +33,6 @@ import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory implements ITickable
 {
@@ -388,7 +387,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             return false;
         }
 
-        EntityPlayer player = EntityUtils.findPlayerByUUID(this.ownerUUID);
+        EntityPlayer player = this.getWorld().getPlayerEntityByUUID(this.ownerUUID);
         if (player == null)
         {
             return false;

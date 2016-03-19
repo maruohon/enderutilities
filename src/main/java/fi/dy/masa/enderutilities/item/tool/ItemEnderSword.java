@@ -9,6 +9,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -16,6 +17,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -25,6 +27,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -416,11 +419,11 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
             EntityEndermanFighter fighter = new EntityEndermanFighter(world);
             fighter.setPosition(x, targetEntity.posY, z);
-            Block block = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z)).getBlock();
+            IBlockState state = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z));
 
-            if (world.getCollidingBoundingBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
+            if (world.getCubes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
                 world.isAnyLiquid(fighter.getEntityBoundingBox()) == false &&
-                block.getMaterial().blocksMovement() == true)
+                state.getMaterial().blocksMovement() == true)
             {
                 for (int j = 0; j < 16; ++j)
                 {
@@ -430,7 +433,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
                     world.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                world.playSoundEffect(x, y, z, "mob.endermen.portal", 1.0F, 1.0F);
+                world.playSound(x, y, z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 1.0F, 1.0F, false);
 
                 world.spawnEntityInWorld(fighter);
                 fighter.setPrimaryTarget(targetEntity);

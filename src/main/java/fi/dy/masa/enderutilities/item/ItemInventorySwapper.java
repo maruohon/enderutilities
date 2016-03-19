@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
@@ -13,6 +15,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
@@ -282,7 +285,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         this.swapInventory(getEnabledSlotsMask(swapperStack), swapperInv, inv);
 
-        player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+        player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
@@ -321,7 +324,9 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                     // Armor slots
                     if (slot >= mainInvSize)
                     {
-                        int pos = tmpStack != null ? EntityLiving.getArmorPosition(tmpStack) : (slot - mainInvSize + 1);
+                        // FIXME 1.9
+                        EntityEquipmentSlot equipmentSlot = tmpStack != null ? EntityLiving.getSlotForItemStack(tmpStack) : null;
+                        int pos = equipmentSlot != null ? equipmentSlot.getIndex() : (slot - mainInvSize + 1);
                         if (pos > 0 && pos == (slot - mainInvSize + 1))
                         {
                             inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
@@ -338,7 +343,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             bit <<= 1;
         }
 
-        player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+        player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(EntityPlayer player)

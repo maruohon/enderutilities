@@ -3,20 +3,15 @@ package fi.dy.masa.enderutilities.compat.jei;
 import fi.dy.masa.enderutilities.compat.jei.crafting.RecipeHandlerCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
+import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.IModRegistry;
+import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
+import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 
 @mezz.jei.api.JEIPlugin
 public class EnderUtilitiesJeiPlugin implements IModPlugin
 {
-    @Override
-    public void onJeiHelpersAvailable(IJeiHelpers jeiHelpers)
-    {
-    }
-
-    @Override
-    public void onItemRegistryAvailable(IItemRegistry itemRegistry)
-    {
-    }
-
     @Override
     public void register(IModRegistry registry)
     {
@@ -36,11 +31,6 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
 
         IRecipeTransferRegistry recipeTransferRegistry = registry.getRecipeTransferRegistry();
         recipeTransferRegistry.addRecipeTransferHandler(new RecipeHandlerCreationStation());
-    }
-
-    @Override
-    public void onRecipeRegistryAvailable(IRecipeRegistry recipeRegistry)
-    {
     }
 
     @Override

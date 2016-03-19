@@ -32,7 +32,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         this.scaledStackSizeTextTargetInventories = new ArrayList<IItemHandler>();
     }
 
-    @Override
+    /*@Override
     public void drawSlot(Slot slotIn)
     {
         int slotPosX = slotIn.xDisplayPosition;
@@ -120,7 +120,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
         this.itemRender.zLevel = 0.0F;
         this.zLevel = 0.0F;
-    }
+    }*/
 
     public void renderLargeStackItemOverlayIntoGUI(FontRenderer fontRenderer, ItemStack stack, int xPosition, int yPosition)
     {

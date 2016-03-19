@@ -51,7 +51,8 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                stack = player.getCurrentEquippedItem();
+                // FIXME 1.9: support both hands
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
                 {
                     return new ContainerHandyBag(player, stack);
@@ -59,7 +60,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = player.getCurrentEquippedItem();
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
                     return new ContainerInventorySwapper(player, stack);
@@ -67,7 +68,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = player.getCurrentEquippedItem();
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
                 {
                     return new ContainerPickupManager(player, stack);
@@ -107,7 +108,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                stack = player.getCurrentEquippedItem();
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
                 {
                     return new GuiHandyBag(new ContainerHandyBag(player, stack));
@@ -115,7 +116,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = player.getCurrentEquippedItem();
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
                 {
                     return new GuiInventorySwapper(new ContainerInventorySwapper(player, stack));
@@ -123,7 +124,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = player.getCurrentEquippedItem();
+                stack = player.getHeldItemMainhand();
                 if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
                 {
                     return new GuiPickupManager(new ContainerPickupManager(player, stack));

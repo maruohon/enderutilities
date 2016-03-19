@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumParticleTypes;
@@ -192,10 +193,9 @@ public class EntityEnderArrow extends EntityArrow
 
         if (block.getMaterial(state) != Material.air)
         {
-            block.setBlockBoundsBasedOnState(this.worldObj, pos);
-            AxisAlignedBB axisalignedbb = block.getCollisionBoundingBox(this.worldObj, pos, state);
+            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, pos);
 
-            if (axisalignedbb != null && axisalignedbb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)) == true)
+            if (aabb != Block.NULL_AABB && aabb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)) == true)
             {
                 this.inGround = true;
             }
@@ -293,7 +293,7 @@ public class EntityEnderArrow extends EntityArrow
                 {
                     if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true) == true)
                     {
-                        this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                        this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
                     this.dropAsItem(false);
                     this.setDead();
@@ -304,7 +304,7 @@ public class EntityEnderArrow extends EntityArrow
             {
                 if (shooter != null && EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, shooter) == false)
                 {
-                    this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                    this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(rayTraceResult.entityHit) == false &&
                         (EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false
@@ -362,12 +362,12 @@ public class EntityEnderArrow extends EntityArrow
                 this.posX -= this.motionX / (double)f2 * 0.05000000074505806D;
                 this.posY -= this.motionY / (double)f2 * 0.05000000074505806D;
                 this.posZ -= this.motionZ / (double)f2 * 0.05000000074505806D;
-                this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                 this.inGround = true;
                 this.arrowShake = 7;
                 this.setIsCritical(false);
 
-                if (this.inBlock.getMaterial() != Material.air)
+                if (state.getMaterial() != Material.air)
                 {
                     this.inBlock.onEntityCollidedWithBlock(this.worldObj, mopPos, state, this);
                 }
@@ -491,7 +491,7 @@ public class EntityEnderArrow extends EntityArrow
             {
                 if (par1EntityPlayer.inventory.addItemStackToInventory(this.getArrowStack()) == true)
                 {
-                    this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                    this.playSound(SoundEvents.entity_item_pickup, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     par1EntityPlayer.onItemPickup(this, 1);
                     this.setDead();
                 }
@@ -499,7 +499,7 @@ public class EntityEnderArrow extends EntityArrow
             // Creative mode fake pick up (no actual items given)
             else if (this.canBePickedUp == 2)
             {
-                this.playSound("random.pop", 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                this.playSound(SoundEvents.entity_item_pickup, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 this.setDead();
             }
         }

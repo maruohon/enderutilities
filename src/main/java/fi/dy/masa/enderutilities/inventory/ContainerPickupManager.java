@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -110,13 +111,14 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         return true;
     }
 
-    protected boolean fakeSlotClick(int slotNum, int button, int type, EntityPlayer player)
+    protected boolean fakeSlotClick(int slotNum, int button, ClickType clickType, EntityPlayer player)
     {
         Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
         ItemStack stackCursor = player.inventory.getItemStack();
 
+        // FIXME 1.9: check all the click types
         // Regular left click or right click
-        if ((type == 0 || type == 1) && (button == 0 || button == 1))
+        if ((clickType == ClickType.PICKUP_ALL || clickType == ClickType.PICKUP) && (button == 0 || button == 1))
         {
             if (slot == null || slot.inventory != this.inventoryItemFilters)
             {
@@ -138,8 +140,9 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         }
         else if (this.isDragging == true)
         {
+            // FIXME 1.9: check all the click types
             // End of dragging
-            if (type == 5 && (button == 2 || button == 6))
+            if (clickType == ClickType.QUICK_MOVE && (button == 2 || button == 6))
             {
                 if (stackCursor != null)
                 {
@@ -157,14 +160,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
                 this.isDragging = false;
             }
+            // FIXME 1.9: check all the click types
             // This gets called for each slot that was dragged over
-            else if (type == 5 && (button == 1 || button == 5))
+            else if (clickType == ClickType.QUICK_MOVE && (button == 1 || button == 5))
             {
                 this.draggedSlots.add(slotNum);
             }
         }
+        // FIXME 1.9: check all the click types
         // Starting a left or right click drag
-        else if (type == 5 && (button == 0 || button == 4))
+        else if (clickType == ClickType.QUICK_MOVE && (button == 0 || button == 4))
         {
             this.isDragging = true;
             this.draggingRightClick = button == 4;
@@ -175,22 +180,23 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         if (this.isSlotInRange(this.filterSlots, slotNum) == true)
         {
-            this.fakeSlotClick(slotNum, button, type, player);
+            this.fakeSlotClick(slotNum, dragType, clickType, player);
             return null;
         }
 
+        // FIXME 1.9
         // (Starting) or ending a drag and the dragged slots include at least one of our fake slots
-        if (slotNum == -999 && type == 5)
+        if (slotNum == -999 && clickType == ClickType.SWAP)
         {
             for (int i : this.draggedSlots)
             {
                 if (this.isSlotInRange(this.filterSlots, i) == true)
                 {
-                    this.fakeSlotClick(slotNum, button, type, player);
+                    this.fakeSlotClick(slotNum, dragType, clickType, player);
                     return null;
                 }
             }
@@ -198,7 +204,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
         ItemStack modularStackPre = this.getModularItem();
 
-        ItemStack stack = super.slotClick(slotNum, button, type, player);
+        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         ItemStack modularStackPost = this.getModularItem();
 

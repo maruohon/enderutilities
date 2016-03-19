@@ -22,6 +22,9 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
@@ -43,6 +46,8 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting
 {
+    private static final DataParameter<Boolean> IS_RAGING = EntityDataManager.<Boolean>createKey(EntityEndermanFighter.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> IS_SCREAMING = EntityDataManager.<Boolean>createKey(EntityEndermanFighter.class, DataSerializers.BOOLEAN);
     private static final UUID attackingSpeedBoostModifierUUID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
     private static final AttributeModifier attackingSpeedBoostModifier = (new AttributeModifier(attackingSpeedBoostModifierUUID, "Attacking speed boost", 0.15d, 0)).setSaved(false);
     /** Counter to delay the teleportation of an enderman towards the currently attacked target */
@@ -93,8 +98,8 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     protected void entityInit()
     {
         super.entityInit();
-        this.dataWatcher.addObject(16, new Byte((byte)0)); // isRaging; true when the entity is raging and not controlled by a summon item
-        this.dataWatcher.addObject(18, new Byte((byte)0)); // isScreaming()
+        this.getDataManager().register(IS_RAGING, Boolean.valueOf(false)); // isRaging; true when the entity is raging and not controlled by a summon item
+        this.getDataManager().register(IS_SCREAMING, Boolean.valueOf(false)); // isScreaming()
     }
 
     @Override
@@ -227,7 +232,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         else if (livingBase instanceof EntityPlayer)
         {
             this.setScreaming(true);
-            this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.stare", 0.5f, 1.2f);
+            this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_stare, this.getSoundCategory(), 0.5f, 1.2f, false);
         }
     }
 
@@ -521,7 +526,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                     this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, "mob.endermen.portal", 0.7f, 1.0f);
+                this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f, false);
 
                 this.setDead();
             }
@@ -604,7 +609,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
+                if (this.worldObj.getCubes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
                 {
                     foundValidLocation = true;
                 }
@@ -632,7 +637,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
-            this.worldObj.playSoundEffect(oldX, oldY, oldZ, "mob.endermen.portal", 0.7f, 1.0f);
+            this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f, false);
 
             return true;
         }
@@ -702,21 +707,21 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
     public boolean isRaging()
     {
-        return this.dataWatcher.getWatchableObjectByte(16) > 0;
+        return this.getDataManager().get(IS_RAGING).booleanValue();
     }
 
     public void setRaging(boolean value)
     {
-        this.dataWatcher.updateObject(16, Byte.valueOf((byte)(value ? 1 : 0)));
+        this.getDataManager().set(IS_RAGING, Boolean.valueOf(value));
     }
 
     public boolean isScreaming()
     {
-        return this.dataWatcher.getWatchableObjectByte(18) > 0;
+        return this.getDataManager().get(IS_SCREAMING).booleanValue();
     }
 
     public void setScreaming(boolean value)
     {
-        this.dataWatcher.updateObject(18, Byte.valueOf((byte)(value ? 1 : 0)));
+        this.getDataManager().set(IS_SCREAMING, Boolean.valueOf(value));
     }
 }

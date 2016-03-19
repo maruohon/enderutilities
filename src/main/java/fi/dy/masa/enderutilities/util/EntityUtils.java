@@ -18,10 +18,8 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -237,32 +235,6 @@ public class EntityUtils
         return list;
     }
 
-    public static EntityPlayer findPlayerByUUID(UUID uuid)
-    {
-        if (uuid == null)
-        {
-            return null;
-        }
-
-        MinecraftServer mcs = MinecraftServer.getServer();
-        if (mcs == null)
-        {
-            return null;
-        }
-
-        List<EntityPlayerMP> playerList = mcs.getConfigurationManager().playerEntityList;
-
-        for (EntityPlayer player : playerList)
-        {
-            if (player.getUniqueID().equals(uuid) == true)
-            {
-                return player;
-            }
-        }
-
-        return null;
-    }
-
     public static <T extends Entity> T findEntityByUUID(List<T> list, UUID uuid)
     {
         if (uuid == null)
@@ -285,12 +257,8 @@ public class EntityUtils
     {
         Entity ent;
 
-        for (ent = entity; ent != null; ent = ent.ridingEntity)
+        for (ent = entity; ent.isRiding() == true; ent = ent.getRidingEntity())
         {
-            if (ent.ridingEntity == null)
-            {
-                break;
-            }
         }
 
         return ent;
@@ -300,12 +268,8 @@ public class EntityUtils
     {
         Entity ent;
 
-        for (ent = entity; ent != null; ent = ent.riddenByEntity)
+        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
         {
-            if (ent.riddenByEntity == null)
-            {
-                break;
-            }
         }
 
         return ent;
@@ -320,7 +284,7 @@ public class EntityUtils
     {
         Entity ent;
 
-        for (ent = entity; ent != null; ent = ent.ridingEntity)
+        for (ent = entity; ent != null; ent = ent.getRidingEntity())
         {
             if (ent instanceof EntityPlayer)
             {
@@ -328,7 +292,7 @@ public class EntityUtils
             }
         }
 
-        for (ent = entity.riddenByEntity; ent != null; ent = ent.riddenByEntity)
+        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
         {
             if (ent instanceof EntityPlayer)
             {
@@ -349,7 +313,7 @@ public class EntityUtils
     {
         Entity ent;
 
-        for (ent = entityInStack; ent != null; ent = ent.ridingEntity)
+        for (ent = entityInStack; ent != null; ent = ent.getRidingEntity())
         {
             if (ent == entity)
             {
@@ -357,7 +321,7 @@ public class EntityUtils
             }
         }
 
-        for (ent = entityInStack.riddenByEntity; ent != null; ent = ent.riddenByEntity)
+        for (ent = entityInStack; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
         {
             if (ent == entity)
             {
@@ -378,7 +342,7 @@ public class EntityUtils
         List<String> blacklist = Registry.getTeleportBlacklist();
         Entity ent;
 
-        for (ent = entity; ent != null; ent = ent.ridingEntity)
+        for (ent = entity; ent != null; ent = ent.getRidingEntity())
         {
             if (blacklist.contains(ent.getClass().getSimpleName()) == true)
             {
@@ -386,7 +350,7 @@ public class EntityUtils
             }
         }
 
-        for (ent = entity.riddenByEntity; ent != null; ent = ent.riddenByEntity)
+        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
         {
             if (blacklist.contains(ent.getClass().getSimpleName()) == true)
             {
@@ -399,39 +363,13 @@ public class EntityUtils
 
     public static boolean unmountRider(Entity entity)
     {
-        if (entity != null && entity.riddenByEntity != null)
+        if (entity != null && entity.isBeingRidden() == true)
         {
-            entity.riddenByEntity.mountEntity(null);
+            entity.getPassengers().get(0).dismountRidingEntity();
             return true;
         }
 
         return false;
-    }
-
-    public static boolean unmountRidden(Entity entity)
-    {
-        if (entity != null && entity.ridingEntity != null)
-        {
-            entity.mountEntity(null);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Unmounts the riding entity from the passed in entity.
-     * Does not call Entity.mountEntity(null) but rather just sets he references to null.
-     * @param entity
-     */
-    public static void unmountRiderSimple(Entity entity)
-    {
-        if (entity.riddenByEntity != null)
-        {
-            entity.riddenByEntity.ridingEntity = null;
-        }
-
-        entity.riddenByEntity = null;
     }
 
     /**
@@ -476,7 +414,7 @@ public class EntityUtils
     {
         if (living.isNoDespawnRequired() == false)
         {
-            boolean canDespawn = ((living instanceof EntityMob) && (living instanceof IBossDisplayData) == false) ||
+            boolean canDespawn = ((living instanceof EntityMob) && living.isNonBoss() == true) ||
                                   (living instanceof EntityWaterMob) ||
                                   ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 

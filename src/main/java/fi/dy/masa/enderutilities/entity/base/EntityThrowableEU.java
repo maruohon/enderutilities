@@ -39,24 +39,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
     public EntityThrowableEU(World world, EntityLivingBase entity)
     {
         super(world, entity);
-
         this.setThrower(entity);
-        this.setSize(0.25F, 0.25F);
-
-        this.setLocationAndAngles(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
-
-        this.posX -= (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
-        this.posY -= 0.10000000149011612d;
-        this.posZ -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.16f);
-
-        this.setPosition(this.posX, this.posY, this.posZ);
-
-        float f = 0.4f;
-        double motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI) * f);
-        double motionY = (double)(-MathHelper.sin((this.rotationPitch + this.getInaccuracy()) / 180.0f * (float)Math.PI) * f);
-
-        this.setThrowableHeading(motionX, motionY, motionZ, this.getVelocity(), 1.0f);
     }
 
     @Override
@@ -260,6 +243,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.throwerUUID = entity.getUniqueID();
     }
 
+    @Override
     public EntityLivingBase getThrower()
     {
         if (this.throwerUUID != null)

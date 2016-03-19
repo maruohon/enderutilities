@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +16,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -286,7 +288,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (mode == MODE_RESTOCK_ENABLED)
             {
                 InventoryUtils.tryMoveAllItems(bagInvnv, inv);
-                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
                 return EnumActionResult.SUCCESS;
             }
 
@@ -294,13 +296,13 @@ public class ItemHandyBag extends ItemInventoryModular
             if (mode == MODE_PICKUP_MATCHING)
             {
                 InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
-                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
                 return EnumActionResult.SUCCESS;
             }
             else if (mode == MODE_PICKUP_ALL)
             {
                 InventoryUtils.tryMoveAllItems(inv, bagInvnv);
-                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
+                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
                 return EnumActionResult.SUCCESS;
             }
         }
@@ -379,7 +381,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // At least some items were picked up
         if (pickedUp == true)
         {
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
@@ -409,7 +411,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             event.setCanceled(true);
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
             return false;
@@ -446,7 +448,7 @@ public class ItemHandyBag extends ItemInventoryModular
         if (event.item.getEntityItem().stackSize != origStackSize)
         {
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             player.onItemPickup(event.item, origStackSize);
         }

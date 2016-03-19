@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -208,7 +209,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
         if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || slotNum == 40)
@@ -231,13 +232,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 return null;
             }
 
-            ItemStack stack = super.slotClick(slotNum, button, type, player);
+            ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
             this.tecs.restockCraftingGrid(invId);
 
             return stack;
         }
 
-        return super.slotClick(slotNum, button, type, player);
+        return super.slotClick(slotNum, dragType, clickType, player);
     }
 
     @Override

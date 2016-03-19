@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.Collection;
 
+import com.google.common.collect.Ordering;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
@@ -235,7 +237,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     {
         boolean hasVisibleEffect = false;
         for(PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects()) {
-            Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+            Potion potion = potioneffect.getPotion();
             if(potion.shouldRender(potioneffect)) { hasVisibleEffect = true; break; }
         }
         if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
@@ -268,9 +270,9 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 l = 132 / (collection.size() - 1);
             }
 
-            for (PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects())
+            for (PotionEffect potioneffect : Ordering.natural().sortedCopy(collection))
             {
-                Potion potion = Potion.potionTypes[potioneffect.getPotionID()];
+                Potion potion = potioneffect.getPotion();
                 if(!potion.shouldRender(potioneffect)) continue;
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 this.mc.getTextureManager().bindTexture(inventoryBackground);
@@ -300,7 +302,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 }
 
                 this.fontRendererObj.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
-                String s = Potion.getDurationString(potioneffect);
+                String s = Potion.getPotionDurationString(potioneffect, 1.0F);
                 this.fontRendererObj.drawStringWithShadow(s, (float)(i + 10 + 18), (float)(j + 6 + 10), 8355711);
                 j += l;
             }

@@ -1,6 +1,9 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -40,7 +43,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         posY = 53;
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
+            final EntityEquipmentSlot entityequipmentslot = ContainerHandyBag.VALID_EQUIPMENT_SLOTS[i];
             this.addSlotToContainer(new Slot(this.inventoryPlayer, 39 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
@@ -51,14 +54,16 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
                 public boolean isItemValid(ItemStack stack)
                 {
                     if (stack == null) return false;
-                    return stack.getItem().isValidArmor(stack, slotNum, ContainerInventorySwapper.this.player);
+
+                    EntityEquipmentSlot slot = EntityLiving.getSlotForItemStack(stack);
+                    return stack.getItem().isValidArmor(stack, slot, ContainerInventorySwapper.this.player);
                 }
 
                 @SideOnly(Side.CLIENT)
                 @Override
                 public String getSlotTexture()
                 {
-                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
+                    return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
                 }
             });
         }
@@ -95,7 +100,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Inventory Swapper's armor slots
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
+            final EntityEquipmentSlot entityequipmentslot = ContainerHandyBag.VALID_EQUIPMENT_SLOTS[i];
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 39 - i, posX + i * 18, posY)
             {
                 public int getSlotStackLimit()
@@ -106,14 +111,16 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
                 public boolean isItemValid(ItemStack stack)
                 {
                     if (stack == null) return false;
-                    return stack.getItem().isValidArmor(stack, slotNum, ContainerInventorySwapper.this.player);
+
+                    EntityEquipmentSlot slot = EntityLiving.getSlotForItemStack(stack);
+                    return stack.getItem().isValidArmor(stack, slot, ContainerInventorySwapper.this.player);
                 }
 
                 @SideOnly(Side.CLIENT)
                 @Override
                 public String getSlotTexture()
                 {
-                    return ItemArmor.EMPTY_SLOT_NAMES[slotNum];
+                    return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
                 }
             });
         }
@@ -146,12 +153,13 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         ItemStack stack = this.getModularItem();
 
+        // FIXME 1.9: check the click type
         // Middle click
-        if (button == 2 && type == 3 && stack != null && slotNum >= 44 && slotNum < (44 + 40))
+        if (dragType == 2 && clickType == ClickType.CLONE && stack != null && slotNum >= 44 && slotNum < (44 + 40))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)
@@ -169,7 +177,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
 
-        stack = super.slotClick(slotNum, button, type, player);
+        stack = super.slotClick(slotNum, dragType, clickType, player);
 
         ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
 

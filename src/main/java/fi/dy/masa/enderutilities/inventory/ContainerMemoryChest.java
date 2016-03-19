@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -104,10 +105,10 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         // Middle click
-        if (button == 2 && type == 3 && slotNum >= 0 && slotNum < this.inventory.getSlots())
+        if (dragType == 2 && clickType == ClickType.CLONE && slotNum >= 0 && slotNum < this.inventory.getSlots())
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
 
@@ -120,7 +121,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
             return null;
         }
 
-        ItemStack stack = super.slotClick(slotNum, button, type, player);
+        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         this.detectAndSendChanges();
 

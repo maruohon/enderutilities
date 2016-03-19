@@ -6,12 +6,14 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -66,16 +68,16 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             Entity bottomEntity = player.getLowestRidingEntity();
 
             // Dismount the previous pearl if we are already riding one
-            if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.riddenByEntity != null)
+            if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.isBeingRidden() == true)
             {
-                bottomEntity = bottomEntity.riddenByEntity;
+                bottomEntity = bottomEntity.getPassengers().get(0);
             }
 
-            bottomEntity.mountEntity(pearl);
+            bottomEntity.dismountRidingEntity();
         }
 
         --stack.stackSize;
-        world.playSoundAtEntity(player, "random.bow", 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
+        world.playSound(player, player.getPosition(), SoundEvents.entity_enderpearl_throw, SoundCategory.MASTER, 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
