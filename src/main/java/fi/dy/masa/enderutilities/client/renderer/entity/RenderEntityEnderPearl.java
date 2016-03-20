@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -18,11 +19,11 @@ public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
     private Item item;
     private final RenderItem renderItem;
 
-    public RenderEntityEnderPearl(RenderManager renderManager, Item item, RenderItem renderItem)
+    public RenderEntityEnderPearl(RenderManager renderManager, Item item)
     {
         super(renderManager);
         this.item = item;
-        this.renderItem = renderItem;
+        this.renderItem = Minecraft.getMinecraft().getRenderItem();
     }
 
     @Override

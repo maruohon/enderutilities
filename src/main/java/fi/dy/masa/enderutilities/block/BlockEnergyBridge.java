@@ -161,7 +161,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
         private EnumMachineType(String name)
         {
-            this.name = name;
+            this.name = name.replace(".", "_");
         }
 
         public String toString()

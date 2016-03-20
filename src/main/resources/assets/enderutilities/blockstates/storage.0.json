@@ -12,7 +12,7 @@
     },
     "variants": {
         "type": {
-            "memorychest.0": {
+            "memorychest_0": {
                 "textures": {
                     "front":    "enderutilities:blocks/memorychest.0.front",
                     "side":     "enderutilities:blocks/memorychest.0.side",
@@ -20,7 +20,7 @@
                     "bottom":   "enderutilities:blocks/memorychest.0.top"
                 }
             },
-            "memorychest.1": {
+            "memorychest_1": {
                 "textures": {
                     "front":    "enderutilities:blocks/memorychest.1.front",
                     "side":     "enderutilities:blocks/memorychest.1.side",
@@ -28,7 +28,7 @@
                     "bottom":   "enderutilities:blocks/memorychest.1.top"
                 }
             },
-            "memorychest.2": {
+            "memorychest_2": {
                 "textures": {
                     "front":    "enderutilities:blocks/memorychest.2.front",
                     "side":     "enderutilities:blocks/memorychest.2.side",
@@ -36,7 +36,7 @@
                     "bottom":   "enderutilities:blocks/memorychest.2.top"
                 }
             },
-            "handychest.0": {
+            "handychest_0": {
                 "textures": {
                     "front":    "enderutilities:blocks/handychest.0.front",
                     "side":     "enderutilities:blocks/handychest.0.side",
@@ -44,7 +44,7 @@
                     "bottom":   "enderutilities:blocks/handychest.0.top"
                 }
             },
-            "handychest.1": {
+            "handychest_1": {
                 "textures": {
                     "front":    "enderutilities:blocks/handychest.1.front",
                     "side":     "enderutilities:blocks/handychest.1.side",
@@ -52,7 +52,7 @@
                     "bottom":   "enderutilities:blocks/handychest.1.top"
                 }
             },
-            "handychest.2": {
+            "handychest_2": {
                 "textures": {
                     "front":    "enderutilities:blocks/handychest.2.front",
                     "side":     "enderutilities:blocks/handychest.2.side",

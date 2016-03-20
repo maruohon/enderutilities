@@ -156,12 +156,12 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
     public static enum EnumStorageType implements IStringSerializable
     {
-        MEMORY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".0"),
-        MEMORY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".1"),
-        MEMORY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".2"),
-        HANDY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".0"),
-        HANDY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".1"),
-        HANDY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".2");
+        MEMORY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_0"),
+        MEMORY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_1"),
+        MEMORY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_2"),
+        HANDY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_0"),
+        HANDY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_1"),
+        HANDY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2");
 
         private final String name;
 

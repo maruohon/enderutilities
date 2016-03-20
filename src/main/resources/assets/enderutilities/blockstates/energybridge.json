@@ -6,7 +6,7 @@
     },
     "variants": {
         "type": {
-            "energybridge.resonator": {
+            "energybridge_resonator": {
                 "textures": {
                     "front":    "#resonator.front",
                     "back":     "enderutilities:blocks/energybridge.resonator.back",
@@ -16,7 +16,7 @@
                     "bottom":   "#resonator.top"
                 }
             },
-            "energybridge.receiver":    {
+            "energybridge_receiver":    {
                 "textures": {
                     "front":    "#transmitter.top",
                     "back":     "#transmitter.top",
@@ -26,7 +26,7 @@
                     "bottom":   "#transmitter.top"
                 }
             },
-            "energybridge.transmitter": {
+            "energybridge_transmitter": {
                 "textures": {
                     "front":    "#transmitter.side",
                     "back":     "#transmitter.side",
