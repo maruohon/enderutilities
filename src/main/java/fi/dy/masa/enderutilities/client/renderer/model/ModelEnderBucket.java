@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.client.renderer.model;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4f;
@@ -16,17 +17,22 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 import net.minecraftforge.client.model.*;
 import net.minecraftforge.fluids.Fluid;
@@ -37,7 +43,6 @@ import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-@SuppressWarnings("deprecation")
 public class ModelEnderBucket implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderBucket();
@@ -161,7 +166,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
         {
             mainSprite = bakedTextureGetter.apply(this.resourceMain);
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceMain))).bake(state, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceInsideTop != null)
@@ -169,7 +174,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             // Inset the inside part a little, the fluid model will be on top of it
             IModelState stateTmp = this.getTransformedModelState(state, 0f, 0.95f);
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceInsideTop))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceInsideBottom != null)
@@ -177,7 +182,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             // Inset the inside part a little, the fluid model will be on top of it
             IModelState stateTmp = this.getTransformedModelState(state, 0f, 0.95f);
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceInsideBottom))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceModeIcon != null)
@@ -185,7 +190,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             // Offset the mode icons a bit, so that they stick out slightly
             IModelState stateTmp = this.getTransformedModelState(state, 0.0125f, 1f);
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceModeIcon))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.fluid != null)
@@ -217,35 +222,24 @@ public class ModelEnderBucket implements IModel, IModelCustomData
         return new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(tr));
     }
 
-    protected static class BakedEnderBucket extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
+    private static final class BakedEnderBucketOverrideHandler extends ItemOverrideList
     {
-        private final ModelEnderBucket parent;
-        private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
-        private final ImmutableMap<TransformType, TRSRTransformation> transforms;
+        public static final BakedEnderBucketOverrideHandler INSTANCE = new BakedEnderBucketOverrideHandler();
 
-        public BakedEnderBucket(ModelEnderBucket parent, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, VertexFormat format,
-                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IBakedModel> cache)
+        private BakedEnderBucketOverrideHandler()
         {
-            super(quads, particle, format);
-            this.parent = parent;
-            this.transforms = transforms;
-            this.cache = cache;
+            super(ImmutableList.<ItemOverride>of());
         }
 
         @Override
-        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
-        {
-            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
-        }
-
-        @Override
-        public IBakedModel handleItemState(ItemStack stack)
+        public IBakedModel handleItemState(IBakedModel originalModelIn, ItemStack stack, World world, EntityLivingBase entity)
         {
             if ((stack.getItem() instanceof ItemEnderBucket) == false)
             {
-                return this;
+                return originalModelIn;
             }
 
+            BakedEnderBucket originalModel = (BakedEnderBucket) originalModelIn;
             ItemEnderBucket item = (ItemEnderBucket)stack.getItem();
             String linked = item.getBucketLinkMode(stack) == ItemEnderBucket.LINK_MODE_ENABLED ? "true" : "false";
             int capacity = item.getCapacityCached(stack, null);
@@ -268,7 +262,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
 
             String key = linked + "_" + mode + "_" + fluid + "_" + amount + "_" + capacity;
 
-            if (this.cache.containsKey(key) == false)
+            if (originalModel.cache.containsKey(key) == false)
             {
                 ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
                 if (fluid != null)
@@ -280,7 +274,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
                 map.put("amount", String.valueOf(amount));
                 map.put("capacity", String.valueOf(capacity));
 
-                IModel model = this.parent.process(map.build());
+                IModel parent = originalModel.parent.process(map.build());
 
                 Function<ResourceLocation, TextureAtlasSprite> textureGetter;
                 textureGetter = new Function<ResourceLocation, TextureAtlasSprite>()
@@ -291,14 +285,61 @@ public class ModelEnderBucket implements IModel, IModelCustomData
                     }
                 };
 
-                IBakedModel bakedModel = model.bake(new SimpleModelState(this.transforms), this.getFormat(), textureGetter);
-                this.cache.put(key, bakedModel);
+                IBakedModel bakedModel = parent.bake(new SimpleModelState(originalModel.transforms), originalModel.format, textureGetter);
+                originalModel.cache.put(key, bakedModel);
 
                 return bakedModel;
             }
 
-            return this.cache.get(key);
+            return originalModel.cache.get(key);
         }
+    }
+
+    //protected static class BakedEnderBucket extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
+    protected static class BakedEnderBucket implements IPerspectiveAwareModel
+    {
+        private final ModelEnderBucket parent;
+        private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
+        private final ImmutableMap<TransformType, TRSRTransformation> transforms;
+        private final ImmutableList<BakedQuad> quads;
+        private final TextureAtlasSprite particle;
+        private final VertexFormat format;
+
+        public BakedEnderBucket(ModelEnderBucket parent, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, VertexFormat format,
+                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IBakedModel> cache)
+        {
+            this.quads = quads;
+            this.particle = particle;
+            this.format = format;
+            this.parent = parent;
+            this.transforms = transforms;
+            this.cache = cache;
+        }
+
+        @Override
+        public ItemOverrideList getOverrides()
+        {
+            return BakedEnderBucketOverrideHandler.INSTANCE;
+        }
+
+        @Override
+        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
+        {
+            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
+        }
+
+        @Override
+        public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
+        {
+            if(side == null) return quads;
+            return ImmutableList.of();
+        }
+
+        public boolean isAmbientOcclusion() { return true;  }
+        public boolean isGui3d() { return false; }
+        public boolean isBuiltInRenderer() { return false; }
+        public TextureAtlasSprite getParticleTexture() { return particle; }
+        public ItemCameraTransforms getItemCameraTransforms() { return ItemCameraTransforms.DEFAULT; }
     }
 
     public enum LoaderEnderBucket implements ICustomModelLoader

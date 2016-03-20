@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.client.renderer.model;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4f;
@@ -15,16 +16,22 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
@@ -45,7 +52,6 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 
-@SuppressWarnings("deprecation")
 public class ModelEnderTools implements IModel, IModelCustomData
 {
     public static final IModel MODEL = new ModelEnderTools();
@@ -239,37 +245,37 @@ public class ModelEnderTools implements IModel, IModelCustomData
         if (this.resourceRod != null)
         {
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceRod))).bake(state, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceHead != null)
         {
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceHead))).bake(state, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceCore != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "co");
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCore))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceCapacitor != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "ca");
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceCapacitor))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
         if (this.resourceLinkCrystal != null)
         {
             IModelState stateTmp = this.getTransformedModelState(state, "lc");
             IBakedModel model = (new ItemLayerModel(ImmutableList.of(this.resourceLinkCrystal))).bake(stateTmp, format, bakedTextureGetter);
-            builder.addAll(model.getGeneralQuads());
+            builder.addAll(model.getQuads(null, null, 0));
         }
 
-        return new BakedEnderTool(this, builder.build(), rodSprite, format, Maps.immutableEnumMap(transformMap), Maps.<String, IFlexibleBakedModel>newHashMap());
+        return new BakedEnderTool(this, builder.build(), rodSprite, format, Maps.immutableEnumMap(transformMap), Maps.<String, IBakedModel>newHashMap());
     }
 
     private IModelState getTransformedModelState(IModelState state, String module)
@@ -328,29 +334,17 @@ public class ModelEnderTools implements IModel, IModelCustomData
         }
     }
 
-    protected static class BakedEnderTool extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
+    private static final class BakedEnderToolOverrideHandler extends ItemOverrideList
     {
-        private final ModelEnderTools parent;
-        private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
-        private final ImmutableMap<TransformType, TRSRTransformation> transforms;
+        public static final BakedEnderToolOverrideHandler INSTANCE = new BakedEnderToolOverrideHandler();
 
-        public BakedEnderTool(ModelEnderTools parent, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, VertexFormat format,
-                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IBakedModel> cache)
+        private BakedEnderToolOverrideHandler()
         {
-            super(quads, particle, format);
-            this.parent = parent;
-            this.transforms = transforms;
-            this.cache = cache;
+            super(ImmutableList.<ItemOverride>of());
         }
 
         @Override
-        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
-        {
-            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
-        }
-
-        @Override
-        public IBakedModel handleItemState(ItemStack stack)
+        public IBakedModel handleItemState(IBakedModel originalModelIn, ItemStack stack, World world, EntityLivingBase entity)
         {
             boolean isTool = stack.getItem() == EnderUtilitiesItems.enderTool;
             ItemLocationBoundModular item = (ItemLocationBoundModular)stack.getItem();
@@ -382,7 +376,9 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 key = broken + powered + mode + core + cap + lc;
             }
 
-            if (this.cache.containsKey(key) == false)
+            BakedEnderTool originalModel = (BakedEnderTool) originalModelIn;
+
+            if (originalModel.cache.containsKey(key) == false)
             {
                 ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
                 map.put("toolClass", toolClass);
@@ -392,7 +388,8 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 map.put("core", core);
                 map.put("capacitor", cap);
                 map.put("lc", lc);
-                IModel model = this.parent.process(map.build());
+
+                IModel model = originalModel.parent.process(map.build());
 
                 Function<ResourceLocation, TextureAtlasSprite> textureGetter;
                 textureGetter = new Function<ResourceLocation, TextureAtlasSprite>()
@@ -403,14 +400,60 @@ public class ModelEnderTools implements IModel, IModelCustomData
                     }
                 };
 
-                IBakedModel bakedModel = model.bake(new SimpleModelState(this.transforms), this.getFormat(), textureGetter);
-                this.cache.put(key, bakedModel);
+                IBakedModel bakedModel = model.bake(new SimpleModelState(originalModel.transforms), originalModel.format, textureGetter);
+                originalModel.cache.put(key, bakedModel);
 
                 return bakedModel;
             }
 
-            return this.cache.get(key);
+            return originalModel.cache.get(key);
         }
+    }
+
+    protected static class BakedEnderTool implements IPerspectiveAwareModel
+    {
+        private final ModelEnderTools parent;
+        private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
+        private final ImmutableMap<TransformType, TRSRTransformation> transforms;
+        private final ImmutableList<BakedQuad> quads;
+        private final TextureAtlasSprite particle;
+        private final VertexFormat format;
+
+        public BakedEnderTool(ModelEnderTools parent, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, VertexFormat format,
+                ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms, Map<String, IBakedModel> cache)
+        {
+            this.quads = quads;
+            this.particle = particle;
+            this.format = format;
+            this.parent = parent;
+            this.transforms = transforms;
+            this.cache = cache;
+        }
+
+        @Override
+        public ItemOverrideList getOverrides()
+        {
+            return BakedEnderToolOverrideHandler.INSTANCE;
+        }
+
+        @Override
+        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
+        {
+            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
+        }
+
+        @Override
+        public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
+        {
+            if(side == null) return quads;
+            return ImmutableList.of();
+        }
+
+        public boolean isAmbientOcclusion() { return true;  }
+        public boolean isGui3d() { return false; }
+        public boolean isBuiltInRenderer() { return false; }
+        public TextureAtlasSprite getParticleTexture() { return particle; }
+        public ItemCameraTransforms getItemCameraTransforms() { return ItemCameraTransforms.DEFAULT; }
     }
 
     public enum LoaderEnderTools implements ICustomModelLoader
