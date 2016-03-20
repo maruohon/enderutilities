@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -18,7 +19,14 @@ public class BlockInfo
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
-        int itemMeta = block.getDamageValue(world, pos);
+        int itemMeta = 0;
+
+        @SuppressWarnings("deprecation")
+        ItemStack stack = block.getItem(world, pos, state);
+        if (stack != null)
+        {
+            itemMeta = stack.getMetadata();
+        }
 
         this.block = block;
         this.resource = Block.blockRegistry.getNameForObject(block);

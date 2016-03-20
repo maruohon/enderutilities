@@ -10,6 +10,7 @@ import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketEntityEffect;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.potion.PotionEffect;
@@ -89,7 +90,7 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
+            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCubes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
             {
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
@@ -215,10 +216,12 @@ public class TeleportEntity
         // Teleport all the entities in this 'stack', starting from the bottom most entity
         while (current != null)
         {
-            riddenBy = current.riddenByEntity;
-            if (current.riddenByEntity != null)
+            // FIXME 1.9: handle possible multiple riders
+            riddenBy = null;
+            if (current.isBeingRidden() == true)
             {
-                current.riddenByEntity.mountEntity((Entity)null);
+                riddenBy = current.getPassengers().get(0);
+                riddenBy.dismountRidingEntity();
             }
 
             // Store the new instance of the original target entity for return
@@ -239,7 +242,7 @@ public class TeleportEntity
 
             if (previous != null)
             {
-                teleported.mountEntity(previous);
+                teleported.startRiding(previous);
             }
 
             teleported.fallDistance = 0.0f;
@@ -358,7 +361,12 @@ public class TeleportEntity
         entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
         entitySrc.isDead = false;
 
-        entityDst.copyDataFromOld(entitySrc);
+        // FIXME 1.9 copyDataFromOld() is now private... we are missing the 3 teleportation related fields by using write/read NBT
+        NBTTagCompound tag = new NBTTagCompound();
+        entitySrc.writeToNBT(tag);
+        entityDst.readFromNBT(tag);
+        //entityDst.copyDataFromOld(entitySrc);
+
         if (entityDst instanceof EntityLivingBase)
         {
             ((EntityLivingBase)entityDst).setPositionAndUpdate(x, y, z);
@@ -396,10 +404,17 @@ public class TeleportEntity
             return null;
         }
 
-        entitySrc.mountEntity((Entity)null);
-        if (entitySrc.riddenByEntity != null)
+        entitySrc.dismountRidingEntity();
+
+        if (entitySrc.isBeingRidden() == true)
         {
-            entitySrc.riddenByEntity.mountEntity((Entity)null);
+            for (Entity entity : entitySrc.getPassengers())
+            {
+                if (entity != null)
+                {
+                    entity.dismountRidingEntity();
+                }
+            }
         }
 
         entitySrc.dimension = dimDst;
@@ -409,7 +424,12 @@ public class TeleportEntity
             return null;
         }
 
-        entityDst.copyDataFromOld(entitySrc);
+        // FIXME 1.9 copyDataFromOld() is now private... we are missing the 3 teleportation related fields by using write/read NBT
+        NBTTagCompound tag = new NBTTagCompound();
+        entitySrc.writeToNBT(tag);
+        entityDst.readFromNBT(tag);
+        //entityDst.copyDataFromOld(entitySrc);
+
         // FIXME ugly special case to prevent the chest minecart etc from duping items
         if (entitySrc instanceof EntityMinecartContainer)
         {
@@ -465,15 +485,22 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.playerNetServerHandler.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.theItemInWorldManager.getGameType()));
+        player.playerNetServerHandler.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
 
-        player.mountEntity((Entity)null);
-        if (player.riddenByEntity != null)
+        player.dismountRidingEntity();
+
+        if (player.isBeingRidden() == true)
         {
-            player.riddenByEntity.mountEntity((Entity)null);
+            for (Entity entity : player.getPassengers())
+            {
+                if (entity != null)
+                {
+                    entity.dismountRidingEntity();
+                }
+            }
         }
 
         worldServerDst.spawnEntityInWorld(player);

@@ -211,7 +211,13 @@ public class NBTHelperTarget
                 IBlockState iBlockState = world.getBlockState(pos);
                 Block block = iBlockState.getBlock();
                 blockMeta = block.getMetaFromState(iBlockState);
-                itemMeta = block.getDamageValue(world, pos);
+
+                @SuppressWarnings("deprecation")
+                ItemStack stack = block.getItem(world, pos, iBlockState);
+                if (stack != null)
+                {
+                    itemMeta = stack.getMetadata();
+                }
 
                 ResourceLocation rl = Block.blockRegistry.getNameForObject(block);
                 if (rl != null)

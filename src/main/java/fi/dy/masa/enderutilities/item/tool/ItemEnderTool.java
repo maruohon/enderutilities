@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
@@ -26,6 +25,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -84,6 +84,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
     public float damageVsEntity;
+    protected float attackSpeed;
     private final Item.ToolMaterial material;
 
     public ItemEnderTool()
@@ -96,6 +97,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         this.setNoRepair();
         this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
         this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
+        this.attackSpeed = -2.8f;
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERTOOL);
     }
 
@@ -433,7 +435,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         if (amount > 0)
         {
-            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.unbreaking.effectId, stack);
+            int unbreakingLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByLocation("unbreaking"), stack);
             int amountNegated = 0;
 
             for (int i = 0; unbreakingLevel > 0 && i < amount; i++)
@@ -489,23 +491,23 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, BlockPos pos, EntityLivingBase living)
+    public boolean onBlockDestroyed(ItemStack stack, World world, IBlockState state, BlockPos pos, EntityLivingBase livingBase)
     {
         //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
 
         // Don't use durability for breaking leaves with an axe
-        if (block.getMaterial() != null && block.getMaterial() == Material.leaves && ToolType.fromStack(stack).equals(ToolType.AXE))
+        if (state.getMaterial() == Material.leaves && ToolType.fromStack(stack).equals(ToolType.AXE))
         {
             return false;
         }
 
         // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
-        if (this.isToolBroken(stack) == false && block.getBlockHardness(world, pos) > 0.0f)
+        if (this.isToolBroken(stack) == false && state.getBlockHardness(world, pos) > 0.0f)
         {
             // Fast mode uses double the durability
             int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED ? 2 : 1);
 
-            this.addToolDamage(stack, dmg, living, living);
+            this.addToolDamage(stack, dmg, livingBase, livingBase);
             return true;
         }
 
@@ -651,80 +653,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
-    public float getStrVsBlock(ItemStack stack, Block block)
-    {
-        //System.out.println("func_150893_a()");
-        if (this.isToolBroken(stack) == true)
-        {
-            return 0.2f;
-        }
-
-        if (this.canHarvestBlock(block, stack) == true)
-        {
-            return this.efficiencyOnProperMaterial;
-        }
-
-        return 1.0f;
-    }
-
-    @Override
-    public boolean canHarvestBlock(Block block, ItemStack stack)
-    {
-        if (this.isToolBroken(stack) == true)
-        {
-            return false;
-        }
-
-        ToolType tool = ToolType.fromStack(stack);
-        if (tool.equals(ToolType.PICKAXE)) // Ender Pickaxe
-        {
-            if (block.getMaterial() == Material.rock
-                || block.getMaterial() == Material.glass
-                || block.getMaterial() == Material.ice
-                || block.getMaterial() == Material.packedIce
-                || block.getMaterial() == Material.piston
-                || block.getMaterial() == Material.iron
-                || block.getMaterial() == Material.anvil)
-            {
-                //System.out.println("canHarvestBlock(): true; Pickaxe");
-                return true;
-            }
-        }
-        else if (tool.equals(ToolType.AXE)) // Ender Axe
-        {
-            if (block.getMaterial() == Material.wood
-                || block.getMaterial() == Material.leaves
-                || block.getMaterial() == Material.gourd
-                || block.getMaterial() == Material.carpet
-                || block.getMaterial() == Material.cloth
-                || block.getMaterial() == Material.plants
-                || block.getMaterial() == Material.vine)
-            {
-                //System.out.println("canHarvestBlock(): true; Axe");
-                return true;
-            }
-        }
-        else if (tool.equals(ToolType.SHOVEL)) // Ender Shovel
-        {
-            if (block.getMaterial() == Material.ground
-                || block.getMaterial() == Material.grass
-                || block.getMaterial() == Material.sand
-                || block.getMaterial() == Material.snow
-                || block.getMaterial() == Material.craftedSnow
-                || block.getMaterial() == Material.clay)
-            {
-                //System.out.println("canHarvestBlock(): true; Shovel");
-                return true;
-            }
-        }
-
-        //System.out.println("canHarvestBlock(): false");
-        //return func_150897_b(block);
-        return false;
-    }
-
-    @Override
-    public float getDigSpeed(ItemStack stack, IBlockState iBlockState)
+    public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
         if (this.isToolBroken(stack) == true)
         {
@@ -732,9 +661,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         ToolType tool = ToolType.fromStack(stack);
-        Block block = iBlockState.getBlock();
         // Allow instant mine of leaves with the axe
-        if (block.getMaterial() != null && block.getMaterial() == Material.leaves && tool.equals(ToolType.AXE))
+        if (state.getMaterial() == Material.leaves && tool.equals(ToolType.AXE))
         {
             // This seems to be enough to instant mine leaves even when jumping/flying
             return 100.0f;
@@ -746,7 +674,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // So maybe around 160 might be ok? I don't want insta-mining on obsidian, but all other types of "rock".
         if (PowerStatus.fromStack(stack) == PowerStatus.POWERED)
         {
-            if (EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, stack) >= 5)
+            if (EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByLocation("efficiency"), stack) >= 5)
             {
                 eff = 124.0f;
             }
@@ -758,20 +686,75 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         //if (ForgeHooks.isToolEffective(stack, block, meta))
-        if (block.isToolEffective(tool.getToolClass(), iBlockState) == true)
+        if (state.getBlock().isToolEffective(tool.getToolClass(), state) == true)
         {
-            //System.out.println("getDigSpeed(); isToolEffective() true: " + eff);
+            //System.out.println("getStrVsBlock(); isToolEffective() true: " + eff);
             return eff;
         }
 
-        if (this.canHarvestBlock(block, stack))
+        if (this.canHarvestBlock(state, stack) == true)
         {
-            //System.out.println("getDigSpeed(); canHarvestBlock() true: " + eff);
+            //System.out.println("getStrVsBlock(); canHarvestBlock() true: " + eff);
             return eff;
         }
 
-        //System.out.println("getDigSpeed(); not effective: " + super.getDigSpeed(stack, block, meta));
-        return super.getDigSpeed(stack, iBlockState);
+        //System.out.println("getStrVsBlock(); not effective: " + super.getStrVsBlock(stack, block, meta));
+        return super.getStrVsBlock(stack, state);
+    }
+
+    @Override
+    public boolean canHarvestBlock(IBlockState state, ItemStack stack)
+    {
+        if (this.isToolBroken(stack) == true)
+        {
+            return false;
+        }
+
+        ToolType tool = ToolType.fromStack(stack);
+        if (tool.equals(ToolType.PICKAXE)) // Ender Pickaxe
+        {
+            if (state.getMaterial() == Material.rock
+                || state.getMaterial() == Material.glass
+                || state.getMaterial() == Material.ice
+                || state.getMaterial() == Material.packedIce
+                || state.getMaterial() == Material.piston
+                || state.getMaterial() == Material.iron
+                || state.getMaterial() == Material.anvil)
+            {
+                //System.out.println("canHarvestBlock(): true; Pickaxe");
+                return true;
+            }
+        }
+        else if (tool.equals(ToolType.AXE)) // Ender Axe
+        {
+            if (state.getMaterial() == Material.wood
+                || state.getMaterial() == Material.leaves
+                || state.getMaterial() == Material.gourd
+                || state.getMaterial() == Material.carpet
+                || state.getMaterial() == Material.cloth
+                || state.getMaterial() == Material.plants
+                || state.getMaterial() == Material.vine)
+            {
+                //System.out.println("canHarvestBlock(): true; Axe");
+                return true;
+            }
+        }
+        else if (tool.equals(ToolType.SHOVEL)) // Ender Shovel
+        {
+            if (state.getMaterial() == Material.ground
+                || state.getMaterial() == Material.grass
+                || state.getMaterial() == Material.sand
+                || state.getMaterial() == Material.snow
+                || state.getMaterial() == Material.craftedSnow
+                || state.getMaterial() == Material.clay)
+            {
+                //System.out.println("canHarvestBlock(): true; Shovel");
+                return true;
+            }
+        }
+
+        //System.out.println("canHarvestBlock(): false");
+        return false;
     }
 
     @Override
@@ -793,8 +776,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(ItemStack stack)
+    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot, ItemStack stack)
     {
+        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot, stack);
         //System.out.println("getAttributeModifiers()");
         double dmg = this.damageVsEntity;
 
@@ -808,8 +792,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
             dmg += ToolType.fromStack(stack).getAttackDamage();
         }
 
-        Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Tool modifier", dmg, 0));
+        if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
+        {
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", dmg, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", this.attackSpeed, 0));
+        }
+
         return multimap;
     }
 

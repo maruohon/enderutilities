@@ -21,7 +21,8 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
         super.onUpdate(stack, world, entity, slot, isCurrent);
 
         if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimension()) == true &&
-            ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isUsingItem() == false || ((EntityPlayer)entity).getCurrentEquippedItem() != stack) &&
+            ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isHandActive() == false ||
+            ((EntityPlayer)entity).getActiveItemStack() != stack) &&
             (world.provider.getDimension() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);

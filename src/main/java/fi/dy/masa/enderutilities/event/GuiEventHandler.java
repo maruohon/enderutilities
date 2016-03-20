@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -32,7 +33,9 @@ public class GuiEventHandler
         if (event.gui != null && event.gui.getClass() == GuiInventory.class)
         {
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-            if (player.isSneaking() == false && player.inventory.hasItem(EnderUtilitiesItems.handyBag) == true)
+            if (player.isSneaking() == false &&
+                (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 0)) == true) ||
+                (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 1)) == true))
             {
                 if (ItemHandyBag.getOpenableBag(player) != null)
                 {

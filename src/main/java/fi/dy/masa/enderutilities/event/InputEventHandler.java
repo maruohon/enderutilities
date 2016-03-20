@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.event;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -45,7 +46,17 @@ public class InputEventHandler
 
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
     {
-        return player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound;
+        if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof IKeyBound)
+        {
+            return true;
+        }
+
+        if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof IKeyBound)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     @SideOnly(Side.CLIENT)
@@ -84,7 +95,7 @@ public class InputEventHandler
             // or this?: Keybindings.keyToggleMode.isPressed() == true
             if (Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
             {
-                if (isHoldingKeyboundItem(player) == true || player.inventory.hasItem(EnderUtilitiesItems.inventorySwapper) == true)
+                if (isHoldingKeyboundItem(player) == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.inventorySwapper)) == true)
                 {
                     int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));

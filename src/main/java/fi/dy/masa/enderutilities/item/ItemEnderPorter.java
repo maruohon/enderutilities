@@ -109,7 +109,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
             if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
             {
-                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);;
+                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
         }
 
@@ -125,7 +125,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
 
-            player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+            player.setActiveHand(hand);
 
             if (world.isRemote == false)
             {
@@ -232,14 +232,15 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         };
     }
 
+    // FIXME 1.9
     @SideOnly(Side.CLIENT)
-    @Override
+    //@Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
         int index = 0;
         String pre = stack.getItemDamage() == 1 ? "tex=advanced.stage." : "tex=basic.stage.";
 
-        if (player != null && player.getItemInUse() != null)
+        if (player != null && player.isHandActive() == true)
         {
             index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 6);
         }

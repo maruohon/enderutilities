@@ -126,7 +126,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return;
             }
 
-            player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
+            // FIXME 1.9
+            //player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
             stack.damageItem(1, player);
 
             // Tool just broke FIXME this doesn't work when called for the player, for some reason...
@@ -215,7 +216,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 }
             }
 
-            player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+            player.setActiveHand(hand);
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
@@ -340,8 +341,9 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         };
     }
 
+    // FIXME 1.9
     @SideOnly(Side.CLIENT)
-    @Override
+    //@Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
@@ -362,7 +364,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         int inUse = stack.getMaxItemUseDuration() - useRemaining;
         //System.out.println("max: " + stack.getMaxItemUseDuration() + " remaining: " + useRemaining + " inUse: " + inUse);
 
-        if (player != null && player.getItemInUse() != null)
+        if (player != null && player.getActiveItemStack() != null)
         {
             if (inUse >= 18)
             {

@@ -93,6 +93,8 @@ public class AnvilUpdateEventHandler
 
     private void enhantItem(AnvilUpdateEvent event)
     {
+        // FIXME 1.9
+        /*
         ItemStack toolStack = event.left.copy();
         ItemStack bookStack = event.right.copy();
         ItemEnchantedBook book = (ItemEnchantedBook)event.right.getItem();
@@ -155,6 +157,7 @@ public class AnvilUpdateEventHandler
         event.cost = cost;
         this.updateItemName(event, toolStack);
         event.cost = Math.min(event.cost, 39);
+        */
     }
 
     private boolean canApplyEnchantment(Enchantment ench, ItemStack stack)

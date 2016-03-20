@@ -120,7 +120,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (this.getPosition(stack, POS_END) != null)
             {
-                player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+                player.setActiveHand(hand);
             }
         }
 
@@ -485,7 +485,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             blockInfo = pos.blockInfo;
         }
 
-        if (blockInfo == null || blockInfo.block.isAir(world, pos.toBlockPos()) == true || blockInfo.block.getMaterial().isLiquid() == true)
+        // FIXME 1.9: check the position and the block state stuff and fix the isLiquid check
+        //IBlockState state = world.getBlockState(pos.toBlockPos());
+        //if (blockInfo == null || world.isAirBlock(pos.toBlockPos()) == true || blockInfo.block.getMaterial().isLiquid() == true)
+        if (blockInfo == null || world.isAirBlock(pos.toBlockPos()) == true)
         {
             return false;
         }
@@ -588,7 +591,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         IBlockState state = world.getBlockState(pos);
         tag.setString("BlockName", Block.blockRegistry.getNameForObject(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
-        tag.setByte("ItemMeta", (byte)state.getBlock().getDamageValue(world, pos));
+
+        @SuppressWarnings("deprecation")
+        ItemStack stackTmp = state.getBlock().getItem(world, pos, state);
+        int meta = stackTmp != null ? stackTmp.getMetadata() : 0;
+        tag.setByte("ItemMeta", (byte)meta);
     }
 
     public static BlockInfo getSelectedFixedBlockType(ItemStack stack)
@@ -810,7 +817,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         IBlockState state = world.getBlockState(blockPos);
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
-        int itemMeta = block.getDamageValue(world, blockPos);
+
+
+        @SuppressWarnings("deprecation")
+        ItemStack stackTmp = state.getBlock().getItem(world, blockPos, state);
+        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
         // The block on the back face must not be air or fluid ...
         if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
@@ -1417,13 +1428,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         };
     }
 
+    // FIXME 1.9
     @SideOnly(Side.CLIENT)
-    @Override
+    //@Override
     public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
     {
         int index = 0;
 
-        if (player != null && player.getItemInUse() != null)
+        if (player != null && player.isHandActive() == true)
         {
             index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 4);
         }

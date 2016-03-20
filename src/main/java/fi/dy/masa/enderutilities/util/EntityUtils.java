@@ -30,7 +30,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
@@ -255,13 +254,14 @@ public class EntityUtils
 
     public static Entity getBottomEntity(Entity entity)
     {
-        Entity ent;
+        /*Entity ent;
 
         for (ent = entity; ent.isRiding() == true; ent = ent.getRidingEntity())
         {
         }
 
-        return ent;
+        return ent;*/
+        return entity.getLowestRidingEntity();
     }
 
     public static Entity getTopEntity(Entity entity)
@@ -450,7 +450,8 @@ public class EntityUtils
             {
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
-                living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 0.8f, 1.2f);
+                // FIXME 1.9: add back after there is a sound registry
+                //living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 0.8f, 1.2f);
 
                 return true;
             }

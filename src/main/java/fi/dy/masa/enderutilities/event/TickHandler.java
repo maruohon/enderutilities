@@ -60,7 +60,8 @@ public class TickHandler
         // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
-            ItemStack stack = event.player.getCurrentEquippedItem();
+            // FIXME 1.9
+            ItemStack stack = event.player.getHeldItemMainhand();
             if (stack == null)
             {
                 return;
@@ -68,9 +69,9 @@ public class TickHandler
 
             Item item = stack.getItem();
 
-            if (event.player.ridingEntity != null && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
+            if (event.player.isRiding() == true && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
             {
-                ItemMobHarness.addAITask(event.player.ridingEntity, false);
+                ItemMobHarness.addAITask(event.player.getRidingEntity(), false);
             }
 
             if (item instanceof IChunkLoadingItem)

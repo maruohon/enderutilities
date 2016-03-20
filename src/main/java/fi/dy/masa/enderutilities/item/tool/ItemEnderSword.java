@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -18,6 +16,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -159,19 +158,19 @@ public class ItemEnderSword extends ItemLocationBoundModular
     }
 
     @Override
-    public float getStrVsBlock(ItemStack stack, Block block)
+    public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
         if (this.isToolBroken(stack) == true)
         {
             return 0.2f;
         }
 
-        if (block == Blocks.web)
+        if (state.getBlock() == Blocks.web)
         {
             return 15.0f;
         }
 
-        Material material = block.getMaterial();
+        Material material = state.getMaterial();
         if (material == Material.plants ||
             material == Material.vine ||
             material == Material.coral ||
@@ -197,17 +196,17 @@ public class ItemEnderSword extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World world, Block block, BlockPos pos, EntityLivingBase playerIn)
+    public boolean onBlockDestroyed(ItemStack stack, World world, IBlockState state, BlockPos pos, EntityLivingBase livingBase)
     {
-        if (block.getBlockHardness(world, pos) != 0.0f && this.isToolBroken(stack) == false)
+        if (state.getBlockHardness(world, pos) != 0.0f && this.isToolBroken(stack) == false)
         {
             int amount = Math.min(2, this.getMaxDamage(stack) - stack.getItemDamage());
-            stack.damageItem(amount, playerIn);
+            stack.damageItem(amount, livingBase);
 
             // Tool just broke
             if (this.isToolBroken(stack) == true)
             {
-                playerIn.renderBrokenItemStack(stack);
+                livingBase.renderBrokenItemStack(stack);
             }
 
             return true;
@@ -479,24 +478,30 @@ public class ItemEnderSword extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean canHarvestBlock(Block block)
+    public boolean canHarvestBlock(IBlockState state, ItemStack stack)
     {
-        return block == Blocks.web;
+        return state.getBlock() == Blocks.web;
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(ItemStack stack)
+    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot, ItemStack stack)
     {
-        double dmg = this.damageVsEntity;
+        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot, stack);
 
-        // Broken sword, or in Summon fighters mode, only deal minimal damage directly
-        if (this.isToolBroken(stack) == true || SwordMode.fromStack(stack) == SwordMode.SUMMON)
+        if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {
-            dmg = 0.0d;
+            double dmg = this.damageVsEntity;
+
+            // Broken sword, or in Summon fighters mode, only deal minimal damage directly
+            if (this.isToolBroken(stack) == true || SwordMode.fromStack(stack) == SwordMode.SUMMON)
+            {
+                dmg = 0.0d;
+            }
+
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", dmg, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -2.4000000953674316D, 0));
         }
 
-        Multimap<String, AttributeModifier> multimap = HashMultimap.create();
-        multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Weapon modifier", dmg, 0));
         return multimap;
     }
 

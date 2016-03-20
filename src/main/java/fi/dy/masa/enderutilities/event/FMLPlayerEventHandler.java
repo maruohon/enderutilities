@@ -8,9 +8,10 @@ public class FMLPlayerEventHandler
     @SubscribeEvent
     public void onPlayerLoggedOut(PlayerLoggedOutEvent event)
     {
-        if (event.player.riddenByEntity != null)
+        // FIXME 1.9: remove?
+        if (event.player.isBeingRidden() == true)
         {
-            event.player.riddenByEntity.mountEntity(null);
+            event.player.getPassengers().get(0).dismountRidingEntity();
         }
     }
 }

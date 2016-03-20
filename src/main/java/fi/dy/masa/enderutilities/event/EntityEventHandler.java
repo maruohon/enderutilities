@@ -32,7 +32,8 @@ public class EntityEventHandler
     @SubscribeEvent
     public void onEntityInteractEvent(EntityInteractEvent event)
     {
-        ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
+        // FIXME 1.9
+        ItemStack stack = event.entityPlayer.getHeldItemMainhand();
 
         if (stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
         {
@@ -99,7 +100,8 @@ public class EntityEventHandler
 
         // If the player is holding a Portal Scaler, then try to use that and cancel the regular
         // teleport if the Portal Scaler teleportation succeeds
-        ItemStack stack = ((EntityPlayer)event.entity).getCurrentEquippedItem();
+        // FIXME 1.9
+        ItemStack stack = ((EntityPlayer)event.entity).getHeldItemMainhand();
         if (stack != null && stack.getItem() == EnderUtilitiesItems.portalScaler &&
             EntityUtils.isEntityCollidingWithBlockSpace(event.entity.worldObj, event.entity, Blocks.portal))
         {

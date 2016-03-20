@@ -23,7 +23,7 @@ public class PlayerEventHandler
     {
         if (event.action == Action.LEFT_CLICK_BLOCK)
         {
-            ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
+            ItemStack stack = event.entityPlayer.getHeldItemMainhand();
             if (stack == null)
             {
                 return;
@@ -50,9 +50,9 @@ public class PlayerEventHandler
         if (event.entity != null && event.target != null && event.entity.worldObj.isRemote == false)
         {
             // Remount the entity if the player starts tracking an entity he is supposed to be riding already
-            if (event.entity.ridingEntity == event.target)
+            if (event.entity.getRidingEntity() == event.target)
             {
-                event.entity.mountEntity(event.target);
+                event.entity.startRiding(event.target);
             }
         }
     }
@@ -66,7 +66,12 @@ public class PlayerEventHandler
         }
 
         EntityPlayer player = event.entityPlayer;
-        ItemStack stack = player.getCurrentEquippedItem();
+        ItemStack stack = player.getHeldItemMainhand();
+        if (stack == null || stack.getItem() != EnderUtilitiesItems.enderBag)
+        {
+            stack = player.getHeldItemOffhand();
+        }
+
         if (stack != null && stack.getItem() == EnderUtilitiesItems.enderBag)
         {
             NBTTagCompound nbt = stack.getTagCompound();
