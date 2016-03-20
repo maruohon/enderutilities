@@ -61,6 +61,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         // Damage 1: "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
 
         EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getItemDamage() == 1);
+        pearl.func_184538_a(player, player.rotationPitch, player.rotationYaw, 0.0f, 1.7f, 0.8f);
         world.spawnEntityInWorld(pearl);
 
         if (stack.getItemDamage() == 1)
@@ -68,16 +69,17 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             Entity bottomEntity = player.getLowestRidingEntity();
 
             // Dismount the previous pearl if we are already riding one
-            if (bottomEntity instanceof EntityEnderPearlReusable && bottomEntity.isBeingRidden() == true)
+            // (by selecting the entity riding that pearl to be the one mounted to the new pearl)
+            if (bottomEntity instanceof EntityEnderPearlReusable)
             {
                 bottomEntity = bottomEntity.getPassengers().get(0);
             }
 
-            bottomEntity.dismountRidingEntity();
+            bottomEntity.startRiding(pearl);
         }
 
         --stack.stackSize;
-        world.playSound(player, player.getPosition(), SoundEvents.entity_enderpearl_throw, SoundCategory.MASTER, 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
+        world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.entity_enderpearl_throw, SoundCategory.MASTER, 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }

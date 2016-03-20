@@ -81,6 +81,10 @@ public class MessageKeyPressed implements IMessage
         {
             // FIXME 1.9
             ItemStack stack = player.getHeldItemMainhand();
+            if (stack == null || (stack.getItem() instanceof IKeyBound == false))
+            {
+                stack = player.getHeldItemOffhand();
+            }
 
             if (stack != null && stack.getItem() instanceof IKeyBound)
             {

@@ -365,6 +365,7 @@ public class EntityUtils
     {
         if (entity != null && entity.isBeingRidden() == true)
         {
+            // FIXME 1.9: handle all riders?
             entity.getPassengers().get(0).dismountRidingEntity();
             return true;
         }

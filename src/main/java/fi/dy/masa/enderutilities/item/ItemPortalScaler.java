@@ -6,12 +6,14 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -64,12 +66,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         {
             if (world.isRemote == false)
             {
-                // FIXME 1.9: verify
                 world.destroyBlock(pos, false);
-                /*world.setBlockToAir(pos);
-                world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                        block.getSoundType().getBreakSound(), SoundCategory.BLOCKS, block.getSoundType().getVolume() - 0.5f, block.getSoundType().getPitch() * 0.8f);
-                */
             }
 
             return EnumActionResult.SUCCESS;
@@ -83,8 +80,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             if (world.isRemote == false)
             {
                 UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
-                world.playAuxSFXAtEntity((EntityPlayer)null, 1009, pos, 0); // Blaze fireball shooting sound
+                world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.entity_blaze_shoot, SoundCategory.MASTER, 0.8f, 1.0f);
             }
+
             return EnumActionResult.SUCCESS;
         }
 

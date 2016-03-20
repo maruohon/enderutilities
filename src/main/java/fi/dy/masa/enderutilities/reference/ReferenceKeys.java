@@ -8,7 +8,7 @@ public class ReferenceKeys
 
     public static final String KEYBIND_NAME_TOGGLE_MODE = Reference.MOD_ID + ".key.togglemode";
 
-    public static final int DEFAULT_KEYBIND_TOGGLE_MODE = Keyboard.KEY_F;
+    public static final int DEFAULT_KEYBIND_TOGGLE_MODE = Keyboard.KEY_G;
 
     // These are used to identify the pressed key on the server side. They have nothing to do with actual key codes.
     public static final int KEYBIND_ID_TOGGLE_MODE = 0x0001;

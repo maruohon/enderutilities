@@ -78,9 +78,9 @@ public class ItemMobHarness extends ItemEnderUtilities
     }
 
     @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand)
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target, EnumHand hand)
     {
-        return this.handleInteraction(stack, playerIn, target);
+        return this.handleInteraction(stack, player, target);
     }
 
     @SuppressWarnings("unchecked")
@@ -215,8 +215,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Matching (stored) entity found
             if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-                // FIXME 1.9
-                //EntityUtils.unmountRider(targetEntity);
+                EntityUtils.unmountRider(targetEntity);
                 storedEntity.startRiding(targetEntity);
                 this.clearData(stack);
 

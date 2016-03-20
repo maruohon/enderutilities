@@ -152,6 +152,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             Block block = state.getBlock();
             // Access is allowed in onPlayerOpenContainer(PlayerOpenContainerEvent event) in PlayerEventHandler
             block.onBlockActivated(targetWorld, targetData.pos, state, player, EnumHand.MAIN_HAND, stack, targetData.facing, hx, hy, hz);
+
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

@@ -22,7 +22,7 @@ public class Effects
 
     public static void playSoundEffectServer(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
     {
-        world.playSound(x, y, z, soundIn, category, volume, pitch, false);
+        world.playSound(null, x, y, z, soundIn, category, volume, pitch);
     }
 
     public static void playSoundClient(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
