@@ -42,14 +42,14 @@ public class SlotItemHandlerModule extends SlotItemHandlerGeneric
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        System.out.println("SlotItemHandlerModule.getItemStackLimit(stack)");
+        //System.out.println("SlotItemHandlerModule.getItemStackLimit(stack)");
         return this.getSlotStackLimit();
     }
 
     @Override
     public int getSlotStackLimit()
     {
-        System.out.println("SlotItemHandlerModule.getSlotStackLimit()");
+        //System.out.println("SlotItemHandlerModule.getSlotStackLimit()");
         return 1;
     }
 

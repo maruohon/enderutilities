@@ -675,7 +675,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
         if (source instanceof EntityDamageSource && source.getEntity() instanceof EntityLivingBase)
         {
-            System.out.println("setting secondary target");
+            //System.out.println("setting secondary target");
             this.setSecondaryTarget((EntityLivingBase)source.getEntity());
             this.isAggressive = true;
         }

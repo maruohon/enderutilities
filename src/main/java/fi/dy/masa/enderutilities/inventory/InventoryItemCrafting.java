@@ -16,19 +16,17 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryItemCrafting extends InventoryCrafting implements IItemHandlerModifiable
 {
-    protected ItemStack containerStack;
-    protected int invSize;
-    protected ItemStack[] items;
+    protected final EntityPlayer player;
+    protected final IItemHandlerModifiable itemHandler;
+    protected final ItemStack[] items;
+    protected final int invSize;
+    protected final int stackLimit;
+    protected final boolean isRemote;
     /** The NBTTagList tag name storing the items in the containerStack */
     protected String itemsTagName;
-    protected EntityPlayer player;
-    protected boolean isRemote;
-    protected String customInventoryName;
-    protected int stackLimit;
-    protected boolean ignoreMaxStackSize;
+    protected ItemStack containerStack;
     protected Container container;
     protected IModularInventoryHolder callback;
-    private final IItemHandlerModifiable itemHandler;
 
     public InventoryItemCrafting(Container container, int width, int height, ItemStack containerStack, boolean isRemote,
             EntityPlayer player, IModularInventoryHolder callback, String tagName)
@@ -42,7 +40,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         this.stackLimit = 64;
         this.callback = callback;
         this.itemsTagName = tagName;
-        this.initInventory();
+        this.items = new ItemStack[this.invSize];
         this.itemHandler = new InvWrapper(this);
     }
 
@@ -61,9 +59,12 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         return this.containerStack;
     }
 
-    protected void initInventory()
+    protected void clearInventory()
     {
-        this.items = new ItemStack[this.getSizeInventory()]; // This obviously also needs to happen on the client side
+        for (int i = 0; i < this.items.length; i++)
+        {
+            this.items[i] = null;
+        }
     }
 
     /**
@@ -89,26 +90,6 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         this.readFromContainerItemStack();
     }
 
-    public void setCustomInventoryName(String name)
-    {
-        this.customInventoryName = name;
-    }
-
-    public void setInventoryStackLimit(int stackLimit)
-    {
-        this.stackLimit = stackLimit;
-    }
-
-    public void setIgnoreMaxStackSize(boolean ignore)
-    {
-        this.ignoreMaxStackSize = ignore;
-    }
-
-    public boolean getIgnoreMaxStackSize()
-    {
-        return this.ignoreMaxStackSize;
-    }
-
     /**
      * Read the inventory contents from the container ItemStack
      */
@@ -119,7 +100,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         // Only read the contents on the server side, they get synced to the client via the open Container
         if (this.isRemote == false)
         {
-            this.initInventory();
+            this.clearInventory();
 
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isUseableByPlayer(this.player) == true)
@@ -151,12 +132,6 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         return this.invSize;
     }
 
-    public void setInventorySize(int size)
-    {
-        this.invSize = size;
-        this.initInventory();
-    }
-
     @Override
     public ItemStack getStackInSlot(int slotNum)
     {
@@ -165,10 +140,10 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         {
             return this.items[slotNum];
         }
-        else
+        /*else
         {
-            EnderUtilities.logger.warn("InventoryItem.getStackInSlot(): Invalid slot number: " + slotNum);
-        }
+            EnderUtilities.logger.warn("InventoryItemCrafting.getStackInSlot(): Invalid slot number: " + slotNum);
+        }*/
 
         return null;
     }
@@ -185,7 +160,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         }
         else
         {
-            EnderUtilities.logger.warn("InventoryItem.setInventorySlotContents(): Invalid slot number: " + slotNum);
+            EnderUtilities.logger.warn("InventoryItemCrafting.setInventorySlotContents(): Invalid slot number: " + slotNum);
         }
     }
 
@@ -219,7 +194,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         }
         else
         {
-            EnderUtilities.logger.warn("InventoryItem.decrStackSize(): Invalid slot number: " + slotNum);
+            EnderUtilities.logger.warn("InventoryItemCrafting.decrStackSize(): Invalid slot number: " + slotNum);
             return null;
         }
 

@@ -17,7 +17,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getSlotStackLimit()
     {
-        System.out.println("SlotItemHandlerGeneric.getSlotStackLimit()");
+        //System.out.println("SlotItemHandlerGeneric.getSlotStackLimit()");
         if (this.itemHandler instanceof IItemHandlerSize)
         {
             return ((IItemHandlerSize)this.itemHandler).getInventoryStackLimit();
@@ -29,7 +29,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        System.out.println("SlotItemHandlerGeneric.getItemStackLimit(stack)");
+        //System.out.println("SlotItemHandlerGeneric.getItemStackLimit(stack)");
         if (stack != null && this.itemHandler instanceof IItemHandlerSize)
         {
             return ((IItemHandlerSize)this.itemHandler).getItemStackLimit(stack);
@@ -59,11 +59,6 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         return this.itemHandler.insertItem(this.getSlotIndex(), stack, simulate);
     }
-
-    /*public ItemStack extractItem(int amount, boolean simulate)
-    {
-        return this.itemHandler.extractItem(this.getSlotIndex(), amount, simulate);
-    }*/
 
     /**
      * Returns true if the item would be valid for an empty slot.

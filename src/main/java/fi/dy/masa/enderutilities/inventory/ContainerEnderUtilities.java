@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -96,6 +97,12 @@ public class ContainerEnderUtilities extends Container
     public boolean canInteractWith(EntityPlayer player)
     {
         return true;
+    }
+
+    @Override
+    public boolean canMergeSlot(ItemStack stack, Slot slot)
+    {
+        return (slot instanceof SlotItemHandler) && ((SlotItemHandler)slot).isItemValid(stack);
     }
 
     public boolean isSlotInRange(SlotRange range, int slotNum)

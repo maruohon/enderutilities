@@ -50,7 +50,7 @@ public class ItemHandlerWrapperSelective implements IItemHandler, IItemHandlerSe
     @Override
     public int getInventoryStackLimit()
     {
-        System.out.println("ItemHandlerWrapperSelective.getInventoryStackLimit()");
+        //System.out.println("ItemHandlerWrapperSelective.getInventoryStackLimit()");
         if (this.baseHandler instanceof IItemHandlerSize)
         {
             return ((IItemHandlerSize)this.baseHandler).getInventoryStackLimit();
@@ -62,7 +62,7 @@ public class ItemHandlerWrapperSelective implements IItemHandler, IItemHandlerSe
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        System.out.println("ItemHandlerWrapperSelective.getItemStackLimit(stack)");
+        //System.out.println("ItemHandlerWrapperSelective.getItemStackLimit(stack)");
         if (this.baseHandler instanceof IItemHandlerSize)
         {
             return ((IItemHandlerSize)this.baseHandler).getItemStackLimit(stack);

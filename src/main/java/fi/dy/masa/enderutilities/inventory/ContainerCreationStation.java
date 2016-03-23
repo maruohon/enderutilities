@@ -139,10 +139,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
-        super.onCraftMatrixChanged(inv);
-
         this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
         this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
+
+        this.detectAndSendChanges();
     }
 
     @Override
@@ -151,12 +151,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
         super.onContainerClosed(player);
 
         this.tecs.closeInventory(player);
-    }
-
-    @Override
-    public boolean canMergeSlot(ItemStack stack, Slot slot)
-    {
-        return super.canMergeSlot(stack, slot) && (slot instanceof SlotItemHandler) && ((SlotItemHandler)slot).isItemValid(stack);
     }
 
     @Override

@@ -288,7 +288,13 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // Empty cursor, trying to take items from the slot into the cursor
         else if (stackSlot != null)
         {
-            int amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), stackSlot.getMaxStackSize() / 2);
+            int amount = stackSlot.stackSize; // default to the whole stack if it can't be returned to the slot
+
+            if (slot.isItemValid(stackCursor) == true)
+            {
+                amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), stackSlot.getMaxStackSize() / 2);
+            }
+
             this.takeItemsFromSlotToCursor(slot, amount);
         }
     }
