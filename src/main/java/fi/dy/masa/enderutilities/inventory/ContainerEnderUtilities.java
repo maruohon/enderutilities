@@ -178,32 +178,47 @@ public class ContainerEnderUtilities extends Container
 
     public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
     {
-        Slot slot = this.getSlot(slotNum);
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
         }
 
-        ItemStack stack = slot.getStack();
+        ItemStack stack = slot.getStack().copy();
+        int amount = Math.min(stack.stackSize, stack.getMaxStackSize());
+        stack.stackSize = amount;
+
+        // Simulate the merge
+        stack = this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, true);
 
         // If the item can't be put back to the slot, then we need to make sure that the whole
         // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
-        if (slot.isItemValid(stack) == false && this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, true) == false)
+        /*if (slot.isItemValid(stack) == false && stack != null)
+        {
+            return false;
+        }*/
+
+        // Could not merge anything
+        if (stack != null && stack.stackSize == amount)
         {
             return false;
         }
 
-        if (this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, false) == false)
-        {
-            return false;
-        }
+        // Can merge at least some of the items, get the amount that can be merged
+        amount = stack != null ? amount - stack.stackSize : amount;
 
-        if (stack.stackSize <= 0)
-        {
-            slot.putStack(null);
-        }
-
+        // Actually get the items for actual merging
+        stack = slot.decrStackSize(amount);
         slot.onPickupFromSlot(player, stack);
+
+        // Actually merge the items
+        stack = this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, false);
+
+        // If they couldn't fit after all, then return them. This shouldn't happen, and will cause some issues like gaining XP from nothing.
+        if (stack != null)
+        {
+            slot.insertItem(stack, false);
+        }
 
         return true;
     }
@@ -216,10 +231,13 @@ public class ContainerEnderUtilities extends Container
         return stack != null ? Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
+    /**
+     * This should NOT be called from anywhere in this mod, but just in case...
+     */
     @Override
     protected boolean mergeItemStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse)
     {
-        return this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, false);
+        return false;
     }
 
     /**
@@ -228,12 +246,12 @@ public class ContainerEnderUtilities extends Container
      * @return If simulate is false, then true is returned if at least some of the items were merged.
      * If simulate is true, then true is returned only if ALL the items were successfully merged.
      */
-    protected boolean mergeItemStack(ItemStack stackIn, int slotStart, int slotEndExclusive, boolean reverse, boolean simulate)
+    protected ItemStack mergeItemStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse, boolean simulate)
     {
-        // FIXME this copy() is needed because the InvWrapper in Forge doesn't make a copy if the whole input stack fits into an empty slot
-        ItemStack stack = stackIn.copy();
+        // FIXME this copy() is needed because the InvWrapper in Forge doesn't make a copy
+        // if the whole input stack fits into an empty slot. A PR has been submitted to fix that.
+        stack = stack.copy();
         int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-        int origSize = stackIn.stackSize;
 
         // First try to merge the stack into existing stacks in the container
         while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
@@ -266,14 +284,7 @@ public class ContainerEnderUtilities extends Container
             }
         }
 
-        // FIXME redo this method to return the stack - For now, we need to update the input stack, provided that
-        // the stack we were working with is not the same stack reference anymore
-        if (simulate == false && stack != stackIn)
-        {
-            stackIn.stackSize = stack != null ? stack.stackSize : 0;
-        }
-
-        return stack == null || (simulate == false && stack.stackSize != origSize);
+        return stack;
     }
 
     public void addMergeSlotRangeExtToPlayer(int start, int numSlots)

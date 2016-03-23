@@ -62,16 +62,6 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         return slot.insertItem(stack, false);
     }
 
-    /*private void putItemsFromCursorToSlot(SlotItemHandlerGeneric slot, ItemStack stack, int amount)
-    {
-        if (stack == null)
-        {
-            stack = this.inventoryPlayer.getItemStack();
-        }
-
-        this.inventoryPlayer.setItemStack(this.putItemsToSlot(slot, stack, amount));
-    }*/
-
     private boolean takeItemsFromSlotToCursor(SlotItemHandlerGeneric slot, int amount)
     {
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
