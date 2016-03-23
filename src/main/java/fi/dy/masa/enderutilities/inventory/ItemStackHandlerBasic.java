@@ -8,7 +8,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>
+public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>, IItemHandlerSelective, IItemHandlerSize
 {
     protected final int invSize;
     protected final int stackLimit;
@@ -28,21 +28,6 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         this.tagName = tagName;
         this.allowCustomStackSizes = allowCustomStackSizes;
         this.items = new ItemStack[invSize];
-    }
-
-    public int getInventoryStackLimit()
-    {
-        return this.stackLimit;
-    }
-
-    public int getItemStackLimit(ItemStack stack)
-    {
-        if (this.allowCustomStackSizes == true)
-        {
-            return this.getInventoryStackLimit();
-        }
-
-        return stack != null ? stack.getMaxStackSize() : 64;
     }
 
     @Override
@@ -88,6 +73,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
         int existingStackSize = this.items[slot] != null ? this.items[slot].stackSize : 0;
         int max = this.getItemStackLimit(stack);
+
         if (this.allowCustomStackSizes == false)
         {
             max = Math.min(max, stack.getMaxStackSize());
@@ -142,7 +128,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        if (slot < 0 || slot >= this.items.length || this.items[slot] == null)
+        if (slot < 0 || slot >= this.items.length || this.items[slot] == null || this.canExtractFromSlot(slot) == false)
         {
             return null;
         }
@@ -198,7 +184,33 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     {
     }
 
+    @Override
+    public int getInventoryStackLimit()
+    {
+        //System.out.println("ItemStackHandlerBasic.getInventoryStackLimit()");
+        return this.stackLimit;
+    }
+
+    @Override
+    public int getItemStackLimit(ItemStack stack)
+    {
+        //System.out.println("ItemStackHandlerBasic.getItemStackLimit(stack)");
+        if (this.allowCustomStackSizes == true || (stack != null && this.getInventoryStackLimit() < stack.getMaxStackSize()))
+        {
+            return this.getInventoryStackLimit();
+        }
+
+        return stack.getMaxStackSize();
+    }
+
+    @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean canExtractFromSlot(int slot)
     {
         return true;
     }

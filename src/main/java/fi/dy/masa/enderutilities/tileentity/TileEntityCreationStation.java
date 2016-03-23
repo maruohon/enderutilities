@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,6 +29,7 @@ import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCrafting;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -83,7 +82,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected InventoryItemCrafting[] craftingInventories;
     private final ItemStack[][] craftingGridTemplates;
-    protected final IInventory[] craftResults;
+    protected final ItemStackHandlerBasic[] craftResults;
     protected final ItemStack[][] recipeItems;
     protected int selectedModule;
     protected int actionMode;
@@ -110,7 +109,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.craftingInventories = new InventoryItemCrafting[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
-        this.craftResults = new InventoryCraftResult[] { new InventoryCraftResult(), new InventoryCraftResult() };
+        this.craftResults = new ItemStackHandlerBasic[] { new ItemStackHandlerBasic(1), new ItemStackHandlerBasic(1) };
         this.recipeItems = new ItemStack[][] { new ItemStack[10], new ItemStack[10] };
 
         this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
@@ -229,7 +228,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.craftingInventories[id];
     }
 
-    public IInventory getCraftResultInventory(int id)
+    public ItemStackHandlerBasic getCraftResultInventory(int id)
     {
         return this.craftResults[id];
     }
@@ -1114,7 +1113,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {

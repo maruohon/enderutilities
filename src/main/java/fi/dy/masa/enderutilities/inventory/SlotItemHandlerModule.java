@@ -7,18 +7,16 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class SlotModule extends SlotItemHandlerGeneric
+public class SlotItemHandlerModule extends SlotItemHandlerGeneric
 {
     protected ModuleType moduleType;
     protected int moduleTierMin;
     protected int moduleTierMax;
-    protected int stackLimit;
 
-    public SlotModule(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType)
+    public SlotItemHandlerModule(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType)
     {
         super(inventory, slot, posX, posY);
         this.moduleType = moduleType;
-        this.stackLimit = 1;
         this.moduleTierMin = -1;
         this.moduleTierMax = -1;
     }
@@ -28,35 +26,31 @@ public class SlotModule extends SlotItemHandlerGeneric
         return this.moduleType;
     }
 
-    public SlotModule setModuleType(ModuleType type)
+    public SlotItemHandlerModule setModuleType(ModuleType type)
     {
         this.moduleType = type;
         return this;
     }
 
-    public SlotModule setMinAndMaxModuleTier(int min, int max)
+    public SlotItemHandlerModule setMinAndMaxModuleTier(int min, int max)
     {
         this.moduleTierMin = min;
         this.moduleTierMax = max;
         return this;
     }
 
-    public SlotModule setSlotStackLimit(int limit)
-    {
-        this.stackLimit = limit;
-        return this;
-    }
-
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        return this.stackLimit;
+        System.out.println("SlotItemHandlerModule.getItemStackLimit(stack)");
+        return this.getSlotStackLimit();
     }
 
     @Override
     public int getSlotStackLimit()
     {
-        return this.stackLimit;
+        System.out.println("SlotItemHandlerModule.getSlotStackLimit()");
+        return 1;
     }
 
     /**

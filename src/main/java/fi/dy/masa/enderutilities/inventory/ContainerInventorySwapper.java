@@ -1,12 +1,13 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -35,13 +36,14 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         int playerArmorStart = this.inventorySlots.size();
 
+        IItemHandlerModifiable inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
         posX = 13;
         posY = 53;
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
-            this.addSlotToContainer(new Slot(this.inventoryPlayer, 39 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {

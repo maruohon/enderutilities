@@ -63,7 +63,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     @Override
     public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        Slot slot = this.getSlot(slotNum);
         if (slot == null || slot.getHasStack() == false)
         {
             return false;
@@ -75,6 +75,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
             return super.transferStackFromSlot(player, slotNum);
         }
 
+        // FIXME this violates the IItemHandler contract... not that it matters much in internal use but still
         ItemStack stackSlot = slot.getStack();
         int origSize = stackSlot.stackSize;
 
@@ -84,7 +85,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
 
             if (stackTmp != null && InventoryUtils.areItemStacksEqual(stackTmp, stackSlot) == true)
             {
-                this.mergeItemStack(stackSlot, i, i + 1, false);
+                this.mergeItemStack(stackSlot, i, i + 1, false, false);
 
                 if (stackSlot.stackSize <= 0)
                 {

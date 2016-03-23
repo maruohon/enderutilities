@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
  * 
  * @author masa
  */
-public class ItemHandlerWrapperContainer implements IItemHandlerModifiable
+public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IItemHandlerSelective
 {
     private final IItemHandlerModifiable baseHandlerModifiable;
     private final IItemHandler wrapperHandler;
@@ -56,5 +56,22 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable
     public void setStackInSlot(int slot, ItemStack stack)
     {
         this.baseHandlerModifiable.setStackInSlot(slot, stack);
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack)
+    {
+        if (this.wrapperHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective)this.wrapperHandler).isItemValidForSlot(slot, stack);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean canExtractFromSlot(int slot)
+    {
+        return true;
     }
 }

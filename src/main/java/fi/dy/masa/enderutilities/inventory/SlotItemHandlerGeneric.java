@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
@@ -16,9 +17,10 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getSlotStackLimit()
     {
-        if (this.itemHandler instanceof ItemStackHandlerBasic)
+        System.out.println("SlotItemHandlerGeneric.getSlotStackLimit()");
+        if (this.itemHandler instanceof IItemHandlerSize)
         {
-            return ((ItemStackHandlerBasic)this.itemHandler).getInventoryStackLimit();
+            return ((IItemHandlerSize)this.itemHandler).getInventoryStackLimit();
         }
 
         return super.getSlotStackLimit();
@@ -27,12 +29,13 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        if (this.itemHandler instanceof ItemStackHandlerBasic)
+        System.out.println("SlotItemHandlerGeneric.getItemStackLimit(stack)");
+        if (stack != null && this.itemHandler instanceof IItemHandlerSize)
         {
-            return ((ItemStackHandlerBasic)this.itemHandler).getItemStackLimit(stack);
+            return ((IItemHandlerSize)this.itemHandler).getItemStackLimit(stack);
         }
 
-        return super.getItemStackLimit(stack);
+        return this.getSlotStackLimit();
     }
 
     @Override
@@ -50,5 +53,63 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         }
 
         this.onSlotChanged();
+    }
+
+    public ItemStack insertItem(ItemStack stack, boolean simulate)
+    {
+        return this.itemHandler.insertItem(this.getSlotIndex(), stack, simulate);
+    }
+
+    /*public ItemStack extractItem(int amount, boolean simulate)
+    {
+        return this.itemHandler.extractItem(this.getSlotIndex(), amount, simulate);
+    }*/
+
+    /**
+     * Returns true if the item would be valid for an empty slot.
+     */
+    @Override
+    public boolean isItemValid(ItemStack stack)
+    {
+        if (this.itemHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective)this.itemHandler).isItemValidForSlot(this.getSlotIndex(), stack);
+        }
+
+        return true; // super.isItemValid(stack);
+    }
+
+    /**
+     * Returns true if at least some of the items can be put to this slot right now.
+     */
+    /*public boolean canPutItems(ItemStack stack)
+    {
+        return super.isItemValid(stack);
+    }*/
+
+    @Override
+    public boolean canTakeStack(EntityPlayer player)
+    {
+        if (this.itemHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective)this.itemHandler).canExtractFromSlot(this.getSlotIndex());
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns true if all the items in this slot can be taken as one stack
+     */
+    public boolean canTakeAll()
+    {
+        ItemStack stack = this.itemHandler.getStackInSlot(this.getSlotIndex());
+        if (stack == null)
+        {
+            return false;
+        }
+
+        ItemStack stackEx = this.itemHandler.extractItem(this.getSlotIndex(), stack.getMaxStackSize(), true);
+        return stackEx != null && stack.stackSize == stackEx.stackSize;
     }
 }

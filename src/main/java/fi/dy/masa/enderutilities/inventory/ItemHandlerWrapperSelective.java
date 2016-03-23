@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 
-public class ItemHandlerWrapperSelective implements IItemHandler
+public class ItemHandlerWrapperSelective implements IItemHandler, IItemHandlerSelective, IItemHandlerSize
 {
     protected final IItemHandler baseHandler;
 
@@ -47,12 +47,38 @@ public class ItemHandlerWrapperSelective implements IItemHandler
         return null;
     }
 
-    protected boolean isItemValidForSlot(int slot, ItemStack stack)
+    @Override
+    public int getInventoryStackLimit()
+    {
+        System.out.println("ItemHandlerWrapperSelective.getInventoryStackLimit()");
+        if (this.baseHandler instanceof IItemHandlerSize)
+        {
+            return ((IItemHandlerSize)this.baseHandler).getInventoryStackLimit();
+        }
+
+        return 64;
+    }
+
+    @Override
+    public int getItemStackLimit(ItemStack stack)
+    {
+        System.out.println("ItemHandlerWrapperSelective.getItemStackLimit(stack)");
+        if (this.baseHandler instanceof IItemHandlerSize)
+        {
+            return ((IItemHandlerSize)this.baseHandler).getItemStackLimit(stack);
+        }
+
+        return this.getInventoryStackLimit();
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
         return true;
     }
 
-    protected boolean canExtractFromSlot(int slot)
+    @Override
+    public boolean canExtractFromSlot(int slot)
     {
         return true;
     }

@@ -5,7 +5,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -14,7 +14,7 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class InventoryItemCrafting extends InventoryCrafting implements IItemHandler
+public class InventoryItemCrafting extends InventoryCrafting implements IItemHandlerModifiable
 {
     protected ItemStack containerStack;
     protected int invSize;
@@ -28,7 +28,7 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
     protected boolean ignoreMaxStackSize;
     protected Container container;
     protected IModularInventoryHolder callback;
-    private final IItemHandler itemHandler;
+    private final IItemHandlerModifiable itemHandler;
 
     public InventoryItemCrafting(Container container, int width, int height, ItemStack containerStack, boolean isRemote,
             EntityPlayer player, IModularInventoryHolder callback, String tagName)
@@ -309,5 +309,11 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
         return this.itemHandler.extractItem(slot, amount, simulate);
+    }
+
+    @Override
+    public void setStackInSlot(int slot, ItemStack stack)
+    {
+        this.itemHandler.setStackInSlot(slot, stack);
     }
 }

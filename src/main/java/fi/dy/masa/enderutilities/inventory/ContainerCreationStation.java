@@ -4,13 +4,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -23,7 +23,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int smeltProgress;
 
     public final InventoryItemCrafting[] craftMatrices;
-    private final IInventory[] craftResults;
+    private final ItemStackHandlerBasic[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
@@ -36,7 +36,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.tecs.openInventory(player);
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
-        this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
+        this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.lastInteractedCraftingGridId = 0;
 
@@ -71,7 +71,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tecs.getMemoryCardInventory(), i, posX, posY + i * 18));
+            this.addSlotToContainer(new SlotItemHandlerModule(this.tecs.getMemoryCardInventory(), i, posX, posY + i * 18, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
 
         // Crafting slots, left side
@@ -85,7 +85,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
+        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
 
         // Crafting slots, right side
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
@@ -98,7 +98,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
+        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
 
         // Add the furnace slots as priority merge slots
         //this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
@@ -141,8 +141,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.onCraftMatrixChanged(inv);
 
-        this.craftResults[0].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
-        this.craftResults[1].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
+        this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
+        this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
-        return slot.inventory != this.craftResults[0] && slot.inventory != this.craftResults[0] && super.canMergeSlot(stack, slot);
+        return super.canMergeSlot(stack, slot) && (slot instanceof SlotItemHandler) && ((SlotItemHandler)slot).isItemValid(stack);
     }
 
     @Override

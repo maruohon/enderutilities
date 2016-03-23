@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.SlotItemHandler;
 
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
@@ -55,7 +56,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tehc.getModuleInventory(), i, posX + i * 18, posY));
+            this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
     }
 

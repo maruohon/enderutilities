@@ -2,16 +2,17 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -21,8 +22,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 {
     public final InventoryItemModular inventoryItemModular;
 
-    public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
-    public IInventory craftResult = new InventoryCraftResult();
+    private final InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
+    private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
@@ -46,12 +47,13 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         int playerArmorStart = this.inventorySlots.size();
 
+        IItemHandlerModifiable inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
         posY = 15;
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
-            this.addSlotToContainer(new Slot(this.inventoryPlayer, 39 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -78,7 +80,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         // Player crafting slots
         posX += 90;
         posY = 15;
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10));
+        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10));
 
         for (int i = 0; i < 2; ++i)
         {
@@ -88,7 +90,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             }
         }
 
-        this.onCraftMatrixChanged(this.craftMatrix);
+        //this.onCraftMatrixChanged(this.craftMatrix);
     }
 
     @Override
@@ -157,7 +159,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
-        this.craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.worldObj));
+        this.craftResult.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.worldObj));
     }
 
     public void dropCraftingGridContents()
@@ -172,7 +174,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             }
         }
 
-        this.craftResult.setInventorySlotContents(0, (ItemStack)null);
+        this.craftResult.setStackInSlot(0, (ItemStack)null);
     }
 
     public int getBagTier()
@@ -203,7 +205,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
-        return slot.inventory != this.craftResult && super.canMergeSlot(stack, slot);
+        return super.canMergeSlot(stack, slot) && (slot instanceof SlotItemHandler) && ((SlotItemHandler)slot).isItemValid(stack);
     }
 
     @Override

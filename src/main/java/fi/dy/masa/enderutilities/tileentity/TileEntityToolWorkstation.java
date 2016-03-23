@@ -48,7 +48,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {
