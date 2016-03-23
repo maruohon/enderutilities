@@ -3,10 +3,8 @@ package fi.dy.masa.enderutilities.proxy;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
@@ -88,9 +86,6 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerRenderers()
     {
-        final Minecraft mc = Minecraft.getMinecraft();
-        final RenderItem renderItem = mc.getRenderItem();
-
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class,
                 new IRenderFactory<EntityEnderArrow>() {
                     @Override public Render<? super EntityEnderArrow> createRenderFor (RenderManager manager) {
@@ -100,7 +95,7 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class,
                 new IRenderFactory<EntityEnderPearlReusable>() {
                     @Override public Render<? super EntityEnderPearlReusable> createRenderFor (RenderManager manager) {
-                        return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.enderPearlReusable, renderItem);
+                        return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.enderPearlReusable);
                     }
                 });
         RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class,
