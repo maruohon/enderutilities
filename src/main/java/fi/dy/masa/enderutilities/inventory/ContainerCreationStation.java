@@ -240,7 +240,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         super.onCraftGuiOpened(icrafting);
 
         int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -263,7 +263,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
 
         int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -306,7 +306,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 this.modeMask = val;
                 break;
             case 1:
-                this.tecs.setSelectedModule(val & 0x3); // 0..3
+                this.tecs.setSelectedModuleSlot(val & 0x3); // 0..3
                 this.tecs.setQuickMode((val >> 2) & 0x7); // 0..5
                 this.tecs.inventoryChanged(TileEntityCreationStation.INV_ID_MODULES, 0); // The slot is not used
                 break;

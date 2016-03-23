@@ -129,7 +129,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.setSelectedModule(nbt.getByte("SelModule"));
+        this.setSelectedModuleSlot(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
         this.modeMask = nbt.getByte("FurnaceMode");
 
@@ -154,7 +154,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.furnaceInventory.deserializeNBT(nbt);
 
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
     }
 
     @Override
@@ -200,7 +200,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.selectedModule = nbt.getByte("msel");
 
         this.itemInventory.setIsRemote(true);
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
 
         super.onDataPacket(net, packet);
     }
@@ -258,12 +258,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.itemInventory.isUseableByPlayer(player);
     }
 
-    public int getSelectedModule()
+    public int getSelectedModuleSlot()
     {
         return this.selectedModule;
     }
 
-    public void setSelectedModule(int index)
+    public void setSelectedModuleSlot(int index)
     {
         this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
@@ -278,9 +278,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.modeMask &= (MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST);
 
         // Furnace modes are stored in the TileEntity itself, other modes are on the modules
-        if (this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule) != null)
+        if (this.getContainerStack() != null)
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule), null, "CreationStation", false);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(this.getContainerStack(), null, "CreationStation", false);
             if (tag != null)
             {
                 this.modeMask |= tag.getShort("ConfigMask");
@@ -292,13 +292,16 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void writeModeMaskToModule()
     {
+        // Cache the value locally, because taking out the memory card will trigger an update that will overwrite the
+        // value stored in the field in the TE.
+        int modeMask = this.modeMask;
         ItemStack stack = this.itemHandlerMemoryCards.extractItem(this.selectedModule, 1, false);
-        //ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        //ItemStack stack = this.getContainerStack();
         if (stack != null)
         {
             // Furnace modes are stored in the TileEntity itself, other modes are on the modules
             NBTTagCompound tag = NBTUtils.getCompoundTag(stack, null, "CreationStation", true);
-            tag.setShort("ConfigMask", (short)(this.modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
+            tag.setShort("ConfigMask", (short)(modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
             this.itemHandlerMemoryCards.insertItem(this.selectedModule, stack, false);
             //this.itemHandlerMemoryCards.setStackInSlot(this.selectedModule, stack);
         }
@@ -359,7 +362,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     public NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
     {
-        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        ItemStack stack = this.getContainerStack();
         if (stack == null)
         {
             return null;
@@ -629,17 +632,17 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             return;
         }
 
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.readModeMaskFromModule();
 
         if (this.craftingInventories[0] != null)
         {
-            this.craftingInventories[0].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+            this.craftingInventories[0].setContainerItemStack(this.getContainerStack());
         }
 
         if (this.craftingInventories[1] != null)
         {
-            this.craftingInventories[1].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+            this.craftingInventories[1].setContainerItemStack(this.getContainerStack());
         }
 
         //if (this.worldObj.isRemote == false)
@@ -691,7 +694,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 4)
         {
             this.itemInventory.onContentsChanged(element);
-            this.setSelectedModule(element);
+            this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)

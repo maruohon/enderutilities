@@ -76,10 +76,10 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         int modeMask = this.tecs.getModeMask();
 
         // Draw the selection marker around the selected module's button
-        this.drawTexturedModalRect(this.guiLeft + 204, this.guiTop + 105 + this.tecs.getSelectedModule() * 18, 120, 0, 10, 10);
+        this.drawTexturedModalRect(this.guiLeft + 204, this.guiTop + 105 + this.tecs.getSelectedModuleSlot() * 18, 120, 0, 10, 10);
 
         // Draw the hilight background for the selected module slot
-        this.drawTexturedModalRect(this.guiLeft + 215, this.guiTop + 101 + this.tecs.getSelectedModule() * 18, 102, 18, 18, 18);
+        this.drawTexturedModalRect(this.guiLeft + 215, this.guiTop + 101 + this.tecs.getSelectedModuleSlot() * 18, 102, 18, 18, 18);
 
         int x = 9;
         int y = 156;
