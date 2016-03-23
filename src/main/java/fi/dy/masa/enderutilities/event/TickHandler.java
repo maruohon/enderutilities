@@ -60,6 +60,11 @@ public class TickHandler
         // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
+            if (event.player.ridingEntity != null && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
+            {
+                ItemMobHarness.addAITask(event.player.ridingEntity, false);
+            }
+
             ItemStack stack = event.player.getCurrentEquippedItem();
             if (stack == null)
             {
@@ -67,12 +72,6 @@ public class TickHandler
             }
 
             Item item = stack.getItem();
-
-            if (event.player.ridingEntity != null && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
-            {
-                ItemMobHarness.addAITask(event.player.ridingEntity, false);
-            }
-
             if (item instanceof IChunkLoadingItem)
             {
                 NBTTagCompound nbt = stack.getTagCompound();
