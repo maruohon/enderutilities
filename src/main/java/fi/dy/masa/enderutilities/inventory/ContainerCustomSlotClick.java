@@ -359,40 +359,21 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         if (slot instanceof SlotItemHandlerCraftresult)
         {
             ItemStack stackOrig = stackSlot.copy();
+            // Craft up to one stack at a time
+            int num = stackSlot.getMaxStackSize() / stackSlot.stackSize;
 
-            while (this.transferStackFromSlot(player, slotNum) == true)
+            while (num > 0)
             {
-                // Ran out of some of the items, so the crafting result changed, bail out now
-                if (InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+                if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
                 {
                     break;
                 }
+
+                num--;
             }
         }
         // Only transfer a maximum of one regular stack
-        else if (stackSlot.stackSize > stackSlot.getMaxStackSize())
-        {
-            // FIXME this is an ugly hack...
-            int max = stackSlot.getMaxStackSize();
-            int sizeOrig = stackSlot.stackSize;
-            ItemStack stackTmp = stackSlot.copy();
-            stackSlot.stackSize = max;
-
-            this.transferStackFromSlot(player, slotNum);
-            slot.onPickupFromSlot(player, stackSlot);
-
-            ItemStack stackSlotNew = slot.getStack();
-            if (stackSlotNew != null)
-            {
-                stackSlotNew.stackSize += sizeOrig - max;
-                this.putStackInSlot(slotNum, stackSlotNew);
-            }
-            else
-            {
-                stackTmp.stackSize -= max;
-                this.putStackInSlot(slotNum, stackTmp);
-            }
-        }
         else
         {
             this.transferStackFromSlot(player, slotNum);
