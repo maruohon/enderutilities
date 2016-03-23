@@ -74,13 +74,17 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
 
         amount = Math.min(amount, stackSlot.getMaxStackSize());
+        int spaceAvailable = stackSlot.getMaxStackSize();
 
         if (stackCursor != null)
         {
-            amount = Math.min(amount, stackCursor.getMaxStackSize() - stackCursor.stackSize);
+            spaceAvailable = stackCursor.getMaxStackSize() - stackCursor.stackSize;
         }
 
-        if (amount <= 0)
+        amount = Math.min(amount, spaceAvailable);
+
+        //if (amount <= 0 || (slot.isItemValid(stackSlot) == false && spaceAvailable < stackSlot.stackSize))
+        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) == true && spaceAvailable < stackSlot.stackSize))
         {
             return false;
         }
