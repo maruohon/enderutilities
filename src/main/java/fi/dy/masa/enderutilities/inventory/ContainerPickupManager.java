@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
@@ -112,13 +111,13 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     protected boolean fakeSlotClick(int slotNum, int button, int type, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackCursor = player.inventory.getItemStack();
 
         // Regular left click or right click
         if ((type == 0 || type == 1) && (button == 0 || button == 1))
         {
-            if (slot == null || slot.inventory != this.inventoryItemFilters)
+            if (slot == null || slot.itemHandler != this.inventoryItemFilters)
             {
                 return false;
             }
@@ -148,9 +147,10 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
                     for (int i : this.draggedSlots)
                     {
-                        if (this.getSlot(i).inventory == this.inventoryItemFilters)
+                        SlotItemHandlerGeneric slotTmp = this.getSlotItemHandler(i);
+                        if (slotTmp != null && slotTmp.itemHandler == this.inventoryItemFilters)
                         {
-                            this.getSlot(i).putStack(stackTmp.copy());
+                            slotTmp.putStack(stackTmp.copy());
                         }
                     }
                 }
