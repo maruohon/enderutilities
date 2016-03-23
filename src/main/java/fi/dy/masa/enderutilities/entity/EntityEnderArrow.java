@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -268,6 +269,12 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (movingobjectposition1 != null)
                 {
+                    if (movingobjectposition1.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY &&
+                        movingobjectposition1.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)movingobjectposition1.entityHit).isSpectator() == true)
+                    {
+                        continue;
+                    }
+
                     double d1 = vec31.distanceTo(movingobjectposition1.hitVec);
 
                     if (d1 < d0 || d0 == 0.0D)

@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
@@ -135,6 +136,11 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         if (mop.typeOfHit == MovingObjectType.ENTITY)
         {
             if (EntityUtils.doesEntityStackContainEntity(mop.entityHit, thrower) == true)
+            {
+                return;
+            }
+
+            if (mop.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)mop.entityHit).isSpectator() == true)
             {
                 return;
             }
