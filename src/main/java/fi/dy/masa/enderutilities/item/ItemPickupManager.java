@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -14,16 +13,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
@@ -45,6 +34,14 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemPickupManager extends ItemLocationBoundModular implements IKeyBound
 {
@@ -514,13 +511,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         // At least some items were picked up
         if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead == true)
         {
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-
-            if (event.item.getEntityItem().stackSize <= 0 || event.item.isDead == true)
+            if (event.item.isSilent() == false)
             {
-                player.onItemPickup(event.item, origStackSize);
+                player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
+
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            player.onItemPickup(event.item, origStackSize);
         }
 
         if (deny == true)

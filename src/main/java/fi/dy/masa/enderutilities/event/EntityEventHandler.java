@@ -41,6 +41,8 @@ public class EntityEventHandler
 
         Item item = stack.getItem();
 
+        // This needs to be in the event instead of itemInteractionForEntity() if we want it to also work in creative mode...
+        // (Otherwise in creative mode the NBT will get wiped after the use when the item is restored)
         if (item == EnderUtilitiesItems.livingManipulator)
         {
             if (event.target instanceof EntityLivingBase)

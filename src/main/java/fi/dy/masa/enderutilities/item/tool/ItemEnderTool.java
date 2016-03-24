@@ -642,6 +642,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
         }
 
+        // FIXME add check for transporting partial item stacks
         // At least something got transported somewhere...
         if (event.drops.size() != numDropsOriginal)
         {
