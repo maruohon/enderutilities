@@ -405,14 +405,22 @@ public class ItemHandyBag extends ItemInventoryModular
         if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), event.item.getEntityItem()) == null)
         {
             event.setCanceled(true);
+            event.item.setDead();
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
+
+            if (event.item.isSilent() == false)
+            {
+                player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            }
+
             player.onItemPickup(event.item, origStackSize);
+
             return false;
         }
 
         boolean ret = true;
+
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
         for (int slot : slots)
