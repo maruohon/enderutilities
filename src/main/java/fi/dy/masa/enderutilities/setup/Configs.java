@@ -6,9 +6,11 @@ public class Configs
 {
     // Raw "cached" values for stuff that might be used often
     public static boolean valueUseEnderCharge;
+    public static boolean valueHandyBagOpenRequiresSneak;
     public static int valueBuildersWandBlocksPerTick;
 
     // Client
+    public static Property handyBagOpenRequiresSneak;
     public static Property useToolParticles;
     public static Property useToolSounds;
 

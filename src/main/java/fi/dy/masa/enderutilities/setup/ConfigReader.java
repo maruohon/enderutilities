@@ -1,14 +1,12 @@
 package fi.dy.masa.enderutilities.setup;
 
 import java.io.File;
-
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.reference.Reference;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ConfigReader
 {
@@ -71,6 +69,10 @@ public class ConfigReader
 
         category = CATEGORY_CLIENT;
         conf.addCustomCategoryComment(category, "Client side configs");
+
+        Configs.handyBagOpenRequiresSneak = conf.get(category, "handyBagOpenRequiresSneak", false).setRequiresMcRestart(false);
+        Configs.handyBagOpenRequiresSneak.comment = "Reverse the sneak behaviour on opening the Handy Bag instead of the regular inventory";
+        Configs.valueHandyBagOpenRequiresSneak = Configs.handyBagOpenRequiresSneak.getBoolean(false);
 
         Configs.useToolParticles = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
         Configs.useToolParticles.comment = "Does the block drops teleporting by Ender tools cause particle effects";
