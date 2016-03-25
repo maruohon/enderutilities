@@ -6,13 +6,11 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerCreationStation extends ContainerLargeStacks
 {
@@ -60,7 +58,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
 
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
@@ -100,8 +98,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
 
-        // Add the furnace slots as priority merge slots
-        //this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
+        // Add the furnace slots as priority merge slots, but only to already existing stacks
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6, true);
 
         // Furnace slots, left side
         // Smeltable items
@@ -192,7 +190,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Crafting grid slots, try to merge to the main item inventory first
         else if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true)
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false) == true)
             {
                 return true;
             }

@@ -3,13 +3,10 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
 {
@@ -57,7 +54,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_MODULES_START + i, x, y));
         }
 
-        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
         this.setUpgradeSlotTypes();
     }
 

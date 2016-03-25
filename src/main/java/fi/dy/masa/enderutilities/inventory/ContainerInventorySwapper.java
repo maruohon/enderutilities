@@ -3,17 +3,14 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.SlotRange;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerModularItem
 {
@@ -65,7 +62,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             });
         }
 
-        this.playerArmorSlots = new SlotRange(playerArmorStart, 4);
+        this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
     }
 
     @Override
@@ -132,7 +129,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Add Memory Card slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size() - moduleSlots, moduleSlots);
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
     @Override

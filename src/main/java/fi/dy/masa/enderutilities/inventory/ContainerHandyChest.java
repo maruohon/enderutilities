@@ -4,12 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerHandyChest extends ContainerLargeStacks
 {
@@ -45,7 +42,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
 
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);

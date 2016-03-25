@@ -2,41 +2,38 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
+import fi.dy.masa.enderutilities.util.SlotRange;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
     public final EntityPlayer player;
     public final InventoryPlayer inventoryPlayer;
     public final IItemHandler inventory;
-    protected SlotRange customInventorySlots;
-    protected SlotRange playerArmorSlots;
-    protected SlotRange playerMainSlots;
-    protected List<SlotRange> mergeSlotRangesExtToPlayer;
-    protected List<SlotRange> mergeSlotRangesPlayerToExt;
+    protected MergeSlotRange customInventorySlots;
+    protected MergeSlotRange playerArmorSlots;
+    protected MergeSlotRange playerMainSlots;
+    protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
+    protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
 
     public ContainerEnderUtilities(EntityPlayer player, IItemHandler inventory)
     {
         this.player = player;
         this.inventoryPlayer = player.inventory;
         this.inventory = inventory;
-        this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
-        this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();
-        this.customInventorySlots = new SlotRange(0, 0); // Init the ranges to an empty range by default
-        this.playerArmorSlots = new SlotRange(0, 0);
-        this.playerMainSlots = new SlotRange(0, 0);
+        this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
+        this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
+        this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
+        this.playerArmorSlots = new MergeSlotRange(0, 0);
+        this.playerMainSlots = new MergeSlotRange(0, 0);
     }
 
     /**
@@ -75,7 +72,7 @@ public class ContainerEnderUtilities extends Container
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, i, posX + i * 18, posY + 58));
         }
 
-        this.playerMainSlots = new SlotRange(playerInvStart, 36);
+        this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
     }
 
     public EntityPlayer getPlayer()
@@ -149,12 +146,12 @@ public class ContainerEnderUtilities extends Container
         // From player armor slot to player main inventory
         if (this.isSlotInRange(this.playerArmorSlots, slotNum) == true)
         {
-            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
         }
         // From player main inventory to armor slot or the "external" inventory
         else if (this.isSlotInRange(this.playerMainSlots, slotNum) == true)
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false) == true)
             {
                 return true;
             }
@@ -164,26 +161,26 @@ public class ContainerEnderUtilities extends Container
                 return true;
             }
 
-            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false);
+            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false);
         }
 
         // From external inventory to player inventory
-        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, true);
+        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, true);
     }
 
     public boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
     {
         boolean ret = false;
 
-        for (SlotRange slotRange : this.mergeSlotRangesPlayerToExt)
+        for (MergeSlotRange slotRange : this.mergeSlotRangesPlayerToExt)
         {
-            ret |= this.transferStackToSlotRange(player, slotNum, slotRange.first, slotRange.lastExc, reverse);
+            ret |= this.transferStackToSlotRange(player, slotNum, slotRange, reverse);
         }
 
         return ret;
     }
 
-    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
+    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, MergeSlotRange slotRange, boolean reverse)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
@@ -196,7 +193,7 @@ public class ContainerEnderUtilities extends Container
         stack.stackSize = amount;
 
         // Simulate the merge
-        stack = this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, true);
+        stack = this.mergeItemStack(stack, slotRange, reverse, true);
 
         // If the item can't be put back to the slot, then we need to make sure that the whole
         // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
@@ -219,7 +216,7 @@ public class ContainerEnderUtilities extends Container
         slot.onPickupFromSlot(player, stack);
 
         // Actually merge the items
-        stack = this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse, false);
+        stack = this.mergeItemStack(stack, slotRange, reverse, false);
 
         // If they couldn't fit after all, then return them. This shouldn't happen, and will cause some issues like gaining XP from nothing.
         if (stack != null)
@@ -253,8 +250,10 @@ public class ContainerEnderUtilities extends Container
      * @return If simulate is false, then true is returned if at least some of the items were merged.
      * If simulate is true, then true is returned only if ALL the items were successfully merged.
      */
-    protected ItemStack mergeItemStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse, boolean simulate)
+    protected ItemStack mergeItemStack(ItemStack stack, MergeSlotRange slotRange, boolean reverse, boolean simulate)
     {
+        int slotStart = slotRange.first;
+        int slotEndExclusive = slotRange.lastExc;
         // FIXME this copy() is needed because the InvWrapper in Forge doesn't make a copy
         // if the whole input stack fits into an empty slot. A PR has been submitted to fix that.
         stack = stack.copy();
@@ -274,7 +273,7 @@ public class ContainerEnderUtilities extends Container
         }
 
         // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
-        if (stack != null)
+        if (stack != null && slotRange.existingOnly == false)
         {
             slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
 
@@ -296,11 +295,21 @@ public class ContainerEnderUtilities extends Container
 
     public void addMergeSlotRangeExtToPlayer(int start, int numSlots)
     {
-        this.mergeSlotRangesExtToPlayer.add(new SlotRange(start, numSlots));
+        this.addMergeSlotRangeExtToPlayer(start, numSlots, false);
+    }
+
+    public void addMergeSlotRangeExtToPlayer(int start, int numSlots, boolean existingOnly)
+    {
+        this.mergeSlotRangesExtToPlayer.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
 
     public void addMergeSlotRangePlayerToExt(int start, int numSlots)
     {
-        this.mergeSlotRangesPlayerToExt.add(new SlotRange(start, numSlots));
+        this.addMergeSlotRangePlayerToExt(start, numSlots, false);
+    }
+
+    public void addMergeSlotRangePlayerToExt(int start, int numSlots, boolean existingOnly)
+    {
+        this.mergeSlotRangesPlayerToExt.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
 }

@@ -1,13 +1,9 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -17,6 +13,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -62,7 +59,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         // The item transmit slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventoryItemTransmit, 0, 89, posY));
 
-        this.customInventorySlots = new SlotRange(start, 1);
+        this.customInventorySlots = new MergeSlotRange(start, 1);
         start = this.inventorySlots.size();
 
         posY = 47;

@@ -3,12 +3,9 @@ package fi.dy.masa.enderutilities.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.util.MathHelper;
-
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderFurnace extends ContainerLargeStacks
 {
@@ -35,7 +32,7 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 34, 17));
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 34, 53));
         this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.inventory, 2, 88, 35));
-        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
     }
 
     @Override

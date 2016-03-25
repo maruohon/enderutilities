@@ -6,15 +6,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -76,7 +73,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             });
         }
 
-        this.playerArmorSlots = new SlotRange(playerArmorStart, 4);
+        this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
 
         // Player crafting slots
         posX += 90;
@@ -134,7 +131,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
 
         xOff += 90;
         yOff = 69;
