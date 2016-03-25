@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -17,15 +16,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
@@ -43,6 +33,13 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
@@ -84,7 +81,9 @@ public class ItemHandyBag extends ItemInventoryModular
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking() == true)
         {
-            return this.tryMoveItems(stack, world, player, pos, side);
+            this.tryMoveItems(stack, world, player, pos, side);
+
+            return true;
         }
 
         return super.onItemUse(stack, player,world, pos, side, hitX, hitY, hitZ);
@@ -270,36 +269,50 @@ public class ItemHandyBag extends ItemInventoryModular
     public boolean tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (world.isRemote == false && te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
+        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == false)
         {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-            InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-            if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
-            {
-                return false;
-            }
+            return false;
+        }
 
-            int mode = this.getModeByName(stack, "RestockMode");
-            if (mode == MODE_RESTOCK_ENABLED)
+        IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+        InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
+        {
+            return false;
+        }
+
+        int mode = this.getModeByName(stack, "RestockMode");
+        if (mode == MODE_RESTOCK_ENABLED)
+        {
+            if (world.isRemote == false)
             {
                 InventoryUtils.tryMoveAllItems(bagInvnv, inv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
             }
 
-            mode = this.getModeByName(stack, "PickupMode");
-            if (mode == MODE_PICKUP_MATCHING)
+            return true;
+        }
+
+        mode = this.getModeByName(stack, "PickupMode");
+        if (mode == MODE_PICKUP_MATCHING)
+        {
+            if (world.isRemote == false)
             {
                 InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
             }
-            else if (mode == MODE_PICKUP_ALL)
+
+            return true;
+        }
+        else if (mode == MODE_PICKUP_ALL)
+        {
+            if (world.isRemote == false)
             {
                 InventoryUtils.tryMoveAllItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-                return true;
             }
+
+            return true;
         }
 
         return false;
