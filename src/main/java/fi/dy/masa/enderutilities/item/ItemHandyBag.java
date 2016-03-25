@@ -411,11 +411,15 @@ public class ItemHandyBag extends ItemInventoryModular
             return true;
         }
 
-        int origStackSize = event.item.getEntityItem().stackSize;
         EntityPlayer player = event.entityPlayer;
+        ItemStack stack = event.item.getEntityItem();
+        int origStackSize = stack.stackSize;
 
-        // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
-        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), event.item.getEntityItem()) == null)
+        // First try to insert into existing stacks in the player's inventory
+        stack = InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), stack);
+
+        // If all the items fit into existing stacks in the player's inventory, then we do no further processing
+        if (stack == null)
         {
             event.setCanceled(true);
             event.item.setDead();
@@ -430,6 +434,10 @@ public class ItemHandyBag extends ItemInventoryModular
             player.onItemPickup(event.item, origStackSize);
 
             return false;
+        }
+        else
+        {
+            event.item.setEntityItemStack(stack);
         }
 
         boolean ret = true;
@@ -448,8 +456,10 @@ public class ItemHandyBag extends ItemInventoryModular
                 // Pickup mode is All, or Matching and the bag already contains the same item type
                 if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
+                    stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
+
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem()) == null)
+                    if (stack == null)
                     {
                         event.item.setDead();
                         event.setCanceled(true);
@@ -460,13 +470,25 @@ public class ItemHandyBag extends ItemInventoryModular
             }
         }
 
-        // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize)
+        // Not everything was handled, update the stack
+        if (event.item.isDead == false)
         {
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F,
-                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-            player.onItemPickup(event.item, origStackSize);
+            event.item.setEntityItemStack(stack);
+        }
+
+        // At least some items were picked up
+        if (event.item.isDead == true || stack.stackSize != origStackSize)
+        {
+            if (event.item.isSilent() == false)
+            {
+                player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            }
+
+            if (event.item.isDead == true || stack.stackSize <= 0)
+            {
+                FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+                player.onItemPickup(event.item, origStackSize);
+            }
         }
 
         return ret;

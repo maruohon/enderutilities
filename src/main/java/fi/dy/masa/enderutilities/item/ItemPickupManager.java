@@ -467,8 +467,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return true;
         }
 
-        ItemStack stackIn = event.item.getEntityItem();
-        int origStackSize = stackIn.stackSize;
+        ItemStack stack = event.item.getEntityItem();
+        int origStackSize = stack.stackSize;
         EntityPlayer player = event.entityPlayer;
         List<ItemStack> managers = getEnabledItems(player);
         boolean deny = managers.size() > 0;
@@ -477,7 +477,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         //int i = 0;
         for (ItemStack manager : managers)
         {
-            Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stackIn);
+            Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stack);
 
             //System.out.println("i: " + i++ + " result: " + result);
             // Blacklisted or successfully transported, cancel further processing
@@ -486,7 +486,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 if (result == Result.TRANSPORTED)
                 {
                     event.item.setDead();
-                    player.onItemPickup(event.item, origStackSize);
                 }
 
                 deny = true;
@@ -509,15 +508,18 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead == true)
+        if (stack.stackSize != origStackSize || event.item.isDead == true)
         {
             if (event.item.isSilent() == false)
             {
                 player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
-            player.onItemPickup(event.item, origStackSize);
+            if (stack.stackSize <= 0 || event.item.isDead == true)
+            {
+                FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+                player.onItemPickup(event.item, origStackSize);
+            }
         }
 
         if (deny == true)
