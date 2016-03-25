@@ -106,6 +106,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
+        this.itemHandlerExternal = this.itemInventory;
 
         this.craftingInventories = new InventoryItemCrafting[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
@@ -650,6 +651,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.loadRecipe(0, this.getRecipeId(0));
             this.loadRecipe(1, this.getRecipeId(1));
         }
+
+        this.markDirty();
     }
 
     public void openInventory(EntityPlayer player)

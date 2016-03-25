@@ -168,6 +168,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void inventoryChanged(int inventoryId, int slot)
     {
         this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.markDirty();
     }
 
     @Override

@@ -6,19 +6,71 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
-
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
+        int slots = inv.getSlots();
+        int items = 0;
+        int capacity = 0;
+
+        for (int slot = 0; slot < slots; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (inv instanceof IItemHandlerSize)
+            {
+                if (stack != null)
+                {
+                    capacity += ((IItemHandlerSize)inv).getItemStackLimit(stack);
+                }
+                else
+                {
+                    capacity += ((IItemHandlerSize)inv).getInventoryStackLimit();
+                }
+            }
+            else
+            {
+                ItemStack stackTmp = stack != null ? stack.copy() : new ItemStack(Blocks.cobblestone);
+                int added = Integer.MAX_VALUE;
+                stackTmp.stackSize = added;
+                stackTmp = inv.insertItem(slot, stackTmp, true);
+
+                if (stackTmp != null)
+                {
+                    added -= stackTmp.stackSize;
+                }
+
+                capacity += stack.stackSize + added;
+            }
+
+            if (stack != null)
+            {
+                items += stack.stackSize;
+            }
+        }
+
+        if (capacity > 0)
+        {
+            int strength = (14 * items) / capacity;
+
+            // Emit a signal strength of 1 as soon as there is one item in the inventory
+            if (items > 0)
+            {
+                strength += 1;
+            }
+
+            return strength;
+        }
+
         return 0;
     }
 

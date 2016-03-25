@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 
 public class InventoryItemCallback extends InventoryItem
 {
@@ -28,5 +29,16 @@ public class InventoryItemCallback extends InventoryItem
         }
 
         return super.getContainerItemStack();
+    }
+
+    @Override
+    public void onContentsChanged(int slot)
+    {
+        super.onContentsChanged(slot);
+
+        if (this.callback instanceof TileEntity)
+        {
+            ((TileEntity)this.callback).markDirty();
+        }
     }
 }
