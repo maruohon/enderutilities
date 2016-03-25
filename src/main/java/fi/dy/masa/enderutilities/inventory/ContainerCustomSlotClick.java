@@ -2,13 +2,10 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import net.minecraftforge.items.IItemHandler;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
@@ -460,7 +457,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     @Override
     public ItemStack slotClick(int slotNum, int button, int type, EntityPlayer player)
     {
-        //String side = this.inventoryPlayer.player.worldObj.isRemote ? "client" : "server";
+        //String side = this.player.worldObj.isRemote ? "client" : "server";
         //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %d", side, slotNum, button, type));
 
         // slotNum: real button: 0 type: 0 - regular left click - on button down with empty cursor, on button up with stack in cursor
@@ -480,7 +477,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // slotNum: -999 button: 1 type: 4 - (shift +) right click outside the inventory with an empty cursor - on button down
 
         // slotNum: real button: 0 type: 4 - pressing Q over a slot which has items - on button down
-        // shift + Q does real,0,0, -999,0,0, real,0,0 ie. simulates picking up the stack, clicking outside of inventory, and clicking again on the slot (why?)
+        // slotNum: real button: 1 type: 4 - pressing ctrl + Q over a slot which has items - on button down
 
         // slotNum: real button: 0..8 type: 2 - hotbar number key over slot - on button down, only with empty cursor
 
@@ -542,9 +539,9 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             this.shiftClickSlot(slotNum, player);
         }
         // Pressing the drop key (Q) while hovering over a stack
-        else if (button == 0 && type == 4)
+        else if ((button == 0 || button == 1) && type == 4)
         {
-            this.pressDropKey(slotNum, player, false);
+            this.pressDropKey(slotNum, player, button == 1);
         }
         // Pressing a hotbar hotkey over a slot
         else if (type == 2 && button >= 0 && button <= 8)
