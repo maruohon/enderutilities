@@ -12,14 +12,14 @@ public class Registry
 
     public static void registerEnderbagLists()
     {
-        String[] items = Configs.enderBagBlacklist.getStringList();
-        for (String entry : items)
+        enderBagBlacklist.clear();
+        for (String entry : Configs.enderBagBlacklist)
         {
             enderBagBlacklist.add(entry);
         }
 
-        items = Configs.enderBagWhitelist.getStringList();
-        for (String entry : items)
+        enderBagWhitelist.clear();
+        for (String entry : Configs.enderBagWhitelist)
         {
             enderBagWhitelist.add(entry);
         }
@@ -37,8 +37,8 @@ public class Registry
 
     public static void registerTeleportBlacklist()
     {
-        String[] items = Configs.teleportBlacklist.getStringList();
-        for (String entry : items)
+        teleportBlacklist.clear();
+        for (String entry : Configs.teleportBlacklist)
         {
             teleportBlacklist.add(entry);
         }

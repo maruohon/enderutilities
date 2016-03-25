@@ -71,7 +71,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         // If self teleporting is disabled in the configs, do nothing
-        if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP == false)
         {
             return;
         }
@@ -272,7 +272,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public void toggleBowMode(EntityPlayer player, ItemStack stack)
     {
         // If self teleporting is disabled in the configs, always set the mode to TP target
-        if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        if (Configs.enderBowAllowSelfTP == false)
         {
             NBTUtils.setByte(stack, null, "Mode", BOW_MODE_TP_TARGET);
         }

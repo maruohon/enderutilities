@@ -53,7 +53,7 @@ public class EntityEventHandler
         }
         else if (item == EnderUtilitiesItems.enderLasso && event.target instanceof EntityLivingBase)
         {
-            if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
+            if (Configs.enderLassoAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
                     UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)

@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item.part;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
@@ -19,18 +18,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -308,36 +304,33 @@ public class ItemEnderPart extends ItemModule
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
-        if (Configs.disableItemCraftingPart.getBoolean(false) == false)
+        // Ender Alloys
+        for (int i = 0; i <= 2; i++)
         {
-            // Ender Alloys
-            for (int i = 0; i <= 2; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            // Inactive Ender Cores
-            for (int i = 10; i <= 12; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            // (Active) Ender Cores
-            for (int i = 15; i <= 17; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
-
-            list.add(new ItemStack(this, 1, 20)); // Ender Stick
-            list.add(new ItemStack(this, 1, 21)); // Ender Rope
-            list.add(new ItemStack(this, 1, 40)); // Ender Relic
-            list.add(new ItemStack(this, 1, 45)); // Mob Persistence
-            list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
-            list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 6 B
-            list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
-            list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
-            list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
+            list.add(new ItemStack(this, 1, i));
         }
+
+        // Inactive Ender Cores
+        for (int i = 10; i <= 12; i++)
+        {
+            list.add(new ItemStack(this, 1, i));
+        }
+
+        // (Active) Ender Cores
+        for (int i = 15; i <= 17; i++)
+        {
+            list.add(new ItemStack(this, 1, i));
+        }
+
+        list.add(new ItemStack(this, 1, 20)); // Ender Stick
+        list.add(new ItemStack(this, 1, 21)); // Ender Rope
+        list.add(new ItemStack(this, 1, 40)); // Ender Relic
+        list.add(new ItemStack(this, 1, 45)); // Mob Persistence
+        list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
+        list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 6 B
+        list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
+        list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
+        list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
     }
 
     @SideOnly(Side.CLIENT)

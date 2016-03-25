@@ -232,7 +232,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // FIXME add metadata handling
         // Black list
-        if (Configs.enderBagListType.getString().equalsIgnoreCase("blacklist") == true)
+        if (Configs.enderBagListType.equalsIgnoreCase("blacklist") == true)
         {
             list = Registry.getEnderbagBlacklist();
             if (list.contains(name) == true)

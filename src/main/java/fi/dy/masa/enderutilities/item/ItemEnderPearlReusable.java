@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -10,16 +9,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
@@ -82,11 +78,8 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
-        if (Configs.disableItemEnderPearl.getBoolean(false) == false)
-        {
-            list.add(new ItemStack(this, 1, 0)); // Regular
-            list.add(new ItemStack(this, 1, 1)); // Elite
-        }
+        list.add(new ItemStack(this, 1, 0)); // Regular
+        list.add(new ItemStack(this, 1, 1)); // Elite
     }
 
     @SideOnly(Side.CLIENT)

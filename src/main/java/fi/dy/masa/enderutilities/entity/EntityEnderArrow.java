@@ -319,8 +319,7 @@ public class EntityEnderArrow extends EntityArrow
                     this.playSound("random.bowhit", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(movingobjectposition.entityHit) == false &&
-                        (EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false
-                        || Configs.enderBowAllowPlayers.getBoolean(false) == true))
+                        (Configs.enderBowAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(movingobjectposition.entityHit) == false))
                     {
                         if (this.worldObj.isRemote == false)
                         {
