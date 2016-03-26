@@ -43,12 +43,6 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
-    public static final String[] VARIANT_PICKUP_MODES = new String[] { "none", "matching", "all" };
-
-    public static final int MODE_RESTOCK_ENABLED = 1;
-    public static final int MODE_PICKUP_MATCHING = 1;
-    public static final int MODE_PICKUP_ALL = 2;
-
     public static final int DAMAGE_TIER_1 = 0;
     public static final int DAMAGE_TIER_2 = 1;
 
@@ -150,26 +144,23 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         String preGreen = EnumChatFormatting.GREEN.toString();
-        String preYellow = EnumChatFormatting.YELLOW.toString();
         String preRed = EnumChatFormatting.RED.toString();
         String preWhite = EnumChatFormatting.WHITE.toString();
         String rst = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GRAY.toString();
 
         String strPickupMode = StatCollector.translateToLocal("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
         String strRestockMode = StatCollector.translateToLocal("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
-        int mode = this.getModeByName(containerStack, "PickupMode");
-        if (mode == 0)
-            strPickupMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
-        else if (mode == MODE_PICKUP_MATCHING)
-            strPickupMode += preYellow + StatCollector.translateToLocal("enderutilities.tooltip.item.matching") + rst;
-        else// if (mode == 2)
-            strPickupMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.all") + rst;
 
-        mode = this.getModeByName(containerStack, "RestockMode");
-        if (mode == 0)
-            strRestockMode += preRed + StatCollector.translateToLocal("enderutilities.tooltip.item.disabled") + rst;
-        else
-            strRestockMode += preGreen + StatCollector.translateToLocal("enderutilities.tooltip.item.enabled") + rst;
+        PickupMode pickupMode = PickupMode.fromStack(containerStack);
+        if (pickupMode == PickupMode.NONE) strPickupMode += preRed;
+        else if (pickupMode == PickupMode.MATCHING) strPickupMode += EnumChatFormatting.YELLOW.toString();
+        else if (pickupMode == PickupMode.ALL) strPickupMode += preGreen;
+        strPickupMode += pickupMode.getDisplayName() + rst;
+
+        RestockMode restockMode = RestockMode.fromStack(containerStack);
+        if (restockMode == RestockMode.DISABLED) strRestockMode += preRed;
+        else strRestockMode += preGreen;
+        strRestockMode += restockMode.getDisplayName() + rst;
 
         if (verbose == true)
         {
@@ -234,7 +225,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public void restockPlayerInventory(ItemStack stack, World world, Entity entity)
     {
         // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
-        if (world.isRemote == false && entity instanceof EntityPlayer && this.getModeByName(stack, "RestockMode") == MODE_RESTOCK_ENABLED)
+        if (world.isRemote == false && entity instanceof EntityPlayer && RestockMode.fromStack(stack) == RestockMode.ENABLED)
         {
             EntityPlayer player = (EntityPlayer)entity;
             InventoryItemModular inv;
@@ -281,8 +272,7 @@ public class ItemHandyBag extends ItemInventoryModular
             return false;
         }
 
-        int mode = this.getModeByName(stack, "RestockMode");
-        if (mode == MODE_RESTOCK_ENABLED)
+        if (RestockMode.fromStack(stack) == RestockMode.ENABLED)
         {
             if (world.isRemote == false)
             {
@@ -293,22 +283,20 @@ public class ItemHandyBag extends ItemInventoryModular
             return true;
         }
 
-        mode = this.getModeByName(stack, "PickupMode");
-        if (mode == MODE_PICKUP_MATCHING)
+        PickupMode pickupMode = PickupMode.fromStack(stack);
+        if (pickupMode == PickupMode.MATCHING || pickupMode == PickupMode.ALL)
         {
             if (world.isRemote == false)
             {
-                InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
-                player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
-            }
+                if (pickupMode == PickupMode.MATCHING)
+                {
+                    InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
+                }
+                else
+                {
+                    InventoryUtils.tryMoveAllItems(inv, bagInvnv);
+                }
 
-            return true;
-        }
-        else if (mode == MODE_PICKUP_ALL)
-        {
-            if (world.isRemote == false)
-            {
-                InventoryUtils.tryMoveAllItems(inv, bagInvnv);
                 player.worldObj.playSoundAtEntity(player, "mob.endermen.portal", 0.2f, 1.8f);
             }
 
@@ -354,10 +342,10 @@ public class ItemHandyBag extends ItemInventoryModular
                 if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
                 {
                     InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-                    int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
+                    PickupMode pickupMode = PickupMode.fromStack(bagStack);
 
                     // Some pickup mode enabled and all the items fit into existing stacks in the player's inventory
-                    if ((pickupMode == 1 || pickupMode == 2) &&
+                    if ((pickupMode == PickupMode.MATCHING || pickupMode == PickupMode.ALL) &&
                        (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), stack) == null))
                     {
                         iter.remove();
@@ -366,7 +354,8 @@ public class ItemHandyBag extends ItemInventoryModular
                     }
 
                     // Pickup mode is All, or Matching and the bag already contains the same item type
-                    if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
+                    if (pickupMode == PickupMode.ALL ||
+                        (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, stack) != -1))
                     {
                         // All items successfully inserted
                         if (InventoryUtils.tryInsertItemStackToInventory(bagInv, stack) == null)
@@ -451,10 +440,11 @@ public class ItemHandyBag extends ItemInventoryModular
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
                 InventoryItemModular inv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-                int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
+                PickupMode pickupMode = PickupMode.fromStack(bagStack);
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
-                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                if (pickupMode == PickupMode.ALL ||
+                    (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
                 {
                     stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
 
@@ -589,11 +579,6 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public int getModeByName(ItemStack stack, String name)
-    {
-        return NBTUtils.getByte(stack, "HandyBag", name);
-    }
-
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -718,12 +703,67 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        int p = MathHelper.clamp_int(this.getModeByName(stack, "PickupMode"), 0, 2);
         String variant = "locked=" + (bagIsOpenable(stack) == true ? "false" : "true") +
-                         ",pickupmode=" + VARIANT_PICKUP_MODES[p] +
-                         ",restockmode=" + (this.getModeByName(stack, "RestockMode") != 0 ? "true" : "false") +
+                         ",pickupmode=" + PickupMode.fromStack(stack).getVariantName() +
+                         ",restockmode=" + (RestockMode.fromStack(stack) == RestockMode.ENABLED ? "true" : "false") +
                          ",tier=" + MathHelper.clamp_int(stack.getItemDamage(), 0, 1);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
+    }
+
+    public enum PickupMode
+    {
+        NONE     (0, "enderutilities.tooltip.item.disabled", "none"),
+        MATCHING (1, "enderutilities.tooltip.item.matching", "matching"),
+        ALL      (2, "enderutilities.tooltip.item.all",      "all");
+
+        private final String displayName;
+        private final String variantName;
+
+        private PickupMode (int id, String displayName, String variantName)
+        {
+            this.displayName = displayName;
+            this.variantName = variantName;
+        }
+
+        public String getDisplayName()
+        {
+            return StatCollector.translateToLocal(this.displayName);
+        }
+
+        public String getVariantName()
+        {
+            return this.variantName;
+        }
+
+        public static PickupMode fromStack(ItemStack stack)
+        {
+            int id = NBTUtils.getByte(stack, "HandyBag", "PickupMode");
+            return (id >= 0 && id < values().length) ? values()[id] : NONE;
+        }
+    }
+
+    public enum RestockMode
+    {
+        DISABLED (0, "enderutilities.tooltip.item.disabled"),
+        ENABLED  (1, "enderutilities.tooltip.item.enabled");
+
+        private final String displayName;
+
+        private RestockMode (int id, String displayName)
+        {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName()
+        {
+            return StatCollector.translateToLocal(this.displayName);
+        }
+
+        public static RestockMode fromStack(ItemStack stack)
+        {
+            int id = NBTUtils.getByte(stack, "HandyBag", "RestockMode");
+            return (id >= 0 && id < values().length) ? values()[id] : DISABLED;
+        }
     }
 }
