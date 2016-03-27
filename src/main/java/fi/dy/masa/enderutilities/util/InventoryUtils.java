@@ -16,6 +16,8 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class InventoryUtils
 {
+    public static final int SLOT_ITER_LIMIT = 128;
+
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
         int slots = inv.getSlots();
@@ -96,7 +98,9 @@ public class InventoryUtils
         {
             ItemStack stack;
 
-            while (true)
+            int limit = SLOT_ITER_LIMIT;
+
+            while (limit-- > 0)
             {
                 stack = invSrc.extractItem(slot, 64, false);
 
@@ -651,7 +655,9 @@ public class InventoryUtils
         {
             ItemStack stackTmp;
 
-            while (true)
+            int limit = SLOT_ITER_LIMIT;
+
+            while (limit-- > 0)
             {
                 stackTmp = invTarget.extractItem(slot, maxStackSize, false);
 
@@ -722,6 +728,8 @@ public class InventoryUtils
                     }
 
                     // Move items from the other slots to the first slot as long as they can fit
+                    int limit = SLOT_ITER_LIMIT;
+
                     do
                     {
                         stack = invTarget.extractItem(tmp, maxSize, false);
@@ -731,10 +739,12 @@ public class InventoryUtils
                         }
 
                         stack = invTarget.insertItem(slot, stack, false);
-                    } while (stack == null);
+                    } while (stack == null && --limit > 0);
 
                     // If there are items that didn't fit into the first slot, then move those to the other inventory
-                    while (stack != null)
+                    limit = SLOT_ITER_LIMIT;
+
+                    while (stack != null && limit-- > 0)
                     {
                         stack = tryInsertItemStackToInventory(invStorage, stack);
 
