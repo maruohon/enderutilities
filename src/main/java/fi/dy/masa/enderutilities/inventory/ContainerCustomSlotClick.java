@@ -2,17 +2,14 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
-
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
@@ -197,7 +194,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         if (slot != null && stackCursor != null)
         {
-            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.itemHandler, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
+            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.getItemHandler(), stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
             if (stackTmp != null)
             {
                 stackCursor.stackSize += stackTmp.stackSize;
@@ -324,7 +321,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         // Only allow swapping in this inventory (which supports the large stacks)
         // NOTE: This assumes that the swappable "main" inventory is the "inventory" reference in this Container
-        if (slot1 != null && slot1.itemHandler == this.inventory)
+        if (slot1 != null && slot1.getItemHandler() == this.inventory)
         {
             if (this.selectedSlot != -1)
             {

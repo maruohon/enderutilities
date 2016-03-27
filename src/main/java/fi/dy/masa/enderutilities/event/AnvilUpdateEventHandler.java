@@ -1,39 +1,33 @@
 package fi.dy.masa.enderutilities.event;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagList;
-
-import net.minecraftforge.event.AnvilUpdateEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
+import org.apache.commons.lang3.StringUtils;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool.ToolType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AnvilUpdateEventHandler
 {
     @SubscribeEvent
     public void onAnvilUpdate(AnvilUpdateEvent event)
     {
+        ItemStack left = event.getLeft();
+        ItemStack right = event.getRight();
+
         // Handle Ender Tool repairing
-        if (event.left.getItem() == EnderUtilitiesItems.enderTool || event.left.getItem() == EnderUtilitiesItems.enderSword)
+        if (left.getItem() == EnderUtilitiesItems.enderTool || left.getItem() == EnderUtilitiesItems.enderSword)
         {
             // Advanced Ender Alloy
-            if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 2)
+            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getItemDamage() == 2)
             {
                 this.fullyRepairItem(event, 1, 15);
             }
-            else if (event.right.getItem() == Items.enchanted_book)
+            else if (right.getItem() == Items.enchanted_book)
             {
                 this.enhantItem(event);
             }
@@ -43,14 +37,14 @@ public class AnvilUpdateEventHandler
                 event.setCanceled(true);
             }
         }
-        else if (event.left.getItem() == EnderUtilitiesItems.enderBow)
+        else if (left.getItem() == EnderUtilitiesItems.enderBow)
         {
             // Enhanced Ender Alloy
-            if (event.right.getItem() == EnderUtilitiesItems.enderPart && event.right.getItemDamage() == 1)
+            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getItemDamage() == 1)
             {
                 this.fullyRepairItem(event, 1, 15);
             }
-            else if (event.right.getItem() != Items.enchanted_book)
+            else if (right.getItem() != Items.enchanted_book)
             {
                 // Cancel vanilla behaviour, otherwise it would allow repairing the bow with another bow (and lose the modules)
                 event.setCanceled(true);
@@ -60,7 +54,8 @@ public class AnvilUpdateEventHandler
 
     private void fullyRepairItem(AnvilUpdateEvent event, int materialCost, int xpCost)
     {
-        ItemStack repaired = event.left.copy();
+        ItemStack left = event.getLeft();
+        ItemStack repaired = left.copy();
 
         if (repaired.getItem() == EnderUtilitiesItems.enderTool)
         {
@@ -85,9 +80,9 @@ public class AnvilUpdateEventHandler
             repaired.setItemDamage(repaired.getItemDamage() - repairAmount);
         }
 
-        event.materialCost = materialCost;
-        event.cost = xpCost;
-        event.output = repaired;
+        event.setMaterialCost(materialCost);
+        event.setCost(xpCost);
+        event.setOutput(repaired);
         this.updateItemName(event, repaired);
     }
 
@@ -188,16 +183,18 @@ public class AnvilUpdateEventHandler
 
     private void updateItemName(AnvilUpdateEvent event, ItemStack outputStack)
     {
-        if (StringUtils.isBlank(event.name) == false)
+        String name = event.getName();
+
+        if (StringUtils.isBlank(name) == false)
         {
-            outputStack.setStackDisplayName(event.name);
-            event.cost += 1;
+            outputStack.setStackDisplayName(name);
+            event.setCost(event.getCost() + 1);
         }
-        else if (StringUtils.isBlank(event.name) == true && outputStack.hasDisplayName() == true)
+        else if (StringUtils.isBlank(name) == true && outputStack.hasDisplayName() == true)
         {
             // Remove the custom name
             outputStack.clearCustomName();
-            event.cost += 1;
+            event.setCost(event.getCost() + 1);
         }
     }
 }

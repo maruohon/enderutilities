@@ -3,9 +3,6 @@ package fi.dy.masa.enderutilities.client.renderer.item;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,10 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
+import org.lwjgl.opengl.GL11;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -28,6 +22,8 @@ import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BuildersWandRenderer
 {
@@ -50,7 +46,7 @@ public class BuildersWandRenderer
             return;
         }
 
-        this.renderSelectedArea(this.mc.theWorld, this.mc.thePlayer, stack, event.partialTicks);
+        this.renderSelectedArea(this.mc.theWorld, this.mc.thePlayer, stack, event.getPartialTicks());
     }
 
     public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)

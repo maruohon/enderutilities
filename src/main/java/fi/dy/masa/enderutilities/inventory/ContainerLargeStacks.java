@@ -6,12 +6,10 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
-
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
@@ -24,7 +22,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
         // Our inventory
-        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).itemHandler == this.inventory)
+        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).getItemHandler() == this.inventory)
         {
             return slot.getItemStackLimit(stack);
         }

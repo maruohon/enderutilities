@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.entity;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -34,15 +33,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-
 import fi.dy.masa.enderutilities.entity.base.IEntityDoubleTargeting;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
 public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting
 {
@@ -577,9 +574,9 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         double oldX = this.posX;
         double oldY = this.posY;
         double oldZ = this.posZ;
-        this.posX = event.targetX;
-        this.posY = event.targetY;
-        this.posZ = event.targetZ;
+        this.posX = event.getTargetX();
+        this.posY = event.getTargetY();
+        this.posZ = event.getTargetZ();
 
         boolean foundValidLocation = false;
         BlockPos pos = new BlockPos(this.posX, this.posY, this.posZ);
@@ -609,7 +606,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.worldObj.getCubes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
+                if (this.worldObj.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
                 {
                     foundValidLocation = true;
                 }

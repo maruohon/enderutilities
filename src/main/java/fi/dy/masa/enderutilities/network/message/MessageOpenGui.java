@@ -5,17 +5,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import io.netty.buffer.ByteBuf;
 
 public class MessageOpenGui implements IMessage
 {
@@ -76,7 +74,7 @@ public class MessageOpenGui implements IMessage
                 return null;
             }
 
-            final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+            final WorldServer playerWorldServer = sendingPlayer.getServerWorld();
             if (playerWorldServer == null)
             {
                 EnderUtilities.logger.error("World was null in MessageOpenGui");

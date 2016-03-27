@@ -1,9 +1,16 @@
 package fi.dy.masa.enderutilities.event;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemEnderBag;
+import fi.dy.masa.enderutilities.item.ItemRuler;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
@@ -11,34 +18,33 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
-import fi.dy.masa.enderutilities.item.ItemRuler;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-
 public class PlayerEventHandler
 {
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent event)
     {
-        if (event.action == Action.LEFT_CLICK_BLOCK)
+        EntityPlayer player = event.getEntityPlayer();
+
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK)
         {
-            ItemStack stack = event.entityPlayer.getHeldItemMainhand();
+            ItemStack stack = player.getHeldItemMainhand();
             if (stack == null)
             {
                 return;
             }
 
+            World world = event.getWorld();
+            BlockPos pos = event.getPos();
+            EnumFacing face = event.getFace();
+
             if (stack.getItem() == EnderUtilitiesItems.buildersWand)
             {
-                ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
-                        event.pos, event.entityPlayer.dimension, event.face);
+                ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
                 event.setCanceled(true);
             }
             else if (stack.getItem() == EnderUtilitiesItems.ruler)
             {
-                ((ItemRuler)stack.getItem()).onLeftClickBlock(event.entityPlayer, event.world, stack,
-                        event.pos, event.entityPlayer.dimension, event.face);
+                ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
                 event.setCanceled(true);
             }
         }
@@ -47,12 +53,15 @@ public class PlayerEventHandler
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event)
     {
-        if (event.entity != null && event.target != null && event.entity.worldObj.isRemote == false)
+        Entity target = event.getTarget();
+        Entity entity = event.getEntity();
+
+        if (entity != null && target != null && entity.worldObj.isRemote == false)
         {
             // Remount the entity if the player starts tracking an entity he is supposed to be riding already
-            if (event.entity.getRidingEntity() == event.target)
+            if (entity.getRidingEntity() == target)
             {
-                event.entity.startRiding(event.target);
+                entity.startRiding(target);
             }
         }
     }
@@ -60,12 +69,7 @@ public class PlayerEventHandler
     @SubscribeEvent
     public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
     {
-        if (event == null || event.entityPlayer == null)
-        {
-            return;
-        }
-
-        EntityPlayer player = event.entityPlayer;
+        EntityPlayer player = event.getEntityPlayer();
         ItemStack stack = player.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.enderBag)
         {

@@ -3,8 +3,8 @@ package fi.dy.masa.enderutilities.item;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -18,16 +18,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
@@ -49,6 +39,14 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemPickupManager extends ItemLocationBoundModular implements IKeyBound
 {
@@ -395,12 +393,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      */
     public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true)
+        if (event.getEntityPlayer().worldObj.isRemote == true)
         {
             return true;
         }
 
-        EntityPlayer player = event.entityPlayer;
+        EntityPlayer player = event.getEntityPlayer();
         List<ItemStack> managers = getEnabledItems(player);
         boolean deny = managers.size() > 0;
         boolean blackListed = false;
@@ -469,15 +467,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      */
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true || event.item.isDead == true ||
-            event.item.getEntityItem() == null || event.item.getEntityItem().getItem() == null)
+        EntityItem entityItem = event.getItem();
+
+        if (event.getEntityPlayer().worldObj.isRemote == true || entityItem.isDead == true ||
+                entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null)
         {
             return true;
         }
 
-        ItemStack stackIn = event.item.getEntityItem();
+        ItemStack stackIn = entityItem.getEntityItem();
         int origStackSize = stackIn.stackSize;
-        EntityPlayer player = event.entityPlayer;
+        EntityPlayer player = event.getEntityPlayer();
         List<ItemStack> managers = getEnabledItems(player);
         boolean deny = managers.size() > 0;
         boolean ret = true;
@@ -493,8 +493,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             {
                 if (result == Result.TRANSPORTED)
                 {
-                    event.item.setDead();
-                    player.onItemPickup(event.item, origStackSize);
+                    entityItem.setDead();
+                    player.onItemPickup(entityItem, origStackSize);
                 }
 
                 deny = true;
@@ -517,15 +517,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize || event.item.isDead == true)
+        if (entityItem.getEntityItem().stackSize != origStackSize || entityItem.isDead == true)
         {
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
             player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
 
-            if (event.item.getEntityItem().stackSize <= 0 || event.item.isDead == true)
+            if (entityItem.getEntityItem().stackSize <= 0 || entityItem.isDead == true)
             {
-                player.onItemPickup(event.item, origStackSize);
+                player.onItemPickup(entityItem, origStackSize);
             }
         }
 

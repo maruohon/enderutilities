@@ -3,12 +3,10 @@ package fi.dy.masa.enderutilities.item.tool;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.google.common.collect.Multimap;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -33,19 +31,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
+import com.google.common.collect.Multimap;
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
@@ -67,6 +53,17 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderSword extends ItemLocationBoundModular
 {
@@ -246,10 +243,12 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
     {
-        if (event.entity.worldObj.isRemote == true || this.isToolBroken(toolStack) == true || event.drops == null || event.drops.size() == 0)
+        if (event.getEntity().worldObj.isRemote == true || this.isToolBroken(toolStack) == true || event.getDrops() == null || event.getDrops().size() == 0)
         {
             return;
         }
+
+        List<EntityItem> drops = event.getDrops();
 
         SwordMode mode = SwordMode.fromStack(toolStack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
@@ -260,12 +259,12 @@ public class ItemEnderSword extends ItemLocationBoundModular
         }
 
         boolean transported = false;
-        EntityPlayer player = (EntityPlayer)event.source.getSourceOfDamage();
+        EntityPlayer player = (EntityPlayer)event.getSource().getSourceOfDamage();
 
         // Items to further process by this method
         ArrayList<EntityItem> items = new ArrayList<EntityItem>();
 
-        Iterator<EntityItem> iter = event.drops.iterator();
+        Iterator<EntityItem> iter = drops.iterator();
         while (iter.hasNext() == true)
         {
             EntityItem item = iter.next();
@@ -355,10 +354,10 @@ public class ItemEnderSword extends ItemLocationBoundModular
         // The items that were not handled, are added back to the original event's drops list
         for (EntityItem item : items)
         {
-            event.drops.add(item);
+            drops.add(item);
         }
 
-        if (event.drops.isEmpty() == true)
+        if (drops.isEmpty() == true)
         {
             event.setCanceled(true);
         }
@@ -372,10 +371,11 @@ public class ItemEnderSword extends ItemLocationBoundModular
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
+            Entity entity = event.getEntity();
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                    event.entity.posX + 0.5d, event.entity.posY + 0.5d, event.entity.posZ + 0.5d, 8, 0.2d, 0.3d),
-                        new NetworkRegistry.TargetPoint(event.entity.dimension, event.entity.posX, event.entity.posY, event.entity.posZ, 24.0d));
+                    entity.posX + 0.5d, entity.posY + 0.5d, entity.posZ + 0.5d, 8, 0.2d, 0.3d),
+                        new NetworkRegistry.TargetPoint(entity.dimension, entity.posX, entity.posY, entity.posZ, 24.0d));
         }
     }
 
@@ -420,7 +420,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             fighter.setPosition(x, targetEntity.posY, z);
             IBlockState state = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z));
 
-            if (world.getCubes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
+            if (world.getCollisionBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
                 world.isAnyLiquid(fighter.getEntityBoundingBox()) == false &&
                 state.getMaterial().blocksMovement() == true)
             {

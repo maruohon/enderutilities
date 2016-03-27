@@ -1,14 +1,12 @@
 package fi.dy.masa.enderutilities.setup;
 
 import java.io.File;
-
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.reference.Reference;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ConfigReader
 {
@@ -35,7 +33,7 @@ public class ConfigReader
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
     {
-        if (Reference.MOD_ID.equals(event.modID) == true)
+        if (Reference.MOD_ID.equals(event.getModID()) == true)
         {
             loadConfigGeneric(config);
         }
@@ -47,40 +45,40 @@ public class ConfigReader
 
         category = CATEGORY_GENERIC;
         Configs.buildersWandBlocksPerTick = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
-        Configs.buildersWandBlocksPerTick.comment = "The number of blocks the Lazy Builder's Wand will place each game tick, default = 10";
+        Configs.buildersWandBlocksPerTick.setComment("The number of blocks the Lazy Builder's Wand will place each game tick, default = 10");
         Configs.valueBuildersWandBlocksPerTick = Configs.buildersWandBlocksPerTick.getInt(10);
 
         Configs.enderBowAllowPlayers = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
-        Configs.enderBowAllowPlayers.comment = "Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)";
+        Configs.enderBowAllowPlayers.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
 
         Configs.enderBowAllowSelfTP = conf.get(category, "enderBowAllowSelfTP", true).setRequiresMcRestart(false);
-        Configs.enderBowAllowSelfTP.comment = "Can the Ender Bow be used in the 'TP Self' mode";
+        Configs.enderBowAllowSelfTP.setComment("Can the Ender Bow be used in the 'TP Self' mode");
 
         Configs.enderBucketCapacity = conf.get(category, "enderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
-        Configs.enderBucketCapacity.comment = "Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).";
+        Configs.enderBucketCapacity.setComment("Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).");
 
         Configs.enderLassoAllowPlayers = conf.get(category, "enderLassoAllowPlayers", true).setRequiresMcRestart(false);
-        Configs.enderLassoAllowPlayers.comment = "Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)";
+        Configs.enderLassoAllowPlayers.setComment("Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)");
 
         Configs.harvestLevelEnderAlloyAdvanced = conf.get(category, "harvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
-        Configs.harvestLevelEnderAlloyAdvanced.comment = "The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).";
+        Configs.harvestLevelEnderAlloyAdvanced.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
 
         Configs.useEnderCharge = conf.get(category, "useEnderCharge", true).setRequiresMcRestart(false);
-        Configs.useEnderCharge.comment = "Do items require Ender Charge to operate? (stored in Ender Capacitors)";
+        Configs.useEnderCharge.setComment("Do items require Ender Charge to operate? (stored in Ender Capacitors)");
         Configs.valueUseEnderCharge = Configs.useEnderCharge.getBoolean(true);
 
         category = CATEGORY_CLIENT;
         conf.addCustomCategoryComment(category, "Client side configs");
 
         Configs.useToolParticles = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
-        Configs.useToolParticles.comment = "Does the block drops teleporting by Ender tools cause particle effects";
+        Configs.useToolParticles.setComment("Does the block drops teleporting by Ender tools cause particle effects");
 
         Configs.useToolSounds = conf.get(category, "useToolSounds", true).setRequiresMcRestart(false);
-        Configs.useToolSounds.comment = "Does the block drops teleporting by Ender tools play the sound effect";
+        Configs.useToolSounds.setComment("Does the block drops teleporting by Ender tools play the sound effect");
 
         category = "Version";
         Configs.configFileVersion = conf.get(category, "configFileVersion", 5000).setRequiresMcRestart(false);
-        Configs.configFileVersion.comment = "Internal config file version tracking. DO NOT CHANGE!!";
+        Configs.configFileVersion.setComment("Internal config file version tracking. DO NOT CHANGE!!");
         confVersion = Configs.configFileVersion.getInt();
 
         // Update the version in the config to the current version
@@ -101,13 +99,13 @@ public class ConfigReader
 
         // Block disable
         Configs.disableBlockEnergyBridge          = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
-        Configs.disableBlockEnergyBridge.comment = "Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter";
+        Configs.disableBlockEnergyBridge.setComment("Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter");
         Configs.disableBlockMachine_0             = conf.get(category, "disableBlockMachine_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_0.comment = "Info: Machine_0 meta values: 0 = Ender Furnace";
+        Configs.disableBlockMachine_0.setComment("Info: Machine_0 meta values: 0 = Ender Furnace");
         Configs.disableBlockMachine_1             = conf.get(category, "disableBlockMachine_1", false).setRequiresMcRestart(true);
-        Configs.disableBlockMachine_1.comment = "Info: Machine_1 meta values: 0 = Ender Infuser; 1 = Tool Workstation, 2 = Creation Station";
+        Configs.disableBlockMachine_1.setComment("Info: Machine_1 meta values: 0 = Ender Infuser; 1 = Tool Workstation, 2 = Creation Station");
         Configs.disableBlockStorage_0             = conf.get(category, "disableBlockStorage_0", false).setRequiresMcRestart(true);
-        Configs.disableBlockStorage_0.comment = "Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests";
+        Configs.disableBlockStorage_0.setComment("Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests");
 
         category = "DisableItems";
         conf.addCustomCategoryComment(category, "Completely disable items (don't register them to the game.) Note that some items are grouped together using the damage value (and/or NBT data) to identify them. You can't disable a specific damage value only (so that existing items would vanish).");
@@ -219,17 +217,17 @@ public class ConfigReader
 
         category = "EnderBag";
         Configs.enderBagListType = conf.get(category, "listType", "whitelist").setRequiresMcRestart(false);
-        Configs.enderBagListType.comment = "Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.";
+        Configs.enderBagListType.setComment("Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.");
 
         Configs.enderBagBlacklist = conf.get(category, "blackList", new String[] {}).setRequiresMcRestart(false);
-        Configs.enderBagBlacklist.comment = "Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.";
+        Configs.enderBagBlacklist.setComment("Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.");
 
         Configs.enderBagWhitelist = conf.get(category, "whiteList", new String[] {"minecraft:chest", "minecraft:dispenser", "minecraft:dropper", "minecraft:ender_chest", "minecraft:furnace", "minecraft:hopper", "minecraft:trapped_chest"}).setRequiresMcRestart(false);
-        Configs.enderBagWhitelist.comment = "Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!";
+        Configs.enderBagWhitelist.setComment("Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!");
 
         category = "Teleporting";
         Configs.teleportBlacklist = conf.get(category, "entityBlackList", new String[] {"EntityDragon", "EntityDragonPart", "EntityEnderCrystal", "EntityWither"}).setRequiresMcRestart(false);
-        Configs.teleportBlacklist.comment = "Entities that are not allowed to be teleported using any methods";
+        Configs.teleportBlacklist.setComment("Entities that are not allowed to be teleported using any methods");
 
         //updateConfigs(conf);
 

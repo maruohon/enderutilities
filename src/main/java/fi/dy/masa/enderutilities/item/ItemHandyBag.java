@@ -2,10 +2,10 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
@@ -22,15 +22,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
@@ -48,6 +39,13 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
@@ -319,14 +317,14 @@ public class ItemHandyBag extends ItemInventoryModular
      */
     public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true)
+        if (event.getEntityPlayer().worldObj.isRemote == true)
         {
             return true;
         }
 
         boolean ret = true;
         boolean pickedUp = false;
-        EntityPlayer player = event.entityPlayer;
+        EntityPlayer player = event.getEntityPlayer();
         List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
 
         Iterator<ItemStack> iter = event.drops.iterator();
@@ -397,23 +395,25 @@ public class ItemHandyBag extends ItemInventoryModular
      */
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
-        if (event.entityPlayer.worldObj.isRemote == true || event.item.isDead == true ||
-            event.item.getEntityItem() == null || event.item.getEntityItem().getItem() == null)
+        EntityItem entityItem = event.getItem();
+
+        if (event.getEntityPlayer().worldObj.isRemote == true || entityItem.isDead == true ||
+            entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null)
         {
             return true;
         }
 
-        int origStackSize = event.item.getEntityItem().stackSize;
-        EntityPlayer player = event.entityPlayer;
+        int origStackSize = entityItem.getEntityItem().stackSize;
+        EntityPlayer player = event.getEntityPlayer();
 
         // If all the items fit into existing stacks in the player's inventory, then we do nothing more here
-        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), event.item.getEntityItem()) == null)
+        if (InventoryUtils.tryInsertItemStackToExistingStacksInInventory(new PlayerMainInvWrapper(player.inventory), entityItem.getEntityItem()) == null)
         {
             event.setCanceled(true);
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
             player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-            player.onItemPickup(event.item, origStackSize);
+            player.onItemPickup(entityItem, origStackSize);
             return false;
         }
 
@@ -430,12 +430,12 @@ public class ItemHandyBag extends ItemInventoryModular
                 int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
-                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, entityItem.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem()) == null)
+                    if (InventoryUtils.tryInsertItemStackToInventory(inv, entityItem.getEntityItem()) == null)
                     {
-                        event.item.setDead();
+                        entityItem.setDead();
                         event.setCanceled(true);
                         ret = false;
                         break;
@@ -445,12 +445,12 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         // At least some items were picked up
-        if (event.item.getEntityItem().stackSize != origStackSize)
+        if (entityItem.getEntityItem().stackSize != origStackSize)
         {
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, event.item);
+            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
             player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-            player.onItemPickup(event.item, origStackSize);
+            player.onItemPickup(entityItem, origStackSize);
         }
 
         return ret;

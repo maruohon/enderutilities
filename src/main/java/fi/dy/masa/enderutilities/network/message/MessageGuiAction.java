@@ -6,13 +6,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -20,6 +13,11 @@ import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class MessageGuiAction implements IMessage
 {
@@ -88,7 +86,7 @@ public class MessageGuiAction implements IMessage
                 return null;
             }
 
-            final WorldServer playerWorldServer = sendingPlayer.getServerForPlayer();
+            final WorldServer playerWorldServer = sendingPlayer.getServerWorld();
             if (playerWorldServer == null)
             {
                 EnderUtilities.logger.error("World was null in MessageGuiAction");

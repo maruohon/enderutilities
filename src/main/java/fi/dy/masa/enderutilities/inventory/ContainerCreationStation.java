@@ -8,12 +8,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerCreationStation extends ContainerLargeStacks
 {
@@ -167,7 +165,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         if (slot instanceof SlotItemHandler)
         {
             SlotItemHandler slotItemHandler = (SlotItemHandler)slot;
-            if (slotItemHandler.itemHandler == this.inventory || slotItemHandler.itemHandler == this.tecs.getFurnaceInventory())
+            if (slotItemHandler.getItemHandler() == this.inventory || slotItemHandler.getItemHandler() == this.tecs.getFurnaceInventory())
             {
                 return slotItemHandler.getItemStackLimit(stack);
             }

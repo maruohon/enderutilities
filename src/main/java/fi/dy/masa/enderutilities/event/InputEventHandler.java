@@ -1,17 +1,8 @@
 package fi.dy.masa.enderutilities.event;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
+import org.lwjgl.input.Keyboard;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
@@ -19,6 +10,12 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import gnu.trove.map.hash.TIntIntHashMap;
+import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class InputEventHandler
 {
@@ -66,6 +63,7 @@ public class InputEventHandler
         EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
         int eventKey = Keyboard.getEventKey();
 
+        // FIXME 1.9: the modifier stuff is busted - they event now only fires for key release, not press
         // One of our supported modifier keys was pressed or released
         if (KEY_CODE_MAPPINGS.containsKey(eventKey) == true)
         {
@@ -107,7 +105,7 @@ public class InputEventHandler
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event)
     {
-        int dWheel = event.dwheel;
+        int dWheel = event.getDwheel();
         if (dWheel != 0)
         {
             dWheel /= 120;

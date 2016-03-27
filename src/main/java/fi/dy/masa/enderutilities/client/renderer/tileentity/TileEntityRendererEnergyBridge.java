@@ -26,7 +26,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
     public void renderBeamVertical(double x, double y, double z, double yMin, double yMax, double radius, double rot, double flowSpeed, boolean powered)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer worldRenderer = tessellator.getBuffer();
+        VertexBuffer vertexBuffer = tessellator.getBuffer();
         double tx1 = 0.0d, tx2 = 0.0d;
         double tz1 = 0.0d, tz2 = 0.0d;
         double angle = 0.0d;
@@ -56,7 +56,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         GlStateManager.tryBlendFuncSeparate(770, 1, 1, 0);
 
         // Beam (inner part)
-        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -65,10 +65,10 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
             angle += Math.PI / 4.0d;
             tx2 = Math.sin(rot + angle) * radius;
             tz2 = Math.cos(rot + angle) * radius;
-            worldRenderer.pos(tx1, yMin, tz1).tex(0.125, v1).color(r_i, g_i, b_i, 200).endVertex();
-            worldRenderer.pos(tx1, yMax, tz1).tex(0.125, v2).color(r_i, g_i, b_i, 200).endVertex();
-            worldRenderer.pos(tx2, yMax, tz2).tex(0.875, v2).color(r_i, g_i, b_i, 200).endVertex();
-            worldRenderer.pos(tx2, yMin, tz2).tex(0.875, v1).color(r_i, g_i, b_i, 200).endVertex();
+            vertexBuffer.pos(tx1, yMin, tz1).tex(0.125, v1).color(r_i, g_i, b_i, 200).endVertex();
+            vertexBuffer.pos(tx1, yMax, tz1).tex(0.125, v2).color(r_i, g_i, b_i, 200).endVertex();
+            vertexBuffer.pos(tx2, yMax, tz2).tex(0.875, v2).color(r_i, g_i, b_i, 200).endVertex();
+            vertexBuffer.pos(tx2, yMin, tz2).tex(0.875, v1).color(r_i, g_i, b_i, 200).endVertex();
         }
 
         tessellator.draw();
@@ -82,7 +82,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         v2 = (vScale * 2.0d) + v1;
         radius *= 2.0d;
         rot = Math.PI / 8.0d;
-        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+        vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -91,10 +91,10 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
             angle += Math.PI / 4.0d;
             tx2 = Math.sin(rot + angle) * radius;
             tz2 = Math.cos(rot + angle) * radius;
-            worldRenderer.pos(tx1, yMin, tz1).tex(0.125, v1).color(r_o, g_o, b_o, 80).endVertex();
-            worldRenderer.pos(tx1, yMax, tz1).tex(0.125, v2).color(r_o, g_o, b_o, 80).endVertex();
-            worldRenderer.pos(tx2, yMax, tz2).tex(0.875, v2).color(r_o, g_o, b_o, 80).endVertex();
-            worldRenderer.pos(tx2, yMin, tz2).tex(0.875, v1).color(r_o, g_o, b_o, 80).endVertex();
+            vertexBuffer.pos(tx1, yMin, tz1).tex(0.125, v1).color(r_o, g_o, b_o, 80).endVertex();
+            vertexBuffer.pos(tx1, yMax, tz1).tex(0.125, v2).color(r_o, g_o, b_o, 80).endVertex();
+            vertexBuffer.pos(tx2, yMax, tz2).tex(0.875, v2).color(r_o, g_o, b_o, 80).endVertex();
+            vertexBuffer.pos(tx2, yMin, tz2).tex(0.875, v1).color(r_o, g_o, b_o, 80).endVertex();
         }
 
         tessellator.draw();

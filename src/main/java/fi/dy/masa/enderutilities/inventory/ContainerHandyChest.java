@@ -4,11 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerHandyChest extends ContainerLargeStacks
 {
@@ -72,7 +70,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
         // Our main item inventory
-        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).itemHandler == this.inventory)
+        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).getItemHandler() == this.inventory)
         {
             return slot.getItemStackLimit(stack);
         }

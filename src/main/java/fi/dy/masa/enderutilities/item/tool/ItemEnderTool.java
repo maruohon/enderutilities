@@ -5,10 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.SoundType;
@@ -42,19 +38,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -74,6 +59,17 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderTool extends ItemLocationBoundModular
 {
@@ -545,7 +541,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
     {
-        if (this.isToolBroken(toolStack) == true || event.world == null || event.world.isRemote == true)
+        if (this.isToolBroken(toolStack) == true || event.getWorld() == null || event.getWorld().isRemote == true)
         {
             return;
         }
@@ -559,26 +555,27 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return;
         }
 
-        EntityPlayer player = event.harvester;
-        boolean isSilk = event.isSilkTouching;
-        int numDropsOriginal = event.drops.size();
+        List<ItemStack> drops = event.getDrops();
+        EntityPlayer player = event.getHarvester();
+        boolean isSilk = event.isSilkTouching();
+        int numDropsOriginal = drops.size();
 
         // Don't try to handle the drops via other means in the Remote mode
-        if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
+        if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
         {
-            Effects.addItemTeleportEffects(event.world, event.pos);
+            Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
             return;
         }
 
         IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
         if (inv != null)
         {
-            Iterator<ItemStack> iter = event.drops.iterator();
+            Iterator<ItemStack> iter = drops.iterator();
 
             while (iter.hasNext() == true)
             {
                 ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
                 {
                     ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
                     if (stackTmp == null)
@@ -614,11 +611,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
             // Chunk load the target for 30 seconds
             ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
 
-            Iterator<ItemStack> iter = event.drops.iterator();
+            Iterator<ItemStack> iter = drops.iterator();
             while (iter.hasNext() == true)
             {
                 ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.world.rand.nextFloat() < event.dropChance))
+                if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
                 {
                     EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
                     entityItem.motionX = entityItem.motionZ = 0.0d;
@@ -634,7 +631,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         // At least something got transported somewhere...
-        if (event.drops.size() != numDropsOriginal)
+        if (drops.size() != numDropsOriginal)
         {
             // Transported the drops to somewhere remote
             if (mode == DropsMode.REMOTE)
@@ -642,13 +639,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
             }
 
-            Effects.addItemTeleportEffects(event.world, event.pos);
+            Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
         }
 
         // All items successfully transported somewhere, cancel the drops
-        if (event.drops.size() == 0)
+        if (drops.size() == 0)
         {
-            event.dropChance = 0.0f;
+            event.setDropChance(0.0f);
         }
     }
 

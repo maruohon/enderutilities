@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
@@ -16,9 +15,9 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getSlotStackLimit()
     {
-        if (this.itemHandler instanceof ItemStackHandlerBasic)
+        if (this.getItemHandler() instanceof ItemStackHandlerBasic)
         {
-            return ((ItemStackHandlerBasic)this.itemHandler).getInventoryStackLimit();
+            return ((ItemStackHandlerBasic)this.getItemHandler()).getInventoryStackLimit();
         }
 
         return super.getSlotStackLimit();
@@ -27,9 +26,9 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public int getItemStackLimit(ItemStack stack)
     {
-        if (this.itemHandler instanceof ItemStackHandlerBasic)
+        if (this.getItemHandler() instanceof ItemStackHandlerBasic)
         {
-            return ((ItemStackHandlerBasic)this.itemHandler).getItemStackLimit(stack);
+            return ((ItemStackHandlerBasic)this.getItemHandler()).getItemStackLimit(stack);
         }
 
         return super.getItemStackLimit(stack);
@@ -38,15 +37,15 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     @Override
     public void putStack(ItemStack stack)
     {
-        if (this.itemHandler instanceof IItemHandlerModifiable)
+        if (this.getItemHandler() instanceof IItemHandlerModifiable)
         {
             //System.out.println("SlotItemHandlerGeneric#putStack() - setStackInSlot()");
-            ((IItemHandlerModifiable)this.itemHandler).setStackInSlot(this.getSlotIndex(), stack);
+            ((IItemHandlerModifiable)this.getItemHandler()).setStackInSlot(this.getSlotIndex(), stack);
         }
         else
         {
             //System.out.println("SlotItemHandlerGeneric#putStack() - insertItem()");
-            this.itemHandler.insertItem(this.getSlotIndex(), stack, false);
+            this.getItemHandler().insertItem(this.getSlotIndex(), stack, false);
         }
 
         this.onSlotChanged();

@@ -3,18 +3,16 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GuiEventHandler
 {
@@ -30,7 +28,7 @@ public class GuiEventHandler
         InputEventHandler.resetModifiers();
 
         // Opening the player's Inventory GUI
-        if (event.gui != null && event.gui.getClass() == GuiInventory.class)
+        if (event.getGui() != null && event.getGui().getClass() == GuiInventory.class)
         {
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
             if (player.isSneaking() == false &&

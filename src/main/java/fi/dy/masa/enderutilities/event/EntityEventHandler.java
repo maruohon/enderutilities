@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -7,11 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
@@ -26,14 +22,18 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityEventHandler
 {
     @SubscribeEvent
     public void onEntityInteractEvent(EntityInteractEvent event)
     {
+        EntityPlayer player = event.getEntityPlayer();
         // FIXME 1.9
-        ItemStack stack = event.entityPlayer.getHeldItemMainhand();
+        ItemStack stack = player.getHeldItemMainhand();
 
         if (stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
         {
@@ -46,7 +46,7 @@ public class EntityEventHandler
         {
             if (event.getTarget() instanceof EntityLivingBase)
             {
-                ((ItemLivingManipulator)item).handleInteraction(stack, event.entityPlayer, (EntityLivingBase)event.getTarget());
+                ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
                 event.setCanceled(true);
             }
         }
@@ -54,7 +54,7 @@ public class EntityEventHandler
         {
             if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
             {
-                if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
+                if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == true &&
                     UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
                 {
                     if (event.getTarget() instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
@@ -62,14 +62,14 @@ public class EntityEventHandler
                         EntityUtils.applyMobPersistence((EntityLiving)event.getTarget());
                     }
 
-                    if (event.entityPlayer.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
+                    if (player.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
                     {
                         event.setCanceled(true);
                     }
                 }
             }
         }
-        else if (event.entityPlayer.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && event.entityPlayer.worldObj.isRemote == false)
+        else if (player.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && player.worldObj.isRemote == false)
         {
             if (item instanceof IChargeable)
             {
@@ -90,10 +90,11 @@ public class EntityEventHandler
     @SubscribeEvent
     public void onTravelToDimensionEvent(EntityTravelToDimensionEvent event)
     {
+        Entity entity = event.getEntity();
+        int dim = event.getDimension();
+
         // Check that the entity is traveling between the overworld and the nether, and that it is a player
-        if ((event.dimension != 0 && event.dimension != -1) ||
-            (event.entity.dimension != 0 && event.entity.dimension != -1 ) ||
-            (event.entity instanceof EntityPlayer) == false)
+        if ((dim != 0 && dim != -1) || (entity.dimension != 0 && entity.dimension != -1 ) || (entity instanceof EntityPlayer) == false)
         {
             return;
         }
@@ -101,11 +102,11 @@ public class EntityEventHandler
         // If the player is holding a Portal Scaler, then try to use that and cancel the regular
         // teleport if the Portal Scaler teleportation succeeds
         // FIXME 1.9
-        ItemStack stack = ((EntityPlayer)event.entity).getHeldItemMainhand();
+        ItemStack stack = ((EntityPlayer)entity).getHeldItemMainhand();
         if (stack != null && stack.getItem() == EnderUtilitiesItems.portalScaler &&
-            EntityUtils.isEntityCollidingWithBlockSpace(event.entity.worldObj, event.entity, Blocks.portal))
+            EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.portal))
         {
-            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, event.entity.worldObj, (EntityPlayer)event.entity) == true)
+            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.worldObj, (EntityPlayer)entity) == true)
             {
                 event.setCanceled(true);
             }

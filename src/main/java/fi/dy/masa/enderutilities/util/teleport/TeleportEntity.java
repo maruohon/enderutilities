@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
 import java.util.Iterator;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -21,13 +20,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -36,6 +28,11 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class TeleportEntity
 {
@@ -90,7 +87,7 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCubes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
+            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
             {
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
