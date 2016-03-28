@@ -461,7 +461,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return false;
         }
 
-        if (UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
@@ -521,7 +521,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
                 else
                 {
-                    UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true);
+                    UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
                     return true;
                 }
             }

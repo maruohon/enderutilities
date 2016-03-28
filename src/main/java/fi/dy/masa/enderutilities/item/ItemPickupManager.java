@@ -286,7 +286,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
                 int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
                 // Not enough Ender Charge to send all the items
-                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, false) == false)
+                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, true) == false)
                 {
                     int available = UtilItemModular.getAvailableEnderCharge(manager);
                     if (available < cost)
@@ -308,7 +308,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 itemsIn.stackSize -= numTransported;
 
                 // Get the final charge amount
-                UtilItemModular.useEnderCharge(manager, numTransported * cost, true);
+                UtilItemModular.useEnderCharge(manager, numTransported * cost, false);
 
                 if (itemsIn.stackSize <= 0)
                 {

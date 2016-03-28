@@ -71,12 +71,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
         // When right clicking on Obsidian, try to light a Nether Portal
         if (block == Blocks.obsidian && world.isAirBlock(pos.offset(side)) == true &&
-            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true &&
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
             Blocks.portal.func_176548_d(world, pos.offset(side)) == true)
         {
             if (world.isRemote == false)
             {
-                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
+                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
                 world.playAuxSFXAtEntity((EntityPlayer)null, 1009, pos, 0); // Blaze fireball shooting sound
             }
             return true;
@@ -116,14 +116,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
         int cost = this.getTeleportCost(player, posDest, dim);
 
-        if (UtilItemModular.useEnderCharge(stack, cost, false) == true)
+        if (UtilItemModular.useEnderCharge(stack, cost, true) == true)
         {
             TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
             Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
             if (entity != null)
             {
                 cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
-                UtilItemModular.useEnderCharge(stack, cost, true);
+                UtilItemModular.useEnderCharge(stack, cost, false);
                 return true;
             }
         }

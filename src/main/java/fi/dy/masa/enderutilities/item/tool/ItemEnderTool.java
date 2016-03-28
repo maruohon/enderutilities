@@ -316,7 +316,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
@@ -332,7 +332,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     // Use Ender Charge if planting from a remote inventory
                     if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
                     {
-                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
                     }
 
                     Effects.addItemTeleportEffects(world, pos);
@@ -540,7 +540,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == DropsMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
@@ -645,7 +645,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             // Transported the drops to somewhere remote
             if (mode == DropsMode.REMOTE)
             {
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
             }
 
             Effects.addItemTeleportEffects(event.world, event.pos);

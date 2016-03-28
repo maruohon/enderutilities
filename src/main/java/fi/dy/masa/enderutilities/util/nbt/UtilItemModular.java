@@ -713,10 +713,10 @@ public class UtilItemModular
      * In case of any errors, no charge will be drained and false is returned.
      * @param containerStack
      * @param amount
-     * @param doUse True to actually drain, false to simulate
+     * @param simulate true to only simulate, false to actually use charge
      * @return false if the requested amount of charge could not be drained
      */
-    public static boolean useEnderCharge(ItemStack containerStack, int amount, boolean doUse)
+    public static boolean useEnderCharge(ItemStack containerStack, int amount, boolean simulate)
     {
         if (Configs.valueUseEnderCharge == false)
         {
@@ -740,7 +740,7 @@ public class UtilItemModular
             return false;
         }
 
-        if (doUse == true)
+        if (simulate == false)
         {
             cap.useCharge(moduleStack, amount, true);
             setSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);

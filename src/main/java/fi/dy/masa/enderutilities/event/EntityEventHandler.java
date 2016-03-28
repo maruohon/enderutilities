@@ -56,7 +56,7 @@ public class EntityEventHandler
             if (Configs.enderLassoAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(event.target) == false)
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, event.entityPlayer) == true &&
-                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
+                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, false) == true)
                 {
                     if (event.target instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {
