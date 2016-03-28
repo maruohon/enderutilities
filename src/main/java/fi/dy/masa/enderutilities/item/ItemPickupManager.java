@@ -442,16 +442,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         // At least some items were picked up
         if (transported == true)
         {
-            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
         if (deny == true)
         {
             event.setCanceled(true);
-            return false;
         }
 
-        return true;
+        return deny == false;
     }
 
     /**
@@ -471,8 +470,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         int origStackSize = stack.stackSize;
         EntityPlayer player = event.entityPlayer;
         List<ItemStack> managers = getEnabledItems(player);
+        // If there are enabled managers in the player's inventory, then initialize to "deny"
         boolean deny = managers.size() > 0;
-        boolean ret = true;
 
         //int i = 0;
         for (ItemStack manager : managers)
@@ -489,7 +488,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 }
 
                 deny = true;
-                ret = false;
                 break;
             }
 
@@ -512,7 +510,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         {
             if (event.item.isSilent() == false)
             {
-                player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                player.worldObj.playSoundAtEntity(player, "random.pop", 0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 
             if (stack.stackSize <= 0 || event.item.isDead == true)
@@ -525,10 +523,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (deny == true)
         {
             event.setCanceled(true);
-            return false;
         }
 
-        return ret;
+        return deny == false;
     }
 
     @Override
