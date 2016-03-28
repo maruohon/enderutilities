@@ -447,7 +447,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.valueBuildersWandBlocksPerTick);
+            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 

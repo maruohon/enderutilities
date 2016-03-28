@@ -718,7 +718,7 @@ public class UtilItemModular
      */
     public static boolean useEnderCharge(ItemStack containerStack, int amount, boolean simulate)
     {
-        if (Configs.valueUseEnderCharge == false)
+        if (Configs.useEnderCharge == false)
         {
             return true;
         }

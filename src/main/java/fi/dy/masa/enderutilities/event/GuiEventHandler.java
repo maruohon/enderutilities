@@ -32,7 +32,7 @@ public class GuiEventHandler
         // Opening the player's Inventory GUI
         if (event.gui != null && event.gui.getClass() == GuiInventory.class)
         {
-            boolean requireSneak = Configs.valueHandyBagOpenRequiresSneak;
+            boolean requireSneak = Configs.handyBagOpenRequiresSneak;
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
 
             if (player.isSneaking() == requireSneak && player.inventory.hasItem(EnderUtilitiesItems.handyBag) == true)
