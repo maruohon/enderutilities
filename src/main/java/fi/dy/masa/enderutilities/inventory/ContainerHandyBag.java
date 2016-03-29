@@ -1,15 +1,17 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
@@ -17,7 +19,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 {
     public final InventoryItemModular inventoryItemModular;
 
-    private final InventoryItemCrafting craftMatrix;
+    private final InventoryCrafting craftMatrix;
+    private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
@@ -25,9 +28,8 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
         this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
-        // Dummy container itemstack of sticks so that we can use this same class
-        // (items are valid to be inserted - we just don't actually save the contents anywhere now)
-        this.craftMatrix = new InventoryItemCrafting(this, 2, 2, new ItemStack(Items.stick), false, player, null, "CraftMatrix");
+        this.craftMatrix = new InventoryCrafting(this, 2, 2);
+        this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);
@@ -84,7 +86,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             for (int j = 0; j < 2; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrix, j + i * 2, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrapper, j + i * 2, posX + j * 18, posY + i * 18));
             }
         }
     }

@@ -3,9 +3,6 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -13,7 +10,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
+import org.lwjgl.opengl.GL11;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -199,7 +196,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             {
                 for (int slotNum = 0; slotNum < 9; slotNum++)
                 {
-                    ItemStack gridStack = this.containerCS.craftMatrices[i].getStackInSlot(slotNum);
+                    ItemStack gridStack = this.containerCS.getCraftMatrixWrapper(i).getStackInSlot(slotNum);
                     ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
 
                     if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)

@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
@@ -15,13 +14,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.MathHelper;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
@@ -36,6 +28,12 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder, ITickable
 {
@@ -80,7 +78,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     private final ItemStackHandlerTileEntity furnaceInventory;
     private final IItemHandler furnaceInventoryWrapper;
 
-    protected InventoryItemCrafting[] craftingInventories;
+    private final InventoryItemCrafting[] craftingInventories;
+    private final IItemHandler[] craftingInventoryWrappers;
     private final ItemStack[][] craftingGridTemplates;
     protected final ItemStackHandlerBasic[] craftResults;
     protected final ItemStack[][] recipeItems;
@@ -109,6 +108,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerExternal = this.itemInventory;
 
         this.craftingInventories = new InventoryItemCrafting[2];
+        this.craftingInventoryWrappers = new IItemHandler[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
         this.craftResults = new ItemStackHandlerBasic[] { new ItemStackHandlerBasic(1), new ItemStackHandlerBasic(1) };
         this.recipeItems = new ItemStack[][] { new ItemStack[10], new ItemStack[10] };
@@ -224,9 +224,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.craftingInventories[id] = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
                     this.worldObj.isRemote, player, this, "CraftItems_" + id);
             this.craftingInventories[id].readFromContainerItemStack();
+            this.craftingInventoryWrappers[id] = new InvWrapper(this.craftingInventories[id]);
         }
 
         return this.craftingInventories[id];
+    }
+
+    public IItemHandler getCraftingInventoryWrapper(int id)
+    {
+        return this.craftingInventoryWrappers[id];
     }
 
     public ItemStackHandlerBasic getCraftResultInventory(int id)
@@ -390,7 +396,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void storeRecipe(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return;
@@ -449,7 +455,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected boolean addOneSetOfRecipeItemsIntoGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return false;
@@ -464,7 +470,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void fillCraftingGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return;
@@ -515,7 +521,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected InvResult clearCraftingGrid(int invId, EntityPlayer player)
     {
-        IItemHandler inv = this.craftingInventories[MathHelper.clamp_int(invId, 0, 1)];
+        IItemHandler inv = this.craftingInventoryWrappers[MathHelper.clamp_int(invId, 0, 1)];
         if (inv == null)
         {
             return InvResult.MOVED_NOTHING;
@@ -543,7 +549,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.craftingGridTemplates[invId] = null;
 
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return false;
@@ -598,7 +604,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             return;
         }
 
-        if (this.craftingInventories[invId] == null || this.craftingGridTemplates[invId] == null)
+        if (this.craftingInventoryWrappers[invId] == null || this.craftingGridTemplates[invId] == null)
         {
             return;
         }
@@ -606,7 +612,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
-        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventories[invId], this.itemInventory,
+        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventoryWrappers[invId], this.itemInventory,
                 this.craftingGridTemplates[invId], 1, true, useOreDict);
         this.craftingGridTemplates[invId] = null;
     }
@@ -667,6 +673,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.numPlayersUsing = 0;
             this.craftingInventories[0] = null;
             this.craftingInventories[1] = null;
+            this.craftingInventoryWrappers[0] = null;
+            this.craftingInventoryWrappers[1] = null;
         }
     }
 
@@ -737,7 +745,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
         else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element < 2)
         {
-            IItemHandler inv = this.craftingInventories[element];
+            IItemHandler inv = this.craftingInventoryWrappers[element];
 
             // Already empty crafting grid, set the "show recipe" mode to disabled
             if (InventoryUtils.isInventoryEmpty(inv) == true)

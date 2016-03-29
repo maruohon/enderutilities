@@ -4,20 +4,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class InventoryItemCrafting extends InventoryCrafting implements IItemHandlerModifiable
+public class InventoryItemCrafting extends InventoryCrafting
 {
     protected final EntityPlayer player;
-    protected final IItemHandlerModifiable itemHandler;
     protected final ItemStack[] items;
     protected final int invSize;
     protected final int stackLimit;
@@ -41,7 +36,6 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         this.callback = callback;
         this.itemsTagName = tagName;
         this.items = new ItemStack[this.invSize];
-        this.itemHandler = new InvWrapper(this);
     }
 
     public void setCallback(IModularInventoryHolder callback)
@@ -266,29 +260,5 @@ public class InventoryItemCrafting extends InventoryCrafting implements IItemHan
         }
 
         this.container.onCraftMatrixChanged(this);
-    }
-
-    @Override
-    public int getSlots()
-    {
-        return this.invSize;
-    }
-
-    @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-    {
-        return this.itemHandler.insertItem(slot, stack, simulate);
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return this.itemHandler.extractItem(slot, amount, simulate);
-    }
-
-    @Override
-    public void setStackInSlot(int slot, ItemStack stack)
-    {
-        this.itemHandler.setStackInSlot(slot, stack);
     }
 }

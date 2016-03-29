@@ -20,7 +20,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int fuelProgress;
     public int smeltProgress;
 
-    public final InventoryItemCrafting[] craftMatrices;
+    private final InventoryItemCrafting[] craftMatrices;
+    private final IItemHandler[] craftMatrixWrappers;
     private final ItemStackHandlerBasic[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
@@ -34,6 +35,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.tecs.openInventory(player);
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
+        this.craftMatrixWrappers = new IItemHandler[] { te.getCraftingInventoryWrapper(0), te.getCraftingInventoryWrapper(1) };
         this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.lastInteractedCraftingGridId = 0;
@@ -80,7 +82,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
@@ -93,7 +95,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
@@ -132,6 +134,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int getLastInteractedCraftingGridId()
     {
         return this.lastInteractedCraftingGridId;
+    }
+
+    public IItemHandler getCraftMatrixWrapper(int id)
+    {
+        return this.craftMatrixWrappers[id];
     }
 
     @Override
