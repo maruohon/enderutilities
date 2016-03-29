@@ -152,6 +152,16 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             String fluidName = EnumChatFormatting.GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
             return StatCollector.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + fluidName;
         }
+        else if (this.getBucketLinkMode(stack) == LINK_MODE_DISABLED)
+        {
+            if (stack.hasDisplayName() == true)
+            {
+                NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
+                return EnumChatFormatting.ITALIC.toString() + tag.getString("Name") + EnumChatFormatting.RESET.toString();
+            }
+
+            return StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name").trim();
+        }
 
         return super.getItemStackDisplayName(stack);
     }
