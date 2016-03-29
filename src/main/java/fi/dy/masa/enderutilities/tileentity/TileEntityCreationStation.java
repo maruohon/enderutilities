@@ -5,12 +5,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,13 +16,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
@@ -33,12 +23,19 @@ import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCallback;
 import fi.dy.masa.enderutilities.inventory.InventoryItemCrafting;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder, ITickable
 {
@@ -83,9 +80,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     private final ItemStackHandlerTileEntity furnaceInventory;
     private final IItemHandler furnaceInventoryWrapper;
 
-    protected InventoryItemCrafting[] craftingInventories;
+    private final InventoryItemCrafting[] craftingInventories;
+    private final IItemHandler[] craftingInventoryWrappers;
     private final ItemStack[][] craftingGridTemplates;
-    protected final IInventory[] craftResults;
+    protected final ItemStackHandlerBasic[] craftResults;
     protected final ItemStack[][] recipeItems;
     protected int selectedModule;
     protected int actionMode;
@@ -109,10 +107,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
+        this.itemHandlerExternal = this.itemInventory;
 
         this.craftingInventories = new InventoryItemCrafting[2];
+        this.craftingInventoryWrappers = new IItemHandler[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
-        this.craftResults = new InventoryCraftResult[] { new InventoryCraftResult(), new InventoryCraftResult() };
+        this.craftResults = new ItemStackHandlerBasic[] { new ItemStackHandlerBasic(1), new ItemStackHandlerBasic(1) };
         this.recipeItems = new ItemStack[][] { new ItemStack[10], new ItemStack[10] };
 
         this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
@@ -132,7 +132,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.setSelectedModule(nbt.getByte("SelModule"));
+        this.setSelectedModuleSlot(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
         this.modeMask = nbt.getByte("FurnaceMode");
 
@@ -157,7 +157,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.furnaceInventory.deserializeNBT(nbt);
 
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
     }
 
     @Override
@@ -203,7 +203,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.selectedModule = nbt.getByte("msel");
 
         this.itemInventory.setIsRemote(true);
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
 
         super.onDataPacket(net, packet);
     }
@@ -226,12 +226,18 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.craftingInventories[id] = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
                     this.worldObj.isRemote, player, this, "CraftItems_" + id);
             this.craftingInventories[id].readFromContainerItemStack();
+            this.craftingInventoryWrappers[id] = new InvWrapper(this.craftingInventories[id]);
         }
 
         return this.craftingInventories[id];
     }
 
-    public IInventory getCraftResultInventory(int id)
+    public IItemHandler getCraftingInventoryWrapper(int id)
+    {
+        return this.craftingInventoryWrappers[id];
+    }
+
+    public ItemStackHandlerBasic getCraftResultInventory(int id)
     {
         return this.craftResults[id];
     }
@@ -261,12 +267,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.itemInventory.isUseableByPlayer(player);
     }
 
-    public int getSelectedModule()
+    public int getSelectedModuleSlot()
     {
         return this.selectedModule;
     }
 
-    public void setSelectedModule(int index)
+    public void setSelectedModuleSlot(int index)
     {
         this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
@@ -281,9 +287,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.modeMask &= (MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST);
 
         // Furnace modes are stored in the TileEntity itself, other modes are on the modules
-        if (this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule) != null)
+        if (this.getContainerStack() != null)
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule), null, "CreationStation", false);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(this.getContainerStack(), null, "CreationStation", false);
             if (tag != null)
             {
                 this.modeMask |= tag.getShort("ConfigMask");
@@ -295,13 +301,16 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void writeModeMaskToModule()
     {
+        // Cache the value locally, because taking out the memory card will trigger an update that will overwrite the
+        // value stored in the field in the TE.
+        int modeMask = this.modeMask;
         ItemStack stack = this.itemHandlerMemoryCards.extractItem(this.selectedModule, 1, false);
-        //ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        //ItemStack stack = this.getContainerStack();
         if (stack != null)
         {
             // Furnace modes are stored in the TileEntity itself, other modes are on the modules
             NBTTagCompound tag = NBTUtils.getCompoundTag(stack, null, "CreationStation", true);
-            tag.setShort("ConfigMask", (short)(this.modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
+            tag.setShort("ConfigMask", (short)(modeMask & ~(MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST)));
             this.itemHandlerMemoryCards.insertItem(this.selectedModule, stack, false);
             //this.itemHandlerMemoryCards.setStackInSlot(this.selectedModule, stack);
         }
@@ -362,7 +371,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     public NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
     {
-        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule);
+        ItemStack stack = this.getContainerStack();
         if (stack == null)
         {
             return null;
@@ -389,7 +398,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void storeRecipe(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return;
@@ -448,7 +457,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected boolean addOneSetOfRecipeItemsIntoGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return false;
@@ -463,7 +472,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void fillCraftingGrid(int invId, int recipeId)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return;
@@ -514,7 +523,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected InvResult clearCraftingGrid(int invId, EntityPlayer player)
     {
-        IItemHandler inv = this.craftingInventories[MathHelper.clamp_int(invId, 0, 1)];
+        IItemHandler inv = this.craftingInventoryWrappers[MathHelper.clamp_int(invId, 0, 1)];
         if (inv == null)
         {
             return InvResult.MOVED_NOTHING;
@@ -542,7 +551,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.craftingGridTemplates[invId] = null;
 
-        IItemHandler invCrafting = this.craftingInventories[invId];
+        IItemHandler invCrafting = this.craftingInventoryWrappers[invId];
         if (invCrafting == null)
         {
             return false;
@@ -597,7 +606,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             return;
         }
 
-        if (this.craftingInventories[invId] == null || this.craftingGridTemplates[invId] == null)
+        if (this.craftingInventoryWrappers[invId] == null || this.craftingGridTemplates[invId] == null)
         {
             return;
         }
@@ -605,7 +614,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
-        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventories[invId], this.itemInventory,
+        InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventoryWrappers[invId], this.itemInventory,
                 this.craftingGridTemplates[invId], 1, true, useOreDict);
         this.craftingGridTemplates[invId] = null;
     }
@@ -632,17 +641,17 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             return;
         }
 
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.readModeMaskFromModule();
 
         if (this.craftingInventories[0] != null)
         {
-            this.craftingInventories[0].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+            this.craftingInventories[0].setContainerItemStack(this.getContainerStack());
         }
 
         if (this.craftingInventories[1] != null)
         {
-            this.craftingInventories[1].setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+            this.craftingInventories[1].setContainerItemStack(this.getContainerStack());
         }
 
         //if (this.worldObj.isRemote == false)
@@ -650,6 +659,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.loadRecipe(0, this.getRecipeId(0));
             this.loadRecipe(1, this.getRecipeId(1));
         }
+
+        this.markDirty();
     }
 
     public void openInventory(EntityPlayer player)
@@ -664,6 +675,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.numPlayersUsing = 0;
             this.craftingInventories[0] = null;
             this.craftingInventories[1] = null;
+            this.craftingInventoryWrappers[0] = null;
+            this.craftingInventoryWrappers[1] = null;
         }
     }
 
@@ -694,7 +707,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 4)
         {
             this.itemInventory.onContentsChanged(element);
-            this.setSelectedModule(element);
+            this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
@@ -734,7 +747,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
         else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element < 2)
         {
-            IItemHandler inv = this.craftingInventories[element];
+            IItemHandler inv = this.craftingInventoryWrappers[element];
 
             // Already empty crafting grid, set the "show recipe" mode to disabled
             if (InventoryUtils.isInventoryEmpty(inv) == true)
@@ -1116,7 +1129,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {

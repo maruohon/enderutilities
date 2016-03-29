@@ -1,131 +1,126 @@
 package fi.dy.masa.enderutilities.setup;
 
-import net.minecraftforge.common.config.Property;
-
 public class Configs
 {
-    // Raw "cached" values for stuff that might be used often
-    public static boolean valueUseEnderCharge;
-    public static int valueBuildersWandBlocksPerTick;
-
     // Client
-    public static Property useToolParticles;
-    public static Property useToolSounds;
+    public static boolean handyBagOpenRequiresSneak;
+    public static boolean useToolParticles;
+    public static boolean useToolSounds;
 
     // Generic
-    public static Property configFileVersion;
-    public static Property buildersWandBlocksPerTick;
-    public static Property enderBucketCapacity;
-    public static Property harvestLevelEnderAlloyAdvanced;
-    public static Property useEnderCharge;
+    public static int configFileVersion;
+    public static int buildersWandBlocksPerTick;
+    public static int enderBucketCapacity;
+    public static int harvestLevelEnderAlloyAdvanced;
+    public static boolean useEnderCharge;
 
     // Teleport control
-    public static Property enderBowAllowPlayers;
-    public static Property enderBowAllowSelfTP;
-    public static Property enderLassoAllowPlayers;
+    public static boolean enderBowAllowPlayers;
+    public static boolean enderBowAllowSelfTP;
+    public static boolean enderLassoAllowPlayers;
 
     // Black lists and white lists
-    public static Property enderBagListType;
-    public static Property enderBagBlacklist;
-    public static Property enderBagWhitelist;
-    public static Property teleportBlacklist;
+    public static String enderBagListType;
+    public static String[] enderBagBlacklist;
+    public static String[] enderBagWhitelist;
+    public static String[] teleportBlacklist;
 
     // Block disable
-    public static Property disableBlockEnergyBridge;
-    public static Property disableBlockMachine_0;
-    public static Property disableBlockMachine_1;
-    public static Property disableBlockStorage_0;
+    public static boolean disableBlockEnergyBridge;
+    public static boolean disableBlockMachine_0;
+    public static boolean disableBlockMachine_1;
+    public static boolean disableBlockStorage_0;
 
     // Item disable
-    public static Property disableItemCraftingPart;
-    public static Property disableItemEnderCapacitor;
-    public static Property disableItemLinkCrystal;
+    public static boolean disableItemCraftingPart;
+    public static boolean disableItemEnderCapacitor;
+    public static boolean disableItemLinkCrystal;
 
-    public static Property disableItemBuildersWand;
-    public static Property disableItemEnderArrow;
-    public static Property disableItemEnderBag;
-    public static Property disableItemEnderBow;
-    public static Property disableItemEnderBucket;
-    public static Property disableItemEnderLasso;
-    public static Property disableItemEnderPearl;
-    public static Property disableItemEnderPorter;
-    public static Property disableItemEnderSword;
-    public static Property disableItemEnderTools;
-    public static Property disableItemHandyBag;
-    public static Property disableItemInventorySwapper;
-    public static Property disableItemLivingManipulator;
-    public static Property disableItemMobHarness;
-    public static Property disableItemPickupManager;
-    public static Property disableItemPortalScaler;
-    public static Property disableItemRuler;
+    public static boolean disableItemBuildersWand;
+    public static boolean disableItemEnderArrow;
+    public static boolean disableItemEnderBag;
+    public static boolean disableItemEnderBow;
+    public static boolean disableItemEnderBucket;
+    public static boolean disableItemEnderLasso;
+    public static boolean disableItemEnderPearl;
+    public static boolean disableItemEnderPorter;
+    public static boolean disableItemEnderSword;
+    public static boolean disableItemEnderTools;
+    public static boolean disableItemHandyBag;
+    public static boolean disableItemInventorySwapper;
+    public static boolean disableItemLivingManipulator;
+    public static boolean disableItemMobHarness;
+    public static boolean disableItemPickupManager;
+    public static boolean disableItemPortalScaler;
+    public static boolean disableItemRuler;
 
     // Recipe disable
     // Blocks
-    public static Property disableRecipeEnderFurnace;
-    public static Property disableRecipeEnderInfuser;
-    public static Property disableRecipeToolWorkstation;
+    public static boolean disableRecipeEnderFurnace;
+    public static boolean disableRecipeEnderInfuser;
+    public static boolean disableRecipeToolWorkstation;
 
-    public static Property disableRecipeEnergyBridgeTransmitter;
-    public static Property disableRecipeEnergyBridgeReceiver;
-    public static Property disableRecipeEnergyBridgeResonator;
+    public static boolean disableRecipeEnergyBridgeTransmitter;
+    public static boolean disableRecipeEnergyBridgeReceiver;
+    public static boolean disableRecipeEnergyBridgeResonator;
 
-    public static Property disableRecipeCreationStation;
+    public static boolean disableRecipeCreationStation;
 
-    public static Property disableRecipeHandyChest_0;
-    public static Property disableRecipeHandyChest_1;
-    public static Property disableRecipeHandyChest_2;
+    public static boolean disableRecipeHandyChest_0;
+    public static boolean disableRecipeHandyChest_1;
+    public static boolean disableRecipeHandyChest_2;
 
-    public static Property disableRecipeMemoryChest_0;
-    public static Property disableRecipeMemoryChest_1;
-    public static Property disableRecipeMemoryChest_2;
+    public static boolean disableRecipeMemoryChest_0;
+    public static boolean disableRecipeMemoryChest_1;
+    public static boolean disableRecipeMemoryChest_2;
 
     // Items
-    public static Property disableRecipeBuildersWand;
-    public static Property disableRecipeEnderArrow;
-    public static Property disableRecipeEnderBag;
-    public static Property disableRecipeEnderBow;
-    public static Property disableRecipeEnderBucket;
-    public static Property disableRecipeEnderLasso;
-    public static Property disableRecipeEnderPearl;
-    public static Property disableRecipeEnderPearlElite;
-    public static Property disableRecipeEnderPorterBasic;
-    public static Property disableRecipeEnderPorterAdvanced;
-    public static Property disableRecipeHandyBag;
-    public static Property disableRecipeInventorySwapper;
-    public static Property disableRecipeLivingManipulator;
-    public static Property disableRecipeMobHarness;
-    public static Property disableRecipePickupManager;
-    public static Property disableRecipePortalScaler;
-    public static Property disableRecipeRuler;
-    public static Property disableRecipeEnderSword;
-    public static Property disableRecipeEnderPickaxe;
-    public static Property disableRecipeEnderAxe;
-    public static Property disableRecipeEnderShovel;
-    public static Property disableRecipeEnderHoe;
+    public static boolean disableRecipeBuildersWand;
+    public static boolean disableRecipeEnderArrow;
+    public static boolean disableRecipeEnderBag;
+    public static boolean disableRecipeEnderBow;
+    public static boolean disableRecipeEnderBucket;
+    public static boolean disableRecipeEnderLasso;
+    public static boolean disableRecipeEnderPearl;
+    public static boolean disableRecipeEnderPearlElite;
+    public static boolean disableRecipeEnderPorterBasic;
+    public static boolean disableRecipeEnderPorterAdvanced;
+    public static boolean disableRecipeHandyBag;
+    public static boolean disableRecipeInventorySwapper;
+    public static boolean disableRecipeLivingManipulator;
+    public static boolean disableRecipeMobHarness;
+    public static boolean disableRecipePickupManager;
+    public static boolean disableRecipePortalScaler;
+    public static boolean disableRecipeRuler;
+    public static boolean disableRecipeEnderSword;
+    public static boolean disableRecipeEnderPickaxe;
+    public static boolean disableRecipeEnderAxe;
+    public static boolean disableRecipeEnderShovel;
+    public static boolean disableRecipeEnderHoe;
 
     // Parts
-    public static Property disableRecipePartEnderAlloy0;
-    public static Property disableRecipePartEnderAlloy1;
-    public static Property disableRecipePartEnderAlloy2;
-    public static Property disableRecipePartEnderCore0;
-    public static Property disableRecipePartEnderCore1;
-    public static Property disableRecipePartEnderCore2;
-    public static Property disableRecipePartMemoryCardMisc;
-    public static Property disableRecipePartMemoryCardItems6b;
-    public static Property disableRecipePartMemoryCardItems8b;
-    public static Property disableRecipePartMemoryCardItems10b;
-    public static Property disableRecipePartMemoryCardItems12b;
-    public static Property disableRecipePartMobPersistence;
-    public static Property disableRecipePartEnderRelic;
-    public static Property disableRecipePartEnderRope;
-    public static Property disableRecipePartEnderStick;
+    public static boolean disableRecipePartEnderAlloy0;
+    public static boolean disableRecipePartEnderAlloy1;
+    public static boolean disableRecipePartEnderAlloy2;
+    public static boolean disableRecipePartEnderCore0;
+    public static boolean disableRecipePartEnderCore1;
+    public static boolean disableRecipePartEnderCore2;
+    public static boolean disableRecipePartMemoryCardMisc;
+    public static boolean disableRecipePartMemoryCardItems6b;
+    public static boolean disableRecipePartMemoryCardItems8b;
+    public static boolean disableRecipePartMemoryCardItems10b;
+    public static boolean disableRecipePartMemoryCardItems12b;
+    public static boolean disableRecipePartMobPersistence;
+    public static boolean disableRecipePartEnderRelic;
+    public static boolean disableRecipePartEnderRope;
+    public static boolean disableRecipePartEnderStick;
 
     // Modules
-    public static Property disableRecipeModuleEnderCapacitor0;
-    public static Property disableRecipeModuleEnderCapacitor1;
-    public static Property disableRecipeModuleEnderCapacitor2;
-    public static Property disableRecipeModuleLinkCrystalLocation;
-    public static Property disableRecipeModuleLinkCrystalBlock;
-    public static Property disableRecipeModuleLinkCrystalPortal;
+    public static boolean disableRecipeModuleEnderCapacitor0;
+    public static boolean disableRecipeModuleEnderCapacitor1;
+    public static boolean disableRecipeModuleEnderCapacitor2;
+    public static boolean disableRecipeModuleLinkCrystalLocation;
+    public static boolean disableRecipeModuleLinkCrystalBlock;
+    public static boolean disableRecipeModuleLinkCrystalPortal;
 }
 

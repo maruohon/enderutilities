@@ -4,17 +4,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
 {
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
-    public static final int SLOT_MODULAR_ITEM = NUM_MODULE_SLOTS;
+    public static final int SLOT_MODULAR_ITEM = 0;
     public final InventoryItemModules inventoryItem;
 
     public ContainerToolWorkstation(EntityPlayer player, TileEntityToolWorkstation te)
@@ -30,6 +29,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     @Override
     protected void addCustomInventorySlots()
     {
+        // The modular item's slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_TOOL, 8, 19));
+
         // Item's module slots
         int x = 80, y = 19;
         for (int i = 0; i < NUM_MODULE_SLOTS; x += 18, i++)
@@ -46,12 +48,6 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
             }
         }
 
-        // NOTE: The following slots are in the TileEntity's inventory and not in the modular item's inventory,
-        // thus the slot numbering starts from 0 here again.
-
-        // The modular item's slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_TOOL, 8, 19));
-
         // Module storage inventory slots
         x = 8; y = 66;
         for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
@@ -59,7 +55,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, TileEntityToolWorkstation.SLOT_MODULES_START + i, x, y));
         }
 
-        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
         this.setUpgradeSlotTypes();
     }
 
@@ -89,13 +85,13 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
      */
     private void setUpgradeSlotTypes()
     {
-        int slotNum = 0;
+        int slotNum = SLOT_MODULAR_ITEM + 1;
+        int slots = 0;
         Slot slot = this.getSlot(SLOT_MODULAR_ITEM);
         if (slot != null && slot.getHasStack() == true && slot.getStack().getItem() instanceof IModular)
         {
             ItemStack toolStack = slot.getStack();
             IModular imodular = (IModular)toolStack.getItem();
-            int numSlots = this.inventorySlots.size();
 
             // Set the upgrade slot types according to how many of each type of upgrade the current tool supports.
             for (ModuleType moduleType : ModuleType.values())
@@ -108,7 +104,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
 
                 int maxOfType = imodular.getMaxModules(toolStack, moduleType);
 
-                for (int i = 0; i < maxOfType && slotNum < NUM_MODULE_SLOTS && slotNum < numSlots; i++, slotNum++)
+                for (int i = 0; i < maxOfType && slots < NUM_MODULE_SLOTS; i++, slotNum++, slots++)
                 {
                     slot = this.getSlot(slotNum);
                     if (slot instanceof SlotModuleModularItem)
@@ -117,14 +113,14 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
                     }
                 }
 
-                if (slotNum >= NUM_MODULE_SLOTS || slotNum >= numSlots)
+                if (slots >= NUM_MODULE_SLOTS)
                 {
                     break;
                 }
             }
         }
 
-        for ( ; slotNum < NUM_MODULE_SLOTS; slotNum++)
+        for ( ; slotNum < (NUM_MODULE_SLOTS + 1); slotNum++)
         {
             slot = this.getSlot(slotNum);
             if (slot instanceof SlotModuleModularItem)
@@ -139,11 +135,11 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         //System.out.println("slotClick(" + slotNum + ", " + i1 + ", " + i2 + ", ); isRemote: " + this.te.getWorldObj().isRemote);
 
-        Slot slot = slotNum >= 0 && slotNum <= this.inventorySlots.size() ? this.getSlot(slotNum) : null;
+        Slot slot = this.getSlot(slotNum);
         ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         // The clicked on slot is inside the modular item's inventory
-        if (slot != null && slot.inventory == this.inventoryItem)
+        if (slot != null && slot instanceof SlotItemHandler && ((SlotItemHandler)slot).getItemHandler() == this.inventoryItem)
         {
             this.inventoryItem.onContentsChanged(slot.getSlotIndex());
         }

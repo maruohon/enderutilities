@@ -291,7 +291,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
                 int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
                 // Not enough Ender Charge to send all the items
-                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, false) == false)
+                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, true) == false)
                 {
                     int available = UtilItemModular.getAvailableEnderCharge(manager);
                     if (available < cost)
@@ -313,7 +313,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 itemsIn.stackSize -= numTransported;
 
                 // Get the final charge amount
-                UtilItemModular.useEnderCharge(manager, numTransported * cost, true);
+                UtilItemModular.useEnderCharge(manager, numTransported * cost, false);
 
                 if (itemsIn.stackSize <= 0)
                 {
@@ -448,16 +448,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (transported == true)
         {
             player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
-                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                    ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
         if (deny == true)
         {
             event.setCanceled(true);
-            return false;
         }
 
-        return true;
+        return deny == false;
     }
 
     /**
@@ -475,17 +474,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return true;
         }
 
-        ItemStack stackIn = entityItem.getEntityItem();
-        int origStackSize = stackIn.stackSize;
+        ItemStack stack = entityItem.getEntityItem();
+        int origStackSize = stack.stackSize;
         EntityPlayer player = event.getEntityPlayer();
         List<ItemStack> managers = getEnabledItems(player);
+        // If there are enabled managers in the player's inventory, then initialize to "deny"
         boolean deny = managers.size() > 0;
-        boolean ret = true;
 
         //int i = 0;
         for (ItemStack manager : managers)
         {
-            Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stackIn);
+            Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stack);
 
             //System.out.println("i: " + i++ + " result: " + result);
             // Blacklisted or successfully transported, cancel further processing
@@ -494,11 +493,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 if (result == Result.TRANSPORTED)
                 {
                     entityItem.setDead();
-                    player.onItemPickup(entityItem, origStackSize);
                 }
 
                 deny = true;
-                ret = false;
                 break;
             }
 
@@ -517,14 +514,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (entityItem.getEntityItem().stackSize != origStackSize || entityItem.isDead == true)
+        if (stack.stackSize != origStackSize || entityItem.isDead == true)
         {
-            FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
-            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
-                    ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
-
-            if (entityItem.getEntityItem().stackSize <= 0 || entityItem.isDead == true)
+            if (entityItem.isSilent() == false)
             {
+                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
+                        ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+            }
+
+            if (stack.stackSize <= 0 || entityItem.isDead == true)
+            {
+                FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
                 player.onItemPickup(entityItem, origStackSize);
             }
         }
@@ -532,10 +532,9 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (deny == true)
         {
             event.setCanceled(true);
-            return false;
         }
 
-        return ret;
+        return deny == false;
     }
 
     @Override

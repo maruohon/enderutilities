@@ -2,12 +2,9 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
-
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderInfuser extends ContainerTileEntityInventory
 {
@@ -34,7 +31,7 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 44, 24));
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 134, 8));
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 2, 134, 66));
-        this.customInventorySlots = new SlotRange(0, this.inventorySlots.size());
+        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
     }
 
     @Override

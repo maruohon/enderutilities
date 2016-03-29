@@ -3,9 +3,6 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -13,7 +10,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
+import org.lwjgl.opengl.GL11;
 import fi.dy.masa.enderutilities.inventory.ContainerCreationStation;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -76,10 +73,10 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         int modeMask = this.tecs.getModeMask();
 
         // Draw the selection marker around the selected module's button
-        this.drawTexturedModalRect(this.guiLeft + 204, this.guiTop + 105 + this.tecs.getSelectedModule() * 18, 120, 0, 10, 10);
+        this.drawTexturedModalRect(this.guiLeft + 204, this.guiTop + 105 + this.tecs.getSelectedModuleSlot() * 18, 120, 0, 10, 10);
 
         // Draw the hilight background for the selected module slot
-        this.drawTexturedModalRect(this.guiLeft + 215, this.guiTop + 101 + this.tecs.getSelectedModule() * 18, 102, 18, 18, 18);
+        this.drawTexturedModalRect(this.guiLeft + 215, this.guiTop + 101 + this.tecs.getSelectedModuleSlot() * 18, 102, 18, 18, 18);
 
         int x = 9;
         int y = 156;
@@ -199,7 +196,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             {
                 for (int slotNum = 0; slotNum < 9; slotNum++)
                 {
-                    ItemStack gridStack = this.containerCS.craftMatrices[i].getStackInSlot(slotNum);
+                    ItemStack gridStack = this.containerCS.getCraftMatrixWrapper(i).getStackInSlot(slotNum);
                     ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
 
                     if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)

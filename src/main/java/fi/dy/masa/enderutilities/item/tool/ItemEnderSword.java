@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item.tool;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.block.material.Material;
@@ -233,12 +232,46 @@ public class ItemEnderSword extends ItemLocationBoundModular
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == SwordMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
 
         return null;
+    }
+
+    private ItemStack tryTeleportItems(ItemStack itemsIn, ItemStack toolStack, EntityPlayer player)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+        // For cross-dimensional item teleport we require the third tier of active Ender Core
+        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+            || (target.dimension != player.dimension &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
+        {
+            return itemsIn;
+        }
+
+        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+        if (targetWorld == null)
+        {
+            return itemsIn;
+        }
+
+        // Chunk load the target for 30 seconds
+        ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
+
+        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, itemsIn.copy());
+        entityItem.motionX = entityItem.motionZ = 0.0d;
+        entityItem.motionY = 0.15d;
+
+        if (targetWorld.spawnEntityInWorld(entityItem) == true)
+        {
+            Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+            return null;
+        }
+
+        return itemsIn;
     }
 
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
@@ -260,106 +293,48 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         boolean transported = false;
         EntityPlayer player = (EntityPlayer)event.getSource().getSourceOfDamage();
-
-        // Items to further process by this method
-        ArrayList<EntityItem> items = new ArrayList<EntityItem>();
-
         Iterator<EntityItem> iter = drops.iterator();
+        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
+
         while (iter.hasNext() == true)
         {
             EntityItem item = iter.next();
-
-            // Pickup event not canceled, do further processing to those items
-            if (mode == SwordMode.REMOTE || MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
+            ItemStack stack = item.getEntityItem();
+            if (stack == null || stack.getItem() == null)
             {
-                if (item.getEntityItem() != null && item.getEntityItem().stackSize > 0)
-                {
-                    items.add(item);
-                }
-
                 iter.remove();
+                continue;
             }
-            else if (item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+
+            ItemStack stackTmp = stack;
+
+            // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
+            if (mode == SwordMode.PLAYER && MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == true)
+            {
+                Effects.addItemTeleportEffects(player.worldObj, player.getPosition());
+                stackTmp = null;
+            }
+            else if (inv != null)
+            {
+                stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
+            }
+            // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+            {
+                stackTmp = this.tryTeleportItems(stack, toolStack, player);
+            }
+
+            if (stackTmp == null || stackTmp.stackSize <= 0)
             {
                 iter.remove();
                 transported = true;
             }
-        }
-
-        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
-        if (inv != null)
-        {
-            iter = items.iterator();
-
-            while (iter.hasNext() == true)
+            else if (stackTmp.stackSize != stack.stackSize)
             {
-                ItemStack stack = iter.next().getEntityItem();
-                if (stack != null)
-                {
-                    ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
-                    if (stackTmp == null)
-                    {
-                        iter.remove();
-                        transported = true;
-                    }
-                    else
-                    {
-                        stack.stackSize = stackTmp.stackSize;
-                    }
-                }
+                stack.stackSize = stackTmp.stackSize;
+                item.setEntityItemStack(stack);
+                transported = true;
             }
-        }
-        // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-        else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
-        {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-            // For cross-dimensional item teleport we require the third tier of active Ender Core
-            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension &&
-                    this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
-            {
-                return;
-            }
-
-            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
-            if (targetWorld == null)
-            {
-                return;
-            }
-
-            // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
-
-            iter = items.iterator();
-            while (iter.hasNext() == true)
-            {
-                ItemStack stack = iter.next().getEntityItem();
-                if (stack != null)
-                {
-                    EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
-                    entityItem.motionX = entityItem.motionZ = 0.0d;
-                    entityItem.motionY = 0.15d;
-
-                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
-                    {
-                        Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
-                        iter.remove();
-                        transported = true;
-                    }
-                }
-            }
-        }
-
-        // The items that were not handled, are added back to the original event's drops list
-        for (EntityItem item : items)
-        {
-            drops.add(item);
-        }
-
-        if (drops.isEmpty() == true)
-        {
-            event.setCanceled(true);
         }
 
         // At least something got transported somewhere...
@@ -368,7 +343,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             // Transported the drops to somewhere remote
             if (mode == SwordMode.REMOTE)
             {
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
             }
 
             Entity entity = event.getEntity();
@@ -376,6 +351,27 @@ public class ItemEnderSword extends ItemLocationBoundModular
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
                     entity.posX + 0.5d, entity.posY + 0.5d, entity.posZ + 0.5d, 8, 0.2d, 0.3d),
                         new NetworkRegistry.TargetPoint(entity.dimension, entity.posX, entity.posY, entity.posZ, 24.0d));
+        }
+
+        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
+        if (drops.size() > 0 && mode == SwordMode.REMOTE)
+        {
+            iter = drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                EntityItem item = iter.next();
+                MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item));
+
+                if (item.isDead == true || item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+                {
+                    iter.remove();
+                }
+            }
+        }
+
+        if (drops.isEmpty() == true)
+        {
+            event.setCanceled(true);
         }
     }
 

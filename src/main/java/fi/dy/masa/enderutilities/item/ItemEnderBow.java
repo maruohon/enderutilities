@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,11 +18,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -37,6 +31,9 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
@@ -81,7 +78,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         }
 
         // If self teleporting is disabled in the configs, do nothing
-        if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        if (mode == BOW_MODE_TP_SELF && Configs.enderBowAllowSelfTP == false)
         {
             return;
         }
@@ -91,9 +88,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return;
         }
 
-        int j = this.getMaxItemUseDuration(stack) - itemInUseCount;
-
-        float f = (float)j / 20.0f;
+        float f = (float)(this.getMaxItemUseDuration(stack) - itemInUseCount) / 20.0f;
         f = (f * f + f * 2.0f) / 3.0f;
         if (f < 0.1f) { return; }
         if (f > 1.0f) { f = 1.0f; }
@@ -121,7 +116,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (player != null && player.capabilities.isCreativeMode == false)
         {
-            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
+            if (mode == BOW_MODE_TP_TARGET && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, false) == false)
             {
                 return;
             }
@@ -179,7 +174,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         // In survival teleporting targets requires Ender Charge
         if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, false) == false)
+            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -270,7 +265,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public void toggleBowMode(EntityPlayer player, ItemStack stack)
     {
         // If self teleporting is disabled in the configs, always set the mode to TP target
-        if (Configs.enderBowAllowSelfTP.getBoolean(true) == false)
+        if (Configs.enderBowAllowSelfTP == false)
         {
             NBTUtils.setByte(stack, null, "Mode", BOW_MODE_TP_TARGET);
         }

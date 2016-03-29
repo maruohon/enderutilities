@@ -76,7 +76,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             && (stack.getItemDamage() == 1 || target.dimension == entity.dimension))
         {
             int cost = (target.dimension == entity.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
             {
                 return false;
             }
@@ -84,7 +84,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             // If the target entity is a player, then they have to be sneaking too
             if ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isSneaking() == true)
             {
-                UtilItemModular.useEnderCharge(stack, cost, true);
+                UtilItemModular.useEnderCharge(stack, cost, false);
                 TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
                 return true;
             }
@@ -120,7 +120,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
         {
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
@@ -163,7 +163,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
 
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
             {
                 return;
             }

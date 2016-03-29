@@ -1,15 +1,10 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -19,6 +14,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -64,7 +60,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         // The item transmit slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventoryItemTransmit, 0, 89, posY));
 
-        this.customInventorySlots = new SlotRange(start, 1);
+        this.customInventorySlots = new MergeSlotRange(start, 1);
         start = this.inventorySlots.size();
 
         posY = 47;
@@ -113,14 +109,14 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     protected boolean fakeSlotClick(int slotNum, int button, ClickType clickType, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackCursor = player.inventory.getItemStack();
 
         // FIXME 1.9: check all the click types
         // Regular left click or right click
         if ((clickType == ClickType.PICKUP_ALL || clickType == ClickType.PICKUP) && (button == 0 || button == 1))
         {
-            if (slot == null || slot.inventory != this.inventoryItemFilters)
+            if (slot == null || slot.getItemHandler() != this.inventoryItemFilters)
             {
                 return false;
             }
@@ -151,9 +147,10 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
                     for (int i : this.draggedSlots)
                     {
-                        if (this.getSlot(i).inventory == this.inventoryItemFilters)
+                        SlotItemHandlerGeneric slotTmp = this.getSlotItemHandler(i);
+                        if (slotTmp != null && slotTmp.getItemHandler() == this.inventoryItemFilters)
                         {
-                            this.getSlot(i).putStack(stackTmp.copy());
+                            slotTmp.putStack(stackTmp.copy());
                         }
                     }
                 }

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -25,12 +24,6 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -45,6 +38,10 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
@@ -76,7 +73,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Access is allowed for everyone to a vanilla Ender Chest
         if (targetData.blockName.equals("minecraft:ender_chest") == true)
         {
-            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
             }
@@ -112,7 +109,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Check that we have sufficient charge left to use the bag.
-        if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -134,7 +131,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             }
 
             // Actually use the charge. This _shouldn't_ be able to fail due to the above simulation...
-            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+            if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
             {
                 // Remove the chunk loading delay FIXME this doesn't take into account possible overlapping chunk loads...
                 //ChunkLoading.getInstance().refreshChunkTimeout(targetData.dimension, targetData.posX >> 4, targetData.posZ >> 4, 0, false);
@@ -224,7 +221,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
         if ((player instanceof EntityPlayerMP) == false ||
              world == null ||
-             world.getPlayerChunkManager().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
+             world.getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
         {
             return true;
         }
@@ -238,7 +235,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // FIXME add metadata handling
         // Black list
-        if (Configs.enderBagListType.getString().equalsIgnoreCase("blacklist") == true)
+        if (Configs.enderBagListType.equalsIgnoreCase("blacklist") == true)
         {
             list = Registry.getEnderbagBlacklist();
             if (list.contains(name) == true)

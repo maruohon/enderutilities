@@ -8,7 +8,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.SlotModule;
+import fi.dy.masa.enderutilities.inventory.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
@@ -56,9 +56,9 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         }
 
         // Module slots
-        for (int i = 0, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
+        for (int i = 0, slotNum = ContainerToolWorkstation.SLOT_MODULAR_ITEM + 1, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
         {
-            Slot slot = this.inventorySlots.getSlot(i);
+            Slot slot = this.inventorySlots.getSlot(slotNum++);
 
             // Draw a darker background over the disabled slots
             if (toolStack == null || i >= maxModules)
@@ -66,10 +66,10 @@ public class GuiToolWorkstation extends GuiEnderUtilities
                 this.drawTexturedModalRect(x + dx, y + dy, 102, 0, 18, 18);
             }
             // Draw the module type background to empty, enabled module slots
-            else if (slot instanceof SlotModule && slot.getHasStack() == false)
+            else if (slot instanceof SlotItemHandlerModule && slot.getHasStack() == false)
             {
-                int u = ((SlotModule)slot).getBackgroundIconU();
-                int v = ((SlotModule)slot).getBackgroundIconV();
+                int u = ((SlotItemHandlerModule)slot).getBackgroundIconU();
+                int v = ((SlotItemHandlerModule)slot).getBackgroundIconV();
                 // Only one type of module is allowed in this slot
                 if (u >= 0 && v >= 0)
                 {

@@ -1,24 +1,20 @@
 package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
@@ -96,13 +92,10 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
-        if (Configs.disableItemLinkCrystal.getBoolean(false) == false)
+        // FIXME Disabled the Portal type Link Crystal until it is actually used
+        for (int i = 0; i < 2; i++)
         {
-            // FIXME Disabled the Portal type Link Crystal until it is actually used
-            for (int i = 0; i < 2; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
+            list.add(new ItemStack(this, 1, i));
         }
     }
 

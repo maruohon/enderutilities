@@ -7,6 +7,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -30,8 +31,10 @@ public class GuiEventHandler
         // Opening the player's Inventory GUI
         if (event.getGui() != null && event.getGui().getClass() == GuiInventory.class)
         {
+            boolean requireSneak = Configs.handyBagOpenRequiresSneak;
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-            if (player.isSneaking() == false &&
+
+            if (player.isSneaking() == requireSneak &&
                 (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 0)) == true) ||
                 (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 1)) == true))
             {

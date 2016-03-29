@@ -6,19 +6,73 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-
 public class InventoryUtils
 {
+    public static final int SLOT_ITER_LIMIT = 128;
+
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
+        int slots = inv.getSlots();
+        int items = 0;
+        int capacity = 0;
+
+        for (int slot = 0; slot < slots; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (inv instanceof IItemHandlerSize)
+            {
+                if (stack != null)
+                {
+                    capacity += ((IItemHandlerSize)inv).getItemStackLimit(stack);
+                }
+                else
+                {
+                    capacity += ((IItemHandlerSize)inv).getInventoryStackLimit();
+                }
+            }
+            else
+            {
+                ItemStack stackTmp = stack != null ? stack.copy() : new ItemStack(Blocks.cobblestone);
+                int added = Integer.MAX_VALUE;
+                stackTmp.stackSize = added;
+                stackTmp = inv.insertItem(slot, stackTmp, true);
+
+                if (stackTmp != null)
+                {
+                    added -= stackTmp.stackSize;
+                }
+
+                capacity += stack.stackSize + added;
+            }
+
+            if (stack != null)
+            {
+                items += stack.stackSize;
+            }
+        }
+
+        if (capacity > 0)
+        {
+            int strength = (14 * items) / capacity;
+
+            // Emit a signal strength of 1 as soon as there is one item in the inventory
+            if (items > 0)
+            {
+                strength += 1;
+            }
+
+            return strength;
+        }
+
         return 0;
     }
 
@@ -44,7 +98,9 @@ public class InventoryUtils
         {
             ItemStack stack;
 
-            do
+            int limit = SLOT_ITER_LIMIT;
+
+            while (limit-- > 0)
             {
                 stack = invSrc.extractItem(slot, 64, false);
 
@@ -70,7 +126,7 @@ public class InventoryUtils
                     movedAll = false;
                     break;
                 }
-            } while (stack != null);
+            }
         }
 
         return movedAll == true ? InvResult.MOVED_ALL : (movedSome == true ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING);
@@ -145,7 +201,7 @@ public class InventoryUtils
 
             if (stack != null)
             {
-                List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacksWithinSlotRange(invDst, stack, slotsDst);
+                List<Integer> matchingSlots = getSlotNumbersOfMatchingStacksWithinSlotRange(invDst, stack, slotsDst);
 
                 for (int dstSlot : matchingSlots)
                 {
@@ -222,7 +278,7 @@ public class InventoryUtils
      */
     public static ItemStack tryInsertItemStackToExistingStacksInInventory(IItemHandler inv, ItemStack stackIn)
     {
-        List<Integer> slots = getSlotNumbersOfMatchingItemStacks(inv, stackIn);
+        List<Integer> slots = getSlotNumbersOfMatchingStacks(inv, stackIn);
 
         for (int slot : slots)
         {
@@ -447,9 +503,9 @@ public class InventoryUtils
      * Note: stackIn can be null.
      * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
      */
-    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IItemHandler inv, ItemStack stackIn)
+    public static List<Integer> getSlotNumbersOfMatchingStacks(IItemHandler inv, ItemStack stackIn)
     {
-        return getSlotNumbersOfMatchingItemStacksWithinSlotRange(inv, stackIn, new SlotRange(inv));
+        return getSlotNumbersOfMatchingStacksWithinSlotRange(inv, stackIn, new SlotRange(inv));
     }
 
     /**
@@ -457,7 +513,7 @@ public class InventoryUtils
      * Note: stackIn can be null.
      * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
      */
-    public static List<Integer> getSlotNumbersOfMatchingItemStacksWithinSlotRange(IItemHandler inv, ItemStack stackIn, SlotRange slotRange)
+    public static List<Integer> getSlotNumbersOfMatchingStacksWithinSlotRange(IItemHandler inv, ItemStack stackIn, SlotRange slotRange)
     {
         List<Integer> slots = new ArrayList<Integer>();
         int max = Math.min(inv.getSlots() - 1, slotRange.lastInc);
@@ -475,7 +531,7 @@ public class InventoryUtils
         return slots;
     }
 
-    public static List<Integer> getSlotNumbersOfMatchingItemStacks(IItemHandler inv, ItemStack stackTemplate, boolean useOreDict)
+    public static List<Integer> getSlotNumbersOfMatchingStacks(IItemHandler inv, ItemStack stackTemplate, boolean useOreDict)
     {
         List<Integer> slots = new ArrayList<Integer>();
 
@@ -593,13 +649,15 @@ public class InventoryUtils
         ItemStack stack = collectItemsFromInventory(invTarget, stackTemplate, maxStackSize, true);
 
         // Move all the remaining identical items to the storage inventory
-        List<Integer> slots = getSlotNumbersOfMatchingItemStacks(invTarget, stackTemplate);
+        List<Integer> slots = getSlotNumbersOfMatchingStacks(invTarget, stackTemplate);
 
         for (int slot : slots)
         {
             ItemStack stackTmp;
 
-            do
+            int limit = SLOT_ITER_LIMIT;
+
+            while (limit-- > 0)
             {
                 stackTmp = invTarget.extractItem(slot, maxStackSize, false);
 
@@ -616,7 +674,7 @@ public class InventoryUtils
                     invTarget.insertItem(slot, stackTmp, false);
                     break;
                 }
-            } while (stackTmp != null);
+            }
         }
 
         // If the initial collected stack wasn't full, try to fill it from the storage inventory
@@ -655,43 +713,75 @@ public class InventoryUtils
                 continue;
             }
 
+            int maxSize = stack.getMaxStackSize();
+
             // Get all slots that have this item
-            List<Integer> matchingSlots = getSlotNumbersOfMatchingItemStacks(invTarget, stack);
-            if (matchingSlots.size() <= 1)
+            List<Integer> matchingSlots = getSlotNumbersOfMatchingStacks(invTarget, stack);
+
+            if (matchingSlots.size() > 1)
             {
-                continue;
+                for (int tmp : matchingSlots)
+                {
+                    if (tmp == slot)
+                    {
+                        continue;
+                    }
+
+                    // Move items from the other slots to the first slot as long as they can fit
+                    int limit = SLOT_ITER_LIMIT;
+
+                    do
+                    {
+                        stack = invTarget.extractItem(tmp, maxSize, false);
+                        if (stack == null)
+                        {
+                            break;
+                        }
+
+                        stack = invTarget.insertItem(slot, stack, false);
+                    } while (stack == null && --limit > 0);
+
+                    // If there are items that didn't fit into the first slot, then move those to the other inventory
+                    limit = SLOT_ITER_LIMIT;
+
+                    while (stack != null && limit-- > 0)
+                    {
+                        stack = tryInsertItemStackToInventory(invStorage, stack);
+
+                        // Couldn't move more items to the invStorage inventory, return the remaining stack to the original slot and bail out
+                        if (stack != null)
+                        {
+                            invTarget.insertItem(tmp, stack, false);
+                            return;
+                        }
+
+                        stack = invTarget.extractItem(tmp, maxSize, false);
+                    }
+                }
             }
 
-            // Store the first slot, we try to fill that one from the other slots
-            int firstSlot = matchingSlots.remove(0);
+            // All matching stacks inside the invTarget handled, now check if we still
+            // need to re-stock more items into the first stack from invStorage.
+            stack = invTarget.getStackInSlot(slot);
 
-            for (int tmp : matchingSlots)
+            if (stack != null)
             {
-                // Move items from the other slots to the first slot as long as they can fit
-                do
+                maxSize = stack.getMaxStackSize();
+
+                if (stack.stackSize < maxSize)
                 {
-                    stack = invTarget.extractItem(tmp, 64, false);
-                    if (stack == null)
+                    ItemStack stackTmp = collectItemsFromInventory(invStorage, stack, maxSize - stack.stackSize, true);
+
+                    if (stackTmp != null)
                     {
-                        break;
+                        stackTmp = invTarget.insertItem(slot, stackTmp, false);
+
+                        // If some of them didn't fit into the first slot after all, then return those
+                        if (stackTmp != null)
+                        {
+                            tryInsertItemStackToInventory(invStorage, stackTmp);
+                        }
                     }
-
-                    stack = invTarget.insertItem(firstSlot, stack, false);
-                } while (stack == null);
-
-                // If there are items that didn't fit into the first slot, then move those to the other inventory
-                while (stack != null)
-                {
-                    stack = tryInsertItemStackToInventory(invStorage, stack);
-
-                    // Couldn't move more items to the invStorage inventory, return the remaining stack to the original slot and bail out
-                    if (stack != null)
-                    {
-                        invTarget.insertItem(tmp, stack, false);
-                        return;
-                    }
-
-                    stack = invTarget.extractItem(tmp, 64, false);
                 }
             }
         }

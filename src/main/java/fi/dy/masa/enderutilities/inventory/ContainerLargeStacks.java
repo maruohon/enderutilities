@@ -10,12 +10,20 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
     public ContainerLargeStacks(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
+    }
+
+    @Override
+    public boolean canMergeSlot(ItemStack stack, Slot slot)
+    {
+        // FIXME: This is a temporary non-perfect fix for the shift + double-clicking issue
+        return super.canMergeSlot(stack, slot) && ((SlotItemHandler)slot).getItemHandler() instanceof PlayerMainInvWrapper;
     }
 
     @Override

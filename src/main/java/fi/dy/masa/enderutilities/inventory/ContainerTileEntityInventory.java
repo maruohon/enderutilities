@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class ContainerTileEntityInventory extends ContainerEnderUtilities
+public class ContainerTileEntityInventory extends ContainerCustomSlotClick
 {
     protected TileEntityEnderUtilitiesInventory te;
 

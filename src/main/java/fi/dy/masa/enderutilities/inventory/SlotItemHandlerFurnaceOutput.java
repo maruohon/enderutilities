@@ -42,7 +42,6 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
     public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
     {
         this.onCrafting(stack);
-        super.onPickupFromSlot(playerIn, stack);
     }
 
     @Override

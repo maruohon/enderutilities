@@ -2,39 +2,38 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.IItemHandler;
-
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerEnderUtilities extends Container
 {
     public final EntityPlayer player;
     public final InventoryPlayer inventoryPlayer;
     public final IItemHandler inventory;
-    protected SlotRange customInventorySlots;
-    protected SlotRange playerArmorSlots;
-    protected SlotRange playerMainSlots;
-    protected List<SlotRange> mergeSlotRangesExtToPlayer;
-    protected List<SlotRange> mergeSlotRangesPlayerToExt;
+    protected MergeSlotRange customInventorySlots;
+    protected MergeSlotRange playerArmorSlots;
+    protected MergeSlotRange playerMainSlots;
+    protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
+    protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
 
     public ContainerEnderUtilities(EntityPlayer player, IItemHandler inventory)
     {
         this.player = player;
         this.inventoryPlayer = player.inventory;
         this.inventory = inventory;
-        this.mergeSlotRangesExtToPlayer = new ArrayList<SlotRange>();
-        this.mergeSlotRangesPlayerToExt = new ArrayList<SlotRange>();
-        this.customInventorySlots = new SlotRange(0, 0); // Init the ranges to an empty range by default
-        this.playerArmorSlots = new SlotRange(0, 0);
-        this.playerMainSlots = new SlotRange(0, 0);
+        this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
+        this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
+        this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
+        this.playerArmorSlots = new MergeSlotRange(0, 0);
+        this.playerMainSlots = new MergeSlotRange(0, 0);
     }
 
     /**
@@ -57,22 +56,23 @@ public class ContainerEnderUtilities extends Container
 
         int playerInvStart = this.inventorySlots.size();
 
+        IItemHandlerModifiable inv = new PlayerMainInvWrapper(this.inventoryPlayer);
         // Player inventory
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new Slot(this.inventoryPlayer, i * 9 + j + 9, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(inv, i * 9 + j + 9, posX + j * 18, posY + i * 18));
             }
         }
 
         // Player inventory hotbar
         for (int i = 0; i < 9; i++)
         {
-            this.addSlotToContainer(new Slot(this.inventoryPlayer, i, posX + i * 18, posY + 58));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, i, posX + i * 18, posY + 58));
         }
 
-        this.playerMainSlots = new SlotRange(playerInvStart, 36);
+        this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
     }
 
     public EntityPlayer getPlayer()
@@ -96,9 +96,28 @@ public class ContainerEnderUtilities extends Container
         return true;
     }
 
+    @Override
+    public boolean canMergeSlot(ItemStack stack, Slot slot)
+    {
+        return (slot instanceof SlotItemHandler) && (slot instanceof SlotItemHandlerCraftresult) == false && this.inventoryPlayer.getItemStack() != null;
+    }
+
     public boolean isSlotInRange(SlotRange range, int slotNum)
     {
         return slotNum >= range.first && slotNum < range.lastExc;
+    }
+
+    @Override
+    public Slot getSlot(int slotId)
+    {
+        return slotId >= 0 && slotId < this.inventorySlots.size() ? super.getSlot(slotId) : null;
+    }
+
+    public SlotItemHandlerGeneric getSlotItemHandler(int slotId)
+    {
+        Slot slot = this.getSlot(slotId);
+
+        return (slot instanceof SlotItemHandlerGeneric) ? (SlotItemHandlerGeneric) slot : null;
     }
 
     @Override
@@ -118,8 +137,8 @@ public class ContainerEnderUtilities extends Container
      */
     public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        if (slot == null || slot.getHasStack() == false)
+        Slot slot = this.getSlot(slotNum);
+        if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
         }
@@ -127,12 +146,12 @@ public class ContainerEnderUtilities extends Container
         // From player armor slot to player main inventory
         if (this.isSlotInRange(this.playerArmorSlots, slotNum) == true)
         {
-            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, false);
+            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
         }
         // From player main inventory to armor slot or the "external" inventory
         else if (this.isSlotInRange(this.playerMainSlots, slotNum) == true)
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots.first, this.playerArmorSlots.lastExc, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false) == true)
             {
                 return true;
             }
@@ -142,56 +161,68 @@ public class ContainerEnderUtilities extends Container
                 return true;
             }
 
-            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false);
+            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false);
         }
 
         // From external inventory to player inventory
-        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots.first, this.playerMainSlots.lastExc, true);
+        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, true);
     }
 
     public boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
     {
         boolean ret = false;
 
-        for (SlotRange slotRange : this.mergeSlotRangesPlayerToExt)
+        for (MergeSlotRange slotRange : this.mergeSlotRangesPlayerToExt)
         {
-            ret |= this.transferStackToSlotRange(player, slotNum, slotRange.first, slotRange.lastExc, reverse);
+            ret |= this.transferStackToSlotRange(player, slotNum, slotRange, reverse);
         }
 
         return ret;
     }
 
-    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, int slotStart, int slotEndExclusive, boolean reverse)
+    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, MergeSlotRange slotRange, boolean reverse)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        if (slot == null || slot.getHasStack() == false)
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
         }
 
-        ItemStack stack = slot.getStack();
+        ItemStack stack = slot.getStack().copy();
+        int amount = Math.min(stack.stackSize, stack.getMaxStackSize());
+        stack.stackSize = amount;
+
+        // Simulate the merge
+        stack = this.mergeItemStack(stack, slotRange, reverse, true);
 
         // If the item can't be put back to the slot, then we need to make sure that the whole
         // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
-        if (slot.isItemValid(stack) == false)
-        {
-            if (this.canMergeWholeStack(stack, slotStart, slotEndExclusive, reverse) == false)
-            {
-                return false;
-            }
-        }
-
-        if (this.mergeItemStack(stack, slotStart, slotEndExclusive, reverse) == false)
+        if (slot.isItemValid(stack) == false && stack != null)
         {
             return false;
         }
 
-        if (stack.stackSize <= 0)
+        // Could not merge anything
+        if (stack != null && stack.stackSize == amount)
         {
-            slot.putStack(null);
+            return false;
         }
 
+        // Can merge at least some of the items, get the amount that can be merged
+        amount = stack != null ? amount - stack.stackSize : amount;
+
+        // Actually get the items for actual merging
+        stack = slot.decrStackSize(amount);
         slot.onPickupFromSlot(player, stack);
+
+        // Actually merge the items
+        stack = this.mergeItemStack(stack, slotRange, reverse, false);
+
+        // If they couldn't fit after all, then return them. This shouldn't happen, and will cause some issues like gaining XP from nothing.
+        if (stack != null)
+        {
+            slot.insertItem(stack, false);
+        }
 
         return true;
     }
@@ -204,152 +235,81 @@ public class ContainerEnderUtilities extends Container
         return stack != null ? Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
+    /**
+     * This should NOT be called from anywhere in this mod, but just in case...
+     */
     @Override
     protected boolean mergeItemStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse)
     {
-        boolean movedItems = false;
-        int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-        int maxSize = 1;
-
-        Slot slot;
-        ItemStack existingStack;
-
-        // First try to merge the stack into existing stacks in the container
-        while (stack.stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
-        {
-            slot = this.getSlot(slotIndex);
-            existingStack = slot.getStack();
-            maxSize = this.getMaxStackSizeFromSlotAndStack(slot, stack);
-
-            if (existingStack != null && slot.isItemValid(stack) == true && InventoryUtils.areItemStacksEqual(stack, existingStack) == true)
-            {
-                if ((existingStack.stackSize + stack.stackSize) <= maxSize)
-                {
-                    existingStack.stackSize += stack.stackSize;
-                    stack.stackSize = 0;
-                    slot.putStack(existingStack); // Needed to call setInventorySlotContents() and markDirty()
-                    return true;
-                }
-                else if (existingStack.stackSize < maxSize)
-                {
-                    stack.stackSize -= maxSize - existingStack.stackSize;
-                    existingStack.stackSize = maxSize;
-                    slot.putStack(existingStack); // Needed to call setInventorySlotContents() and markDirty()
-                    movedItems = true;
-                }
-            }
-
-            slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
-        }
-
-        // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
-        if (stack.stackSize > 0)
-        {
-            slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-
-            while (slotIndex >= slotStart && slotIndex < slotEndExclusive)
-            {
-                slot = this.getSlot(slotIndex);
-                maxSize = this.getMaxStackSizeFromSlotAndStack(slot, stack);
-                existingStack = slot.getStack();
-
-                if (existingStack == null && slot.isItemValid(stack) == true)
-                {
-                    if (stack.stackSize <= maxSize)
-                    {
-                        slot.putStack(stack.copy());
-                        stack.stackSize = 0;
-                        return true;
-                    }
-                    else
-                    {
-                        ItemStack newStack = stack.copy();
-                        newStack.stackSize = maxSize;
-                        stack.stackSize -= maxSize;
-                        slot.putStack(newStack);
-                        movedItems = true;
-                    }
-                }
-
-                slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
-            }
-        }
-
-        return movedItems;
+        return false;
     }
 
-    /*
-     * Check if the whole stack can successfully be merged to the given slot range
+    /**
+     * Merge the given ItemStack to the slot range provided.
+     * If simulate is true, then we are checking if the WHOLE stack can be merged.
+     * @return If simulate is false, then true is returned if at least some of the items were merged.
+     * If simulate is true, then true is returned only if ALL the items were successfully merged.
      */
-    protected boolean canMergeWholeStack(ItemStack stack, int slotStart, int slotEndExclusive, boolean reverse)
+    protected ItemStack mergeItemStack(ItemStack stack, MergeSlotRange slotRange, boolean reverse, boolean simulate)
     {
+        int slotStart = slotRange.first;
+        int slotEndExclusive = slotRange.lastExc;
+        // FIXME this copy() is needed because the InvWrapper in Forge doesn't make a copy
+        // if the whole input stack fits into an empty slot. A PR has been submitted to fix that.
+        stack = stack.copy();
         int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
-        int maxSize = 1;
-
-        Slot slot;
-        ItemStack existingStack;
-        int stackSize = stack.stackSize;
 
         // First try to merge the stack into existing stacks in the container
-        while (stackSize > 0 && slotIndex >= slotStart && slotIndex < slotEndExclusive)
+        while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
         {
-            slot = this.getSlot(slotIndex);
-            existingStack = slot.getStack();
+            SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
-            if (existingStack != null && slot.isItemValid(stack) == true && InventoryUtils.areItemStacksEqual(stack, existingStack) == true)
+            if (slot != null && slot.getHasStack() == true && slot.isItemValid(stack) == true)
             {
-                maxSize = this.getMaxStackSizeFromSlotAndStack(slot, stack);
-
-                if ((existingStack.stackSize + stackSize) <= maxSize)
-                {
-                    return true;
-                }
-                else if (existingStack.stackSize < maxSize)
-                {
-                    stackSize -= maxSize - existingStack.stackSize;
-                }
+                stack = slot.insertItem(stack, simulate);
             }
 
             slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
         }
 
         // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
-        if (stackSize > 0)
+        if (stack != null && slotRange.existingOnly == false)
         {
             slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
 
-            while (slotIndex >= slotStart && slotIndex < slotEndExclusive)
+            while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
-                slot = this.getSlot(slotIndex);
+                SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
-                if (slot.getHasStack() == false && slot.isItemValid(stack) == true)
+                if (slot != null && slot.getHasStack() == false && slot.isItemValid(stack) == true)
                 {
-                    maxSize = this.getMaxStackSizeFromSlotAndStack(slot, stack);
-
-                    if (stackSize <= maxSize)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        stackSize -= maxSize;
-                    }
+                    stack = slot.insertItem(stack, simulate);
                 }
 
                 slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
             }
         }
 
-        return false;
+        return stack;
     }
 
     public void addMergeSlotRangeExtToPlayer(int start, int numSlots)
     {
-        this.mergeSlotRangesExtToPlayer.add(new SlotRange(start, numSlots));
+        this.addMergeSlotRangeExtToPlayer(start, numSlots, false);
+    }
+
+    public void addMergeSlotRangeExtToPlayer(int start, int numSlots, boolean existingOnly)
+    {
+        this.mergeSlotRangesExtToPlayer.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
 
     public void addMergeSlotRangePlayerToExt(int start, int numSlots)
     {
-        this.mergeSlotRangesPlayerToExt.add(new SlotRange(start, numSlots));
+        this.addMergeSlotRangePlayerToExt(start, numSlots, false);
+    }
+
+    public void addMergeSlotRangePlayerToExt(int start, int numSlots, boolean existingOnly)
+    {
+        this.mergeSlotRangesPlayerToExt.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
 }

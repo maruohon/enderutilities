@@ -75,7 +75,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 {
     public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
         EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
-            Configs.harvestLevelEnderAlloyAdvanced.getInt(3), 3120, 12.0f, 4.0f, 15);
+            Configs.harvestLevelEnderAlloyAdvanced, 3120, 12.0f, 4.0f, 15);
 
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
@@ -307,7 +307,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == false)
+        if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
@@ -323,7 +323,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     // Use Ender Charge if planting from a remote inventory
                     if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
                     {
-                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                        UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
                     }
 
                     Effects.addItemTeleportEffects(world, pos);
@@ -531,7 +531,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == DropsMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false) == true)
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 30);
         }
@@ -558,9 +558,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
         List<ItemStack> drops = event.getDrops();
         EntityPlayer player = event.getHarvester();
         boolean isSilk = event.isSilkTouching();
-        int numDropsOriginal = drops.size();
+        boolean transported = false;
 
-        // Don't try to handle the drops via other means in the Remote mode
+        // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
         if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
         {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
@@ -581,10 +581,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     if (stackTmp == null)
                     {
                         iter.remove();
+                        transported = true;
                     }
-                    else
+                    else if (stackTmp.stackSize != stack.stackSize)
                     {
                         stack.stackSize = stackTmp.stackSize;
+                        transported = true;
                     }
                 }
             }
@@ -625,20 +627,27 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     {
                         Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
+                        transported = true;
                     }
                 }
             }
         }
 
         // At least something got transported somewhere...
-        if (drops.size() != numDropsOriginal)
+        if (transported == true)
         {
             // Transported the drops to somewhere remote
             if (mode == DropsMode.REMOTE)
             {
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true);
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
             }
 
+            Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
+        }
+
+        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
+        if (drops.size() > 0 && mode == DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
+        {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
         }
 
@@ -1007,12 +1016,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
     {
-        if (Configs.disableItemEnderTools.getBoolean(false) == false)
+        for (int i = 0; i < 4; i++)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                list.add(new ItemStack(this, 1, i));
-            }
+            list.add(new ItemStack(this, 1, i));
         }
     }
 

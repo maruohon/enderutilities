@@ -6,17 +6,15 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.effects.Effects;
+import fi.dy.masa.enderutilities.setup.Configs;
+import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.client.effects.Effects;
-import fi.dy.masa.enderutilities.setup.Configs;
-import io.netty.buffer.ByteBuf;
 
 public class MessageAddEffects implements IMessage
 {
@@ -133,11 +131,11 @@ public class MessageAddEffects implements IMessage
             }
             else if (message.effectType == EFFECT_ENDER_TOOLS)
             {
-                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds.getBoolean(true))
+                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds == true)
                 {
                     Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 0.08f, 1.8f);
                 }
-                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles.getBoolean(true))
+                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles == true)
                 {
                     Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }

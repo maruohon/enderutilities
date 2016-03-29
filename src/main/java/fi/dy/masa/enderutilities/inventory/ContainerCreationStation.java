@@ -5,9 +5,9 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import net.minecraftforge.items.IItemHandler;
@@ -21,8 +21,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int fuelProgress;
     public int smeltProgress;
 
-    public final InventoryItemCrafting[] craftMatrices;
-    private final IInventory[] craftResults;
+    private final InventoryItemCrafting[] craftMatrices;
+    private final IItemHandler[] craftMatrixWrappers;
+    private final ItemStackHandlerBasic[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
@@ -35,7 +36,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.tecs.openInventory(player);
 
         this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
-        this.craftResults = new IInventory[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
+        this.craftMatrixWrappers = new IItemHandler[] { te.getCraftingInventoryWrapper(0), te.getCraftingInventoryWrapper(1) };
+        this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.lastInteractedCraftingGridId = 0;
 
@@ -59,7 +61,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
 
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
@@ -70,7 +72,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tecs.getMemoryCardInventory(), i, posX, posY + i * 18));
+            this.addSlotToContainer(new SlotItemHandlerModule(this.tecs.getMemoryCardInventory(), i, posX, posY + i * 18, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
 
         // Crafting slots, left side
@@ -81,10 +83,10 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
+        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
 
         // Crafting slots, right side
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
@@ -94,13 +96,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotCrafting(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
+        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
 
-        // Add the furnace slots as priority merge slots
-        //this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6);
+        // Add the furnace slots as priority merge slots, but only to already existing stacks
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6, true);
 
         // Furnace slots, left side
         // Smeltable items
@@ -135,13 +137,18 @@ public class ContainerCreationStation extends ContainerLargeStacks
         return this.lastInteractedCraftingGridId;
     }
 
+    public IItemHandler getCraftMatrixWrapper(int id)
+    {
+        return this.craftMatrixWrappers[id];
+    }
+
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
-        super.onCraftMatrixChanged(inv);
+        this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
+        this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
 
-        this.craftResults[0].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
-        this.craftResults[1].setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
+        this.detectAndSendChanges();
     }
 
     @Override
@@ -150,12 +157,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
         super.onContainerClosed(player);
 
         this.tecs.closeInventory(player);
-    }
-
-    @Override
-    public boolean canMergeSlot(ItemStack stack, Slot slot)
-    {
-        return slot.inventory != this.craftResults[0] && slot.inventory != this.craftResults[0] && super.canMergeSlot(stack, slot);
     }
 
     @Override
@@ -197,7 +198,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Crafting grid slots, try to merge to the main item inventory first
         else if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true)
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots.first, this.customInventorySlots.lastExc, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false) == true)
             {
                 return true;
             }
@@ -245,7 +246,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         super.onCraftGuiOpened(icrafting);
 
         int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -268,7 +269,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
 
         int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModule();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
@@ -311,7 +312,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 this.modeMask = val;
                 break;
             case 1:
-                this.tecs.setSelectedModule(val & 0x3); // 0..3
+                this.tecs.setSelectedModuleSlot(val & 0x3); // 0..3
                 this.tecs.setQuickMode((val >> 2) & 0x7); // 0..5
                 this.tecs.inventoryChanged(TileEntityCreationStation.INV_ID_MODULES, 0); // The slot is not used
                 break;

@@ -575,7 +575,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {
@@ -591,7 +591,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         @Override
-        protected boolean canExtractFromSlot(int slot)
+        public boolean canExtractFromSlot(int slot)
         {
             if ((slot == SLOT_FUEL && isItemFuel(this.getStackInSlot(slot)) == false) ||
                 (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == false))

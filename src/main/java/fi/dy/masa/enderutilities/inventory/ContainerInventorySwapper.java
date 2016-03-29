@@ -4,18 +4,16 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerModularItem
 {
@@ -38,13 +36,15 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         int playerArmorStart = this.inventorySlots.size();
 
+        IItemHandlerModifiable inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
         posX = 13;
         posY = 53;
         for (int i = 0; i < 4; i++)
         {
+            // FIXME 1.9
             final EntityEquipmentSlot entityequipmentslot = ContainerHandyBag.VALID_EQUIPMENT_SLOTS[i];
-            this.addSlotToContainer(new Slot(this.inventoryPlayer, 39 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -68,7 +68,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             });
         }
 
-        this.playerArmorSlots = new SlotRange(playerArmorStart, 4);
+        this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Add Memory Card slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size() - moduleSlots, moduleSlots);
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
     @Override

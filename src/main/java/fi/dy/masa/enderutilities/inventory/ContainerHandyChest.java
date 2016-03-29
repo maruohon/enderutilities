@@ -4,8 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.util.SlotRange;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerHandyChest extends ContainerLargeStacks
@@ -42,7 +42,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
 
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
@@ -53,7 +53,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tehc.getModuleInventory(), i, posX + i * 18, posY));
+            this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
     }
 

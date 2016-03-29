@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,9 +18,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -34,6 +30,7 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
+import net.minecraftforge.common.util.Constants;
 
 public class ItemPortalScaler extends ItemModular implements IKeyBound
 {
@@ -74,12 +71,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
         // When right clicking on Obsidian, try to light a Nether Portal
         if (block == Blocks.obsidian && world.isAirBlock(pos.offset(side)) == true &&
-            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false) == true &&
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
             Blocks.portal.func_176548_d(world, pos.offset(side)) == true)
         {
             if (world.isRemote == false)
             {
-                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true);
+                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
                 world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.entity_blaze_shoot, SoundCategory.MASTER, 0.8f, 1.0f);
             }
 
@@ -120,14 +117,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
         int cost = this.getTeleportCost(player, posDest, dim);
 
-        if (UtilItemModular.useEnderCharge(stack, cost, false) == true)
+        if (UtilItemModular.useEnderCharge(stack, cost, true) == true)
         {
             TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
             Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
             if (entity != null)
             {
                 cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
-                UtilItemModular.useEnderCharge(stack, cost, true);
+                UtilItemModular.useEnderCharge(stack, cost, false);
                 return true;
             }
         }

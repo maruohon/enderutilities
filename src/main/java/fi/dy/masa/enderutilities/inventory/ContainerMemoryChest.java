@@ -2,19 +2,16 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerMemoryChest extends ContainerTileEntityInventory implements ICustomSlotSync
 {
@@ -50,7 +47,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
             }
         }
 
-        this.customInventorySlots = new SlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+        this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
     }
 
     @Override
@@ -64,7 +61,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     @Override
     public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        Slot slot = this.getSlot(slotNum);
         if (slot == null || slot.getHasStack() == false)
         {
             return false;
@@ -76,6 +73,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
             return super.transferStackFromSlot(player, slotNum);
         }
 
+        // FIXME this violates the IItemHandler contract... not that it matters much in internal use but still
         ItemStack stackSlot = slot.getStack();
         int origSize = stackSlot.stackSize;
 
@@ -85,7 +83,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
 
             if (stackTmp != null && InventoryUtils.areItemStacksEqual(stackTmp, stackSlot) == true)
             {
-                this.mergeItemStack(stackSlot, i, i + 1, false);
+                this.mergeItemStack(stackSlot, new MergeSlotRange(i, 1), false, false);
 
                 if (stackSlot.stackSize <= 0)
                 {

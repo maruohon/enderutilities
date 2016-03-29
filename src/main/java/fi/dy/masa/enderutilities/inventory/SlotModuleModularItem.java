@@ -8,7 +8,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class SlotModuleModularItem extends SlotModule
+public class SlotModuleModularItem extends SlotItemHandlerModule
 {
     protected IContainerModularItem container;
 
@@ -41,30 +41,13 @@ public class SlotModuleModularItem extends SlotModule
 
         if (type.equals(ModuleType.TYPE_INVALID) == false && modularStack != null && super.isItemValid(stack) == true)
         {
-            if (this.moduleType.equals(ModuleType.TYPE_ANY))
-            {
-                return true;
-            }
-
             // Matching basic module type, check for the sub-type based on the host modular item
-            if (this.moduleType.equals(type) == true && modularStack.getItem() instanceof IModular)
+            if ((this.moduleType.equals(ModuleType.TYPE_ANY) || this.moduleType.equals(type) == true) && modularStack.getItem() instanceof IModular)
             {
                 return ((IModular)modularStack.getItem()).getMaxModules(modularStack, stack) > 0;
             }
         }
 
         return false;
-    }
-
-    @Override
-    public int getItemStackLimit(ItemStack stack)
-    {
-        return 1;
-    }
-
-    @Override
-    public int getSlotStackLimit()
-    {
-        return 1;
     }
 }

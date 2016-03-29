@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.entity;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -12,6 +11,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -23,15 +23,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
+import net.minecraftforge.common.util.Constants;
 
 public class EntityEnderArrow extends EntityArrow
 {
@@ -263,7 +261,14 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (rayTraceResultTmp != null)
                 {
+                    if (rayTraceResultTmp.typeOfHit == RayTraceResult.Type.ENTITY &&
+                        rayTraceResultTmp.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResultTmp.entityHit).isSpectator() == true)
+                    {
+                        continue;
+                    }
+
                     double d1 = vec31.distanceTo(rayTraceResultTmp.hitVec);
+
 
                     if (d1 < d0 || d0 == 0.0D)
                     {
@@ -307,8 +312,7 @@ public class EntityEnderArrow extends EntityArrow
                     this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(rayTraceResult.entityHit) == false &&
-                        (EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false
-                        || Configs.enderBowAllowPlayers.getBoolean(false) == true))
+                        (Configs.enderBowAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false))
                     {
                         if (this.worldObj.isRemote == false)
                         {

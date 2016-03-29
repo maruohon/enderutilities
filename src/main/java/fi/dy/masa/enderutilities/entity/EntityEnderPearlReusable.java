@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -15,7 +16,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.entity.base.EntityThrowableEU;
 import fi.dy.masa.enderutilities.entity.base.IItemData;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -121,7 +121,12 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
                 return;
             }
 
-            if (rayTraceResult.entityHit != null && rayTraceResult.entityHit instanceof EntityLivingBase)
+            if (rayTraceResult.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResult.entityHit).isSpectator() == true)
+            {
+                return;
+            }
+
+            if (rayTraceResult.entityHit instanceof EntityLivingBase)
             {
                 rayTraceResult.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0.0f);
             }

@@ -4,12 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
@@ -28,58 +25,154 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         return this.selectedSlot;
     }
 
-    public void startDragging(boolean isRightClick)
+    protected void startDragging(boolean isRightClick)
     {
         this.isDragging = true;
         this.draggingRightClick = isRightClick;
         this.draggedSlots.clear();
     }
 
-    public void dragging(int slotNum)
+    private void dragging(int slotNum)
     {
         this.draggedSlots.add(slotNum);
     }
 
-    public void endDragging()
+    private ItemStack putItemsToSlot(SlotItemHandlerGeneric slot, ItemStack stack, int amount)
+    {
+        if (stack == null)
+        {
+            return null;
+        }
+
+        if (amount < stack.stackSize)
+        {
+            ItemStack stackInsert = stack.splitStack(amount);
+            stackInsert = slot.insertItem(stackInsert, false);
+
+            if (stackInsert != null)
+            {
+                stack.stackSize += stackInsert.stackSize;
+            }
+
+            return stack;
+        }
+
+        return slot.insertItem(stack, false);
+    }
+
+    private boolean takeItemsFromSlotToCursor(SlotItemHandlerGeneric slot, int amount)
     {
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
+        ItemStack stackSlot = slot.getStack();
+
+        if (slot.canTakeStack(this.player) == false || stackSlot == null ||
+            (stackCursor != null && InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == false))
+        {
+            return false;
+        }
+
+        amount = Math.min(amount, stackSlot.getMaxStackSize());
+        int spaceAvailable = stackSlot.getMaxStackSize();
 
         if (stackCursor != null)
         {
-            int totalNum = 0;
-            int numSlots = this.draggedSlots.size();
-            int itemsPerSlot = this.draggingRightClick == true ? 1 : (numSlots > 0 ? stackCursor.stackSize / numSlots : stackCursor.stackSize);
-            for (int i : this.draggedSlots)
+            spaceAvailable = stackCursor.getMaxStackSize() - stackCursor.stackSize;
+        }
+
+        amount = Math.min(amount, spaceAvailable);
+
+        //if (amount <= 0 || (slot.isItemValid(stackSlot) == false && spaceAvailable < stackSlot.stackSize))
+        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) == true && spaceAvailable < stackSlot.stackSize))
+        {
+            return false;
+        }
+
+        stackSlot = slot.decrStackSize(amount);
+
+        if (stackSlot != null)
+        {
+            slot.onPickupFromSlot(this.player, stackSlot);
+
+            if (stackCursor == null)
             {
-                Slot slotTmp = this.getSlot(i);
-                int slotMax = this.getMaxStackSizeFromSlotAndStack(slotTmp, stackCursor);
-                ItemStack stackTmp = ItemStack.copyItemStack(slotTmp.getStack());
-                int num = Math.min(itemsPerSlot, slotMax);
-
-                // Target slot already has items, check how many more can fit to the slot
-                if (stackTmp != null)
-                {
-                    num = Math.min(num, slotMax - stackTmp.stackSize);
-                    stackTmp.stackSize += num;
-                }
-                else
-                {
-                    stackTmp = stackCursor.copy();
-                    stackTmp.stackSize = num;
-                }
-
-                totalNum += num;
-                slotTmp.putStack(stackTmp);
+                stackCursor = stackSlot;
+            }
+            else
+            {
+                stackCursor.stackSize += stackSlot.stackSize;
             }
 
-            stackCursor.stackSize -= totalNum;
-            this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
+            this.inventoryPlayer.setItemStack(stackCursor);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean swapSlots(SlotItemHandlerGeneric slot1, SlotItemHandlerGeneric slot2)
+    {
+        if ((slot1.getHasStack() == true && slot1.canTakeStack(this.player) == false) ||
+            (slot2.getHasStack() == true && slot2.canTakeStack(this.player) == false))
+        {
+            return false;
+        }
+
+        ItemStack stack1 = slot1.getStack();
+        ItemStack stack2 = slot2.getStack();
+        if ((stack1 != null && slot2.isItemValid(stack1) == false) || (stack2 != null && slot1.isItemValid(stack2) == false))
+        {
+            return false;
+        }
+
+        if (stack1 != null)
+        {
+            slot1.onPickupFromSlot(this.player, stack1);
+        }
+
+        if (stack2 != null)
+        {
+            slot2.onPickupFromSlot(this.player, stack2);
+        }
+
+        slot1.putStack(ItemStack.copyItemStack(stack2));
+        slot2.putStack(ItemStack.copyItemStack(stack1));
+
+        return true;
+    }
+
+    protected void endDragging()
+    {
+        ItemStack stackCursor = ItemStack.copyItemStack(this.inventoryPlayer.getItemStack());
+
+        if (stackCursor != null)
+        {
+            int numSlots = this.draggedSlots.size();
+            int itemsPerSlot = this.draggingRightClick == true ? 1 : (numSlots > 0 ? stackCursor.stackSize / numSlots : stackCursor.stackSize);
+
+            for (int slotNum : this.draggedSlots)
+            {
+                if (stackCursor == null)
+                {
+                    break;
+                }
+
+                SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+                if (slot != null)
+                {
+                    int amount = Math.min(itemsPerSlot, this.getMaxStackSizeFromSlotAndStack(slot, stackCursor));
+                    amount = Math.min(amount, stackCursor.stackSize);
+                    stackCursor = this.putItemsToSlot(slot, stackCursor, amount);
+                }
+            }
+
+            this.inventoryPlayer.setItemStack(stackCursor);
         }
 
         this.isDragging = false;
     }
 
-    public void leftClickOutsideInventory(EntityPlayer player)
+    protected void leftClickOutsideInventory(EntityPlayer player)
     {
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
 
@@ -98,113 +191,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    public void leftClickSlot(int slotNum, EntityPlayer player)
-    {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        if (slot == null)
-        {
-            return;
-        }
-
-        ItemStack stackCursor = this.inventoryPlayer.getItemStack();
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
-
-        // Trying to put items to the slot
-        if (stackCursor != null)
-        {
-            // Putting items into an empty slot
-            if (stackSlot == null)
-            {
-                if (slot.isItemValid(stackCursor) == true)
-                {
-                    int num = Math.min(stackCursor.stackSize, this.getMaxStackSizeFromSlotAndStack(slot, stackCursor));
-                    slot.putStack(stackCursor.splitStack(num));
-                    this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
-                }
-            }
-            // Matching items in cursor and the clicked on slot
-            else if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
-            {
-                // Can put items into the slot
-                if (slot.isItemValid(stackCursor) == true)
-                {
-                    int num = Math.min(this.getMaxStackSizeFromSlotAndStack(slot, stackSlot) - stackSlot.stackSize, stackCursor.stackSize);
-                    if (num > 0)
-                    {
-                        stackSlot.stackSize += num;
-                        slot.putStack(stackSlot);
-                        stackCursor.stackSize -= num;
-                        this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
-                    }
-                }
-                // Can't put items into the slot (for example a crafting output slot); take items instead
-                else if (stackCursor.getMaxStackSize() - stackCursor.stackSize >= stackSlot.stackSize)
-                {
-                    stackCursor.stackSize += stackSlot.stackSize;
-                    slot.decrStackSize(stackSlot.stackSize);
-                    slot.onPickupFromSlot(player, stackSlot);
-                    this.inventoryPlayer.setItemStack(stackCursor);
-                }
-            }
-            // Different items in cursor and the clicked on slot
-            else if (slot.isItemValid(stackCursor) == true)
-            {
-                // TODO Do we want to allow picking up stacks of any size to the cursor here?
-                // The stack size of the stack in the slot is small enough to fit into one regular stack, or is null
-                // (to be put to the cursor), and the stack in the cursor fits to the stack size limit of the slot
-                if ((stackSlot == null || stackSlot.stackSize <= stackSlot.getMaxStackSize()) &&
-                     stackCursor.stackSize <= this.getMaxStackSizeFromSlotAndStack(slot, stackCursor))
-                {
-                    slot.putStack(stackCursor);
-                    this.inventoryPlayer.setItemStack(stackSlot);
-
-                    if (stackSlot != null)
-                    {
-                        slot.onPickupFromSlot(player, stackSlot);
-                    }
-                }
-            }
-        }
-        // Empty cursor, trying to take items from the slot into the cursor
-        else if (stackSlot != null && slot.canTakeStack(this.inventoryPlayer.player) == true)
-        {
-            int num = Math.min(stackSlot.stackSize, stackSlot.getMaxStackSize());
-            // Can't take all the items from the slot
-            if (num < stackSlot.stackSize)
-            {
-                stackCursor = slot.decrStackSize(num);
-                this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
-                slot.onPickupFromSlot(player, stackSlot);
-            }
-            // Taking all the items from the slot
-            else
-            {
-                this.inventoryPlayer.setItemStack(stackSlot.stackSize > 0 ? stackSlot.copy() : null);
-                slot.putStack(null);
-                slot.onPickupFromSlot(player, stackSlot);
-            }
-        }
-    }
-
-    public void leftDoubleClickSlot(int slotNum, EntityPlayer player)
-    {
-        Slot slotTmp = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        SlotItemHandler slot = slotTmp instanceof SlotItemHandler ? (SlotItemHandler)slotTmp : null;
-        ItemStack stackCursor = this.inventoryPlayer.getItemStack();
-
-        if (slot != null && stackCursor != null)
-        {
-            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.getItemHandler(), stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
-            if (stackTmp != null)
-            {
-                stackCursor.stackSize += stackTmp.stackSize;
-                this.inventoryPlayer.setItemStack(stackCursor);
-                slot.onPickupFromSlot(player, stackTmp); // FIXME this should be called for all the slots...
-            }
-        }
-    }
-
-    public void rightClickOutsideInventory(EntityPlayer player)
+    protected void rightClickOutsideInventory(EntityPlayer player)
     {
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
 
@@ -216,127 +203,124 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    public void rightClickSlot(int slotNum, EntityPlayer player)
+    protected void leftClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         if (slot == null)
         {
             return;
         }
 
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
+        ItemStack stackSlot = slot.getStack();
 
-        // Items in the cursor, trying to put one item to the slot
+        // Items in cursor
         if (stackCursor != null)
         {
-            // Empty target slot, put one item into it
-            if (stackSlot == null)
-            {
-                if (slot.isItemValid(stackCursor) == true)
-                {
-                    stackSlot = stackCursor.splitStack(1);
-                    slot.putStack(stackSlot);
-                    this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
-                }
-            }
-            // Matching items in cursor and the clicked on slot
-            else if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
+            // Empty slot or identical items: try to add to slot
+            if (stackSlot == null || InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
             {
                 // Can put items into the slot
                 if (slot.isItemValid(stackCursor) == true)
                 {
-                    if (this.getMaxStackSizeFromSlotAndStack(slot, stackSlot) - stackSlot.stackSize > 0)
-                    {
-                        stackSlot.stackSize += 1;
-                        stackCursor.stackSize -= 1;
-                        slot.putStack(stackSlot);
-                        this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
-                    }
+                    this.inventoryPlayer.setItemStack(slot.insertItem(stackCursor, false));
                 }
                 // Can't put items into the slot (for example a crafting output slot); take items instead
-                else if (stackCursor.getMaxStackSize() - stackCursor.stackSize >= stackSlot.stackSize)
+                else if (stackSlot != null)
                 {
-                    stackCursor.stackSize += stackSlot.stackSize;
-                    slot.decrStackSize(stackSlot.stackSize);
-                    slot.onPickupFromSlot(player, stackSlot);
-                    this.inventoryPlayer.setItemStack(stackCursor);
+                    this.takeItemsFromSlotToCursor(slot, stackSlot.stackSize);
                 }
             }
-            // Different items in cursor and the clicked on slot, try to swap the stacks
-            else if (slot.isItemValid(stackCursor) == true)
+            // Different items, try to swap the stacks
+            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true)
             {
-                // TODO Do we want to allow picking up stacks of any size to the cursor here?
-                // The stack size of the stack in the slot is small enough to fit into one regular stack, or is null
-                // (to be put to the cursor), and the stack in the cursor fits to the stack size limit of the slot
-                if ((stackSlot == null || stackSlot.stackSize <= stackSlot.getMaxStackSize()) &&
-                     stackCursor.stackSize <= this.getMaxStackSizeFromSlotAndStack(slot, stackCursor))
-                {
-                    slot.putStack(stackCursor);
-                    this.inventoryPlayer.setItemStack(stackSlot);
-
-                    if (stackSlot != null)
-                    {
-                        slot.onPickupFromSlot(player, stackSlot);
-                    }
-                }
+                this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
+                slot.onPickupFromSlot(this.player, stackSlot);
+                slot.insertItem(stackCursor, false);
             }
         }
-        // Empty cursor, trying to take items from the slot (split the stack)
-        else if (stackSlot != null && slot.canTakeStack(this.inventoryPlayer.player) == true)
+        // Empty cursor, trying to take items from the slot into the cursor
+        else if (stackSlot != null)
         {
-            if (slot.isItemValid(stackSlot) == true)
-            {
-                int num = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), (int)Math.ceil((double)stackSlot.getMaxStackSize() / 2.0d));
-                // Won't take all the items from the slot
-                if (num < stackSlot.stackSize)
-                {
-                    stackCursor = slot.decrStackSize(num);
-                    slot.onPickupFromSlot(player, stackCursor);
-                    this.inventoryPlayer.setItemStack(stackCursor);
-                }
-                // Taking all the items from the slot
-                else
-                {
-                    ItemStack stackTmp = slot.decrStackSize(num);
-                    this.inventoryPlayer.setItemStack(stackTmp);
-                    slot.onPickupFromSlot(player, stackTmp);
-                }
-            }
-            // Can't put items into the slot (for example an output-only slot); take items instead
-            else
-            {
-                int amount = Math.min((int)Math.ceil(stackSlot.stackSize / 2), stackSlot.getMaxStackSize() / 2);
-                stackCursor = slot.decrStackSize(amount);
-                this.inventoryPlayer.setItemStack(stackCursor);
-                slot.onPickupFromSlot(player, stackCursor);
-            }
+            this.takeItemsFromSlotToCursor(slot, stackSlot.stackSize);
         }
     }
 
-    public void middleClickSlot(int slotNum, EntityPlayer player)
+    protected void rightClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slotTmp = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
-        SlotItemHandler slot1 = slotTmp instanceof SlotItemHandler ? (SlotItemHandler)slotTmp : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        if (slot == null)
+        {
+            return;
+        }
+
+        ItemStack stackCursor = this.inventoryPlayer.getItemStack();
+        ItemStack stackSlot = slot.getStack();
+
+        // Items in cursor
+        if (stackCursor != null)
+        {
+            // Empty slot or identical items: try to add to slot
+            if (stackSlot == null || InventoryUtils.areItemStacksEqual(stackCursor, stackSlot) == true)
+            {
+                // Can put items into the slot
+                if (slot.isItemValid(stackCursor) == true)
+                {
+                    if (slot.insertItem(stackCursor.splitStack(1), false) != null)
+                    {
+                        stackCursor.stackSize++;
+                    }
+
+                    this.inventoryPlayer.setItemStack(stackCursor);
+                }
+                // Can't put items into the slot (for example a crafting output slot); take items instead
+                else if (stackSlot != null)
+                {
+                    this.takeItemsFromSlotToCursor(slot, stackSlot.stackSize);
+                }
+            }
+            // Different items, try to swap the stacks
+            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true)
+            {
+                this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
+                slot.onPickupFromSlot(this.player, stackSlot);
+                slot.insertItem(stackCursor, false);
+            }
+        }
+        // Empty cursor, trying to take items from the slot into the cursor
+        else if (stackSlot != null)
+        {
+            int amount = stackSlot.stackSize; // default to the whole stack if it can't be returned to the slot
+
+            if (slot.isItemValid(stackCursor) == true)
+            {
+                amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), stackSlot.getMaxStackSize() / 2);
+            }
+
+            this.takeItemsFromSlotToCursor(slot, amount);
+        }
+    }
+
+    protected void middleClickSlot(int slotNum, EntityPlayer player)
+    {
+        SlotItemHandlerGeneric slot1 = this.getSlotItemHandler(slotNum);
 
         // Only allow swapping in this inventory (which supports the large stacks)
         // NOTE: This assumes that the swappable "main" inventory is the "inventory" reference in this Container
         if (slot1 != null && slot1.getItemHandler() == this.inventory)
         {
-            if (this.selectedSlot != -1)
+            if (this.selectedSlot >= 0 && this.selectedSlot < this.inventorySlots.size())
             {
                 // Don't swap with self
                 if (this.selectedSlot != slotNum)
                 {
-                    Slot slot2 = this.getSlot(this.selectedSlot);
-                    ItemStack stackTmp1 = slot1.getStack();
-                    ItemStack stackTmp2 = slot2.getStack();
-                    slot1.putStack(stackTmp2);
-                    slot2.putStack(stackTmp1);
-
-                    slot1.onPickupFromSlot(player, stackTmp1);
-                    slot2.onPickupFromSlot(player, stackTmp2);
+                    SlotItemHandlerGeneric slot2 = this.getSlotItemHandler(this.selectedSlot);
+                    if (slot2 != null)
+                    {
+                        this.swapSlots(slot1, slot2);
+                    }
                 }
+
                 this.selectedSlot = -1;
             }
             else
@@ -346,72 +330,78 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    public void shiftClickSlot(int slotNum, EntityPlayer player)
+    protected void leftDoubleClickSlot(int slotNum, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        ItemStack stackCursor = this.inventoryPlayer.getItemStack();
+
+        if (slot != null && stackCursor != null)
+        {
+            // FIXME add a slot-aware version
+            ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.getItemHandler(), stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
+            if (stackTmp != null)
+            {
+                stackCursor.stackSize += stackTmp.stackSize;
+                this.inventoryPlayer.setItemStack(stackCursor);
+            }
+        }
+    }
+
+    // FIXME quickly shift clicking is broken due to us using SlotItemHandler
+    // See GuiContainer.mouseReleased. It checks the slot.inventory reference to determine where slots are
+    protected void shiftClickSlot(int slotNum, EntityPlayer player)
+    {
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
         if (stackSlot == null)
         {
             return;
         }
 
-        if (slot instanceof SlotCrafting)
+        if (slot instanceof SlotItemHandlerCraftresult)
         {
             ItemStack stackOrig = stackSlot.copy();
+            // Craft up to one stack at a time
+            //int num = stackSlot.getMaxStackSize() / stackSlot.stackSize;
+            int num = 64;
 
-            while (this.transferStackFromSlot(player, slotNum) == true)
+            while (num-- > 0)
             {
-                // Ran out of some of the items, so the crafting result changed, bail out now
-                if (InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+                if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
                 {
                     break;
                 }
             }
         }
         // Only transfer a maximum of one regular stack
-        else if (stackSlot.stackSize > stackSlot.getMaxStackSize())
-        {
-            int max = stackSlot.getMaxStackSize();
-            int sizeOrig = stackSlot.stackSize;
-            ItemStack stackTmp = stackSlot.copy();
-            stackSlot.stackSize = max;
-
-            this.transferStackFromSlot(player, slotNum);
-
-            ItemStack stackSlotNew = slot.getStack();
-            if (stackSlotNew != null)
-            {
-                stackSlotNew.stackSize += sizeOrig - max;
-                this.putStackInSlot(slotNum, stackSlotNew);
-            }
-            else
-            {
-                stackTmp.stackSize -= max;
-                this.putStackInSlot(slotNum, stackTmp);
-            }
-        }
         else
         {
             this.transferStackFromSlot(player, slotNum);
+            slot.onPickupFromSlot(player, stackSlot);
         }
     }
 
-    public void pressDropKey(int slotNum, EntityPlayer player)
+    protected void pressDropKey(int slotNum, EntityPlayer player, boolean wholeStack)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
 
-        if (stackSlot != null && slot.canTakeStack(this.inventoryPlayer.player) == true)
+        if (stackSlot != null && slot.canTakeStack(this.player) == true)
         {
-            ItemStack stackDrop = slot.decrStackSize(1);
-            slot.onPickupFromSlot(player, stackDrop);
-            player.dropPlayerItemWithRandomChoice(stackDrop, true);
+            ItemStack stackDrop = slot.decrStackSize(wholeStack == true ? stackSlot.stackSize : 1);
+
+            if (stackDrop != null)
+            {
+                slot.onPickupFromSlot(player, stackDrop);
+                player.dropPlayerItemWithRandomChoice(stackDrop, true);
+            }
         }
     }
 
-    public void pressHotbarKey(int slotNum, int button, EntityPlayer player)
+    protected void pressHotbarKey(int slotNum, int button, EntityPlayer player)
     {
-        Slot slot = (slotNum >= 0 && slotNum < this.inventorySlots.size()) ? this.getSlot(slotNum) : null;
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         if (slot == null)
         {
             return;
@@ -424,7 +414,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // and the stack in the hotbar is null or the stack is small enough to fit to the slot
         if ((stackSlot == null || stackSlot.stackSize <= stackSlot.getMaxStackSize()) &&
              (stackHotbar == null || stackHotbar.stackSize <= this.getMaxStackSizeFromSlotAndStack(slot, stackHotbar)) &&
-             slot.canTakeStack(this.inventoryPlayer.player) == true && slot.isItemValid(stackHotbar) == true)
+             slot.canTakeStack(this.player) == true && slot.isItemValid(stackHotbar) == true)
         {
             slot.putStack(stackHotbar);
             this.inventoryPlayer.setInventorySlotContents(button, stackSlot);
@@ -443,26 +433,22 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             slot.onPickupFromSlot(player, stackHotbar);
             this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
         }
-        // Matching items in both slots, fill the hotbar stack if it has still space, otherwise take the stack from it
+        // Matching items in both slots
         else if (stackHotbar != null && stackSlot != null && InventoryUtils.areItemStacksEqual(stackHotbar, stackSlot) == true)
         {
             int num = Math.min(stackHotbar.getMaxStackSize() - stackHotbar.stackSize, stackSlot.stackSize);
+            // Fill the hotbar stack if it has still space
             if (num > 0)
             {
                 stackHotbar.stackSize += num;
-                slot.decrStackSize(num); // FIXME ?
-                slot.onPickupFromSlot(player, stackSlot); // FIXME ?
+                slot.decrStackSize(num);
+                slot.onPickupFromSlot(player, stackSlot);
                 this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
             }
+            // ... otherwise take the stack from it
             else if (slot.isItemValid(stackHotbar) == true)
             {
-                num = Math.min(this.getMaxStackSizeFromSlotAndStack(slot, stackSlot) - stackSlot.stackSize, stackHotbar.stackSize);
-                if (num > 0)
-                {
-                    this.inventoryPlayer.decrStackSize(button, num);
-                    stackSlot.stackSize += num;
-                    slot.putStack(stackSlot);
-                }
+                this.inventoryPlayer.setInventorySlotContents(button, this.putItemsToSlot(slot, stackHotbar, stackHotbar.stackSize));
             }
         }
     }
@@ -470,7 +456,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickTypeTmp, EntityPlayer player)
     {
-        //String side = this.inventoryPlayer.player.worldObj.isRemote ? "client" : "server";
+        //String side = this.player.worldObj.isRemote ? "client" : "server";
         //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %d", side, slotNum, button, type));
 
         // slotNum: real button: 0 type: 0 - regular left click - on button down with empty cursor, on button up with stack in cursor
@@ -490,7 +476,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // slotNum: -999 button: 1 type: 4 - (shift +) right click outside the inventory with an empty cursor - on button down
 
         // slotNum: real button: 0 type: 4 - pressing Q over a slot which has items - on button down
-        // shift + Q does real,0,0, -999,0,0, real,0,0 ie. simulates picking up the stack, clicking outside of inventory, and clicking again on the slot (why?)
+        // slotNum: real button: 1 type: 4 - pressing ctrl + Q over a slot which has items - on button down
 
         // slotNum: real button: 0..8 type: 2 - hotbar number key over slot - on button down, only with empty cursor
 
@@ -554,9 +540,9 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             this.shiftClickSlot(slotNum, player);
         }
         // Pressing the drop key (Q) while hovering over a stack
-        else if (dragType == 0 && clickType == 4)
+        else if ((dragType == 0 || dragType == 1) && clickType == 4)
         {
-            this.pressDropKey(slotNum, player);
+            this.pressDropKey(slotNum, player, dragType == 1);
         }
         // Pressing a hotbar hotkey over a slot
         else if (clickType == 2 && dragType >= 0 && dragType <= 8)

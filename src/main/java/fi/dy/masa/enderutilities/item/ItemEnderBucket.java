@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -26,19 +25,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.fluids.IFluidContainerItem;
-import net.minecraftforge.fluids.IFluidHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -54,6 +40,17 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
@@ -75,7 +72,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BUCKET);
-        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
+        this.setCapacity(Configs.enderBucketCapacity);
     }
 
     @Override
@@ -116,7 +113,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
+        this.setCapacity(Configs.enderBucketCapacity);
 
         if (world.isRemote == true)
         {
@@ -142,7 +139,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        this.setCapacity(Configs.enderBucketCapacity.getInt(ENDER_BUCKET_MAX_AMOUNT));
+        this.setCapacity(Configs.enderBucketCapacity);
 
         // Do nothing on the client side
         if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
@@ -165,6 +162,16 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
             String fluidName = TextFormatting.GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
             return I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + fluidName;
+        }
+        else if (this.getBucketLinkMode(stack) == LINK_MODE_DISABLED)
+        {
+            if (stack.hasDisplayName() == true)
+            {
+                NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
+                return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
+            }
+
+            return I18n.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name").trim();
         }
 
         return super.getItemStackDisplayName(stack);
@@ -993,7 +1000,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                if (UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * maxDrain), doDrain) == false)
+                if (UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * maxDrain), doDrain == false) == false)
                 {
                     return null;
                 }
@@ -1074,7 +1081,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
             if (targetData != null && tank != null)
             {
-                if (fluidStackIn != null && UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * fluidStackIn.amount), doFill) == false)
+                if (fluidStackIn != null && UtilItemModular.useEnderCharge(stack, (int)(ENDER_CHARGE_COST * fluidStackIn.amount), doFill == false) == false)
                 {
                     return 0;
                 }

@@ -178,7 +178,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             // Simple cases for allowing items in: no templated slots, or matching item already in the slot 
             if (this.temc.templateMask == 0 || stack == null || this.getStackInSlot(slot) != null)

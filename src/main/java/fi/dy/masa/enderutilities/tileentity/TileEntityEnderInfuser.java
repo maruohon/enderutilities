@@ -225,7 +225,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {
@@ -244,7 +244,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         }
 
         @Override
-        protected boolean canExtractFromSlot(int slot)
+        public boolean canExtractFromSlot(int slot)
         {
             return slot == SLOT_CAP_OUT;
         }

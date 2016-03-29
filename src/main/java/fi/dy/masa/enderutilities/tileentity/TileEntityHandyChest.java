@@ -170,6 +170,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void inventoryChanged(int inventoryId, int slot)
     {
         this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.markDirty();
     }
 
     @Override
@@ -217,7 +218,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
 
         @Override
-        protected boolean isItemValidForSlot(int slot, ItemStack stack)
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
             if (stack == null)
             {

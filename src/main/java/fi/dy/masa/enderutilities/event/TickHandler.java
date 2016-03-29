@@ -3,13 +3,6 @@ package fi.dy.masa.enderutilities.event;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
@@ -18,6 +11,11 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class TickHandler
 {
@@ -60,6 +58,11 @@ public class TickHandler
         // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
+            if (event.player.isRiding() == true && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
+            {
+                ItemMobHarness.addAITask(event.player.getRidingEntity(), false);
+            }
+
             // FIXME 1.9
             ItemStack stack = event.player.getHeldItemMainhand();
             if (stack == null)
@@ -68,12 +71,6 @@ public class TickHandler
             }
 
             Item item = stack.getItem();
-
-            if (event.player.isRiding() == true && event.player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
-            {
-                ItemMobHarness.addAITask(event.player.getRidingEntity(), false);
-            }
-
             if (item instanceof IChunkLoadingItem)
             {
                 NBTTagCompound nbt = stack.getTagCompound();

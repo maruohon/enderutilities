@@ -42,6 +42,8 @@ public class EntityEventHandler
 
         Item item = stack.getItem();
 
+        // This needs to be in the event instead of itemInteractionForEntity() if we want it to also work in creative mode...
+        // (Otherwise in creative mode the NBT will get wiped after the use when the item is restored)
         if (item == EnderUtilitiesItems.livingManipulator)
         {
             if (event.getTarget() instanceof EntityLivingBase)
@@ -52,10 +54,10 @@ public class EntityEventHandler
         }
         else if (item == EnderUtilitiesItems.enderLasso && event.getTarget() instanceof EntityLivingBase)
         {
-            if (Configs.enderLassoAllowPlayers.getBoolean(false) == true || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
+            if (Configs.enderLassoAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
             {
                 if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == true &&
-                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, true) == true)
+                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, false) == true)
                 {
                     if (event.getTarget() instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {

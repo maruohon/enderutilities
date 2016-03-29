@@ -139,7 +139,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         }
 
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt == null)
+        if (nbt == null || amount < 0)
         {
             return 0;
         }

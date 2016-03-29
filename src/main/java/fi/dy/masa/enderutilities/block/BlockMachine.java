@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 import java.util.Random;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -20,9 +19,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.client.effects.Effects;
@@ -33,6 +29,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import net.minecraftforge.items.IItemHandler;
 
 public class BlockMachine extends BlockEnderUtilitiesInventory
 {
@@ -77,7 +74,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
             case CREATION_STATION: return new TileEntityCreationStation();
         }
 
-        return new TileEntityEnderFurnace();
+        return new TileEntityEnderInfuser();
     }
 
     @Override
