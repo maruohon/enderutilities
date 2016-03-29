@@ -90,7 +90,7 @@ public class InputEventHandler
         // In-game (no GUI open)
         else if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
         {
-            if (eventKey == Keybindings.keyToggleMode.getKeyCode())
+            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
             {
                 if (isHoldingKeyboundItem(player) == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.inventorySwapper)) == true)
                 {
