@@ -566,7 +566,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         EntityPlayer player = event.harvester;
         boolean isSilk = event.isSilkTouching;
-        int numDropsOriginal = event.drops.size();
+        boolean transported = false;
 
         // Don't try to handle the drops via other means in the Remote mode
         if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
@@ -589,10 +589,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     if (stackTmp == null)
                     {
                         iter.remove();
+                        transported = true;
                     }
-                    else
+                    else if (stackTmp.stackSize != stack.stackSize)
                     {
                         stack.stackSize = stackTmp.stackSize;
+                        transported = true;
                     }
                 }
             }
@@ -633,14 +635,14 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     {
                         Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
+                        transported = true;
                     }
                 }
             }
         }
 
-        // FIXME add check for transporting partial item stacks
         // At least something got transported somewhere...
-        if (event.drops.size() != numDropsOriginal)
+        if (transported == true)
         {
             // Transported the drops to somewhere remote
             if (mode == DropsMode.REMOTE)
@@ -648,6 +650,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, false);
             }
 
+            Effects.addItemTeleportEffects(event.world, event.pos);
+        }
+
+        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
+        if (event.drops.size() > 0 && mode == DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
+        {
             Effects.addItemTeleportEffects(event.world, event.pos);
         }
 

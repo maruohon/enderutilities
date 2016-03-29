@@ -302,9 +302,10 @@ public class ItemEnderSword extends ItemLocationBoundModular
                         iter.remove();
                         transported = true;
                     }
-                    else
+                    else if (stackTmp.stackSize != stack.stackSize)
                     {
                         stack.stackSize = stackTmp.stackSize;
+                        transported = true;
                     }
                 }
             }
