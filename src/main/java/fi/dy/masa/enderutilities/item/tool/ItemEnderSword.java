@@ -1,12 +1,7 @@
 package fi.dy.masa.enderutilities.item.tool;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -32,18 +27,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
@@ -66,6 +51,16 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderSword extends ItemLocationBoundModular
 {
@@ -243,6 +238,40 @@ public class ItemEnderSword extends ItemLocationBoundModular
         return null;
     }
 
+    private ItemStack tryTeleportItems(ItemStack itemsIn, ItemStack toolStack, EntityPlayer player)
+    {
+        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+        // For cross-dimensional item teleport we require the third tier of active Ender Core
+        if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+            || (target.dimension != player.dimension &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
+        {
+            return itemsIn;
+        }
+
+        World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
+        if (targetWorld == null)
+        {
+            return itemsIn;
+        }
+
+        // Chunk load the target for 30 seconds
+        ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
+
+        EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, itemsIn.copy());
+        entityItem.motionX = entityItem.motionZ = 0.0d;
+        entityItem.motionY = 0.15d;
+
+        if (targetWorld.spawnEntityInWorld(entityItem) == true)
+        {
+            Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
+            return null;
+        }
+
+        return itemsIn;
+    }
+
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
     {
         if (event.entity.worldObj.isRemote == true || this.isToolBroken(toolStack) == true || event.drops == null || event.drops.size() == 0)
@@ -260,107 +289,48 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         boolean transported = false;
         EntityPlayer player = (EntityPlayer)event.source.getSourceOfDamage();
-
-        // Items to further process by this method
-        ArrayList<EntityItem> items = new ArrayList<EntityItem>();
-
         Iterator<EntityItem> iter = event.drops.iterator();
+        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
+
         while (iter.hasNext() == true)
         {
             EntityItem item = iter.next();
-
-            // Pickup event not canceled, do further processing to those items
-            if (mode == SwordMode.REMOTE || MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == false)
+            ItemStack stack = item.getEntityItem();
+            if (stack == null || stack.getItem() == null)
             {
-                if (item.getEntityItem() != null && item.getEntityItem().stackSize > 0)
-                {
-                    items.add(item);
-                }
-
                 iter.remove();
+                continue;
             }
-            else if (item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+
+            ItemStack stackTmp = stack;
+
+            // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
+            if (mode == SwordMode.PLAYER && MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == true)
+            {
+                Effects.addItemTeleportEffects(player.worldObj, player.getPosition());
+                stackTmp = null;
+            }
+            else if (inv != null)
+            {
+                stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
+            }
+            // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
+            else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
+            {
+                stackTmp = this.tryTeleportItems(stack, toolStack, player);
+            }
+
+            if (stackTmp == null || stackTmp.stackSize <= 0)
             {
                 iter.remove();
                 transported = true;
             }
-        }
-
-        IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
-        if (inv != null)
-        {
-            iter = items.iterator();
-
-            while (iter.hasNext() == true)
+            else if (stackTmp.stackSize != stack.stackSize)
             {
-                ItemStack stack = iter.next().getEntityItem();
-                if (stack != null)
-                {
-                    ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
-                    if (stackTmp == null)
-                    {
-                        iter.remove();
-                        transported = true;
-                    }
-                    else if (stackTmp.stackSize != stack.stackSize)
-                    {
-                        stack.stackSize = stackTmp.stackSize;
-                        transported = true;
-                    }
-                }
+                stack.stackSize = stackTmp.stackSize;
+                item.setEntityItemStack(stack);
+                transported = true;
             }
-        }
-        // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
-        else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
-        {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
-
-            // For cross-dimensional item teleport we require the third tier of active Ender Core
-            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension &&
-                    this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
-            {
-                return;
-            }
-
-            World targetWorld = MinecraftServer.getServer().worldServerForDimension(target.dimension);
-            if (targetWorld == null)
-            {
-                return;
-            }
-
-            // Chunk load the target for 30 seconds
-            ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
-
-            iter = items.iterator();
-            while (iter.hasNext() == true)
-            {
-                ItemStack stack = iter.next().getEntityItem();
-                if (stack != null)
-                {
-                    EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
-                    entityItem.motionX = entityItem.motionZ = 0.0d;
-                    entityItem.motionY = 0.15d;
-
-                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
-                    {
-                        Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
-                        iter.remove();
-                        transported = true;
-                    }
-                }
-            }
-        }
-
-        // The items that were not handled, are added back to the original event's drops list
-        for (EntityItem item : items)
-        {
-            event.drops.add(item);
-        }
-
-        if (event.drops.isEmpty() == true)
-        {
-            event.setCanceled(true);
         }
 
         // At least something got transported somewhere...
@@ -376,6 +346,27 @@ public class ItemEnderSword extends ItemLocationBoundModular
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
                     event.entity.posX + 0.5d, event.entity.posY + 0.5d, event.entity.posZ + 0.5d, 8, 0.2d, 0.3d),
                         new NetworkRegistry.TargetPoint(event.entity.dimension, event.entity.posX, event.entity.posY, event.entity.posZ, 24.0d));
+        }
+
+        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
+        if (event.drops.size() > 0 && mode == SwordMode.REMOTE)
+        {
+            iter = event.drops.iterator();
+            while (iter.hasNext() == true)
+            {
+                EntityItem item = iter.next();
+                MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item));
+
+                if (item.isDead == true || item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+                {
+                    iter.remove();
+                }
+            }
+        }
+
+        if (event.drops.isEmpty() == true)
+        {
+            event.setCanceled(true);
         }
     }
 

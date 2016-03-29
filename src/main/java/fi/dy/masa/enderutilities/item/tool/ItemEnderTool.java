@@ -568,7 +568,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         boolean isSilk = event.isSilkTouching;
         boolean transported = false;
 
-        // Don't try to handle the drops via other means in the Remote mode
+        // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
         if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, event.drops)) == true)
         {
             Effects.addItemTeleportEffects(event.world, event.pos);
