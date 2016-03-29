@@ -197,10 +197,10 @@ public class ContainerEnderUtilities extends Container
 
         // If the item can't be put back to the slot, then we need to make sure that the whole
         // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
-        /*if (slot.isItemValid(stack) == false && stack != null)
+        if (slot.isItemValid(stack) == false && stack != null)
         {
             return false;
-        }*/
+        }
 
         // Could not merge anything
         if (stack != null && stack.stackSize == amount)
