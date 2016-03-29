@@ -361,17 +361,16 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         {
             ItemStack stackOrig = stackSlot.copy();
             // Craft up to one stack at a time
-            int num = stackSlot.getMaxStackSize() / stackSlot.stackSize;
+            //int num = stackSlot.getMaxStackSize() / stackSlot.stackSize;
+            int num = 64;
 
-            while (num > 0)
+            while (num-- > 0)
             {
                 // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
                 if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
                 {
                     break;
                 }
-
-                num--;
             }
         }
         // Only transfer a maximum of one regular stack
@@ -382,7 +381,6 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    // FIXME 1.8: Add whole stack dropping by holding ctrl
     protected void pressDropKey(int slotNum, EntityPlayer player, boolean wholeStack)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
