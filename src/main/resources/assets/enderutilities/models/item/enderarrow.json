@@ -1,18 +1,6 @@
 {
-    "parent": "minecraft:builtin/generated",
+    "parent": "enderutilities:item/standard_tool",
     "textures": {
         "layer0": "enderutilities:items/enderarrow"
-    },
-    "display": {
-        "thirdperson": {
-            "rotation": [ 0, 90, -35 ],
-            "translation": [ 0, 1.5, -3.5 ],
-            "scale": [ 0.6, 0.6, 0.6 ]
-        },
-        "firstperson": {
-            "rotation": [ 0, -135, 50 ],
-            "translation": [ 0, 6, 3 ],
-            "scale": [ 1.5, 1.5, 1.5 ]
-        }
     }
 }
