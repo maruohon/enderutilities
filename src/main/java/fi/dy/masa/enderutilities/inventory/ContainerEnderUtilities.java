@@ -99,7 +99,7 @@ public class ContainerEnderUtilities extends Container
     @Override
     public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
-        return (slot instanceof SlotItemHandler) && (slot instanceof SlotItemHandlerCraftresult) == false && this.inventoryPlayer.getItemStack() != null;
+        return (slot instanceof SlotItemHandler) && ((SlotItemHandler)slot).getItemHandler() instanceof PlayerMainInvWrapper;
     }
 
     public boolean isSlotInRange(SlotRange range, int slotNum)

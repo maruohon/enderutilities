@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerMemoryChest extends ContainerTileEntityInventory implements ICustomSlotSync
 {
@@ -53,53 +52,9 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     @Override
     protected void addPlayerInventorySlots(int posX, int posY)
     {
-        posY = ((Slot)this.inventorySlots.get(this.inventorySlots.size() - 1)).yDisplayPosition + 32;
+        posY = this.inventorySlots.get(this.inventorySlots.size() - 1).yDisplayPosition + 32;
 
         super.addPlayerInventorySlots(posX, posY);
-    }
-
-    @Override
-    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
-    {
-        Slot slot = this.getSlot(slotNum);
-        if (slot == null || slot.getHasStack() == false)
-        {
-            return false;
-        }
-
-        // We want to merge to matching template slots first, so we only handle slots FROM the player inventory
-        if (slot.inventory != this.player.inventory)
-        {
-            return super.transferStackFromSlot(player, slotNum);
-        }
-
-        // FIXME this violates the IItemHandler contract... not that it matters much in internal use but still
-        ItemStack stackSlot = slot.getStack();
-        int origSize = stackSlot.stackSize;
-
-        for (int i = 0; i < this.inventory.getSlots(); i++)
-        {
-            ItemStack stackTmp = this.temc.getTemplateStack(i);
-
-            if (stackTmp != null && InventoryUtils.areItemStacksEqual(stackTmp, stackSlot) == true)
-            {
-                this.mergeItemStack(stackSlot, new MergeSlotRange(i, 1), false, false);
-
-                if (stackSlot.stackSize <= 0)
-                {
-                    slot.putStack(null);
-                    slot.onPickupFromSlot(player, stackSlot);
-                    return true;
-                }
-            }
-        }
-
-        if (stackSlot.stackSize != origSize)
-        {
-            slot.onPickupFromSlot(player, stackSlot);
-        }
-
-        return super.transferStackFromSlot(player, slotNum);
     }
 
     @Override

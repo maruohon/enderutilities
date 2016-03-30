@@ -2,9 +2,6 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 import java.util.Collection;
-
-import com.google.common.collect.Ordering;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
@@ -15,7 +12,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-
+import com.google.common.collect.Ordering;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -42,6 +39,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     protected int firstArmorSlotX;
     protected int firstArmorSlotY;
     private boolean hasActivePotionEffects;
+    private int[] lastPos = new int[2];
 
     public GuiHandyBag(ContainerHandyBag container)
     {
@@ -57,17 +55,30 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.scaledStackSizeTextTargetInventories.add(this.invModular);
     }
 
-    @Override
-    public void initGui()
+    private void updatePositions()
     {
-        super.initGui();
-
         this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 5 * 18;
         this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(0).yDisplayPosition - 33;
         this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
         this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
 
         this.createButtons();
+
+        this.lastPos[0] = this.guiLeft;
+        this.lastPos[1] = this.guiTop;
+    }
+
+    private boolean needsPositionUpdate()
+    {
+        return this.lastPos[0] != this.guiLeft || this.lastPos[1] != this.guiTop;
+    }
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+        this.updatePositions();
+
         this.updateActivePotionEffects();
     }
 
@@ -83,6 +94,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         super.drawScreen(mouseX, mouseY, gameTicks);
+
+        if (this.needsPositionUpdate() == true)
+        {
+            this.updatePositions();
+        }
 
         if (this.hasActivePotionEffects == true)
         {
