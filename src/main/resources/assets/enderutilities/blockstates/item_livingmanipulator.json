@@ -7,17 +7,17 @@
         "mode": {
             "normal": {
                 "textures": {
-                    "layer0": "enderutilities:items/livingmanipulator.normal"
+                    "layer0": "enderutilities:items/livingmanipulator_normal"
                 }
             },
             "capture": {
                 "textures": {
-                    "layer0": "enderutilities:items/livingmanipulator.capture"
+                    "layer0": "enderutilities:items/livingmanipulator_capture"
                 }
             },
             "release": {
                 "textures": {
-                    "layer0": "enderutilities:items/livingmanipulator.release"
+                    "layer0": "enderutilities:items/livingmanipulator_release"
                 }
             }
         }

@@ -1,13 +1,12 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -15,23 +14,19 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderPorter extends ItemLocationBoundModular
 {
@@ -212,46 +207,39 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public ResourceLocation[] getItemVariants()
     {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-
         return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "tex=basic.stage.0"),
-                new ModelResourceLocation(rl, "tex=basic.stage.1"),
-                new ModelResourceLocation(rl, "tex=basic.stage.2"),
-                new ModelResourceLocation(rl, "tex=basic.stage.3"),
-                new ModelResourceLocation(rl, "tex=basic.stage.4"),
-                new ModelResourceLocation(rl, "tex=basic.stage.5"),
-                new ModelResourceLocation(rl, "tex=basic.stage.6"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.0"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.1"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.2"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.3"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.4"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.5"),
-                new ModelResourceLocation(rl, "tex=advanced.stage.6")
+                new ResourceLocation(this.getRegistryName() + "_basic"),
+                new ResourceLocation(this.getRegistryName() + "_advanced")
         };
-    }
-
-    // FIXME 1.9
-    @SideOnly(Side.CLIENT)
-    //@Override
-    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
-    {
-        int index = 0;
-        String pre = stack.getItemDamage() == 1 ? "tex=advanced.stage." : "tex=basic.stage.";
-
-        if (player != null && player.isHandActive() == true)
-        {
-            index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 6);
-        }
-
-        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public ModelResourceLocation getModelLocation(ItemStack stack)
+    protected void addItemOverrides()
     {
-        return this.getModel(stack, null, 0);
+        this.addPropertyOverride(new ResourceLocation("usetime"), new IItemPropertyGetter()
+        {
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                if (entityIn == null)
+                {
+                    return 0.0F;
+                }
+                else
+                {
+                    ItemStack itemstack = entityIn.getActiveItemStack();
+                    return itemstack != null && itemstack.getItem() == ItemEnderPorter.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
+                }
+            }
+        });
+        this.addPropertyOverride(new ResourceLocation("inuse"), new IItemPropertyGetter()
+        {
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+            }
+        });
     }
 }

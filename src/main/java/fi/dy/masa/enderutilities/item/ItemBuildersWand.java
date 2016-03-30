@@ -5,15 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,22 +29,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -59,6 +49,13 @@ import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemBuildersWand extends ItemLocationBoundModular
 {
@@ -592,9 +589,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         tag.setString("BlockName", Block.blockRegistry.getNameForObject(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
-        @SuppressWarnings("deprecation")
-        ItemStack stackTmp = state.getBlock().getItem(world, pos, state);
-        int meta = stackTmp != null ? stackTmp.getMetadata() : 0;
+        ItemStack stackTmp = null;
+
+        try
+        {
+            stackTmp = state.getBlock().getPickBlock(state, null, world, pos, null);
+        }
+        catch (Exception e)
+        {
+            EnderUtilities.logger.warn("getPickBlock failed in ItemBuildersWand#setSelectedFixedBlockType for block state: " + state);
+        }
+
+        int meta = stackTmp != null && stackTmp.getItem() != null ? stackTmp.getMetadata() : 0;
         tag.setByte("ItemMeta", (byte)meta);
     }
 
@@ -818,10 +824,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
 
+        ItemStack stackTmp = null;
 
-        @SuppressWarnings("deprecation")
-        ItemStack stackTmp = state.getBlock().getItem(world, blockPos, state);
-        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
+        try
+        {
+            stackTmp = state.getBlock().getPickBlock(state, null, world, blockPos, null);
+        }
+        catch (Exception e)
+        {
+            EnderUtilities.logger.warn("getPickBlock failed in ItemBuildersWand#addAdjacent for block state: " + state);
+        }
+
+        int itemMeta = stackTmp != null && stackTmp.getItem() != null ? stackTmp.getMetadata() : 0;
 
         // The block on the back face must not be air or fluid ...
         if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
@@ -1415,38 +1429,31 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public ResourceLocation[] getItemVariants()
+    protected void addItemOverrides()
     {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-
-        return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "stage=0"),
-                new ModelResourceLocation(rl, "stage=1"),
-                new ModelResourceLocation(rl, "stage=2"),
-                new ModelResourceLocation(rl, "stage=3"),
-                new ModelResourceLocation(rl, "stage=4")
-        };
-    }
-
-    // FIXME 1.9
-    @SideOnly(Side.CLIENT)
-    //@Override
-    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
-    {
-        int index = 0;
-
-        if (player != null && player.isHandActive() == true)
+        this.addPropertyOverride(new ResourceLocation("usetime"), new IItemPropertyGetter()
         {
-            index = MathHelper.clamp_int((this.getMaxItemUseDuration(stack) - useRemaining) / 4, 0, 4);
-        }
-
-        return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, "stage=" + index);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public ModelResourceLocation getModelLocation(ItemStack stack)
-    {
-        return this.getModel(stack, null, 0);
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                if (entityIn == null)
+                {
+                    return 0.0F;
+                }
+                else
+                {
+                    ItemStack itemstack = entityIn.getActiveItemStack();
+                    return itemstack != null && itemstack.getItem() == ItemBuildersWand.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 50.0F : 0.0F;
+                }
+            }
+        });
+        this.addPropertyOverride(new ResourceLocation("inuse"), new IItemPropertyGetter()
+        {
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+            }
+        });
     }
 }

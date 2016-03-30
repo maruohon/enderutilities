@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/enderporter_basic",
+    "textures": {
+        "layer0": "enderutilities:items/enderporter_basic_stage_4"
+    }
+}

@@ -62,7 +62,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
-        return slotChanged == true || oldStack.getItem() != newStack.getItem();
+        return slotChanged == true || oldStack != newStack;
     }
 
     @Override

@@ -1,0 +1,36 @@
+{
+    "parent": "enderutilities:item/standard_tool",
+    "textures": {
+        "layer0": "enderutilities:items/builderswand_0"
+    },
+    "overrides": [
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.1
+            },
+            "model": "enderutilities:item/builderswand_1"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.2
+            },
+            "model": "enderutilities:item/builderswand_2"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.3
+            },
+            "model": "enderutilities:item/builderswand_3"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.4
+            },
+            "model": "enderutilities:item/builderswand_4"
+        }
+    ]
+}

@@ -3,20 +3,17 @@ package fi.dy.masa.enderutilities.item.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderUtilities extends Item
 {
@@ -26,6 +23,7 @@ public class ItemEnderUtilities extends Item
     {
         super();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
+        this.addItemOverrides();
     }
 
     @Override
@@ -121,5 +119,10 @@ public class ItemEnderUtilities extends Item
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected void addItemOverrides()
+    {
     }
 }

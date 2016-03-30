@@ -1,5 +1,8 @@
 {
     "parent": "enderutilities:item/standard_item",
+    "textures": {
+        "layer0": "enderutilities:items/mobharness"
+    },
     "display": {
         "thirdperson_righthand": {
             "rotation": [ 0, -90, 212 ],
@@ -21,5 +24,13 @@
             "translation": [ 0.75, 3.75, 1.75 ],
             "scale": [ 0.68, 0.68, 0.68 ]
         }
-    }
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "linked": 1
+            },
+            "model": "enderutilities:item/mobharness_linked"
+        }
+    ]
 }

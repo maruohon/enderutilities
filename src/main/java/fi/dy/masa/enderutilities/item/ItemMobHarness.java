@@ -2,14 +2,13 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import java.util.UUID;
-
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIPanic;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -22,17 +21,14 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMobHarness extends ItemEnderUtilities
 {
@@ -252,21 +248,15 @@ public class ItemMobHarness extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public ResourceLocation[] getItemVariants()
+    protected void addItemOverrides()
     {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-
-        return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "linked=false"),
-                new ModelResourceLocation(rl, "linked=true")
-        };
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public ModelResourceLocation getModelLocation(ItemStack stack)
-    {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-        return new ModelResourceLocation(rl, "linked=" + this.hasTarget(stack));
+        this.addPropertyOverride(new ResourceLocation("linked"), new IItemPropertyGetter()
+        {
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                return stack != null && ItemMobHarness.this.hasTarget(stack) == true ? 1.0F : 0.0F;
+            }
+        });
     }
 }

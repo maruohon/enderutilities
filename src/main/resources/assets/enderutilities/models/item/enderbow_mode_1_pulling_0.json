@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/enderbow",
+    "textures": {
+        "layer0": "enderutilities:items/enderbow_mode_1_pulling_0"
+    }
+}

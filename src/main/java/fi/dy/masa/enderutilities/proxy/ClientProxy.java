@@ -141,20 +141,20 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPart);
         this.registerItemModelWithVariants(EnderUtilitiesItems.linkCrystal);
 
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.buildersWand);
+        this.registerItemModel(EnderUtilitiesItems.buildersWand);
         this.registerItemModel(EnderUtilitiesItems.enderArrow);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBow);
+        this.registerItemModel(EnderUtilitiesItems.enderBow);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBucket);
         this.registerItemModel(EnderUtilitiesItems.enderLasso);
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderPorter);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPorter);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.mobHarness);
+        this.registerItemModel(EnderUtilitiesItems.mobHarness);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);

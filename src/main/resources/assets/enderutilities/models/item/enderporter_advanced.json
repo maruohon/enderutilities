@@ -1,0 +1,50 @@
+{
+    "parent": "enderutilities:item/standard_item",
+    "textures": {
+        "layer0": "enderutilities:items/enderporter_advanced_stage_0"
+    },
+    "overrides": [
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.1
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_1"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.2
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_2"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.3
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_3"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.4
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_4"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.5
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_5"
+        },
+        {
+            "predicate": {
+            	"inuse": 1,
+                "usetime": 0.6
+            },
+            "model": "enderutilities:item/enderporter_advanced_stage_6"
+        }
+    ]
+}

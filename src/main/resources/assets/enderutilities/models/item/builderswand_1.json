@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/builderswand",
+    "textures": {
+        "layer0": "enderutilities:items/builderswand_1"
+    }
+}

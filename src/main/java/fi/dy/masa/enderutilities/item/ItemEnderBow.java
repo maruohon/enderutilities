@@ -1,11 +1,11 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -13,7 +13,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
@@ -22,7 +21,6 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -318,70 +316,47 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
     @SideOnly(Side.CLIENT)
     @Override
-    public ResourceLocation[] getItemVariants()
+    protected void addItemOverrides()
     {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-
-        return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "tex=mode.0.standby"),
-                new ModelResourceLocation(rl, "tex=mode.0.broken"),
-                new ModelResourceLocation(rl, "tex=mode.0.pulling.0"),
-                new ModelResourceLocation(rl, "tex=mode.0.pulling.1"),
-                new ModelResourceLocation(rl, "tex=mode.0.pulling.2"),
-                new ModelResourceLocation(rl, "tex=mode.1.standby"),
-                new ModelResourceLocation(rl, "tex=mode.1.broken"),
-                new ModelResourceLocation(rl, "tex=mode.1.pulling.0"),
-                new ModelResourceLocation(rl, "tex=mode.1.pulling.1"),
-                new ModelResourceLocation(rl, "tex=mode.1.pulling.2")
-        };
-    }
-
-    // FIXME 1.9
-    @SideOnly(Side.CLIENT)
-    //@Override
-    public ModelResourceLocation getModel(ItemStack stack, EntityPlayer player, int useRemaining)
-    {
-        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-        String modeStr = "tex=mode.";
-        int mode = 0;
-
-        if (stack.getTagCompound() != null)
+        this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter()
         {
-            mode = MathHelper.clamp_int(stack.getTagCompound().getByte("Mode"), 0, 1);
-        }
-        modeStr += mode;
-
-        if (this.isBroken(stack) == true)
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                if (entityIn == null)
+                {
+                    return 0.0F;
+                }
+                else
+                {
+                    ItemStack itemstack = entityIn.getActiveItemStack();
+                    return itemstack != null && itemstack.getItem() == ItemEnderBow.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F : 0.0F;
+                }
+            }
+        });
+        this.addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter()
         {
-            return new ModelResourceLocation(rl, modeStr + ".broken");
-        }
-
-        int inUse = stack.getMaxItemUseDuration() - useRemaining;
-        //System.out.println("max: " + stack.getMaxItemUseDuration() + " remaining: " + useRemaining + " inUse: " + inUse);
-
-        if (player != null && player.getActiveItemStack() != null)
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
+            {
+                return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+            }
+        });
+        this.addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter()
         {
-            if (inUse >= 18)
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return new ModelResourceLocation(rl, modeStr + ".pulling.2");
+                return stack != null && ItemEnderBow.this.isBroken(stack) == true ? 1.0F : 0.0F;
             }
-            else if (inUse >= 13)
+        });
+        this.addPropertyOverride(new ResourceLocation("mode"), new IItemPropertyGetter()
+        {
+            @SideOnly(Side.CLIENT)
+            public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return new ModelResourceLocation(rl, modeStr + ".pulling.1");
+                return stack != null && ItemEnderBow.this.getBowMode(stack) == 1 ? 1.0F : 0.0F;
             }
-            else if (inUse > 0)
-            {
-                return new ModelResourceLocation(rl, modeStr + ".pulling.0");
-            }
-        }
-
-        return new ModelResourceLocation(rl, modeStr + ".standby");
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public ModelResourceLocation getModelLocation(ItemStack stack)
-    {
-        return this.getModel(stack, null, 0);
+        });
     }
 }

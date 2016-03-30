@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/mobharness",
+    "textures": {
+        "layer0": "enderutilities:items/mobharness_linked"
+    }
+}
