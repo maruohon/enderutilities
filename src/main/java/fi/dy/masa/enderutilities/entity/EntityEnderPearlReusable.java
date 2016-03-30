@@ -51,13 +51,14 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
         this.isElite = isElitePearl;
         this.teleportDamage = isElitePearl == true ? 1.0f : 2.0f;
+        this.getDataManager().set(IS_ELITE_PEARL, Boolean.valueOf(this.isElite));
     }
 
     @Override
     protected void entityInit()
     {
         super.entityInit();
-        this.getDataManager().register(IS_ELITE_PEARL, Boolean.valueOf(this.isElite));
+        this.getDataManager().register(IS_ELITE_PEARL, Boolean.valueOf(false));
     }
 
     @Override

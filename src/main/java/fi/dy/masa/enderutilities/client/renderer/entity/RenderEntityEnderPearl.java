@@ -32,7 +32,6 @@ public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y, (float)z);
         GlStateManager.enableRescaleNormal();
-        GlStateManager.scale(0.5f, 0.5f, 0.5f);
         GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
         GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
         this.bindTexture(TextureMap.locationBlocksTexture);
