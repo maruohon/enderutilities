@@ -1105,7 +1105,7 @@ public class InventoryUtils
                 continue;
             }
 
-            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false, useOreDict);
+            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, true, useOreDict);
 
             if (stackNew == null)
             {
