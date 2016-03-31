@@ -283,7 +283,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (world.isRemote == false)
             {
                 InventoryUtils.tryMoveAllItems(bagInvnv, inv);
-                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+                player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
             return EnumActionResult.SUCCESS;
@@ -303,7 +303,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     InventoryUtils.tryMoveAllItems(inv, bagInvnv);
                 }
 
-                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+                player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
             return EnumActionResult.SUCCESS;
@@ -395,7 +395,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // At least some items were picked up
         if (pickedUp == true)
         {
-            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
+            player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
@@ -463,7 +463,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // At least some items were picked up
         if (entityItem.isSilent() == false && (entityItem.isDead == true || stack.stackSize != origStackSize))
         {
-            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER,
+            player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER,
                     0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 

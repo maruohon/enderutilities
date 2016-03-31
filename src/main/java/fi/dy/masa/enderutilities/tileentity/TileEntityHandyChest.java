@@ -201,7 +201,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         {
             // Double left clicked fast enough (< 5 ticks) - do the selected item moving action
             this.performGuiAction(player, GUI_ACTION_MOVE_ITEMS, this.actionMode);
-            player.worldObj.playSound(player, this.getPos(), SoundEvents.entity_endermen_teleport, SoundCategory.BLOCKS, 0.2f, 1.8f);
+            player.worldObj.playSound(null, this.getPos(), SoundEvents.entity_endermen_teleport, SoundCategory.BLOCKS, 0.2f, 1.8f);
             this.clickTimes.remove(player.getUniqueID());
         }
         else

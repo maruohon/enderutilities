@@ -447,7 +447,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         // At least some items were picked up
         if (transported == true)
         {
-            player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
+            player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                     ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
@@ -518,7 +518,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         {
             if (entityItem.isSilent() == false)
             {
-                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
+                player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_item_pickup, SoundCategory.MASTER, 0.2F,
                         ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 

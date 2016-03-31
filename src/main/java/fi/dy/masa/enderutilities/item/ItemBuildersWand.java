@@ -195,7 +195,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (pos != null)
             {
                 this.useWand(stack, world, player, pos);
-                player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.4f, 0.7f);
+                player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.4f, 0.7f);
             }
         }
     }

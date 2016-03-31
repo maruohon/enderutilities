@@ -2,13 +2,11 @@ package fi.dy.masa.enderutilities.event.tasks;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
@@ -96,8 +94,7 @@ public class TaskBuildersWand implements IPlayerTask
                     ((ItemBuildersWand)stack.getItem()).setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
                 }
 
-                //world.playSoundAtEntity(player, "note.harp", 0.7f, 1.0f);
-                world.playSound(player, player.playerLocation, SoundEvents.block_note_pling, SoundCategory.BLOCKS, 0.3f, 1.0f);
+                world.playSound(null, player.getPosition(), SoundEvents.block_note_pling, SoundCategory.BLOCKS, 0.3f, 1.0f);
             }
 
             return true;
