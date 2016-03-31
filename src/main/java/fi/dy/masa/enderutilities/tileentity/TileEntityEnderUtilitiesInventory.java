@@ -3,19 +3,17 @@ package fi.dy.masa.enderutilities.tileentity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.reference.Reference;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 {
@@ -108,13 +106,12 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
         return super.hasCapability(capability, facing);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
         {
-            return (T) this.itemHandlerExternal;
+            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.itemHandlerExternal);
         }
 
         return super.getCapability(capability, facing);
