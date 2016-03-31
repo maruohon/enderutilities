@@ -80,8 +80,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         amount = Math.min(amount, spaceAvailable);
 
-        //if (amount <= 0 || (slot.isItemValid(stackSlot) == false && spaceAvailable < stackSlot.stackSize))
-        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) == true && spaceAvailable < stackSlot.stackSize))
+        if (amount <= 0 || (slot.isItemValid(stackSlot) == false && spaceAvailable < stackSlot.stackSize))
+        //if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) == true && spaceAvailable < stackSlot.stackSize))
         {
             return false;
         }
@@ -270,7 +270,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                         stackCursor.stackSize++;
                     }
 
-                    this.inventoryPlayer.setItemStack(stackCursor);
+                    this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
                 }
                 // Can't put items into the slot (for example a crafting output slot); take items instead
                 else if (stackSlot != null)
@@ -291,9 +291,9 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         {
             int amount = stackSlot.stackSize; // default to the whole stack if it can't be returned to the slot
 
-            if (slot.isItemValid(stackCursor) == true)
+            if (slot.isItemValid(stackSlot) == true)
             {
-                amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), stackSlot.getMaxStackSize() / 2);
+                amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), (int)Math.ceil((double)stackSlot.getMaxStackSize() / 2.0d));
             }
 
             this.takeItemsFromSlotToCursor(slot, amount);
@@ -334,7 +334,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
 
-        if (slot != null && stackCursor != null)
+        if (slot != null && stackCursor != null && this.canMergeSlot(stackCursor, slot) == true)
         {
             // FIXME add a slot-aware version
             ItemStack stackTmp = InventoryUtils.collectItemsFromInventory(slot.itemHandler, stackCursor, stackCursor.getMaxStackSize() - stackCursor.stackSize, true);
