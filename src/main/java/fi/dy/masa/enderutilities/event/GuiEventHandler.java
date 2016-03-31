@@ -2,13 +2,11 @@ package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.Configs;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -34,19 +32,14 @@ public class GuiEventHandler
             boolean requireSneak = Configs.handyBagOpenRequiresSneak;
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
 
-            if (player.isSneaking() == requireSneak &&
-                (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 0)) == true) ||
-                (player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.handyBag, 1, 1)) == true))
+            if (player.isSneaking() == requireSneak && ItemHandyBag.getOpenableBag(player) != null)
             {
-                if (ItemHandyBag.getOpenableBag(player) != null)
+                if (event.isCancelable() == true)
                 {
-                    if (event.isCancelable() == true)
-                    {
-                        event.setCanceled(true);
-                    }
-
-                    PacketHandler.INSTANCE.sendToServer(new MessageOpenGui(player.dimension, player.posX, player.posY, player.posZ, ReferenceGuiIds.GUI_ID_HANDY_BAG));
+                    event.setCanceled(true);
                 }
+
+                PacketHandler.INSTANCE.sendToServer(new MessageOpenGui(player.dimension, ReferenceGuiIds.GUI_ID_HANDY_BAG));
             }
         }
     }

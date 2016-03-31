@@ -18,21 +18,15 @@ import net.minecraftforge.fml.relauncher.Side;
 public class MessageOpenGui implements IMessage
 {
     private int dimension;
-    private double posX;
-    private double posY;
-    private double posZ;
     private int guiId;
 
     public MessageOpenGui()
     {
     }
 
-    public MessageOpenGui(int dim, double x, double y, double z, int guiId)
+    public MessageOpenGui(int dim, int guiId)
     {
         this.dimension = dim;
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
         this.guiId = guiId;
     }
 
@@ -40,9 +34,6 @@ public class MessageOpenGui implements IMessage
     public void fromBytes(ByteBuf buf)
     {
         this.dimension = buf.readInt();
-        this.posX = buf.readDouble();
-        this.posY = buf.readDouble();
-        this.posZ = buf.readDouble();
         this.guiId = buf.readInt();
     }
 
@@ -50,9 +41,6 @@ public class MessageOpenGui implements IMessage
     public void toBytes(ByteBuf buf)
     {
         buf.writeInt(this.dimension);
-        buf.writeDouble(this.posX);
-        buf.writeDouble(this.posY);
-        buf.writeDouble(this.posZ);
         buf.writeInt(this.guiId);
     }
 
