@@ -8,7 +8,6 @@ public class ModRegistry
 
     public static void checkLoadedMods()
     {
-        // FIXME is this the correct mod id?
         modLoadedJEI = Loader.isModLoaded("JustEnoughItems");
     }
 

@@ -116,14 +116,6 @@ public class ItemEnderSword extends ItemLocationBoundModular
         return super.getItemStackDisplayName(stack);
     }
 
-    // This is used for determining which weapon is better when mobs pick up items
-    /*@Override
-    public float getDamageVsEntity()
-    {
-        // FIXME no way to check if the item is broken without ItemStack and NBT data
-        return this.damageVsEntity;
-    }*/
-
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         if (stack == null || this.isToolBroken(stack) == true)

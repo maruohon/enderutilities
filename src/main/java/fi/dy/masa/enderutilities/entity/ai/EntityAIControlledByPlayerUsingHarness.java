@@ -1,15 +1,11 @@
 package fi.dy.masa.enderutilities.entity.ai;
 
-import net.minecraft.block.BlockSlab;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.MathHelper;
-
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -56,7 +52,8 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     public boolean shouldExecute()
     {
         Entity rider = EntityUtils.getTopEntity(this.entity);
-        return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer && ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));
+        return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer &&
+                ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));
     }
 
     /**
@@ -99,11 +96,5 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
 
         entity.limbSwingAmount += (f4 - entity.limbSwingAmount) * 0.4F;
         entity.limbSwing += entity.limbSwingAmount;
-    }
-
-    public boolean isStairsOrSlab(IBlockState state)
-    {
-        // FIXME 1.9
-        return state.getBlock().getRenderType(state) == EnumBlockRenderType.MODEL || state.getBlock() instanceof BlockSlab;
     }
 }

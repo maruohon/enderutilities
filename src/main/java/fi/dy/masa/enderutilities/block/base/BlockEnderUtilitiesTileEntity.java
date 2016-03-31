@@ -68,15 +68,4 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     {
         return te != null && te.isInvalid() == false;
     }
-
-    // FIXME
-    /*@Override
-    public void onBlockPreDestroy(World world, BlockPos pos, int oldMeta)
-    {
-        Machine machine = Machine.getMachine(this.blockIndex, this.getMetaFromState(world.getBlockState(pos)));
-        if (machine != null)
-        {
-            machine.onBlockPreDestroy(world, pos, oldMeta);
-        }
-    }*/
 }

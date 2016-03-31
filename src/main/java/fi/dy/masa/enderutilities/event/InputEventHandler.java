@@ -63,7 +63,6 @@ public class InputEventHandler
         EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
         int eventKey = Keyboard.getEventKey();
 
-        // FIXME 1.9: the modifier stuff is busted - they event now only fires for key release, not press
         // One of our supported modifier keys was pressed or released
         if (KEY_CODE_MAPPINGS.containsKey(eventKey) == true)
         {
