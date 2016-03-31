@@ -286,7 +286,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         this.swapInventory(getEnabledSlotsMask(swapperStack), swapperInv, inv);
 
-        player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
@@ -308,7 +308,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         final int invSize = player.inventory.getSizeInventory();
         final int mainInvSize = player.inventory.mainInventory.length;
 
-        // TODO Update to IItemHandler ?
         long bit = 0x1;
         for (int slot = 0; slot < invSize; slot++)
         {
@@ -318,23 +317,36 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 ItemStack tmpStack = inv.getStackInSlot(slot);
 
                 // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
-                if (tmpStack == null ||
-                    (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
+                if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
                         player.inventory.isItemValidForSlot(slot, tmpStack)))
                 {
                     // Armor slots
-                    if (slot >= mainInvSize)
+                    if (slot >= mainInvSize && slot < player.inventory.getSizeInventory())
                     {
-                        // FIXME 1.9
-                        EntityEquipmentSlot equipmentSlot = tmpStack != null ? EntityLiving.getSlotForItemStack(tmpStack) : null;
-                        int pos = equipmentSlot != null ? equipmentSlot.getIndex() : (slot - mainInvSize + 1);
-                        if (pos > 0 && pos == (slot - mainInvSize + 1))
+                        int pos = -1;
+
+                        // Armor present in the swappers's inventory slot, get the corresponding armor slot
+                        if (tmpStack != null)
+                        {
+                            EntityEquipmentSlot equipmentSlot = EntityLiving.getSlotForItemStack(tmpStack);
+
+                            if (tmpStack.stackSize == 1 && equipmentSlot.getSlotType() == EntityEquipmentSlot.Type.ARMOR)
+                            {
+                                pos = equipmentSlot.getIndex();
+                            }
+                        }
+                        else if (player.inventory.getStackInSlot(slot) != null)
+                        {
+                            pos = slot - mainInvSize;
+                        }
+
+                        if (pos >= 0 && pos == (slot - mainInvSize))
                         {
                             inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
                             player.inventory.setInventorySlotContents(slot, tmpStack);
                         }
                     }
-                    else
+                    else if (slot < mainInvSize)
                     {
                         inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
                         player.inventory.setInventorySlotContents(slot, tmpStack);
@@ -344,7 +356,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             bit <<= 1;
         }
 
-        player.worldObj.playSound(player, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(EntityPlayer player)

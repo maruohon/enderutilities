@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.inventory;
 
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -13,14 +12,13 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
-    public static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[]
+    public static final EntityEquipmentSlot[] EQUIPMENT_SLOT_TYPES = new EntityEquipmentSlot[]
     {
         EntityEquipmentSlot.HEAD,
         EntityEquipmentSlot.CHEST,
@@ -57,13 +55,13 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         int playerArmorStart = this.inventorySlots.size();
 
-        IItemHandlerModifiable inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
+        IItemHandler inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
         posY = 15;
         for (int i = 0; i < 4; i++)
         {
-            // FIXME 1.9
-            final EntityEquipmentSlot entityequipmentslot = VALID_EQUIPMENT_SLOTS[i];
+            final int slotNum = i;
+
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
@@ -75,7 +73,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                 {
                     if (stack == null) return false;
 
-                    EntityEquipmentSlot slot = EntityLiving.getSlotForItemStack(stack);
+                    EntityEquipmentSlot slot = EQUIPMENT_SLOT_TYPES[slotNum];
                     return stack.getItem().isValidArmor(stack, slot, ContainerHandyBag.this.player);
                 }
 
@@ -83,7 +81,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                 @Override
                 public String getSlotTexture()
                 {
-                    return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
+                    return ItemArmor.EMPTY_SLOT_NAMES[EQUIPMENT_SLOT_TYPES[slotNum].getIndex()];
                 }
             });
         }
