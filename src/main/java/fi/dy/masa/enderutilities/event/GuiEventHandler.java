@@ -6,16 +6,33 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.setup.Configs;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiEventHandler
 {
-    @SideOnly(Side.CLIENT)
+    private static GuiEventHandler instance;
+    private boolean handyBagShouldOpen;
+
+    public GuiEventHandler()
+    {
+        instance = this;
+    }
+
+    public static GuiEventHandler instance()
+    {
+        return instance;
+    }
+
+    public void setHandyBagShouldOpen(boolean shouldOpen)
+    {
+        this.handyBagShouldOpen = shouldOpen;
+    }
+
     @SubscribeEvent
     public void onGuiOpenEvent(GuiOpenEvent event)
     {
@@ -29,10 +46,9 @@ public class GuiEventHandler
         // Opening the player's Inventory GUI
         if (event.getGui() != null && event.getGui().getClass() == GuiInventory.class)
         {
-            boolean requireSneak = Configs.handyBagOpenRequiresSneak;
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
 
-            if (player.isSneaking() == requireSneak && ItemHandyBag.getOpenableBag(player) != null)
+            if (this.handyBagShouldOpen == true && ItemHandyBag.getOpenableBag(player) != null)
             {
                 if (event.isCancelable() == true)
                 {

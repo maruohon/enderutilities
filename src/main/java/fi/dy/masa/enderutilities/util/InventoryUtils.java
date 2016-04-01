@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class InventoryUtils
@@ -364,6 +367,25 @@ public class InventoryUtils
     {
         int slot = getSlotOfFirstMatchingItem(inv, item);
         return slot != -1 ? inv.getStackInSlot(slot) : null;
+    }
+
+    /**
+     * Returns the first found IKeyBoundUnselected item from the player's inventory, or null.
+     */
+    public static ItemStack getFirstKeyBoundUnselectedItem(EntityPlayer player)
+    {
+        IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
+
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+            if (stack != null && stack.getItem() instanceof IKeyBoundUnselected)
+            {
+                return stack;
+            }
+        }
+
+        return null;
     }
 
     /**

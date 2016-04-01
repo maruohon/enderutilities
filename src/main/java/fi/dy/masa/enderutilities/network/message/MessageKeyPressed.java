@@ -5,9 +5,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -86,14 +86,15 @@ public class MessageKeyPressed implements IMessage
 
             if (stack != null && stack.getItem() instanceof IKeyBound)
             {
-                if ((message.keyPressed & ReferenceKeys.KEYBIND_ID_TOGGLE_MODE) != 0)
-                {
-                    ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
-                }
+                ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
             }
-            else if (ItemInventorySwapper.getSlotContainingEnabledItem(player) != -1)
+            else
             {
-                ItemInventorySwapper.handleKeyPressUnselected(player, message.keyPressed);
+                stack = InventoryUtils.getFirstKeyBoundUnselectedItem(player);
+                if (stack != null)
+                {
+                    ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);
+                }
             }
         }
     }

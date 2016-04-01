@@ -21,7 +21,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     private final IItemHandler inventory;
     private final int chestTier;
     private static final String[] BUTTON_STRINGS = new String[] {
-            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.moveallitemsexcepthotbar",
             "enderutilities.gui.label.movematchingitems",
             "enderutilities.gui.label.leaveonefilledstack",
             "enderutilities.gui.label.fillstacks",

@@ -24,11 +24,6 @@ public class ReferenceTextures
         return Reference.MOD_ID + ":textures/entity/entity." + name + ".png";
     }
 
-    public static String getSlotBackgroundName(String itemName)
-    {
-        return Reference.MOD_ID + ":gui/gui.slot.background." + itemName;
-    }
-
     public static ResourceLocation getResourceLocation(String path)
     {
         return getResourceLocation(Reference.MOD_ID.toLowerCase(), path);

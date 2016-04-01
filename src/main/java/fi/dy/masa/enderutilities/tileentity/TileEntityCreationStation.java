@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
 import fi.dy.masa.enderutilities.util.ItemType;
+import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -722,7 +723,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItems(playerInv, this.itemInventory);
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, this.itemInventory, new SlotRange(9, 27), new SlotRange(this.itemInventory));
                     break;
                 case 1: // Move matching items to Chest
                     InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);

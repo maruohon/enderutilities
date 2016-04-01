@@ -23,6 +23,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -42,7 +43,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
-public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBound
+public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBound, IKeyBoundUnselected
 {
     public static final String TAG_NAME_CONTAINER = "InventorySwpapper";
     public static final String TAG_NAME_PRESET_SELECTION = "SelectedPreset";
@@ -368,7 +369,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    public static void handleKeyPressUnselected(EntityPlayer player, int key)
+    @Override
+    public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode: Fire the swapping action
         /*if (ReferenceKeys.keypressContainsControl(key) == false
@@ -378,7 +380,9 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             swapInventory(player);
         }*/
 
-        ItemStack stack = getEnabledItem(player);
+        // Re-fetch the item to check if it's enabled
+        stack = getEnabledItem(player);
+
         if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
         {
             ((ItemInventorySwapper)stack.getItem()).doKeyBindingAction(player, stack, key);
