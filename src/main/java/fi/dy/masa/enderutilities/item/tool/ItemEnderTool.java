@@ -347,26 +347,34 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IItemHandler inv, int slot, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        ItemStack plantStack = inv.extractItem(slot, 1, false);
+        boolean ret = false;
+        ItemStack plantStack = inv.getStackInSlot(slot);
+
         if (plantStack != null && plantStack.getItem() instanceof IPlantable)
         {
+            plantStack = inv.extractItem(slot, 1, false);
+            if (plantStack == null)
+            {
+                return false;
+            }
+
             if (plantStack.onItemUse(player, world, pos, side, hitX, hitY, hitZ) == true)
             {
-                if (plantStack.stackSize > 0)
-                {
-                    inv.insertItem(slot, plantStack, false);
-                }
+                ret = true;
+            }
 
-                if (inv instanceof InventoryPlayer)
-                {
-                    player.inventoryContainer.detectAndSendChanges();
-                }
+            if (plantStack.stackSize > 0)
+            {
+                inv.insertItem(slot, plantStack, false);
+            }
 
-                return true;
+            if (inv instanceof PlayerMainInvWrapper)
+            {
+                player.inventoryContainer.detectAndSendChanges();
             }
         }
 
-        return false;
+        return ret;
     }
 
     @Override
@@ -378,7 +386,6 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public Set<String> getToolClasses(ItemStack stack)
     {
-        //System.out.println("getToolClasses()");
         String tc = ToolType.fromStack(stack).getToolClass();
         return tc != null ? ImmutableSet.of(tc) : super.getToolClasses(stack);
     }
