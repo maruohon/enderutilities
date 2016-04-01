@@ -1,11 +1,13 @@
 package fi.dy.masa.enderutilities.event;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.input.Keyboard;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -20,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class InputEventHandler
 {
     public static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
+    private final Minecraft mc;
     /** Has the active mouse scroll modifier mask, if any */
     private static int scrollingMask = 0;
     /** Has the currently active/pressed mask of supported modifier keys */
@@ -27,6 +30,7 @@ public class InputEventHandler
 
     public InputEventHandler()
     {
+        this.mc = Minecraft.getMinecraft();
     }
 
     /**
@@ -56,6 +60,7 @@ public class InputEventHandler
     {
         EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
         int eventKey = Keyboard.getEventKey();
+        boolean keyState = Keyboard.getEventKeyState();
 
         // One of our supported modifier keys was pressed or released
         if (KEY_CODE_MAPPINGS.containsKey(eventKey) == true)
@@ -63,7 +68,7 @@ public class InputEventHandler
             int mask = KEY_CODE_MAPPINGS.get(eventKey);
 
             // Key was pressed
-            if (Keyboard.getEventKeyState() == true)
+            if (keyState == true)
             {
                 modifierMask |= mask;
 
@@ -83,14 +88,31 @@ public class InputEventHandler
         // In-game (no GUI open)
         else if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
         {
-            // or this?: Keybindings.keyToggleMode.isPressed() == true
-            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
+            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState == true)
             {
                 if (isHoldingKeyboundItem(player) == true || hasKeyBoundUnselectedItem(player) == true)
                 {
                     int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
                 }
+            }
+            // Track the event of opening and closing the player's inventory.
+            // This is intended to have the Handy Bag either open or not open ie. do the same thing for the duration
+            // that the inventory is open at once. This is intended to get rid of the previous unintended behavior where
+            // if you sneak + open the inventory to open just the regular player inventory, if you then look at recipes in JEI
+            // or something similar where the GuiScreen changes, then the bag would suddenly open instead of the player inventory
+            // when closing the recipe screen and returning to the inventory.
+
+            // Based on a quick test, the inventory key fires as state == true when opening the inventory (before the gui opens)
+            // and as state == false when closing the inventory (after the gui has closed).
+            else if (eventKey == this.mc.gameSettings.keyBindInventory.getKeyCode())
+            {
+                boolean shouldOpen = keyState == true && player.isSneaking() == Configs.handyBagOpenRequiresSneak;
+                GuiEventHandler.instance().setHandyBagShouldOpen(shouldOpen);
+            }
+            else if (eventKey == Keyboard.KEY_ESCAPE)
+            {
+                GuiEventHandler.instance().setHandyBagShouldOpen(false);
             }
         }
     }
