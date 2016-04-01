@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.Collection;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -192,11 +193,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 55;
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.moveallitems"));
+                "enderutilities.gui.label.moveallitemsexcepthotbar",
+                "enderutilities.gui.label.moveallitemsexcepthotbar.holdshift"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24, 12, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.quickstack",
-                 "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
+                "enderutilities.gui.label.movematchingitems"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 12, 12, 24, 24, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.leaveonefilledstack"));
@@ -205,8 +206,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 "enderutilities.gui.label.fillstacks"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 12, 12, 24, 48, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.restock",
-                 "(" + I18n.format("enderutilities.gui.label.movematchingitems") + ")"));
+                 "enderutilities.gui.label.movematchingitems"));
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 12, 12, 24, 60, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitems"));
@@ -243,8 +243,14 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         }
         else if (button.id >= BTN_ID_FIRST_MOVE_ITEMS && button.id <= (BTN_ID_FIRST_MOVE_ITEMS + 5))
         {
+            int value = button.id - BTN_ID_FIRST_MOVE_ITEMS;
+            if (GuiScreen.isShiftKeyDown() == true)
+            {
+                value |= 0x8000;
+            }
+
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, button.id - BTN_ID_FIRST_MOVE_ITEMS));
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, value));
         }
     }
 

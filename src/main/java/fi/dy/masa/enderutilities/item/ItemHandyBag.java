@@ -31,6 +31,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -525,14 +526,22 @@ public class ItemHandyBag extends ItemInventoryModular
                     UtilItemModular.setModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, element);
                     inv.readFromContainerItemStack();
                 }
-                else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element <= 5)
+                else if (action == GUI_ACTION_MOVE_ITEMS)
                 {
                     IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
 
-                    switch(element)
+                    switch(element & 0x7FFF)
                     {
                         case 0: // Move all items to Bag
-                            InventoryUtils.tryMoveAllItems(playerInv, inv);
+                            // Holding shift, move all items, even from hotbar
+                            if ((element & 0x8000) != 0)
+                            {
+                                InventoryUtils.tryMoveAllItems(playerInv, inv);
+                            }
+                            else
+                            {
+                                InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, inv, new SlotRange(9, 27), new SlotRange(inv));
+                            }
                             break;
                         case 1: // Move matching items to Bag
                             InventoryUtils.tryMoveMatchingItems(playerInv, inv);

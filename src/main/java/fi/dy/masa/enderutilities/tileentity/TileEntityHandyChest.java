@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryHolder
 {
@@ -259,7 +260,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItems(playerInv, this.itemInventory);
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, this.itemInventory, new SlotRange(9, 27), new SlotRange(this.itemInventory));
                     break;
                 case 1: // Move matching items to Chest
                     InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);
