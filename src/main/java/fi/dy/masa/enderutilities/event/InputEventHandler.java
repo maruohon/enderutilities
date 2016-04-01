@@ -1,9 +1,14 @@
 package fi.dy.masa.enderutilities.event;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.entity.player.EntityPlayer;
-
+import org.lwjgl.input.Keyboard;
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.Keybindings;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -11,14 +16,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.setup.Keybindings;
-import gnu.trove.map.hash.TIntIntHashMap;
-
+@SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
     public static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
@@ -48,7 +46,11 @@ public class InputEventHandler
         return player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof IKeyBound;
     }
 
-    @SideOnly(Side.CLIENT)
+    public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)
+    {
+        return InventoryUtils.getFirstKeyBoundUnselectedItem(player) != null;
+    }
+
     @SubscribeEvent
     public void onKeyInputEvent(InputEvent.KeyInputEvent event)
     {
@@ -82,9 +84,9 @@ public class InputEventHandler
         else if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
         {
             // or this?: Keybindings.keyToggleMode.isPressed() == true
-            if (Keyboard.getEventKey() == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
+            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && Keyboard.getEventKeyState() == true)
             {
-                if (isHoldingKeyboundItem(player) == true || player.inventory.hasItem(EnderUtilitiesItems.inventorySwapper) == true)
+                if (isHoldingKeyboundItem(player) == true || hasKeyBoundUnselectedItem(player) == true)
                 {
                     int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
@@ -93,7 +95,6 @@ public class InputEventHandler
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event)
     {
