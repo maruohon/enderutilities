@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -32,6 +33,8 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 {
@@ -119,8 +122,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return;
             }
 
-            // FIXME 1.9
-            //player.inventory.consumeInventoryItem(EnderUtilitiesItems.enderArrow);
+            IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
+            int slot = InventoryUtils.getSlotOfFirstMatchingItem(inv, EnderUtilitiesItems.enderArrow);
+            if (slot >= 0)
+            {
+                inv.extractItem(slot, 1, false);
+            }
+
             stack.damageItem(1, player);
 
             // Tool just broke FIXME this doesn't work when called for the player, for some reason...
