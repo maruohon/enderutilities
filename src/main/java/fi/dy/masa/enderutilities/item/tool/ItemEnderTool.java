@@ -195,6 +195,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
                 playerIn.inventory.currentItem = slot;
                 boolean success = targetStack.onItemUse(playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+                if (targetStack.stackSize <= 0)
+                {
+                    playerIn.inventory.setInventorySlotContents(slot, null);
+                }
                 playerIn.inventory.currentItem = origSlot;
                 playerIn.inventory.markDirty();
                 playerIn.inventoryContainer.detectAndSendChanges();
