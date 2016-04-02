@@ -280,7 +280,7 @@ public class TeleportEntity
                 return null;
             }
 
-            //System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4)); // FIXME debug
+            //System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4));
 
             int chunkX = ((int)x) >> 4;
             int chunkZ = ((int)z) >> 4;
@@ -295,10 +295,6 @@ public class TeleportEntity
                 ((EntityLiving)entity).setMoveForward(0.0f);
                 ((EntityLiving)entity).getNavigator().clearPathEntity();
             }
-            // FIXME debug
-            //System.out.printf("entity.worldObj: %s %s\n", entity.worldObj.toString(), entity.worldObj.getClass().getSimpleName());
-            //double d = (x - entity.posX) * (x - entity.posX) + (y - entity.posY) * (y - entity.posY) + (z - entity.posZ) * (z - entity.posZ);
-            //System.out.printf("Tp distance: %.4f\n", MathHelper.sqrt_double(d));
 
             if (entity.dimension != dimDst || (entity.worldObj instanceof WorldServer && entity.worldObj != worldServerDst))
             {
@@ -401,6 +397,7 @@ public class TeleportEntity
             return null;
         }
 
+        // FIXME 1.9
         entitySrc.dismountRidingEntity();
 
         if (entitySrc.isBeingRidden() == true)
@@ -453,7 +450,7 @@ public class TeleportEntity
         return entityDst;
     }
 
-    public static EntityPlayerMP transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
+    public static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
     {
         if (player == null || player.isDead == true || player.dimension == dimDst || player.worldObj.isRemote == true)
         {

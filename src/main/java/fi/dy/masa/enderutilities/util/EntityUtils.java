@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -25,12 +24,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.setup.Registry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 public class EntityUtils
 {
@@ -264,15 +261,49 @@ public class EntityUtils
         return entity.getLowestRidingEntity();
     }
 
+    /**
+     * Gets the top-most riding entity. Note: Always gets the first rider (ie. get(0))!
+     */
     public static Entity getTopEntity(Entity entity)
     {
-        Entity ent;
+        if (entity == null)
+        {
+            return null;
+        }
 
+        Entity ent;
         for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
         {
         }
 
         return ent;
+    }
+
+    /**
+     * Check if the Entity <b>rider</b> is among the riders of the other Entity <b>target</b>.
+     * This check is done recursively to all the riders of <b>target</b>.
+     */
+    public static boolean isEntityRiddenBy(Entity target, Entity rider)
+    {
+        if (target == null || rider == null)
+        {
+            return false;
+        }
+
+        if (target.isBeingRidden() == true)
+        {
+            List<Entity> passengers = target.getPassengers();
+
+            for (Entity passenger : passengers)
+            {
+                if (passenger.equals(rider) == true || isEntityRiddenBy(passenger, rider) == true)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -282,21 +313,36 @@ public class EntityUtils
      */
     public static boolean doesEntityStackHavePlayers(Entity entity)
     {
-        Entity ent;
-
-        for (ent = entity; ent != null; ent = ent.getRidingEntity())
+        if (entity == null)
         {
-            if (ent instanceof EntityPlayer)
-            {
-                return true;
-            }
+            return false;
         }
 
-        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
+        return doesEntityStackHavePlayers(entity, true);
+    }
+
+    private static boolean doesEntityStackHavePlayers(Entity entity, boolean startFromBottom)
+    {
+        if (entity instanceof EntityPlayer)
         {
-            if (ent instanceof EntityPlayer)
+            return true;
+        }
+
+        if (startFromBottom == true)
+        {
+            entity = getBottomEntity(entity);
+        }
+
+        if (entity.isBeingRidden() == true)
+        {
+            List<Entity> passengers = entity.getPassengers();
+
+            for (Entity passenger : passengers)
             {
-                return true;
+                if (passenger instanceof EntityPlayer || doesEntityStackHavePlayers(passenger, false) == true)
+                {
+                    return true;
+                }
             }
         }
 
@@ -304,28 +350,44 @@ public class EntityUtils
     }
 
     /**
-     * Check if the given entity is contained in the 'stack' that the second argument is part of
+     * Check if the given Entity <b>entity</b> is among the 'stack' of entities
+     * that the second argument <b>entityInStack</b> is part of.
      * @param entity
      * @param entityInStack
      * @return
      */
     public static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack)
     {
-        Entity ent;
-
-        for (ent = entityInStack; ent != null; ent = ent.getRidingEntity())
+        if (entity == null || entityInStack == null)
         {
-            if (ent == entity)
-            {
-                return true;
-            }
+            return false;
         }
 
-        for (ent = entityInStack; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
+        return doesEntityStackContainEntity(entity, entityInStack, true);
+    }
+
+    private static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack, boolean startFromBottom)
+    {
+        if (entity.equals(entityInStack) == true)
         {
-            if (ent == entity)
+            return true;
+        }
+
+        if (startFromBottom == true)
+        {
+            entityInStack = getBottomEntity(entityInStack);
+        }
+
+        if (entityInStack.isBeingRidden() == true)
+        {
+            List<Entity> passengers = entityInStack.getPassengers();
+
+            for (Entity passenger : passengers)
             {
-                return true;
+                if (passenger.equals(entity) == true || doesEntityStackContainEntity(entity, passenger, false) == true)
+                {
+                    return true;
+                }
             }
         }
 
@@ -339,33 +401,48 @@ public class EntityUtils
      */
     public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
     {
-        List<String> blacklist = Registry.getTeleportBlacklist();
-        Entity ent;
-
-        for (ent = entity; ent != null; ent = ent.getRidingEntity())
+        if (entity == null)
         {
-            if (blacklist.contains(ent.getClass().getSimpleName()) == true)
-            {
-                return true;
-            }
+            return false;
         }
 
-        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
+        return doesEntityStackHaveBlacklistedEntities(entity, true);
+    }
+
+    private static boolean doesEntityStackHaveBlacklistedEntities(Entity entity, boolean startFromBottom)
+    {
+        List<String> blacklist = Registry.getTeleportBlacklist();
+        if (blacklist.contains(entity.getClass().getSimpleName()) == true)
         {
-            if (blacklist.contains(ent.getClass().getSimpleName()) == true)
+            return true;
+        }
+
+        if (startFromBottom == true)
+        {
+            entity = getBottomEntity(entity);
+        }
+
+        if (entity.isBeingRidden() == true)
+        {
+            List<Entity> passengers = entity.getPassengers();
+
+            for (Entity passenger : passengers)
             {
-                return true;
+                if (blacklist.contains(passenger.getClass().getSimpleName()) == true ||
+                    doesEntityStackHaveBlacklistedEntities(passenger, false) == true)
+                {
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    public static boolean unmountRider(Entity entity)
+    public static boolean unmountFirstRider(Entity entity)
     {
         if (entity != null && entity.isBeingRidden() == true)
         {
-            // FIXME 1.9: handle all riders?
             entity.getPassengers().get(0).dismountRidingEntity();
             return true;
         }
@@ -384,15 +461,18 @@ public class EntityUtils
     public static boolean isEntityCollidingWithBlockSpace(World world, Entity entity, Block block)
     {
         AxisAlignedBB bb = entity.getEntityBoundingBox();
-        int mX = MathHelper.floor_double(bb.minX);
-        int mY = MathHelper.floor_double(bb.minY);
-        int mZ = MathHelper.floor_double(bb.minZ);
+        int minX = MathHelper.floor_double(bb.minX);
+        int minY = MathHelper.floor_double(bb.minY);
+        int minZ = MathHelper.floor_double(bb.minZ);
+        int maxX = MathHelper.floor_double(bb.maxX);
+        int maxY = MathHelper.floor_double(bb.maxY);
+        int maxZ = MathHelper.floor_double(bb.maxZ);
 
-        for (int y2 = mY; y2 < bb.maxY; y2++)
+        for (int y2 = minY; y2 <= maxY; y2++)
         {
-            for (int x2 = mX; x2 < bb.maxX; x2++)
+            for (int x2 = minX; x2 <= maxX; x2++)
             {
-                for (int z2 = mZ; z2 < bb.maxZ; z2++)
+                for (int z2 = minZ; z2 <= maxZ; z2++)
                 {
                     if (world.getBlockState(new BlockPos(x2, y2, z2)).getBlock() == block)
                     {

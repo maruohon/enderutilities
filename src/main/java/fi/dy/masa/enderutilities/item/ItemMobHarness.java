@@ -77,6 +77,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target, EnumHand hand)
     {
         return this.handleInteraction(stack, player, target);
+        //return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -99,7 +100,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         if (player.isSneaking() == false)
         {
-            EntityUtils.unmountRider(entity);
+            //EntityUtils.unmountFirstRider(entity);
             player.startRiding(entity, true);
             addAITask(entity, true);
 
@@ -185,7 +186,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         // The harness was clicked twice on the same entity, mount that entity on top of the player
         if (storedUUID.equals(targetEntity.getUniqueID()))
         {
-            EntityUtils.unmountRider(player);
+            EntityUtils.unmountFirstRider(player);
             targetEntity.startRiding(player);
             this.clearData(stack);
 
@@ -211,8 +212,8 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Matching (stored) entity found
             if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-                EntityUtils.unmountRider(targetEntity);
-                storedEntity.startRiding(targetEntity);
+                //EntityUtils.unmountFirstRider(targetEntity);
+                storedEntity.startRiding(targetEntity, true);
                 this.clearData(stack);
 
                 return true;
