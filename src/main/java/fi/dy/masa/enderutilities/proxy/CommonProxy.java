@@ -1,18 +1,19 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
-
-import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
-import fi.dy.masa.enderutilities.event.*;
+import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
+import fi.dy.masa.enderutilities.event.BlockEventHandler;
+import fi.dy.masa.enderutilities.event.EntityEventHandler;
+import fi.dy.masa.enderutilities.event.FMLPlayerEventHandler;
+import fi.dy.masa.enderutilities.event.ItemPickupEventHandler;
+import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
+import fi.dy.masa.enderutilities.event.PlayerEventHandler;
+import fi.dy.masa.enderutilities.event.TickHandler;
+import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -22,6 +23,11 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import net.minecraftforge.common.ForgeChunkManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public abstract class CommonProxy implements IProxy
 {
@@ -53,7 +59,6 @@ public abstract class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new AnvilUpdateEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockEventHandler());
         MinecraftForge.EVENT_BUS.register(new EntityEventHandler());
-        MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
         MinecraftForge.EVENT_BUS.register(new ItemPickupEventHandler());
         MinecraftForge.EVENT_BUS.register(new LivingDropsEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());

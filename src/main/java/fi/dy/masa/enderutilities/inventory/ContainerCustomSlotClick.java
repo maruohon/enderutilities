@@ -37,7 +37,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         this.draggedSlots.add(slotNum);
     }
 
-    private ItemStack putItemsToSlot(SlotItemHandlerGeneric slot, ItemStack stack, int amount)
+    protected ItemStack putItemsToSlot(SlotItemHandlerGeneric slot, ItemStack stack, int amount)
     {
         if (stack == null)
         {
@@ -60,7 +60,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         return slot.insertItem(stack, false);
     }
 
-    private boolean takeItemsFromSlotToCursor(SlotItemHandlerGeneric slot, int amount)
+    protected boolean takeItemsFromSlotToCursor(SlotItemHandlerGeneric slot, int amount)
     {
         ItemStack stackCursor = this.inventoryPlayer.getItemStack();
         ItemStack stackSlot = slot.getStack();
@@ -110,7 +110,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         return false;
     }
 
-    private boolean swapSlots(SlotItemHandlerGeneric slot1, SlotItemHandlerGeneric slot2)
+    protected boolean swapSlots(SlotItemHandlerGeneric slot1, SlotItemHandlerGeneric slot2)
     {
         if ((slot1.getHasStack() == true && slot1.canTakeStack(this.player) == false) ||
             (slot2.getHasStack() == true && slot2.canTakeStack(this.player) == false))

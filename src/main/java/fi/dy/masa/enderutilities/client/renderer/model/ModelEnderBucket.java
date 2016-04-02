@@ -199,7 +199,8 @@ public class ModelEnderBucket implements IModel, IModelCustomData
 
         if (this.fluid != null)
         {
-            TextureAtlasSprite fluidTex = bakedTextureGetter.apply(fluid.getStill());
+            TextureAtlasSprite fluidTex = bakedTextureGetter.apply(this.fluid.getStill());
+            int color = fluid.getColor();
             float capacity = this.capacity > 0 ? this.capacity : 1000;
             float height = (float)this.amount / capacity;
             // top x: 4 .. 12 ; y: 3 .. 7
@@ -207,14 +208,14 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             float yt = 7 - height * 4;
             float yb = 13 - height * 4;
             // Top part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.469f, fluidTex, EnumFacing.NORTH, 0xffffffff));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.469f, fluidTex, EnumFacing.NORTH, color));
             // Bottom part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.469f, fluidTex, EnumFacing.NORTH, 0xffffffff));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.469f, fluidTex, EnumFacing.NORTH, color));
 
             // Top part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.531f, fluidTex, EnumFacing.SOUTH, 0xffffffff));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.531f, fluidTex, EnumFacing.SOUTH, color));
             // Bottom part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.531f, fluidTex, EnumFacing.SOUTH, 0xffffffff));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.531f, fluidTex, EnumFacing.SOUTH, color));
         }
 
         return new BakedEnderBucket(this, builder.build(), mainSprite, format, Maps.immutableEnumMap(transformMap), Maps.<String, IBakedModel>newHashMap());

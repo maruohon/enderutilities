@@ -2,18 +2,12 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.math.MathHelper;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
@@ -22,6 +16,9 @@ import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 
 public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
@@ -180,8 +177,14 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
+            if (stack == null)
+            {
+                return false;
+            }
+
             // Simple cases for allowing items in: no templated slots, or matching item already in the slot 
-            if (this.temc.templateMask == 0 || stack == null || this.getStackInSlot(slot) != null)
+            if (this.temc.templateMask == 0 ||
+                (this.getStackInSlot(slot) != null && InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true))
             {
                 return true;
             }
