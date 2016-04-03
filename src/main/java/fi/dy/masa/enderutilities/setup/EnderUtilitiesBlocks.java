@@ -1,9 +1,14 @@
 package fi.dy.masa.enderutilities.setup;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.BlockMachine;
@@ -11,8 +16,6 @@ import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class EnderUtilitiesBlocks
 {
@@ -24,10 +27,10 @@ public class EnderUtilitiesBlocks
     public static void init()
     {
         // Register blocks
-        if (Configs.disableBlockMachine_0 == false) { GameRegistry.registerBlock(blockMachine_0, ItemBlockEnderUtilities.class, ReferenceNames.NAME_TILE_MACHINE_0); }
-        if (Configs.disableBlockMachine_1 == false) { GameRegistry.registerBlock(blockMachine_1, ItemBlockEnderUtilities.class, ReferenceNames.NAME_TILE_MACHINE_1); }
-        if (Configs.disableBlockEnergyBridge == false) { GameRegistry.registerBlock(blockEnergyBridge, ItemBlockEnderUtilities.class, ReferenceNames.NAME_TILE_ENERGY_BRIDGE); }
-        if (Configs.disableBlockStorage_0 == false) { GameRegistry.registerBlock(blockStorage_0, ItemBlockEnderUtilities.class, ReferenceNames.NAME_TILE_STORAGE_0); }
+        registerBlock(blockMachine_0,       ReferenceNames.NAME_TILE_MACHINE_0,         Configs.disableBlockMachine_0);
+        registerBlock(blockMachine_1,       ReferenceNames.NAME_TILE_MACHINE_1,         Configs.disableBlockMachine_1);
+        registerBlock(blockEnergyBridge,    ReferenceNames.NAME_TILE_ENERGY_BRIDGE,     Configs.disableBlockEnergyBridge);
+        registerBlock(blockStorage_0,       ReferenceNames.NAME_TILE_STORAGE_0,         Configs.disableBlockStorage_0);
 
         ItemStack chest = new ItemStack(Blocks.chest);
         ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
@@ -105,6 +108,16 @@ public class EnderUtilitiesBlocks
         if (Configs.disableRecipeHandyChest_2 == false && Configs.disableBlockStorage_0 == false)
         {
             GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy2, 'C', enderChest, 'O', active_core1, 'R', repeater);
+        }
+    }
+
+    private static void registerBlock(Block block, String registryName, boolean isDisabled)
+    {
+        if (isDisabled == false)
+        {
+            block.setRegistryName(registryName);
+            GameRegistry.register(block);
+            GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(block.getRegistryName()));
         }
     }
 }

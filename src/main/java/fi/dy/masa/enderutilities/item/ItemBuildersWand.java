@@ -591,6 +591,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         ItemStack stackTmp = null;
 
+        // FIXME 1.9
         try
         {
             stackTmp = state.getBlock().getPickBlock(state, null, world, pos, null);
@@ -826,6 +827,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         ItemStack stackTmp = null;
 
+        // FIXME 1.9
         try
         {
             stackTmp = state.getBlock().getPickBlock(state, null, world, blockPos, null);

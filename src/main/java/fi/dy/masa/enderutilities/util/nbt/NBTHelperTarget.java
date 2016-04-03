@@ -10,11 +10,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperTarget
 {
@@ -205,13 +203,13 @@ public class NBTHelperTarget
             WorldServer world = server.worldServerForDimension(dim);
             if (world != null && world.provider != null)
             {
-                // FIXME 1.9: verify if this will work for modded stuff
                 dimName = world.provider.getDimensionType().getName();
 
                 IBlockState iBlockState = world.getBlockState(pos);
                 Block block = iBlockState.getBlock();
                 blockMeta = block.getMetaFromState(iBlockState);
 
+                // FIXME 1.9
                 @SuppressWarnings("deprecation")
                 ItemStack stack = block.getItem(world, pos, iBlockState);
                 if (stack != null)

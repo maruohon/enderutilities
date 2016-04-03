@@ -2,22 +2,15 @@ package fi.dy.masa.enderutilities.setup;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemEnderArrow;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
-import fi.dy.masa.enderutilities.item.ItemEnderBow;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.item.ItemEnderLasso;
-import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
-import fi.dy.masa.enderutilities.item.ItemEnderPorter;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
-import fi.dy.masa.enderutilities.item.ItemMobHarness;
-import fi.dy.masa.enderutilities.item.ItemPickupManager;
-import fi.dy.masa.enderutilities.item.ItemPortalScaler;
-import fi.dy.masa.enderutilities.item.ItemRuler;
+
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import fi.dy.masa.enderutilities.item.*;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -25,10 +18,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 public class EnderUtilitiesItems
 {
@@ -56,26 +45,26 @@ public class EnderUtilitiesItems
 
     public static void init()
     {
-        if (Configs.disableItemCraftingPart == false) { GameRegistry.registerItem(enderPart, ReferenceNames.NAME_ITEM_ENDERPART); }
-        if (Configs.disableItemEnderCapacitor == false) { GameRegistry.registerItem(enderCapacitor, ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR); }
-        if (Configs.disableItemLinkCrystal == false) { GameRegistry.registerItem(linkCrystal, ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL); }
-        if (Configs.disableItemBuildersWand == false) { GameRegistry.registerItem(buildersWand, ReferenceNames.NAME_ITEM_BUILDERS_WAND); }
-        if (Configs.disableItemEnderArrow == false) { GameRegistry.registerItem(enderArrow, ReferenceNames.NAME_ITEM_ENDER_ARROW); }
-        if (Configs.disableItemEnderBag == false) { GameRegistry.registerItem(enderBag, ReferenceNames.NAME_ITEM_ENDER_BAG); }
-        if (Configs.disableItemEnderBow == false) { GameRegistry.registerItem(enderBow, ReferenceNames.NAME_ITEM_ENDER_BOW); }
-        if (Configs.disableItemEnderBucket == false) { GameRegistry.registerItem(enderBucket, ReferenceNames.NAME_ITEM_ENDER_BUCKET); }
-        if (Configs.disableItemEnderLasso == false) { GameRegistry.registerItem(enderLasso, ReferenceNames.NAME_ITEM_ENDER_LASSO); }
-        if (Configs.disableItemEnderPearl == false) { GameRegistry.registerItem(enderPearlReusable, ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE); }
-        if (Configs.disableItemEnderPorter == false) { GameRegistry.registerItem(enderPorter, ReferenceNames.NAME_ITEM_ENDER_PORTER); }
-        if (Configs.disableItemEnderSword == false) { GameRegistry.registerItem(enderSword, ReferenceNames.NAME_ITEM_ENDER_SWORD); }
-        if (Configs.disableItemEnderTools == false) { GameRegistry.registerItem(enderTool, ReferenceNames.NAME_ITEM_ENDERTOOL); }
-        if (Configs.disableItemHandyBag == false) { GameRegistry.registerItem(handyBag, ReferenceNames.NAME_ITEM_HANDY_BAG); }
-        if (Configs.disableItemInventorySwapper == false) { GameRegistry.registerItem(inventorySwapper, ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER); }
-        if (Configs.disableItemLivingManipulator == false) { GameRegistry.registerItem(livingManipulator, ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR); }
-        if (Configs.disableItemMobHarness == false) { GameRegistry.registerItem(mobHarness, ReferenceNames.NAME_ITEM_MOB_HARNESS); }
-        if (Configs.disableItemPickupManager == false) { GameRegistry.registerItem(pickupManager, ReferenceNames.NAME_ITEM_PICKUP_MANAGER); }
-        if (Configs.disableItemPortalScaler == false) { GameRegistry.registerItem(portalScaler, ReferenceNames.NAME_ITEM_PORTAL_SCALER); }
-        if (Configs.disableItemRuler == false) { GameRegistry.registerItem(ruler, ReferenceNames.NAME_ITEM_RULER); }
+        registerItem(enderPart,             ReferenceNames.NAME_ITEM_ENDERPART,                 Configs.disableItemCraftingPart);
+        registerItem(enderCapacitor,        ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR,  Configs.disableItemEnderCapacitor);
+        registerItem(linkCrystal,           ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL,     Configs.disableItemLinkCrystal);
+        registerItem(buildersWand,          ReferenceNames.NAME_ITEM_BUILDERS_WAND,             Configs.disableItemBuildersWand);
+        registerItem(enderArrow,            ReferenceNames.NAME_ITEM_ENDER_ARROW,               Configs.disableItemEnderArrow);
+        registerItem(enderBag,              ReferenceNames.NAME_ITEM_ENDER_BAG,                 Configs.disableItemEnderBag);
+        registerItem(enderBow,              ReferenceNames.NAME_ITEM_ENDER_BOW,                 Configs.disableItemEnderBow);
+        registerItem(enderBucket,           ReferenceNames.NAME_ITEM_ENDER_BUCKET,              Configs.disableItemEnderBucket);
+        registerItem(enderLasso,            ReferenceNames.NAME_ITEM_ENDER_LASSO,               Configs.disableItemEnderLasso);
+        registerItem(enderPearlReusable,    ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE,      Configs.disableItemEnderPearl);
+        registerItem(enderPorter,           ReferenceNames.NAME_ITEM_ENDER_PORTER,              Configs.disableItemEnderPorter);
+        registerItem(enderSword,            ReferenceNames.NAME_ITEM_ENDER_SWORD,               Configs.disableItemEnderSword);
+        registerItem(enderTool,             ReferenceNames.NAME_ITEM_ENDERTOOL,                 Configs.disableItemEnderTools);
+        registerItem(handyBag,              ReferenceNames.NAME_ITEM_HANDY_BAG,                 Configs.disableItemHandyBag);
+        registerItem(inventorySwapper,      ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER,         Configs.disableItemInventorySwapper);
+        registerItem(livingManipulator,     ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR,        Configs.disableItemLivingManipulator);
+        registerItem(mobHarness,            ReferenceNames.NAME_ITEM_MOB_HARNESS,               Configs.disableItemMobHarness);
+        registerItem(pickupManager,         ReferenceNames.NAME_ITEM_PICKUP_MANAGER,            Configs.disableItemPickupManager);
+        registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
+        registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
 
         ItemStack bucket = new ItemStack(Items.bucket);
         ItemStack diamond = new ItemStack(Items.diamond);
@@ -292,6 +281,15 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeModuleLinkCrystalPortal == false && Configs.disableItemLinkCrystal == false)
         {
             //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(linkCrystal, 1, 2), "RGR", "GAG", "RGR", 'R', "dustRedstone", 'G', "blockGlassPurple", 'A', alloy0));
+        }
+    }
+
+    private static void registerItem(Item item, String registryName, boolean isDisabled)
+    {
+        if (isDisabled == false)
+        {
+            item.setRegistryName(registryName);
+            GameRegistry.register(item);
         }
     }
 }
