@@ -1,6 +1,9 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -20,6 +23,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -28,11 +38,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class TeleportEntity
 {
@@ -197,57 +202,65 @@ public class TeleportEntity
         return null;
     }
 
-    public static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
+    public static Entity teleportEntity(Entity entityIn, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
     {
-        if (entity == null || entity.worldObj == null || entity.worldObj.isRemote == true) { return null; }
-        if (allowMounts == false && entity.isRiding() == true) { return null; }
-        if (allowRiders == false && entity.isBeingRidden() == true) { return null; }
-        if (canTeleportEntity(entity) == false) { return null; }
+        if (entityIn == null || entityIn.worldObj == null || entityIn.worldObj.isRemote == true) { return null; }
+        if (allowMounts == false && entityIn.isRiding() == true) { return null; }
+        if (allowRiders == false && entityIn.isBeingRidden() == true) { return null; }
+        if (canTeleportEntity(entityIn) == false) { return null; }
 
-        Entity current, ret = null;
-        boolean reCreate = EntityUtils.doesEntityStackHavePlayers(entity);
-
-        Entity riddenBy, teleported, previous = null;
-        current = EntityUtils.getBottomEntity(entity);
+        UUID uuidOriginal = entityIn.getUniqueID();
+        Entity entity = EntityUtils.getBottomEntity(entityIn);
+        List<Entity> passengers = null;
+        boolean ridden = false;
+        boolean reCreate = EntityUtils.doesEntityStackHavePlayers(entityIn);
+        // This method gets called recursively when teleporting the passengers.
+        // It is always called on the bottom entity on all of the passengers however, so we can
+        // recognize the original target entity from a 'stack' with this check.
+        // Note also that if the original target was already the bottom most entity, then
+        // this extra logic isn't even necessary for it.
+        boolean isOriginal = entity != entityIn;
 
         // Teleport all the entities in this 'stack', starting from the bottom most entity
-        while (current != null)
+        ridden = entity.isBeingRidden();
+
+        if (ridden == true)
         {
-            // FIXME 1.9: handle possible multiple riders
-            riddenBy = null;
-            if (current.isBeingRidden() == true)
-            {
-                riddenBy = current.getPassengers().get(0);
-                riddenBy.dismountRidingEntity();
-            }
+            passengers = entity.getPassengers();
 
-            // Store the new instance of the original target entity for return
-            if (current == entity)
+            for (Entity passenger : passengers)
             {
-                teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
-                ret = teleported;
+                passenger.dismountRidingEntity();
             }
-            else
-            {
-                teleported = TeleportEntity.teleportEntity(current, x, y, z, dimDst, reCreate);
-            }
-
-            if (teleported == null)
-            {
-                break;
-            }
-
-            if (previous != null)
-            {
-                teleported.startRiding(previous);
-            }
-
-            teleported.fallDistance = 0.0f;
-            current = riddenBy;
-            previous = teleported;
         }
 
-        return ret;
+        Entity teleported = TeleportEntity.teleportEntity(entity, x, y, z, dimDst, reCreate);
+        if (teleported == null)
+        {
+            return null;
+        }
+
+        teleported.fallDistance = 0.0f;
+
+        if (ridden == true)
+        {
+            for (Entity passenger : passengers)
+            {
+                Entity teleportedPassenger = teleportEntity(passenger, x, y, z, dimDst, allowMounts, allowRiders);
+
+                if (teleportedPassenger != null)
+                {
+                    teleportedPassenger.startRiding(teleported, true);
+                }
+            }
+        }
+
+        if (isOriginal == true)
+        {
+            teleported = EntityUtils.findEntityFromStackByUUID(teleported, uuidOriginal);
+        }
+
+        return teleported;
     }
 
     private static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean forceRecreate)
@@ -272,8 +285,7 @@ public class TeleportEntity
 
         if (entity.worldObj.isRemote == false && entity.worldObj instanceof WorldServer)
         {
-            MinecraftServer minecraftserver = FMLCommonHandler.instance().getMinecraftServerInstance();
-            WorldServer worldServerDst = minecraftserver.worldServerForDimension(dimDst);
+            WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
             if (worldServerDst == null)
             {
                 EnderUtilities.logger.warn("teleportEntity(): worldServerDst == null");
@@ -307,10 +319,11 @@ public class TeleportEntity
                     ((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
                 }
                 // Forcing a recreate even in the same dimension, mainly used when teleporting mounted entities where a player is one of them
-                else if (forceRecreate == true)
+                /*else if (forceRecreate == true)
                 {
+                    System.out.println("re-creating...");
                     entity = TeleportEntity.reCreateEntity(entity, x, y, z);
-                }
+                }*/
                 else if (entity instanceof EntityLivingBase)
                 {
                     ((EntityLivingBase)entity).setPositionAndUpdate(x, y, z);
@@ -331,7 +344,7 @@ public class TeleportEntity
         return entity;
     }
 
-    public static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
+    private static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
     {
         if (entitySrc.worldObj.isRemote == true)
         {
@@ -376,7 +389,7 @@ public class TeleportEntity
         return entityDst;
     }
 
-    public static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
+    private static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
     {
         if (entitySrc == null || entitySrc.isDead == true || entitySrc.dimension == dimDst || entitySrc.worldObj.isRemote == true)
         {
@@ -388,27 +401,14 @@ public class TeleportEntity
             return TeleportEntity.transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
         }
 
-        WorldServer worldServerSrc = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(entitySrc.dimension);
-        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        WorldServer worldServerSrc = server.worldServerForDimension(entitySrc.dimension);
+        WorldServer worldServerDst = server.worldServerForDimension(dimDst);
 
         if (worldServerSrc == null || worldServerDst == null)
         {
             EnderUtilities.logger.warn("transferEntityToDimension(): worldServer[Src|Dst] == null");
             return null;
-        }
-
-        // FIXME 1.9
-        entitySrc.dismountRidingEntity();
-
-        if (entitySrc.isBeingRidden() == true)
-        {
-            for (Entity entity : entitySrc.getPassengers())
-            {
-                if (entity != null)
-                {
-                    entity.dismountRidingEntity();
-                }
-            }
         }
 
         entitySrc.dimension = dimDst;
@@ -450,7 +450,7 @@ public class TeleportEntity
         return entityDst;
     }
 
-    public static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
+    private static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
     {
         if (player == null || player.isDead == true || player.dimension == dimDst || player.worldObj.isRemote == true)
         {
@@ -469,8 +469,9 @@ public class TeleportEntity
         z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
         player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
 
-        WorldServer worldServerSrc = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimSrc);
-        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        WorldServer worldServerSrc = server.worldServerForDimension(dimSrc);
+        WorldServer worldServerDst = server.worldServerForDimension(dimDst);
 
         if (worldServerSrc == null || worldServerDst == null)
         {
@@ -483,19 +484,6 @@ public class TeleportEntity
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
-
-        player.dismountRidingEntity();
-
-        if (player.isBeingRidden() == true)
-        {
-            for (Entity entity : player.getPassengers())
-            {
-                if (entity != null)
-                {
-                    entity.dismountRidingEntity();
-                }
-            }
-        }
 
         worldServerDst.spawnEntityInWorld(player);
         worldServerDst.updateEntityWithOptionalForce(player, false);

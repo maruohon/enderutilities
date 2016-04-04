@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -24,10 +25,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.setup.Registry;
+
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
 {
@@ -243,6 +246,51 @@ public class EntityUtils
             if (entity.getUniqueID().equals(uuid) == true)
             {
                 return entity;
+            }
+        }
+
+        return null;
+    }
+
+    public static Entity findEntityFromStackByUUID(Entity entityInStack, UUID uuid)
+    {
+        return findEntityFromStackByUUID(entityInStack, uuid, true);
+    }
+
+    private static Entity findEntityFromStackByUUID(Entity entityInStack, UUID uuid, boolean startFromBottom)
+    {
+        if (entityInStack == null)
+        {
+            return null;
+        }
+
+        if (uuid.equals(entityInStack.getUniqueID()) == true)
+        {
+            return entityInStack;
+        }
+
+        if (startFromBottom == true)
+        {
+            entityInStack = getBottomEntity(entityInStack);
+        }
+
+        if (entityInStack.isBeingRidden() == true)
+        {
+            List<Entity> passengers = entityInStack.getPassengers();
+
+            for (Entity passenger : passengers)
+            {
+                if (uuid.equals(passenger.getUniqueID()) == true)
+                {
+                    return passenger;
+                }
+
+                entityInStack = findEntityFromStackByUUID(passenger, uuid, false);
+
+                if (entityInStack != null)
+                {
+                    return entityInStack;
+                }
             }
         }
 
