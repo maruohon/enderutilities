@@ -344,7 +344,7 @@ public class TeleportEntity
         return entity;
     }
 
-    private static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
+    /*private static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
     {
         if (entitySrc.worldObj.isRemote == true)
         {
@@ -387,7 +387,7 @@ public class TeleportEntity
         entitySrc.isDead = true;
 
         return entityDst;
-    }
+    }*/
 
     private static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
     {
