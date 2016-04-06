@@ -8,6 +8,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
+
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
@@ -22,20 +28,17 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityEventHandler
 {
     @SubscribeEvent
-    public void onEntityInteractEvent(EntityInteractEvent event)
+    public void onEntityInteractEvent(PlayerInteractEvent.EntityInteract event)
     {
         EntityPlayer player = event.getEntityPlayer();
         // FIXME 1.9
         ItemStack stack = player.getHeldItemMainhand();
-
-        if (stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
+        // FIXME 1.9
+        if (event.getHand() != EnumHand.MAIN_HAND || stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
         {
             return;
         }
@@ -48,7 +51,10 @@ public class EntityEventHandler
         {
             if (event.getTarget() instanceof EntityLivingBase)
             {
-                ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
+                //if (player.worldObj.isRemote == false)
+                {
+                    ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
+                }
                 event.setCanceled(true);
             }
         }

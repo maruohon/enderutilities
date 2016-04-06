@@ -7,46 +7,44 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
-import fi.dy.masa.enderutilities.item.ItemRuler;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemEnderBag;
+import fi.dy.masa.enderutilities.item.ItemRuler;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+
 public class PlayerEventHandler
 {
     @SubscribeEvent
-    public void onPlayerInteract(PlayerInteractEvent event)
+    public void onPlayerInteract(PlayerInteractEvent.LeftClickBlock event)
     {
         EntityPlayer player = event.getEntityPlayer();
-
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+        // You can only left click with the main hand, so this is fine here
+        ItemStack stack = player.getHeldItemMainhand();
+        if (stack == null)
         {
-            ItemStack stack = player.getHeldItemMainhand();
-            if (stack == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            World world = event.getWorld();
-            BlockPos pos = event.getPos();
-            EnumFacing face = event.getFace();
+        World world = event.getWorld();
+        BlockPos pos = event.getPos();
+        EnumFacing face = event.getFace();
 
-            if (stack.getItem() == EnderUtilitiesItems.buildersWand)
-            {
-                ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
-                event.setCanceled(true);
-            }
-            else if (stack.getItem() == EnderUtilitiesItems.ruler)
-            {
-                ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
-                event.setCanceled(true);
-            }
+        if (stack.getItem() == EnderUtilitiesItems.buildersWand)
+        {
+            ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
+            event.setCanceled(true);
+        }
+        else if (stack.getItem() == EnderUtilitiesItems.ruler)
+        {
+            ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
+            event.setCanceled(true);
         }
     }
 
@@ -56,6 +54,7 @@ public class PlayerEventHandler
         Entity target = event.getTarget();
         Entity entity = event.getEntity();
 
+        // FIXME 1.9 remove this event?
         if (entity != null && target != null && entity.worldObj.isRemote == false)
         {
             // Remount the entity if the player starts tracking an entity he is supposed to be riding already
@@ -71,6 +70,7 @@ public class PlayerEventHandler
     {
         EntityPlayer player = event.getEntityPlayer();
         ItemStack stack = player.getHeldItemMainhand();
+        // FIXME 1.9
         if (stack == null || stack.getItem() != EnderUtilitiesItems.enderBag)
         {
             stack = player.getHeldItemOffhand();
