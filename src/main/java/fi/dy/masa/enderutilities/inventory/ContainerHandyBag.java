@@ -8,13 +8,16 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
+
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
 {
@@ -26,10 +29,10 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         EntityEquipmentSlot.FEET
     };
     public final InventoryItemModular inventoryItemModular;
-
     private final InventoryCrafting craftMatrix;
     private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
+    public MergeSlotRange offhandSlot;
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
@@ -87,6 +90,16 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         }
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
+
+        this.offhandSlot = new MergeSlotRange(this.inventorySlots.size(), 1);
+        this.addSlotToContainer(new SlotItemHandlerGeneric(new PlayerOffhandInvWrapper(this.inventoryPlayer), 0, posX + 4 * 18, 51)
+        {
+            @SideOnly(Side.CLIENT)
+            public String getSlotTexture()
+            {
+                return "minecraft:items/empty_armor_slot_shield";
+            }
+        });
 
         // Player crafting slots
         posX += 90;

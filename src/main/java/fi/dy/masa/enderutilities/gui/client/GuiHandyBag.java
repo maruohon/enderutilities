@@ -2,6 +2,9 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 import java.util.Collection;
+
+import com.google.common.collect.Ordering;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -13,7 +16,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import com.google.common.collect.Ordering;
+
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -175,7 +178,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     {
         int xOff = this.bagTier == 1 ? 40 : 0;
         this.fontRendererObj.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 97, 59, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 99, 59, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 90, 0x404040);
     }
 
