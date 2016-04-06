@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -24,7 +24,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         super(player, new InventoryItemModular(containerStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
-        this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
+        this.inventoryItemModular.setHostInventory(new PlayerInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(36, 163);

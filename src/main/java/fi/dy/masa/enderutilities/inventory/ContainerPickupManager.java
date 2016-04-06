@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
@@ -37,16 +38,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.filterSlots = new SlotRange(0, 0);
 
         this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.worldObj.isRemote, player);
-        this.inventoryItemModules.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemModules.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
         this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
-        this.inventoryItemFilters.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemFilters.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 
         this.inventoryItemTransmit = (InventoryItem)this.inventory;
-        this.inventoryItemTransmit.setHostInventory(new PlayerMainInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemTransmit.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
         this.inventoryItemTransmit.readFromContainerItemStack();
 
         this.addCustomInventorySlots();

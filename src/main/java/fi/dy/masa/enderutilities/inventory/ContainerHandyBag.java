@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -38,7 +38,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
-        this.inventoryItemModular.setHostInventory(new PlayerMainInvWrapper(player.inventory));
+        this.inventoryItemModular.setHostInventory(new PlayerInvWrapper(player.inventory));
         this.craftMatrix = new InventoryCrafting(this, 2, 2);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
 
