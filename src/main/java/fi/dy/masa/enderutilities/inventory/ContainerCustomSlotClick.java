@@ -2,11 +2,14 @@ package fi.dy.masa.enderutilities.inventory;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
+
 import net.minecraftforge.items.IItemHandler;
+
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
@@ -454,64 +457,64 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int dragType, ClickType clickTypeTmp, EntityPlayer player)
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         //String side = this.player.worldObj.isRemote ? "client" : "server";
-        //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %d", side, slotNum, button, type));
+        //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %s", side, slotNum, dragType, clickType));
 
-        // slotNum: real button: 0 type: 0 - regular left click - on button down with empty cursor, on button up with stack in cursor
-        // slotNum: real button: 1 type: 0 - regular right click - on button down with empty cursor, on button up with stack in cursor
+        // slotNum: real button: 0 type: PICKUP - regular  left click - on button down with empty cursor, on button up with stack in cursor
+        // slotNum: real button: 1 type: PICKUP - regular right click - on button down with empty cursor, on button up with stack in cursor
 
-        // slotNum: real button: 0 type: 1 - shift + left click - on button down with empty cursor, on button up with stack in cursor
-        // slotNum: real button: 1 type: 1 - shift + right click - on button down with empty cursor, on button up with stack in cursor
+        // slotNum: real button: 0 type: QUICK_MOVE - shift +  left click - on button down with empty cursor, on button up with stack in cursor
+        // slotNum: real button: 1 type: QUICK_MOVE - shift + right click - on button down with empty cursor, on button up with stack in cursor
 
-        // slotNum: -1 button: 0 type: 0 - left click with a stack in cursor inside inventory but not on a slot - on button up
-        // slotNum: -1 button: 1 type: 0 - right click with a stack in cursor inside inventory but not on a slot - on button up
+        // slotNum: -1   button: 0 type: PICKUP -  left click with a stack in cursor inside inventory but not on a slot - on button up
+        // slotNum: -1   button: 1 type: PICKUP - right click with a stack in cursor inside inventory but not on a slot - on button up
 
-        // slotNum: -999 button: 0 type: 0 - left click outside of inventory screen with stack on cursor - on button up
-        // slotNum: -999 button: 1 type: 0 - right click outside of inventory screen with stack on cursor - on button up
+        // slotNum: -999 button: 0 type: PICKUP -  left click outside of inventory screen with a stack in cursor - on button up
+        // slotNum: -999 button: 1 type: PICKUP - right click outside of inventory screen with a stack in cursor - on button up
 
-        // slotNum: real button: 2 type: 3 - middle click on any slot - on button down with empty cursor, on button up with stack in cursor
+        // slotNum: real button: 2 type: CLONE  - middle click on any slot - on button down with empty cursor, on button up with a stack in cursor
+        // slotNum: -1   button: 2 type: CLONE  - middle click with a stack in cursor inside inventory but not on a slot - on button up
 
-        // slotNum: -999 button: 1 type: 4 - (shift +) right click outside the inventory with an empty cursor - on button down
+        // slotNum: -999 button: 0 type: THROW - (shift +)  left click outside the inventory with an empty cursor - on button down
+        // slotNum: -999 button: 1 type: THROW - (shift +) right click outside the inventory with an empty cursor - on button down
 
-        // slotNum: real button: 0 type: 4 - pressing Q over a slot which has items - on button down
-        // slotNum: real button: 1 type: 4 - pressing ctrl + Q over a slot which has items - on button down
+        // slotNum: real button: 0 type: THROW - pressing Q over a slot which has items - on button down
+        // slotNum: real button: 1 type: THROW - pressing Ctrl + Q over a slot which has items - on button down
 
-        // slotNum: real button: 0..8 type: 2 - hotbar number key over slot - on button down, only with empty cursor
+        // slotNum: real button: 0..8 type: SWAP - pressing hotbar number key over a slot - on button down, only with empty cursor
 
-        // slotNum: real button: 0 type: 6 - left double-click with an empty cursor on a slot with items
+        // slotNum: real button: 0 type: PICKUP_ALL - left double-click with an empty cursor on a slot with items (fires after a regular PICKUP)
 
-        // slotNum: -999 button: 0 type: 5 - left click drag with stack in cursor start - after drag ends, as the first call
-        // slotNum: real button: 1 type: 5 - left click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
-        // slotNUm: -999 button: 2 type: 5 - left click drag with stack in cursor end - after drag ends, as the last call
+        // slotNum: -999 button: 0 type: QUICK_CRAFT - left click drag with stack in cursor start - after drag ends, as the first call
+        // slotNum: real button: 1 type: QUICK_CRAFT - left click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
+        // slotNUm: -999 button: 2 type: QUICK_CRAFT - left click drag with stack in cursor end - after drag ends, as the last call
 
-        // slotNum: -999 button: 4 type: 5 - right click drag with stack in cursor start - after drag ends, as the first call
-        // slotNum: real button: 5 type: 5 - right click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
-        // slotNUm: -999 button: 6 type: 5 - right click drag with stack in cursor end - after drag ends, as the last call
+        // slotNum: -999 button: 4 type: QUICK_CRAFT - right click drag with stack in cursor start - after drag ends, as the first call
+        // slotNum: real button: 5 type: QUICK_CRAFT - right click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
+        // slotNUm: -999 button: 6 type: QUICK_CRAFT - right click drag with stack in cursor end - after drag ends, as the last call
 
-        int clickType = clickTypeTmp.ordinal();
-        // FIXME 1.9: re-check all the buttons and click types ;_;
         if (this.isDragging == true)
         {
             // End of dragging
-            if (clickType == 5 && (dragType == 2 || dragType == 6))
+            if (clickType == ClickType.QUICK_CRAFT && (dragType == 2 || dragType == 6))
             {
                 this.endDragging();
             }
             // This gets called for each slot that was dragged over
-            else if (clickType == 5 && (dragType == 1 || dragType == 5))
+            else if (clickType == ClickType.QUICK_CRAFT && (dragType == 1 || dragType == 5))
             {
                 this.dragging(slotNum);
             }
         }
         // Starting a left or right click drag
-        else if (clickType == 5 && (dragType == 0 || dragType == 4))
+        else if (clickType == ClickType.QUICK_CRAFT && (dragType == 0 || dragType == 4))
         {
             this.startDragging(dragType == 4);
         }
         // Left or right click outside inventory with a stack in cursor
-        else if (slotNum == -999 && clickType == 0)
+        else if (clickType == ClickType.PICKUP && slotNum == -999)
         {
             // Left click outside of inventory screen - drop the stack from the cursor
             if (dragType == 0)
@@ -525,37 +528,37 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             }
         }
         // Regular left click on a slot
-        else if (dragType == 0 && clickType == 0)
+        else if (clickType == ClickType.PICKUP && dragType == 0)
         {
             this.leftClickSlot(slotNum, player);
         }
         // Regular right click on a slot
-        else if (dragType == 1 && clickType == 0)
+        else if (clickType == ClickType.PICKUP && dragType == 1)
         {
             this.rightClickSlot(slotNum, player);
         }
         // Shift left click or shift right click on a slot, they both do the same
-        else if (clickType == 1 && (dragType == 0 || dragType == 1))
+        else if (clickType == ClickType.QUICK_MOVE && (dragType == 0 || dragType == 1))
         {
             this.shiftClickSlot(slotNum, player);
         }
         // Pressing the drop key (Q) while hovering over a stack
-        else if ((dragType == 0 || dragType == 1) && clickType == 4)
+        else if (clickType == ClickType.THROW && (dragType == 0 || dragType == 1))
         {
             this.pressDropKey(slotNum, player, dragType == 1);
         }
         // Pressing a hotbar hotkey over a slot
-        else if (clickType == 2 && dragType >= 0 && dragType <= 8)
+        else if (clickType == ClickType.SWAP && dragType >= 0 && dragType <= 8)
         {
             this.pressHotbarKey(slotNum, dragType, player);
         }
         // Left double-click with an empty cursor over a slot with items
-        else if (dragType == 0 && clickType == 6)
+        else if (clickType == ClickType.PICKUP_ALL && dragType == 0)
         {
             this.leftDoubleClickSlot(slotNum, player);
         }
         // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-        else if (dragType == 2 && clickType == 3)
+        else if (clickType == ClickType.CLONE && dragType == 2)
         {
             this.middleClickSlot(slotNum, player);
         }

@@ -5,14 +5,16 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerModularItem
 {
@@ -158,9 +160,8 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         ItemStack stack = this.getModularItem();
 
-        // FIXME 1.9: check the click type
         // Middle click
-        if (dragType == 2 && clickType == ClickType.CLONE && stack != null && slotNum >= 44 && slotNum < (44 + 40))
+        if (clickType == ClickType.CLONE && dragType == 2 && stack != null && slotNum >= 44 && slotNum < (44 + 40))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)
