@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
@@ -29,7 +31,15 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
+
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -49,13 +59,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemBuildersWand extends ItemLocationBoundModular
 {
@@ -173,7 +176,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             // Sneak + left click: Set the selected block type
             else
             {
-                this.setSelectedFixedBlockType(stack, world, pos);
+                this.setSelectedFixedBlockType(stack, player, world, pos);
             }
         }
 
@@ -427,11 +430,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (posStart != null)
             {
-                this.getBlockPositions(stack, posStart.toBlockPos(), posStart.side, world, positions);
+                this.getBlockPositions(stack, posStart.toBlockPos(), posStart.side, player, world, positions);
             }
             else
             {
-                this.getBlockPositions(stack, targetPos.toBlockPos(), targetPos.side, world, positions);
+                this.getBlockPositions(stack, targetPos.toBlockPos(), targetPos.side, player, world, positions);
             }
         }
 
@@ -461,17 +464,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist pos)
     {
-        if (world.isAirBlock(pos.toBlockPos()) == false)
+        if (world.isAirBlock(pos.toBlockPos()) == false || UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
 
-        if (UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
-        {
-            return false;
-        }
-
-        BlockInfo blockInfo = null;
+        BlockInfo blockInfo;
 
         if (getSelectedBlockType(wandStack) == BLOCK_TYPE_ADJACENT)
         {
@@ -482,10 +480,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             blockInfo = pos.blockInfo;
         }
 
-        // FIXME 1.9: check the position and the block state stuff and fix the isLiquid check
         //IBlockState state = world.getBlockState(pos.toBlockPos());
-        //if (blockInfo == null || world.isAirBlock(pos.toBlockPos()) == true || blockInfo.block.getMaterial().isLiquid() == true)
-        if (blockInfo == null || world.isAirBlock(pos.toBlockPos()) == true)
+        //if (blockInfo == null || blockInfo.block.getMaterial().isLiquid() == true)
+        if (blockInfo == null)
         {
             return false;
         }
@@ -496,7 +493,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (player.capabilities.isCreativeMode == true)
         {
             ItemStack targetStack = new ItemStack(block, 1, itemMeta);
-            if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
+            if (targetStack.getItem() instanceof ItemBlock)
             {
                 // Check if we can place the block
                 if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == true)
@@ -574,7 +571,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return null;
     }
 
-    public void setSelectedFixedBlockType(ItemStack stack, World world, BlockPos pos)
+    public void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos)
     {
         int sel = getSelectedBlockType(stack);
         if (sel < 0)
@@ -589,20 +586,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         tag.setString("BlockName", Block.blockRegistry.getNameForObject(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
-        ItemStack stackTmp = null;
+        double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
+        ItemStack stackTmp = state.getBlock().getPickBlock(state, player.rayTrace(dist, 0.0f), world, pos, player);
+        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
-        // FIXME 1.9
-        try
-        {
-            stackTmp = state.getBlock().getPickBlock(state, null, world, pos, null);
-        }
-        catch (Exception e)
-        {
-            EnderUtilities.logger.warn("getPickBlock failed in ItemBuildersWand#setSelectedFixedBlockType for block state: " + state);
-        }
-
-        int meta = stackTmp != null && stackTmp.getItem() != null ? stackTmp.getMetadata() : 0;
-        tag.setByte("ItemMeta", (byte)meta);
+        tag.setByte("ItemMeta", (byte)itemMeta);
     }
 
     public static BlockInfo getSelectedFixedBlockType(ItemStack stack)
@@ -797,7 +785,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         area.writeToNBT(stack);
     }
 
-    public void addAdjacent(World world, BlockPos center, EnumFacing face, Area area, int posV, int posH, List<BlockPosStateDist> positions,
+    public void addAdjacent(EntityPlayer player, World world, BlockPos center, EnumFacing face, Area area, int posV, int posH, List<BlockPosStateDist> positions,
              int blockType, boolean diagonals, BlockInfo blockInfo, EnumFacing axisRight, EnumFacing axisUp)
     {
         if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
@@ -825,19 +813,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
 
-        ItemStack stackTmp = null;
-
-        // FIXME 1.9
-        try
-        {
-            stackTmp = state.getBlock().getPickBlock(state, null, world, blockPos, null);
-        }
-        catch (Exception e)
-        {
-            EnderUtilities.logger.warn("getPickBlock failed in ItemBuildersWand#addAdjacent for block state: " + state);
-        }
-
-        int itemMeta = stackTmp != null && stackTmp.getItem() != null ? stackTmp.getMetadata() : 0;
+        double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
+        ItemStack stackTmp = state.getBlock().getPickBlock(state, player.rayTrace(dist, 0.0f), world, blockPos, player);
+        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
         // The block on the back face must not be air or fluid ...
         if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
@@ -866,18 +844,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 positions.add(pos);
 
                 // Adjacent blocks
-                this.addAdjacent(world, center, face, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(world, center, face, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(world, center, face, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(world, center, face, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                this.addAdjacent(player, world, center, face, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                this.addAdjacent(player, world, center, face, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                this.addAdjacent(player, world, center, face, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                this.addAdjacent(player, world, center, face, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
 
                 // Diagonals/corners
                 if (diagonals == true)
                 {
-                    this.addAdjacent(world, center, face, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(world, center, face, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(world, center, face, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(world, center, face, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                    this.addAdjacent(player, world, center, face, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                    this.addAdjacent(player, world, center, face, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                    this.addAdjacent(player, world, center, face, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
+                    this.addAdjacent(player, world, center, face, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
                 }
             }
         }
@@ -928,7 +906,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     /**
      * Get the actual block positions and block types for all other modes except Walls and Cube.
      */
-    public void getBlockPositions(ItemStack stack, BlockPos targeted, EnumFacing face, World world, List<BlockPosStateDist> positions)
+    public void getBlockPositions(ItemStack stack, BlockPos targeted, EnumFacing face, EntityPlayer player, World world, List<BlockPosStateDist> positions)
     {
         int blockType = getSelectedBlockType(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted);
@@ -1026,7 +1004,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
             case EXTEND_CONTINUOUS:
                 boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
-                this.addAdjacent(world, center, face, area, 0, 0, positions, blockType, diagonals, biTarget, axisRight, axisUp);
+                this.addAdjacent(player, world, center, face, area, 0, 0, positions, blockType, diagonals, biTarget, axisRight, axisUp);
                 break;
 
             case EXTEND_AREA:

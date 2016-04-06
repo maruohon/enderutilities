@@ -266,7 +266,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, side, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
         {

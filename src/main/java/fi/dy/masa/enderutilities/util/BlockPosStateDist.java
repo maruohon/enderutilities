@@ -50,4 +50,12 @@ public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPos
 
         return 0;
     }
+
+    @Override
+    public String toString()
+    {
+        String pos = super.toString();
+        String block = this.blockInfo.toString();
+        return pos + " & " + block;
+    }
 }

@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -10,9 +12,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class NBTHelperTarget
 {
@@ -173,7 +177,7 @@ public class NBTHelperTarget
         return nbt;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, EnumFacing side,
+    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, int dim, EnumFacing side, EntityPlayer player,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
@@ -209,9 +213,8 @@ public class NBTHelperTarget
                 Block block = iBlockState.getBlock();
                 blockMeta = block.getMetaFromState(iBlockState);
 
-                // FIXME 1.9
-                @SuppressWarnings("deprecation")
-                ItemStack stack = block.getItem(world, pos, iBlockState);
+                double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
+                ItemStack stack = block.getPickBlock(iBlockState, player.rayTrace(dist, 0.0f), world, pos, player);
                 if (stack != null)
                 {
                     itemMeta = stack.getMetadata();
@@ -261,22 +264,22 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, EnumFacing side,
+    public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, EnumFacing side, EntityPlayer player,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         if (stack != null)
         {
-            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, side, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
+            stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, side, player, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
     }
 
     public static boolean writeTargetTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, BlockPos pos, int dim, EnumFacing side,
-            double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
+            EntityPlayer player, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
         if (moduleStack != null)
         {
-            writeTargetTagToItem(moduleStack, pos, dim, side, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
+            writeTargetTagToItem(moduleStack, pos, dim, side, player, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
 
             return true;

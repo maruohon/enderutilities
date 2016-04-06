@@ -49,4 +49,10 @@ public class BlockInfo
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("BlockInfo: {block rl: %s, blockMeta: %d, itemMeta: %d}", this.resource, this.blockMeta, this.itemMeta);
+    }
 }
