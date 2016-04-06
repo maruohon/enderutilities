@@ -5,9 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -21,6 +24,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -38,8 +42,20 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
+
+import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+
 import fi.dy.masa.enderutilities.client.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -59,17 +75,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderTool extends ItemLocationBoundModular
 {
@@ -163,14 +168,20 @@ public class ItemEnderTool extends ItemLocationBoundModular
     private EnumActionResult placeBlock(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         int origSlot = playerIn.inventory.currentItem;
-        int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
-        ItemStack targetStack = playerIn.inventory.getStackInSlot(slot);
+        int slot = -1;
 
-        // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
-        if (origSlot == 0 && (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false))
+        ItemStack targetStack = playerIn.getHeldItemOffhand();
+        if (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false)
         {
-            slot = InventoryPlayer.getHotbarSize() - 1;
+            slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
             targetStack = playerIn.inventory.getStackInSlot(slot);
+
+            // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
+            if (origSlot == 0 && (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false))
+            {
+                slot = InventoryPlayer.getHotbarSize() - 1;
+                targetStack = playerIn.inventory.getStackInSlot(slot);
+            }
         }
 
         // If the target stack is an ItemBlock, we try to place that in the world
@@ -179,20 +190,30 @@ public class ItemEnderTool extends ItemLocationBoundModular
             // Check if we can place the block
             if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, playerIn, targetStack) == true)
             {
-                if (worldIn.isRemote == true)
+                EnumActionResult success;
+                // Off-hand
+                if (slot == -1)
                 {
-                    return EnumActionResult.SUCCESS;
+                    success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.OFF_HAND, side, hitX, hitY, hitZ);
+                    if (targetStack.stackSize <= 0)
+                    {
+                        playerIn.setHeldItem(EnumHand.OFF_HAND, null);
+                    }
+                }
+                else
+                {
+                    playerIn.inventory.currentItem = slot;
+                    success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ);
+                    if (targetStack.stackSize <= 0)
+                    {
+                        playerIn.inventory.setInventorySlotContents(slot, null);
+                    }
+                    playerIn.inventory.currentItem = origSlot;
                 }
 
-                playerIn.inventory.currentItem = slot;
-                EnumActionResult success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ);
-                if (targetStack.stackSize <= 0)
-                {
-                    playerIn.inventory.setInventorySlotContents(slot, null);
-                }
-                playerIn.inventory.currentItem = origSlot;
                 playerIn.inventory.markDirty();
                 playerIn.inventoryContainer.detectAndSendChanges();
+
                 return success;
             }
         }
@@ -267,9 +288,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 return false;
             }
 
-            SoundType sound = newBlockState.getBlock().getSoundType();
-            world.playSound(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                    sound.getPlaceSound(), SoundCategory.BLOCKS, (sound.getVolume() + 1.0f) / 2.0f, sound.getPitch() * 0.8f, false);
+            world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                    SoundEvents.item_hoe_till, SoundCategory.BLOCKS, 1.0f, 1.0f);
 
             if (world.isRemote == false)
             {
@@ -536,7 +556,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         if (mode == DropsMode.PLAYER && (player instanceof FakePlayer) == false &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
         {
-            return new PlayerMainInvWrapper(player.inventory);
+            return new PlayerInvWrapper(player.inventory);
         }
 
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
