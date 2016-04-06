@@ -7,7 +7,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.client.effects.Effects;
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.client.FMLClientHandler;

@@ -2,6 +2,9 @@ package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.collect.Multimap;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -23,15 +26,26 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import com.google.common.collect.Multimap;
-import fi.dy.masa.enderutilities.client.effects.Effects;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -52,17 +66,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemEnderSword extends ItemLocationBoundModular
 {
@@ -420,7 +423,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
                     world.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                world.playSound(x, y, z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 1.0F, 1.0F, false);
+                world.playSound(null, x, y, z, SoundEvents.entity_endermen_teleport, fighter.getSoundCategory(), 1.0F, 1.0F);
 
                 world.spawnEntityInWorld(fighter);
                 fighter.setPrimaryTarget(targetEntity);

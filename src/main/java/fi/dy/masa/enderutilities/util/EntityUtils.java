@@ -23,6 +23,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -32,6 +33,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.setup.Registry;
 
 public class EntityUtils
@@ -657,8 +659,8 @@ public class EntityUtils
             {
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
-                // FIXME 1.9: add back after there is a sound registry
-                //living.worldObj.playSoundAtEntity(living, Reference.MOD_ID + ":jailer", 0.8f, 1.2f);
+                living.worldObj.playSound(null, living.getPosition(), Sounds.jailer, SoundCategory.MASTER, 0.8f, 1.2f);
+                //living.playSound(Sounds.jailer, 0.8f, 1.2f);
 
                 return true;
             }

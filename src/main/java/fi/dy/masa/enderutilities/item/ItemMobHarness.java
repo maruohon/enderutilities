@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,14 +22,16 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMobHarness extends ItemEnderUtilities
 {
@@ -71,13 +74,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
-    }
-
-    @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target, EnumHand hand)
-    {
-        return this.handleInteraction(stack, player, target);
-        //return false;
     }
 
     @SuppressWarnings("unchecked")

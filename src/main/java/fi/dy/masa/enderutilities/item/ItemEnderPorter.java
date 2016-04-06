@@ -16,7 +16,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.client.effects.Effects;
+
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;

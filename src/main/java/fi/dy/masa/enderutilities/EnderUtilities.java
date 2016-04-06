@@ -53,6 +53,7 @@ public class EnderUtilities
         proxy.registerKeyBindings();
         proxy.registerEventHandlers();
         proxy.registerRenderers();
+        proxy.registerSounds();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 

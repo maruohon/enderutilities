@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.entity;
 
 import java.util.List;
 import java.util.UUID;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -33,13 +34,15 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
+
 import fi.dy.masa.enderutilities.entity.base.IEntityDoubleTargeting;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
 public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting
 {
@@ -229,7 +232,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         else if (livingBase instanceof EntityPlayer)
         {
             this.setScreaming(true);
-            this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_stare, this.getSoundCategory(), 0.5f, 1.2f, false);
+            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_stare, this.getSoundCategory(), 0.5f, 1.2f);
         }
     }
 
@@ -523,7 +526,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                     this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f, false);
+                this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f);
 
                 this.setDead();
             }
@@ -634,7 +637,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
-            this.worldObj.playSound(this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f, false);
+            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f);
 
             return true;
         }

@@ -320,3 +320,8 @@ enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
+
+##################
+#   Subtitles    #
+##################
+enderutilities.subtitle.jailer=Jailer module screeks

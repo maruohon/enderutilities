@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -9,6 +11,7 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
@@ -20,6 +23,7 @@ import fi.dy.masa.enderutilities.event.LivingDropsEventHandler;
 import fi.dy.masa.enderutilities.event.PlayerEventHandler;
 import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.event.WorldEventHandler;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -94,6 +98,13 @@ public abstract class CommonProxy implements IProxy
     @Override
     public void registerRenderers()
     {
+    }
+
+    @Override
+    public void registerSounds()
+    {
+        ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, "jailer");
+        Sounds.jailer = GameRegistry.register(new SoundEvent(resloc), resloc);
     }
 
     @Override

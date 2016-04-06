@@ -56,7 +56,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
-import fi.dy.masa.enderutilities.client.effects.Effects;
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;

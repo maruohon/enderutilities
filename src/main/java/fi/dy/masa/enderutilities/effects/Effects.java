@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.effects;
+package fi.dy.masa.enderutilities.effects;
 
 import java.util.Random;
 

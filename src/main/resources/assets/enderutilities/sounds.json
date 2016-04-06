@@ -1,6 +1,6 @@
 {
     "jailer":
     {
-        "category": "master", "sounds": [{"name": "jailer", "stream": false}]
+        "category": "master", "sounds": ["enderutilities:jailer"], "subtitle": "enderutilities.subtitle.jailer"
     }
 }

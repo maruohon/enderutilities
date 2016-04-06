@@ -10,19 +10,21 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.block.base.BlockProperties;
-import fi.dy.masa.enderutilities.client.effects.Effects;
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
@@ -128,6 +130,12 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
             if (((TileEntityEnderFurnace)te).isBurningLast == true)
             {
                 Effects.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
+
+                if (rand.nextDouble() < 0.1D)
+                {
+                    worldIn.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
+                            SoundEvents.block_furnace_fire_crackle, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
+                }
             }
         }
     }
