@@ -64,7 +64,7 @@ public class ItemRuler extends ItemModular
     {
         if (world.isRemote == true)
         {
-            return EnumActionResult.PASS;
+            return EnumActionResult.SUCCESS;
         }
 
         // Hack to work around the fact that when the NBT changes, the left click event will fire again the next tick,

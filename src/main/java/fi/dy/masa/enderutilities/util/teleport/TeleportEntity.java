@@ -12,7 +12,6 @@ import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketEntityEffect;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.potion.PotionEffect;
@@ -367,11 +366,8 @@ public class TeleportEntity
         entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
         entitySrc.isDead = false;
 
-        // FIXME 1.9 copyDataFromOld() is now private... we are missing the 3 teleportation related fields by using write/read NBT
-        NBTTagCompound tag = new NBTTagCompound();
-        entitySrc.writeToNBT(tag);
-        entityDst.readFromNBT(tag);
         //entityDst.copyDataFromOld(entitySrc);
+        EntityUtils.copyDataFromOld(entityDst, entitySrc);
 
         if (entityDst instanceof EntityLivingBase)
         {
@@ -418,11 +414,8 @@ public class TeleportEntity
             return null;
         }
 
-        // FIXME 1.9 copyDataFromOld() is now private... we are missing the 3 teleportation related fields by using write/read NBT
-        NBTTagCompound tag = new NBTTagCompound();
-        entitySrc.writeToNBT(tag);
-        entityDst.readFromNBT(tag);
         //entityDst.copyDataFromOld(entitySrc);
+        EntityUtils.copyDataFromOld(entityDst, entitySrc);
 
         // FIXME ugly special case to prevent the chest minecart etc from duping items
         if (entitySrc instanceof EntityMinecartContainer)

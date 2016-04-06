@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EnderUtilitiesGUIHandler implements IGuiHandler
 {
@@ -51,25 +52,24 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                // FIXME 1.9: support both hands
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.handyBag);
+                if (stack != null)
                 {
                     return new ContainerHandyBag(player, stack);
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.inventorySwapper);
+                if (stack != null)
                 {
                     return new ContainerInventorySwapper(player, stack);
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.pickupManager);
+                if (stack != null)
                 {
                     return new ContainerPickupManager(player, stack);
                 }
@@ -108,24 +108,24 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.handyBag);
+                if (stack != null)
                 {
                     return new GuiHandyBag(new ContainerHandyBag(player, stack));
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.inventorySwapper);
+                if (stack != null)
                 {
                     return new GuiInventorySwapper(new ContainerInventorySwapper(player, stack));
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = player.getHeldItemMainhand();
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.pickupManager)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.pickupManager);
+                if (stack != null)
                 {
                     return new GuiPickupManager(new ContainerPickupManager(player, stack));
                 }

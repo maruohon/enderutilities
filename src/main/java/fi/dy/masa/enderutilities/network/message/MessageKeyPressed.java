@@ -4,15 +4,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import io.netty.buffer.ByteBuf;
 
 public class MessageKeyPressed implements IMessage
 {
@@ -77,20 +80,14 @@ public class MessageKeyPressed implements IMessage
 
         protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
         {
-            // FIXME 1.9
-            ItemStack stack = player.getHeldItemMainhand();
-            if (stack == null || (stack.getItem() instanceof IKeyBound == false))
-            {
-                stack = player.getHeldItemOffhand();
-            }
-
-            if (stack != null && stack.getItem() instanceof IKeyBound)
+            ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
+            if (stack != null)
             {
                 ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
             }
             else
             {
-                stack = InventoryUtils.getFirstKeyBoundUnselectedItem(player);
+                stack = InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class);
                 if (stack != null)
                 {
                     ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);

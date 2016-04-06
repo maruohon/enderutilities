@@ -10,6 +10,7 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -19,6 +20,7 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -35,6 +37,58 @@ import fi.dy.masa.enderutilities.setup.Registry;
 public class EntityUtils
 {
     //public static final byte YAW_TO_DIRECTION[] = {3, 4, 2, 5};
+
+    public static boolean isHoldingItem(EntityLivingBase entity, Item item)
+    {
+        return getHeldItemOfType(entity, item) != null;
+    }
+
+    public static ItemStack getHeldItemOfType(EntityLivingBase entity, Item item)
+    {
+        ItemStack stack = entity.getHeldItemMainhand();
+        if (stack != null && stack.getItem() == item)
+        {
+            return stack;
+        }
+
+        stack = entity.getHeldItemOffhand();
+        if (stack != null && stack.getItem() == item)
+        {
+            return stack;
+        }
+
+        return null;
+    }
+
+    public static boolean isHoldingItemOfType(EntityLivingBase entity, Class<?> clazz)
+    {
+        return getHeldItemOfType(entity, clazz) != null;
+    }
+
+    public static ItemStack getHeldItemOfType(EntityLivingBase entity, Class<?> clazz)
+    {
+        ItemStack stack = entity.getHeldItemMainhand();
+        if (stack != null)
+        {
+            Item item = stack.getItem();
+            if (item != null && clazz.isAssignableFrom(item.getClass()) == true)
+            {
+                return stack;
+            }
+        }
+
+        stack = entity.getHeldItemOffhand();
+        if (stack != null)
+        {
+            Item item = stack.getItem();
+            if (item != null && clazz.isAssignableFrom(item.getClass()) == true)
+            {
+                return stack;
+            }
+        }
+
+        return null;
+    }
 
     public static enum LeftRight
     {
@@ -533,6 +587,30 @@ public class EntityUtils
         return false;
     }
 
+    public static void copyDataFromOld(Entity target, Entity old)
+    {
+        Method method = ReflectionHelper.findMethod(Entity.class, target, new String[] {"func_180432_n", "copyDataFromOld", "a"});
+        try
+        {
+            method.invoke(target, old);
+        }
+        catch (UnableToFindMethodException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (UnableToFindMethodException)");
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (InvocationTargetException)");
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (IllegalAccessException)");
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Adds the persistenceRequired flag to entities, if they need it in order to not despawn.
      * The checks are probably at most accurate for vanilla entities.
@@ -549,7 +627,7 @@ public class EntityUtils
 
             if (canDespawn == false)
             {
-                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"canDespawn", "func_70692_ba", "C"});
+                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"func_70692_ba", "canDespawn", "C"});
                 try
                 {
                     Object o = method.invoke(living);

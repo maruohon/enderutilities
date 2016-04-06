@@ -19,7 +19,6 @@ import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -35,10 +34,8 @@ public class EntityEventHandler
     public void onEntityInteractEvent(PlayerInteractEvent.EntityInteract event)
     {
         EntityPlayer player = event.getEntityPlayer();
-        // FIXME 1.9
-        ItemStack stack = player.getHeldItemMainhand();
-        // FIXME 1.9
-        if (event.getHand() != EnumHand.MAIN_HAND || stack == null || (stack.getItem() instanceof ItemEnderUtilities) == false)
+        ItemStack stack = event.getHand() == EnumHand.MAIN_HAND ? player.getHeldItemMainhand() : player.getHeldItemOffhand();
+        if (stack == null)
         {
             return;
         }
@@ -51,7 +48,7 @@ public class EntityEventHandler
         {
             if (event.getTarget() instanceof EntityLivingBase)
             {
-                //if (player.worldObj.isRemote == false)
+                if (player.worldObj.isRemote == false)
                 {
                     ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
                 }
@@ -109,10 +106,8 @@ public class EntityEventHandler
 
         // If the player is holding a Portal Scaler, then try to use that and cancel the regular
         // teleport if the Portal Scaler teleportation succeeds
-        // FIXME 1.9
-        ItemStack stack = ((EntityPlayer)entity).getHeldItemMainhand();
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.portalScaler &&
-            EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.portal))
+        ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
+        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.portal))
         {
             if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.worldObj, (EntityPlayer)entity) == true)
             {

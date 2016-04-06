@@ -1,8 +1,14 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
+
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
@@ -10,12 +16,8 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class TickHandler
 {
@@ -63,15 +65,8 @@ public class TickHandler
                 ItemMobHarness.addAITask(event.player.getRidingEntity(), false);
             }
 
-            // FIXME 1.9
-            ItemStack stack = event.player.getHeldItemMainhand();
-            if (stack == null)
-            {
-                return;
-            }
-
-            Item item = stack.getItem();
-            if (item instanceof IChunkLoadingItem)
+            ItemStack stack = EntityUtils.getHeldItemOfType(event.player, IChunkLoadingItem.class);
+            if (stack != null)
             {
                 NBTTagCompound nbt = stack.getTagCompound();
 

@@ -56,14 +56,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true)
-        {
-            return EnumActionResult.PASS;
-        }
-
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.NORMAL || mode == Mode.RELEASE)
         {
+            if (world.isRemote == true)
+            {
+                return EnumActionResult.SUCCESS;
+            }
+
             return this.releaseEntity(stack, world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
         }
 

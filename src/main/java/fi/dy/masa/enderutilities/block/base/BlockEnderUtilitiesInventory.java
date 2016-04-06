@@ -49,13 +49,6 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        // FIXME 1.9: update to new interact event when it comes out for 1.9
-        /*PlayerInteractEvent e = new PlayerInteractEvent(playerIn, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, pos, side, worldIn, new Vec3d(hitX, hitY, hitZ));
-        if (MinecraftForge.EVENT_BUS.post(e) || e.getResult() == Result.DENY || e.useBlock == Result.DENY)
-        {
-            return false;
-        }*/
-
         if (worldIn.isRemote == false)
         {
             TileEntity te = worldIn.getTileEntity(pos);

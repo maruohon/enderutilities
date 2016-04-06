@@ -1,22 +1,27 @@
 package fi.dy.masa.enderutilities.event;
 
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import org.lwjgl.input.Keyboard;
-import fi.dy.masa.enderutilities.item.base.IKeyBound;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.setup.Configs;
-import fi.dy.masa.enderutilities.setup.Keybindings;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import gnu.trove.map.hash.TIntIntHashMap;
+
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.setup.Keybindings;
+import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
@@ -47,22 +52,12 @@ public class InputEventHandler
 
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
     {
-        if (player.getHeldItemMainhand() != null && player.getHeldItemMainhand().getItem() instanceof IKeyBound)
-        {
-            return true;
-        }
-
-        if (player.getHeldItemOffhand() != null && player.getHeldItemOffhand().getItem() instanceof IKeyBound)
-        {
-            return true;
-        }
-
-        return false;
+        return EntityUtils.isHoldingItemOfType(player, IKeyBound.class);
     }
 
     public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)
     {
-        return InventoryUtils.getFirstKeyBoundUnselectedItem(player) != null;
+        return InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class) != null;
     }
 
     @SubscribeEvent

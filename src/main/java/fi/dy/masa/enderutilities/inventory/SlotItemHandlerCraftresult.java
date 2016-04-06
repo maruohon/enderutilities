@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.stats.AchievementList;
+
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
@@ -116,29 +117,34 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
         net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, craftMatrix);
         this.onCrafting(stack);
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(playerIn);
-        ItemStack[] aitemstack = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.worldObj);
+        ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.worldObj);
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(null);
 
-        for (int i = 0; i < aitemstack.length; ++i)
+        for (int i = 0; i < remainingItems.length; ++i)
         {
-            ItemStack itemstack = this.craftMatrix.getStackInSlot(i);
-            ItemStack itemstack1 = aitemstack[i];
+            ItemStack stackInSlot = this.craftMatrix.getStackInSlot(i);
+            ItemStack remainingItemsInSlot = remainingItems[i];
 
-            // FIXME 1.9 check against vanilla code
-            if (itemstack != null)
+            if (stackInSlot != null)
             {
                 this.craftMatrix.decrStackSize(i, 1);
+                stackInSlot = this.craftMatrix.getStackInSlot(i);
             }
 
-            if (itemstack1 != null)
+            if (remainingItemsInSlot != null)
             {
-                if (this.craftMatrix.getStackInSlot(i) == null)
+                if (stackInSlot == null)
                 {
-                    this.craftMatrix.setInventorySlotContents(i, itemstack1);
+                    this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
                 }
-                else if (!this.player.inventory.addItemStackToInventory(itemstack1))
+                else if (ItemStack.areItemsEqual(stackInSlot, remainingItemsInSlot) && ItemStack.areItemStackTagsEqual(stackInSlot, remainingItemsInSlot))
                 {
-                    this.player.dropPlayerItemWithRandomChoice(itemstack1, false);
+                    remainingItemsInSlot.stackSize += stackInSlot.stackSize;
+                    this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
+                }
+                else if (this.player.inventory.addItemStackToInventory(remainingItemsInSlot) == false)
+                {
+                    this.player.dropPlayerItemWithRandomChoice(remainingItemsInSlot, false);
                 }
             }
         }

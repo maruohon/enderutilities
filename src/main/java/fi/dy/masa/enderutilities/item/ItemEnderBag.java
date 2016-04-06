@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -24,6 +24,12 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -38,10 +44,6 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
@@ -58,7 +60,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (world.isRemote == true || stack == null || stack.getTagCompound() == null)
+        if (stack == null || stack.getTagCompound() == null)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -78,8 +80,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
             }
 
-            bagNbt.setBoolean("IsOpen", true);
-            player.displayGUIChest(player.getInventoryEnderChest());
+            if (world.isRemote == false)
+            {
+                bagNbt.setBoolean("IsOpen", true);
+                player.displayGUIChest(player.getInventoryEnderChest());
+            }
+
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
@@ -87,6 +93,11 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
+        }
+
+        if (world.isRemote == true)
+        {
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
@@ -116,7 +127,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension,
-                targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 60) == true)
+                targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 15) == true)
         {
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             if (server == null)
@@ -293,20 +304,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World world, Entity player, int slot, boolean isCurrent)
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
-        super.onUpdate(stack, world, player, slot, isCurrent);
-
-        // Ugly workaround to get the bag closing tag update to sync to the client
-        // For some reason it won't sync if set directly in the PlayerOpenContainerEvent
-        if (stack != null && stack.getTagCompound() != null)
-        {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt.hasKey("IsOpenDummy") == true)
-            {
-                nbt.removeTag("IsOpenDummy");
-            }
-        }
+        return slotChanged == true || oldStack.equals(newStack) == false;
     }
 
     @SideOnly(Side.CLIENT)

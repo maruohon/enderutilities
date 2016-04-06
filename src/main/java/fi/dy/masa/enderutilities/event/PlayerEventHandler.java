@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.event;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,7 +7,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -18,6 +16,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class PlayerEventHandler
 {
@@ -49,55 +48,34 @@ public class PlayerEventHandler
     }
 
     @SubscribeEvent
-    public void onStartTracking(PlayerEvent.StartTracking event)
-    {
-        Entity target = event.getTarget();
-        Entity entity = event.getEntity();
-
-        // FIXME 1.9 remove this event?
-        if (entity != null && target != null && entity.worldObj.isRemote == false)
-        {
-            // Remount the entity if the player starts tracking an entity he is supposed to be riding already
-            if (entity.getRidingEntity() == target)
-            {
-                entity.startRiding(target);
-            }
-        }
-    }
-
-    @SubscribeEvent
     public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
     {
         EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = player.getHeldItemMainhand();
-        // FIXME 1.9
-        if (stack == null || stack.getItem() != EnderUtilitiesItems.enderBag)
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.enderBag);
+        if (stack == null)
         {
-            stack = player.getHeldItemOffhand();
+            return;
         }
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderBag)
+        NBTTagCompound nbt = stack.getTagCompound();
+        if (nbt != null && nbt.getBoolean("IsOpen") == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt != null && nbt.getBoolean("IsOpen") == true)
+            if (player.openContainer != player.inventoryContainer
+                && (ItemEnderBag.targetNeedsToBeLoadedOnClient(stack) == false
+                || ItemEnderBag.targetOutsideOfPlayerRange(stack, player) == false))
             {
-                if (player.openContainer != player.inventoryContainer
-                    && (ItemEnderBag.targetNeedsToBeLoadedOnClient(stack) == false
-                    || ItemEnderBag.targetOutsideOfPlayerRange(stack, player) == false))
-                {
-                    // Allow access from anywhere with the Ender Bag (bypassing the distance checks)
-                    event.setResult(Result.ALLOW);
-                }
-                // Ender Bag: Player has just closed the remote container
-                else
-                {
-                    nbt.removeTag("ChunkLoadingRequired");
-                    nbt.removeTag("IsOpen");
-                    nbt.setBoolean("IsOpenDummy", true);
-                    //player.inventory.markDirty();
-                    //player.inventoryContainer.detectAndSendChanges();
-                }
+                // Allow access from anywhere with the Ender Bag (bypassing the distance checks)
+                event.setResult(Result.ALLOW);
             }
+            // Ender Bag: Player has just closed the remote container
+            else if (player.worldObj.isRemote == false)
+            {
+                nbt.removeTag("ChunkLoadingRequired");
+                nbt.removeTag("IsOpen");
+                player.inventory.markDirty();
+            }
+
+            player.inventoryContainer.detectAndSendChanges();
         }
     }
 }

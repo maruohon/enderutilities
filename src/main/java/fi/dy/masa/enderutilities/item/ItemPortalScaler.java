@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +19,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.util.Constants;
+
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -30,7 +34,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
-import net.minecraftforge.common.util.Constants;
 
 public class ItemPortalScaler extends ItemModular implements IKeyBound
 {
@@ -69,16 +72,18 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return EnumActionResult.SUCCESS;
         }
 
+        if (world.isRemote == true)
+        {
+            return EnumActionResult.SUCCESS;
+        }
+
         // When right clicking on Obsidian, try to light a Nether Portal
         if (block == Blocks.obsidian && world.isAirBlock(pos.offset(side)) == true &&
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
             Blocks.portal.func_176548_d(world, pos.offset(side)) == true)
         {
-            if (world.isRemote == false)
-            {
-                UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
-                world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.entity_blaze_shoot, SoundCategory.MASTER, 0.8f, 1.0f);
-            }
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
+            world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.entity_blaze_shoot, SoundCategory.MASTER, 0.8f, 1.0f);
 
             return EnumActionResult.SUCCESS;
         }
@@ -89,12 +94,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (world.isRemote == true || EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == false)
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
-        this.usePortalWithPortalScaler(stack, world, player);
+        if (world.isRemote == false)
+        {
+            this.usePortalWithPortalScaler(stack, world, player);
+        }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }

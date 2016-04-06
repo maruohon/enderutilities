@@ -6,16 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
-import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.oredict.OreDictionary;
+
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
@@ -370,16 +372,16 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the first found IKeyBoundUnselected item from the player's inventory, or null.
+     * Returns the first matching item from the player's inventory, or null.
      */
-    public static ItemStack getFirstKeyBoundUnselectedItem(EntityPlayer player)
+    public static ItemStack getFirstItemOfType(EntityPlayer player, Class<?> clazz)
     {
         IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
 
         for (int slot = 0; slot < inv.getSlots(); slot++)
         {
             ItemStack stack = inv.getStackInSlot(slot);
-            if (stack != null && stack.getItem() instanceof IKeyBoundUnselected)
+            if (stack != null && clazz.isAssignableFrom(stack.getItem().getClass()) == true)
             {
                 return stack;
             }
