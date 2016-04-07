@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -20,11 +21,25 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -40,17 +55,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.fluids.IFluidContainerItem;
-import net.minecraftforge.fluids.IFluidHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
@@ -107,7 +111,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return this.useBucketOnTank(stack, player, world, pos, side, this.getBucketMode(stack));
         }
 
-        return EnumActionResult.FAIL;
+        return EnumActionResult.PASS;
     }
 
     @Override
@@ -506,6 +510,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         targetFluidStack = iFluidBlock.drain(world, pos, true);
                         this.fillWorker(stack, targetFluidStack, true, player);
 
+                        SoundEvent sound = targetBlock == Blocks.lava ? SoundEvents.item_bucket_fill_lava : SoundEvents.item_bucket_fill;
+                        world.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0F, 1.0F);
+
                         return EnumActionResult.SUCCESS;
                     }
                 }
@@ -522,6 +529,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 if (world.setBlockToAir(pos) == true)
                 {
                     this.fillWorker(stack, targetFluidStack, true, player);
+
+                    SoundEvent sound = targetBlock == Blocks.lava ? SoundEvents.item_bucket_fill_lava : SoundEvents.item_bucket_fill;
+                    world.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
                     return EnumActionResult.SUCCESS;
                 }
@@ -603,6 +613,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
 
             world.setBlockState(pos, block.getDefaultState(), 3);
+            SoundEvent soundevent = block == Blocks.flowing_lava ? SoundEvents.item_bucket_empty_lava : SoundEvents.item_bucket_empty;
+            world.playSound(null, pos, soundevent, SoundCategory.BLOCKS, 1.0f, 1.0f);
         }
 
         return true;
