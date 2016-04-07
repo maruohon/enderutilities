@@ -1,15 +1,24 @@
 package fi.dy.masa.enderutilities.event;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import org.apache.commons.lang3.StringUtils;
+import net.minecraft.nbt.NBTTagList;
+
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool.ToolType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import net.minecraftforge.event.AnvilUpdateEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AnvilUpdateEventHandler
 {
@@ -29,11 +38,11 @@ public class AnvilUpdateEventHandler
             }
             else if (right.getItem() == Items.enchanted_book)
             {
-                this.enhantItem(event);
+                this.enhantItem(event, (ItemEnchantedBook)right.getItem());
             }
             else
             {
-                // Cancel vanilla behaviour, otherwise it would allow repairing tools with different types of tools (and lose the modules)
+                // Cancel vanilla behaviour, otherwise it would allow repairing tools with another tool (and lose the modules)
                 event.setCanceled(true);
             }
         }
@@ -86,13 +95,10 @@ public class AnvilUpdateEventHandler
         this.updateItemName(event, repaired);
     }
 
-    private void enhantItem(AnvilUpdateEvent event)
+    private void enhantItem(AnvilUpdateEvent event, ItemEnchantedBook book)
     {
-        // FIXME 1.9
-        /*
-        ItemStack toolStack = event.left.copy();
-        ItemStack bookStack = event.right.copy();
-        ItemEnchantedBook book = (ItemEnchantedBook)event.right.getItem();
+        ItemStack toolStack = event.getLeft().copy();
+        ItemStack bookStack = event.getRight().copy();
         NBTTagList bookEnchantmentList = book.getEnchantments(bookStack);
 
         if (bookEnchantmentList.tagCount() <= 0 || toolStack.getItem().isBookEnchantable(toolStack, bookStack) == false)
@@ -100,20 +106,21 @@ public class AnvilUpdateEventHandler
             return;
         }
 
-        Map<Integer, Integer> oldEnchantments = EnchantmentHelper.getEnchantments(toolStack);
-        Map<Integer, Integer> bookEnchantments = EnchantmentHelper.getEnchantments(bookStack);
-        Iterator<Integer> iterBookEnchantments = bookEnchantments.keySet().iterator();
-        int cost = 0;
+        Map<Enchantment, Integer> oldEnchantments = EnchantmentHelper.getEnchantments(toolStack);
+        Map<Enchantment, Integer> bookEnchantments = EnchantmentHelper.getEnchantments(bookStack);
+        Iterator<Map.Entry<Enchantment, Integer>> iterBookEnchantments = bookEnchantments.entrySet().iterator();
+        int cost = oldEnchantments.size() * 2;
+        boolean levelIncreased = false;
 
         while (iterBookEnchantments.hasNext() == true)
         {
-            int bookEnchId = iterBookEnchantments.next().intValue();
-            Enchantment enchBook = Enchantment.getEnchantmentById(bookEnchId);
+            Map.Entry<Enchantment, Integer> enchantmentEntry = iterBookEnchantments.next();
+            Enchantment enchBook = enchantmentEntry.getKey();
 
             if (enchBook != null)
             {
-                int oldEnchLvl = oldEnchantments.containsKey(bookEnchId) ? oldEnchantments.get(bookEnchId).intValue() : 0;
-                int bookEnchLvl = bookEnchantments.get(bookEnchId);
+                int oldEnchLvl = oldEnchantments.containsKey(enchBook) ? oldEnchantments.get(enchBook).intValue() : 0;
+                int bookEnchLvl = enchantmentEntry.getValue();
                 int newLvl = bookEnchLvl == oldEnchLvl ? oldEnchLvl + 1 : Math.max(oldEnchLvl, bookEnchLvl);
                 newLvl = Math.min(newLvl, enchBook.getMaxLevel());
 
@@ -123,48 +130,54 @@ public class AnvilUpdateEventHandler
                     return;
                 }
 
-                Iterator<Integer> iterOldEnchantments = oldEnchantments.keySet().iterator();
-                boolean canApply = true;
+                if (newLvl > oldEnchLvl)
+                {
+                    levelIncreased = true;
+                }
 
+                Iterator<Map.Entry<Enchantment, Integer>> iterOldEnchantments = oldEnchantments.entrySet().iterator();
+
+                // Check that the new enchantment doesn't conflict with any of the existing enchantments
                 while (iterOldEnchantments.hasNext() == true)
                 {
-                    int oldEnchId = iterOldEnchantments.next().intValue();
-                    Enchantment enchOld = Enchantment.getEnchantmentById(oldEnchId);
+                    Enchantment enchOld = iterOldEnchantments.next().getKey();
 
-                    if (oldEnchId != bookEnchId && (enchBook.canApplyTogether(enchOld) && enchOld.canApplyTogether(enchBook)) == false)
+                    if (enchOld.equals(enchBook) == false && (enchBook.canApplyTogether(enchOld) && enchOld.canApplyTogether(enchBook)) == false)
                     {
-                        canApply = false;
                         event.setCanceled(true);
                         return;
                     }
                 }
 
-                if (canApply == true)
-                {
-                    oldEnchantments.put(bookEnchId, newLvl);
-                    cost += newLvl * 5;
-                }
+                oldEnchantments.put(enchBook, newLvl);
+                cost += newLvl * 2;
             }
         }
 
+        // Check that at least some new enchantments would be added, or some of the existing levels increased
+        if (levelIncreased == false)
+        {
+            event.setCanceled(true);
+            return;
+        }
+
         EnchantmentHelper.setEnchantments(oldEnchantments, toolStack);
-        event.output = toolStack;
-        event.cost = cost;
+        event.setOutput(toolStack);
+        event.setCost(cost);
         this.updateItemName(event, toolStack);
-        event.cost = Math.min(event.cost, 39);
-        */
+        event.setCost(Math.min(event.getCost(), 39));
     }
 
     private boolean canApplyEnchantment(Enchantment ench, ItemStack stack)
     {
-        if (ench.type.equals(EnumEnchantmentType.BREAKABLE) || ench.type.equals(EnumEnchantmentType.ALL))
+        if (ench.type  == EnumEnchantmentType.BREAKABLE || ench.type  == EnumEnchantmentType.ALL)
         {
             return true;
         }
 
         if (stack.getItem() == EnderUtilitiesItems.enderSword)
         {
-            return ench.type.equals(EnumEnchantmentType.WEAPON);
+            return ench.type == EnumEnchantmentType.WEAPON;
         }
 
         if (stack.getItem() == EnderUtilitiesItems.enderTool)
@@ -175,7 +188,12 @@ public class AnvilUpdateEventHandler
                 return false;
             }
 
-            return ench.type.equals(EnumEnchantmentType.DIGGER);
+            if (type == ToolType.AXE && ench.type == EnumEnchantmentType.WEAPON)
+            {
+                return true;
+            }
+
+            return ench.type == EnumEnchantmentType.DIGGER;
         }
 
         return false;
