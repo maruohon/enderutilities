@@ -99,6 +99,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected int modeMask;
     protected byte furnaceMode;
     protected int recipeLoadClickCount;
+    public int lastInteractedCraftingGrid;
 
     public TileEntityCreationStation()
     {
@@ -746,7 +747,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             this.actionMode = element;
         }
-        else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element < 2)
+        else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element <= 1)
         {
             IItemHandler inv = this.craftingInventoryWrappers[element];
 
@@ -764,6 +765,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             this.recipeLoadClickCount = 0;
+            this.lastInteractedCraftingGrid = element;
         }
         else if (action == GUI_ACTION_RECIPE_LOAD && element >= 0 && element < 10)
         {
@@ -803,6 +805,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
             this.setShowRecipe(invId, true);
             this.writeModeMaskToModule();
+            this.lastInteractedCraftingGrid = invId;
         }
         else if (action == GUI_ACTION_RECIPE_STORE && element >= 0 && element < 10)
         {
@@ -824,6 +827,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.setShowRecipe(invId, true);
             this.setRecipeId(invId, recipeId);
             this.writeModeMaskToModule();
+            this.lastInteractedCraftingGrid = invId;
         }
         else if (action == GUI_ACTION_RECIPE_CLEAR && element >= 0 && element < 10)
         {
@@ -839,6 +843,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             this.recipeLoadClickCount = 0;
+            this.lastInteractedCraftingGrid = invId;
         }
         else if (action == GUI_ACTION_TOGGLE_MODE && element >= 0 && element < 8)
         {
@@ -853,6 +858,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 case 6: this.modeMask ^= MODE_BIT_LEFT_FAST; break;
                 case 7: this.modeMask ^= MODE_BIT_RIGHT_FAST; break;
                 default:
+            }
+
+            if (element <= 5)
+            {
+                this.lastInteractedCraftingGrid = element / 3;
             }
 
             this.writeModeMaskToModule();

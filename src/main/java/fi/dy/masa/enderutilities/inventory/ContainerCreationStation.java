@@ -20,6 +20,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int modeMask;
     public int fuelProgress;
     public int smeltProgress;
+    private int lastInteractedCraftingGrid;
 
     private final InventoryItemCrafting[] craftMatrices;
     private final IItemHandler[] craftMatrixWrappers;
@@ -27,7 +28,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
-    private int lastInteractedCraftingGridId;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -39,7 +39,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftMatrixWrappers = new IItemHandler[] { te.getCraftingInventoryWrapper(0), te.getCraftingInventoryWrapper(1) };
         this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
-        this.lastInteractedCraftingGridId = 0;
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -134,7 +133,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public int getLastInteractedCraftingGridId()
     {
-        return this.lastInteractedCraftingGridId;
+        return this.tecs.lastInteractedCraftingGrid;
     }
 
     public IItemHandler getCraftMatrixWrapper(int id)
@@ -213,11 +212,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
         if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || slotNum == 40)
         {
-            this.lastInteractedCraftingGridId = 0;
+            this.tecs.lastInteractedCraftingGrid = 0;
         }
         else if (this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true || slotNum == 50)
         {
-            this.lastInteractedCraftingGridId = 1;
+            this.tecs.lastInteractedCraftingGrid = 1;
         }
 
         // Crafting output slots; if "keep one item" is enabled and the minimum remaining
@@ -254,6 +253,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         icrafting.sendProgressBarUpdate(this, 1, selection);
         icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
         icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
+        icrafting.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
 
         this.detectAndSendChanges();
     }
@@ -293,12 +293,17 @@ public class ContainerCreationStation extends ContainerLargeStacks
             {
                 icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
             }
+            if (this.lastInteractedCraftingGrid != this.tecs.lastInteractedCraftingGrid)
+            {
+                icrafting.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
+            }
         }
 
         this.modeMask = modeMask;
         this.selectionsLast = selection;
         this.fuelProgress = fuelProgress;
         this.smeltProgress = smeltProgress;
+        this.lastInteractedCraftingGrid = this.tecs.lastInteractedCraftingGrid;
     }
 
     @Override
@@ -321,6 +326,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 break;
             case 3:
                 this.smeltProgress = val; // value is 0..100, left furnace is in the lower bits 7..0
+                break;
+            case 4:
+                this.tecs.lastInteractedCraftingGrid = val;
                 break;
             default:
         }
