@@ -615,7 +615,7 @@ public class EntityUtils
 
     public static void copyDataFromOld(Entity target, Entity old)
     {
-        Method method = ReflectionHelper.findMethod(Entity.class, target, new String[] {"func_180432_n", "copyDataFromOld", "a"});
+        Method method = ReflectionHelper.findMethod(Entity.class, target, new String[] {"func_180432_n", "copyDataFromOld", "a"}, Entity.class);
         try
         {
             method.invoke(target, old);
