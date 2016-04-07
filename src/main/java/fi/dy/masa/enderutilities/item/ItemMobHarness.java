@@ -243,7 +243,6 @@ public class ItemMobHarness extends ItemEnderUtilities
         list.add(I18n.translateToLocal("enderutilities.tooltip.item.linked") + ": " + TextFormatting.GREEN + target + TextFormatting.RESET + TextFormatting.GRAY);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     protected void addItemOverrides()
     {

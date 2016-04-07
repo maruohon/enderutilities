@@ -1407,7 +1407,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     protected void addItemOverrides()
     {
