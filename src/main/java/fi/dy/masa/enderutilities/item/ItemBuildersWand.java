@@ -11,7 +11,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
@@ -586,8 +585,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         tag.setString("BlockName", Block.blockRegistry.getNameForObject(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
-        double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
-        ItemStack stackTmp = state.getBlock().getPickBlock(state, player.rayTrace(dist, 0.0f), world, pos, player);
+        ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
         int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
         tag.setByte("ItemMeta", (byte)itemMeta);
@@ -813,8 +811,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
 
-        double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
-        ItemStack stackTmp = state.getBlock().getPickBlock(state, player.rayTrace(dist, 0.0f), world, blockPos, player);
+        ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, blockPos, player);
         int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
         // The block on the back face must not be air or fluid ...

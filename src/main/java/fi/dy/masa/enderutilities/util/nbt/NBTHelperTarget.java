@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.util.nbt;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -17,6 +16,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class NBTHelperTarget
 {
@@ -213,8 +213,7 @@ public class NBTHelperTarget
                 Block block = iBlockState.getBlock();
                 blockMeta = block.getMetaFromState(iBlockState);
 
-                double dist = player instanceof EntityPlayerMP ? ((EntityPlayerMP)player).interactionManager.getBlockReachDistance() + 1 : 6.0d;
-                ItemStack stack = block.getPickBlock(iBlockState, player.rayTrace(dist, 0.0f), world, pos, player);
+                ItemStack stack = block.getPickBlock(iBlockState, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
                 if (stack != null)
                 {
                     itemMeta = stack.getMetadata();
