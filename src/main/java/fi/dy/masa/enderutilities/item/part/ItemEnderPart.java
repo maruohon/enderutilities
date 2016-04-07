@@ -57,7 +57,7 @@ public class ItemEnderPart extends ItemModule
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        int damage = stack.getItemDamage();
+        int damage = stack.getMetadata();
 
         switch(damage)
         {
@@ -110,7 +110,7 @@ public class ItemEnderPart extends ItemModule
         }
 
         // Ender Relic
-        if (stack != null && stack.getItemDamage() == 40)
+        if (stack != null && stack.getMetadata() == 40)
         {
             if (EntityUtils.spawnEnderCrystal(world, pos) == true)
             {
@@ -155,15 +155,15 @@ public class ItemEnderPart extends ItemModule
             return;
         }
 
-        int damage = stack.getItemDamage();
+        int meta = stack.getMetadata();
         NBTTagCompound nbt = stack.getTagCompound();
-        if (damage >= 50 && damage <= 54 && (nbt == null || nbt.hasNoTags() == true))
+        if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags() == true))
         {
             list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             return;
         }
 
-        if (damage == 50) // Memory Card (misc)
+        if (meta == 50) // Memory Card (misc)
         {
             ArrayList<String> listDataTypes = new ArrayList<String>();
             Iterator<String> iter = nbt.getKeySet().iterator();
@@ -188,7 +188,7 @@ public class ItemEnderPart extends ItemModule
                 list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
-        else if (damage >= 51 && damage <= 54) // Memory Card (items)
+        else if (meta >= 51 && meta <= 54) // Memory Card (items)
         {
             ArrayList<String> lines = new ArrayList<String>();
             int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines, 20);
@@ -202,7 +202,7 @@ public class ItemEnderPart extends ItemModule
                 list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
             }
-            else if (damage != 50)
+            else if (meta != 50)
             {
                 list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.unknowndata"));
             }
@@ -219,39 +219,41 @@ public class ItemEnderPart extends ItemModule
 
     public void activateEnderCore(ItemStack stack)
     {
+        int meta = stack.getMetadata();
         // Inactive Ender Cores
-        if (stack != null && stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        if (stack != null && meta >= 10 && meta <= 12)
         {
             // "Activate" the Ender Core (ie. change the item)
-            stack.setItemDamage(stack.getItemDamage() + 5);
+            stack.setItemDamage(meta + 5);
         }
     }
 
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
+        int meta = stack.getMetadata();
         // Inactive Ender Cores
         // Active Ender Cores
-        if ((stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12) ||
-            (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17))
+        if ((meta >= 10 && meta <= 12) ||
+            (meta >= 15 && meta <= 17))
         {
             return ModuleType.TYPE_ENDERCORE;
         }
 
         // Mob Persistence
-        if (stack.getItemDamage() == 45)
+        if (meta == 45)
         {
             return ModuleType.TYPE_MOBPERSISTENCE;
         }
 
         // Memory Card (misc)
-        if (stack.getItemDamage() == 50)
+        if (meta == 50)
         {
             return ModuleType.TYPE_MEMORY_CARD_MISC;
         }
 
         // Memory Card (items)
-        if (stack.getItemDamage() >= 51 && stack.getItemDamage() <= 54)
+        if (meta >= 51 && meta <= 54)
         {
             return ModuleType.TYPE_MEMORY_CARD_ITEMS;
         }
@@ -262,16 +264,17 @@ public class ItemEnderPart extends ItemModule
     @Override
     public int getModuleTier(ItemStack stack)
     {
+        int meta = stack.getMetadata();
         // Inactive Ender Cores
-        if (stack.getItemDamage() >= 10 && stack.getItemDamage() <= 12)
+        if (meta >= 10 && meta <= 12)
         {
-            return stack.getItemDamage() - 10 + ENDER_CORE_TYPE_INACTIVE_BASIC;
+            return meta - 10 + ENDER_CORE_TYPE_INACTIVE_BASIC;
         }
 
         // Active Ender Cores
-        if (stack.getItemDamage() >= 15 && stack.getItemDamage() <= 17)
+        if (meta >= 15 && meta <= 17)
         {
-            return stack.getItemDamage() - 15 + ENDER_CORE_TYPE_ACTIVE_BASIC;
+            return meta - 15 + ENDER_CORE_TYPE_ACTIVE_BASIC;
         }
 
         // Mob Persistence
@@ -281,7 +284,7 @@ public class ItemEnderPart extends ItemModule
         }
 
         // Memory Card (misc)
-        if (stack.getItemDamage() == 50)
+        if (meta == 50)
         {
             return MEMORY_CARD_TYPE_MISC;
         }
@@ -289,7 +292,7 @@ public class ItemEnderPart extends ItemModule
         // Memory Card (items)
         if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
-            int tier = stack.getItemDamage() - 51;
+            int tier = meta - 51;
             switch (tier)
             {
                 case 0: return MEMORY_CARD_TYPE_ITEMS_6B;

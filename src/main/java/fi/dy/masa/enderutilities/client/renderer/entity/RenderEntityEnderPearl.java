@@ -47,7 +47,7 @@ public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
     {
         if (entity instanceof IItemData)
         {
-            return new ItemStack(this.item, 1, ((IItemData)entity).getItemDamage(entity));
+            return new ItemStack(this.item, 1, ((IItemData)entity).getItemMetadata(entity));
         }
 
         return new ItemStack(this.item, 1, 0);

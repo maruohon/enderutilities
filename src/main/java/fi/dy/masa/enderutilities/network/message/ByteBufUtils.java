@@ -25,7 +25,7 @@ public class ByteBufUtils
         }
 
         buf.writeShort(Item.getIdFromItem(stack.getItem()));
-        buf.writeShort(stack.getItemDamage());
+        buf.writeShort(stack.getMetadata());
         buf.writeInt(stack.stackSize);
 
         NBTTagCompound tag = null;

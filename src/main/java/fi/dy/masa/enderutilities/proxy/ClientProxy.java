@@ -183,7 +183,7 @@ public class ClientProxy extends CommonProxy
         {
             ModelResourceLocation mrl = (variants[i] instanceof ModelResourceLocation) ?
                                         (ModelResourceLocation)variants[i] : new ModelResourceLocation(variants[i], "inventory");
-            ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getItemDamage(), mrl);
+            ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getMetadata(), mrl);
             i++;
         }
     }
@@ -219,7 +219,7 @@ public class ClientProxy extends CommonProxy
         }
 
         ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), fullVariant);
-        ModelLoader.setCustomModelResourceLocation(item, stack.getItemDamage(), mrl);
+        ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
     }
 
     private void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
@@ -231,10 +231,10 @@ public class ClientProxy extends CommonProxy
         for (ItemStack stack : stacks)
         {
             Item item = stack.getItem();
-            int damage = stack.getItemDamage();
-            String name = names[damage].replace(".", "_"); // 1.9 doesn't allow dots in property names anymore
+            int meta = stack.getMetadata();
+            String name = names[meta].replace(".", "_"); // 1.9 doesn't allow dots in property names anymore
             ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), variantPre + name + variantPost);
-            ModelLoader.setCustomModelResourceLocation(item, damage, mrl);
+            ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }
 }

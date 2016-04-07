@@ -48,7 +48,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     public String getUnlocalizedName(ItemStack stack)
     {
         // damage 1: Ender Porter (Advanced)
-        if (stack.getItemDamage() == 1)
+        if (stack.getMetadata() == 1)
         {
             return super.getUnlocalizedName() + ".advanced";
         }
@@ -69,7 +69,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false
-            && (stack.getItemDamage() == 1 || target.dimension == entity.dimension))
+            && (stack.getMetadata() == 1 || target.dimension == entity.dimension))
         {
             int cost = (target.dimension == entity.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
             if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
@@ -113,7 +113,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false
-            && (stack.getItemDamage() == 1 || target.dimension == player.dimension))
+            && (stack.getMetadata() == 1 || target.dimension == player.dimension))
         {
             int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
             if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
@@ -153,7 +153,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         if ((this.getMaxItemUseDuration(stack) - itemInUseCount) >= useTime)
         {
             NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-            if (target == null || (stack.getItemDamage() == 0 && target.dimension != player.dimension))
+            if (target == null || (stack.getMetadata() == 0 && target.dimension != player.dimension))
             {
                 return;
             }

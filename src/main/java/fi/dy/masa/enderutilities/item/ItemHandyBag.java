@@ -54,8 +54,8 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
-    public static final int DAMAGE_TIER_1 = 0;
-    public static final int DAMAGE_TIER_2 = 1;
+    public static final int META_TIER_1 = 0;
+    public static final int META_TIER_2 = 1;
 
     public static final int INV_SIZE_TIER_1 = 27;
     public static final int INV_SIZE_TIER_2 = 55;
@@ -116,7 +116,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        return super.getUnlocalizedName() + "." + stack.getItemDamage();
+        return super.getUnlocalizedName() + "." + stack.getMetadata();
     }
 
     @Override
@@ -521,7 +521,7 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public int getSizeInventory(ItemStack containerStack)
     {
-        return containerStack.getItemDamage() == DAMAGE_TIER_2 ? INV_SIZE_TIER_2 : INV_SIZE_TIER_1;
+        return containerStack.getMetadata() == META_TIER_2 ? INV_SIZE_TIER_2 : INV_SIZE_TIER_1;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)
@@ -705,7 +705,7 @@ public class ItemHandyBag extends ItemInventoryModular
         String variant = "locked=" + (bagIsOpenable(stack) == true ? "false" : "true") +
                          ",pickupmode=" + PickupMode.fromStack(stack).getVariantName() +
                          ",restockmode=" + (RestockMode.fromStack(stack) == RestockMode.ENABLED ? "true" : "false") +
-                         ",tier=" + MathHelper.clamp_int(stack.getItemDamage(), 0, 1);
+                         ",tier=" + MathHelper.clamp_int(stack.getMetadata(), 0, 1);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
     }

@@ -205,7 +205,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         if (this.inventoryItemModular.getModularItemStack() != null)
         {
-            return this.inventoryItemModular.getModularItemStack().getItemDamage() == 1 ? 1 : 0;
+            return this.inventoryItemModular.getModularItemStack().getMetadata() == 1 ? 1 : 0;
         }
 
         return 0;

@@ -5,7 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IItemData
 {
-    public int getItemDamage(Entity entity);
+    public int getItemMetadata(Entity entity);
 
     public NBTTagCompound getTagCompound(Entity entity);
 }

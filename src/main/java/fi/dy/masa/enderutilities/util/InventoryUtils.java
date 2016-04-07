@@ -345,7 +345,7 @@ public class InventoryUtils
      * If <b>damage</b> is OreDictionary.WILDCARD_VALUE, then the item damage is ignored.
      * @return The slot number of the first slot with a matching item and damage value, or -1 if there are no such items in the inventory.
      */
-    public static int getSlotOfFirstMatchingItem(IItemHandler inv, Item item, int damage)
+    public static int getSlotOfFirstMatchingItem(IItemHandler inv, Item item, int meta)
     {
         int invSize = inv.getSlots();
 
@@ -353,7 +353,7 @@ public class InventoryUtils
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (stack != null && stack.getItem() == item && (stack.getItemDamage() == damage || damage == OreDictionary.WILDCARD_VALUE))
+            if (stack != null && stack.getItem() == item && (stack.getMetadata() == meta || meta == OreDictionary.WILDCARD_VALUE))
             {
                 return slot;
             }
@@ -405,13 +405,13 @@ public class InventoryUtils
      * @param item
      * @return The slot number of the last slot with a matching item and damage value, or -1 if there are no such items in the inventory.
      */
-    public static int getSlotOfLastMatchingItem(IItemHandler inv, Item item, int damage)
+    public static int getSlotOfLastMatchingItem(IItemHandler inv, Item item, int meta)
     {
         for (int slot = inv.getSlots() - 1; slot >= 0; slot--)
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (stack != null && stack.getItem() == item && (stack.getItemDamage() == damage || damage == OreDictionary.WILDCARD_VALUE))
+            if (stack != null && stack.getItem() == item && (stack.getMetadata() == meta || meta == OreDictionary.WILDCARD_VALUE))
             {
                 return slot;
             }
@@ -504,7 +504,7 @@ public class InventoryUtils
      * @param item
      * @return an ArrayList containing the slot numbers of the slots with matching items
      */
-    public static List<Integer> getSlotNumbersOfMatchingItems(IItemHandler inv, Item item, int damage)
+    public static List<Integer> getSlotNumbersOfMatchingItems(IItemHandler inv, Item item, int meta)
     {
         List<Integer> slots = new ArrayList<Integer>();
         int invSize = inv.getSlots();
@@ -513,7 +513,7 @@ public class InventoryUtils
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (stack != null && stack.getItem() == item && (stack.getItemDamage() == damage || damage == OreDictionary.WILDCARD_VALUE))
+            if (stack != null && stack.getItem() == item && (stack.getMetadata() == meta || meta == OreDictionary.WILDCARD_VALUE))
             {
                 slots.add(Integer.valueOf(slot));
             }
@@ -822,7 +822,7 @@ public class InventoryUtils
         }
 
         Item item = stackTemplate.getItem();
-        int meta = stackTemplate.getItemDamage();
+        int meta = stackTemplate.getMetadata();
         int lastSlot = Math.min(slotRange.lastInc, inv.getSlots() - 1);
 
         for (int slot = slotRange.first; slot <= lastSlot; slot++)
@@ -833,7 +833,7 @@ public class InventoryUtils
                 continue;
             }
 
-            if (ignoreMeta == false && (meta != OreDictionary.WILDCARD_VALUE && stackTmp.getItemDamage() != meta))
+            if (ignoreMeta == false && (meta != OreDictionary.WILDCARD_VALUE && stackTmp.getMetadata() != meta))
             {
                 continue;
             }

@@ -232,7 +232,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     }
 
     @Override
-    public int getItemDamage(Entity entity)
+    public int getItemMetadata(Entity entity)
     {
         return this.getDataManager().get(IS_ELITE_PEARL).booleanValue() == true ? 1 : 0;
     }

@@ -32,7 +32,7 @@ public class AnvilUpdateEventHandler
         if (left.getItem() == EnderUtilitiesItems.enderTool || left.getItem() == EnderUtilitiesItems.enderSword)
         {
             // Advanced Ender Alloy
-            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getItemDamage() == 2)
+            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getMetadata() == 2)
             {
                 this.fullyRepairItem(event, 1, 15);
             }
@@ -49,7 +49,7 @@ public class AnvilUpdateEventHandler
         else if (left.getItem() == EnderUtilitiesItems.enderBow)
         {
             // Enhanced Ender Alloy
-            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getItemDamage() == 1)
+            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getMetadata() == 1)
             {
                 this.fullyRepairItem(event, 1, 15);
             }
@@ -68,14 +68,13 @@ public class AnvilUpdateEventHandler
 
         if (repaired.getItem() == EnderUtilitiesItems.enderTool)
         {
-            ItemEnderTool item = (ItemEnderTool)repaired.getItem();
-            if (item.getToolDamage(repaired) == 0)
+            if (repaired.getItemDamage() == 0)
             {
                 event.setCanceled(true);
                 return;
             }
 
-            item.repairTool(repaired, -1);
+            ((ItemEnderTool)repaired.getItem()).repairTool(repaired, -1);
         }
         else if (repaired.getItem() == EnderUtilitiesItems.enderSword)
         {

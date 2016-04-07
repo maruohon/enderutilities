@@ -37,9 +37,9 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         // Damage 0: Link Crystal (In-World)
         // Damage 1: Link Crystal (Inventory)
         // Damage 2: Link Crystal (Portal)
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 2)
         {
-            return super.getUnlocalizedName() + "." + stack.getItemDamage();
+            return super.getUnlocalizedName() + "." + stack.getMetadata();
         }
 
         return super.getUnlocalizedName();
@@ -69,7 +69,7 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 2)
         {
             return ModuleType.TYPE_LINKCRYSTAL;
         }
@@ -80,9 +80,9 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public int getModuleTier(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 2)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 2)
         {
-            return stack.getItemDamage();
+            return stack.getMetadata();
         }
 
         return -1;

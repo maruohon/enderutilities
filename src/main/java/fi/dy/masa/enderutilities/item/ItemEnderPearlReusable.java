@@ -35,7 +35,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
     public String getUnlocalizedName(ItemStack stack)
     {
         // damage 1: Elite Ender Pearl
-        if (stack.getItemDamage() == 1)
+        if (stack.getMetadata() == 1)
         {
             return super.getUnlocalizedName() + ".elite";
         }
@@ -56,12 +56,12 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
         // Damage 1: "Elite version" of the pearl, makes the thrower fly with it. Idea by xisumavoid in episode Hermitcraft III 303 :)
 
-        EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getItemDamage() == 1);
-        float velocity = stack.getItemDamage() == 1 ? 2.1f : 1.7f;
+        EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getMetadata() == 1);
+        float velocity = stack.getMetadata() == 1 ? 2.1f : 1.7f;
         pearl.setHeadingFromThrower(player, player.rotationPitch, player.rotationYaw, 0.0f, velocity, 0.8f);
         world.spawnEntityInWorld(pearl);
 
-        if (stack.getItemDamage() == 1)
+        if (stack.getMetadata() == 1)
         {
             Entity bottomEntity = player.getLowestRidingEntity();
 

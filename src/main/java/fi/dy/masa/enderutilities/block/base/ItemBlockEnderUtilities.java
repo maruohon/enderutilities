@@ -46,9 +46,9 @@ public class ItemBlockEnderUtilities extends ItemBlock
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        if (this.blockNames != null && stack.getItemDamage() < this.blockNames.length)
+        if (this.blockNames != null && stack.getMetadata() < this.blockNames.length)
         {
-            return "tile." + ReferenceNames.getPrefixedName(this.blockNames[stack.getItemDamage()]);
+            return "tile." + ReferenceNames.getPrefixedName(this.blockNames[stack.getMetadata()]);
         }
 
         return super.getUnlocalizedName(stack);

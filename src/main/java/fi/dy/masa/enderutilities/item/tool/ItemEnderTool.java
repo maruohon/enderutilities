@@ -420,7 +420,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public boolean isDamaged(ItemStack stack)
     {
-        return false;
+        return this.getDamage(stack) > 0;
+    }
+
+    @Override
+    public int getDamage(ItemStack stack)
+    {
+        return NBTUtils.getShort(stack, null, "ToolDamage");
     }
 
     @Override
@@ -433,23 +439,18 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public boolean showDurabilityBar(ItemStack stack)
     {
-        return this.getToolDamage(stack) > 0;
+        return this.isDamaged(stack);
     }
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack)
     {
-        return (double)this.getToolDamage(stack) / (double)this.getMaxDamage(stack);
+        return (double)this.getDamage(stack) / (double)this.getMaxDamage(stack);
     }
 
     public boolean isToolBroken(ItemStack stack)
     {
         return NBTUtils.getShort(stack, null, "ToolDamage") >= this.material.getMaxUses();
-    }
-
-    public int getToolDamage(ItemStack stack)
-    {
-        return NBTUtils.getShort(stack, null, "ToolDamage");
     }
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
@@ -481,7 +482,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
         }
 
-        int damage = NBTUtils.getShort(stack, null, "ToolDamage");
+        int damage = this.getDamage(stack);
         damage = Math.min(damage + amount, this.material.getMaxUses());
         this.setDamage(stack, damage);
 
@@ -1035,12 +1036,6 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
         }
-
-        if (advancedTooltips == true)
-        {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.durability");
-            list.add(str + ": " + (this.getMaxDamage(stack) - this.getToolDamage(stack)) + " / " + this.getMaxDamage(stack));
-        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -1167,7 +1162,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static ToolType fromStack(ItemStack stack)
         {
-            int meta = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
+            int meta = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
             return values()[meta];
         }
     }

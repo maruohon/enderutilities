@@ -45,9 +45,9 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         // Damage 1: Ender Capacitor (Enhanced)
         // Damage 2: Ender Capacitor (Advanced)
         // Damage 3: Ender Capacitor (Creative)
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 3)
         {
-            return super.getUnlocalizedName() + "." + stack.getItemDamage();
+            return super.getUnlocalizedName() + "." + stack.getMetadata();
         }
 
         return super.getUnlocalizedName();
@@ -55,7 +55,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     public int getCapacityFromItemType(ItemStack stack)
     {
-        int dmg = stack.getItemDamage();
+        int dmg = stack.getMetadata();
         if (dmg == 0) { return 10000; } // Basic
         if (dmg == 1) { return 100000; } // Enhanced
         if (dmg == 2) { return 500000; } // Advanced
@@ -106,7 +106,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public int addCharge(ItemStack stack, int amount, boolean doCharge)
     {
        // Creative capacitor, don't allow actually re-charging (but accept infinite charge)
-        if (stack.getItemDamage() == 3)
+        if (stack.getMetadata() == 3)
         {
             return amount;
         }
@@ -133,7 +133,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public int useCharge(ItemStack stack, int amount, boolean doUse)
     {
         // Creative capacitor, allow using however much is charge is requested, unless this is a completely empty capacitor
-        if (stack.getItemDamage() == 3 && this.getCharge(stack) > 0)
+        if (stack.getMetadata() == 3 && this.getCharge(stack) > 0)
         {
             return amount;
         }
@@ -179,7 +179,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public ModuleType getModuleType(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 3)
         {
             return ModuleType.TYPE_ENDERCAPACITOR;
         }
@@ -190,9 +190,9 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public int getModuleTier(ItemStack stack)
     {
-        if (stack.getItemDamage() >= 0 && stack.getItemDamage() <= 3)
+        if (stack.getMetadata() >= 0 && stack.getMetadata() <= 3)
         {
-            return stack.getItemDamage();
+            return stack.getMetadata();
         }
 
         return -1;
@@ -237,7 +237,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         String pre = this.getCharge(stack) > 0 ? "tex=charged." : "tex=empty.";
-        int index = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
+        int index = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);
     }
