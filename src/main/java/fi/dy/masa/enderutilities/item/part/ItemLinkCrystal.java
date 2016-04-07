@@ -39,7 +39,7 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         // Damage 2: Link Crystal (Portal)
         if (stack.getMetadata() >= 0 && stack.getMetadata() <= 2)
         {
-            return super.getUnlocalizedName() + "." + stack.getMetadata();
+            return super.getUnlocalizedName() + "_" + stack.getMetadata();
         }
 
         return super.getUnlocalizedName();

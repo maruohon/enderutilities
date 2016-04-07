@@ -28,15 +28,15 @@ enderutilities.container.toolworkstation=Tool Workstation
 tile.enderutilities.creationstation.name=Creation Station
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
-tile.enderutilities.energybridge.transmitter.name=Energy Bridge Transmitter
-tile.enderutilities.energybridge.receiver.name=Energy Bridge Receiver
-tile.enderutilities.energybridge.resonator.name=Energy Bridge Resonator
-tile.enderutilities.handychest.0.name=Handy Chest
-tile.enderutilities.handychest.1.name=Large Handy Chest
-tile.enderutilities.handychest.2.name=Extended Handy Chest
-tile.enderutilities.memorychest.0.name=Small Memory Chest
-tile.enderutilities.memorychest.1.name=Memory Chest
-tile.enderutilities.memorychest.2.name=Large Memory Chest
+tile.enderutilities.energybridge_transmitter.name=Energy Bridge Transmitter
+tile.enderutilities.energybridge_receiver.name=Energy Bridge Receiver
+tile.enderutilities.energybridge_resonator.name=Energy Bridge Resonator
+tile.enderutilities.handychest_0.name=Handy Chest
+tile.enderutilities.handychest_1.name=Large Handy Chest
+tile.enderutilities.handychest_2.name=Extended Handy Chest
+tile.enderutilities.memorychest_0.name=Small Memory Chest
+tile.enderutilities.memorychest_1.name=Memory Chest
+tile.enderutilities.memorychest_2.name=Large Memory Chest
 tile.enderutilities.toolworkstation.name=Tool Workstation
 
 
@@ -52,54 +52,54 @@ entity.enderutilities.enderpearlreusable.name=Reusable Ender Pearl
 # Item names:
 #############
 
-item.enderutilities.builderswand.name=Wand of the Lazy Builder
-item.enderutilities.enderarrow.name=Ender Arrow
-item.enderutilities.enderbag.name=Ender Bag
-item.enderutilities.enderbow.name=Ender Bow
-item.enderutilities.enderbucket.name=Ender Bucket
-item.enderutilities.endercapacitor.0.name=Ender Capacitor (Basic)
-item.enderutilities.endercapacitor.1.name=Ender Capacitor (Enhanced)
-item.enderutilities.endercapacitor.2.name=Ender Capacitor (Advanced)
-item.enderutilities.endercapacitor.3.name=Ender Capacitor (Creative)
-item.enderutilities.enderlasso.name=Ender Lasso
-item.enderutilities.enderpart.enderalloy.0.name=Ender Alloy (Basic)
-item.enderutilities.enderpart.enderalloy.1.name=Ender Alloy (Enhanced)
-item.enderutilities.enderpart.enderalloy.2.name=Ender Alloy (Advanced)
-item.enderutilities.enderpart.endercore.0.active.name=Ender Core (Basic)
-item.enderutilities.enderpart.endercore.1.active.name=Ender Core (Enhanced)
-item.enderutilities.enderpart.endercore.2.active.name=Ender Core (Advanced)
-item.enderutilities.enderpart.endercore.0.inactive.name=Inactive Ender Core (Basic)
-item.enderutilities.enderpart.endercore.1.inactive.name=Inactive Ender Core (Enhanced)
-item.enderutilities.enderpart.endercore.2.inactive.name=Inactive Ender Core (Advanced)
-item.enderutilities.enderpart.enderrelic.name=Ender Relic
-item.enderutilities.enderpart.enderrope.name=Ender Rope
-item.enderutilities.enderpart.enderstick.name=Ender Infused Stick
-item.enderutilities.enderpart.memorycard.misc.name=Memory Card (misc)
-item.enderutilities.enderpart.memorycard.items.0.name=Memory Card (items) 6 B
-item.enderutilities.enderpart.memorycard.items.1.name=Memory Card (items) 8 B
-item.enderutilities.enderpart.memorycard.items.2.name=Memory Card (items) 10 B
-item.enderutilities.enderpart.memorycard.items.3.name=Memory Card (items) 12 B
-item.enderutilities.enderpart.jailer.name=Jailer module
-item.enderutilities.enderpearlreusable.name=Ender Pearl (reusable)
-item.enderutilities.enderpearlreusable.elite.name=Elite Ender Pearl (reusable)
-item.enderutilities.enderporter.name=Ender Porter
-item.enderutilities.enderporter.advanced.name=Advanced Ender Porter
-item.enderutilities.endertool.enderpickaxe.name=Ender Pickaxe
-item.enderutilities.endertool.enderaxe.name=Ender Axe
-item.enderutilities.endertool.endershovel.name=Ender Shovel
-item.enderutilities.endertool.enderhoe.name=Ender Hoe
-item.enderutilities.endersword.name=Ender Sword
-item.enderutilities.handybag.0.name=Handy Bag
-item.enderutilities.handybag.1.name=Handy Bag (Large)
-item.enderutilities.inventoryswapper.name=Inventory Swapper
-item.enderutilities.linkcrystal.0.name=Link Crystal (location)
-item.enderutilities.linkcrystal.1.name=Link Crystal (block)
-item.enderutilities.linkcrystal.2.name=Link Crystal (portal)
-item.enderutilities.livingmanipulator.name=Living Matter Manipulator
-item.enderutilities.mobharness.name=Mob Harness
-item.enderutilities.pickupmanager.name=Item Pickup Manager
-item.enderutilities.portalscaler.name=Portal Scaler
-item.enderutilities.ruler.name=Ruler
+item.enderutilities_builderswand.name=Wand of the Lazy Builder
+item.enderutilities_enderarrow.name=Ender Arrow
+item.enderutilities_enderbag.name=Ender Bag
+item.enderutilities_enderbow.name=Ender Bow
+item.enderutilities_enderbucket.name=Ender Bucket
+item.enderutilities_endercapacitor_0.name=Ender Capacitor (Basic)
+item.enderutilities_endercapacitor_1.name=Ender Capacitor (Enhanced)
+item.enderutilities_endercapacitor_2.name=Ender Capacitor (Advanced)
+item.enderutilities_endercapacitor_3.name=Ender Capacitor (Creative)
+item.enderutilities_enderlasso.name=Ender Lasso
+item.enderutilities_enderpart_enderalloy_0.name=Ender Alloy (Basic)
+item.enderutilities_enderpart_enderalloy_1.name=Ender Alloy (Enhanced)
+item.enderutilities_enderpart_enderalloy_2.name=Ender Alloy (Advanced)
+item.enderutilities_enderpart_endercore_0_active.name=Ender Core (Basic)
+item.enderutilities_enderpart_endercore_1_active.name=Ender Core (Enhanced)
+item.enderutilities_enderpart_endercore_2_active.name=Ender Core (Advanced)
+item.enderutilities_enderpart_endercore_0_inactive.name=Inactive Ender Core (Basic)
+item.enderutilities_enderpart_endercore_1_inactive.name=Inactive Ender Core (Enhanced)
+item.enderutilities_enderpart_endercore_2_inactive.name=Inactive Ender Core (Advanced)
+item.enderutilities_enderpart_enderrelic.name=Ender Relic
+item.enderutilities_enderpart_enderrope.name=Ender Rope
+item.enderutilities_enderpart_enderstick.name=Ender Infused Stick
+item.enderutilities_enderpart_memorycard_misc.name=Memory Card (misc)
+item.enderutilities_enderpart_memorycard_items_0.name=Memory Card (items) 6 B
+item.enderutilities_enderpart_memorycard_items_1.name=Memory Card (items) 8 B
+item.enderutilities_enderpart_memorycard_items_2.name=Memory Card (items) 10 B
+item.enderutilities_enderpart_memorycard_items_3.name=Memory Card (items) 12 B
+item.enderutilities_enderpart_jailer.name=Jailer module
+item.enderutilities_enderpearlreusable.name=Ender Pearl (reusable)
+item.enderutilities_enderpearlreusable_elite.name=Elite Ender Pearl (reusable)
+item.enderutilities_enderporter.name=Ender Porter
+item.enderutilities_enderporter_advanced.name=Advanced Ender Porter
+item.enderutilities_endertool_enderpickaxe.name=Ender Pickaxe
+item.enderutilities_endertool_enderaxe.name=Ender Axe
+item.enderutilities_endertool_endershovel.name=Ender Shovel
+item.enderutilities_endertool_enderhoe.name=Ender Hoe
+item.enderutilities_endersword.name=Ender Sword
+item.enderutilities_handybag_0.name=Handy Bag
+item.enderutilities_handybag_1.name=Handy Bag (Large)
+item.enderutilities_inventoryswapper.name=Inventory Swapper
+item.enderutilities_linkcrystal_0.name=Link Crystal (location)
+item.enderutilities_linkcrystal_1.name=Link Crystal (block)
+item.enderutilities_linkcrystal_2.name=Link Crystal (portal)
+item.enderutilities_livingmanipulator.name=Living Matter Manipulator
+item.enderutilities_mobharness.name=Mob Harness
+item.enderutilities_pickupmanager.name=Item Pickup Manager
+item.enderutilities_portalscaler.name=Portal Scaler
+item.enderutilities_ruler.name=Ruler
 
 
 ###################################################
@@ -119,35 +119,35 @@ item.enderutilities.enderarrow.tooltips=- Hit mobs with the arrow for entertainm
 item.enderutilities.enderbag.tooltips=- Only properly works with some vanilla blocks atm|lf- Sneak + right click to bind to inventories|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Link Crystal|lf- Alt + Toggle: Toggle privacy mode on selected Link Crystal
 item.enderutilities.enderbow.tooltips=- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning|lf- Repair in an Anvil with Enhanced Ender Alloy
 item.enderutilities.enderbucket.tooltips=- Toggle key: Cycle the operation mode|lf- Sneak + right click: Bind to tanks (in bind mode)|lf- Shift + Toggle: Switch between regular operation and tanks|lf- Tank mode chunk loads for 30 seconds on use|lf- In normal mode: right clicking a tank takes fluid from the|lf  tank, sneak + right clicking puts fluid to the tank|lf- Sneak + right click to bind|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Link Crystal
-item.enderutilities.endercapacitor.0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
-item.enderutilities.endercapacitor.1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
-item.enderutilities.endercapacitor.2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor_0.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor_1.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
+item.enderutilities.endercapacitor_2.tooltips=- Right click an Ender Crystal to charge (in The End)|lf- Or use an Ender Infuser|lf- Or build an Energy Bridge
 item.enderutilities.enderlasso.tooltips=- Right click to teleport mobs|lf- Add a Jailer module to prevent mobs from despawning
-item.enderutilities.enderpart.endercore.0.active.tooltips=- Right click an Ender Crystal with inactive version
-item.enderutilities.enderpart.endercore.1.active.tooltips=- Right click an Ender Crystal with inactive version
-item.enderutilities.enderpart.endercore.2.active.tooltips=- Right click an Ender Crystal with inactive version
-item.enderutilities.enderpart.endercore.0.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.endercore.1.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.endercore.2.inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
-item.enderutilities.enderpart.enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on an Obsidian block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires at least a 3x3x6 base of Obsidian|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals|lf  in other dimensions (no special requirements there)
-item.enderutilities.enderpart.memorycard.items.0.tooltips=- Can store items in stacks up to 2^(bits) = 64
-item.enderutilities.enderpart.memorycard.items.1.tooltips=- Can store items in stacks up to 2^(bits) = 256
-item.enderutilities.enderpart.memorycard.items.2.tooltips=- Can store items in stacks up to 2^(bits) = 1024
-item.enderutilities.enderpart.memorycard.items.3.tooltips=- Can store items in stacks up to 2^(bits) = 4096
-item.enderutilities.enderpart.mobpersistence.tooltips=- Right click on a mob to prevent it from despawning|lf- Install into some modular items to achieve the same|lf- Using it directly consumes the item, modular items won't
-item.enderutilities.enderpearlreusable.elite.tooltips=Lets you fly! w00t!
+item.enderutilities.enderpart_endercore_0_active.tooltips=- Right click an Ender Crystal with inactive version
+item.enderutilities.enderpart_endercore_1_active.tooltips=- Right click an Ender Crystal with inactive version
+item.enderutilities.enderpart_endercore_2_active.tooltips=- Right click an Ender Crystal with inactive version
+item.enderutilities.enderpart_endercore_0_inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart_endercore_1_inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart_endercore_2_inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
+item.enderutilities.enderpart_enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on an Obsidian block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires at least a 3x3x6 base of Obsidian|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals|lf  in other dimensions (no special requirements there)
+item.enderutilities.enderpart_memorycard_items_0.tooltips=- Can store items in stacks up to 2^(bits) = 64
+item.enderutilities.enderpart_memorycard_items_1.tooltips=- Can store items in stacks up to 2^(bits) = 256
+item.enderutilities.enderpart_memorycard_items_2.tooltips=- Can store items in stacks up to 2^(bits) = 1024
+item.enderutilities.enderpart_memorycard_items_3.tooltips=- Can store items in stacks up to 2^(bits) = 4096
+item.enderutilities.enderpart_mobpersistence.tooltips=- Right click on a mob to prevent it from despawning|lf- Install into some modular items to achieve the same|lf- Using it directly consumes the item, modular items won't
+item.enderutilities.enderpearlreusable_elite.tooltips=Lets you fly! w00t!
 item.enderutilities.enderporter.tooltips=- Can teleport the player or another|lf  entity inside the same dimension|lf- Not single-use anymore!|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)
-item.enderutilities.enderporter.advanced.tooltips=- Can teleport the player or another|lf  entity cross-dimensionally|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)
-item.enderutilities.endertool.enderpickaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
-item.enderutilities.endertool.enderaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
-item.enderutilities.endertool.endershovel.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
-item.enderutilities.endertool.enderhoe.tooltips=- Can till and plant a 3x3 area in the "Fast" mode|lf- Can plant crops from player or linked inventory|lf  (to plant right click on the farmland|lf  and have something to plant in your|lf  inventory or the linked inventory)|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Toggle mode key: toggle between 1x1 and 3x3 mode|lf- Shift + Toggle mode: cycle the inventory mode|lf  - Normal: No special functionality|lf  - Player: items will be inserted into/taken from the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to/from|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
+item.enderutilities.enderporter_advanced.tooltips=- Can teleport the player or another|lf  entity cross-dimensionally|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)
+item.enderutilities.endertool_enderpickaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
+item.enderutilities.endertool_enderaxe.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
+item.enderutilities.endertool_endershovel.tooltips=- Add Efficiency V for instant mining of common|lf  blocks in the fast mode|lf- Fast mode uses two durability per mined block|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Right click to place blocks from adjacent slot|lf- Toggle mode key: toggle between normal/fast mode|lf- Shift + Toggle mode: cycle the drops handling mode|lf  - Normal: items drop normally|lf  - Player: items will be inserted directly to the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
+item.enderutilities.endertool_enderhoe.tooltips=- Can till and plant a 3x3 area in the "Fast" mode|lf- Can plant crops from player or linked inventory|lf  (to plant right click on the farmland|lf  and have something to plant in your|lf  inventory or the linked inventory)|lf- The tool will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Toggle mode key: toggle between 1x1 and 3x3 mode|lf- Shift + Toggle mode: cycle the inventory mode|lf  - Normal: No special functionality|lf  - Player: items will be inserted into/taken from the player's|lf    inventory, if possible. If not, they will drop normally.|lf  - Remote: items will be teleported to/from|lf    the selected Link Crystal's destination, if possible.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
 item.enderutilities.endersword.tooltips=- The sword will never break completely|lf- Repair in an anvil with one Advanced Ender Alloy and 15 levels|lf- Shift + Toggle mode: cycle the sword mode|lf  - Normal: no special functionality|lf  - Player: drops from killed mobs will be inserted|lf    directly to the player's inventory, if possible.|lf  - Remote: items will be teleported to|lf    the selected Link Crystal's destination, if possible.|lf  - Summon: Does minimal direct damage, spawns up to 3|lf    new Ender Fighters to attack the target.|lf- The Ender Fighters start to rage and attack players|lf  if there is no player holding an Ender Sword|lf  in the Summon mode within 32 blocks.|lf- Idle Ender Fighters disappear sometime after 10 seconds.|lf- Using a Name Tag on them makes them peaceful.|lf- Player mode requires an active Basic Ender Core|lf- Remote mode requires either an active Enhanced|lf  Ender Core (inter-dimensional transport) or an active|lf  Advanced Ender Core (cross-dimensional transport)
 item.enderutilities.handybag.tooltips=- A bag that opens when you open the regular inventory|lf  and have an enabled Handy Bag in your inventory.|lf- The first bag found (= hotbar first,|lf  then top-left-most first) will be used.|lf- Sneak while opening the inventory to|lf  open the regular inventory instead.|lf- Toggle key: Toggle pickup mode|lf- Shift + Toggle: Toggle locked state|lf  (a locked bag doesn't open when opening the inventory)|lf- Alt + Shift + Toggle: Toggle restock mode|lf- Alt + Toggle mode: Toggle public/private|lf  (Note: it is stored per Memory Card!)|lf- Uses item type Memory Cards|lf- Max stack size depends on the used Memory Card tier|lf- Regular bag has 27 slots, Large has 55|lf- Tip: Middle click to swap two slots
 item.enderutilities.inventoryswapper.tooltips=- Can swap the player's inventory contents with|lf  the currently selected Memory Card's contents|lf- Can also swap with block inventories on sneak + right click|lf- Right click to open GUI|lf- The hotkeys work even when not selected in hotbar|lf- Alt + Toggle: Toggle public/private on selected Memory Card|lf- Alt + Shift + Toggle: Toggle locked/unlocked|lf- Shift + Toggle/scroll: Cycle slot selection preset|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Memory Card|lf- Toggle key alone: Execute a swap operation|lf- Uses 6 B item Memory Cards
-item.enderutilities.linkcrystal.0.tooltips=- Sneak + right click to bind to a location|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
-item.enderutilities.linkcrystal.1.tooltips=- Sneak + right click to bind to a block|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
-item.enderutilities.linkcrystal.2.tooltips=*WIP*
+item.enderutilities.linkcrystal_0.tooltips=- Sneak + right click to bind to a location|lf- Alt + Shift + Toggle mode: Store the players's|lf  current position, INCLUDING the yaw/pitch rotations|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
+item.enderutilities.linkcrystal_1.tooltips=- Sneak + right click to bind to a block|lf- Alt + Toggle mode to toggle public/private|lf- Tip: Rename in an anvil; the name is usually|lf  shown after the container item's name
+item.enderutilities.linkcrystal_2.tooltips=*WIP*
 item.enderutilities.livingmanipulator.tooltips=- Can store and release mobs|lf- Ctrl + (Shift +) Toggle/scroll: Cycle selected Memory Card|lf- Shift + Toggle/scroll: Cycle selected mob|lf- Toggle key: Change mode (Normal/Capture only/Release only)
 item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you
 item.enderutilities.pickupmanager.tooltips=- Controls which items can be picked up|lf- Can transport picked up items to a remote inventory|lf  and also allows manually sending items|lf- Toggle key: Toggle locked/unlocked state|lf- Shift + Toggle/scroll: Cycle filter preset|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Link Crystal|lf- Alt + Toggle: Toggle privacy mode on selected Link Crystal|lf- Sneak + right click: bind to an inventory
@@ -159,13 +159,13 @@ tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
 tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items
 
-tile.enderutilities.energybridge.transmitter.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Transmitter in The End|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Build the Transmitter around an Ender Crystal|lf  (on top of the Obsidian pillars in The End)|lf- Leave two blocks of air above the Crystal|lf  and then place the Transmitter|lf- Place four Resonators on the same level as|lf  the Ender Crystal, two blocks of air between them|lf- The Resonators must face the Crystal|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  the Transmitter all the way up to the sky
-tile.enderutilities.energybridge.receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
-tile.enderutilities.energybridge.resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
+tile.enderutilities.energybridge_transmitter.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Transmitter in The End|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Build the Transmitter around an Ender Crystal|lf  (on top of the Obsidian pillars in The End)|lf- Leave two blocks of air above the Crystal|lf  and then place the Transmitter|lf- Place four Resonators on the same level as|lf  the Ender Crystal, two blocks of air between them|lf- The Resonators must face the Crystal|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  the Transmitter all the way up to the sky
+tile.enderutilities.energybridge_receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
+tile.enderutilities.energybridge_resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
 
-tile.enderutilities.handychest.0.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
-tile.enderutilities.handychest.1.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
-tile.enderutilities.handychest.2.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
+tile.enderutilities.handychest_0.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
+tile.enderutilities.handychest_1.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
+tile.enderutilities.handychest_2.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
 
 tile.enderutilities.templatedchest.0.tooltips=Each slot can be locked to an item type
 tile.enderutilities.templatedchest.1.tooltips=Each slot can be locked to an item type

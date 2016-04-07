@@ -47,7 +47,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         // Damage 3: Ender Capacitor (Creative)
         if (stack.getMetadata() >= 0 && stack.getMetadata() <= 3)
         {
-            return super.getUnlocalizedName() + "." + stack.getMetadata();
+            return super.getUnlocalizedName() + "_" + stack.getMetadata();
         }
 
         return super.getUnlocalizedName();
@@ -221,14 +221,14 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "tex=empty.0"),
-                new ModelResourceLocation(rl, "tex=empty.1"),
-                new ModelResourceLocation(rl, "tex=empty.2"),
-                new ModelResourceLocation(rl, "tex=empty.3"),
-                new ModelResourceLocation(rl, "tex=charged.0"),
-                new ModelResourceLocation(rl, "tex=charged.1"),
-                new ModelResourceLocation(rl, "tex=charged.2"),
-                new ModelResourceLocation(rl, "tex=charged.3")
+                new ModelResourceLocation(rl, "tex=empty_0"),
+                new ModelResourceLocation(rl, "tex=empty_1"),
+                new ModelResourceLocation(rl, "tex=empty_2"),
+                new ModelResourceLocation(rl, "tex=empty_3"),
+                new ModelResourceLocation(rl, "tex=charged_0"),
+                new ModelResourceLocation(rl, "tex=charged_1"),
+                new ModelResourceLocation(rl, "tex=charged_2"),
+                new ModelResourceLocation(rl, "tex=charged_3")
         };
     }
 
@@ -236,7 +236,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String pre = this.getCharge(stack) > 0 ? "tex=charged." : "tex=empty.";
+        String pre = this.getCharge(stack) > 0 ? "tex=charged_" : "tex=empty_";
         int index = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);

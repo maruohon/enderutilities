@@ -247,7 +247,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("linked"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:linked"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

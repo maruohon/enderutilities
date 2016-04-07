@@ -24,7 +24,7 @@
                     "overlay_pum": {
                         "model": "enderutilities:item_default",
                         "textures": {
-                            "layer0": "enderutilities:items/handybag.overlay.pickup.matching"
+                            "layer0": "enderutilities:items/handybag_overlay_pickup_matching"
                         }
                     }
                 }
@@ -34,7 +34,7 @@
                     "overlay_pum": {
                         "model": "enderutilities:item_default",
                         "textures": {
-                            "layer0": "enderutilities:items/handybag.overlay.pickup.all"
+                            "layer0": "enderutilities:items/handybag_overlay_pickup_all"
                         }
                     }
                 }
@@ -47,7 +47,7 @@
                     "overlay_rm": {
                         "model": "enderutilities:item_default",
                         "textures": {
-                            "layer0": "enderutilities:items/handybag.overlay.restock"
+                            "layer0": "enderutilities:items/handybag_overlay_restock"
                         }
                     }
                 }
@@ -56,12 +56,12 @@
         "tier": {
             "0": {
                 "textures": {
-                    "layer0": "enderutilities:items/handybag.0"
+                    "layer0": "enderutilities:items/handybag_0"
                 }
             },
             "1": {
                 "textures": {
-                    "layer0": "enderutilities:items/handybag.1"
+                    "layer0": "enderutilities:items/handybag_1"
                 }
             }
         }

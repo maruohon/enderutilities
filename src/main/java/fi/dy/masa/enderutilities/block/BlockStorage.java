@@ -54,12 +54,12 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     public String[] getUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".0",
-                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".1",
-                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + ".2",
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".0",
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".1",
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + ".2"
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_0",
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_1",
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_2",
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_0",
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_1",
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2"
         };
     }
 

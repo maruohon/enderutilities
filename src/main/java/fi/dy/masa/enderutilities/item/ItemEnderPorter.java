@@ -50,7 +50,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         // damage 1: Ender Porter (Advanced)
         if (stack.getMetadata() == 1)
         {
-            return super.getUnlocalizedName() + ".advanced";
+            return super.getUnlocalizedName() + "_advanced";
         }
 
         return super.getUnlocalizedName();
@@ -218,7 +218,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("usetime"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:usetime"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -234,7 +234,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("inuse"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:inuse"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

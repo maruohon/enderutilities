@@ -20,22 +20,22 @@
         "mode": {
             "normal_closed": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderbag.regular.closed"
+                    "layer0": "enderutilities:items/enderbag_regular_closed"
                 }
             },
             "normal_open": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderbag.regular.open"
+                    "layer0": "enderutilities:items/enderbag_regular_open"
                 }
             },
             "ender_closed": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderbag.enderchest.closed"
+                    "layer0": "enderutilities:items/enderbag_enderchest_closed"
                 }
             },
             "ender_open": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderbag.enderchest.open"
+                    "layer0": "enderutilities:items/enderbag_enderchest_open"
                 }
             }
         }

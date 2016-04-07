@@ -7,17 +7,17 @@
         "type": {
             "location": {
                 "textures": {
-                    "layer0": "enderutilities:items/linkcrystal.location"
+                    "layer0": "enderutilities:items/linkcrystal_location"
                 }
             },
             "block": {
                 "textures": {
-                    "layer0": "enderutilities:items/linkcrystal.block"
+                    "layer0": "enderutilities:items/linkcrystal_block"
                 }
             },
             "portal": {
                 "textures": {
-                    "layer0": "enderutilities:items/linkcrystal.portal"
+                    "layer0": "enderutilities:items/linkcrystal_portal"
                 }
             }
         }

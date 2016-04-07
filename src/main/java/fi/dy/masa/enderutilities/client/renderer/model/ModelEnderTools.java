@@ -65,12 +65,12 @@ public class ModelEnderTools implements IModel, IModelCustomData
     public ModelEnderTools(String toolClass, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
     {
         this.tool = toolClass;
-        String strHead = toolClass + ".head." + (broken ? "broken." : "") + (powered ? "glow." : "normal.") + mode;
-        this.resourceRod = ReferenceTextures.getItemTexture("endertool." + toolClass + ".rod");
-        this.resourceHead = ReferenceTextures.getItemTexture("endertool." + strHead);
-        this.resourceCore = core >= 1 && core <= 3 ? ReferenceTextures.getItemTexture("endertool.module.core." + core) : null;
-        this.resourceCapacitor = capacitor >= 1 && capacitor <= 4 ? ReferenceTextures.getItemTexture("endertool.module.capacitor." + capacitor) : null;
-        this.resourceLinkCrystal = linkCrystal >= 1 && linkCrystal <= 3 ? ReferenceTextures.getItemTexture("endertool.module.linkcrystal." + linkCrystal) : null;
+        String strHead = toolClass + "_head_" + (broken ? "broken_" : "") + (powered ? "glow_" : "normal_") + mode;
+        this.resourceRod = ReferenceTextures.getItemTexture("endertool_" + toolClass + "_rod");
+        this.resourceHead = ReferenceTextures.getItemTexture("endertool_" + strHead);
+        this.resourceCore = core >= 1 && core <= 3 ? ReferenceTextures.getItemTexture("endertool_module_core_" + core) : null;
+        this.resourceCapacitor = capacitor >= 1 && capacitor <= 4 ? ReferenceTextures.getItemTexture("endertool_module_capacitor_" + capacitor) : null;
+        this.resourceLinkCrystal = linkCrystal >= 1 && linkCrystal <= 3 ? ReferenceTextures.getItemTexture("endertool_module_linkcrystal_" + linkCrystal) : null;
     }
 
     @Override
@@ -90,98 +90,98 @@ public class ModelEnderTools implements IModel, IModelCustomData
     {
         ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.rod"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.rod"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.rod"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_rod"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_glow_3"));
 
         // Broken versions
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.axe.head.broken.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_broken_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.hoe.head.broken.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_hoe_head_broken_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.pickaxe.head.broken.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_head_broken_glow_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.normal.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_normal_3"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.glow.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.glow.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.shovel.head.broken.glow.3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_glow_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_glow_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_head_broken_glow_3"));
 
         // Sword
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.rod"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.3"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.normal.4"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_normal_3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_normal_4"));
 
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.3"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.sword.head.broken.normal.4"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_broken_normal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_broken_normal_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_broken_normal_3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_sword_head_broken_normal_4"));
 
         // Modules
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.core.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.core.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.core.3"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.2"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.3"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.capacitor.4"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.linkcrystal.1"));
-        builder.add(ReferenceTextures.getItemTexture("endertool.module.linkcrystal.2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_core_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_core_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_core_3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_capacitor_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_capacitor_2"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_capacitor_3"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_capacitor_4"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_linkcrystal_1"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_module_linkcrystal_2"));
 
         return builder.build();
     }

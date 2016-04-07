@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 
@@ -81,13 +82,13 @@ public abstract class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(TileEntityEnderFurnace.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE));
-        GameRegistry.registerTileEntity(TileEntityToolWorkstation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION));
-        GameRegistry.registerTileEntity(TileEntityEnderInfuser.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER));
-        GameRegistry.registerTileEntity(TileEntityEnergyBridge.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE));
-        GameRegistry.registerTileEntity(TileEntityMemoryChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST));
-        GameRegistry.registerTileEntity(TileEntityHandyChest.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST));
-        GameRegistry.registerTileEntity(TileEntityCreationStation.class, ReferenceNames.getPrefixedName(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION));
+        this.registerTileEntity(TileEntityEnderFurnace.class,       ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        this.registerTileEntity(TileEntityToolWorkstation.class,    ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
+        this.registerTileEntity(TileEntityEnderInfuser.class,       ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.registerTileEntity(TileEntityEnergyBridge.class,       ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        this.registerTileEntity(TileEntityMemoryChest.class,        ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntity(TileEntityHandyChest.class,         ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        this.registerTileEntity(TileEntityCreationStation.class,    ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
     }
 
     @Override
@@ -128,5 +129,12 @@ public abstract class CommonProxy implements IProxy
     public boolean isAltKeyDown()
     {
         return false;
+    }
+
+    private void registerTileEntity(Class<? extends TileEntity> clazz, String id)
+    {
+        // TODO Remove at some point
+        String oldName = Reference.MOD_ID + "." + id.replaceAll("_", ".");
+        GameRegistry.registerTileEntityWithAlternatives(clazz, ReferenceNames.getPrefixedName(id), oldName);
     }
 }

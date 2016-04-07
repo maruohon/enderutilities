@@ -1,0 +1,43 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "type": {
+            "enderinfuser":    {
+                "textures": {
+                    "front":    "enderutilities:blocks/enderinfuser_front",
+                    "side":     "enderutilities:blocks/enderinfuser_side",
+                    "top":      "enderutilities:blocks/enderinfuser_top",
+                    "bottom":   "enderutilities:blocks/enderinfuser_bottom"
+                }
+            },
+            "toolworkstation": {
+                "textures": {
+                    "front":    "enderutilities:blocks/toolworkstation_front",
+                    "side":     "enderutilities:blocks/toolworkstation_side",
+                    "top":      "enderutilities:blocks/toolworkstation_top",
+                    "bottom":   "enderutilities:blocks/toolworkstation_bottom"
+                }
+            },
+            "creationstation": {
+                "textures": {
+                    "front":    "enderutilities:blocks/creationstation_front",
+                    "side":     "enderutilities:blocks/creationstation_side",
+                    "top":      "enderutilities:blocks/creationstation_top",
+                    "bottom":   "enderutilities:blocks/creationstation_side"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y": 90 },
+            "up":    {},
+            "down":  {}
+        }
+    }
+}

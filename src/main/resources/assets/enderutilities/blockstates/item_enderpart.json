@@ -5,95 +5,95 @@
     },
     "variants": {
         "tex": {
-            "enderalloy.0": {
+            "enderalloy_0": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderalloy.0"
+                    "layer0": "enderutilities:items/enderpart_enderalloy_0"
                 }
             },
-            "enderalloy.1": {
+            "enderalloy_1": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderalloy.1"
+                    "layer0": "enderutilities:items/enderpart_enderalloy_1"
                 }
             },
-            "enderalloy.2": {
+            "enderalloy_2": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderalloy.2"
+                    "layer0": "enderutilities:items/enderpart_enderalloy_2"
                 }
             },
-            "endercore.active.0": {
+            "endercore_active_0": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.active.0"
+                    "layer0": "enderutilities:items/enderpart_endercore_active_0"
                 }
             },
-            "endercore.active.1": {
+            "endercore_active_1": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.active.1"
+                    "layer0": "enderutilities:items/enderpart_endercore_active_1"
                 }
             },
-            "endercore.active.2": {
+            "endercore_active_2": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.active.2"
+                    "layer0": "enderutilities:items/enderpart_endercore_active_2"
                 }
             },
-            "endercore.inactive.0": {
+            "endercore_inactive_0": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.inactive.0"
+                    "layer0": "enderutilities:items/enderpart_endercore_inactive_0"
                 }
             },
-            "endercore.inactive.1": {
+            "endercore_inactive_1": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.inactive.1"
+                    "layer0": "enderutilities:items/enderpart_endercore_inactive_1"
                 }
             },
-            "endercore.inactive.2": {
+            "endercore_inactive_2": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.endercore.inactive.2"
+                    "layer0": "enderutilities:items/enderpart_endercore_inactive_2"
                 }
             },
             "enderrelic": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderrelic"
+                    "layer0": "enderutilities:items/enderpart_enderrelic"
                 }
             },
             "enderrope": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderrope"
+                    "layer0": "enderutilities:items/enderpart_enderrope"
                 }
             },
             "enderstick": {
                 "model": "enderutilities:item_tool",
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.enderstick"
+                    "layer0": "enderutilities:items/enderpart_enderstick"
                 }
             },
             "jailer": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.jailer"
+                    "layer0": "enderutilities:items/enderpart_jailer"
                 }
             },
-            "memorycard.items.6b": {
+            "memorycard_items_6b": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.memorycard.items.6b"
+                    "layer0": "enderutilities:items/enderpart_memorycard_items_6b"
                 }
             },
-            "memorycard.misc": {
+            "memorycard_misc": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.memorycard.misc"
+                    "layer0": "enderutilities:items/enderpart_memorycard_misc"
                 }
             },
-            "memorycard.items.8b": {
+            "memorycard_items_8b": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.memorycard.items.8b"
+                    "layer0": "enderutilities:items/enderpart_memorycard_items_8b"
                 }
             },
-            "memorycard.items.10b": {
+            "memorycard_items_10b": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.memorycard.items.10b"
+                    "layer0": "enderutilities:items/enderpart_memorycard_items_10b"
                 }
             },
-            "memorycard.items.12b": {
+            "memorycard_items_12b": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpart.memorycard.items.12b"
+                    "layer0": "enderutilities:items/enderpart_memorycard_items_12b"
                 }
             }
         }

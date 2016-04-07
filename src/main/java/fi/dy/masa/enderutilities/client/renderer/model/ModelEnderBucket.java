@@ -94,17 +94,17 @@ public class ModelEnderBucket implements IModel, IModelCustomData
     {
         ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.normal.main"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.normal.insidetop"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.normal.insidebottom"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_normal_main"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_normal_insidetop"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_normal_insidebottom"));
 
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.linked.main"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.linked.insidetop"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.linked.insidebottom"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_linked_main"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_linked_insidetop"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_linked_insidebottom"));
 
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.mode.drain"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.mode.fill"));
-        builder.add(ReferenceTextures.getItemTexture("enderbucket.32.mode.bind"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_mode_drain"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_mode_fill"));
+        builder.add(ReferenceTextures.getItemTexture("enderbucket_32_mode_bind"));
 
         return builder.build();
     }
@@ -148,11 +148,11 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             catch (NumberFormatException e) {}
         }
 
-        String rlBase = Reference.MOD_ID + ":items/enderbucket.32.";
-        ResourceLocation main = new ResourceLocation(rlBase + (isLinked ? "linked." : "normal.") + "main");
-        ResourceLocation inTop = new ResourceLocation(rlBase + (isLinked ? "linked." : "normal.") + "insidetop");
-        ResourceLocation inBot = new ResourceLocation(rlBase + (isLinked ? "linked." : "normal.") + "insidebottom");
-        ResourceLocation rlMode = mode != null ? new ResourceLocation(rlBase + "mode." + mode) : null;
+        String rlBase = Reference.MOD_ID + ":items/enderbucket_32_";
+        ResourceLocation main = new ResourceLocation(rlBase + (isLinked ? "linked_" : "normal_") + "main");
+        ResourceLocation inTop = new ResourceLocation(rlBase + (isLinked ? "linked_" : "normal_") + "insidetop");
+        ResourceLocation inBot = new ResourceLocation(rlBase + (isLinked ? "linked_" : "normal_") + "insidebottom");
+        ResourceLocation rlMode = mode != null ? new ResourceLocation(rlBase + "mode_" + mode) : null;
 
         return new ModelEnderBucket(main, inTop, inBot, rlMode, fluid, amount, capacity, flip);
     }

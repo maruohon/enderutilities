@@ -6,29 +6,29 @@
     "overrides": [
         {
             "predicate": {
-            	"inuse": 1,
-                "usetime": 0.1
+            	"underutilities:inuse": 1,
+                "underutilities:usetime": 0.1
             },
             "model": "enderutilities:item/builderswand_1"
         },
         {
             "predicate": {
-            	"inuse": 1,
-                "usetime": 0.2
+            	"underutilities:inuse": 1,
+                "underutilities:usetime": 0.2
             },
             "model": "enderutilities:item/builderswand_2"
         },
         {
             "predicate": {
-            	"inuse": 1,
-                "usetime": 0.3
+            	"underutilities:inuse": 1,
+                "underutilities:usetime": 0.3
             },
             "model": "enderutilities:item/builderswand_3"
         },
         {
             "predicate": {
-            	"inuse": 1,
-                "usetime": 0.4
+            	"underutilities:inuse": 1,
+                "underutilities:usetime": 0.4
             },
             "model": "enderutilities:item/builderswand_4"
         }

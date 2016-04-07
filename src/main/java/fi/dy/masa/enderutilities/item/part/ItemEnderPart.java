@@ -64,38 +64,38 @@ public class ItemEnderPart extends ItemModule
             case 0: // Damage 0: Ender Alloy (Basic)
             case 1: // Damage 1: Ender Alloy (Enhanced)
             case 2: // Damage 2: Ender Alloy (Advanced)
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "." + damage;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "_" + damage;
 
             case 10: // Damage 10: Inactive Ender Core (Basic)
             case 11: // Damage 11: Inactive Ender Core (Enhanced)
             case 12: // Damage 12: Inactive Ender Core (Advanced)
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + (damage - 10) + ".inactive";
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 10) + "_inactive";
 
             case 15: // Damage 15: Ender Core (Basic)
             case 16: // Damage 16: Ender Core (Enhanced)
             case 17: // Damage 17: Ender Core (Advanced)
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "." + (damage - 15) + ".active";
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 15) + "_active";
 
             case 20: // Damage 20: Ender Stick
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;
 
             case 21: // Damage 21: Ender Rope
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
 
             case 40: // Damage 40: Ender Relic
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
 
             case 45: // Damage 45: Mob Persistence
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_JAILER;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_JAILER;
 
             case 50: // Damage 50: Memory Card (misc)
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
 
             case 51: // Damage 51: Memory Card (items) 6 B
             case 52: // Damage 52: Memory Card (items) 8 B
             case 53: // Damage 53: Memory Card (items) 10 B
             case 54: // Damage 54: Memory Card (items) 12 B
-                return super.getUnlocalizedName() + "." + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "." + (damage - 51);
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "_" + (damage - 51);
         }
 
         return super.getUnlocalizedName();
@@ -345,24 +345,24 @@ public class ItemEnderPart extends ItemModule
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "tex=enderalloy.0"),
-                new ModelResourceLocation(rl, "tex=enderalloy.1"),
-                new ModelResourceLocation(rl, "tex=enderalloy.2"),
-                new ModelResourceLocation(rl, "tex=endercore.inactive.0"),
-                new ModelResourceLocation(rl, "tex=endercore.inactive.1"),
-                new ModelResourceLocation(rl, "tex=endercore.inactive.2"),
-                new ModelResourceLocation(rl, "tex=endercore.active.0"),
-                new ModelResourceLocation(rl, "tex=endercore.active.1"),
-                new ModelResourceLocation(rl, "tex=endercore.active.2"),
+                new ModelResourceLocation(rl, "tex=enderalloy_0"),
+                new ModelResourceLocation(rl, "tex=enderalloy_1"),
+                new ModelResourceLocation(rl, "tex=enderalloy_2"),
+                new ModelResourceLocation(rl, "tex=endercore_inactive_0"),
+                new ModelResourceLocation(rl, "tex=endercore_inactive_1"),
+                new ModelResourceLocation(rl, "tex=endercore_inactive_2"),
+                new ModelResourceLocation(rl, "tex=endercore_active_0"),
+                new ModelResourceLocation(rl, "tex=endercore_active_1"),
+                new ModelResourceLocation(rl, "tex=endercore_active_2"),
                 new ModelResourceLocation(rl, "tex=enderstick"),
                 new ModelResourceLocation(rl, "tex=enderrope"),
                 new ModelResourceLocation(rl, "tex=enderrelic"),
                 new ModelResourceLocation(rl, "tex=jailer"),
-                new ModelResourceLocation(rl, "tex=memorycard.misc"),
-                new ModelResourceLocation(rl, "tex=memorycard.items.6b"),
-                new ModelResourceLocation(rl, "tex=memorycard.items.8b"),
-                new ModelResourceLocation(rl, "tex=memorycard.items.10b"),
-                new ModelResourceLocation(rl, "tex=memorycard.items.12b")
+                new ModelResourceLocation(rl, "tex=memorycard_misc"),
+                new ModelResourceLocation(rl, "tex=memorycard_items_6b"),
+                new ModelResourceLocation(rl, "tex=memorycard_items_8b"),
+                new ModelResourceLocation(rl, "tex=memorycard_items_10b"),
+                new ModelResourceLocation(rl, "tex=memorycard_items_12b")
         };
     }
 }

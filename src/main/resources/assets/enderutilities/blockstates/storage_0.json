@@ -1,0 +1,73 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "textures": {
+            "front":    "enderutilities:blocks/memorychest_0_front",
+            "side":     "enderutilities:blocks/memorychest_0_side",
+            "top":      "enderutilities:blocks/memorychest_0_top",
+            "bottom":   "enderutilities:blocks/memorychest_0_top"
+        },
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "type": {
+            "memorychest_0": {
+                "textures": {
+                    "front":    "enderutilities:blocks/memorychest_0_front",
+                    "side":     "enderutilities:blocks/memorychest_0_side",
+                    "top":      "enderutilities:blocks/memorychest_0_top",
+                    "bottom":   "enderutilities:blocks/memorychest_0_top"
+                }
+            },
+            "memorychest_1": {
+                "textures": {
+                    "front":    "enderutilities:blocks/memorychest_1_front",
+                    "side":     "enderutilities:blocks/memorychest_1_side",
+                    "top":      "enderutilities:blocks/memorychest_1_top",
+                    "bottom":   "enderutilities:blocks/memorychest_1_top"
+                }
+            },
+            "memorychest_2": {
+                "textures": {
+                    "front":    "enderutilities:blocks/memorychest_2_front",
+                    "side":     "enderutilities:blocks/memorychest_2_side",
+                    "top":      "enderutilities:blocks/memorychest_2_top",
+                    "bottom":   "enderutilities:blocks/memorychest_2_top"
+                }
+            },
+            "handychest_0": {
+                "textures": {
+                    "front":    "enderutilities:blocks/handychest_0_front",
+                    "side":     "enderutilities:blocks/handychest_0_side",
+                    "top":      "enderutilities:blocks/handychest_0_top",
+                    "bottom":   "enderutilities:blocks/handychest_0_top"
+                }
+            },
+            "handychest_1": {
+                "textures": {
+                    "front":    "enderutilities:blocks/handychest_1_front",
+                    "side":     "enderutilities:blocks/handychest_1_side",
+                    "top":      "enderutilities:blocks/handychest_1_top",
+                    "bottom":   "enderutilities:blocks/handychest_1_top"
+                }
+            },
+            "handychest_2": {
+                "textures": {
+                    "front":    "enderutilities:blocks/handychest_2_front",
+                    "side":     "enderutilities:blocks/handychest_2_side",
+                    "top":      "enderutilities:blocks/handychest_2_top",
+                    "bottom":   "enderutilities:blocks/handychest_2_top"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y": 90 },
+            "up":    {},
+            "down":  {}
+        }
+    }
+}

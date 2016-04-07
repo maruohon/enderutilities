@@ -1411,7 +1411,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("usetime"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:usetime"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -1427,7 +1427,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("inuse"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:inuse"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

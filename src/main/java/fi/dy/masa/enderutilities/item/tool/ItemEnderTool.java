@@ -108,7 +108,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         ToolType toolType = ToolType.fromStack(stack);
         if (toolType != ToolType.INVALID)
         {
-            return super.getUnlocalizedName() + "." + toolType.getName();
+            return super.getUnlocalizedName() + "_" + toolType.getName();
         }
 
         return super.getUnlocalizedName();

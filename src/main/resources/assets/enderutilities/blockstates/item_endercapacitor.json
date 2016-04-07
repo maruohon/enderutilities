@@ -5,44 +5,44 @@
     },
     "variants": {
         "tex": {
-            "charged.0": {
+            "charged_0": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.charged.0"
+                    "layer0": "enderutilities:items/endercapacitor_charged_0"
                 }
             },
-            "charged.1": {
+            "charged_1": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.charged.1"
+                    "layer0": "enderutilities:items/endercapacitor_charged_1"
                 }
             },
-            "charged.2": {
+            "charged_2": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.charged.2"
+                    "layer0": "enderutilities:items/endercapacitor_charged_2"
                 }
             },
-            "charged.3": {
+            "charged_3": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.charged.3"
+                    "layer0": "enderutilities:items/endercapacitor_charged_3"
                 }
             },
-            "empty.0": {
+            "empty_0": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.empty.0"
+                    "layer0": "enderutilities:items/endercapacitor_empty_0"
                 }
             },
-            "empty.1": {
+            "empty_1": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.empty.1"
+                    "layer0": "enderutilities:items/endercapacitor_empty_1"
                 }
             },
-            "empty.2": {
+            "empty_2": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.empty.2"
+                    "layer0": "enderutilities:items/endercapacitor_empty_2"
                 }
             },
-            "empty.3": {
+            "empty_3": {
                 "textures": {
-                    "layer0": "enderutilities:items/endercapacitor.empty.3"
+                    "layer0": "enderutilities:items/endercapacitor_empty_3"
                 }
             }
         }

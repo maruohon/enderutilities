@@ -7,12 +7,12 @@
         "elite": {
             "false": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpearlreusable.regular"
+                    "layer0": "enderutilities:items/enderpearlreusable_regular"
                 }
             },
             "true": {
                 "textures": {
-                    "layer0": "enderutilities:items/enderpearlreusable.elite"
+                    "layer0": "enderutilities:items/enderpearlreusable_elite"
                 }
             }
         }

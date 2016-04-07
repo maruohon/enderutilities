@@ -326,7 +326,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:pull"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -342,7 +342,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:pulling"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -350,7 +350,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
             }
         });
-        this.addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:broken"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -358,7 +358,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return stack != null && ItemEnderBow.this.isBroken(stack) == true ? 1.0F : 0.0F;
             }
         });
-        this.addPropertyOverride(new ResourceLocation("mode"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation("underutilities:mode"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

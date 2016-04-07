@@ -37,7 +37,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
         // damage 1: Elite Ender Pearl
         if (stack.getMetadata() == 1)
         {
-            return super.getUnlocalizedName() + ".elite";
+            return super.getUnlocalizedName() + "_elite";
         }
 
         return super.getUnlocalizedName();

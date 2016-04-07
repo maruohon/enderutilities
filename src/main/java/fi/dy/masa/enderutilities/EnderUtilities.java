@@ -1,15 +1,24 @@
 package fi.dy.masa.enderutilities;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -71,5 +80,39 @@ public class EnderUtilities
         //EnderUtilities.logger.info("Clearing chunk loading timeouts");
         ChunkLoading.getInstance().init();
         EnergyBridgeTracker.readFromDisk();
+    }
+
+    @EventHandler
+    public void onMissingMappingEvent(FMLMissingMappingsEvent event)
+    {
+        List<MissingMapping> list = event.get();
+
+        for (MissingMapping mapping : list)
+        {
+            if (mapping.type == GameRegistry.Type.BLOCK)
+            {
+                ResourceLocation oldLoc = mapping.resourceLocation;
+                ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
+                EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
+                Block block = Block.blockRegistry.getObject(newLoc);
+
+                if (block != null)
+                {
+                    mapping.remap(block);
+                }
+            }
+            else if (mapping.type == GameRegistry.Type.ITEM)
+            {
+                ResourceLocation oldLoc = mapping.resourceLocation;
+                ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
+                EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
+                Item item = Item.itemRegistry.getObject(newLoc);
+
+                if (item != null)
+                {
+                    mapping.remap(item);
+                }
+            }
+        }
     }
 }

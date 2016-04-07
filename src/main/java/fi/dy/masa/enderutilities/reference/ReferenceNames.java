@@ -16,8 +16,8 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_JAILER           = "jailer";
     public static final String NAME_ITEM_ENDERPART_ENDERRELIC       = "enderrelic";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD      = "memorycard"; // Not actual item, used for all memory cards in places
-    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard.misc";
-    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard.items";
+    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard_misc";
+    public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard_items";
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
@@ -44,14 +44,14 @@ public class ReferenceNames
     public static final String NAME_ITEM_RULER                  = "ruler";
 
 
-    public static final String NAME_TILE_MACHINE_0              = "machine.0";
-    public static final String NAME_TILE_MACHINE_1              = "machine.1";
     public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
-    public static final String NAME_TILE_STORAGE_0              = "storage.0";
+    public static final String NAME_TILE_MACHINE_0              = "machine_0";
+    public static final String NAME_TILE_MACHINE_1              = "machine_1";
+    public static final String NAME_TILE_STORAGE_0              = "storage_0";
 
-    public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge.transmitter";
-    public static final String NAME_TILE_ENERGY_BRIDGE_RECEIVER      = "energybridge.receiver";
-    public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge.resonator";
+    public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge_transmitter";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RECEIVER      = "energybridge_receiver";
+    public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge_resonator";
 
 
     public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
@@ -63,10 +63,15 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 
 
-    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + ".enderalloy.advanced";
+    public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + "_enderalloy_advanced";
 
 
     public static String getPrefixedName(String name)
+    {
+        return Reference.MOD_ID + "_" + name;
+    }
+
+    public static String getDotPrefixedName(String name)
     {
         return Reference.MOD_ID + "." + name;
     }

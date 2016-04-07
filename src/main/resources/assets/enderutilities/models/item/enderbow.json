@@ -28,63 +28,63 @@
     "overrides": [
         {
             "predicate": {
-                "mode": 1
+                "underutilities:mode": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_standby"
         },
         {
             "predicate": {
-                "broken": 1
+                "underutilities:broken": 1
             },
             "model": "enderutilities:item/enderbow_mode_0_broken"
         },
         {
             "predicate": {
-            	"mode": 1,
-                "broken": 1
+            	"underutilities:mode": 1,
+                "underutilities:broken": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_broken"
         },
         {
             "predicate": {
-                "pulling": 1
+                "underutilities:pulling": 1
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_0"
         },
         {
             "predicate": {
-                "pulling": 1,
-                "pull": 0.65
+                "underutilities:pulling": 1,
+                "underutilities:pull": 0.65
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_1"
         },
         {
             "predicate": {
-                "pulling": 1,
-                "pull": 0.9
+                "underutilities:pulling": 1,
+                "underutilities:pull": 0.9
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_2"
         },
         {
             "predicate": {
-            	"mode": 1,
-                "pulling": 1
+            	"underutilities:mode": 1,
+                "underutilities:pulling": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_0"
         },
         {
             "predicate": {
-            	"mode": 1,
-                "pulling": 1,
-                "pull": 0.65
+            	"underutilities:mode": 1,
+                "underutilities:pulling": 1,
+                "underutilities:pull": 0.65
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_1"
         },
         {
             "predicate": {
-            	"mode": 1,
-                "pulling": 1,
-                "pull": 0.9
+            	"underutilities:mode": 1,
+                "underutilities:pulling": 1,
+                "underutilities:pull": 0.9
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_2"
         }

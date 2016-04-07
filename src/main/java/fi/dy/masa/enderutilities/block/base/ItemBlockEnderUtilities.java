@@ -48,7 +48,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
     {
         if (this.blockNames != null && stack.getMetadata() < this.blockNames.length)
         {
-            return "tile." + ReferenceNames.getPrefixedName(this.blockNames[stack.getMetadata()]);
+            return "tile." + ReferenceNames.getDotPrefixedName(this.blockNames[stack.getMetadata()]);
         }
 
         return super.getUnlocalizedName(stack);
