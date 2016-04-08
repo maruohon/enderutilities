@@ -34,8 +34,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -76,7 +76,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         // Do nothing on the client side
         if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET && player != null &&
-                NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+                OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return;
         }
@@ -102,7 +102,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (mode == BOW_MODE_TP_TARGET)
         {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+            TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
             // If we want to TP the target, we must have a valid target set
             if (target == null)
             {
@@ -188,7 +188,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
-        if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -214,7 +214,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             // If the bow is in 'TP target' mode, it has to have a valid target set
             if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET)
             {
-                if (NBTHelperTarget.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
+                if (TargetData.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
                 {
                     return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
                 }

@@ -22,7 +22,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
@@ -115,7 +115,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (linkCrystalStack != null)
         {
             // Valid target set in the currently selected Link Crystal
-            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            if (TargetData.itemHasTargetTag(linkCrystalStack) == true)
             {
                 super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }

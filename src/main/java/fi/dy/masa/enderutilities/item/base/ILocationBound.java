@@ -5,14 +5,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public interface ILocationBound
 {
     /**
      * Gets the target information from the ItemStack
      */
-    NBTHelperTarget getTarget(ItemStack stack);
+    TargetData getTarget(ItemStack stack);
 
     /**
      *  Saves the given location to the ItemStack

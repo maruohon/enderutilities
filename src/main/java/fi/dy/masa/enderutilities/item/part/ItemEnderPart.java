@@ -24,7 +24,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import net.minecraftforge.fml.relauncher.Side;
@@ -148,10 +148,10 @@ public class ItemEnderPart extends ItemModule
         String strOwner = I18n.translateToLocal("enderutilities.tooltip.item.owner");
 
         // Set to private and not the owner
-        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
         if (ownerData != null && ownerData.canAccess(player) == false)
         {
-            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, preRed, I18n.translateToLocal("enderutilities.tooltip.item.private"), rst));
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, preRed, I18n.translateToLocal("enderutilities.tooltip.item.private"), rst));
             return;
         }
 
@@ -211,9 +211,9 @@ public class ItemEnderPart extends ItemModule
         // Print the owner data after the contents if the player can access/see the contents
         if (ownerData != null)
         {
-            String mode = ownerData.isPublic ? I18n.translateToLocal("enderutilities.tooltip.item.public") : I18n.translateToLocal("enderutilities.tooltip.item.private");
-            String modeColor = ownerData.isPublic ? TextFormatting.GREEN.toString() : preRed;
-            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.playerName, rst, modeColor, mode, rst));
+            String mode = ownerData.getIsPublic() ? I18n.translateToLocal("enderutilities.tooltip.item.public") : I18n.translateToLocal("enderutilities.tooltip.item.private");
+            String modeColor = ownerData.getIsPublic() ? TextFormatting.GREEN.toString() : preRed;
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, modeColor, mode, rst));
         }
     }
 

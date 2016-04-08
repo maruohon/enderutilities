@@ -35,7 +35,7 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
@@ -140,7 +140,7 @@ public class TeleportEntity
         return false;
     }
 
-    public static NBTHelperTarget adjustTargetPosition(NBTHelperTarget target, Entity entity)
+    public static TargetData adjustTargetPosition(TargetData target, Entity entity)
     {
         if (target == null || target.blockFace < 0)
         {
@@ -185,12 +185,12 @@ public class TeleportEntity
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+        TargetData target = TargetData.getTargetFromItem(stack);
         if (target != null)
         {
             TeleportEntity.adjustTargetPosition(target, entity);
 
-            if (target.hasAngle == true && entity != null)
+            if (target.hasRotation == true && entity != null)
             {
                 entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
             }

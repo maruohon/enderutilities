@@ -27,7 +27,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 import net.minecraftforge.common.util.Constants;
 
@@ -45,7 +45,7 @@ public class EntityEnderArrow extends EntityArrow
     public int ticksInGround;
     public int ticksInAir;
     // "TP target" mode target location
-    public NBTHelperTarget tpTarget;
+    public TargetData tpTarget;
     public byte tpMode;
     public boolean applyPersistence;
     public UUID shooterUUID;
@@ -147,7 +147,7 @@ public class EntityEnderArrow extends EntityArrow
         this.applyPersistence = enabled;
     }
 
-    public void setTpTarget(NBTHelperTarget target)
+    public void setTpTarget(TargetData target)
     {
         this.tpTarget = target;
     }
@@ -320,7 +320,7 @@ public class EntityEnderArrow extends EntityArrow
                             if (this.tpTarget != null)
                             {
                                 Entity e = rayTraceResult.entityHit;
-                                if (this.tpTarget.hasAngle == true && entity != null)
+                                if (this.tpTarget.hasRotation == true && entity != null)
                                 {
                                     entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);
                                 }
@@ -478,7 +478,7 @@ public class EntityEnderArrow extends EntityArrow
             this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
             this.shootingEntity = this.worldObj.getPlayerEntityByUUID(this.shooterUUID);
         }
-        this.tpTarget = NBTHelperTarget.readTargetFromNBT(tagCompound);
+        this.tpTarget = TargetData.readTargetFromNBT(tagCompound);
         this.tpMode = tagCompound.getByte("tpMode");
         this.applyPersistence = tagCompound.getBoolean("Persistence");
     }

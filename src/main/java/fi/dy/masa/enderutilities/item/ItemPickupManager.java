@@ -35,8 +35,8 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import net.minecraftforge.common.util.Constants;
@@ -267,13 +267,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return itemsIn;
         }
 
-        NBTHelperPlayer owner = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
+        OwnerData owner = OwnerData.getPlayerDataFromItem(moduleStack);
         if (owner != null && owner.canAccess(player) == false)
         {
             return itemsIn;
         }
 
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(moduleStack);
+        TargetData target = TargetData.getTargetFromItem(moduleStack);
         if (target != null)
         {
             World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);

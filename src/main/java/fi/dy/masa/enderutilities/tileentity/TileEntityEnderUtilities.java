@@ -14,7 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants;
 
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityEnderUtilities extends TileEntity
 {
@@ -76,12 +76,12 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         this.rotation = nbt.getByte("Rotation");
 
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromNBT(nbt);
+        OwnerData playerData = OwnerData.getPlayerDataFromNBT(nbt);
         if (playerData != null)
         {
-            this.ownerUUID = new UUID(playerData.playerUUIDMost, playerData.playerUUIDLeast);
-            this.ownerName = playerData.playerName;
-            this.isPublic = playerData.isPublic;
+            this.ownerUUID = playerData.getOwnerUUID();
+            this.ownerName = playerData.getOwnerName();
+            this.isPublic = playerData.getIsPublic();
         }
     }
 
@@ -102,7 +102,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
         if (this.ownerUUID != null && this.ownerName != null)
         {
-            NBTHelperPlayer.writePlayerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
+            OwnerData.writePlayerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
         }
     }
 

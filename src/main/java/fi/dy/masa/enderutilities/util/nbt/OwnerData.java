@@ -10,20 +10,40 @@ import net.minecraftforge.common.util.Constants;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class NBTHelperPlayer
+public class OwnerData
 {
-    public long playerUUIDMost;
-    public long playerUUIDLeast;
-    public String playerName;
-    public boolean isPublic;
-    public UUID playerUUID;
+    private long ownerUUIDMost;
+    private long ownerUUIDLeast;
+    private String ownerName;
+    private UUID ownerUUID;
+    private boolean isPublic;
 
-    public NBTHelperPlayer()
+    public OwnerData()
     {
-        this.playerUUIDMost = 0;
-        this.playerUUIDLeast = 0;
-        this.playerName = "";
+        this.ownerUUIDMost = 0;
+        this.ownerUUIDLeast = 0;
+        this.ownerName = "";
         this.isPublic = false;
+    }
+
+    public boolean getIsPublic()
+    {
+        return this.isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic)
+    {
+        this.isPublic = isPublic;
+    }
+
+    public String getOwnerName()
+    {
+        return this.ownerName;
+    }
+
+    public UUID getOwnerUUID()
+    {
+        return this.ownerUUID;
     }
 
     public static boolean nbtHasPlayerTag(NBTTagCompound nbt)
@@ -63,29 +83,29 @@ public class NBTHelperPlayer
         }
 
         NBTTagCompound tag = nbt.getCompoundTag("Player");
-        this.playerUUIDMost = tag.getLong("UUIDM");
-        this.playerUUIDLeast = tag.getLong("UUIDL");
-        this.playerName = tag.getString("Name");
+        this.ownerUUIDMost = tag.getLong("UUIDM");
+        this.ownerUUIDLeast = tag.getLong("UUIDL");
+        this.ownerName = tag.getString("Name");
         this.isPublic = tag.getBoolean("Public");
-        this.playerUUID = new UUID(this.playerUUIDMost, this.playerUUIDLeast);
+        this.ownerUUID = new UUID(this.ownerUUIDMost, this.ownerUUIDLeast);
 
         return tag;
     }
 
     public String getPlayerName()
     {
-        if (this.playerName == null)
+        if (this.ownerName == null)
         {
-            this.playerName = "";
+            this.ownerName = "";
         }
 
         // FIXME we should get the player name from the UUID
-        return this.playerName;
+        return this.ownerName;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        return writePlayerTagToNBT(nbt, this.playerUUIDMost, this.playerUUIDLeast, this.playerName, this.isPublic);
+        return writePlayerTagToNBT(nbt, this.ownerUUIDMost, this.ownerUUIDLeast, this.ownerName, this.isPublic);
     }
 
     public boolean writeToItem(ItemStack stack)
@@ -117,7 +137,7 @@ public class NBTHelperPlayer
         return false;
     }
 
-    public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, long most, long least, String name, boolean isPublic)
+    public static NBTTagCompound writePlayerTagToNBT(NBTTagCompound nbt, long uuidMost, long uuidLeast, String name, boolean isPublic)
     {
         if (nbt == null)
         {
@@ -125,8 +145,8 @@ public class NBTHelperPlayer
         }
 
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setLong("UUIDM", most);
-        tag.setLong("UUIDL", least);
+        tag.setLong("UUIDM", uuidMost);
+        tag.setLong("UUIDL", uuidLeast);
         tag.setString("Name", name);
         tag.setBoolean("Public", isPublic);
         nbt.setTag("Player", tag);
@@ -177,9 +197,9 @@ public class NBTHelperPlayer
         return false;
     }
 
-    public static NBTHelperPlayer getPlayerDataFromNBT(NBTTagCompound nbt)
+    public static OwnerData getPlayerDataFromNBT(NBTTagCompound nbt)
     {
-        NBTHelperPlayer player = new NBTHelperPlayer();
+        OwnerData player = new OwnerData();
         if (player.readFromNBT(nbt) != null)
         {
             return player;
@@ -188,7 +208,7 @@ public class NBTHelperPlayer
         return null;
     }
 
-    public static NBTHelperPlayer getPlayerDataFromItem(ItemStack stack)
+    public static OwnerData getPlayerDataFromItem(ItemStack stack)
     {
         if (stack != null)
         {
@@ -198,7 +218,7 @@ public class NBTHelperPlayer
         return null;
     }
 
-    public static NBTHelperPlayer getPlayerDataFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    public static OwnerData getPlayerDataFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
     {
         return getPlayerDataFromItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
@@ -211,8 +231,8 @@ public class NBTHelperPlayer
         }
 
         // FIXME verify that this would work: if (this.playerUUID != null && this.playerUUID.equals(player.getUniqueID()) == true)
-        if (this.playerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
-            this.playerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
+        if (this.ownerUUIDMost == player.getUniqueID().getMostSignificantBits() &&
+            this.ownerUUIDLeast == player.getUniqueID().getLeastSignificantBits())
         {
             return true;
         }
@@ -229,7 +249,7 @@ public class NBTHelperPlayer
     {
         if (stack != null && stack.getTagCompound() != null)
         {
-            NBTHelperPlayer playerData = new NBTHelperPlayer();
+            OwnerData playerData = new OwnerData();
             if (playerData.readFromNBT(stack.getTagCompound()) != null)
             {
                 return playerData.isOwner(player);
@@ -260,7 +280,7 @@ public class NBTHelperPlayer
             return true;
         }
 
-        NBTHelperPlayer playerData = getPlayerDataFromItem(stack);
+        OwnerData playerData = getPlayerDataFromItem(stack);
         return (playerData == null || playerData.isPublic == true || playerData.isOwner(player) == true);
     }
 

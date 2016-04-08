@@ -10,7 +10,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryItem extends ItemStackHandlerBasic
@@ -162,7 +162,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             return false;
         }
 
-        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
         return ownerData == null || ownerData.canAccess(player) == true;
     }
 

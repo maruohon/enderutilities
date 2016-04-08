@@ -51,8 +51,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -89,7 +89,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
-            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return EnumActionResult.FAIL;
         }
@@ -125,7 +125,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
-            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return EnumActionResult.FAIL;
         }
@@ -147,7 +147,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         // Do nothing on the client side
         if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
-            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
@@ -645,7 +645,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         // Linked to a tank
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            TargetData targetData = this.getLinkedTankTargetData(stack);
             IFluidHandler tank = this.getLinkedTank(stack);
 
             if (targetData != null && tank != null)
@@ -764,7 +764,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 }
 
                 IFluidHandler tank = this.getLinkedTank(stack);
-                NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+                TargetData targetData = this.getLinkedTankTargetData(stack);
                 if (tank != null && targetData != null)
                 {
                     FluidTankInfo[] info = tank.getTankInfo(targetData.facing);
@@ -788,9 +788,9 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
     }
 
-    public NBTHelperTarget getLinkedTankTargetData(ItemStack stack)
+    public TargetData getLinkedTankTargetData(ItemStack stack)
     {
-        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (targetData == null)
         {
             return null;
@@ -809,7 +809,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public IFluidHandler getLinkedTank(ItemStack stack)
     {
-        NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+        TargetData targetData = this.getLinkedTankTargetData(stack);
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (targetData == null || server == null)
         {
@@ -885,13 +885,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         // Linked to a tank
 
-        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return 0;
         }
 
         FluidStack fluidStack;
-        NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+        TargetData targetData = this.getLinkedTankTargetData(stack);
         IFluidHandler tank = this.getLinkedTank(stack);
 
         if (targetData != null && tank != null)
@@ -953,12 +953,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         // The Bucket has been linked to a tank
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
                 return null;
             }
 
-            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            TargetData targetData = this.getLinkedTankTargetData(stack);
             IFluidHandler tank = this.getLinkedTank(stack);
 
             if (targetData != null && tank != null)
@@ -993,12 +993,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
                 return null;
             }
 
-            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            TargetData targetData = this.getLinkedTankTargetData(stack);
             IFluidHandler tank = this.getLinkedTank(stack);
 
             if (targetData != null && tank != null)
@@ -1074,12 +1074,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
         {
-            if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
                 return 0;
             }
 
-            NBTHelperTarget targetData = this.getLinkedTankTargetData(stack);
+            TargetData targetData = this.getLinkedTankTargetData(stack);
             IFluidHandler tank = this.getLinkedTank(stack);
 
             if (targetData != null && tank != null)

@@ -30,7 +30,7 @@ import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, PlayerOrderedLoadingCallback
 {
@@ -188,7 +188,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         }
 
         NBTTagCompound nbt = ticket.getModData();
-        NBTHelperPlayer.writePlayerTagToNBT(nbt, player);
+        OwnerData.writePlayerTagToNBT(nbt, player);
 
         if (isTemporary == false)
         {
@@ -258,10 +258,10 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromNBT(ticket.getModData());
+        OwnerData playerData = OwnerData.getPlayerDataFromNBT(ticket.getModData());
         if (playerData != null)
         {
-            return playerData.playerUUID;
+            return playerData.getOwnerUUID();
         }
 
         return null;

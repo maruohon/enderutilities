@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
-public class NBTHelperTarget
+public class TargetData
 {
     public BlockPos pos;
     public double dPosX;
@@ -28,7 +28,7 @@ public class NBTHelperTarget
     public double dPosZ;
     public int dimension;
     public String dimensionName;
-    public boolean hasAngle;
+    public boolean hasRotation;
     public float yaw;
     public float pitch;
     public String blockName;
@@ -37,7 +37,7 @@ public class NBTHelperTarget
     public int blockFace;
     public EnumFacing facing;
 
-    public NBTHelperTarget()
+    public TargetData()
     {
         this.pos = new BlockPos(0, 0, 0);
         this.dPosX = 0.0d;
@@ -45,7 +45,7 @@ public class NBTHelperTarget
         this.dPosZ = 0.0d;
         this.dimension = 0;
         this.dimensionName = "";
-        this.hasAngle = false;
+        this.hasRotation = false;
         this.yaw = 0.0f;
         this.pitch = 0.0f;
         this.blockName = "";
@@ -55,11 +55,11 @@ public class NBTHelperTarget
         this.facing = EnumFacing.UP;
     }
 
-    public static NBTHelperTarget getTargetFromItem(ItemStack stack)
+    public static TargetData getTargetFromItem(ItemStack stack)
     {
         if (stack != null)
         {
-            NBTHelperTarget target = new NBTHelperTarget();
+            TargetData target = new TargetData();
             if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
             {
                 return target;
@@ -69,7 +69,7 @@ public class NBTHelperTarget
         return null;
     }
 
-    public static NBTHelperTarget getTargetFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    public static TargetData getTargetFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
     {
         return getTargetFromItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
     }
@@ -130,7 +130,7 @@ public class NBTHelperTarget
 
         if (tag.hasKey("Yaw", Constants.NBT.TAG_FLOAT) == true && tag.hasKey("Pitch", Constants.NBT.TAG_FLOAT) == true)
         {
-            this.hasAngle = true;
+            this.hasRotation = true;
             this.yaw = tag.getFloat("Yaw");
             this.pitch = tag.getFloat("Pitch");
         }
@@ -138,9 +138,9 @@ public class NBTHelperTarget
         return tag;
     }
 
-    public static NBTHelperTarget readTargetFromNBT(NBTTagCompound nbt)
+    public static TargetData readTargetFromNBT(NBTTagCompound nbt)
     {
-        NBTHelperTarget target = new NBTHelperTarget();
+        TargetData target = new TargetData();
         target.readTargetTagFromNBT(nbt);
 
         return target;
@@ -235,7 +235,7 @@ public class NBTHelperTarget
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         return writeTargetTagToNBT(nbt, this.pos, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
-            this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.facing, this.yaw, this.pitch, this.hasAngle);
+            this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.facing, this.yaw, this.pitch, this.hasRotation);
     }
 
     public static NBTTagCompound removeTargetTagFromNBT(NBTTagCompound nbt)

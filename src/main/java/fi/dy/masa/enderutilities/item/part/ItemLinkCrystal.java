@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
@@ -53,7 +53,7 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
         // Location type Link Crystal
         if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION)
         {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+            TargetData target = TargetData.getTargetFromItem(stack);
             return target != null ? target.getDimensionName(true) : null;
         }
 

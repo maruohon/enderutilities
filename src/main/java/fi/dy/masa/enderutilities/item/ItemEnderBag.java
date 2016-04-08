@@ -41,8 +41,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
@@ -66,7 +66,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTTagCompound bagNbt = stack.getTagCompound();
-        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (targetData == null || targetData.blockName == null)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -90,7 +90,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // For other targets, access is only allowed if the mode is set to public, or if the player is the owner
-        if (NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
@@ -110,7 +110,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // The target block has changed since binding the bag, remove the bind (not for vanilla Ender Chests)
         if (targetData.isTargetBlockUnchanged() == false)
         {
-            NBTHelperTarget.removeTargetTagFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+            TargetData.removeTargetTagFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
             bagNbt.removeTag("ChunkLoadingRequired");
             bagNbt.removeTag("IsOpen");
 
@@ -224,7 +224,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     public static boolean targetNeedsToBeLoadedOnClient(ItemStack stack)
     {
-        NBTHelperTarget targetData = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (targetData == null || targetData.blockName == null)
         {
             return false;
@@ -242,7 +242,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
     public static boolean targetOutsideOfPlayerRange(ItemStack stack, EntityPlayer player)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (target == null)
         {
             return true;
@@ -294,7 +294,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (target != null)
         {
             if ("minecraft:ender_chest".equals(target.blockName))
@@ -354,9 +354,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        String locked = (playerData != null && playerData.isPublic == false) ? "locked=true" : "locked=false";
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        OwnerData playerData = OwnerData.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        String locked = (playerData != null && playerData.getIsPublic() == false) ? "locked=true" : "locked=false";
         String mode = (target != null && "minecraft:ender_chest".equals(target.blockName)) ? ",mode=ender" : ",mode=normal";
         String isOpen = (stack.getTagCompound() != null && stack.getTagCompound().getBoolean("IsOpen") == true) ? "_open" : "_closed";
 

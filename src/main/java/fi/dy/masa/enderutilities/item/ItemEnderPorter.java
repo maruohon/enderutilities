@@ -26,8 +26,8 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -62,12 +62,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
     {
         if (player == null || player.worldObj.isRemote == true || player.isSneaking() == false
-            || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+            || OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return false;
         }
 
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false
@@ -96,7 +96,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         // This needs to also happen on the client, otherwise the in-use will derp up
 
-        if (player == null || NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (player == null || OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -111,7 +111,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
         }
 
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false
@@ -139,7 +139,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase livingBase, int itemInUseCount)
     {
         if ((livingBase instanceof EntityPlayer) == false ||
-            NBTHelperPlayer.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer) livingBase) == false)
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer) livingBase) == false)
         {
             return;
         }
@@ -154,7 +154,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         if ((this.getMaxItemUseDuration(stack) - itemInUseCount) >= useTime)
         {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+            TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (target == null || (stack.getMetadata() == 0 && target.dimension != player.dimension))
             {
                 return;

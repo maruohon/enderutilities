@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryItemCrafting extends InventoryCrafting
@@ -246,7 +246,7 @@ public class InventoryItemCrafting extends InventoryCrafting
             return false;
         }
 
-        NBTHelperPlayer ownerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
         return ownerData == null || ownerData.canAccess(player) == true;
     }
 

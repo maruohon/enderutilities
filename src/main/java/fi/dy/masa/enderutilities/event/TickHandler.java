@@ -17,7 +17,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TickHandler
 {
@@ -73,7 +73,7 @@ public class TickHandler
                 // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
                 if (nbt != null && nbt.getBoolean("ChunkLoadingRequired") == true)
                 {
-                    NBTHelperTarget target;
+                    TargetData target;
 
                     // Note: There is the possibility that the target or the selected link crystal
                     // has been changed since the chunk loading first started, but it just means
@@ -83,11 +83,11 @@ public class TickHandler
                     // In case of modular items, we get the target info from the selected module (= Link Crystal)
                     if (stack.getItem() instanceof IModular)
                     {
-                        target = NBTHelperTarget.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+                        target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
                     }
                     else
                     {
-                        target = NBTHelperTarget.getTargetFromItem(stack);
+                        target = TargetData.getTargetFromItem(stack);
                     }
 
                     if (target != null)

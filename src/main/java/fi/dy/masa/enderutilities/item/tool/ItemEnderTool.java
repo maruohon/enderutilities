@@ -71,8 +71,8 @@ import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -626,10 +626,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
         else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
         {
-            NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+            TargetData target = TargetData.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
-            if (NBTHelperPlayer.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+            if (OwnerData.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
                 || (target.dimension != player.dimension &&
                     this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
             {
@@ -851,10 +851,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        OwnerData data = OwnerData.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (data != null && data.isOwner(player) == true)
         {
-            data.isPublic = ! data.isPublic;
+            data.setIsPublic(! data.getIsPublic());
             data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         }
     }
@@ -1017,7 +1017,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
             // Valid target set in the currently selected Link Crystal
-            if (NBTHelperTarget.itemHasTargetTag(linkCrystalStack) == true)
+            if (TargetData.itemHasTargetTag(linkCrystalStack) == true)
             {
                 ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }

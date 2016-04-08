@@ -20,8 +20,8 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
-import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class ItemLocationBound extends ItemEnderUtilities implements ILocationBound, IKeyBound
 {
@@ -85,7 +85,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public String getTargetDisplayName(ItemStack stack)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+        TargetData target = TargetData.getTargetFromItem(stack);
         return target != null ? target.getTargetBlockDisplayName() : null;
     }
 
@@ -107,7 +107,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTHelperTarget target = this.getTarget(stack);
+        TargetData target = this.getTarget(stack);
         if (target == null)
         {
             list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
@@ -118,7 +118,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         String preDGreen = TextFormatting.DARK_GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
-        if (NBTHelperPlayer.canAccessItem(stack, player) == true)
+        if (OwnerData.canAccessItem(stack, player) == true)
         {
             String dimName = target.getDimensionName(false);
 
@@ -178,14 +178,14 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         }
 
         // Player tag data
-        NBTHelperPlayer playerData = NBTHelperPlayer.getPlayerDataFromItem(stack);
+        OwnerData playerData = OwnerData.getPlayerDataFromItem(stack);
         if (playerData == null)
         {
             return;
         }
 
         String strPublic = "";
-        if (playerData.isPublic == true)
+        if (playerData.getIsPublic() == true)
         {
             strPublic = TextFormatting.GREEN.toString() + I18n.translateToLocal("enderutilities.tooltip.item.public") + rst;
         }
@@ -198,12 +198,12 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         if (verbose == true)
         {
             list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + strPublic);
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.playerName + rst);
+            list.add(I18n.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.getOwnerName() + rst);
         }
         // Compact/short tooltip
         else
         {
-            list.add(strPublic + " - " + preDGreen + playerData.playerName + rst);
+            list.add(strPublic + " - " + preDGreen + playerData.getOwnerName() + rst);
         }
     }
 
@@ -215,16 +215,16 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
      */
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
+        if (OwnerData.itemHasPlayerTag(stack) == false)
         {
-            NBTHelperPlayer.writePlayerTagToItem(stack, player, false);
+            OwnerData.writePlayerTagToItem(stack, player, false);
         }
         else
         {
-            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(stack);
+            OwnerData data = OwnerData.getPlayerDataFromItem(stack);
             if (data != null && data.isOwner(player) == true)
             {
-                data.isPublic = ! data.isPublic;
+                data.setIsPublic(! data.getIsPublic());
                 data.writeToItem(stack);
             }
         }
@@ -255,9 +255,9 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public NBTHelperTarget getTarget(ItemStack stack)
+    public TargetData getTarget(ItemStack stack)
     {
-        return NBTHelperTarget.getTargetFromItem(stack);
+        return TargetData.getTargetFromItem(stack);
     }
 
     public void setTarget(ItemStack stack, EntityPlayer player, boolean storeRotation)
@@ -276,16 +276,16 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessItem(stack, player) == false)
+        if (OwnerData.canAccessItem(stack, player) == false)
         {
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        TargetData.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (NBTHelperPlayer.itemHasPlayerTag(stack) == false)
+        if (OwnerData.itemHasPlayerTag(stack) == false)
         {
-            NBTHelperPlayer.writePlayerTagToItem(stack, player, true);
+            OwnerData.writePlayerTagToItem(stack, player, true);
         }
     }
 }

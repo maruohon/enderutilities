@@ -787,17 +787,17 @@ public class UtilItemModular
     public static void setTarget(ItemStack containerStack, EntityPlayer player, BlockPos pos, EnumFacing side,
             double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
-        if (NBTHelperPlayer.canAccessSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (OwnerData.canAccessSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return;
         }
 
-        NBTHelperTarget.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side, player,
+        TargetData.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side, player,
                 hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (NBTHelperPlayer.selectedModuleHasPlayerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
+        if (OwnerData.selectedModuleHasPlayerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
         {
-            NBTHelperPlayer.writePlayerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
+            OwnerData.writePlayerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
         }
     }
 
@@ -810,16 +810,16 @@ public class UtilItemModular
      */
     public static void changePrivacyModeOnSelectedModule(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
     {
-        if (NBTHelperPlayer.selectedModuleHasPlayerTag(containerStack, moduleType) == false)
+        if (OwnerData.selectedModuleHasPlayerTag(containerStack, moduleType) == false)
         {
-            NBTHelperPlayer.writePlayerTagToSelectedModule(containerStack, moduleType, player, false);
+            OwnerData.writePlayerTagToSelectedModule(containerStack, moduleType, player, false);
         }
         else
         {
-            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromSelectedModule(containerStack, moduleType);
+            OwnerData data = OwnerData.getPlayerDataFromSelectedModule(containerStack, moduleType);
             if (data != null && data.isOwner(player) == true)
             {
-                data.isPublic = ! data.isPublic;
+                data.setIsPublic(! data.getIsPublic());
                 data.writeToSelectedModule(containerStack, moduleType);
             }
         }
@@ -842,17 +842,17 @@ public class UtilItemModular
             return;
         }
 
-        if (NBTHelperPlayer.itemHasPlayerTag(moduleStack) == false)
+        if (OwnerData.itemHasPlayerTag(moduleStack) == false)
         {
-            NBTHelperPlayer.writePlayerTagToItem(moduleStack, player, false);
+            OwnerData.writePlayerTagToItem(moduleStack, player, false);
             setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
         }
         else
         {
-            NBTHelperPlayer data = NBTHelperPlayer.getPlayerDataFromItem(moduleStack);
+            OwnerData data = OwnerData.getPlayerDataFromItem(moduleStack);
             if (data != null && data.isOwner(player) == true)
             {
-                data.isPublic = ! data.isPublic;
+                data.setIsPublic(! data.getIsPublic());
                 data.writeToItem(moduleStack);
                 setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
             }
@@ -901,7 +901,7 @@ public class UtilItemModular
         }
 
         IModular iModular = (IModular)modularStack.getItem();
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
+        TargetData target = TargetData.getTargetFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
 
         if (iModular.getSelectedModuleTier(modularStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
         {
@@ -915,7 +915,7 @@ public class UtilItemModular
         }
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
-        if (NBTHelperPlayer.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
+        if (OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
             || (target.dimension != player.dimension &&
                 iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
         {
@@ -940,7 +940,7 @@ public class UtilItemModular
         if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == false || target.isTargetBlockUnchanged() == false)
         {
             // Remove the bind
-            NBTHelperTarget.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
+            TargetData.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
             return null;
         }
