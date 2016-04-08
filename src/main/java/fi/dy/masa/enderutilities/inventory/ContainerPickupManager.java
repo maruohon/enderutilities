@@ -91,12 +91,15 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
         posX = 116;
         posY = 29;
+        start = this.inventorySlots.size();
         // The Storage Module slots
         int first = UtilItemModular.getFirstIndexOfModuleType(this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
         for (int slot = first, i = 0; i < NUM_LINK_CRYSTAL_SLOTS; slot++, i++)
         {
             this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, slot, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
         }
+
+        this.addMergeSlotRangePlayerToExt(start, NUM_LINK_CRYSTAL_SLOTS);
     }
 
     @Override

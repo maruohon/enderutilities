@@ -21,6 +21,12 @@ public class ItemEnderLasso extends ItemLocationBoundModular
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return slotChanged || oldStack.getItem() != newStack.getItem();
+    }
+
+    @Override
     public int getMaxModules(ItemStack containerStack)
     {
         return 10;

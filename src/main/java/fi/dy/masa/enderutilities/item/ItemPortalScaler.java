@@ -107,6 +107,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return slotChanged || oldStack.getItem() != newStack.getItem();
+    }
+
     public boolean usePortalWithPortalScaler(ItemStack stack, World world, EntityPlayer player)
     {
         if ((player.dimension != 0 && player.dimension != -1) || this.itemHasScaleFactor(stack) == false)

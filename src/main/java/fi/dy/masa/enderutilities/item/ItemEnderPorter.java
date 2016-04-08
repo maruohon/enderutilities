@@ -130,9 +130,11 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 Effects.playSoundEffectServer(world, player.posX, player.posY, player.posZ,
                     SoundEvents.block_portal_trigger, SoundCategory.MASTER, 0.08f, 1.2f);
             }
+
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }
 
     @Override
@@ -168,6 +170,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
             TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true);
         }
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
     @Override

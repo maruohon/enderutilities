@@ -53,12 +53,6 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
     }
 
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
-        return oldStack.equals(newStack) == false;
-    }
-
     /**
      * called when the player releases the use item button. Args: itemstack, world, entityplayer, itemInUseCount
      */
