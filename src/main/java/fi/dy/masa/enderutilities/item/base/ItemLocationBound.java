@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -20,7 +19,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 
@@ -60,33 +59,49 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
+    public String getBaseItemDisplayName(ItemStack stack)
+    {
+        String itemName = super.getBaseItemDisplayName(stack);
+        if (itemName.length() >= 14 && this.shouldDisplayTargetName(stack) == true)
+        {
+            itemName = EUStringUtils.getInitialsWithDots(itemName);
+        }
+
+        return itemName;
+    }
+
+    @Override
+    public boolean shouldDisplayTargetName(ItemStack stack)
+    {
+        if (stack.hasDisplayName() == true)
+        {
+            return false;
+        }
+
+        String targetName = this.getTargetDisplayName(stack);
+        return targetName != null && targetName.length() > 0;
+    }
+
+    @Override
     public String getTargetDisplayName(ItemStack stack)
     {
         NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
-        return target != null ? NBTHelperTarget.getTargetBlockDisplayName(target) : null;
+        return target != null ? target.getTargetBlockDisplayName() : null;
     }
 
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        // If the item has been renamed, show that name
-        if (stack.hasDisplayName() == true)
+        if (this.shouldDisplayTargetName(stack) == true)
         {
-            // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back here ;_;
-            NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
-            return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
-        }
-
-        String targetName = this.getTargetDisplayName(stack);
-        if (targetName != null && targetName.length() > 0)
-        {
+            String targetName = this.getTargetDisplayName(stack);
             String pre = TextFormatting.GREEN.toString();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
-            return super.getItemStackDisplayName(stack) + " " + pre + targetName + rst;
+            return this.getBaseItemDisplayName(stack) + " " + pre + targetName + rst;
         }
 
-        return super.getItemStackDisplayName(stack);
+        return super.getBaseItemDisplayName(stack);
     }
 
     @Override
@@ -105,7 +120,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
 
         if (NBTHelperPlayer.canAccessItem(stack, player) == true)
         {
-            String dimName = TooltipHelper.getDimensionName(target.dimension, target.dimensionName, false);
+            String dimName = target.getDimensionName(false);
 
             boolean showBlock = false;
             String blockName = "";

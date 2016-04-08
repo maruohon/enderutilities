@@ -21,7 +21,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -78,31 +77,23 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
             }
 
-            return ((ILocationBound)moduleStack.getItem()).getTargetDisplayName(moduleStack);
+            return ((ILocationBound) moduleStack.getItem()).getTargetDisplayName(moduleStack);
         }
 
-        return super.getTargetDisplayName(stack);
+        return null;
     }
 
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String targetName = this.getTargetDisplayName(stack);
-        if (targetName != null && targetName.length() > 0)
+        if (this.shouldDisplayTargetName(stack) == true)
         {
             String preGreen = TextFormatting.GREEN.toString();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
-
-            String itemName = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
-            if (itemName.length() >= 14)
-            {
-                itemName = EUStringUtils.getInitialsWithDots(itemName);
-            }
-
-            return itemName + " " + preGreen + targetName + rst;
+            return this.getBaseItemDisplayName(stack) + " " + preGreen + this.getTargetDisplayName(stack) + rst;
         }
 
-        return super.getItemStackDisplayName(stack);
+        return super.getBaseItemDisplayName(stack);
     }
 
     @Override

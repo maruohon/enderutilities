@@ -221,12 +221,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack != null)
         {
+            String preGreen = TextFormatting.GREEN.toString();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
             if (moduleStack.hasDisplayName() == true)
             {
-                str = " " + TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
+                str = " " + preGreen + TextFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
             }
 
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
@@ -236,9 +237,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 byte x = tag.getByte("scaleX");
                 byte y = tag.getByte("scaleY");
                 byte z = tag.getByte("scaleZ");
-                String sx = x < 0 ? "1/" + (-x) : String.valueOf(x);
-                String sy = y < 0 ? "1/" + (-y) : String.valueOf(y);
-                String sz = z < 0 ? "1/" + (-z) : String.valueOf(z);
+                String sx = preGreen + (x < 0 ? "1/" + (-x) : String.valueOf(x)) + rst;
+                String sy = preGreen + (y < 0 ? "1/" + (-y) : String.valueOf(y)) + rst;
+                String sz = preGreen + (z < 0 ? "1/" + (-z) : String.valueOf(z)) + rst;
                 str = str + String.format(" x: %s y: %s z: %s", sx, sy, sz);
                 return super.getItemStackDisplayName(stack) + str + rst;
             }

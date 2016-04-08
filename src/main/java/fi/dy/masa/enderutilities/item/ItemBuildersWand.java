@@ -211,7 +211,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String itemName = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+        String itemName = this.getBaseItemDisplayName(stack);
         if (stack.getTagCompound() == null)
         {
             return itemName;
@@ -225,19 +225,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             itemName = EUStringUtils.getInitialsWithDots(itemName);
         }
-        itemName = itemName + " M: " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
+        itemName = itemName + " " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
 
         if (this.getAreaFlipped(stack) == true)
         {
-            String strFlip = this.getAreaFlipAxis(stack, EnumFacing.NORTH).toString().substring(0, 1);
-            itemName = itemName + " F: " + preGreen + strFlip + rst;
+            String strFlip = this.getAreaFlipAxis(stack, EnumFacing.NORTH).toString();
+            itemName = itemName + " flip: " + preGreen + strFlip + rst;
         }
         else
         {
-            itemName = itemName + " F: " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            itemName = itemName + " flip: " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
 
-        int sel = getSelectedBlockType(stack);
+        int sel = getSelectedBlockTypeIndex(stack);
         if (sel >= 0)
         {
             BlockInfo blockInfo = getSelectedFixedBlockType(stack);
@@ -246,7 +246,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
                 if (blockStack != null && blockStack.getItem() != null)
                 {
-                    itemName = itemName + " B: " + preGreen + blockStack.getDisplayName() + rst;
+                    itemName = itemName + " - " + preGreen + blockStack.getDisplayName() + rst;
                 }
             }
 
@@ -264,7 +264,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 str = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
-            itemName = itemName + " B: " + preBT + str + rst;
+            itemName = itemName + " - " + preBT + str + rst;
         }
 
         return itemName;
@@ -285,7 +285,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Mode mode = Mode.getMode(stack);
         list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
-        int sel = getSelectedBlockType(stack);
+        int sel = getSelectedBlockTypeIndex(stack);
         if (sel >= 0)
         {
             BlockInfo blockInfo = getSelectedFixedBlockType(stack);
@@ -470,7 +470,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         BlockInfo blockInfo;
 
-        if (getSelectedBlockType(wandStack) == BLOCK_TYPE_ADJACENT)
+        if (getSelectedBlockTypeIndex(wandStack) == BLOCK_TYPE_ADJACENT)
         {
             blockInfo = getBlockInfoForAdjacentBlock(world, pos.toBlockPos(), pos.side);
         }
@@ -572,7 +572,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos)
     {
-        int sel = getSelectedBlockType(stack);
+        int sel = getSelectedBlockTypeIndex(stack);
         if (sel < 0)
         {
             return;
@@ -593,7 +593,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public static BlockInfo getSelectedFixedBlockType(ItemStack stack)
     {
-        int sel = getSelectedBlockType(stack);
+        int sel = getSelectedBlockTypeIndex(stack);
         if (sel < 0)
         {
             return null;
@@ -610,7 +610,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return null;
     }
 
-    public static int getSelectedBlockType(ItemStack stack)
+    public static int getSelectedBlockTypeIndex(ItemStack stack)
     {
         int mode = Mode.getModeOrdinal(stack);
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
@@ -865,7 +865,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public BlockInfo getBlockInfoForTargeted(ItemStack stack, World world, BlockPos pos)
     {
-        int blockType = getSelectedBlockType(stack);
+        int blockType = getSelectedBlockTypeIndex(stack);
         if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
         {
             return new BlockInfo(world, pos);
@@ -905,7 +905,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
      */
     public void getBlockPositions(ItemStack stack, BlockPos targeted, EnumFacing face, EntityPlayer player, World world, List<BlockPosStateDist> positions)
     {
-        int blockType = getSelectedBlockType(stack);
+        int blockType = getSelectedBlockTypeIndex(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted);
         BlockInfo biBound = getSelectedFixedBlockType(stack);
 
@@ -1062,7 +1062,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        int blockType = getSelectedBlockType(stack);
+        int blockType = getSelectedBlockTypeIndex(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int dim = world.provider.getDimension();
@@ -1142,7 +1142,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        int blockType = getSelectedBlockType(stack);
+        int blockType = getSelectedBlockTypeIndex(stack);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int dim = world.provider.getDimension();

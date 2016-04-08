@@ -955,6 +955,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return this.getMaxModules(containerStack, moduleType);
     }
 
+    @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        return DropsMode.fromStack(stack) == DropsMode.REMOTE ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
+    }
+
     @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {

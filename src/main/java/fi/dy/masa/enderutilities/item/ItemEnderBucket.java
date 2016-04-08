@@ -160,25 +160,16 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public String getItemStackDisplayName(ItemStack stack)
     {
         FluidStack fluidStack = this.getFluidCached(stack);
+        String baseName = this.getBucketLinkMode(stack) == LINK_MODE_ENABLED ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
 
         if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
         {
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
-            String fluidName = TextFormatting.GREEN.toString() + fluidStack.getFluid().getLocalizedName(fluidStack) + rst;
-            return I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim() + " " + fluidName;
-        }
-        else if (this.getBucketLinkMode(stack) == LINK_MODE_DISABLED)
-        {
-            if (stack.hasDisplayName() == true)
-            {
-                NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
-                return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
-            }
-
-            return I18n.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name").trim();
+            String fluidName = fluidStack.getFluid().getLocalizedName(fluidStack);
+            return baseName + " - " + TextFormatting.GREEN.toString() + fluidName + rst;
         }
 
-        return super.getItemStackDisplayName(stack);
+        return baseName;
     }
 
     @Override

@@ -8,7 +8,9 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -34,6 +36,18 @@ public class ItemEnderUtilities extends Item
     {
         this.name = name;
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
+    }
+
+    public String getBaseItemDisplayName(ItemStack stack)
+    {
+        // If the item has been renamed, show that name
+        if (stack.hasDisplayName() == true)
+        {
+            NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
+            return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
+        }
+
+        return super.getItemStackDisplayName(stack);
     }
 
     /**

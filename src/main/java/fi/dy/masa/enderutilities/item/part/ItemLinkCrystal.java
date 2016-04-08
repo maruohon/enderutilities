@@ -1,20 +1,22 @@
 package fi.dy.masa.enderutilities.item.part;
 
 import java.util.List;
+
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.TooltipHelper;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
 {
@@ -48,22 +50,14 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     @Override
     public String getTargetDisplayName(ItemStack stack)
     {
-        NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
-        if (target != null)
+        // Location type Link Crystal
+        if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION)
         {
-            // Display the target block name if it's a Block type Link Crystal
-            if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
-            {
-                return NBTHelperTarget.getTargetBlockDisplayName(target);
-            }
-            // Location type Link Crystal
-            else if (this.getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION)
-            {
-                return TooltipHelper.getDimensionName(target.dimension, target.dimensionName, true);
-            }
+            NBTHelperTarget target = NBTHelperTarget.getTargetFromItem(stack);
+            return target != null ? target.getDimensionName(true) : null;
         }
 
-        return null;
+        return super.getTargetDisplayName(stack);
     }
 
     @Override

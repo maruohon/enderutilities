@@ -181,6 +181,28 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
+    public int getMaxModules(ItemStack containerStack)
+    {
+        return 5;
+    }
+
+    @Override
+    public int getMaxModules(ItemStack containerStack, ModuleType moduleType)
+    {
+        if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
+        {
+            return 4;
+        }
+
+        return 0;
+    }
+
+    @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
         if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)

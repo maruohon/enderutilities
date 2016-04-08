@@ -9,12 +9,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -314,15 +316,30 @@ public class NBTHelperTarget
         return false;
     }
 
-    public static String getTargetBlockDisplayName(NBTHelperTarget target)
+    public String getTargetBlockDisplayName()
     {
-        Block block = Block.getBlockFromName(target.blockName);
-        ItemStack targetStack = new ItemStack(block, 1, target.itemMeta);
+        Block block = Block.getBlockFromName(this.blockName);
+        ItemStack targetStack = new ItemStack(block, 1, this.itemMeta);
         if (targetStack != null && targetStack.getItem() != null)
         {
             return targetStack.getDisplayName();
         }
 
         return null;
+    }
+
+    public String getDimensionName(boolean useFallback)
+    {
+        try
+        {
+            DimensionType type = DimensionType.getById(this.dimension);
+            return type.getName();
+        }
+        catch (IllegalArgumentException e)
+        {
+            EnderUtilities.logger.debug("Failed to get DimensionType by id (" + this.dimension + ")");
+        }
+
+        return useFallback == true ? "DIM: " + this.dimension : "";
     }
 }

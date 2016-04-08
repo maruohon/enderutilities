@@ -236,7 +236,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     {
         if (this.getBowMode(stack) == BOW_MODE_TP_SELF)
         {
-            return I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            return this.getBaseItemDisplayName(stack);
         }
 
         return super.getItemStackDisplayName(stack);
@@ -301,7 +301,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public int getMaxModules(ItemStack containerStack)
     {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -314,7 +314,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL))
         {
-            return 3;
+            return 8;
         }
 
         if (moduleType.equals(ModuleType.TYPE_MOBPERSISTENCE))

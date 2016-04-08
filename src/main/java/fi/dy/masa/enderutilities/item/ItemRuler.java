@@ -135,7 +135,7 @@ public class ItemRuler extends ItemModular
         if (count > 0)
         {
             int sel = this.getLocationSelection(rulerStack);
-            displayName.append(" - P: ").append(preGreen + (sel + 1)).append("/").append(count).append(rst);
+            displayName.append(" - sel: ").append(preGreen + (sel + 1)).append("/").append(count).append(rst);
 
             displayName.append(" - R: ");
 
@@ -172,6 +172,20 @@ public class ItemRuler extends ItemModular
 
         int selected = this.getLocationSelection(rulerStack);
         BlockPosEU posStart = this.getPosition(rulerStack, selected, POS_START);
+        BlockPosEU posEnd = this.getPosition(rulerStack, selected, POS_END);
+
+        if (verbose == false)
+        {
+            if (posStart != null && posEnd != null)
+            {
+                list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s ... x: %s%d%s y: %s%d%s z: %s%d%s",
+                        preBlue, posStart.posX, rst, preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst,
+                        preBlue, posEnd.posX, rst, preBlue, posEnd.posY, rst, preBlue, posEnd.posZ, rst));
+            }
+
+            return;
+        }
+
         if (posStart != null)
         {
             str = I18n.translateToLocal("enderutilities.tooltip.item.start");
@@ -179,7 +193,6 @@ public class ItemRuler extends ItemModular
                     preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst));
         }
 
-        BlockPosEU posEnd = this.getPosition(rulerStack, selected, POS_END);
         if (posEnd != null)
         {
             str = I18n.translateToLocal("enderutilities.tooltip.item.end");

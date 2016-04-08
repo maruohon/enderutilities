@@ -106,10 +106,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public String getItemStackDisplayName(ItemStack stack)
     {
         int preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        int lc = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL);
         String pre = TextFormatting.GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+        String str = " - pre: " + pre + (preset + 1) + rst + " LC: " + pre + lc + rst;
+        String target = this.getTargetDisplayName(stack);
+        if (target != null)
+        {
+            str = str + " - " + pre + target + rst;
+        }
 
-        return super.getItemStackDisplayName(stack) + " - P: " + pre + (preset + 1) + rst;
+        return this.getBaseItemDisplayName(stack) + str;
     }
 
     @Override

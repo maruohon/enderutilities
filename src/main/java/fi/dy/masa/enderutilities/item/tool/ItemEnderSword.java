@@ -47,7 +47,6 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
-import fi.dy.masa.enderutilities.item.base.ILocationBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -60,7 +59,6 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperPlayer;
 import fi.dy.masa.enderutilities.util.nbt.NBTHelperTarget;
@@ -87,36 +85,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
-        {
-            String itemName = I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
-            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
-
-            // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
-            {
-                String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
-                if (itemName.length() >= 14)
-                {
-                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
-                }
-
-                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
-            }
-
-            // Link Crystal not named
-            if (moduleStack.getItem() instanceof ItemLinkCrystal)
-            {
-                String targetName = ((ItemLinkCrystal)moduleStack.getItem()).getTargetDisplayName(moduleStack);
-                if (targetName != null)
-                {
-                    return itemName + " " + TextFormatting.GREEN.toString() + targetName + rst;
-                }
-            }
-        }
-
-        return super.getItemStackDisplayName(stack);
+        return SwordMode.fromStack(stack) == SwordMode.REMOTE ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
     }
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)

@@ -12,15 +12,20 @@ public interface ILocationBound
     /**
      * Gets the target information from the ItemStack
      */
-    public NBTHelperTarget getTarget(ItemStack stack);
+    NBTHelperTarget getTarget(ItemStack stack);
 
     /**
      *  Saves the given location to the ItemStack
      */
-    public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeAngle);
+    void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeAngle);
+
+    /**
+     * Returns whether to include the targetDisplayName in the item's name
+     */
+    boolean shouldDisplayTargetName(ItemStack stack);
 
     /**
      * Returns the display name for the bound target.
      */
-    public String getTargetDisplayName(ItemStack stack);
+    String getTargetDisplayName(ItemStack stack);
 }
