@@ -38,6 +38,12 @@ public class ItemEnderUtilities extends Item
         return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
     }
 
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return oldStack.getItem() != newStack.getItem();
+    }
+
     public String getBaseItemDisplayName(ItemStack stack)
     {
         // If the item has been renamed, show that name

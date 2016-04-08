@@ -50,12 +50,17 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (world.isRemote == false && player != null && player.isSneaking() == true)
+        if (player.isSneaking() == true)
         {
-            this.setTarget(stack, player, true);
+            if (world.isRemote == false)
+            {
+                this.setTarget(stack, player, true);
+            }
+
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }
 
     @Override

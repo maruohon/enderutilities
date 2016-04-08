@@ -42,6 +42,7 @@ public class EntityEventHandler
         }
 
         Item item = stack.getItem();
+        boolean isRemote = player.worldObj.isRemote;
 
         // This needs to be in the event instead of itemInteractionForEntity() if we want it to also work in creative mode...
         // (Otherwise in creative mode the NBT will get wiped after the use when the item is restored)
@@ -49,7 +50,7 @@ public class EntityEventHandler
         {
             if (event.getTarget() instanceof EntityLivingBase)
             {
-                if (player.worldObj.isRemote == false)
+                if (isRemote == false)
                 {
                     ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
                 }
@@ -58,7 +59,7 @@ public class EntityEventHandler
         }
         else if (item == EnderUtilitiesItems.mobHarness && event.getTarget() instanceof EntityLivingBase)
         {
-            if (player.worldObj.isRemote == false)
+            if (isRemote == false)
             {
               ((ItemMobHarness) item).handleInteraction(stack, player, event.getTarget());
             }
@@ -77,14 +78,14 @@ public class EntityEventHandler
                         EntityUtils.applyMobPersistence((EntityLiving)event.getTarget());
                     }
 
-                    if (player.worldObj.isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
+                    if (isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
                     {
                         event.setCanceled(true);
                     }
                 }
             }
         }
-        else if (player.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && player.worldObj.isRemote == false)
+        else if (player.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
         {
             if (item instanceof IChargeable)
             {

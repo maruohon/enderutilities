@@ -14,7 +14,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
@@ -34,9 +33,9 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
@@ -52,6 +51,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         this.setMaxDamage(384);
         this.setNoRepair();
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return oldStack.equals(newStack) == false;
     }
 
     /**
@@ -181,23 +186,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
-        // In survival teleporting targets requires Ender Charge
-        if (player.capabilities.isCreativeMode == false && this.getBowMode(stack) == BOW_MODE_TP_TARGET
-            && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false)
+        if (this.getBowMode(stack) == BOW_MODE_TP_TARGET)
         {
-            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-        }
-
-        if (this.getBowMode(stack) == BOW_MODE_TP_TARGET && OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
-        {
-            return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-        }
-
-        // Don't shoot when sneaking and looking at a block, aka. binding the bow to a new location
-        if (player.isSneaking() == true)
-        {
-            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
-            if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
+            // In survival teleporting targets requires Ender Charge
+            if ((player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_MOB_TP, true) == false) ||
+                OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false ||
+                TargetData.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
             }
@@ -205,25 +199,12 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
         if (player.capabilities.isCreativeMode == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.enderArrow)) == true)
         {
-            NBTTagCompound nbt = stack.getTagCompound();
-            if (nbt == null)
-            {
-                return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-            }
-
-            // If the bow is in 'TP target' mode, it has to have a valid target set
-            if (nbt.getByte("Mode") == BOW_MODE_TP_TARGET)
-            {
-                if (TargetData.selectedModuleHasTargetTag(stack, ModuleType.TYPE_LINKCRYSTAL) == false)
-                {
-                    return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-                }
-            }
-
             player.setActiveHand(hand);
+
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }
 
     public boolean isBroken(ItemStack stack)

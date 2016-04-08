@@ -325,12 +325,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         return false;
     }
 
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
-        return slotChanged == true || oldStack.equals(newStack) == false;
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()

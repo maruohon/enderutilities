@@ -565,7 +565,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
         {
-            return UtilItemModular.getBoundInventory(toolStack, player, 30);
+            return UtilItemModular.getBoundInventory(toolStack, player, 15);
         }
 
         return null;
