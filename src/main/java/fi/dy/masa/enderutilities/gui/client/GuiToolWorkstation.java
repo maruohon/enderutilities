@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilities
@@ -42,15 +43,10 @@ public class GuiToolWorkstation extends GuiEnderUtilities
 
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
-        int maxModules = 0;
 
         ItemStack toolStack = this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM).getStack();
-        if (toolStack != null && toolStack.getItem() instanceof IModular)
-        {
-            maxModules = ((IModular)toolStack.getItem()).getMaxModules(toolStack);
-        }
-        // No tool in the tool slot, draw the background
-        else
+        // No tool in the tool slot, draw the dark background
+        if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
         {
             this.drawTexturedModalRect(x + 8, y + 19, 240, 176, 16, 16);
         }
@@ -60,20 +56,24 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         {
             Slot slot = this.inventorySlots.getSlot(slotNum++);
 
-            // Draw a darker background over the disabled slots
-            if (toolStack == null || i >= maxModules)
-            {
-                this.drawTexturedModalRect(x + dx, y + dy, 102, 0, 18, 18);
-            }
             // Draw the module type background to empty, enabled module slots
-            else if (slot instanceof SlotItemHandlerModule && slot.getHasStack() == false)
+            if (slot instanceof SlotItemHandlerModule && slot.getHasStack() == false)
             {
-                int u = ((SlotItemHandlerModule)slot).getBackgroundIconU();
-                int v = ((SlotItemHandlerModule)slot).getBackgroundIconV();
-                // Only one type of module is allowed in this slot
-                if (u >= 0 && v >= 0)
+                if (((SlotItemHandlerModule) slot).getModuleType() == ModuleType.TYPE_INVALID)
                 {
-                    this.drawTexturedModalRect(x + dx + 1, y + dy + 1, u, v, 16, 16);
+                    this.drawTexturedModalRect(x + dx, y + dy, 102, 0, 18, 18);
+                }
+                else
+                {
+                    // Draw a darker background for the disabled slots, and the module type background for enabled slots
+                    int u = ((SlotItemHandlerModule) slot).getBackgroundIconU();
+                    int v = ((SlotItemHandlerModule) slot).getBackgroundIconV();
+
+                    // Only one type of module is allowed in this slot
+                    if (u >= 0 && v >= 0)
+                    {
+                        this.drawTexturedModalRect(x + dx + 1, y + dy + 1, u, v, 16, 16);
+                    }
                 }
             }
 

@@ -36,9 +36,9 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         int x = 80, y = 19;
         for (int i = 0; i < NUM_MODULE_SLOTS; x += 18, i++)
         {
-            // We initially add all the slots as generic. When the player inserts a tool into the tool slot,
+            // We initially add all the slots as invalid. When the player inserts a tool into the tool slot,
             // we will then re-assign the slot types based on the tool.
-            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItem, i, x, y, ModuleType.TYPE_ANY, this));
+            this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItem, i, x, y, ModuleType.TYPE_INVALID, this));
 
             // First row done
             if (i == 4)
