@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketEntityEffect;
+import net.minecraft.network.play.server.SPacketPlayerAbilities;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
@@ -33,6 +33,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
+import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -62,7 +63,7 @@ public class TeleportEntity
         }
 
         // Sound and particles on the original location
-        TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+        addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
 
         // Do the actual teleportation only on the server side
         if (entity.worldObj.isRemote == true)
@@ -96,7 +97,7 @@ public class TeleportEntity
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
                 // Sound and particles on the new, destination location.
-                TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
+                addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
                 return true;
             }
         }
@@ -119,7 +120,7 @@ public class TeleportEntity
             pos.adjustPositionToTouchFace(entity, rayTraceResult.sideHit);
         }
 
-        Entity entNew = TeleportEntity.teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
+        Entity entNew = teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
 
         if (entNew != null)
         {
@@ -170,17 +171,17 @@ public class TeleportEntity
 
     public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack)
     {
-        return TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
+        return teleportEntityUsingModularItem(entity, stack, true, true);
     }
 
     public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
-        return TeleportEntity.teleportEntityUsingItem(entity, UtilItemModular.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
+        return teleportEntityUsingItem(entity, UtilItemModular.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
     }
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
     {
-        return TeleportEntity.teleportEntityUsingItem(entity, stack, true, true);
+        return teleportEntityUsingItem(entity, stack, true, true);
     }
 
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
@@ -188,14 +189,14 @@ public class TeleportEntity
         TargetData target = TargetData.getTargetFromItem(stack);
         if (target != null)
         {
-            TeleportEntity.adjustTargetPosition(target, entity);
+            adjustTargetPosition(target, entity);
 
             if (target.hasRotation == true && entity != null)
             {
                 entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
             }
 
-            return TeleportEntity.teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
+            return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
         }
 
         return null;
@@ -233,7 +234,7 @@ public class TeleportEntity
             }
         }
 
-        Entity teleported = TeleportEntity.teleportEntity(entity, x, y, z, dimDst, reCreate);
+        Entity teleported = teleportEntity(entity, x, y, z, dimDst, reCreate);
         if (teleported == null)
         {
             return null;
@@ -280,7 +281,7 @@ public class TeleportEntity
         }
 
         // Sound and particles on the original location
-        TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+        addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
 
         if (entity.worldObj.isRemote == false && entity.worldObj instanceof WorldServer)
         {
@@ -309,7 +310,7 @@ public class TeleportEntity
 
             if (entity.dimension != dimDst || (entity.worldObj instanceof WorldServer && entity.worldObj != worldServerDst))
             {
-                entity = TeleportEntity.transferEntityToDimension(entity, dimDst, x, y, z);
+                entity = transferEntityToDimension(entity, dimDst, x, y, z);
             }
             else
             {
@@ -337,7 +338,7 @@ public class TeleportEntity
         if (entity != null)
         {
             // Final position
-            TeleportEntity.addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
+            addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
         }
 
         return entity;
@@ -394,9 +395,10 @@ public class TeleportEntity
 
         if (entitySrc instanceof EntityPlayerMP)
         {
-            return TeleportEntity.transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
+            return transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
         }
 
+        ChunkLoading.getInstance().loadChunkForcedWithModTicket(dimDst, (int)x >> 4, (int)z >> 4, 10);
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         WorldServer worldServerSrc = server.worldServerForDimension(entitySrc.dimension);
         WorldServer worldServerDst = server.worldServerForDimension(dimDst);
@@ -474,6 +476,7 @@ public class TeleportEntity
 
         player.dimension = dimDst;
         player.playerNetServerHandler.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
+        player.mcServer.getPlayerList().updatePermissionLevel(player);
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
         player.isDead = false;
@@ -484,15 +487,14 @@ public class TeleportEntity
         player.mcServer.getPlayerList().preparePlayer(player, worldServerSrc); // remove player from the source world
         player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
         player.interactionManager.setWorld(worldServerDst);
+        player.playerNetServerHandler.sendPacket(new SPacketPlayerAbilities(player.capabilities));
         player.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(player, worldServerDst);
         player.mcServer.getPlayerList().syncPlayerInventory(player);
         player.addExperienceLevel(0);
         player.setPlayerHealthUpdated();
 
-        Iterator<PotionEffect> iterator = player.getActivePotionEffects().iterator();
-        while (iterator.hasNext())
+        for (PotionEffect potioneffect : player.getActivePotionEffects())
         {
-            PotionEffect potioneffect = (PotionEffect)iterator.next();
             player.playerNetServerHandler.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
         }
 
