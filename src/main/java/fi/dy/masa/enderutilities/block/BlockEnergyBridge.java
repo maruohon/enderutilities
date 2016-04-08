@@ -78,7 +78,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileEntityEnergyBridge)
             {
-                ((TileEntityEnergyBridge)te).setType(worldIn.getBlockState(pos).getBlock().getMetaFromState(state));
+                ((TileEntityEnergyBridge)te).setType(state.getBlock().getMetaFromState(state));
                 ((TileEntityEnergyBridge)te).tryAssembleMultiBlock(worldIn, pos);
             }
         }

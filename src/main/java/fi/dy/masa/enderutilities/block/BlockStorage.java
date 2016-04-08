@@ -94,8 +94,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         if (te instanceof ITieredStorage)
         {
             // FIXME add properties for the type/tier
-            IBlockState iBlockState = worldIn.getBlockState(pos);
-            int meta = iBlockState.getBlock().getMetaFromState(iBlockState);
+            int meta = state.getBlock().getMetaFromState(state);
 
             // FIXME This will only work as long as there are three tiers of every type of storage...
             ((ITieredStorage)te).setStorageTier(meta % 3);

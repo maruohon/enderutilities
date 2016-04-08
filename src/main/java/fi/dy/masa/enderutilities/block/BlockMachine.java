@@ -115,7 +115,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     @Override
     public int getLightValue(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        if (worldIn.getBlockState(pos).getValue(TYPE) == EnumMachineType.CREATION_STATION)
+        if (state.getValue(TYPE) == EnumMachineType.CREATION_STATION)
         {
             return 10;
         }
