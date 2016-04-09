@@ -96,9 +96,9 @@ public class ContainerHandyChest extends ContainerLargeStacks
             return;
         }
 
-        for (int i = 0; i < this.crafters.size(); ++i)
+        for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = (ICrafting)this.crafters.get(i);
+            ICrafting icrafting = (ICrafting)this.listeners.get(i);
 
             if (this.selectedModule != this.tehc.getSelectedModule())
             {

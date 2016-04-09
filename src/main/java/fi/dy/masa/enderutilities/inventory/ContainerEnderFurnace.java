@@ -47,9 +47,9 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
         super.detectAndSendChanges();
 
         ICrafting icrafting;
-        for (int i = 0; i < this.crafters.size(); ++i)
+        for (int i = 0; i < this.listeners.size(); ++i)
         {
-            icrafting = (ICrafting)this.crafters.get(i);
+            icrafting = (ICrafting)this.listeners.get(i);
 
             // Note: the value gets truncated to a short in non-local SMP
             if (this.teef.burnTimeRemaining != this.burnTimeRemaining

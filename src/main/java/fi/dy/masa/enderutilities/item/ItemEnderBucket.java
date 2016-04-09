@@ -430,7 +430,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         // First find out what block we are targeting
         // FIXME the boolean flag does what exactly? In vanilla it seems to indicate that the bucket is empty.
-        RayTraceResult rayTrace = this.getMovingObjectPositionFromPlayer(world, player, true);
+        RayTraceResult rayTrace = this.rayTrace(world, player, true);
 
         if (rayTrace == null || rayTrace.typeOfHit != RayTraceResult.Type.BLOCK)
         {

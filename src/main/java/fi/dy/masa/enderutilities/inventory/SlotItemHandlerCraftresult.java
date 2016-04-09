@@ -144,7 +144,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
                 }
                 else if (this.player.inventory.addItemStackToInventory(remainingItemsInSlot) == false)
                 {
-                    this.player.dropPlayerItemWithRandomChoice(remainingItemsInSlot, false);
+                    this.player.dropItem(remainingItemsInSlot, false);
                 }
             }
         }

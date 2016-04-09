@@ -104,7 +104,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         // Don't activate when sneaking and looking at a block, aka. binding to a new location
         if (player.isSneaking() == true)
         {
-            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
+            RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
             if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

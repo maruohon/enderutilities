@@ -273,9 +273,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
-        for (int i = 0; i < this.crafters.size(); ++i)
+        for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = (ICrafting)this.crafters.get(i);
+            ICrafting icrafting = (ICrafting)this.listeners.get(i);
 
             if (this.modeMask != modeMask)
             {

@@ -65,7 +65,7 @@ public class ItemMobHarness extends ItemEnderUtilities
 
         if (player.isSneaking() == true)
         {
-            RayTraceResult rayTraceResult = this.getMovingObjectPositionFromPlayer(world, player, true);
+            RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
             if (rayTraceResult != null && rayTraceResult.typeOfHit != RayTraceResult.Type.ENTITY
                 && player.rotationPitch > 80.0f)
             {

@@ -186,10 +186,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             {
                 ItemStack stackDrop = stackCursor.copy();
                 stackDrop.stackSize = max;
-                player.dropPlayerItemWithRandomChoice(stackDrop, true);
+                player.dropItem(stackDrop, true);
             }
 
-            player.dropPlayerItemWithRandomChoice(stackCursor, true);
+            player.dropItem(stackCursor, true);
             this.inventoryPlayer.setItemStack(null);
         }
     }
@@ -201,7 +201,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         if (stackCursor != null)
         {
             ItemStack stackDrop = stackCursor.splitStack(1);
-            player.dropPlayerItemWithRandomChoice(stackDrop, true);
+            player.dropItem(stackDrop, true);
             this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
         }
     }
@@ -397,7 +397,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             if (stackDrop != null)
             {
                 slot.onPickupFromSlot(player, stackDrop);
-                player.dropPlayerItemWithRandomChoice(stackDrop, true);
+                player.dropItem(stackDrop, true);
             }
         }
     }

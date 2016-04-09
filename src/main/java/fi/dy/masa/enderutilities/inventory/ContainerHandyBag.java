@@ -194,7 +194,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
             if (stack != null)
             {
-                player.dropPlayerItemWithRandomChoice(stack, false);
+                player.dropItem(stack, true);
             }
         }
 

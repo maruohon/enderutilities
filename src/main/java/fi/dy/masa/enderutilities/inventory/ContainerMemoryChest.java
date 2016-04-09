@@ -120,9 +120,9 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
                 prevStack = currentStack != null ? currentStack.copy() : null;
                 this.templateStacksLast.set(i, prevStack);
 
-                for (int j = 0; j < this.crafters.size(); j++)
+                for (int j = 0; j < this.listeners.size(); j++)
                 {
-                    ICrafting icrafting = (ICrafting)this.crafters.get(j);
+                    ICrafting icrafting = (ICrafting)this.listeners.get(j);
                     if (icrafting instanceof EntityPlayerMP)
                     {
                         PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP)icrafting);
@@ -133,11 +133,11 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
 
         long mask = this.temc.getTemplateMask();
 
-        for (int j = 0; j < this.crafters.size(); ++j)
+        for (int j = 0; j < this.listeners.size(); ++j)
         {
             if (this.templateMask != mask)
             {
-                ICrafting icrafting = (ICrafting)this.crafters.get(j);
+                ICrafting icrafting = (ICrafting)this.listeners.get(j);
                 // Send the long in 16-bit pieces because of the network packet limitation in MP
                 icrafting.sendProgressBarUpdate(this, 0, (int)(mask & 0xFFFF));
                 icrafting.sendProgressBarUpdate(this, 1, (int)((mask >> 16) & 0xFFFF));

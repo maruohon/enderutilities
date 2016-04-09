@@ -34,13 +34,13 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     @Override
     public void onCraftGuiOpened(ICrafting iCrafting)
     {
-        if (this.crafters.contains(iCrafting))
+        if (this.listeners.contains(iCrafting))
         {
             throw new IllegalArgumentException("Listener already listening");
         }
         else
         {
-            this.crafters.add(iCrafting);
+            this.listeners.add(iCrafting);
 
             if (iCrafting instanceof EntityPlayerMP)
             {
@@ -74,9 +74,9 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
                 prevStack = currentStack != null ? currentStack.copy() : null;
                 this.inventoryItemStacks.set(slot, prevStack);
 
-                for (int j = 0; j < this.crafters.size(); ++j)
+                for (int j = 0; j < this.listeners.size(); ++j)
                 {
-                    ICrafting ic = (ICrafting)this.crafters.get(j);
+                    ICrafting ic = (ICrafting)this.listeners.get(j);
                     if (ic instanceof EntityPlayerMP)
                     {
                         EntityPlayerMP player = (EntityPlayerMP)ic;
