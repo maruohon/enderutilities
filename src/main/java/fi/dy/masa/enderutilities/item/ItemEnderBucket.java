@@ -316,7 +316,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             IFluidHandler iFluidHandler = (IFluidHandler)te;
             FluidStack fluidStack;
-            String blockName = Block.blockRegistry.getNameForObject(world.getBlockState(pos).getBlock()).toString();
+            String blockName = Block.REGISTRY.getNameForObject(world.getBlockState(pos).getBlock()).toString();
 
             // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
             // work if we target a blue (= input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
@@ -466,13 +466,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             // We need to convert flowing water and lava to the still variant for logic stuffs
             // We will always convert them to the flowing variant before placing
-            if (targetBlock == Blocks.flowing_water)
+            if (targetBlock == Blocks.FLOWING_WATER)
             {
-                targetBlock = Blocks.water;
+                targetBlock = Blocks.WATER;
             }
-            else if (targetBlock == Blocks.flowing_lava)
+            else if (targetBlock == Blocks.FLOWING_LAVA)
             {
-                targetBlock = Blocks.lava;
+                targetBlock = Blocks.LAVA;
             }
 
             Fluid fluid = FluidRegistry.lookupFluidForBlock(targetBlock);
@@ -501,7 +501,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                         targetFluidStack = iFluidBlock.drain(world, pos, true);
                         this.fillWorker(stack, targetFluidStack, true, player);
 
-                        SoundEvent sound = targetBlock == Blocks.lava ? SoundEvents.item_bucket_fill_lava : SoundEvents.item_bucket_fill;
+                        SoundEvent sound = targetBlock == Blocks.LAVA ? SoundEvents.ITEM_BUCKET_FILL_LAVA : SoundEvents.ITEM_BUCKET_FILL;
                         world.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
                         return EnumActionResult.SUCCESS;
@@ -521,7 +521,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 {
                     this.fillWorker(stack, targetFluidStack, true, player);
 
-                    SoundEvent sound = targetBlock == Blocks.lava ? SoundEvents.item_bucket_fill_lava : SoundEvents.item_bucket_fill;
+                    SoundEvent sound = targetBlock == Blocks.LAVA ? SoundEvents.ITEM_BUCKET_FILL_LAVA : SoundEvents.ITEM_BUCKET_FILL;
                     world.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
                     return EnumActionResult.SUCCESS;
@@ -565,13 +565,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         Block block = fluidStack.getFluid().getBlock();
 
         // We need to convert water and lava to the flowing variant, otherwise we get non-flowing source blocks
-        if (block == Blocks.water)
+        if (block == Blocks.WATER)
         {
-            block = Blocks.flowing_water;
+            block = Blocks.FLOWING_WATER;
         }
-        else if (block == Blocks.lava)
+        else if (block == Blocks.LAVA)
         {
-            block = Blocks.flowing_lava;
+            block = Blocks.FLOWING_LAVA;
         }
 
         IBlockState state = world.getBlockState(pos);
@@ -582,13 +582,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return false;
         }
 
-        if (world.provider.doesWaterVaporize() && block == Blocks.flowing_water)
+        if (world.provider.doesWaterVaporize() && block == Blocks.FLOWING_WATER)
         {
             float x = pos.getX();
             float y = pos.getY();
             float z = pos.getZ();
 
-            world.playSound(null, x + 0.5F, y + 0.5F, z + 0.5F, SoundEvents.block_fire_extinguish, SoundCategory.BLOCKS, 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+            world.playSound(null, x + 0.5F, y + 0.5F, z + 0.5F, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
 
             for (int l = 0; l < 8; ++l)
             {
@@ -604,7 +604,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
 
             world.setBlockState(pos, block.getDefaultState(), 3);
-            SoundEvent soundevent = block == Blocks.flowing_lava ? SoundEvents.item_bucket_empty_lava : SoundEvents.item_bucket_empty;
+            SoundEvent soundevent = block == Blocks.FLOWING_LAVA ? SoundEvents.ITEM_BUCKET_EMPTY_LAVA : SoundEvents.ITEM_BUCKET_EMPTY;
             world.playSound(null, pos, soundevent, SoundCategory.BLOCKS, 1.0f, 1.0f);
         }
 
@@ -698,7 +698,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                     }
 
                     // Since we have no fluid stored, get the capacity via simulating filling water into the tank
-                    Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.water);
+                    Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.WATER);
                     if (fluid != null)
                     {
                         fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);
@@ -921,7 +921,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             else
             {
                 // Since we have no fluid stored, get the capacity via simulating filling water into the tank
-                Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.water);
+                Fluid fluid = FluidRegistry.lookupFluidForBlock(Blocks.WATER);
                 if (fluid != null)
                 {
                     fluidStack = FluidRegistry.getFluidStack(fluid.getName(), Integer.MAX_VALUE);

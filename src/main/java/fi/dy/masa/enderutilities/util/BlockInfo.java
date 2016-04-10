@@ -29,7 +29,7 @@ public class BlockInfo
         }
 
         this.block = block;
-        this.resource = Block.blockRegistry.getNameForObject(block);
+        this.resource = Block.REGISTRY.getNameForObject(block);
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
     }
@@ -37,14 +37,14 @@ public class BlockInfo
     public BlockInfo(Block block, int blockMeta, int itemMeta)
     {
         this.block = block;
-        this.resource = Block.blockRegistry.getNameForObject(block);
+        this.resource = Block.REGISTRY.getNameForObject(block);
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
     }
 
     public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
     {
-        this.block = Block.blockRegistry.getObject(resource);
+        this.block = Block.REGISTRY.getObject(resource);
         this.resource = resource;
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;

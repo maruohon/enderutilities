@@ -189,7 +189,7 @@ public class EntityEnderArrow extends EntityArrow
         IBlockState state = this.worldObj.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (block.getMaterial(state) != Material.air)
+        if (block.getMaterial(state) != Material.AIR)
         {
             AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, pos);
 
@@ -298,7 +298,7 @@ public class EntityEnderArrow extends EntityArrow
                 {
                     if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true) == true)
                     {
-                        this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                        this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
                     this.dropAsItem(false);
                     this.setDead();
@@ -309,7 +309,7 @@ public class EntityEnderArrow extends EntityArrow
             {
                 if (shooter != null && EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, shooter) == false)
                 {
-                    this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                    this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(rayTraceResult.entityHit) == false &&
                         (Configs.enderBowAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false))
@@ -366,12 +366,12 @@ public class EntityEnderArrow extends EntityArrow
                 this.posX -= this.motionX / (double)f2 * 0.05000000074505806D;
                 this.posY -= this.motionY / (double)f2 * 0.05000000074505806D;
                 this.posZ -= this.motionZ / (double)f2 * 0.05000000074505806D;
-                this.playSound(SoundEvents.entity_arrow_hit, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                 this.inGround = true;
                 this.arrowShake = 7;
                 this.setIsCritical(false);
 
-                if (state.getMaterial() != Material.air)
+                if (state.getMaterial() != Material.AIR)
                 {
                     this.inBlock.onEntityCollidedWithBlock(this.worldObj, mopPos, state, this);
                 }
@@ -495,7 +495,7 @@ public class EntityEnderArrow extends EntityArrow
             {
                 if (par1EntityPlayer.inventory.addItemStackToInventory(this.getArrowStack()) == true)
                 {
-                    this.playSound(SoundEvents.entity_item_pickup, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                    this.playSound(SoundEvents.ENTITY_ITEM_PICKUP, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     par1EntityPlayer.onItemPickup(this, 1);
                     this.setDead();
                 }
@@ -503,7 +503,7 @@ public class EntityEnderArrow extends EntityArrow
             // Creative mode fake pick up (no actual items given)
             else if (this.canBePickedUp == 2)
             {
-                this.playSound(SoundEvents.entity_item_pickup, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                this.playSound(SoundEvents.ENTITY_ITEM_PICKUP, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 this.setDead();
             }
         }

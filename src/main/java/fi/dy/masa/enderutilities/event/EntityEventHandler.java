@@ -118,7 +118,7 @@ public class EntityEventHandler
         // If the player is holding a Portal Scaler, then try to use that and cancel the regular
         // teleport if the Portal Scaler teleportation succeeds
         ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
-        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.portal))
+        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.PORTAL))
         {
             if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.worldObj, (EntityPlayer)entity) == true)
             {

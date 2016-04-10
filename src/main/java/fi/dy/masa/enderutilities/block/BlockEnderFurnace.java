@@ -133,7 +133,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
                 if (rand.nextDouble() < 0.1D)
                 {
                     worldIn.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
-                            SoundEvents.block_furnace_fire_crackle, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
+                            SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
                 }
             }
         }

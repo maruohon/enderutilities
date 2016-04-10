@@ -125,17 +125,17 @@ public class ItemEnderSword extends ItemLocationBoundModular
             return 0.2f;
         }
 
-        if (state.getBlock() == Blocks.web)
+        if (state.getBlock() == Blocks.WEB)
         {
             return 15.0f;
         }
 
         Material material = state.getMaterial();
-        if (material == Material.plants ||
-            material == Material.vine ||
-            material == Material.coral ||
-            material == Material.leaves ||
-            material == Material.gourd)
+        if (material == Material.PLANTS ||
+            material == Material.VINE ||
+            material == Material.CORAL ||
+            material == Material.LEAVES ||
+            material == Material.GOURD)
         {
             return 1.5f;
         }
@@ -392,7 +392,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
                     world.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                world.playSound(null, x, y, z, SoundEvents.entity_endermen_teleport, fighter.getSoundCategory(), 1.0F, 1.0F);
+                world.playSound(null, x, y, z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, fighter.getSoundCategory(), 1.0F, 1.0F);
 
                 world.spawnEntityInWorld(fighter);
                 fighter.setPrimaryTarget(targetEntity);
@@ -440,7 +440,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public boolean canHarvestBlock(IBlockState state, ItemStack stack)
     {
-        return state.getBlock() == Blocks.web;
+        return state.getBlock() == Blocks.WEB;
     }
 
     @Override

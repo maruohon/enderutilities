@@ -65,7 +65,7 @@ public class BlockUtils
         ItemBlock itemBlock = (ItemBlock)stack.getItem();
         Block block = world.getBlockState(pos).getBlock();
 
-        if (block == Blocks.snow_layer && block.isReplaceable(world, pos) == true)
+        if (block == Blocks.SNOW_LAYER && block.isReplaceable(world, pos) == true)
         {
             side = EnumFacing.UP;
         }

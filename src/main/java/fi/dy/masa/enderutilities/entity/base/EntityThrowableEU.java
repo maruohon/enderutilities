@@ -133,11 +133,11 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (rayTraceImpact != null)
         {
-            if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.portal)
+            if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.PORTAL)
             {
                 this.setPortal(rayTraceImpact.getBlockPos());
             }
-            else if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.web)
+            else if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.WEB)
             {
                 this.setInWeb();
             }

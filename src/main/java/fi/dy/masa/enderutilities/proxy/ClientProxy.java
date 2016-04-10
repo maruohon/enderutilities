@@ -171,7 +171,7 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemModel(ItemEnderUtilities item, int meta)
     {
-        ResourceLocation rl = Item.itemRegistry.getNameForObject(item);
+        ResourceLocation rl = Item.REGISTRY.getNameForObject(item);
         ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(rl, "inventory"));
     }
 
@@ -221,7 +221,7 @@ public class ClientProxy extends CommonProxy
             return;
         }
 
-        ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), fullVariant);
+        ModelResourceLocation mrl = new ModelResourceLocation(Item.REGISTRY.getNameForObject(item), fullVariant);
         ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
     }
 
@@ -235,7 +235,7 @@ public class ClientProxy extends CommonProxy
         {
             Item item = stack.getItem();
             int meta = stack.getMetadata();
-            ModelResourceLocation mrl = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), variantPre + names[meta] + variantPost);
+            ModelResourceLocation mrl = new ModelResourceLocation(Item.REGISTRY.getNameForObject(item), variantPre + names[meta] + variantPost);
             ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }

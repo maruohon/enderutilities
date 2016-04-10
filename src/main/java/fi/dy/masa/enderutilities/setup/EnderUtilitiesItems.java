@@ -66,21 +66,21 @@ public class EnderUtilitiesItems
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
 
-        ItemStack bucket = new ItemStack(Items.bucket);
-        ItemStack diamond = new ItemStack(Items.diamond);
-        ItemStack emerald = new ItemStack(Items.emerald);
-        ItemStack enderChest = new ItemStack(Blocks.ender_chest);
-        ItemStack egg = new ItemStack(Items.egg);
-        ItemStack eye = new ItemStack(Items.ender_eye);
-        ItemStack feather = new ItemStack(Items.feather);
-        ItemStack hopper = new ItemStack(Blocks.hopper);
-        ItemStack leather = new ItemStack(Items.leather);
-        ItemStack obsidian = new ItemStack(Blocks.obsidian);
-        ItemStack pearl = new ItemStack(Items.ender_pearl);
-        ItemStack piston = new ItemStack(Blocks.piston);
-        ItemStack repeater = new ItemStack(Items.repeater);
-        ItemStack string = new ItemStack(Items.string);
-        ItemStack wool = new ItemStack(Blocks.wool, 1, OreDictionary.WILDCARD_VALUE);
+        ItemStack bucket = new ItemStack(Items.BUCKET);
+        ItemStack diamond = new ItemStack(Items.DIAMOND);
+        ItemStack emerald = new ItemStack(Items.EMERALD);
+        ItemStack enderChest = new ItemStack(Blocks.ENDER_CHEST);
+        ItemStack egg = new ItemStack(Items.EGG);
+        ItemStack eye = new ItemStack(Items.ENDER_EYE);
+        ItemStack feather = new ItemStack(Items.FEATHER);
+        ItemStack hopper = new ItemStack(Blocks.HOPPER);
+        ItemStack leather = new ItemStack(Items.LEATHER);
+        ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
+        ItemStack pearl = new ItemStack(Items.ENDER_PEARL);
+        ItemStack piston = new ItemStack(Blocks.PISTON);
+        ItemStack repeater = new ItemStack(Items.REPEATER);
+        ItemStack string = new ItemStack(Items.STRING);
+        ItemStack wool = new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE);
 
         ItemStack alloy0 = new ItemStack(enderPart, 1, 0);
         ItemStack alloy1 = new ItemStack(enderPart, 1, 1);
@@ -101,7 +101,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipeEnderArrow == false && Configs.disableItemEnderArrow == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', "nuggetGold", 'P', pearl, 'A', new ItemStack(Items.arrow)));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderArrow), " NP", " AN", "A  ", 'N', "nuggetGold", 'P', pearl, 'A', new ItemStack(Items.ARROW)));
         }
         if (Configs.disableRecipeEnderBag == false && Configs.disableItemEnderBag == false)
         {
@@ -218,7 +218,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartMemoryCardItems6b == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 51), "AGA", "ACA", "ARA", 'A', alloy1, 'G', "ingotGold", 'C', new ItemStack(Blocks.chest), 'R', repeater));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 51), "AGA", "ACA", "ARA", 'A', alloy1, 'G', "ingotGold", 'C', new ItemStack(Blocks.CHEST), 'R', repeater));
         }
         if (Configs.disableRecipePartMemoryCardItems8b == false
             && Configs.disableRecipePartMemoryCardItems6b == false && Configs.disableItemCraftingPart == false)
@@ -242,7 +242,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartMobPersistence == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 4, 45), "ABA", "B B", "ABA", 'A', alloy0, 'B', new ItemStack(Blocks.iron_bars));
+            GameRegistry.addRecipe(new ItemStack(enderPart, 4, 45), "ABA", "B B", "ABA", 'A', alloy0, 'B', new ItemStack(Blocks.IRON_BARS));
         }
         if (Configs.disableRecipePartEnderRelic == false && Configs.disableItemCraftingPart == false)
         {

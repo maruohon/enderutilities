@@ -336,7 +336,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
                 if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
                 {
-                    if (state.getBlock() != Blocks.bedrock)
+                    if (state.getBlock() != Blocks.BEDROCK)
                     {
                         return true;
                     }
@@ -354,7 +354,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
             if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
             {
-                if (state.getBlock() != Blocks.bedrock)
+                if (state.getBlock() != Blocks.BEDROCK)
                 {
                     return true;
                 }
@@ -485,7 +485,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         {
             for (y = posY; y >= 0; y--)
             {
-                if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.bedrock)
+                if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
                 {
                     break;
                 }
@@ -496,7 +496,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
         for (y = posY; y < this.worldObj.getHeight(); y++)
         {
-            if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.bedrock)
+            if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
             {
                 break;
             }

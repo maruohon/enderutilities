@@ -287,7 +287,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         this.swapInventory(getEnabledSlotsMask(swapperStack), swapperInv, inv);
 
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
@@ -357,7 +357,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             bit <<= 1;
         }
 
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static void swapPlayerInventory(EntityPlayer player)

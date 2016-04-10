@@ -19,10 +19,10 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
 {
-    public static final BlockEnderUtilities blockMachine_0 = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.iron);
-    public static final BlockEnderUtilities blockMachine_1 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1, 8.0f, 1, Material.iron);
-    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.iron);
-    public static final BlockEnderUtilities blockStorage_0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.iron);
+    public static final BlockEnderUtilities blockMachine_0 = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_1 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1, 8.0f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockStorage_0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.IRON);
 
     public static void init()
     {
@@ -32,14 +32,14 @@ public class EnderUtilitiesBlocks
         registerBlock(blockEnergyBridge,    ReferenceNames.NAME_TILE_ENERGY_BRIDGE,     Configs.disableBlockEnergyBridge);
         registerBlock(blockStorage_0,       ReferenceNames.NAME_TILE_STORAGE_0,         Configs.disableBlockStorage_0);
 
-        ItemStack chest = new ItemStack(Blocks.chest);
-        ItemStack craftingtable = new ItemStack(Blocks.crafting_table);
-        ItemStack enderChest = new ItemStack(Blocks.ender_chest);
-        ItemStack furnace = new ItemStack(Blocks.furnace);
-        ItemStack hopper = new ItemStack(Blocks.hopper);
-        ItemStack obsidian = new ItemStack(Blocks.obsidian);
-        ItemStack piston = new ItemStack(Blocks.piston);
-        ItemStack repeater = new ItemStack(Items.repeater);
+        ItemStack chest = new ItemStack(Blocks.CHEST);
+        ItemStack craftingtable = new ItemStack(Blocks.CRAFTING_TABLE);
+        ItemStack enderChest = new ItemStack(Blocks.ENDER_CHEST);
+        ItemStack furnace = new ItemStack(Blocks.FURNACE);
+        ItemStack hopper = new ItemStack(Blocks.HOPPER);
+        ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
+        ItemStack piston = new ItemStack(Blocks.PISTON);
+        ItemStack repeater = new ItemStack(Items.REPEATER);
 
         ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 0);
         ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
@@ -81,7 +81,7 @@ public class EnderUtilitiesBlocks
         }
         if (Configs.disableRecipeEnergyBridgeTransmitter == false && Configs.disableBlockEnergyBridge == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 2), "ASA", "ACA", "AGA", 'S', Items.nether_star, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockEnergyBridge, 1, 2), "ASA", "ACA", "AGA", 'S', Items.NETHER_STAR, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
         }
 
         if (Configs.disableRecipeMemoryChest_0 == false && Configs.disableBlockStorage_0 == false)

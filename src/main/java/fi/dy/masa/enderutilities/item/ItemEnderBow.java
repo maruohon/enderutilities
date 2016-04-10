@@ -145,7 +145,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
             entityenderarrow.setIsCritical(true);
         }
 
-        world.playSound(null, livingBase.posX, livingBase.posY, livingBase.posZ, SoundEvents.entity_arrow_shoot, SoundCategory.NEUTRAL, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+        world.playSound(null, livingBase.posX, livingBase.posY, livingBase.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.NEUTRAL, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
         world.spawnEntityInWorld(entityenderarrow);
     }
 

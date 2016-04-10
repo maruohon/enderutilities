@@ -267,6 +267,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         }
         if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
         {
+            // FIXME 1.9 add potion shift event
             this.guiLeft = 160 + (this.width - this.xSize - 200) / 2;
             this.hasActivePotionEffects = true;
         }
@@ -300,7 +301,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 Potion potion = potioneffect.getPotion();
                 if(!potion.shouldRender(potioneffect)) continue;
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.mc.getTextureManager().bindTexture(inventoryBackground);
+                this.mc.getTextureManager().bindTexture(INVENTORY_BACKGROUND);
                 this.drawTexturedModalRect(i, j, 0, 166, 140, 32);
 
                 if (potion.hasStatusIcon())

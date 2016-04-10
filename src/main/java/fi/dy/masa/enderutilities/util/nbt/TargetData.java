@@ -221,7 +221,7 @@ public class TargetData
                     itemMeta = stack.getMetadata();
                 }
 
-                ResourceLocation rl = Block.blockRegistry.getNameForObject(block);
+                ResourceLocation rl = Block.REGISTRY.getNameForObject(block);
                 if (rl != null)
                 {
                     blockName = rl.toString();
@@ -308,7 +308,7 @@ public class TargetData
         int meta = block.getMetaFromState(iBlockState);
 
         // The target block unique name and metadata matches what we have stored
-        if (this.blockMeta == meta && this.blockName.equals(Block.blockRegistry.getNameForObject(block).toString()) == true)
+        if (this.blockMeta == meta && this.blockName.equals(Block.REGISTRY.getNameForObject(block).toString()) == true)
         {
             return true;
         }

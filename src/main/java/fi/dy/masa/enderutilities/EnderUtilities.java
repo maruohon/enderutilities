@@ -35,7 +35,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
-     dependencies = "required-after:Forge@[12.16.0.1858,);",
+     dependencies = "required-after:Forge@[12.16.0.1859,);",
      acceptedMinecraftVersions = "1.9")
 public class EnderUtilities
 {
@@ -95,7 +95,7 @@ public class EnderUtilities
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
                 EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
-                Block block = Block.blockRegistry.getObject(newLoc);
+                Block block = Block.REGISTRY.getObject(newLoc);
 
                 if (block != null)
                 {
@@ -107,7 +107,7 @@ public class EnderUtilities
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
                 EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
-                Item item = Item.itemRegistry.getObject(newLoc);
+                Item item = Item.REGISTRY.getObject(newLoc);
 
                 if (item != null)
                 {

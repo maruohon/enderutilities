@@ -55,14 +55,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
-        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == true)
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL) == true)
         {
             return EnumActionResult.PASS;
         }
 
         Block block = world.getBlockState(pos).getBlock();
         // When right clicking on a Nether Portal block, shut down the portal
-        if (block == Blocks.portal)
+        if (block == Blocks.PORTAL)
         {
             if (world.isRemote == false)
             {
@@ -78,12 +78,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         // When right clicking on Obsidian, try to light a Nether Portal
-        if (block == Blocks.obsidian && world.isAirBlock(pos.offset(side)) == true &&
+        if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) == true &&
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
-            Blocks.portal.func_176548_d(world, pos.offset(side)) == true)
+            Blocks.PORTAL.func_176548_d(world, pos.offset(side)) == true)
         {
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
-            world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.entity_blaze_shoot, SoundCategory.MASTER, 0.8f, 1.0f);
+            world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.8f, 1.0f);
 
             return EnumActionResult.SUCCESS;
         }
@@ -94,7 +94,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.portal) == false)
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }

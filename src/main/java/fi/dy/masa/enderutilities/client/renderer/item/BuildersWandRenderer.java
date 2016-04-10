@@ -177,7 +177,7 @@ public class BuildersWandRenderer
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
         GlStateManager.pushMatrix();
-        this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         GlStateManager.color(1f, 1f, 1f, 1f);
 
         if (partialTicks < this.partialTicksLast)

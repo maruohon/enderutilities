@@ -60,7 +60,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     private UUID primaryTargetUUID;
     private UUID secondaryTargetUUID;
     private boolean activeTargetIsPrimary;
-    private boolean isAggressive;
+    //private boolean isAggressive;
     private boolean isBeingControlled;
     private int timer;
     private int idleTimer;
@@ -232,7 +232,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         else if (livingBase instanceof EntityPlayer)
         {
             this.setScreaming(true);
-            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_stare, this.getSoundCategory(), 0.5f, 1.2f);
+            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_SCREAM, this.getSoundCategory(), 0.5f, 1.2f);
         }
     }
 
@@ -400,7 +400,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 EntityPlayer player = this.findPlayerToAttack();
                 if (player != null)
                 {
-                    this.isAggressive = true;
+                    //this.isAggressive = true;
                     this.setAttackTarget(player);
                 }
             }
@@ -456,7 +456,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             this.teleportRandomly();
         }
 
-        if (this.isScreaming() && this.isAggressive == false && this.rand.nextInt(100) == 0)
+        if (this.isScreaming() && /* && this.isAggressive == false*/ this.rand.nextInt(100) == 0)
         {
             this.setScreaming(false);
         }
@@ -526,7 +526,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                     this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f);
+                this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
 
                 this.setDead();
             }
@@ -637,7 +637,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
-            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.entity_endermen_teleport, this.getSoundCategory(), 0.7f, 1.0f);
+            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
 
             return true;
         }
@@ -646,19 +646,19 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     @Override
     protected SoundEvent getAmbientSound()
     {
-        return this.isScreaming() ? SoundEvents.entity_endermen_scream : SoundEvents.entity_endermen_ambient;
+        return this.isScreaming() ? SoundEvents.ENTITY_ENDERMEN_SCREAM : SoundEvents.ENTITY_ENDERMEN_AMBIENT;
     }
 
     @Override
     protected SoundEvent getHurtSound()
     {
-        return SoundEvents.entity_endermen_hurt;
+        return SoundEvents.ENTITY_ENDERMEN_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.entity_endermen_death;
+        return SoundEvents.ENTITY_ENDERMEN_DEATH;
     }
 
     @Override
@@ -686,12 +686,12 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         {
             //System.out.println("setting secondary target");
             this.setSecondaryTarget((EntityLivingBase)source.getEntity());
-            this.isAggressive = true;
+            //this.isAggressive = true;
         }
 
         if (source instanceof EntityDamageSourceIndirect)
         {
-            this.isAggressive = false;
+            //this.isAggressive = false;
 
             for (int i = 0; i < 64; ++i)
             {

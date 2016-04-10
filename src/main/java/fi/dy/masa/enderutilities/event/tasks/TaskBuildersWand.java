@@ -94,7 +94,7 @@ public class TaskBuildersWand implements IPlayerTask
                     ((ItemBuildersWand)stack.getItem()).setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
                 }
 
-                world.playSound(null, player.getPosition(), SoundEvents.block_note_pling, SoundCategory.BLOCKS, 0.3f, 1.0f);
+                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.3f, 1.0f);
             }
 
             return true;

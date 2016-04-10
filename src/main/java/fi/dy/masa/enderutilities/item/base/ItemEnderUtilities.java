@@ -135,7 +135,7 @@ public class ItemEnderUtilities extends Item
     @SideOnly(Side.CLIENT)
     public ResourceLocation[] getItemVariants()
     {
-        return new ResourceLocation[] { Item.itemRegistry.getNameForObject(this) };
+        return new ResourceLocation[] { Item.REGISTRY.getNameForObject(this) };
     }
 
     @SideOnly(Side.CLIENT)

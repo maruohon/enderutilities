@@ -83,7 +83,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
 
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        this.itemRender.renderItemAndEffectIntoGUI(new ItemStack(Item.getItemFromBlock(Blocks.ender_chest)), x + 145, y + 34);
+        this.itemRender.renderItemAndEffectIntoGUI(new ItemStack(Item.getItemFromBlock(Blocks.ENDER_CHEST)), x + 145, y + 34);
     }
 
     protected void createButtons()

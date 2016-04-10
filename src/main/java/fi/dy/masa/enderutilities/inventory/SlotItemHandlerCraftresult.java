@@ -61,54 +61,54 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
 
         this.amountCrafted = 0;
 
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.crafting_table))
+        if (stack.getItem() == Item.getItemFromBlock(Blocks.CRAFTING_TABLE))
         {
-            this.player.addStat(AchievementList.buildWorkBench);
+            this.player.addStat(AchievementList.BUILD_WORK_BENCH);
         }
 
         if (stack.getItem() instanceof ItemPickaxe)
         {
-            this.player.addStat(AchievementList.buildPickaxe);
+            this.player.addStat(AchievementList.BUILD_PICKAXE);
         }
 
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.furnace))
+        if (stack.getItem() == Item.getItemFromBlock(Blocks.FURNACE))
         {
-            this.player.addStat(AchievementList.buildFurnace);
+            this.player.addStat(AchievementList.BUILD_FURNACE);
         }
 
         if (stack.getItem() instanceof ItemHoe)
         {
-            this.player.addStat(AchievementList.buildHoe);
+            this.player.addStat(AchievementList.BUILD_HOE);
         }
 
-        if (stack.getItem() == Items.bread)
+        if (stack.getItem() == Items.BREAD)
         {
-            this.player.addStat(AchievementList.makeBread);
+            this.player.addStat(AchievementList.MAKE_BREAD);
         }
 
-        if (stack.getItem() == Items.cake)
+        if (stack.getItem() == Items.CAKE)
         {
-            this.player.addStat(AchievementList.bakeCake);
+            this.player.addStat(AchievementList.BAKE_CAKE);
         }
 
         if (stack.getItem() instanceof ItemPickaxe && ((ItemPickaxe)stack.getItem()).getToolMaterial() != Item.ToolMaterial.WOOD)
         {
-            this.player.addStat(AchievementList.buildBetterPickaxe);
+            this.player.addStat(AchievementList.BUILD_BETTER_PICKAXE);
         }
 
         if (stack.getItem() instanceof ItemSword)
         {
-            this.player.addStat(AchievementList.buildSword);
+            this.player.addStat(AchievementList.BUILD_SWORD);
         }
 
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.enchanting_table))
+        if (stack.getItem() == Item.getItemFromBlock(Blocks.ENCHANTING_TABLE))
         {
-            this.player.addStat(AchievementList.enchantments);
+            this.player.addStat(AchievementList.ENCHANTMENTS);
         }
 
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.bookshelf))
+        if (stack.getItem() == Item.getItemFromBlock(Blocks.BOOKSHELF))
         {
-            this.player.addStat(AchievementList.bookcase);
+            this.player.addStat(AchievementList.BOOKCASE);
         }
     }
 

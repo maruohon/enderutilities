@@ -46,7 +46,7 @@ public class InventoryUtils
             }
             else
             {
-                ItemStack stackTmp = stack != null ? stack.copy() : new ItemStack(Blocks.cobblestone);
+                ItemStack stackTmp = stack != null ? stack.copy() : new ItemStack(Blocks.COBBLESTONE);
                 int added = Integer.MAX_VALUE;
                 stackTmp.stackSize = added;
                 stackTmp = inv.insertItem(slot, stackTmp, true);

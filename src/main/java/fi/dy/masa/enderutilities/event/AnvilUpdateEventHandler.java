@@ -36,7 +36,7 @@ public class AnvilUpdateEventHandler
             {
                 this.fullyRepairItem(event, 1, 15);
             }
-            else if (right.getItem() == Items.enchanted_book)
+            else if (right.getItem() == Items.ENCHANTED_BOOK)
             {
                 this.enhantItem(event, (ItemEnchantedBook)right.getItem());
             }
@@ -53,7 +53,7 @@ public class AnvilUpdateEventHandler
             {
                 this.fullyRepairItem(event, 1, 15);
             }
-            else if (right.getItem() != Items.enchanted_book)
+            else if (right.getItem() != Items.ENCHANTED_BOOK)
             {
                 // Cancel vanilla behaviour, otherwise it would allow repairing the bow with another bow (and lose the modules)
                 event.setCanceled(true);

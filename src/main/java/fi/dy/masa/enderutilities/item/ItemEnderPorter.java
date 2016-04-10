@@ -128,7 +128,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             if (world.isRemote == false)
             {
                 Effects.playSoundEffectServer(world, player.posX, player.posY, player.posZ,
-                    SoundEvents.block_portal_trigger, SoundCategory.MASTER, 0.08f, 1.2f);
+                    SoundEvents.BLOCK_PORTAL_TRIGGER, SoundCategory.MASTER, 0.08f, 1.2f);
             }
 
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);

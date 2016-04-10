@@ -105,9 +105,9 @@ public class TeleportEntityNetherPortal
 
                 for (y = world.getActualHeight() - 1; y >= 0; --y)
                 {
-                    if (world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.portal)
+                    if (world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.PORTAL)
                     {
-                        while (world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.portal)
+                        while (world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.PORTAL)
                         {
                             --y;
                         }
@@ -139,11 +139,11 @@ public class TeleportEntityNetherPortal
     public void getPortalOrientation(World world)
     {
         BlockPos pos = new BlockPos(this.portalPosX, this.portalPosY, this.portalPosZ);
-        if (world.getBlockState(pos.west()).getBlock() == Blocks.portal || world.getBlockState(pos.east()).getBlock() == Blocks.portal)
+        if (world.getBlockState(pos.west()).getBlock() == Blocks.PORTAL || world.getBlockState(pos.east()).getBlock() == Blocks.PORTAL)
         {
             this.portalAxis = EnumFacing.EAST;
         }
-        else if (world.getBlockState(pos.north()).getBlock() == Blocks.portal || world.getBlockState(pos.south()).getBlock() == Blocks.portal)
+        else if (world.getBlockState(pos.north()).getBlock() == Blocks.PORTAL || world.getBlockState(pos.south()).getBlock() == Blocks.PORTAL)
         {
             this.portalAxis = EnumFacing.SOUTH;
         }
@@ -166,7 +166,7 @@ public class TeleportEntityNetherPortal
             BlockPos posTmp = new BlockPos(this.portalPosX + dirPortal.getFrontOffsetX(),
                                            this.portalPosY,
                                            this.portalPosZ + dirPortal.getFrontOffsetZ());
-            if (world.getBlockState(posTmp).getBlock() != Blocks.portal)
+            if (world.getBlockState(posTmp).getBlock() != Blocks.PORTAL)
             {
                 dirPortal = dirPortal.getOpposite();
             }
@@ -204,7 +204,7 @@ public class TeleportEntityNetherPortal
                 if (world.isAirBlock(pos) == true
                     && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
-                    world.setBlockState(pos, Blocks.stone.getDefaultState(), 3);
+                    world.setBlockState(pos, Blocks.STONE.getDefaultState(), 3);
                     this.entityPosX = pos.getX() + 0.5d;
                     this.entityPosY = pos.getY() + 1.5d;
                     this.entityPosZ = pos.getZ() + 0.5d;

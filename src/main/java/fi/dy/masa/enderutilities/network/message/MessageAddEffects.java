@@ -122,7 +122,7 @@ public class MessageAddEffects implements IMessage
                 if ((message.flags & SOUND) == SOUND)
                 {
                     float pitch = 0.9f + world.rand.nextFloat() * 0.125f + world.rand.nextFloat() * 0.125f;
-                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 0.8f, pitch);
+                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 0.8f, pitch);
                 }
                 if ((message.flags & PARTICLES) == PARTICLES)
                 {
@@ -133,7 +133,7 @@ public class MessageAddEffects implements IMessage
             {
                 if ((message.flags & SOUND) == SOUND && Configs.useToolSounds == true)
                 {
-                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.entity_endermen_teleport, SoundCategory.HOSTILE, 0.08f, 1.8f);
+                    Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 0.08f, 1.8f);
                 }
                 if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles == true)
                 {

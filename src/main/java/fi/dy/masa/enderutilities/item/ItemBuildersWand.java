@@ -203,7 +203,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (pos != null)
             {
                 this.useWand(stack, world, player, pos);
-                player.worldObj.playSound(null, player.getPosition(), SoundEvents.entity_endermen_teleport, SoundCategory.MASTER, 0.4f, 0.7f);
+                player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.4f, 0.7f);
             }
         }
     }
@@ -588,7 +588,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, true);
 
         IBlockState state = world.getBlockState(pos);
-        tag.setString("BlockName", Block.blockRegistry.getNameForObject(state.getBlock()).toString());
+        tag.setString("BlockName", Block.REGISTRY.getNameForObject(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
         ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);

@@ -89,11 +89,11 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
             Item item = this.itemHandlerBase.getStackInSlot(0).getItem();
             int amount = 0;
 
-            if (item == Items.ender_pearl)
+            if (item == Items.ENDER_PEARL)
             {
                 amount = AMOUNT_PER_ENDERPEARL;
             }
-            else if (item == Items.ender_eye)
+            else if (item == Items.ENDER_EYE)
             {
                 amount = AMOUNT_PER_ENDEREYE;
             }
@@ -240,7 +240,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
             }
 
             // Only allow Ender Pearls and Eyes of Ender to the material slot
-            return slot == SLOT_MATERIAL && (stack.getItem() == Items.ender_pearl || stack.getItem() == Items.ender_eye) == true;
+            return slot == SLOT_MATERIAL && (stack.getItem() == Items.ENDER_PEARL || stack.getItem() == Items.ENDER_EYE) == true;
         }
 
         @Override

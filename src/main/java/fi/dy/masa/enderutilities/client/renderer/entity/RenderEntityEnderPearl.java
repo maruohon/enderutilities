@@ -34,7 +34,7 @@ public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
         GlStateManager.enableRescaleNormal();
         GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
         GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
-        this.bindTexture(TextureMap.locationBlocksTexture);
+        this.bindTexture(this.getEntityTexture(entity));
 
         this.renderItem.renderItem(this.getItemStack(entity), ItemCameraTransforms.TransformType.GROUND);
 
@@ -56,6 +56,6 @@ public class RenderEntityEnderPearl extends Render<EntityEnderPearlReusable>
     @Override
     protected ResourceLocation getEntityTexture(EntityEnderPearlReusable entity)
     {
-        return TextureMap.locationBlocksTexture;
+        return TextureMap.LOCATION_BLOCKS_TEXTURE;
     }
 }

@@ -89,14 +89,14 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
 
         net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerSmeltedEvent(player, stack);
 
-        if (stack.getItem() == Items.iron_ingot)
+        if (stack.getItem() == Items.IRON_INGOT)
         {
-            this.player.addStat(AchievementList.acquireIron);
+            this.player.addStat(AchievementList.ACQUIRE_IRON);
         }
 
-        if (stack.getItem() == Items.cooked_fish)
+        if (stack.getItem() == Items.COOKED_FISH)
         {
-            this.player.addStat(AchievementList.cookFish);
+            this.player.addStat(AchievementList.COOK_FISH);
         }
     }
 }

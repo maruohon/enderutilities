@@ -706,7 +706,7 @@ public class EntityUtils
         int z = pos.getZ();
 
         // The item must be right clicked on an obsidian block on top of the obsidian pillars
-        if (world.provider.getDimension() == 1 && world.getBlockState(pos).getBlock() == Blocks.obsidian)
+        if (world.provider.getDimension() == 1 && world.getBlockState(pos).getBlock() == Blocks.OBSIDIAN)
         {
             double r = 1.0d;
             // Check that there aren't already Ender Crystals nearby
@@ -723,7 +723,7 @@ public class EntityUtils
                 {
                     for (int bz = z - 1; bz <= z + 1; ++bz)
                     {
-                        if (world.getBlockState(new BlockPos(bx, by, bz)).getBlock() != Blocks.obsidian)
+                        if (world.getBlockState(new BlockPos(bx, by, bz)).getBlock() != Blocks.OBSIDIAN)
                         {
                             return false;
                         }

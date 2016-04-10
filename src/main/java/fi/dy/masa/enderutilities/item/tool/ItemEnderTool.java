@@ -264,19 +264,19 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             IBlockState newBlockState = null;
 
-            if (block == Blocks.grass)
+            if (block == Blocks.GRASS)
             {
-                newBlockState = Blocks.farmland.getDefaultState();
+                newBlockState = Blocks.FARMLAND.getDefaultState();
             }
-            else if (block == Blocks.dirt)
+            else if (block == Blocks.DIRT)
             {
                 if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT)
                 {
-                    newBlockState = Blocks.farmland.getDefaultState();
+                    newBlockState = Blocks.FARMLAND.getDefaultState();
                 }
                 else if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.COARSE_DIRT)
                 {
-                    newBlockState = Blocks.dirt.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT);
+                    newBlockState = Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT);
                 }
                 else
                 {
@@ -289,7 +289,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
 
             world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                    SoundEvents.item_hoe_till, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                    SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
 
             if (world.isRemote == false)
             {
@@ -524,7 +524,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
 
         // Don't use durability for breaking leaves with an axe
-        if (state.getMaterial() == Material.leaves && ToolType.fromStack(stack).equals(ToolType.AXE))
+        if (state.getMaterial() == Material.LEAVES && ToolType.fromStack(stack).equals(ToolType.AXE))
         {
             return false;
         }
@@ -700,7 +700,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         ToolType tool = ToolType.fromStack(stack);
         // Allow instant mine of leaves with the axe
-        if (state.getMaterial() == Material.leaves && tool.equals(ToolType.AXE))
+        if (state.getMaterial() == Material.LEAVES && tool.equals(ToolType.AXE))
         {
             // This seems to be enough to instant mine leaves even when jumping/flying
             return 100.0f;
@@ -751,13 +751,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
         ToolType tool = ToolType.fromStack(stack);
         if (tool.equals(ToolType.PICKAXE)) // Ender Pickaxe
         {
-            if (state.getMaterial() == Material.rock
-                || state.getMaterial() == Material.glass
-                || state.getMaterial() == Material.ice
-                || state.getMaterial() == Material.packedIce
-                || state.getMaterial() == Material.piston
-                || state.getMaterial() == Material.iron
-                || state.getMaterial() == Material.anvil)
+            if (state.getMaterial() == Material.ROCK
+                || state.getMaterial() == Material.GLASS
+                || state.getMaterial() == Material.ICE
+                || state.getMaterial() == Material.PACKED_ICE
+                || state.getMaterial() == Material.PISTON
+                || state.getMaterial() == Material.IRON
+                || state.getMaterial() == Material.ANVIL)
             {
                 //System.out.println("canHarvestBlock(): true; Pickaxe");
                 return true;
@@ -765,13 +765,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
         else if (tool.equals(ToolType.AXE)) // Ender Axe
         {
-            if (state.getMaterial() == Material.wood
-                || state.getMaterial() == Material.leaves
-                || state.getMaterial() == Material.gourd
-                || state.getMaterial() == Material.carpet
-                || state.getMaterial() == Material.cloth
-                || state.getMaterial() == Material.plants
-                || state.getMaterial() == Material.vine)
+            if (state.getMaterial() == Material.WOOD
+                || state.getMaterial() == Material.LEAVES
+                || state.getMaterial() == Material.GOURD
+                || state.getMaterial() == Material.CARPET
+                || state.getMaterial() == Material.CLOTH
+                || state.getMaterial() == Material.PLANTS
+                || state.getMaterial() == Material.VINE)
             {
                 //System.out.println("canHarvestBlock(): true; Axe");
                 return true;
@@ -779,12 +779,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
         else if (tool.equals(ToolType.SHOVEL)) // Ender Shovel
         {
-            if (state.getMaterial() == Material.ground
-                || state.getMaterial() == Material.grass
-                || state.getMaterial() == Material.sand
-                || state.getMaterial() == Material.snow
-                || state.getMaterial() == Material.craftedSnow
-                || state.getMaterial() == Material.clay)
+            if (state.getMaterial() == Material.GROUND
+                || state.getMaterial() == Material.GRASS
+                || state.getMaterial() == Material.SAND
+                || state.getMaterial() == Material.SNOW
+                || state.getMaterial() == Material.CRAFTED_SNOW
+                || state.getMaterial() == Material.CLAY)
             {
                 //System.out.println("canHarvestBlock(): true; Shovel");
                 return true;
