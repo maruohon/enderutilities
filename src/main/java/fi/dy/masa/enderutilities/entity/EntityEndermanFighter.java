@@ -609,7 +609,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.worldObj.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.isAnyLiquid(this.getEntityBoundingBox()) == false)
+                if (this.worldObj.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.containsAnyLiquid(this.getEntityBoundingBox()) == false)
                 {
                     foundValidLocation = true;
                 }

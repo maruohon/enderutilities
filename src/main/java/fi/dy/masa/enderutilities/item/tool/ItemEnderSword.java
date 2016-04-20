@@ -381,7 +381,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             IBlockState state = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z));
 
             if (world.getCollisionBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
-                world.isAnyLiquid(fighter.getEntityBoundingBox()) == false &&
+                world.containsAnyLiquid(fighter.getEntityBoundingBox()) == false &&
                 state.getMaterial().blocksMovement() == true)
             {
                 for (int j = 0; j < 16; ++j)

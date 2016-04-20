@@ -80,7 +80,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // When right clicking on Obsidian, try to light a Nether Portal
         if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) == true &&
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
-            Blocks.PORTAL.func_176548_d(world, pos.offset(side)) == true)
+            Blocks.PORTAL.trySpawnPortal(world, pos.offset(side)) == true)
         {
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
             world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.8f, 1.0f);
