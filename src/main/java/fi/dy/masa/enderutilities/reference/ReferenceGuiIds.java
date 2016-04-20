@@ -13,4 +13,5 @@ public class ReferenceGuiIds
     public static final int GUI_ID_HANDY_BAG_RIGHT_CLICK    = 1002;
     public static final int GUI_ID_INVENTORY_SWAPPER        = 1003;
     public static final int GUI_ID_PICKUP_MANAGER           = 1004;
+    public static final int GUI_ID_QUICK_STACKER            = 1005;
 }

@@ -1,0 +1,375 @@
+package fi.dy.masa.enderutilities.item;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
+
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
+import fi.dy.masa.enderutilities.item.base.IKeyBound;
+import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+
+public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, IKeyBoundUnselected
+{
+    public static final String TAG_NAME_CONTAINER = "QuickStacker";
+    public static final String TAG_NAME_PRESET_SELECTION = "SelectedPreset";
+    public static final String TAG_NAME_PRESET = "Preset_";
+    public static final String TAG_NAME_UNSELECTED = "Unselected";
+
+    public static final int NUM_PRESETS = 4;
+
+    public static final int GUI_ACTION_CHANGE_PRESET = 0;
+    public static final int GUI_ACTION_TOGGLE_ROWS = 1;
+    public static final int GUI_ACTION_TOGGLE_COLUMNS = 2;
+
+    public ItemQuickStacker()
+    {
+        super();
+        this.setMaxStackSize(1);
+        this.setHasSubtypes(true);
+        this.setMaxDamage(0);
+        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_QUICK_STACKER);
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    {
+        if (world.isRemote == false)
+        {
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_QUICK_STACKER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+        }
+
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+    }
+
+    @Override
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking() == true)
+        {
+            TileEntity te = world.getTileEntity(pos);
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
+            {
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+                if (world.isRemote == false && inv != null)
+                {
+                    this.quickStackItems(player, stack, inv);
+                }
+
+                return EnumActionResult.SUCCESS;
+            }
+        }
+
+        return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+    }
+
+    @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        String itemName = super.getItemStackDisplayName(stack);
+        String preGreen = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+
+        byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        itemName = itemName + " P: " + preGreen + (selected + 1) + rst;
+
+        return itemName;
+    }
+
+    @Override
+    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+        if (containerStack.getTagCompound() == null)
+        {
+            return;
+        }
+
+        String preGreen = TextFormatting.GREEN.toString();
+        String preBlue = TextFormatting.BLUE.toString();
+        String preRed = TextFormatting.RED.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+
+        String str;
+        if (isEnabled(containerStack) == true)
+        {
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes");
+        }
+        else
+        {
+            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + I18n.translateToLocal("enderutilities.tooltip.item.no");
+        }
+        list.add(str);
+
+        byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        list.add(I18n.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
+    }
+
+    public static boolean isEnabled(ItemStack stack)
+    {
+        return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED) == false;
+    }
+
+    /**
+     * Returns the slot number of the first enabled/usable Inventory Swapper in the player's inventory, or -1 if none is found.
+     */
+    public static int getSlotContainingEnabledItem(EntityPlayer player)
+    {
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.quickStacker);
+        for (int slot : slots)
+        {
+            if (isEnabled(player.inventory.getStackInSlot(slot)) == true)
+            {
+                return slot;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Returns an ItemStack containing an enabled Inventory Swapper in the player's inventory, or null if none is found.
+     */
+    public static ItemStack getEnabledItem(EntityPlayer player)
+    {
+        int slotNum = getSlotContainingEnabledItem(player);
+        return slotNum != -1 ? player.inventory.getStackInSlot(slotNum) : null;
+    }
+
+    public static long getEnabledSlotsMask(ItemStack stack)
+    {
+        byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
+    }
+
+    /**
+     * Tries to move all items from enabled slots in the player's inventory to the given external inventory
+     * @return true if all items were moved, false if some couldn't be moved
+     */
+    public boolean quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
+    {
+        // Only swap up to 37 slots (the player's inventory)
+        final int invSizePlayer = 37;
+        final int invSizeExt = externalInv.getSlots();
+        boolean ret = true;
+
+        long bit = 0x1;
+        for (int slotPlayer = 0; slotPlayer < invSizePlayer; slotPlayer++)
+        {
+            // Only swap slots that have been enabled
+            if ((slotMask & bit) != 0 && playerInv.getStackInSlot(slotPlayer) != null)
+            {
+                ItemStack stack = playerInv.extractItem(slotPlayer, 64, false);
+
+                for (int slotExt = 0; slotExt < invSizeExt; slotExt++)
+                {
+                    if (matchingOnly == false || InventoryUtils.areItemStacksEqual(stack, externalInv.getStackInSlot(slotExt)) == true)
+                    {
+                        stack = externalInv.insertItem(slotExt, stack, false);
+                        if (stack == null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                // Return the items that were left over
+                if (stack != null)
+                {
+                    playerInv.insertItem(slotPlayer, stack, false);
+                    ret = false;
+                }
+            }
+
+            bit <<= 1;
+        }
+
+        return ret;
+    }
+
+    public boolean quickStackItems(EntityPlayer player, ItemStack swapperStack, IItemHandler inventory)
+    {
+        IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+
+        return this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(swapperStack), player.isSneaking() == false);
+    }
+
+    public static void quickStackItems(EntityPlayer player, final int swapperSlot)
+    {
+        ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
+        if (swapperStack == null)
+        {
+            return;
+        }
+
+        World world = player.worldObj;
+        ItemQuickStacker item = (ItemQuickStacker) swapperStack.getItem();
+        long slotMask = getEnabledSlotsMask(swapperStack);
+        IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
+
+        for (BlockPos pos : getPositions(player))
+        {
+            TileEntity te = world.getTileEntity(pos);
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
+            {
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+
+                if (inv != null && item.quickStackItems(playerInv, inv, slotMask, player.isSneaking() == false) == true)
+                {
+                    break;
+                }
+            }
+        }
+
+        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+    }
+
+    public static List<BlockPos> getPositions(EntityPlayer player)
+    {
+        List<BlockPos> positions = new ArrayList<BlockPos>();
+
+        return positions;
+    }
+
+    public static void quickStackItems(EntityPlayer player)
+    {
+        int slot = getSlotContainingEnabledItem(player);
+        if (slot != -1)
+        {
+            quickStackItems(player, slot);
+        }
+    }
+
+    @Override
+    public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
+    {
+        // Re-fetch the item to check if it's enabled
+        // FIXME
+        stack = getEnabledItem(player);
+
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+        {
+            ((ItemInventorySwapper)stack.getItem()).doKeyBindingAction(player, stack, key);
+        }
+    }
+
+    @Override
+    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    {
+        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        {
+            return;
+        }
+
+        // Just Toggle mode: Fire the swapping action
+        if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == false
+            && ReferenceKeys.keypressContainsAlt(key) == false)
+        {
+            quickStackItems(player);
+        }
+        // Alt + Shift + Toggle mode: Toggle the unselected mode
+        else if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == true
+            && ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED);
+        }
+        // Shift + Toggle mode: Cycle the slot mask preset
+        else if (ReferenceKeys.keypressContainsControl(key) == false
+            && ReferenceKeys.keypressContainsShift(key) == true
+            && ReferenceKeys.keypressContainsAlt(key) == false)
+        {
+            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
+                    ReferenceKeys.keypressActionIsReversed(key));
+        }
+    }
+
+    public static void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (player.openContainer instanceof ContainerInventorySwapper)
+        {
+            ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getModularItem();
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+            {
+                if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
+                {
+                    NBTUtils.setByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, (byte)element);
+                }
+                else if (action == GUI_ACTION_TOGGLE_ROWS && element >= 0 && element < 4)
+                {
+                    long mask = getEnabledSlotsMask(stack);
+                    mask ^= (0x1FFL << (element * 9));
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
+                            TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
+                }
+                else if (action == GUI_ACTION_TOGGLE_COLUMNS)
+                {
+                    long mask = getEnabledSlotsMask(stack);
+
+                    // Player inventory
+                    if (element >= 0 && element < 9)
+                    {
+                        mask ^= (0x08040201L << element); // toggle the bits for the slots in the selected column of the inventory
+                    }
+
+                    NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
+                            TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
+                }
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ResourceLocation[] getItemVariants()
+    {
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+
+        return new ResourceLocation[] {
+                new ModelResourceLocation(rl, "unselected=false"),
+                new ModelResourceLocation(rl, "unselected=true")
+        };
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public ModelResourceLocation getModelLocation(ItemStack stack)
+    {
+        String rl = Reference.MOD_ID + ":" + "item_" + this.name;
+        return new ModelResourceLocation(rl, "unselected=" + NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED));
+    }
+}

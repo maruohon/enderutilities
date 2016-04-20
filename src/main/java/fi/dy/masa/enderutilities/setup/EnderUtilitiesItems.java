@@ -40,6 +40,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities livingManipulator = new ItemLivingManipulator();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
     public static final ItemEnderUtilities pickupManager = new ItemPickupManager();
+    public static final ItemEnderUtilities quickStacker = new ItemQuickStacker();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
     public static final ItemEnderUtilities ruler = new ItemRuler();
 
@@ -63,6 +64,7 @@ public class EnderUtilitiesItems
         registerItem(livingManipulator,     ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR,        Configs.disableItemLivingManipulator);
         registerItem(mobHarness,            ReferenceNames.NAME_ITEM_MOB_HARNESS,               Configs.disableItemMobHarness);
         registerItem(pickupManager,         ReferenceNames.NAME_ITEM_PICKUP_MANAGER,            Configs.disableItemPickupManager);
+        registerItem(quickStacker,          ReferenceNames.NAME_ITEM_QUICK_STACKER,             Configs.disableItemQuickStacker);
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
 
@@ -78,6 +80,7 @@ public class EnderUtilitiesItems
         ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
         ItemStack pearl = new ItemStack(Items.ENDER_PEARL);
         ItemStack piston = new ItemStack(Blocks.PISTON);
+        ItemStack redstone = new ItemStack(Items.REDSTONE);
         ItemStack repeater = new ItemStack(Items.REPEATER);
         ItemStack string = new ItemStack(Items.STRING);
         ItemStack wool = new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE);
@@ -159,6 +162,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePortalScaler == false && Configs.disableItemPortalScaler == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(portalScaler), "OGO", "OCO", "OAO", 'O', obsidian, 'G', "blockGlassPurple", 'C', active_core2, 'A', alloy2));
+        }
+        if (Configs.disableRecipeQuickStacker == false && Configs.disableItemQuickStacker == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(quickStacker), "APA", "PRP", "APA", 'A', alloy1, 'P', piston, 'R', redstone);
         }
         if (Configs.disableRecipeRuler == false && Configs.disableItemRuler == false)
         {

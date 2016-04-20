@@ -51,6 +51,7 @@ public class Configs
     public static boolean disableItemLivingManipulator;
     public static boolean disableItemMobHarness;
     public static boolean disableItemPickupManager;
+    public static boolean disableItemQuickStacker;
     public static boolean disableItemPortalScaler;
     public static boolean disableItemRuler;
 
@@ -90,6 +91,7 @@ public class Configs
     public static boolean disableRecipeLivingManipulator;
     public static boolean disableRecipeMobHarness;
     public static boolean disableRecipePickupManager;
+    public static boolean disableRecipeQuickStacker;
     public static boolean disableRecipePortalScaler;
     public static boolean disableRecipeRuler;
     public static boolean disableRecipeEnderSword;

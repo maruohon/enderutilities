@@ -147,6 +147,7 @@ public class ConfigReader
         Configs.disableItemLivingManipulator      = conf.get(category, "disableItemLivingManipulator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemMobHarness             = conf.get(category, "disableItemMobHarness", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemPickupManager          = conf.get(category, "disableItemPickupManager", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableItemQuickStacker           = conf.get(category, "disableItemQuickStacker", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemPortalScaler           = conf.get(category, "disableItemPortalScaler", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemRuler                  = conf.get(category, "disableItemRuler", false).setRequiresMcRestart(true).getBoolean();
 
@@ -188,6 +189,7 @@ public class ConfigReader
         Configs.disableRecipeLivingManipulator    = conf.get(category, "disableRecipeLivingManipulator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeMobHarness           = conf.get(category, "disableRecipeMobHarness", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipePickupManager        = conf.get(category, "disableRecipePickupManager", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeQuickStacker         = conf.get(category, "disableRecipeQuickStacker", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipePortalScaler         = conf.get(category, "disableRecipePortalScaler", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeRuler                = conf.get(category, "disableRecipeRuler", false).setRequiresMcRestart(true).getBoolean();
 
