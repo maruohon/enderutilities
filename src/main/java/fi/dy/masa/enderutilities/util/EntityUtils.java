@@ -732,7 +732,7 @@ public class EntityUtils
             }
 
             // Everything ok, create an explosion and then spawn a new Ender Crystal
-            world.createExplosion(null, x + 0.5d, y + 1.0d, z + 0.5d, 10.0f, true);
+            world.createExplosion(null, x + 0.5d, y + 1.0d, z + 0.5d, 3.0f, true);
             EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
             entityendercrystal.setLocationAndAngles(x + 0.5d, (double)y + 1.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
             world.spawnEntityInWorld(entityendercrystal);
