@@ -203,22 +203,26 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                 int sizeOrig = stack.stackSize;
                 for (int slotExt = 0; slotExt < invSizeExt; slotExt++)
                 {
-                    if (matchingOnly == false || InventoryUtils.areItemStacksEqual(stack, externalInv.getStackInSlot(slotExt)) == true)
+                    if (matchingOnly == true && InventoryUtils.areItemStacksEqual(stack, externalInv.getStackInSlot(slotExt)) == true)
                     {
                         stack = externalInv.insertItem(slotExt, stack, false);
+                    }
+                    else if (matchingOnly == false)
+                    {
+                        stack = InventoryUtils.tryInsertItemStackToInventory(externalInv, stack);
+                    }
 
-                        if (ret == Result.MOVED_NONE)
+                    if (ret == Result.MOVED_NONE)
+                    {
+                        if (stack == null || stack.stackSize != sizeOrig)
                         {
-                            if (stack == null || stack.stackSize != sizeOrig)
-                            {
-                                ret = Result.MOVED_SOME;
-                            }
+                            ret = Result.MOVED_SOME;
                         }
+                    }
 
-                        if (stack == null)
-                        {
-                            break;
-                        }
+                    if (stack == null)
+                    {
+                        break;
                     }
                 }
 
