@@ -79,7 +79,7 @@ public class ClientProxy extends CommonProxy
     {
         Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_NAME_TOGGLE_MODE,
                                                    ReferenceKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
-                                                   ReferenceKeys.KEYBIND_CAREGORY_ENDERUTILITIES);
+                                                   ReferenceKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
 
         ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
     }
@@ -157,6 +157,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
         this.registerItemModel(EnderUtilitiesItems.mobHarness);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.quickStacker);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
 

@@ -65,6 +65,13 @@ public class Effects
         }
     }
 
+    public static void spawnParticlesFromServer(int dimension, BlockPos pos, EnumParticleTypes particle)
+    {
+        PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_PARTICLES, particle.getParticleID(),
+                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 20, 1.8f, 0.9f),
+                    new NetworkRegistry.TargetPoint(dimension, pos.getX(), pos.getY(), pos.getZ(), 24.0d));
+    }
+
     public static void addItemTeleportEffects(World world, BlockPos pos)
     {
         PacketHandler.INSTANCE.sendToAllAround(

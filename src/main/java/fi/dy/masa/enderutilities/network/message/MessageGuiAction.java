@@ -10,6 +10,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
+import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
@@ -130,6 +131,10 @@ public class MessageGuiAction implements IMessage
 
                     case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
                         ItemPickupManager.performGuiAction(player, message.action, message.elementId);
+                        break;
+
+                    case ReferenceGuiIds.GUI_ID_QUICK_STACKER:
+                        ItemQuickStacker.performGuiAction(player, message.action, message.elementId);
                         break;
 
                     default:

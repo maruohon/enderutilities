@@ -11,10 +11,13 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiInventorySwapper;
 import fi.dy.masa.enderutilities.gui.client.GuiPickupManager;
+import fi.dy.masa.enderutilities.gui.client.GuiQuickStacker;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
+import fi.dy.masa.enderutilities.inventory.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -75,6 +78,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 }
                 break;
 
+            case ReferenceGuiIds.GUI_ID_QUICK_STACKER:
+                stack = ItemQuickStacker.getEnabledItem(player);
+                if (stack != null)
+                {
+                    return new ContainerQuickStacker(player, stack);
+                }
+                break;
+
             default:
         }
 
@@ -128,6 +139,14 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
                 if (stack != null)
                 {
                     return new GuiPickupManager(new ContainerPickupManager(player, stack));
+                }
+                break;
+
+            case ReferenceGuiIds.GUI_ID_QUICK_STACKER:
+                stack = ItemQuickStacker.getEnabledItem(player);
+                if (stack != null)
+                {
+                    return new GuiQuickStacker(new ContainerQuickStacker(player, stack));
                 }
                 break;
 

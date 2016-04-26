@@ -16,8 +16,9 @@ enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
 enderutilities.container.handychest=Handy Chest
 enderutilities.container.inventoryswapper=Inventory Swapper
-enderutilities.container.pickupmanager=Pickup Manager
 enderutilities.container.memorychest=Memory Chest
+enderutilities.container.pickupmanager=Pickup Manager
+enderutilities.container.quickstacker=Quick Stacker
 enderutilities.container.toolworkstation=Tool Workstation
 
 
@@ -98,6 +99,7 @@ item.enderutilities_linkcrystal_2.name=Link Crystal (portal)
 item.enderutilities_livingmanipulator.name=Living Matter Manipulator
 item.enderutilities_mobharness.name=Mob Harness
 item.enderutilities_pickupmanager.name=Item Pickup Manager
+item.enderutilities_quickstacker.name=Quick Stacker
 item.enderutilities_portalscaler.name=Portal Scaler
 item.enderutilities_ruler.name=Ruler
 
@@ -152,6 +154,7 @@ item.enderutilities.livingmanipulator.tooltips=- Can store and release mobs|lf- 
 item.enderutilities.mobharness.tooltips=- Right click a mob to ride it|lf- Sneak + right click to 'store' a mob,|lf  then sneak + right click another mob to mount|lf  the first one on top of the second one|lf- Sneak + right click twice on the same mob|lf  to mount it on top of yourself|lf- Sneak + right click a mob that is riding|lf  something to dismount it|lf- Look down and sneak + right click|lf  to clear a 'binding'|lf- Look up and sneak + right click|lf  to dismount the mob riding you
 item.enderutilities.pickupmanager.tooltips=- Controls which items can be picked up|lf- Can transport picked up items to a remote inventory|lf  and also allows manually sending items|lf- Toggle key: Toggle locked/unlocked state|lf- Shift + Toggle/scroll: Cycle filter preset|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Link Crystal|lf- Alt + Toggle: Toggle privacy mode on selected Link Crystal|lf- Sneak + right click: bind to an inventory
 item.enderutilities.portalscaler.tooltips=- Will change the Nether Portal teleportation scale factor,|lf  if you right click with it while standing in a portal.|lf- To change the scaling factor:|lf  - First select the item in your hotbar|lf  - Look at the direction of the axis you want to change (x/y/z)|lf  - Then press and hold Alt + Shift and use the mouse wheel|lf  - Or press Alt + Shift (+ Ctrl) + Toggle mode|lf- Can also light up and shut down portals|lf  (right click a portal block/the obsidian frame|lf  while NOT standing in the portal)
+item.enderutilities.quickstacker.tooltips=- Quick stacks items from the player's|lf  inventory to nearby inventories|lf- Press the Toggle Mode button to activate|lf- Works also while not in hand|lf- Normally moves only matching items|lf- Sneak while activating to move non-matching items too
 item.enderutilities.ruler.tooltips=Measure distances and visualize positions|lf- Left/right click to set start/end position|lf- Sneak to target the block, not the empty space|lf- Shift + scroll: Cycle selected point|lf- Ctrl + scroll: Cycle selected Memory Card|lf- Alt + Toggle: Toggle render when unselected|lf- Ctrl + Alt + Toggle: Toggle distance mode|lf- Alt + Shift + Toggle: Toggle render all points|lf- Just Toggle: Toggle "render with all" for selected point
 
 tile.enderutilities.creationstation.tooltips=Combines two crafting tables (with recipe storage,|lfquick fill etc.), two furnaces and some modular storage
@@ -201,6 +204,7 @@ enderutilities.gui.label.nbt.match=Match NBT
 enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
 enderutilities.gui.label.slotpresets=Slot presets
+enderutilities.gui.label.quickstacker.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots
 enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode

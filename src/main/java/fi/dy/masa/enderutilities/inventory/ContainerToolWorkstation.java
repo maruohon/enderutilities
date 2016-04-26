@@ -9,7 +9,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import net.minecraftforge.items.SlotItemHandler;
 
-public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerModularItem
+public class ContainerToolWorkstation extends ContainerTileEntityInventory implements IContainerItem
 {
     public static final int NUM_MODULE_SLOTS = 10;
     public static final int NUM_STORAGE_SLOTS = 9;
@@ -74,7 +74,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     }
 
     @Override
-    public ItemStack getModularItem()
+    public ItemStack getContainerItem()
     {
         return this.getSlot(SLOT_MODULAR_ITEM).getStack();
     }

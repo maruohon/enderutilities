@@ -1,0 +1,24 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default",
+        "textures": {
+            "layer0": "enderutilities:items/quickstacker"
+        }
+    },
+    "variants": {
+        "locked": {
+            "false": {},
+            "true": {
+                "submodel": {
+                    "overlay_l": {
+                        "model": "enderutilities:item_default",
+                        "textures": {
+                            "layer0": "enderutilities:items/item_overlay_locked"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

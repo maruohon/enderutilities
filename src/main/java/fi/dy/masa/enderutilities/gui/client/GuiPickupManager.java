@@ -75,7 +75,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
 
         this.bindTexture(this.guiTextureWidgets);
 
-        ItemStack containerStack = this.container.getModularItem();
+        ItemStack containerStack = this.container.getContainerItem();
 
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
@@ -193,7 +193,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 163, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
 
-        ItemStack containerStack = this.container.getModularItem();
+        ItemStack containerStack = this.container.getContainerItem();
 
         // Add the transport filter settings buttons
 

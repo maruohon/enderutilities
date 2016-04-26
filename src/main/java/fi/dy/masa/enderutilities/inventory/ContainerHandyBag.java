@@ -19,7 +19,7 @@ import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
-public class ContainerHandyBag extends ContainerLargeStacks implements IContainerModularItem
+public class ContainerHandyBag extends ContainerLargeStacks implements IContainerItem
 {
     public static final EntityEquipmentSlot[] EQUIPMENT_SLOT_TYPES = new EntityEquipmentSlot[]
     {
@@ -173,7 +173,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     }
 
     @Override
-    public ItemStack getModularItem()
+    public ItemStack getContainerItem()
     {
         return this.inventoryItemModular.getModularItemStack();
     }

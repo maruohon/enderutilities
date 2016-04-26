@@ -439,7 +439,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     {
         if (player.openContainer instanceof ContainerInventorySwapper)
         {
-            ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getModularItem();
+            ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getContainerItem();
             if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
             {
                 int max = ((ItemInventorySwapper)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);

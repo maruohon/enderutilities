@@ -4,7 +4,7 @@ import org.lwjgl.input.Keyboard;
 
 public class ReferenceKeys
 {
-    public static final String KEYBIND_CAREGORY_ENDERUTILITIES = "category." + Reference.MOD_ID;
+    public static final String KEYBIND_CATEGORY_ENDERUTILITIES = "category." + Reference.MOD_ID;
 
     public static final String KEYBIND_NAME_TOGGLE_MODE = Reference.MOD_ID + ".key.togglemode";
 

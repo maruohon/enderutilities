@@ -12,6 +12,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +29,8 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
+import fi.dy.masa.enderutilities.effects.Effects;
+import fi.dy.masa.enderutilities.inventory.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -38,6 +40,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, IKeyBoundUnselected
@@ -45,7 +48,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public static final String TAG_NAME_CONTAINER = "QuickStacker";
     public static final String TAG_NAME_PRESET_SELECTION = "SelectedPreset";
     public static final String TAG_NAME_PRESET = "Preset_";
-    public static final String TAG_NAME_UNSELECTED = "Unselected";
+    public static final String TAG_NAME_LOCKED = "Locked";
 
     public static final int NUM_PRESETS = 4;
 
@@ -139,7 +142,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
     public static boolean isEnabled(ItemStack stack)
     {
-        return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED) == false;
+        return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED) == false;
     }
 
     /**
@@ -176,14 +179,14 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
     /**
      * Tries to move all items from enabled slots in the player's inventory to the given external inventory
-     * @return true if all items were moved, false if some couldn't be moved
      */
-    public boolean quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
+    public Result quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
     {
-        // Only swap up to 37 slots (the player's inventory)
-        final int invSizePlayer = 37;
+        // Only quick stack up to 36 slots (the player's inventory)
+        final int invSizePlayer = 36;
         final int invSizeExt = externalInv.getSlots();
-        boolean ret = true;
+        Result ret = Result.MOVED_NONE;
+        boolean movedAll = true;
 
         long bit = 0x1;
         for (int slotPlayer = 0; slotPlayer < invSizePlayer; slotPlayer++)
@@ -192,12 +195,26 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             if ((slotMask & bit) != 0 && playerInv.getStackInSlot(slotPlayer) != null)
             {
                 ItemStack stack = playerInv.extractItem(slotPlayer, 64, false);
+                if (stack == null)
+                {
+                    continue;
+                }
 
+                int sizeOrig = stack.stackSize;
                 for (int slotExt = 0; slotExt < invSizeExt; slotExt++)
                 {
                     if (matchingOnly == false || InventoryUtils.areItemStacksEqual(stack, externalInv.getStackInSlot(slotExt)) == true)
                     {
                         stack = externalInv.insertItem(slotExt, stack, false);
+
+                        if (ret == Result.MOVED_NONE)
+                        {
+                            if (stack == null || stack.stackSize != sizeOrig)
+                            {
+                                ret = Result.MOVED_SOME;
+                            }
+                        }
+
                         if (stack == null)
                         {
                             break;
@@ -209,22 +226,32 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                 if (stack != null)
                 {
                     playerInv.insertItem(slotPlayer, stack, false);
-                    ret = false;
+                    movedAll = false;
                 }
             }
 
             bit <<= 1;
         }
 
+        if (movedAll == true)
+        {
+            ret = Result.MOVED_ALL;
+        }
+
         return ret;
     }
 
-    public boolean quickStackItems(EntityPlayer player, ItemStack swapperStack, IItemHandler inventory)
+    public Result quickStackItems(EntityPlayer player, ItemStack swapperStack, IItemHandler inventory)
     {
         IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
 
-        return this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(swapperStack), player.isSneaking() == false);
+        Result ret = this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(swapperStack), player.isSneaking() == false);
+        if (ret != Result.MOVED_NONE)
+        {
+            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+        }
+
+        return ret;
     }
 
     public static void quickStackItems(EntityPlayer player, final int swapperSlot)
@@ -236,6 +263,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         }
 
         World world = player.worldObj;
+        //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
+
         ItemQuickStacker item = (ItemQuickStacker) swapperStack.getItem();
         long slotMask = getEnabledSlotsMask(swapperStack);
         IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
@@ -247,19 +276,30 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
 
-                if (inv != null && item.quickStackItems(playerInv, inv, slotMask, player.isSneaking() == false) == true)
+                if (inv != null)
                 {
-                    break;
+                    Result result = item.quickStackItems(playerInv, inv, slotMask, player.isSneaking() == false);
+
+                    if (result != Result.MOVED_NONE)
+                    {
+                        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+                        Effects.spawnParticlesFromServer(world.provider.getDimension(), pos, EnumParticleTypes.VILLAGER_HAPPY);
+                    }
+
+                    if (result == Result.MOVED_ALL)
+                    {
+                        break;
+                    }
                 }
             }
         }
-
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     public static List<BlockPos> getPositions(EntityPlayer player)
     {
         List<BlockPos> positions = new ArrayList<BlockPos>();
+
+        PositionUtils.getPositionsInBoxSpiralingOutwards(positions, 3, 4, (int)(player.posY + 1.0d), (int)player.posX, (int)player.posZ);
 
         return positions;
     }
@@ -277,12 +317,11 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Re-fetch the item to check if it's enabled
-        // FIXME
         stack = getEnabledItem(player);
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.quickStacker)
         {
-            ((ItemInventorySwapper)stack.getItem()).doKeyBindingAction(player, stack, key);
+            ((ItemQuickStacker)stack.getItem()).doKeyBindingAction(player, stack, key);
         }
     }
 
@@ -294,23 +333,22 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             return;
         }
 
-        // Just Toggle mode: Fire the swapping action
+        // Just Toggle mode or Shift + Toggle mode: Fire the swapping action
         if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             quickStackItems(player);
         }
-        // Alt + Shift + Toggle mode: Toggle the unselected mode
+        // Alt + Shift + Toggle mode: Toggle the locked mode
         else if (ReferenceKeys.keypressContainsControl(key) == false
             && ReferenceKeys.keypressContainsShift(key) == true
             && ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED);
+            NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
         }
-        // Shift + Toggle mode: Cycle the slot mask preset
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == true
+        // Ctrl + Toggle mode: Cycle the slot mask preset
+        else if (ReferenceKeys.keypressContainsControl(key) == true
+            && ReferenceKeys.keypressContainsShift(key) == false
             && ReferenceKeys.keypressContainsAlt(key) == false)
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
@@ -320,10 +358,10 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
     public static void performGuiAction(EntityPlayer player, int action, int element)
     {
-        if (player.openContainer instanceof ContainerInventorySwapper)
+        if (player.openContainer instanceof ContainerQuickStacker)
         {
-            ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getModularItem();
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+            ItemStack stack = ((ContainerQuickStacker)player.openContainer).getContainerItem();
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.quickStacker)
             {
                 if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
                 {
@@ -353,6 +391,13 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         }
     }
 
+    public enum Result
+    {
+        MOVED_NONE,
+        MOVED_SOME,
+        MOVED_ALL;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
@@ -360,8 +405,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
 
         return new ResourceLocation[] {
-                new ModelResourceLocation(rl, "unselected=false"),
-                new ModelResourceLocation(rl, "unselected=true")
+                new ModelResourceLocation(rl, "locked=false"),
+                new ModelResourceLocation(rl, "locked=true")
         };
     }
 
@@ -370,6 +415,6 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-        return new ModelResourceLocation(rl, "unselected=" + NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_UNSELECTED));
+        return new ModelResourceLocation(rl, "locked=" + NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED));
     }
 }

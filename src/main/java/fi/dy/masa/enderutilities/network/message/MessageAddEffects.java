@@ -6,15 +6,17 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.effects.Effects;
-import fi.dy.masa.enderutilities.setup.Configs;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.effects.Effects;
+import fi.dy.masa.enderutilities.setup.Configs;
+import io.netty.buffer.ByteBuf;
 
 public class MessageAddEffects implements IMessage
 {
@@ -23,6 +25,7 @@ public class MessageAddEffects implements IMessage
 
     public static final int EFFECT_TELEPORT = 1;
     public static final int EFFECT_ENDER_TOOLS = 2;
+    public static final int EFFECT_PARTICLES = 100;
 
     private int effectType;
     private int flags;
@@ -37,6 +40,16 @@ public class MessageAddEffects implements IMessage
     {
     }
 
+    public MessageAddEffects(int id, int flags, double x, double y, double z)
+    {
+        this(id, flags, x, y, z, 32, 0.2d, 2.0d);
+    }
+
+    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
+    {
+        this(id, flags, x, y, z, particleCount, 0.2d, 2.0d);
+    }
+
     public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount, double offset, double velocity)
     {
         this.effectType = id;
@@ -47,16 +60,6 @@ public class MessageAddEffects implements IMessage
         this.particleCount = particleCount;
         this.offset = offset;
         this.velocity = velocity;
-    }
-
-    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
-    {
-        this(id, flags, x, y, z, particleCount, 0.2d, 2.0d);
-    }
-
-    public MessageAddEffects(int id, int flags, double x, double y, double z)
-    {
-        this(id, flags, x, y, z, 32, 0.2d, 2.0d);
     }
 
     @Override
@@ -139,6 +142,10 @@ public class MessageAddEffects implements IMessage
                 {
                     Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }
+            }
+            else if (message.effectType == EFFECT_PARTICLES)
+            {
+                Effects.spawnParticles(world, EnumParticleTypes.getParticleFromId(message.flags), message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
             }
         }
     }

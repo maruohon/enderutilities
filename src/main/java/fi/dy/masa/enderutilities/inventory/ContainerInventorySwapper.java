@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerModularItem
+public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerItem
 {
     public final InventoryItemModular inventoryItemModular;
 
@@ -144,7 +144,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     }
 
     @Override
-    public ItemStack getModularItem()
+    public ItemStack getContainerItem()
     {
         return this.inventoryItemModular.getModularItemStack();
     }
@@ -158,7 +158,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
-        ItemStack stack = this.getModularItem();
+        ItemStack stack = this.getContainerItem();
 
         // Middle click
         if (clickType == ClickType.CLONE && dragType == 2 && stack != null && slotNum >= 44 && slotNum < (44 + 40))

@@ -109,7 +109,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
-        ItemStack stack = this.container.getModularItem();
+        ItemStack stack = this.container.getContainerItem();
         if (stack != null)
         {
             // Draw the selection border around the selected preset's button

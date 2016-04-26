@@ -10,9 +10,9 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class SlotModuleModularItem extends SlotItemHandlerModule
 {
-    protected IContainerModularItem container;
+    protected IContainerItem container;
 
-    public SlotModuleModularItem(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType, IContainerModularItem container)
+    public SlotModuleModularItem(IItemHandler inventory, int slot, int posX, int posY, ModuleType moduleType, IContainerItem container)
     {
         super(inventory, slot, posX, posY, moduleType);
         this.container = container;
@@ -37,7 +37,7 @@ public class SlotModuleModularItem extends SlotItemHandlerModule
         }
 
         ModuleType type = ((IModule)stack.getItem()).getModuleType(stack);
-        ItemStack modularStack = this.container.getModularItem();
+        ItemStack modularStack = this.container.getContainerItem();
 
         if (type.equals(ModuleType.TYPE_INVALID) == false && modularStack != null && super.isItemValid(stack) == true)
         {

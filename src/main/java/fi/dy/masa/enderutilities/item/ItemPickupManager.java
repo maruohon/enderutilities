@@ -591,7 +591,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         ContainerPickupManager container = (ContainerPickupManager)player.openContainer;
-        ItemStack stack = container.getModularItem();
+        ItemStack stack = container.getContainerItem();
         if (stack == null || (stack.getItem() instanceof ItemPickupManager) == false)
         {
             return;

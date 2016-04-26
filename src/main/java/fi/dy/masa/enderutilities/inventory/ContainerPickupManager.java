@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class ContainerPickupManager extends ContainerLargeStacks implements IContainerModularItem
+public class ContainerPickupManager extends ContainerLargeStacks implements IContainerItem
 {
     // Note: This includes the capacitor, which is not accessible through the GUI though
     public static final int NUM_MODULES = 4;
@@ -103,7 +103,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     }
 
     @Override
-    public ItemStack getModularItem()
+    public ItemStack getContainerItem()
     {
         return InventoryUtils.getItemStackByUUID(new PlayerMainInvWrapper(this.player.inventory), this.containerUUID, "UUID");
     }
@@ -201,11 +201,11 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             }
         }
 
-        ItemStack modularStackPre = this.getModularItem();
+        ItemStack modularStackPre = this.getContainerItem();
 
         ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
-        ItemStack modularStackPost = this.getModularItem();
+        ItemStack modularStackPost = this.getContainerItem();
 
         if (player.worldObj.isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.pickupManager)
         {
