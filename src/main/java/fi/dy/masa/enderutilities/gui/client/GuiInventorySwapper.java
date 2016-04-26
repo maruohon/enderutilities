@@ -41,7 +41,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
 
     public GuiInventorySwapper(ContainerInventorySwapper container)
     {
-        super(container, 204, 245, "gui.container.inventoryswapper");
+        super(container, 199, 249, "gui.container.inventoryswapper");
         this.player = container.player;
         this.container = container;
         this.inventory = container.inventoryItemModular;
@@ -54,12 +54,12 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     {
         super.initGui();
 
-        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(40).xDisplayPosition;
-        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(40).yDisplayPosition;
-        this.firstInvSlotX     = this.guiLeft + this.container.getSlot(44).xDisplayPosition;
-        this.firstInvSlotY     = this.guiTop  + this.container.getSlot(44).yDisplayPosition;
-        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(44 + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(44 + 36).yDisplayPosition;
+        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(this.invSize).xDisplayPosition;
+        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(this.invSize).yDisplayPosition;
+        this.firstInvSlotX     = this.guiLeft + this.container.getSlot(this.invSize + 4).xDisplayPosition;
+        this.firstInvSlotY     = this.guiTop  + this.container.getSlot(this.invSize + 4).yDisplayPosition;
+        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + 4 + 36).xDisplayPosition;
+        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + 4 + 36).yDisplayPosition;
 
         this.createButtons();
     }
@@ -67,9 +67,9 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 12, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), 125, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 60, 135, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 6, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), 120, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 57, 139, 0x404040);
     }
 
     @Override
@@ -151,6 +151,13 @@ public class GuiInventorySwapper extends GuiEnderUtilities
                 }
                 bit <<= 1;
             }
+
+            // Off Hand slot
+            if ((mask & bit) != 0)
+            {
+                this.drawTexturedModalRect(this.firstArmorSlotX - 1, this.firstArmorSlotY - 1 + 4 * 18, 102, 18, 18, 18);
+            }
+            bit <<= 1;
         }
 
         // Draw the background icon over empty storage module slots
@@ -166,11 +173,11 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
+        int x = (this.width - this.xSize) / 2 + 7;
+        int y = (this.height - this.ySize) / 2 + 36;
 
         // Hovering over the info icon
-        if (mouseX >= x + 6 && mouseX <= x + 23 && mouseY >= y + 20 && mouseY <= y + 37)
+        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
         {
             List<String> list = new ArrayList<String>();
             ItemEnderUtilities.addTooltips("enderutilities.gui.label.inventoryswapper.info", list, false);
@@ -216,7 +223,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         }
 
         // Toggle button for armor
-        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + 9, this.firstArmorSlotX + 1, this.firstArmorSlotY + 73,
+        this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + 9, this.firstArmorSlotX + 1, this.firstArmorSlotY + 91,
                 14, 14, 60, 56, this.guiTextureWidgets, 14, 0));
     }
 

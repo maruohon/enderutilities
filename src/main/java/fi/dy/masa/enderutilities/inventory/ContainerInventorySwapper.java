@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -27,7 +26,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         this.inventoryItemModular.setHostInventory(new PlayerInvWrapper(player.inventory));
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(36, 163);
+        this.addPlayerInventorySlots(31, 167);
     }
 
     @Override
@@ -36,16 +35,16 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         super.addPlayerInventorySlots(posX, posY);
 
         int playerArmorStart = this.inventorySlots.size();
+        IItemHandlerModifiable playerInventory = new PlayerInvWrapper(this.inventoryPlayer);
 
-        IItemHandlerModifiable inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
-        posX = 13;
-        posY = 53;
+        posX = 8;
+        posY = 57;
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
 
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(playerInventory, 39 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -70,14 +69,24 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         }
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
+
+        // Off Hand slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(playerInventory, 40, posX, posY + 4 * 18)
+        {
+            @SideOnly(Side.CLIENT)
+            public String getSlotTexture()
+            {
+                return "minecraft:items/empty_armor_slot_shield";
+            }
+        });
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
         int customInvStart = this.inventorySlots.size();
-        int posX = 36;
-        int posY = 53;
+        int posX = 31;
+        int posY = 57;
 
         // Inventory Swapper's player inventory
         for (int i = 0; i < 3; i++)
@@ -97,7 +106,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Add the armor slots inside the Inventory Swapper as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
 
-        posY = 33;
+        posY = 37;
         // Inventory Swapper's armor slots
         for (int i = 0; i < 4; i++)
         {
@@ -115,7 +124,6 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
                     if (stack == null) return false;
 
                     EntityEquipmentSlot slot = ContainerHandyBag.EQUIPMENT_SLOT_TYPES[slotNum];
-                    System.out.println("plop");
                     return stack.getItem().isValidArmor(stack, slot, ContainerInventorySwapper.this.player);
                 }
 
@@ -128,8 +136,18 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             });
         }
 
-        posX = 126;
-        posY = 18;
+        // Inventory Swapper's Off Hand slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 40, posX + 4 * 18, posY)
+        {
+            @SideOnly(Side.CLIENT)
+            public String getSlotTexture()
+            {
+                return "minecraft:items/empty_armor_slot_shield";
+            }
+        });
+
+        posX = 121;
+        posY = 15;
         int moduleSlots = this.inventoryItemModular.getModuleInventory().getSlots();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)
@@ -160,8 +178,10 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         ItemStack stack = this.getContainerItem();
 
+        int slots = this.inventoryItemModular.getSlots();
+
         // Middle click
-        if (clickType == ClickType.CLONE && dragType == 2 && stack != null && slotNum >= 44 && slotNum < (44 + 40))
+        if (clickType == ClickType.CLONE && dragType == 2 && stack != null && slotNum >= (slots + 4) && slotNum < ((2 * slots) + 4))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)

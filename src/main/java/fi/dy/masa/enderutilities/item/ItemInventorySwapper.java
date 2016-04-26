@@ -205,7 +205,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public int getSizeInventory(ItemStack containerStack)
     {
-        return 40;
+        return 41;
     }
 
     public static boolean isEnabled(ItemStack stack)
@@ -322,7 +322,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                         player.inventory.isItemValidForSlot(slot, tmpStack)))
                 {
                     // Armor slots
-                    if (slot >= mainInvSize && slot < player.inventory.getSizeInventory())
+                    if (slot >= mainInvSize && slot < (mainInvSize + 4))
                     {
                         int pos = -1;
 
@@ -347,7 +347,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                             player.inventory.setInventorySlotContents(slot, tmpStack);
                         }
                     }
-                    else if (slot < mainInvSize)
+                    // Main inventory and Off Hand slot
+                    else
                     {
                         inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
                         player.inventory.setInventorySlotContents(slot, tmpStack);
@@ -472,7 +473,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                     // Armor slots
                     else if (element == 9)
                     {
-                        mask ^= 0xF000000000L; // toggle bits 39..36
+                        mask ^= 0x1F000000000L; // toggle bits 40..36
                     }
 
                     NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
