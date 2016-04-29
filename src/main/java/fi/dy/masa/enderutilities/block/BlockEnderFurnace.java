@@ -5,7 +5,6 @@ import java.util.Random;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -23,14 +22,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyDirection FACING = BlockProperties.FACING;
     //public static final PropertyEnum<EnumMachineType> TYPE = PropertyEnum.<EnumMachineType>create("type", EnumMachineType.class);
     public static final PropertyEnum<EnumMachineMode> MODE = PropertyEnum.<EnumMachineMode>create("mode", EnumMachineMode.class);
 
