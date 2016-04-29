@@ -8,13 +8,13 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
+    protected static final AxisAlignedBB SINGLE_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
     public static final PropertyEnum<BlockStorage.EnumStorageType> TYPE =
             PropertyEnum.<BlockStorage.EnumStorageType>create("type", BlockStorage.EnumStorageType.class);
@@ -45,6 +46,24 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] { TYPE, FACING });
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        return SINGLE_CHEST_AABB;
     }
 
     @Override
@@ -78,10 +97,8 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-
         if (worldIn.isRemote == true)
         {
             return;

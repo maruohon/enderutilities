@@ -88,6 +88,9 @@ processResources
     // Exclude the GIMP image files
     exclude '**/*.xcf'
 
+    // Exclude the Cubik model files
+    exclude '**/*.bdc3D'
+
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
@@ -108,11 +111,11 @@ processResources
     }
 
     // Move access transformers to META-INF
-    rename '(enderutilities_at.cfg)', 'META-INF/$1'
+    rename '(' + config.mod_id + '_at.cfg)', 'META-INF/$1'
 }
 
 jar {
     manifest {
-        attributes 'FMLAT': 'enderutilities_at.cfg'
+        attributes 'FMLAT': config.mod_id + '_at.cfg'
     }
 }
