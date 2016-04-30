@@ -15,26 +15,15 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class TeleportEntityNetherPortal
 {
     /** The axis along which the destination portal aligns. Is either EAST or SOUTH. */
-    public EnumFacing portalAxis;
-    /** The side of the portal the player gets placed to */
-    public EnumFacing teleportSide;
-    public int portalPosX;
-    public int portalPosY;
-    public int portalPosZ;
-    public double entityPosX;
-    public double entityPosY;
-    public double entityPosZ;
+    private EnumFacing portalAxis;
+    private BlockPos portalPos;
+    private BlockPos entityPos;
 
     public TeleportEntityNetherPortal()
     {
-        this.portalPosX = 0;
-        this.portalPosY = 0;
-        this.portalPosZ = 0;
-        this.entityPosX = 0.0d;
-        this.entityPosY = 0.0d;
-        this.entityPosZ = 0.0d;
+        this.portalPos = null;
+        this.entityPos = null;
         this.portalAxis = EnumFacing.NORTH;
-        this.teleportSide = EnumFacing.EAST;
     }
 
     /**
@@ -48,18 +37,18 @@ public class TeleportEntityNetherPortal
      * @param placeInsidePortal true to place the entity inside the portal blocks, false to place the entity one block infront of the portal blocks
      * @return the instance of the teleported entity, or null in case of failure
      */
-    public Entity travelToDimension(Entity entity, int dimension, double idealX, double idealY, double idealZ, int portalSearchRadius, boolean placeInsidePortal)
+    public Entity travelToDimension(Entity entity, int dimension, BlockPos idealPos, int portalSearchRadius, boolean placeInsidePortal)
     {
         WorldServer worldServer = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimension);
 
-        if (this.searchForExistingPortal(worldServer, idealX, idealY, idealZ, portalSearchRadius) == false)
+        if (this.searchForExistingPortal(worldServer, idealPos, portalSearchRadius) == false)
         {
             double origX = entity.posX;
             double origY = entity.posY;
             double origZ = entity.posZ;
-            entity.posX = idealX;
-            entity.posY = idealY;
-            entity.posZ = idealZ;
+            entity.posX = idealPos.getX() + 0.5d;
+            entity.posY = idealPos.getY() + 0.5d;
+            entity.posZ = idealPos.getZ() + 0.5d;
             worldServer.getDefaultTeleporter().makePortal(entity);
             entity.posX = origX;
             entity.posY = origY;
@@ -67,15 +56,15 @@ public class TeleportEntityNetherPortal
 
             // Failed to create or find a portal. This shouldn't happen, but better to be sure.
             // The vanilla method tries to create a portal inside a 16 block radius of the player's position.
-            if (this.searchForExistingPortal(worldServer, idealX, idealY, idealZ, 20) == false)
+            if (this.searchForExistingPortal(worldServer, idealPos, 20) == false)
             {
                 return null;
             }
         }
 
-        this.getTeleportPosition(worldServer, placeInsidePortal);
+        this.findTeleportPosition(worldServer, placeInsidePortal);
 
-        return TeleportEntity.teleportEntity(entity, this.entityPosX, this.entityPosY, this.entityPosZ, dimension, true, true);
+        return TeleportEntity.teleportEntity(entity, this.entityPos.getX() + 0.5d, this.entityPos.getY() + 0.5d, this.entityPos.getZ() + 0.5d, dimension, true, true);
     }
 
     /**
@@ -88,22 +77,20 @@ public class TeleportEntityNetherPortal
      * @param searchRadius
      * @return true if an existing portal is found
      */
-    public boolean searchForExistingPortal(World world, double idealX, double idealY, double idealZ, int searchRadius)
+    public boolean searchForExistingPortal(World world, BlockPos idealPos, int searchRadius)
     {
-        int x;
-        int y;
-        int z;
+        BlockPos pos = null;
         double distance = -1.0D;
 
-        for (x = (int)idealX - searchRadius; x <= idealX + searchRadius; ++x)
+        for (int x = idealPos.getX() - searchRadius; x <= idealPos.getX() + searchRadius; ++x)
         {
-            double dx = (double)x + 0.5D - idealX;
+            double dx = (double)x + 0.5D - idealPos.getX();
 
-            for (z = (int)idealZ - searchRadius; z <= idealZ + searchRadius; ++z)
+            for (int z = (int)idealPos.getZ() - searchRadius; z <= idealPos.getZ() + searchRadius; ++z)
             {
-                double dz = (double)z + 0.5D - idealZ;
+                double dz = (double)z + 0.5D - idealPos.getZ();
 
-                for (y = world.getActualHeight() - 1; y >= 0; --y)
+                for (int y = world.getActualHeight() - 1; y >= 0; --y)
                 {
                     if (world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.PORTAL)
                     {
@@ -112,15 +99,13 @@ public class TeleportEntityNetherPortal
                             --y;
                         }
 
-                        double dy = (double)y + 0.5D - idealY;
-                        double tdist = dx * dx + dy * dy + dz * dz;
+                        double dy = (double)y + 0.5D - idealPos.getY();
+                        double distTemp = dx * dx + dy * dy + dz * dz;
 
-                        if (distance < 0.0D || tdist < distance)
+                        if (distance < 0.0D || distTemp < distance)
                         {
-                            distance = tdist;
-                            this.portalPosX = x;
-                            this.portalPosY = y;
-                            this.portalPosZ = z;
+                            distance = distTemp;
+                            pos = new BlockPos(x, y, z);
                         }
                     }
                 }
@@ -130,6 +115,7 @@ public class TeleportEntityNetherPortal
         // Portal block found
         if (distance >= 0.0D)
         {
+            this.portalPos = pos;
             this.getPortalOrientation(world);
         }
 
@@ -138,7 +124,7 @@ public class TeleportEntityNetherPortal
 
     public void getPortalOrientation(World world)
     {
-        BlockPos pos = new BlockPos(this.portalPosX, this.portalPosY, this.portalPosZ);
+        BlockPos pos = this.portalPos;
         if (world.getBlockState(pos.west()).getBlock() == Blocks.PORTAL || world.getBlockState(pos.east()).getBlock() == Blocks.PORTAL)
         {
             this.portalAxis = EnumFacing.EAST;
@@ -149,13 +135,11 @@ public class TeleportEntityNetherPortal
         }
     }
 
-    public void getTeleportPosition(World world, boolean placeInsidePortal)
+    public void findTeleportPosition(World world, boolean placeInsidePortal)
     {
         if (placeInsidePortal == true)
         {
-            this.entityPosX = this.portalPosX + 0.5d;
-            this.entityPosY = this.portalPosY + 0.5d;
-            this.entityPosZ = this.portalPosZ + 0.5d;
+            this.entityPos = this.portalPos;
         }
         else
         {
@@ -163,27 +147,23 @@ public class TeleportEntityNetherPortal
             EnumFacing dirPortal = this.portalAxis;
 
             // Get the axis where there are more portal blocks (if only 2 wide portal)
-            BlockPos posTmp = new BlockPos(this.portalPosX + dirPortal.getFrontOffsetX(),
-                                           this.portalPosY,
-                                           this.portalPosZ + dirPortal.getFrontOffsetZ());
+            BlockPos posTmp = this.portalPos.add(dirPortal.getFrontOffsetX(), 0, dirPortal.getFrontOffsetZ());
             if (world.getBlockState(posTmp).getBlock() != Blocks.PORTAL)
             {
                 dirPortal = dirPortal.getOpposite();
             }
 
             List<BlockPos> list = new ArrayList<BlockPos>();
-            int xPos = this.portalPosX + dirSide.getFrontOffsetX();
-            int zPos = this.portalPosZ + dirSide.getFrontOffsetZ();
-            int xNeg = this.portalPosX - dirSide.getFrontOffsetX();
-            int zNeg = this.portalPosZ - dirSide.getFrontOffsetZ();
-            list.add(new BlockPos(xPos, this.portalPosY - 1, zPos));
-            list.add(new BlockPos(xPos, this.portalPosY - 2, zPos));
-            list.add(new BlockPos(xPos + dirPortal.getFrontOffsetX(), this.portalPosY - 1, zPos + dirPortal.getFrontOffsetZ()));
-            list.add(new BlockPos(xPos + dirPortal.getFrontOffsetX(), this.portalPosY - 2, zPos + dirPortal.getFrontOffsetZ()));
-            list.add(new BlockPos(xNeg, this.portalPosY - 1, zNeg));
-            list.add(new BlockPos(xNeg, this.portalPosY - 2, zNeg));
-            list.add(new BlockPos(xNeg + dirPortal.getFrontOffsetX(), this.portalPosY - 1, zNeg + dirPortal.getFrontOffsetZ()));
-            list.add(new BlockPos(xNeg + dirPortal.getFrontOffsetX(), this.portalPosY - 2, zNeg + dirPortal.getFrontOffsetZ()));
+            int xOff = dirSide.getFrontOffsetX();
+            int zOff = dirSide.getFrontOffsetZ();
+            list.add(this.portalPos.add(xOff, -1, zOff));
+            list.add(this.portalPos.add(xOff, -2, zOff));
+            list.add(this.portalPos.add(xOff + dirPortal.getFrontOffsetX(), -1, zOff + dirPortal.getFrontOffsetZ()));
+            list.add(this.portalPos.add(xOff + dirPortal.getFrontOffsetX(), -2, zOff + dirPortal.getFrontOffsetZ()));
+            list.add(this.portalPos.add(-xOff, -1, -zOff));
+            list.add(this.portalPos.add(-xOff, -2, -zOff));
+            list.add(this.portalPos.add(-xOff + dirPortal.getFrontOffsetX(), -1, -zOff + dirPortal.getFrontOffsetZ()));
+            list.add(this.portalPos.add(-xOff + dirPortal.getFrontOffsetX(), -2, -zOff + dirPortal.getFrontOffsetZ()));
 
             // Try to find a suitable position on either side of the portal
             for (BlockPos pos : list)
@@ -191,9 +171,7 @@ public class TeleportEntityNetherPortal
                 if (world.isSideSolid(pos, EnumFacing.UP) == true
                     && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
-                    this.entityPosX = pos.getX() + 0.5d;
-                    this.entityPosY = pos.getY() + 1.5d;
-                    this.entityPosZ = pos.getZ() + 0.5d;
+                    this.entityPos = pos.up();
                     return;
                 }
             }
@@ -205,18 +183,14 @@ public class TeleportEntityNetherPortal
                     && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
                     world.setBlockState(pos, Blocks.STONE.getDefaultState(), 3);
-                    this.entityPosX = pos.getX() + 0.5d;
-                    this.entityPosY = pos.getY() + 1.5d;
-                    this.entityPosZ = pos.getZ() + 0.5d;
+                    this.entityPos = pos.up();
                     return;
                 }
             }
 
             // No suitable positions found on either side of the portal, what should we do here??
             // Let's just stick the player to wherever he ends up on the side of the portal for now...
-            this.entityPosX = this.portalPosX + dirSide.getFrontOffsetX() + 0.5d;
-            this.entityPosY = this.portalPosY + 0.5d;
-            this.entityPosZ = this.portalPosZ + dirSide.getFrontOffsetZ() + 0.5d;
+            this.entityPos = this.portalPos.add(dirSide.getFrontOffsetX(), 0, dirSide.getFrontOffsetZ());
         }
     }
 }

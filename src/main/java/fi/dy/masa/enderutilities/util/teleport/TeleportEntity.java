@@ -52,7 +52,7 @@ public class TeleportEntity
 
     public static boolean canTeleportEntity(Entity entity)
     {
-        return ! EntityUtils.doesEntityStackHaveBlacklistedEntities(entity);
+        return EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false;
     }
 
     public static boolean teleportEntityRandomly(Entity entity, double maxDist)

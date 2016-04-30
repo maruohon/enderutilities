@@ -29,7 +29,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -121,17 +120,17 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         int dim = player.dimension == 0 ? -1 : 0;
-        BlockPosEU normalDest = this.getNormalDestinationPosition(player, dim);
-        BlockPosEU posDest = this.getDestinationPosition(stack, player, dim);
+        BlockPos normalDest = this.getNormalDestinationPosition(player, dim);
+        BlockPos posDest = this.getDestinationPosition(stack, player, dim);
         int cost = this.getTeleportCost(player, posDest, dim);
 
         if (UtilItemModular.useEnderCharge(stack, cost, true) == true)
         {
             TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
-            Entity entity = tp.travelToDimension(player, dim, posDest.posX, posDest.posY, posDest.posZ, 64, false);
+            Entity entity = tp.travelToDimension(player, dim, posDest, 32, false);
             if (entity != null)
             {
-                cost = this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, entity.posX, entity.posY, entity.posZ);
+                cost = this.getTeleportCost(normalDest.getX(), normalDest.getY(), normalDest.getZ(), (int)entity.posX, (int)entity.posY, (int)entity.posZ);
                 UtilItemModular.useEnderCharge(stack, cost, false);
                 return true;
             }
@@ -140,7 +139,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return false;
     }
 
-    public BlockPosEU getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
+    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
@@ -170,48 +169,35 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             dScaleZ = 1.0d / dScaleZ;
         }
 
-        return new BlockPosEU((int)(player.posX * dScaleX), (int)(player.posY * dScaleY), (int)(player.posZ * dScaleZ));
+        return new BlockPos(player.posX * dScaleX, player.posY * dScaleY, player.posZ * dScaleZ);
     }
 
-    public BlockPosEU getNormalDestinationPosition(EntityPlayer player, int destDim)
+    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDim)
     {
-        double x;
-        double y;
-        double z;
-
         // Going from Nether to Overworld
         if (destDim == 0)
         {
-            x = player.posX * 8;
-            y = player.posY;
-            z = player.posZ * 8;
-        }
-        // Going from Overworld to Nether
-        else
-        {
-            x = player.posX / 8;
-            y = player.posY;
-            z = player.posZ / 8;
+            return new BlockPos(player.posX * 8, player.posY, player.posZ * 8);
         }
 
-        return new BlockPosEU((int)x, (int)y, (int)z);
+        // Going from Overworld to Nether
+        return new BlockPos(player.posX / 8, player.posY, player.posZ / 8);
     }
 
-    public int getTeleportCost(double x1, double y1, double z1, double x2, double y2, double z2)
+    public int getTeleportCost(int x1, int y1, int z1, int x2, int y2, int z2)
     {
         x1 = x1 - x2;
         y1 = y1 - y2;
         z1 = z1 - z2;
-        double distDiff = Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
 
-        return (int)(TELEPORTATION_EC_COST * distDiff);
+        return (int)(TELEPORTATION_EC_COST * Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1));
     }
 
-    public int getTeleportCost(EntityPlayer player, BlockPosEU dest, int destDim)
+    public int getTeleportCost(EntityPlayer player, BlockPos dest, int destDim)
     {
-        BlockPosEU normalDest = this.getNormalDestinationPosition(player, destDim);
+        BlockPos normalDest = this.getNormalDestinationPosition(player, destDim);
 
-        return this.getTeleportCost(normalDest.posX, normalDest.posY, normalDest.posZ, dest.posX, dest.posY, dest.posZ);
+        return this.getTeleportCost(normalDest.getX(), normalDest.getY(), normalDest.getZ(), dest.getX(), dest.getY(), dest.getZ());
     }
 
     @Override
