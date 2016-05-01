@@ -17,8 +17,8 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
-import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;

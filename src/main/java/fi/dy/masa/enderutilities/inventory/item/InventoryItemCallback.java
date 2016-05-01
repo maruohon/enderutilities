@@ -1,8 +1,10 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.item;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+
+import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 
 public class InventoryItemCallback extends InventoryItem
 {

@@ -30,7 +30,7 @@ import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Effects;
-import fi.dy.masa.enderutilities.inventory.ContainerQuickStacker;
+import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;

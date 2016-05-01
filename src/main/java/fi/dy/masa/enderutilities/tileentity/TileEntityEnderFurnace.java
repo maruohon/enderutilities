@@ -29,9 +29,9 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory implements ITickable

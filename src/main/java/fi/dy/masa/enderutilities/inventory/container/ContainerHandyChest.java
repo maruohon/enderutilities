@@ -1,9 +1,13 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import net.minecraftforge.items.SlotItemHandler;

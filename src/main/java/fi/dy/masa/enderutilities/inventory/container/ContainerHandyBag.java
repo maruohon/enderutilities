@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
@@ -17,6 +17,13 @@ import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 
+import fi.dy.masa.enderutilities.inventory.IContainerItem;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
+import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerItem

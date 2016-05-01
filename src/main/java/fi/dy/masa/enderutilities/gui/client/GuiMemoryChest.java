@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 
-import fi.dy.masa.enderutilities.inventory.ContainerMemoryChest;
+import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 

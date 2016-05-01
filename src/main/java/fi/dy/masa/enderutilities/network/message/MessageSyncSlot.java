@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ContainerLargeStacks;
+import fi.dy.masa.enderutilities.inventory.container.ContainerLargeStacks;
 import io.netty.buffer.ByteBuf;
 
 public class MessageSyncSlot implements IMessage

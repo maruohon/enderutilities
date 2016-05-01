@@ -35,8 +35,8 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
-import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
-import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;

@@ -8,7 +8,7 @@ import net.minecraft.inventory.Slot;
 
 import net.minecraftforge.items.IItemHandler;
 
-import fi.dy.masa.enderutilities.inventory.ContainerHandyChest;
+import fi.dy.masa.enderutilities.inventory.container.ContainerHandyChest;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;

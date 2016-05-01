@@ -11,8 +11,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.enderutilities.inventory.ContainerInventorySwapper;
-import fi.dy.masa.enderutilities.inventory.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.container.ContainerInventorySwapper;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;

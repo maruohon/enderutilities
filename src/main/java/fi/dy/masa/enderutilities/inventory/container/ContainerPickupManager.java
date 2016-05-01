@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.container;
 
 import java.util.UUID;
 
@@ -10,6 +10,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
+import fi.dy.masa.enderutilities.inventory.IContainerItem;
+import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;

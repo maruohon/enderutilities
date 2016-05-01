@@ -11,9 +11,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.enderutilities.inventory.ContainerPickupManager;
-import fi.dy.masa.enderutilities.inventory.InventoryItem;
-import fi.dy.masa.enderutilities.inventory.InventoryItemModules;
+import fi.dy.masa.enderutilities.inventory.container.ContainerPickupManager;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;

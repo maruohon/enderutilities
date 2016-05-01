@@ -19,7 +19,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
 {

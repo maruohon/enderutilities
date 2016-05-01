@@ -7,7 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
-import fi.dy.masa.enderutilities.inventory.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class GuiEnderUtilities extends GuiContainer

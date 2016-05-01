@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
