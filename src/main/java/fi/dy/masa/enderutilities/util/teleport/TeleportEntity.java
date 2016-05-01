@@ -20,14 +20,19 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.end.DragonFightManager;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -492,6 +497,28 @@ public class TeleportEntity
         player.mcServer.getPlayerList().syncPlayerInventory(player);
         player.addExperienceLevel(0);
         player.setPlayerHealthUpdated();
+
+        // FIXME 1.9 - Somewhat ugly way to clear the Boss Info stuff when teleporting FROM The End
+        if (worldServerSrc.provider instanceof WorldProviderEnd)
+        {
+            DragonFightManager manager = ((WorldProviderEnd)worldServerSrc.provider).getDragonFightManager();
+
+            if (manager != null)
+            {
+                try
+                {
+                    BossInfoServer bossInfo = ReflectionHelper.getPrivateValue(DragonFightManager.class, manager, "field_186109_c", "bossInfo");
+                    if (bossInfo != null)
+                    {
+                        bossInfo.removePlayer(player);
+                    }
+                }
+                catch (UnableToAccessFieldException e)
+                {
+                    EnderUtilities.logger.warn("TeleportEntity.transferPlayerToDimension: Failed to get DragonFightManager#bossInfo");
+                }
+            }
+        }
 
         for (PotionEffect potioneffect : player.getActivePotionEffects())
         {
