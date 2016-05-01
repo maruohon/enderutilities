@@ -99,7 +99,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesSided
         if (nbt.hasKey("OutputBufferAmount", Constants.NBT.TAG_INT) == true && nbt.hasKey("OutputBufferStack", Constants.NBT.TAG_COMPOUND) == true)
         {
             this.outputBufferStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("OutputBufferStack"));
-            this.outputBufferStack.stackSize = nbt.getInteger("OutputBufferAmount");
+
+            if (this.outputBufferStack != null)
+            {
+                this.outputBufferStack.stackSize = nbt.getInteger("OutputBufferAmount");
+            }
         }
 
         this.inputDirty = true;
