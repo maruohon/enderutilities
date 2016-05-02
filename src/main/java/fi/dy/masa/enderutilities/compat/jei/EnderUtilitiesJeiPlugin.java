@@ -1,13 +1,15 @@
 package fi.dy.masa.enderutilities.compat.jei;
 
+import net.minecraft.item.ItemStack;
+
 import fi.dy.masa.enderutilities.compat.jei.crafting.RecipeHandlerCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 
 @mezz.jei.api.JEIPlugin
 public class EnderUtilitiesJeiPlugin implements IModPlugin
@@ -28,8 +30,15 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
         registry.addRecipeClickArea(GuiCreationStation.class,  97, 36, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
         registry.addRecipeClickArea(GuiCreationStation.class, 133, 72, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
 
-        IRecipeTransferRegistry recipeTransferRegistry = registry.getRecipeTransferRegistry();
-        recipeTransferRegistry.addRecipeTransferHandler(new RecipeHandlerCreationStation());
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(new RecipeHandlerCreationStation());
+
+        // Creation Station
+        registry.addRecipeCategoryCraftingItem(new ItemStack(EnderUtilitiesBlocks.blockMachine_1, 1, 2),
+                VanillaRecipeCategoryUid.CRAFTING, VanillaRecipeCategoryUid.SMELTING, VanillaRecipeCategoryUid.FUEL);
+
+        // Ender Furnace
+        registry.addRecipeCategoryCraftingItem(new ItemStack(EnderUtilitiesBlocks.blockMachine_0, 1, 0),
+                VanillaRecipeCategoryUid.SMELTING, VanillaRecipeCategoryUid.FUEL);
     }
 
     @Override
