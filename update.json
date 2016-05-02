@@ -1,0 +1,20 @@
+{
+    "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
+    "promos": {
+        "1.9-latest": "0.5.1",
+        "1.9-recommended": "0.5.1",
+        "1.8.9-latest": "0.5.4",
+        "1.8.9-recommended": "0.5.4"
+    },
+    "1.9": {
+        "0.5.0": "Port the 1.8.9-0.5.3 version to Minecraft 1.9\nChanged various things to work with new 1.9 stuff like the dual wielding/off-hand stuff\nAdded some 1.9 sounds",
+        "0.5.1": "Fix a couple of BlockState derps, which caused a crash with Optifine installed"
+    },
+    "1.8.9": {
+        "0.5.4": "Handy Bag: Fix an item loss bug on item pickup if the Handy Bag GUI is open\nFix required minimum Forge version\nFix/clean up some BlockState things\nAdd support for the Forge update checker\nAdd new chest models and textures",
+        "0.5.3": "Fixed a few Container/slotClick bugs\nFixed a nasty bug in the Ender Hoe crop planting code - it destroyed items from the inventory it was accessing\nFixed Ender Tools right click block place code not removing the stack when the size reaches 0\nFixed an item validity check in the Memory Chest, which resulted in losing the item in the cursor, when trying to manually swap stacks of different items, when there was a locked slot with free space for the item that was held in the cursor\nFixed Ender Bucket not applying the fluid color to the model\nChanged the logic behind opening the Handy Bag. Now it shouldn't open \"on its own\" for example when browsing recipies in JEI if the originally opened inventory was the regular player inventory instead of the Handy Bag.\nChanged the \"Move all items (FROM the player inventory)\" functionality to ignore the hotbar. In the Handy Bag GUI, you can still move everything, including the hotbar, by holding shift when clicking the button.",
+        "0.5.2": "Fix Handy Bag GUI buttons and slot backgrounds etc. being messed up with potion effects active\nA couple of minor clean-ups/fixes to inventory/container things",
+        "0.5.1": "Fixed many item and block models being broken inside some of my inventory GUIs (the ones with scaled stack size rendering)\nFixed some recipies being wrong or missing in 0.5.0 (due to me being a derp and forgetting them while reorganizing some of the blocks...)\nFixed Ender Bow arrow requirement with some other mods (removed unnecessary events)\nUpdated JEI recipe area support for multiple areas in Creation Station\nChanged all inventories from the old crappy IInventory into IItemHandler, and for TileEntities also into using capabilities with it\nThanks to IItemHandler, things like the Handy Chest are now accessible externally, for example by hoppers\nThe Ender Furnace also once again has support for large stacks, thanks to IItemHandler\nVarious small inventory/GUI related improvements and fixes, like shift + clicking target slot priorities etc.\nSome miscellaneous small bug fixes\nKnown issues: shift + double clicking to move all matching items doesn't work properly because vanilla code doesn't understand SlotItemHandler type slots",
+        "0.5.0": "Update to Minecraft 1.8.9\nAdd JEI support to Creation Station\nAdd mod config gui factory (ie. main menu config screen support)\nRe-organized some of the blocks\nSome miscellaneous bug fixes"
+    }
+}
