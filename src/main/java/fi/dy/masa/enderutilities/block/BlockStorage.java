@@ -1,10 +1,8 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -19,9 +17,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.block.base.BlockProperties;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -30,8 +26,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyDirection FACING = BlockProperties.FACING;
-
     public static final PropertyEnum<BlockStorage.EnumStorageType> TYPE =
             PropertyEnum.<BlockStorage.EnumStorageType>create("type", BlockStorage.EnumStorageType.class);
 
@@ -94,8 +88,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         if (te instanceof ITieredStorage)
         {
             // FIXME add properties for the type/tier
-            IBlockState iBlockState = worldIn.getBlockState(pos);
-            int meta = iBlockState.getBlock().getMetaFromState(iBlockState);
+            int meta = state.getBlock().getMetaFromState(state);
 
             // FIXME This will only work as long as there are three tiers of every type of storage...
             ((ITieredStorage)te).setStorageTier(meta % 3);
