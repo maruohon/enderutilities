@@ -26,7 +26,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
-     dependencies = "required-after:Forge@[11.15.1.1722,);")
+     dependencies = "required-after:Forge@[11.15.1.1847,);")
 public class EnderUtilities
 {
     @Instance(Reference.MOD_ID)
