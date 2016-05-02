@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -135,7 +136,7 @@ public class ItemEnderUtilities extends Item
     @SideOnly(Side.CLIENT)
     public ResourceLocation[] getItemVariants()
     {
-        return new ResourceLocation[] { Item.REGISTRY.getNameForObject(this) };
+        return new ResourceLocation[] { ForgeRegistries.ITEMS.getKey(this) };
     }
 
     @SideOnly(Side.CLIENT)

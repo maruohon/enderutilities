@@ -33,6 +33,7 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -588,7 +589,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, true);
 
         IBlockState state = world.getBlockState(pos);
-        tag.setString("BlockName", Block.REGISTRY.getNameForObject(state.getBlock()).toString());
+        tag.setString("BlockName", ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
         ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);

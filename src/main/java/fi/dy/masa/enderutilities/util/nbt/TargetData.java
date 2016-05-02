@@ -15,6 +15,7 @@ import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -221,7 +222,7 @@ public class TargetData
                     itemMeta = stack.getMetadata();
                 }
 
-                ResourceLocation rl = Block.REGISTRY.getNameForObject(block);
+                ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(block);
                 if (rl != null)
                 {
                     blockName = rl.toString();
@@ -308,7 +309,7 @@ public class TargetData
         int meta = block.getMetaFromState(iBlockState);
 
         // The target block unique name and metadata matches what we have stored
-        if (this.blockMeta == meta && this.blockName.equals(Block.REGISTRY.getNameForObject(block).toString()) == true)
+        if (this.blockMeta == meta && this.blockName.equals(ForgeRegistries.BLOCKS.getKey(block).toString()) == true)
         {
             return true;
         }

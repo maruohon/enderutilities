@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
@@ -95,7 +96,7 @@ public class EnderUtilities
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
                 EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
-                Block block = Block.REGISTRY.getObject(newLoc);
+                Block block = ForgeRegistries.BLOCKS.getValue(newLoc);
 
                 if (block != null)
                 {
@@ -107,7 +108,7 @@ public class EnderUtilities
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
                 EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
-                Item item = Item.REGISTRY.getObject(newLoc);
+                Item item = ForgeRegistries.ITEMS.getValue(newLoc);
 
                 if (item != null)
                 {

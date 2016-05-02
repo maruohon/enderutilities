@@ -37,6 +37,7 @@ import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -51,9 +52,9 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
@@ -316,7 +317,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             IFluidHandler iFluidHandler = (IFluidHandler)te;
             FluidStack fluidStack;
-            String blockName = Block.REGISTRY.getNameForObject(world.getBlockState(pos).getBlock()).toString();
+            String blockName = ForgeRegistries.BLOCKS.getKey(world.getBlockState(pos).getBlock()).toString();
 
             // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
             // work if we target a blue (= input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,

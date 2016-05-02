@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+
 public class BlockInfo
 {
     public Block block;
@@ -29,7 +31,7 @@ public class BlockInfo
         }
 
         this.block = block;
-        this.resource = Block.REGISTRY.getNameForObject(block);
+        this.resource = ForgeRegistries.BLOCKS.getKey(block);
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
     }
@@ -37,14 +39,14 @@ public class BlockInfo
     public BlockInfo(Block block, int blockMeta, int itemMeta)
     {
         this.block = block;
-        this.resource = Block.REGISTRY.getNameForObject(block);
+        this.resource = ForgeRegistries.BLOCKS.getKey(block);
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
     }
 
     public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
     {
-        this.block = Block.REGISTRY.getObject(resource);
+        this.block = ForgeRegistries.BLOCKS.getValue(resource);
         this.resource = resource;
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
