@@ -36,6 +36,7 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
+     updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
      dependencies = "required-after:Forge@[12.16.0.1859,);",
      acceptedMinecraftVersions = "1.9")
 public class EnderUtilities
