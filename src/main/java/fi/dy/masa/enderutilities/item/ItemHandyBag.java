@@ -293,6 +293,15 @@ public class ItemHandyBag extends ItemInventoryModular
         boolean pickedUp = false;
         EntityPlayer player = event.entityPlayer;
         List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
+        InventoryItemModular bagInv = null;
+        InventoryItemModular openBagInv = null;
+        ItemStack containerStack = null;
+
+        if (player.openContainer instanceof ContainerHandyBag)
+        {
+            openBagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+            containerStack = openBagInv.getModularItemStack();
+        }
 
         Iterator<ItemStack> iter = event.drops.iterator();
         while (iter.hasNext() == true)
@@ -318,7 +327,22 @@ public class ItemHandyBag extends ItemInventoryModular
                 // Bag is not locked
                 if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
                 {
-                    InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                    // If this bag is currently open, then use that inventory instead of creating a new one,
+                    // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+                    if (bagStack == containerStack)
+                    {
+                        bagInv = openBagInv;
+                    }
+                    else
+                    {
+                        bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                    }
+
+                    if (bagInv.isUseableByPlayer(player) == false)
+                    {
+                        continue;
+                    }
+
                     int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                     // Pickup mode is All, or Matching and the bag already contains the same item type
@@ -379,8 +403,18 @@ public class ItemHandyBag extends ItemInventoryModular
             return false;
         }
 
-        boolean ret = true;
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
+        boolean ret = true;
+        InventoryItemModular bagInv = null;
+        InventoryItemModular openBagInv = null;
+        ItemStack containerStack = null;
+
+        if (player.openContainer instanceof ContainerHandyBag)
+        {
+            openBagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+            containerStack = openBagInv.getModularItemStack();
+        }
+
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(player.inventory, EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
@@ -388,14 +422,24 @@ public class ItemHandyBag extends ItemInventoryModular
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
-                InventoryItemModular inv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                // If this bag is currently open, then use that inventory instead of creating a new one,
+                // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+                if (bagStack == containerStack)
+                {
+                    bagInv = openBagInv;
+                }
+                else
+                {
+                    bagInv = new InventoryItemModular(bagStack, player, ModuleType.TYPE_MEMORY_CARD);
+                }
+
                 int pickupMode = NBTUtils.getByte(bagStack, "HandyBag", "PickupMode");
 
                 // Pickup mode is All, or Matching and the bag already contains the same item type
-                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(inv, event.item.getEntityItem()) != -1))
+                if (pickupMode == 2 || (pickupMode == 1 && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, event.item.getEntityItem()) != -1))
                 {
                     // All items successfully inserted
-                    if (InventoryUtils.tryInsertItemStackToInventory(inv, event.item.getEntityItem(), 0, true) == null)
+                    if (InventoryUtils.tryInsertItemStackToInventory(bagInv, event.item.getEntityItem(), 0, true) == null)
                     {
                         event.item.setDead();
                         event.setCanceled(true);
