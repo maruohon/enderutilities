@@ -237,7 +237,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             bit <<= 1;
         }
 
-        if (movedAll == true)
+        if (movedAll == true && ret == Result.MOVED_SOME)
         {
             ret = Result.MOVED_ALL;
         }
