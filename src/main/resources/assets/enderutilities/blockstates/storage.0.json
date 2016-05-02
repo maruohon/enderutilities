@@ -1,63 +1,57 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:orientable_ftbs",
-        "textures": {
-            "front":    "enderutilities:blocks/memorychest.0.front",
-            "side":     "enderutilities:blocks/memorychest.0.side",
-            "top":      "enderutilities:blocks/memorychest.0.top",
-            "bottom":   "enderutilities:blocks/memorychest.0.top"
-        },
+        "model": "enderutilities:chest",
         "transform": "forge:default-block"
     },
     "variants": {
         "type": {
             "memorychest.0": {
                 "textures": {
-                    "front":    "enderutilities:blocks/memorychest.0.front",
-                    "side":     "enderutilities:blocks/memorychest.0.side",
-                    "top":      "enderutilities:blocks/memorychest.0.top",
-                    "bottom":   "enderutilities:blocks/memorychest.0.top"
+                    "front":    "enderutilities:blocks/memorychest_0_front",
+                    "side":     "enderutilities:blocks/memorychest_0_side",
+                    "top":      "enderutilities:blocks/memorychest_0_top",
+                    "bottom":   "enderutilities:blocks/memorychest_0_top"
                 }
             },
             "memorychest.1": {
                 "textures": {
-                    "front":    "enderutilities:blocks/memorychest.1.front",
-                    "side":     "enderutilities:blocks/memorychest.1.side",
-                    "top":      "enderutilities:blocks/memorychest.1.top",
-                    "bottom":   "enderutilities:blocks/memorychest.1.top"
+                    "front":    "enderutilities:blocks/memorychest_1_front",
+                    "side":     "enderutilities:blocks/memorychest_1_side",
+                    "top":      "enderutilities:blocks/memorychest_1_top",
+                    "bottom":   "enderutilities:blocks/memorychest_1_top"
                 }
             },
             "memorychest.2": {
                 "textures": {
-                    "front":    "enderutilities:blocks/memorychest.2.front",
-                    "side":     "enderutilities:blocks/memorychest.2.side",
-                    "top":      "enderutilities:blocks/memorychest.2.top",
-                    "bottom":   "enderutilities:blocks/memorychest.2.top"
+                    "front":    "enderutilities:blocks/memorychest_2_front",
+                    "side":     "enderutilities:blocks/memorychest_2_side",
+                    "top":      "enderutilities:blocks/memorychest_2_top",
+                    "bottom":   "enderutilities:blocks/memorychest_2_top"
                 }
             },
             "handychest.0": {
                 "textures": {
-                    "front":    "enderutilities:blocks/handychest.0.front",
-                    "side":     "enderutilities:blocks/handychest.0.side",
-                    "top":      "enderutilities:blocks/handychest.0.top",
-                    "bottom":   "enderutilities:blocks/handychest.0.top"
+                    "front":    "enderutilities:blocks/handychest_0_front",
+                    "side":     "enderutilities:blocks/handychest_0_side",
+                    "top":      "enderutilities:blocks/handychest_0_top",
+                    "bottom":   "enderutilities:blocks/handychest_0_top"
                 }
             },
             "handychest.1": {
                 "textures": {
-                    "front":    "enderutilities:blocks/handychest.1.front",
-                    "side":     "enderutilities:blocks/handychest.1.side",
-                    "top":      "enderutilities:blocks/handychest.1.top",
-                    "bottom":   "enderutilities:blocks/handychest.1.top"
+                    "front":    "enderutilities:blocks/handychest_1_front",
+                    "side":     "enderutilities:blocks/handychest_1_side",
+                    "top":      "enderutilities:blocks/handychest_1_top",
+                    "bottom":   "enderutilities:blocks/handychest_1_top"
                 }
             },
             "handychest.2": {
                 "textures": {
-                    "front":    "enderutilities:blocks/handychest.2.front",
-                    "side":     "enderutilities:blocks/handychest.2.side",
-                    "top":      "enderutilities:blocks/handychest.2.top",
-                    "bottom":   "enderutilities:blocks/handychest.2.top"
+                    "front":    "enderutilities:blocks/handychest_2_front",
+                    "side":     "enderutilities:blocks/handychest_2_side",
+                    "top":      "enderutilities:blocks/handychest_2_top",
+                    "bottom":   "enderutilities:blocks/handychest_2_top"
                 }
             }
         },

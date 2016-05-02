@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -26,6 +27,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
+    protected static final AxisAlignedBB SINGLE_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
+
     public static final PropertyEnum<BlockStorage.EnumStorageType> TYPE =
             PropertyEnum.<BlockStorage.EnumStorageType>create("type", BlockStorage.EnumStorageType.class);
 
@@ -36,12 +39,26 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockStorage.EnumStorageType.MEMORY_CHEST_0)
                 .withProperty(FACING, EnumFacing.NORTH));
+
+        this.setBlockBounds(0.0625F, 0.0F, 0.0625F, 0.9375F, 0.875F, 0.9375F);
     }
 
     @Override
     protected BlockState createBlockState()
     {
         return new BlockState(this, new IProperty[] { TYPE, FACING });
+    }
+
+    @Override
+    public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube()
+    {
+        return false;
     }
 
     @Override
