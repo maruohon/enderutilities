@@ -16,6 +16,13 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.ContainerHandyBag;
@@ -34,13 +41,6 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemHandyBag extends ItemInventoryModular
 {
@@ -311,7 +311,19 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         PickupMode pickupMode = PickupMode.fromStack(bagStack);
         IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
-        InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        InventoryItemModular bagInv = null;
+
+        // If this bag is currently open, then use that inventory instead of creating a new one,
+        // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+        if (player.openContainer instanceof ContainerHandyBag &&
+            ((ContainerHandyBag)player.openContainer).inventoryItemModular.getModularItemStack() == bagStack)
+        {
+            bagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+        }
+        else
+        {
+            bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        }
 
         // First try to fill all existing stacks in the player's inventory
         if (pickupMode != PickupMode.NONE)
