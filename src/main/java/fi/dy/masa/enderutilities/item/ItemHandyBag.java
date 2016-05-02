@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -23,7 +22,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,7 +30,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
@@ -321,7 +318,19 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         PickupMode pickupMode = PickupMode.fromStack(bagStack);
         IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
-        InventoryItemModular bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        InventoryItemModular bagInv = null;
+
+        // If this bag is currently open, then use that inventory instead of creating a new one,
+        // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+        if (player.openContainer instanceof ContainerHandyBag &&
+            ((ContainerHandyBag)player.openContainer).inventoryItemModular.getModularItemStack() == bagStack)
+        {
+            bagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+        }
+        else
+        {
+            bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        }
 
         // First try to fill all existing stacks in the player's inventory
         if (pickupMode != PickupMode.NONE)
