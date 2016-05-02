@@ -56,7 +56,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.numModuleSlots = this.invModular.getModuleInventory().getSlots();
         this.bagTier = this.container.getBagTier();
 
-        this.scaledStackSizeTextTargetInventories.add(this.invModular);
+        this.scaledStackSizeTextInventories.add(this.invModular);
     }
 
     private void updatePositions()

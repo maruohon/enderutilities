@@ -26,7 +26,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
         super(container, 176, 166, "gui.container." + te.getTEName());
         this.containerEnderFurnace = container;
         this.teef = te;
-        this.scaledStackSizeTextTargetInventories.add(container.inventory);
+        this.scaledStackSizeTextInventories.add(container.inventory);
     }
 
     @Override

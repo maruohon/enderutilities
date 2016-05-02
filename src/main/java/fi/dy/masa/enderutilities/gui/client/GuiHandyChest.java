@@ -36,7 +36,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         this.containerHC = container;
         this.inventory = container.inventory;
         this.chestTier = te.getStorageTier();
-        this.scaledStackSizeTextTargetInventories.add(this.inventory);
+        this.scaledStackSizeTextInventories.add(this.inventory);
     }
 
     @Override

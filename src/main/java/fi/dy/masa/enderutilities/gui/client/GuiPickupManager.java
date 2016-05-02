@@ -42,7 +42,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         this.inventoryItemFilters = container.inventoryItemFilters;
         this.firstLinkCrystalSlot = UtilItemModular.getFirstIndexOfModuleType(
                 this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
-        this.scaledStackSizeTextTargetInventories.add(this.inventoryItemTransmit);
+        this.scaledStackSizeTextInventories.add(this.inventoryItemTransmit);
     }
 
     @Override

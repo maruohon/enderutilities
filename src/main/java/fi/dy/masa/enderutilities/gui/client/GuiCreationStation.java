@@ -45,8 +45,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         super(container, 240, 256, "gui.container.creationstation");
         this.tecs = te;
         this.containerCS = container;
-        this.scaledStackSizeTextTargetInventories.add(this.tecs.getFurnaceInventory());
-        this.scaledStackSizeTextTargetInventories.add(container.inventory);
+        this.scaledStackSizeTextInventories.add(this.tecs.getFurnaceInventory());
+        this.scaledStackSizeTextInventories.add(container.inventory);
     }
 
     @Override

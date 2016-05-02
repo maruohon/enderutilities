@@ -23,16 +23,16 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
 {
-    protected final List<IItemHandler> scaledStackSizeTextTargetInventories;
+    protected final List<IItemHandler> scaledStackSizeTextInventories;
 
     public GuiContainerLargeStacks(ContainerEnderUtilities container, int xSize, int ySize, String textureName)
     {
         super(container, xSize, ySize, textureName);
 
-        this.scaledStackSizeTextTargetInventories = new ArrayList<IItemHandler>();
+        this.scaledStackSizeTextInventories = new ArrayList<IItemHandler>();
     }
 
-    /*@Override
+    @Override
     public void drawSlot(Slot slotIn)
     {
         int slotPosX = slotIn.xDisplayPosition;
@@ -108,7 +108,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             this.itemRender.renderItemAndEffectIntoGUI(itemstack, slotPosX, slotPosY);
 
             // This slot belongs to a "large stacks" type inventory, render the stack size text scaled to 0.5x
-            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextTargetInventories.contains(((SlotItemHandler)slotIn).itemHandler) == true)
+            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler)slotIn).getItemHandler()) == true)
             {
                 this.renderLargeStackItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY);
             }
@@ -120,7 +120,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
         this.itemRender.zLevel = 0.0F;
         this.zLevel = 0.0F;
-    }*/
+    }
 
     public void renderLargeStackItemOverlayIntoGUI(FontRenderer fontRenderer, ItemStack stack, int xPosition, int yPosition)
     {
