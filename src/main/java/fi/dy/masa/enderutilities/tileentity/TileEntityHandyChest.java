@@ -37,6 +37,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public static final int GUI_ACTION_SELECT_MODULE    = 0;
     public static final int GUI_ACTION_MOVE_ITEMS       = 1;
     public static final int GUI_ACTION_SET_QUICK_ACTION = 2;
+    public static final int GUI_ACTION_SORT_ITEMS       = 3;
 
     public static final int INV_ID_MEMORY_CARDS         = 0;
     public static final int INV_ID_ITEMS                = 1;
@@ -287,6 +288,10 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         else if (action == GUI_ACTION_SET_QUICK_ACTION && element >= 0 && element < 6)
         {
             this.actionMode = element;
+        }
+        else if (action == GUI_ACTION_SORT_ITEMS)
+        {
+            InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(0, this.itemInventory.getSlots()));
         }
     }
 

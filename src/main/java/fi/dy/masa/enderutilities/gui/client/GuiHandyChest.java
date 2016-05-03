@@ -1,13 +1,10 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyChest;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -26,7 +23,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             "enderutilities.gui.label.leaveonefilledstack",
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
-            "enderutilities.gui.label.moveallitems"
+            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.sortitems"
     };
 
     public GuiHandyChest(ContainerHandyChest container, TileEntityHandyChest te)
@@ -63,9 +61,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handychest", new Object[0]), 8, 30, 0x404040);
-        //this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 63, 84 + this.chestTier * 36, 0x404025);
-        //this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), 98, 14, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handychest", new Object[0]), 8, 6, 0x404040);
     }
 
     @Override
@@ -145,6 +141,9 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonHoverText(i + 4, x + xOffs[i] + 1, y + yOff, 12, 12, 24, i * 12,
                     this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
+
+        // Add the sort button
+        this.buttonList.add(new GuiButtonHoverText(10, x + 9, y + 30, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
     }
 
     @Override
@@ -172,6 +171,11 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                     new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
                         ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
             }
+        }
+        else if (button.id == 10)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, 0));
         }
     }
 }

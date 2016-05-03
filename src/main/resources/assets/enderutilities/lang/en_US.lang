@@ -207,6 +207,7 @@ enderutilities.gui.label.slotpresets=Slot presets
 enderutilities.gui.label.quickstacker.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots
 enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
+enderutilities.gui.label.sortitems=Sort items
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 enderutilities.gui.label.templatedchest.info=- Middle click to lock the current item type for the slot|lf- Only that type of item can enter an empty slot|lf- When there is space in locked slots, that item type|lf  can only go to those slots until they are full

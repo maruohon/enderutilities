@@ -2,9 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 import java.util.Collection;
-
 import com.google.common.collect.Ordering;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -16,7 +14,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -28,6 +25,17 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
+    public static final int BTN_ID_FIRST_SORT          = 10;
+
+    private static final String[] BUTTON_STRINGS = new String[] {
+            "enderutilities.gui.label.moveallitemsexcepthotbar",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.leaveonefilledstack",
+            "enderutilities.gui.label.fillstacks",
+            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.moveallitems",
+            "enderutilities.gui.label.sortitems"
+    };
 
     protected final EntityPlayer player;
     protected final ContainerHandyBag container;
@@ -200,20 +208,28 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 "enderutilities.gui.label.moveallitemsexcepthotbar",
                 "enderutilities.gui.label.moveallitemsexcepthotbar.holdshift"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24, 12, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.movematchingitems"));
+        int[] xOff = new int[] { 18, 36, 108, 126, 144 };
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 2, x +  36, y + 0, 12, 12, 24, 24, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.leaveonefilledstack"));
+        for (int i = 1; i < 6; i++)
+        {
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + i, x + xOff[i - 1], y,
+                12, 12, 24, i * 12, this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
+        }
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 3, x + 108, y + 0, 12, 12, 24, 36, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.fillstacks"));
+        x = (this.width - this.xSize) / 2;
+        y = (this.height - this.ySize) / 2;
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 4, x + 126, y + 0, 12, 12, 24, 48, this.guiTextureWidgets, 12, 0,
-                 "enderutilities.gui.label.movematchingitems"));
-
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 5, x + 144, y + 0, 12, 12, 24, 60, this.guiTextureWidgets, 12, 0,
-                "enderutilities.gui.label.moveallitems"));
+        // Add the sort button(s)
+        if (this.bagTier == 0)
+        {
+            this.buttonList.add(new GuiButtonHoverText(10, x + 84, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+        }
+        else
+        {
+            this.buttonList.add(new GuiButtonHoverText(10, x + 124, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(11, x +  33, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(12, x + 215, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+        }
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
@@ -255,6 +271,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, value));
+        }
+        else if (button.id >= BTN_ID_FIRST_SORT && button.id < (BTN_ID_FIRST_SORT + 3))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_SORT_ITEMS, button.id - BTN_ID_FIRST_SORT));
         }
     }
 

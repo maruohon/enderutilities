@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,10 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
@@ -596,6 +599,32 @@ public class InventoryUtils
     }
 
     /**
+     * Extract items from the given slot until the resulting stack's stackSize equals amount
+     */
+    public static ItemStack extractItemsFromSlot(IItemHandler inv, int slot, int amount)
+    {
+        ItemStack stack = inv.extractItem(slot, amount, false);
+        int loops = 0;
+
+        if (stack != null)
+        {
+            while (stack.stackSize < amount && loops < SLOT_ITER_LIMIT)
+            {
+                ItemStack stackTmp = inv.extractItem(slot, amount - stack.stackSize, false);
+                if (stackTmp == null)
+                {
+                    break;
+                }
+
+                stack.stackSize += stackTmp.stackSize;
+                loops++;
+            }
+        }
+
+        return stack;
+    }
+
+    /**
      * Collects items from the inventory that are identical to stackTemplate and makes a new ItemStack
      * out of them, up to stackSize = maxAmount. If <b>reverse</b> is true, then the items are collected
      * starting from the end of the given inventory.
@@ -614,13 +643,25 @@ public class InventoryUtils
      */
     public static ItemStack collectItemsFromInventory(IItemHandler inv, ItemStack stackTemplate, int maxAmount, boolean reverse, boolean useOreDict)
     {
+        return collectItemsFromInventoryFromSlotRange(inv, stackTemplate, new SlotRange(0, inv.getSlots()), maxAmount, reverse, useOreDict);
+    }
+
+    /**
+     * Collects items from the inventory from within the given SlotRange that are identical to stackTemplate and makes a new ItemStack
+     * out of them, up to stackSize = maxAmount. If <b>reverse</b> is true, then the items are collected
+     * starting from the end of the given inventory.
+     * If no matching items are found, null is returned.
+     */
+    public static ItemStack collectItemsFromInventoryFromSlotRange(IItemHandler inv, ItemStack stackTemplate, SlotRange range, int amount, boolean reverse, boolean useOreDict)
+    {
         ItemStack stack = stackTemplate.copy();
         stack.stackSize = 0;
 
         int inc = (reverse == true ? -1 : 1);
-        int start = (reverse == true ? (inv.getSlots() - 1) : 0);
+        int start = (reverse == true ? (Math.min(range.lastInc, inv.getSlots() - 1)) : range.first);
+        int end = (reverse == true ? range.first : (Math.min(range.lastInc, inv.getSlots() - 1)));
 
-        for (int slot = start; slot >= 0 && slot < inv.getSlots() && stack.stackSize < maxAmount; slot += inc)
+        for (int slot = start; slot >= start && slot <= end && stack.stackSize < amount; slot += inc)
         {
             ItemStack stackTmp = inv.getStackInSlot(slot);
             if (stackTmp == null)
@@ -630,7 +671,7 @@ public class InventoryUtils
 
             if (areItemStacksEqual(stackTmp, stackTemplate) == true)
             {
-                stackTmp = inv.extractItem(slot, maxAmount - stack.stackSize, false);
+                stackTmp = extractItemsFromSlot(inv, slot, amount - stack.stackSize);
                 if (stackTmp != null)
                 {
                     stack.stackSize += stackTmp.stackSize;
@@ -646,7 +687,7 @@ public class InventoryUtils
                     stack.stackSize = 0;
                 }
 
-                stackTmp = inv.extractItem(slot, maxAmount - stack.stackSize, false);
+                stackTmp = extractItemsFromSlot(inv, slot, amount - stack.stackSize);
                 if (stackTmp != null)
                 {
                     stack.stackSize += stackTmp.stackSize;
@@ -1159,6 +1200,138 @@ public class InventoryUtils
         }
 
         return allSuccess;
+    }
+
+    public static void sortInventoryWithinRange(IItemHandlerModifiable inv, SlotRange range)
+    {
+        List<ItemTypeByName> blocks = new ArrayList<ItemTypeByName>();
+        List<ItemTypeByName> items = new ArrayList<ItemTypeByName>();
+        int last = Math.min(range.lastInc, inv.getSlots() - 1);
+
+        // Get the different items that are present in the inventory
+        for (int i = range.first; i <= last; i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+
+            if (stack != null)
+            {
+                ItemTypeByName type = new ItemTypeByName(stack);
+
+                if (stack.getItem() instanceof ItemBlock)
+                {
+                    if (blocks.contains(type) == false)
+                    {
+                        blocks.add(type);
+                    }
+                }
+                else if (items.contains(type) == false)
+                {
+                    items.add(type);
+                }
+            }
+        }
+
+        Collections.sort(blocks);
+        Collections.sort(items);
+
+        int slots = sortInventoryWithinRangeByTypes(inv, blocks, range);
+        sortInventoryWithinRangeByTypes(inv, items, new SlotRange(range.first + slots, range.lastExc - (range.first + slots)));
+    }
+
+    private static int sortInventoryWithinRangeByTypes(IItemHandlerModifiable inv, List<ItemTypeByName> types, SlotRange range)
+    {
+        int slot = range.first;
+        int slots = 0;
+
+        for (ItemTypeByName type : types)
+        {
+            ItemStack stack = type.getStack();
+            int max = inv instanceof IItemHandlerSize ? ((IItemHandlerSize) inv).getItemStackLimit(stack) : stack.getMaxStackSize();
+            //System.out.printf("sorting for: %s - max size: %d\n", stack.toString(), max);
+
+            while (true)
+            {
+                //System.out.printf("sorting for slot: %d\n", slot);
+                if (slot >= range.lastInc)
+                {
+                    //System.out.printf("slot >= range.lastInc\n");
+                    return slots;
+                }
+
+                SlotRange rangeTmp = new SlotRange(slot, range.lastExc - slot);
+                stack = collectItemsFromInventoryFromSlotRange(inv, stack, rangeTmp, max, false, false);
+                //System.out.printf("collected stack: %s from range: %s\n", stack, rangeTmp.toString());
+
+                if (stack == null)
+                {
+                    break;
+                }
+
+                // There is a stack in the slot that we are moving items to, try to move the stack towards the end of the inventory
+                if (inv.getStackInSlot(slot) != null)
+                {
+                    //System.out.printf("existing stack: %s\n", inv.getStackInSlot(slot).toString());
+                    ItemStack stackTmp = inv.getStackInSlot(slot);
+                    rangeTmp = new SlotRange(slot + 1, range.lastExc - (slot + 1));
+                    stackTmp = tryInsertItemStackToInventoryWithinSlotRange(inv, stackTmp, rangeTmp);
+                    //System.out.printf("tried moving stack to range: %s - remaining: %s\n", rangeTmp.toString(), stackTmp);
+
+                    // Failed to move the stack - this shouldn't happen, we are in trouble now!
+                    if (stackTmp != null)
+                    {
+                        //System.out.printf("failed moving existing stack, panic mode!\n");
+                        // Try to return all the items currently being worked on and then bail out
+                        tryInsertItemStackToInventoryWithinSlotRange(inv, stackTmp, range);
+                        tryInsertItemStackToInventoryWithinSlotRange(inv, stack, range);
+                        return slots;
+                    }
+                }
+
+                // Put the stack (collected starting from this slot towards the end of the inventory) into this slot
+                inv.setStackInSlot(slot, stack);
+                //System.out.printf("setting stack: %s to slot: %d - slots: %d\n", stack, slot, slots + 1);
+                slot++;
+                slots++;
+            }
+        }
+
+        return slots;
+    }
+
+    public static class ItemTypeByName extends ItemType implements Comparable<ItemTypeByName>
+    {
+        public ItemTypeByName(ItemStack stack)
+        {
+            super(stack);
+        }
+
+        @Override
+        public int compareTo(ItemTypeByName other)
+        {
+            if (other == null)
+            {
+                throw new NullPointerException();
+            }
+
+            String name1 = this.getStack().getItem().getRegistryName().toString();
+            String name2 = other.getStack().getItem().getRegistryName().toString();
+            int comp = name1.compareToIgnoreCase(name2);
+
+            if (comp != 0)
+            {
+                return comp;
+            }
+
+            int meta1 = this.getStack().getMetadata();
+            int meta2 = other.getStack().getMetadata();
+
+            if (meta1 != meta2)
+            {
+                return meta1 < meta2 ? -1 : 1;
+            }
+
+            return 0;
+        }
     }
 
     public static enum InvResult

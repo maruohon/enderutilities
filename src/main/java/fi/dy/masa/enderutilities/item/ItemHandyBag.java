@@ -62,6 +62,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static final int GUI_ACTION_SELECT_MODULE = 0;
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
+    public static final int GUI_ACTION_SORT_ITEMS    = 2;
 
     public ItemHandyBag()
     {
@@ -587,6 +588,31 @@ public class ItemHandyBag extends ItemInventoryModular
                             InventoryUtils.tryMoveAllItems(inv, playerInv);
                             break;
                     }
+                }
+                else if (action == GUI_ACTION_SORT_ITEMS && element >= 0 && element <= 2)
+                {
+                    int meta = stack.getMetadata();
+                    // The basic tier bag only has one sort button/inventory section
+                    if (element > 0 && meta == 0)
+                    {
+                        return;
+                    }
+
+                    SlotRange range;
+                    if (element == 1)
+                    {
+                        range = new SlotRange(27, 14);
+                    }
+                    else if (element == 2)
+                    {
+                        range = new SlotRange(41, 14);
+                    }
+                    else
+                    {
+                        range = new SlotRange(0, 27);
+                    }
+
+                    InventoryUtils.sortInventoryWithinRange(inv, range);
                 }
             }
         }

@@ -1,12 +1,13 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.9-latest": "0.5.2",
-        "1.9-recommended": "0.5.2",
+        "1.9-latest": "0.5.3",
+        "1.9-recommended": "0.5.3",
         "1.8.9-latest": "0.5.4",
         "1.8.9-recommended": "0.5.4"
     },
     "1.9": {
+        "0.5.3": "Added sorting functionality/buttons to Handy Bag and Handy Chest",
         "0.5.2": "Added a Quick Stacker item\nAdded Off hand slot support to the Inventory Swapper\nRe-enabled the scaled stack size text rendering now that MCP has been fixed\nReduced the Ender Crystal spawn explosion strength\nAdded new chest models and textures\nFixed Ender Dragon boss bar got stuck when teleporting away from The End dimension\nAdded JEI recipe category crafting item support\nAdded support for the Forge update checker",
         "0.5.1": "Fix a couple of BlockState derps, which caused a crash with Optifine installed",
         "0.5.0": "Port the 1.8.9-0.5.3 version to Minecraft 1.9\nChanged various things to work with new 1.9 stuff like the dual wielding/off-hand stuff\nAdded some 1.9 sounds"
