@@ -28,8 +28,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
@@ -551,7 +554,9 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS)
                 {
-                    IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
+                    IItemHandlerModifiable playerMainInv = new PlayerMainInvWrapper(player.inventory);
+                    IItemHandlerModifiable offhandInv = new PlayerOffhandInvWrapper(player.inventory);
+                    IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
 
                     switch(element & 0x7FFF)
                     {

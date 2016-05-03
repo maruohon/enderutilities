@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.tileentity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -12,13 +11,13 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
+import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
@@ -257,7 +256,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
                 return;
             }
 
-            IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
+            IItemHandlerModifiable playerMainInv = new PlayerMainInvWrapper(player.inventory);
+            IItemHandlerModifiable offhandInv = new PlayerOffhandInvWrapper(player.inventory);
+            IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
 
             switch (element)
             {
