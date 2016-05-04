@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
@@ -12,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,8 +19,6 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
@@ -173,8 +169,7 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemModel(ItemEnderUtilities item, int meta)
     {
-        ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
-        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(rl, "inventory"));
+        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), "inventory"));
     }
 
     private void registerItemModelWithVariants(ItemEnderUtilities item)
@@ -216,15 +211,8 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
     {
-        ItemStack stack = new ItemStack(blockIn, 1, meta);
-        Item item = stack.getItem();
-        if (item == null)
-        {
-            return;
-        }
-
-        ModelResourceLocation mrl = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(item), fullVariant);
-        ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockIn), meta,
+                new ModelResourceLocation(blockIn.getRegistryName(), fullVariant));
     }
 
     private void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
@@ -237,7 +225,7 @@ public class ClientProxy extends CommonProxy
         {
             Item item = stack.getItem();
             int meta = stack.getMetadata();
-            ModelResourceLocation mrl = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(item), variantPre + names[meta] + variantPost);
+            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + names[meta] + variantPost);
             ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }
