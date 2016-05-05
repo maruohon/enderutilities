@@ -179,15 +179,15 @@ public class EnderUtilitiesItems
         // Tools and weapons
         if (Configs.disableRecipeEnderPickaxe == false && Configs.disableItemEnderTools == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 1), "AAA", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 0), "AAA", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderAxe == false && Configs.disableItemEnderTools == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 2), "AA ", "AS ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 1), "AA ", "AS ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderShovel == false && Configs.disableItemEnderTools == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 0), " A ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
+            GameRegistry.addRecipe(new ItemStack(enderTool, 1, 2), " A ", " S ", " S ", 'A', alloy2, 'S', ender_stick);
         }
         if (Configs.disableRecipeEnderHoe == false && Configs.disableItemEnderTools == false)
         {

@@ -1169,7 +1169,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static ToolType fromStack(ItemStack stack)
         {
-            int meta = MathHelper.clamp_int(stack.getItemDamage(), 0, 3);
+            int meta = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
             return values()[meta];
         }
     }
