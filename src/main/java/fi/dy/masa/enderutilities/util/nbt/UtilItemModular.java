@@ -757,16 +757,14 @@ public class UtilItemModular
      */
     public static void setTarget(ItemStack containerStack, EntityPlayer player, boolean storeRotation)
     {
-        int x = (int)player.posX;
-        int y = (int)player.posY;
-        int z = (int)player.posZ;
-        double hitX = player.posX - x;
-        double hitY = player.posY - y;
-        double hitZ = player.posZ - z;
+        BlockPos pos = player.getPosition();
+        double hitX = player.posX - pos.getX();
+        double hitY = player.posY - pos.getY();
+        double hitZ = player.posZ - pos.getZ();
         // Don't adjust the target position for uses that are targeting the block, not the in-world location
         boolean adjustPosHit = getSelectedModuleTier(containerStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
 
-        setTarget(containerStack, player, player.getPosition(), EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
+        setTarget(containerStack, player, pos, EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }
 
     /**
