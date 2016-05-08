@@ -30,7 +30,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -241,6 +240,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             EntityPlayer player = (EntityPlayer)entity;
             InventoryItemModular inv;
+
             // Only re-stock stacks when the player doesn't have a GUI open
             //if (player.openContainer == player.inventoryContainer)
             {
@@ -258,13 +258,8 @@ public class ItemHandyBag extends ItemInventoryModular
                     return;
                 }
 
-                InventoryUtils.fillStacksOfMatchingItems(inv, new PlayerMainInvWrapper(player.inventory));
-
-                //if (player.openContainer instanceof ContainerHandyBag)
-                {
-                    player.openContainer.detectAndSendChanges();
-                    player.inventory.markDirty();
-                }
+                InventoryUtils.fillStacksOfMatchingItems(inv, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
+                player.openContainer.detectAndSendChanges();
             }
         }
     }
@@ -321,8 +316,19 @@ public class ItemHandyBag extends ItemInventoryModular
     public static ItemStack handleItems(ItemStack itemsIn, ItemStack bagStack, EntityPlayer player)
     {
         PickupMode pickupMode = PickupMode.fromStack(bagStack);
-        IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         InventoryItemModular bagInv = null;
+
+        // First try to fill all existing stacks in the player's inventory
+        if (pickupMode != PickupMode.NONE)
+        {
+            itemsIn = InventoryUtils.tryInsertItemStackToExistingStacksInInventory(playerInv, itemsIn);
+        }
+
+        if (itemsIn == null)
+        {
+            return null;
+        }
 
         // If this bag is currently open, then use that inventory instead of creating a new one,
         // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
@@ -334,17 +340,6 @@ public class ItemHandyBag extends ItemInventoryModular
         else
         {
             bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        }
-
-        // First try to fill all existing stacks in the player's inventory
-        if (pickupMode != PickupMode.NONE)
-        {
-            itemsIn = InventoryUtils.tryInsertItemStackToExistingStacksInInventory(playerInv, itemsIn);
-        }
-
-        if (itemsIn == null)
-        {
-            return null;
         }
 
         // If there is no space left in existing stacks in the player's inventory
@@ -374,7 +369,8 @@ public class ItemHandyBag extends ItemInventoryModular
 
         boolean pickedUp = false;
         EntityPlayer player = event.getEntityPlayer();
-        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
 
         Iterator<ItemStack> iter = event.drops.iterator();
         while (iter.hasNext() == true)
@@ -389,7 +385,7 @@ public class ItemHandyBag extends ItemInventoryModular
             // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
             for (int slot : bagSlots)
             {
-                ItemStack bagStack = player.inventory.getStackInSlot(slot);
+                ItemStack bagStack = playerInv.getStackInSlot(slot);
                 // Bag is not locked
                 if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
                 {
@@ -448,11 +444,12 @@ public class ItemHandyBag extends ItemInventoryModular
         int origStackSize = stack.stackSize;
         boolean ret = true;
 
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
         for (int slot : slots)
         {
-            ItemStack bagStack = player.inventory.getStackInSlot(slot);
+            ItemStack bagStack = playerInv.getStackInSlot(slot);
             // Bag is not locked
             if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
             {
@@ -506,29 +503,24 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     /**
-     * Returns the slot number of the first open-able Handy Bag in the player's inventory, or -1 if none is found.
-     */
-    public static int getSlotContainingOpenableBag(EntityPlayer player)
-    {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerInvWrapper(player.inventory), EnderUtilitiesItems.handyBag);
-        for (int slot : slots)
-        {
-            if (bagIsOpenable(player.inventory.getStackInSlot(slot)) == true)
-            {
-                return slot;
-            }
-        }
-
-        return -1;
-    }
-
-    /**
      * Returns an ItemStack containing an enabled Handy Bag in the player's inventory, or null if none is found.
      */
     public static ItemStack getOpenableBag(EntityPlayer player)
     {
-        int slotNum = getSlotContainingOpenableBag(player);
-        return slotNum != -1 ? player.inventory.getStackInSlot(slotNum) : null;
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
+
+        for (int slot : slots)
+        {
+            ItemStack stack = playerInv.getStackInSlot(slot);
+
+            if (bagIsOpenable(stack) == true)
+            {
+                return stack;
+            }
+        }
+
+        return null;
     }
 
     @Override

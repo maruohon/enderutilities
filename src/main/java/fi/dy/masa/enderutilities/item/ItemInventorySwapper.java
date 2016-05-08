@@ -19,6 +19,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.container.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
@@ -37,11 +41,6 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBound, IKeyBoundUnselected
 {
@@ -218,10 +217,11 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
      */
     public static int getSlotContainingEnabledItem(EntityPlayer player)
     {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.inventorySwapper);
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.inventorySwapper);
         for (int slot : slots)
         {
-            if (isEnabled(player.inventory.getStackInSlot(slot)) == true)
+            if (isEnabled(playerInv.getStackInSlot(slot)) == true)
             {
                 return slot;
             }

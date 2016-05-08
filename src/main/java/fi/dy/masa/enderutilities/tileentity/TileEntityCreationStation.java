@@ -13,9 +13,19 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
@@ -31,12 +41,6 @@ import fi.dy.masa.enderutilities.util.InventoryUtils.InvResult;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder, ITickable
 {
@@ -533,7 +537,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         if (InventoryUtils.tryMoveAllItems(inv, this.itemInventory) != InvResult.MOVED_ALL)
         {
-            return InventoryUtils.tryMoveAllItems(inv, new PlayerMainInvWrapper(player.inventory));
+            return InventoryUtils.tryMoveAllItems(inv, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP));
         }
 
         return InvResult.MOVED_ALL;
@@ -719,7 +723,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 return;
             }
 
-            IItemHandler playerInv = new PlayerMainInvWrapper(player.inventory);
+            IItemHandlerModifiable playerMainInv = new PlayerMainInvWrapper(player.inventory);
+            IItemHandlerModifiable offhandInv = new PlayerOffhandInvWrapper(player.inventory);
+            IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
 
             switch (element)
             {

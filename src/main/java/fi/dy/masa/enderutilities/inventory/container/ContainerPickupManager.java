@@ -1,15 +1,10 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
@@ -44,16 +39,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.filterSlots = new SlotRange(0, 0);
 
         this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.worldObj.isRemote, player);
-        this.inventoryItemModules.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemModules.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
         this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
-        this.inventoryItemFilters.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemFilters.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 
         this.inventoryItemTransmit = (InventoryItem)this.inventory;
-        this.inventoryItemTransmit.setHostInventory(new PlayerInvWrapper(player.inventory), this.containerUUID);
+        this.inventoryItemTransmit.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemTransmit.readFromContainerItemStack();
 
         this.addCustomInventorySlots();
@@ -111,7 +106,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     @Override
     public ItemStack getContainerItem()
     {
-        return InventoryUtils.getItemStackByUUID(new PlayerMainInvWrapper(this.player.inventory), this.containerUUID, "UUID");
+        return InventoryUtils.getItemStackByUUID(this.playerInv, this.containerUUID, "UUID");
     }
 
     @Override

@@ -12,9 +12,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -376,7 +376,7 @@ public class InventoryUtils
      */
     public static ItemStack getFirstItemOfType(EntityPlayer player, Class<?> clazz)
     {
-        IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
+        IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
         for (int slot = 0; slot < inv.getSlots(); slot++)
         {
@@ -578,6 +578,22 @@ public class InventoryUtils
     }
 
     /**
+     * Extracts up to <b>amount</b> of <b>item</b> from the first slot in the inventory that
+     * has <b>item</b> in it and returns them. Does not try to fill the stack up to <b>amount</b>!
+     */
+    public static ItemStack extractItems(IItemHandler inv, Item item, int amount)
+    {
+        int slot = getSlotOfFirstMatchingItem(inv, item);
+
+        if (slot >= 0)
+        {
+            return inv.extractItem(slot, amount, false);
+        }
+
+        return null;
+    }
+
+    /**
      * Get the ItemStack that has the given UUID stored in its NBT. If <b>containerTagName</b>
      * is not null, then the UUID is read from a compound tag by that name.
      */
@@ -643,7 +659,7 @@ public class InventoryUtils
      */
     public static ItemStack collectItemsFromInventory(IItemHandler inv, ItemStack stackTemplate, int maxAmount, boolean reverse, boolean useOreDict)
     {
-        return collectItemsFromInventoryFromSlotRange(inv, stackTemplate, new SlotRange(0, inv.getSlots()), maxAmount, reverse, useOreDict);
+        return collectItemsFromInventoryFromSlotRange(inv, stackTemplate, new SlotRange(inv), maxAmount, reverse, useOreDict);
     }
 
     /**

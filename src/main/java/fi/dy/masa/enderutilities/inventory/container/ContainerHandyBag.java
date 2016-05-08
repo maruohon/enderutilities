@@ -8,15 +8,10 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.PlayerArmorInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
-
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
@@ -45,7 +40,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
-        this.inventoryItemModular.setHostInventory(new PlayerInvWrapper(player.inventory));
+        this.inventoryItemModular.setHostInventory(this.playerInv);
         this.craftMatrix = new InventoryCrafting(this, 2, 2);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
 
@@ -65,14 +60,13 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         int playerArmorStart = this.inventorySlots.size();
 
-        IItemHandler inv = new PlayerArmorInvWrapper(this.inventoryPlayer);
         // Player armor slots
         posY = 15;
         for (int i = 0; i < 4; i++)
         {
             final int slotNum = i;
 
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, 3 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 39 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -99,7 +93,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
 
         this.offhandSlot = new MergeSlotRange(this.inventorySlots.size(), 1);
-        this.addSlotToContainer(new SlotItemHandlerGeneric(new PlayerOffhandInvWrapper(this.inventoryPlayer), 0, posX + 4 * 18, 51)
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX + 4 * 18, 51)
         {
             @SideOnly(Side.CLIENT)
             public String getSlotTexture()

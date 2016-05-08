@@ -5,12 +5,8 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
-
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
@@ -28,7 +24,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         super(player, new InventoryItemModular(containerStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
-        this.inventoryItemModular.setHostInventory(new PlayerInvWrapper(player.inventory));
+        this.inventoryItemModular.setHostInventory(this.playerInv);
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(31, 167);
@@ -40,7 +36,6 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         super.addPlayerInventorySlots(posX, posY);
 
         int playerArmorStart = this.inventorySlots.size();
-        IItemHandlerModifiable playerInventory = new PlayerInvWrapper(this.inventoryPlayer);
 
         // Player armor slots
         posX = 8;
@@ -49,7 +44,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         {
             final int slotNum = i;
 
-            this.addSlotToContainer(new SlotItemHandlerGeneric(playerInventory, 39 - i, posX, posY + i * 18)
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 39 - i, posX, posY + i * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -76,7 +71,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
 
         // Off Hand slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(playerInventory, 40, posX, posY + 4 * 18)
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX, posY + 4 * 18)
         {
             @SideOnly(Side.CLIENT)
             public String getSlotTexture()

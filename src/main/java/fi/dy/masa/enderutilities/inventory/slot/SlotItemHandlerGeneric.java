@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
-
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 
@@ -50,7 +50,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         }
         else
         {
-            //System.out.println("SlotItemHandlerGeneric#putStack() - insertItem()");
+            EnderUtilities.logger.warn("SlotItemHandlerGeneric#putStack() by insertItem() - things will not work well!");
             this.getItemHandler().insertItem(this.getSlotIndex(), stack, false);
         }
 

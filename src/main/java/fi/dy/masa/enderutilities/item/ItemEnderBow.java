@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -17,13 +16,11 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -124,12 +121,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return;
             }
 
-            IItemHandler inv = new PlayerMainInvWrapper(player.inventory);
-            int slot = InventoryUtils.getSlotOfFirstMatchingItem(inv, EnderUtilitiesItems.enderArrow);
-            if (slot >= 0)
-            {
-                inv.extractItem(slot, 1, false);
-            }
+            IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null); // null: joined wrapper
+            InventoryUtils.extractItems(inv, EnderUtilitiesItems.enderArrow, 1);
 
             stack.damageItem(1, player);
 

@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -19,15 +18,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
@@ -146,29 +140,24 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     }
 
     /**
-     * Returns the slot number of the first enabled/usable Inventory Swapper in the player's inventory, or -1 if none is found.
-     */
-    public static int getSlotContainingEnabledItem(EntityPlayer player)
-    {
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(new PlayerMainInvWrapper(player.inventory), EnderUtilitiesItems.quickStacker);
-        for (int slot : slots)
-        {
-            if (isEnabled(player.inventory.getStackInSlot(slot)) == true)
-            {
-                return slot;
-            }
-        }
-
-        return -1;
-    }
-
-    /**
      * Returns an ItemStack containing an enabled Inventory Swapper in the player's inventory, or null if none is found.
      */
     public static ItemStack getEnabledItem(EntityPlayer player)
     {
-        int slotNum = getSlotContainingEnabledItem(player);
-        return slotNum != -1 ? player.inventory.getStackInSlot(slotNum) : null;
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.quickStacker);
+
+        for (int slot : slots)
+        {
+            ItemStack stack = playerInv.getStackInSlot(slot);
+
+            if (isEnabled(stack) == true)
+            {
+                return stack;
+            }
+        }
+
+        return null;
     }
 
     public static long getEnabledSlotsMask(ItemStack stack)
@@ -182,8 +171,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
      */
     public Result quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
     {
-        // Only quick stack up to 36 slots (the player's inventory)
-        final int invSizePlayer = 36;
+        final int invSizePlayer = playerInv.getSlots();
         final int invSizeExt = externalInv.getSlots();
         Result ret = Result.MOVED_NONE;
         boolean movedAll = true;
@@ -245,11 +233,11 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         return ret;
     }
 
-    public Result quickStackItems(EntityPlayer player, ItemStack swapperStack, IItemHandler inventory)
+    public Result quickStackItems(EntityPlayer player, ItemStack stackerStack, IItemHandler inventory)
     {
-        IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
-        Result ret = this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(swapperStack), player.isSneaking() == false);
+        Result ret = this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(stackerStack), player.isSneaking() == false);
         if (ret != Result.MOVED_NONE)
         {
             player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
@@ -258,10 +246,10 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         return ret;
     }
 
-    public static void quickStackItems(EntityPlayer player, final int swapperSlot)
+    public static void quickStackItems(EntityPlayer player)
     {
-        ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
-        if (swapperStack == null)
+        ItemStack stackerStack = getEnabledItem(player);
+        if (stackerStack == null)
         {
             return;
         }
@@ -269,9 +257,9 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         World world = player.worldObj;
         //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
 
-        ItemQuickStacker item = (ItemQuickStacker) swapperStack.getItem();
-        long slotMask = getEnabledSlotsMask(swapperStack);
-        IItemHandler playerInv = new CombinedInvWrapper(new PlayerMainInvWrapper(player.inventory), new PlayerOffhandInvWrapper(player.inventory));
+        ItemQuickStacker item = (ItemQuickStacker) stackerStack.getItem();
+        long slotMask = getEnabledSlotsMask(stackerStack);
+        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
         for (BlockPos pos : getPositions(player))
         {
@@ -308,22 +296,13 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         return positions;
     }
 
-    public static void quickStackItems(EntityPlayer player)
-    {
-        int slot = getSlotContainingEnabledItem(player);
-        if (slot != -1)
-        {
-            quickStackItems(player, slot);
-        }
-    }
-
     @Override
     public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Re-fetch the item to check if it's enabled
         stack = getEnabledItem(player);
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.quickStacker)
+        if (stack != null)
         {
             ((ItemQuickStacker)stack.getItem()).doKeyBindingAction(player, stack, key);
         }

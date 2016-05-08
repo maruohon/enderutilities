@@ -291,7 +291,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
         else if (action == GUI_ACTION_SORT_ITEMS)
         {
-            InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(0, this.itemInventory.getSlots()));
+            InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
         }
     }
 

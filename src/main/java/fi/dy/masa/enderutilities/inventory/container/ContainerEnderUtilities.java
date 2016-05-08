@@ -7,21 +7,21 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.util.SlotRange;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ContainerEnderUtilities extends Container
 {
     public final EntityPlayer player;
-    public final InventoryPlayer inventoryPlayer;
+    protected final InventoryPlayer inventoryPlayer;
+    protected final IItemHandlerModifiable playerInv;
     public final IItemHandler inventory;
     protected MergeSlotRange customInventorySlots;
     protected MergeSlotRange playerArmorSlots;
@@ -33,6 +33,7 @@ public class ContainerEnderUtilities extends Container
     {
         this.player = player;
         this.inventoryPlayer = player.inventory;
+        this.playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
@@ -61,20 +62,19 @@ public class ContainerEnderUtilities extends Container
 
         int playerInvStart = this.inventorySlots.size();
 
-        IItemHandlerModifiable inv = new PlayerMainInvWrapper(this.inventoryPlayer);
         // Player inventory
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(inv, i * 9 + j + 9, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, i * 9 + j + 9, posX + j * 18, posY + i * 18));
             }
         }
 
         // Player inventory hotbar
         for (int i = 0; i < 9; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, i, posX + i * 18, posY + 58));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, i, posX + i * 18, posY + 58));
         }
 
         this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);

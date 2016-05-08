@@ -410,7 +410,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
 
         ItemStack stackSlot = slot != null ? slot.getStack() : null;
-        ItemStack stackHotbar = this.inventoryPlayer.getStackInSlot(button);
+        ItemStack stackHotbar = this.playerInv.getStackInSlot(button);
 
         // The stack in the slot is null or the stack size is small enough to fit into one regular stack,
         // and the stack in the hotbar is null or the stack is small enough to fit to the slot
@@ -419,7 +419,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
              slot.canTakeStack(this.player) == true && slot.isItemValid(stackHotbar) == true)
         {
             slot.putStack(stackHotbar);
-            this.inventoryPlayer.setInventorySlotContents(button, stackSlot);
+            this.playerInv.setStackInSlot(button, stackSlot);
 
             if (stackSlot != null)
             {
@@ -433,7 +433,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             num = Math.min(num, stackSlot.stackSize);
             stackHotbar = slot.decrStackSize(num);
             slot.onPickupFromSlot(player, stackHotbar);
-            this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
+            this.playerInv.setStackInSlot(button, stackHotbar);
         }
         // Matching items in both slots
         else if (stackHotbar != null && stackSlot != null && InventoryUtils.areItemStacksEqual(stackHotbar, stackSlot) == true)
@@ -445,12 +445,12 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 stackHotbar.stackSize += num;
                 slot.decrStackSize(num);
                 slot.onPickupFromSlot(player, stackSlot);
-                this.inventoryPlayer.setInventorySlotContents(button, stackHotbar);
+                this.playerInv.setStackInSlot(button, stackHotbar);
             }
             // ... otherwise take the stack from it
             else if (slot.isItemValid(stackHotbar) == true)
             {
-                this.inventoryPlayer.setInventorySlotContents(button, this.putItemsToSlot(slot, stackHotbar, stackHotbar.stackSize));
+                this.playerInv.setStackInSlot(button, this.putItemsToSlot(slot, stackHotbar, stackHotbar.stackSize));
             }
         }
     }
