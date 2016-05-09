@@ -22,6 +22,11 @@ public class SlotRange
         this.lastExc = start + numSlots;
     }
 
+    public boolean contains(int slot)
+    {
+        return slot >= this.first && slot <= this.lastInc;
+    }
+
     @Override
     public String toString()
     {

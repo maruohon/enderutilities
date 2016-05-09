@@ -183,7 +183,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
-        if (this.isSlotInRange(this.filterSlots, slotNum) == true)
+        if (this.filterSlots.contains(slotNum) == true)
         {
             this.fakeSlotClick(slotNum, dragType, clickType, player);
             return null;
@@ -194,7 +194,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         {
             for (int i : this.draggedSlots)
             {
-                if (this.isSlotInRange(this.filterSlots, i) == true)
+                if (this.filterSlots.contains(i) == true)
                 {
                     this.fakeSlotClick(i, dragType, clickType, player);
                     return null;

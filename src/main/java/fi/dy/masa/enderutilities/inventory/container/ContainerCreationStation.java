@@ -7,7 +7,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemCrafting;
@@ -18,8 +19,6 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerCreationStation extends ContainerLargeStacks
 {
@@ -203,7 +202,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
             return ret;
         }
         // Crafting grid slots, try to merge to the main item inventory first
-        else if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true)
+        else if (this.craftingGridSlotsLeft.contains(slotNum) == true || this.craftingGridSlotsRight.contains(slotNum) == true)
         {
             if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false) == true)
             {
@@ -218,11 +217,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
-        if (this.isSlotInRange(this.craftingGridSlotsLeft, slotNum) == true || slotNum == 40)
+        if (this.craftingGridSlotsLeft.contains(slotNum) == true || slotNum == 40)
         {
             this.tecs.lastInteractedCraftingGrid = 0;
         }
-        else if (this.isSlotInRange(this.craftingGridSlotsRight, slotNum) == true || slotNum == 50)
+        else if (this.craftingGridSlotsRight.contains(slotNum) == true || slotNum == 50)
         {
             this.tecs.lastInteractedCraftingGrid = 1;
         }

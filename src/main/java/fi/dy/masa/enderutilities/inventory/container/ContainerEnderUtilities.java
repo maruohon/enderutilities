@@ -11,6 +11,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
@@ -110,11 +111,6 @@ public class ContainerEnderUtilities extends Container
                 this.inventoryPlayer.getItemStack() != null;
     }
 
-    public boolean isSlotInRange(SlotRange range, int slotNum)
-    {
-        return slotNum >= range.first && slotNum < range.lastExc;
-    }
-
     @Override
     public Slot getSlot(int slotId)
     {
@@ -143,7 +139,7 @@ public class ContainerEnderUtilities extends Container
      * the list of "priority slot" SlotRanges, and after that come the rest of the "custom inventory".
      * Returns false if no items were moved, true otherwise
      */
-    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
+    protected boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
         Slot slot = this.getSlot(slotNum);
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
@@ -152,12 +148,12 @@ public class ContainerEnderUtilities extends Container
         }
 
         // From player armor slot to player main inventory
-        if (this.isSlotInRange(this.playerArmorSlots, slotNum) == true)
+        if (this.playerArmorSlots.contains(slotNum) == true)
         {
             return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
         }
         // From player main inventory to armor slot or the "external" inventory
-        else if (this.isSlotInRange(this.playerMainSlots, slotNum) == true)
+        else if (this.playerMainSlots.contains(slotNum) == true)
         {
             if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false) == true)
             {
@@ -176,7 +172,7 @@ public class ContainerEnderUtilities extends Container
         return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, true);
     }
 
-    public boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
+    protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
     {
         boolean ret = false;
 
@@ -188,7 +184,7 @@ public class ContainerEnderUtilities extends Container
         return ret;
     }
 
-    public boolean transferStackToSlotRange(EntityPlayer player, int slotNum, MergeSlotRange slotRange, boolean reverse)
+    protected boolean transferStackToSlotRange(EntityPlayer player, int slotNum, MergeSlotRange slotRange, boolean reverse)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
@@ -219,7 +215,7 @@ public class ContainerEnderUtilities extends Container
         // Can merge at least some of the items, get the amount that can be merged
         amount = stack != null ? amount - stack.stackSize : amount;
 
-        // Actually get the items for actual merging
+        // Get the actual stack for non-simulated merging
         stack = slot.decrStackSize(amount);
         slot.onPickupFromSlot(player, stack);
 
@@ -230,6 +226,7 @@ public class ContainerEnderUtilities extends Container
         if (stack != null)
         {
             slot.insertItem(stack, false);
+            EnderUtilities.logger.warn("Failed to merge all items in " + this.getClass().getSimpleName() + ". This shouldn't happen and should be reported.");
         }
 
         return true;
@@ -262,9 +259,6 @@ public class ContainerEnderUtilities extends Container
     {
         int slotStart = slotRange.first;
         int slotEndExclusive = slotRange.lastExc;
-        // FIXME this copy() is needed because the InvWrapper in Forge doesn't make a copy
-        // if the whole input stack fits into an empty slot. A PR has been submitted to fix that.
-        stack = stack.copy();
         int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
 
         // First try to merge the stack into existing stacks in the container
@@ -301,22 +295,22 @@ public class ContainerEnderUtilities extends Container
         return stack;
     }
 
-    public void addMergeSlotRangeExtToPlayer(int start, int numSlots)
+    protected void addMergeSlotRangeExtToPlayer(int start, int numSlots)
     {
         this.addMergeSlotRangeExtToPlayer(start, numSlots, false);
     }
 
-    public void addMergeSlotRangeExtToPlayer(int start, int numSlots, boolean existingOnly)
+    protected void addMergeSlotRangeExtToPlayer(int start, int numSlots, boolean existingOnly)
     {
         this.mergeSlotRangesExtToPlayer.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
 
-    public void addMergeSlotRangePlayerToExt(int start, int numSlots)
+    protected void addMergeSlotRangePlayerToExt(int start, int numSlots)
     {
         this.addMergeSlotRangePlayerToExt(start, numSlots, false);
     }
 
-    public void addMergeSlotRangePlayerToExt(int start, int numSlots, boolean existingOnly)
+    protected void addMergeSlotRangePlayerToExt(int start, int numSlots, boolean existingOnly)
     {
         this.mergeSlotRangesPlayerToExt.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
