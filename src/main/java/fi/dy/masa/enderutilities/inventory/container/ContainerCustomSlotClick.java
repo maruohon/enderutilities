@@ -83,8 +83,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         amount = Math.min(amount, spaceAvailable);
 
-        if (amount <= 0 || (slot.isItemValid(stackSlot) == false && spaceAvailable < stackSlot.stackSize))
-        //if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) == true && spaceAvailable < stackSlot.stackSize))
+        // only allow taking the whole stack from crafting slots
+        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) && spaceAvailable < stackSlot.stackSize))
         {
             return false;
         }
@@ -275,10 +275,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
                     this.inventoryPlayer.setItemStack(stackCursor.stackSize > 0 ? stackCursor : null);
                 }
-                // Can't put items into the slot (for example a crafting output slot); take items instead
+                // Can't put items into the slot (for example a furnace output slot or a crafting output slot); take items instead
                 else if (stackSlot != null)
                 {
-                    this.takeItemsFromSlotToCursor(slot, stackSlot.stackSize);
+                    this.takeItemsFromSlotToCursor(slot, Math.min(stackSlot.getMaxStackSize() / 2, stackSlot.stackSize));
                 }
             }
             // Different items, try to swap the stacks
@@ -292,9 +292,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // Empty cursor, trying to take items from the slot into the cursor
         else if (stackSlot != null)
         {
-            int amount = stackSlot.stackSize; // default to the whole stack if it can't be returned to the slot
+            // only allow taking the whole stack from crafting slots
+            int amount = stackSlot.stackSize;
 
-            if (slot.isItemValid(stackSlot) == true)
+            if ((slot instanceof SlotItemHandlerCraftresult) == false)
             {
                 amount = Math.min((int)Math.ceil((double)stackSlot.stackSize / 2.0d), (int)Math.ceil((double)stackSlot.getMaxStackSize() / 2.0d));
             }
