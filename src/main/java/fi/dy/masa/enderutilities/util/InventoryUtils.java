@@ -670,14 +670,18 @@ public class InventoryUtils
      */
     public static ItemStack collectItemsFromInventoryFromSlotRange(IItemHandler inv, ItemStack stackTemplate, SlotRange range, int amount, boolean reverse, boolean useOreDict)
     {
+        if (range.first >= inv.getSlots() || range.lastInc >= inv.getSlots())
+        {
+            return null;
+        }
+
+        int inc = reverse == true ? -1 : 1;
+        int start = reverse == true ? range.lastInc : range.first;
         ItemStack stack = stackTemplate.copy();
         stack.stackSize = 0;
+        //System.out.printf("amount: %d range: %s stack: %s start: %d inc: %d\n", amount, range, stack, start, inc);
 
-        int inc = (reverse == true ? -1 : 1);
-        int start = (reverse == true ? (Math.min(range.lastInc, inv.getSlots() - 1)) : range.first);
-        int end = (reverse == true ? range.first : (Math.min(range.lastInc, inv.getSlots() - 1)));
-
-        for (int slot = start; slot >= start && slot <= end && stack.stackSize < amount; slot += inc)
+        for (int slot = start; slot >= range.first && slot <= range.lastInc && stack.stackSize < amount; slot += inc)
         {
             ItemStack stackTmp = inv.getStackInSlot(slot);
             if (stackTmp == null)
