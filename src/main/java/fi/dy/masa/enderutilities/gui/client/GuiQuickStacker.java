@@ -31,7 +31,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
 
     public GuiQuickStacker(ContainerQuickStacker container)
     {
-        super(container, 191, 118, "gui.container.quickstacker");
+        super(container, 192, 126, "gui.container.quickstacker");
         this.player = container.player;
         this.container = container;
     }
@@ -50,7 +50,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker", new Object[0]), 12, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker", new Object[0]), 28, 5, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 60, 135, 0x404040);
     }
 
@@ -94,17 +94,24 @@ public class GuiQuickStacker extends GuiEnderUtilities
                     bit <<= 1;
                 }
             }
+
+            // Offhand slot
+            bit = 1L << 40;
+            if ((mask & bit) != 0)
+            {
+                this.drawTexturedModalRect(this.firstInvSlotX - 1 - 18, this.firstInvSlotY - 1 - 18, 102, 18, 18, 18);
+            }
         }
     }
 
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
+        int x = ((this.width - this.xSize) / 2) + 6;
+        int y = ((this.height - this.ySize) / 2) + 6;
 
         // Hovering over the info icon
-        if (mouseX >= x + 6 && mouseX <= x + 23 && mouseY >= y + 20 && mouseY <= y + 37)
+        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
         {
             List<String> list = new ArrayList<String>();
             ItemEnderUtilities.addTooltips("enderutilities.gui.label.quickstacker.info", list, false);
