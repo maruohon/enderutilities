@@ -17,7 +17,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
-
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
@@ -26,7 +25,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
@@ -79,7 +77,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         this.cookTime = 0;
         this.timer = 0;
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 3, 1024, true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperEnderFurnace(this.itemHandlerBase, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperEnderFurnace(this.getBaseItemHandler(), this);
     }
 
     @Override
@@ -161,9 +159,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         if (this.inputDirty == true)
         {
-            if (this.itemHandlerBase.getStackInSlot(SLOT_INPUT) != null)
+            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) != null)
             {
-                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.itemHandlerBase.getStackInSlot(SLOT_INPUT));
+                this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.getBaseItemHandler().getStackInSlot(SLOT_INPUT));
             }
             else
             {
@@ -288,7 +286,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         // Output to Ender Chest enabled
-        if (this.outputToEnderChest == true && this.itemHandlerBase.getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
+        if (this.outputToEnderChest == true && this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
         {
             if (this.moveItemsToEnderChest() == true)
             {
@@ -322,10 +320,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         if (this.canSmelt() == true)
         {
-            this.itemHandlerBase.insertItem(SLOT_OUTPUT, this.smeltingResultCache, false);
-            this.itemHandlerBase.extractItem(SLOT_INPUT, 1, false);
+            this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, false);
+            this.getBaseItemHandler().extractItem(SLOT_INPUT, 1, false);
 
-            if (this.itemHandlerBase.getStackInSlot(SLOT_INPUT) == null)
+            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) == null)
             {
                 this.inputDirty = true;
             }
@@ -338,19 +336,19 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     public int consumeFuelItem()
     {
-        if (this.itemHandlerBase.getStackInSlot(SLOT_FUEL) == null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_FUEL) == null)
         {
             return 0;
         }
 
-        ItemStack fuelStack = this.itemHandlerBase.extractItem(SLOT_FUEL, 1, false);
+        ItemStack fuelStack = this.getBaseItemHandler().extractItem(SLOT_FUEL, 1, false);
         int burnTime = consumeFluidFuelDosage(fuelStack);
 
         // IFluidContainerItem items with lava
         if (burnTime > 0)
         {
             // Put the fuel/fluid container item back
-            this.itemHandlerBase.insertItem(SLOT_FUEL, fuelStack, false);
+            this.getBaseItemHandler().insertItem(SLOT_FUEL, fuelStack, false);
             this.burnTimeFresh = burnTime;
             //this.fuelDirty = true;
         }
@@ -364,9 +362,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
                 this.burnTimeFresh = burnTime;
                 ItemStack containerStack = fuelStack.getItem().getContainerItem(fuelStack);
 
-                if (this.itemHandlerBase.getStackInSlot(SLOT_FUEL) == null && containerStack != null)
+                if (this.getBaseItemHandler().getStackInSlot(SLOT_FUEL) == null && containerStack != null)
                 {
-                    this.itemHandlerBase.insertItem(SLOT_FUEL, containerStack, false);
+                    this.getBaseItemHandler().insertItem(SLOT_FUEL, containerStack, false);
                     //this.fuelDirty = true;
                 }
             }
@@ -382,7 +380,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private boolean moveItemsToEnderChest()
     {
-        if (this.itemHandlerBase.getStackInSlot(SLOT_OUTPUT) == null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) == null)
         {
             return false;
         }
@@ -395,7 +393,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // Player is online
 
         IItemHandler enderChestHandler = new InvWrapper(player.getInventoryEnderChest());
-        ItemStack stack = this.itemHandlerBase.extractItem(SLOT_OUTPUT, 64, false);
+        ItemStack stack = this.getBaseItemHandler().extractItem(SLOT_OUTPUT, 64, false);
 
         int origSize = stack.stackSize;
         int invSize = enderChestHandler.getSlots();
@@ -425,7 +423,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             }
         }
 
-        this.itemHandlerBase.insertItem(SLOT_OUTPUT, stack, false);
+        this.getBaseItemHandler().insertItem(SLOT_OUTPUT, stack, false);
 
         return origSize != stack.stackSize;
     }
@@ -436,7 +434,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     public boolean hasFuelAvailable()
     {
-        ItemStack fuelStack = this.itemHandlerBase.getStackInSlot(SLOT_FUEL);
+        ItemStack fuelStack = this.getBaseItemHandler().getStackInSlot(SLOT_FUEL);
         if (fuelStack == null)
         {
             return false;
@@ -452,12 +450,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     public boolean canSmelt()
     {
-        if (this.itemHandlerBase.getStackInSlot(SLOT_INPUT) == null || this.smeltingResultCache == null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) == null || this.smeltingResultCache == null)
         {
             return false;
         }
 
-        return this.itemHandlerBase.insertItem(SLOT_OUTPUT, this.smeltingResultCache, true) == null;
+        return this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, true) == null;
     }
 
     /**

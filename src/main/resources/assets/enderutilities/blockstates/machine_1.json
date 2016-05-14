@@ -6,7 +6,23 @@
     },
     "variants": {
         "type": {
+            "creationstation": {
+                "textures": {
+                    "front":    "enderutilities:blocks/creationstation_front",
+                    "side":     "enderutilities:blocks/creationstation_side",
+                    "top":      "enderutilities:blocks/creationstation_top",
+                    "bottom":   "enderutilities:blocks/creationstation_side"
+                }
+            },
             "enderinfuser":    {
+                "textures": {
+                    "front":    "enderutilities:blocks/enderinfuser_front",
+                    "side":     "enderutilities:blocks/enderinfuser_side",
+                    "top":      "enderutilities:blocks/enderinfuser_top",
+                    "bottom":   "enderutilities:blocks/enderinfuser_bottom"
+                }
+            },
+            "quickstackeradvanced":    {
                 "textures": {
                     "front":    "enderutilities:blocks/enderinfuser_front",
                     "side":     "enderutilities:blocks/enderinfuser_side",
@@ -20,14 +36,6 @@
                     "side":     "enderutilities:blocks/toolworkstation_side",
                     "top":      "enderutilities:blocks/toolworkstation_top",
                     "bottom":   "enderutilities:blocks/toolworkstation_bottom"
-                }
-            },
-            "creationstation": {
-                "textures": {
-                    "front":    "enderutilities:blocks/creationstation_front",
-                    "side":     "enderutilities:blocks/creationstation_side",
-                    "top":      "enderutilities:blocks/creationstation_top",
-                    "bottom":   "enderutilities:blocks/creationstation_side"
                 }
             }
         },

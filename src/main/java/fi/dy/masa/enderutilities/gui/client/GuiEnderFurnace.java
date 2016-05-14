@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -9,7 +8,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -18,13 +16,13 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
 public class GuiEnderFurnace extends GuiContainerLargeStacks
 {
-    public ContainerEnderFurnace containerEnderFurnace;
-    public TileEntityEnderFurnace teef;
+    private final ContainerEnderFurnace containerEF;
+    private final TileEntityEnderFurnace teef;
 
     public GuiEnderFurnace(ContainerEnderFurnace container, TileEntityEnderFurnace te)
     {
         super(container, 176, 166, "gui.container." + te.getTEName());
-        this.containerEnderFurnace = container;
+        this.containerEF = container;
         this.teef = te;
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
@@ -53,7 +51,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
         int y = (this.height - this.ySize) / 2;
 
         // 1: Outputting to Ender Chest, draw the regular arrow instead of the crossed over arrow
-        if (this.containerEnderFurnace.outputToEnderChest == true)
+        if (this.containerEF.outputToEnderChest == true)
         {
             this.drawTexturedModalRect(x + 114, y + 34, 176, 78, 24, 16);
         }
@@ -62,16 +60,16 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
         if (this.teef.isBurningLast == true)
         {
             int uOffset = (this.teef.fastMode == true ? 14 : 0);
-            int h = this.containerEnderFurnace.fuelProgress * 13 / 100;
+            int h = this.containerEF.fuelProgress * 13 / 100;
 
             this.drawTexturedModalRect(x + 34, y + 36 + 12 - h, 176 + uOffset, 12 - h, 14, h + 1);
         }
 
         // Draw the smelting progress arrow
-        if (this.containerEnderFurnace.smeltingProgress > 0)
+        if (this.containerEF.smeltingProgress > 0)
         {
             int vOffset = 0;
-            int w = this.containerEnderFurnace.smeltingProgress * 24 / 100;
+            int w = this.containerEF.smeltingProgress * 24 / 100;
 
             if (this.teef.isBurningLast == true)
             {
@@ -89,7 +87,7 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
     protected void createButtons()
     {
         int modeOffset = (this.teef.fastMode == true ? 16 : 0);
-        int outputOffset = (this.containerEnderFurnace.outputToEnderChest == true ? 16 : 0);
+        int outputOffset = (this.containerEF.outputToEnderChest == true ? 16 : 0);
 
         this.buttonList.clear();
 

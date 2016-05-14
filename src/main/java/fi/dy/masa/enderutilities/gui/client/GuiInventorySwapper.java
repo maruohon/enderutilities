@@ -3,14 +3,11 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -27,23 +24,21 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     public static final int BTN_ID_FIRST_TOGGLE_ROWS    = 8;
     public static final int BTN_ID_FIRST_TOGGLE_COLUMNS = 12;
 
-    public ContainerInventorySwapper container;
-    public InventoryItemModular inventory;
-    public EntityPlayer player;
-    public int invSize;
-    public int numModuleSlots;
-    public int firstModuleSlotX;
-    public int firstModuleSlotY;
-    public int firstInvSlotX;
-    public int firstInvSlotY;
-    public int firstArmorSlotX;
-    public int firstArmorSlotY;
+    private final ContainerInventorySwapper containerInvSwapper;
+    private final InventoryItemModular inventory;
+    private final int invSize;
+    private int numModuleSlots;
+    private int firstModuleSlotX;
+    private int firstModuleSlotY;
+    private int firstInvSlotX;
+    private int firstInvSlotY;
+    private int firstArmorSlotX;
+    private int firstArmorSlotY;
 
     public GuiInventorySwapper(ContainerInventorySwapper container)
     {
         super(container, 199, 249, "gui.container.inventoryswapper");
-        this.player = container.player;
-        this.container = container;
+        this.containerInvSwapper = container;
         this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSlots();
         this.numModuleSlots = this.inventory.getModuleInventory().getSlots();
@@ -54,12 +49,12 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     {
         super.initGui();
 
-        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(this.invSize).xDisplayPosition;
-        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(this.invSize).yDisplayPosition;
-        this.firstInvSlotX     = this.guiLeft + this.container.getSlot(this.invSize + 4).xDisplayPosition;
-        this.firstInvSlotY     = this.guiTop  + this.container.getSlot(this.invSize + 4).yDisplayPosition;
-        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + 4 + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + 4 + 36).yDisplayPosition;
+        this.firstModuleSlotX  = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize).xDisplayPosition;
+        this.firstModuleSlotY  = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize).yDisplayPosition;
+        this.firstInvSlotX     = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4).xDisplayPosition;
+        this.firstInvSlotY     = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4).yDisplayPosition;
+        this.firstArmorSlotX   = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).xDisplayPosition;
+        this.firstArmorSlotY   = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).yDisplayPosition;
 
         this.createButtons();
     }
@@ -85,7 +80,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             // Draw the dark background icon over the disabled inventory slots
             for (int i = 0; i < this.invSize; i++)
             {
-                Slot slot = this.container.getSlot(i);
+                Slot slot = this.containerInvSwapper.getSlot(i);
                 this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
             }
         }
@@ -109,7 +104,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
-        ItemStack stack = this.container.getContainerItem();
+        ItemStack stack = this.containerInvSwapper.getContainerItem();
         if (stack != null)
         {
             // Draw the selection border around the selected preset's button

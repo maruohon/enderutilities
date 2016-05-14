@@ -1,20 +1,20 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class GuiEnderUtilities extends GuiContainer
 {
-    protected ContainerEnderUtilities container;
-    protected ResourceLocation guiTexture;
-    protected ResourceLocation guiTextureWidgets;
+    protected final ContainerEnderUtilities container;
+    protected final EntityPlayer player;
+    protected final ResourceLocation guiTexture;
+    protected final ResourceLocation guiTextureWidgets;
     protected int backgroundU;
     protected int backgroundV;
 
@@ -22,6 +22,7 @@ public class GuiEnderUtilities extends GuiContainer
     {
         super(container);
         this.container = container;
+        this.player = container.player;
         this.xSize = xSize;
         this.ySize = ySize;
         this.guiTexture = ReferenceTextures.getGuiTexture(textureName);

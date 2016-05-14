@@ -4,7 +4,6 @@ import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyChest;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -13,10 +12,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
 public class GuiHandyChest extends GuiContainerLargeStacks
 {
-    private final TileEntityHandyChest tehc;
-    private final ContainerHandyChest containerHC;
-    private final IItemHandler inventory;
-    private final int chestTier;
     private static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
             "enderutilities.gui.label.movematchingitems",
@@ -27,14 +22,19 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             "enderutilities.gui.label.sortitems"
     };
 
+    private final TileEntityHandyChest tehc;
+    private final ContainerHandyChest containerHC;
+    private final int chestTier;
+    private final int invSize;
+
     public GuiHandyChest(ContainerHandyChest container, TileEntityHandyChest te)
     {
         super(container, 176, 249, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
         this.tehc = te;
         this.containerHC = container;
-        this.inventory = container.inventory;
         this.chestTier = te.getStorageTier();
-        this.scaledStackSizeTextInventories.add(this.inventory);
+        this.invSize = container.inventory.getSlots();
+        this.scaledStackSizeTextInventories.add(container.inventory);
     }
 
     @Override
@@ -71,8 +71,6 @@ public class GuiHandyChest extends GuiContainerLargeStacks
 
         this.bindTexture(this.guiTextureWidgets);
 
-        int invSize = this.inventory.getSlots();
-
         // Draw the selection marker around the selected module's button
         this.drawTexturedModalRect(this.guiLeft + 101 + this.tehc.getSelectedModule() * 18, this.guiTop + 26, 120, 0, 10, 10);
 
@@ -94,7 +92,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         if (this.tehc.isInventoryAccessible(this.container.getPlayer()) == false)
         {
             // Draw the dark background icon over the disabled inventory slots
-            for (int i = 0; i < invSize; i++)
+            for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xDisplayPosition - 1;

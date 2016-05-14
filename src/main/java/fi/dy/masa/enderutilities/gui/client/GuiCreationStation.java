@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -10,8 +11,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.opengl.GL11;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -22,8 +21,6 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class GuiCreationStation extends GuiContainerLargeStacks implements IButtonCallback
 {
-    private final TileEntityCreationStation tecs;
-    private final ContainerCreationStation containerCS;
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
     public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
     public static final String[] BUTTON_STRINGS = new String[] {
@@ -39,6 +36,9 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             "enderutilities.gui.label.leaveoneitemongrid",
             "enderutilities.gui.label.useitemsfrominventory"
     };
+
+    private final TileEntityCreationStation tecs;
+    private final ContainerCreationStation containerCS;
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {

@@ -56,7 +56,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super(ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
-        this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
+        this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
         this.itemInventory = new InventoryItemCallback(null, 54, true, false, null, this);
         this.itemHandlerExternal = this.itemInventory;
         this.clickTimes = new HashMap<UUID, Long>();

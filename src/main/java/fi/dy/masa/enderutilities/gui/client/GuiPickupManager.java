@@ -3,14 +3,11 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
@@ -25,18 +22,17 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class GuiPickupManager extends GuiContainerLargeStacks
 {
     public static final int NUM_LINK_CRYSTAL_SLOTS = 3;
-    public final ContainerPickupManager container;
-    public final InventoryItem inventoryItemTransmit;
-    public final InventoryItemModules inventoryItemModules;
-    public final InventoryItem inventoryItemFilters;
-    public final EntityPlayer player;
-    public final int firstLinkCrystalSlot;
+
+    private final ContainerPickupManager containerPickupManager;
+    private final InventoryItem inventoryItemTransmit;
+    private final InventoryItemModules inventoryItemModules;
+    private final InventoryItem inventoryItemFilters;
+    private final int firstLinkCrystalSlot;
 
     public GuiPickupManager(ContainerPickupManager container)
     {
         super(container, 176, 256, "gui.container.pickupmanager");
-        this.player = container.player;
-        this.container = container;
+        this.containerPickupManager = container;
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;
         this.inventoryItemFilters = container.inventoryItemFilters;
@@ -75,7 +71,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
 
         this.bindTexture(this.guiTextureWidgets);
 
-        ItemStack containerStack = this.container.getContainerItem();
+        ItemStack containerStack = this.containerPickupManager.getContainerItem();
 
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
@@ -193,7 +189,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 163, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
 
-        ItemStack containerStack = this.container.getContainerItem();
+        ItemStack containerStack = this.containerPickupManager.getContainerItem();
 
         // Add the transport filter settings buttons
 

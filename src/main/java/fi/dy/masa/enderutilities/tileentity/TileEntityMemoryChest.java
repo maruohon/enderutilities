@@ -41,7 +41,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     {
         this.templateStacks = new ItemStack[invSize];
         this.itemHandlerBase = new ItemStackHandlerTileEntity(invSize, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.itemHandlerBase, this);
+        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.getBaseItemHandler(), this);
     }
 
     @Override

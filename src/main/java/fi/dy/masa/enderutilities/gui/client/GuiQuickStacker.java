@@ -3,13 +3,10 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -24,16 +21,14 @@ public class GuiQuickStacker extends GuiEnderUtilities
     public static final int BTN_ID_FIRST_TOGGLE_ROWS    = 4;
     public static final int BTN_ID_FIRST_TOGGLE_COLUMNS = 8;
 
-    public ContainerQuickStacker container;
-    public EntityPlayer player;
-    public int firstInvSlotX;
-    public int firstInvSlotY;
+    private final ContainerQuickStacker containerQS;
+    private int firstInvSlotX;
+    private int firstInvSlotY;
 
     public GuiQuickStacker(ContainerQuickStacker container)
     {
         super(container, 192, 126, "gui.container.quickstacker");
-        this.player = container.player;
-        this.container = container;
+        this.containerQS = container;
     }
 
     @Override
@@ -41,8 +36,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
     {
         super.initGui();
 
-        this.firstInvSlotX     = this.guiLeft + this.container.getSlot(0).xDisplayPosition;
-        this.firstInvSlotY     = this.guiTop  + this.container.getSlot(0).yDisplayPosition;
+        this.firstInvSlotX = this.guiLeft + this.containerQS.getSlot(0).xDisplayPosition;
+        this.firstInvSlotY = this.guiTop  + this.containerQS.getSlot(0).yDisplayPosition;
 
         this.createButtons();
     }
@@ -61,7 +56,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
 
         this.bindTexture(this.guiTextureWidgets);
 
-        ItemStack stack = this.container.getContainerItem();
+        ItemStack stack = this.containerQS.getContainerItem();
         if (stack != null)
         {
             // Draw the selection border around the selected preset's button

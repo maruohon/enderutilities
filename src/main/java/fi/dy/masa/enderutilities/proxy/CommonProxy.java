@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -82,13 +83,14 @@ public abstract class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        this.registerTileEntity(TileEntityEnderFurnace.class,       ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.registerTileEntity(TileEntityToolWorkstation.class,    ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-        this.registerTileEntity(TileEntityEnderInfuser.class,       ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.registerTileEntity(TileEntityEnergyBridge.class,       ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
-        this.registerTileEntity(TileEntityMemoryChest.class,        ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.registerTileEntity(TileEntityHandyChest.class,         ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
-        this.registerTileEntity(TileEntityCreationStation.class,    ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
     }
 
     @Override

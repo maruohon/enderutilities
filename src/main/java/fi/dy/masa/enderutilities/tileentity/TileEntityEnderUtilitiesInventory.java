@@ -3,17 +3,18 @@ package fi.dy.masa.enderutilities.tileentity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
-import fi.dy.masa.enderutilities.reference.Reference;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 {
@@ -44,7 +45,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     /**
      * Returns the "base" IItemHandler that this TileEntity uses to store items into NBT when it saves.
      */
-    public IItemHandler getBaseItemHandler()
+    public ItemStackHandlerBasic getBaseItemHandler()
     {
         return this.itemHandlerBase;
     }
@@ -56,17 +57,17 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
      */
     public IItemHandler getWrappedInventoryForContainer()
     {
-        return new ItemHandlerWrapperContainer(this.itemHandlerBase, this.itemHandlerExternal);
+        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), this.itemHandlerExternal);
     }
 
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        this.itemHandlerBase.deserializeNBT(nbt);
+        this.getBaseItemHandler().deserializeNBT(nbt);
     }
 
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        nbt.merge(this.itemHandlerBase.serializeNBT());
+        nbt.merge(this.getBaseItemHandler().serializeNBT());
     }
 
     @Override

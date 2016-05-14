@@ -110,7 +110,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MODULES, 4, 1, false, "Items", this);
-        this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.itemHandlerBase);
+        this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
         this.itemHandlerExternal = this.itemInventory;
@@ -686,6 +686,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
+    @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
         if (this.worldObj.isRemote == true)

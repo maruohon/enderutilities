@@ -72,6 +72,8 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerUUID;
     }
 
+    public void onLeftClickBlock(EntityPlayer player) { }
+
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.rotation = nbt.getByte("Rotation");

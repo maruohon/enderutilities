@@ -2,17 +2,15 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class GuiEnderInfuser extends GuiEnderUtilities
 {
-    public TileEntityEnderInfuser teei;
+    private final TileEntityEnderInfuser teei;
 
     public GuiEnderInfuser(ContainerEnderInfuser container, TileEntityEnderInfuser te)
     {

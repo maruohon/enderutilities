@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -37,19 +36,15 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             "enderutilities.gui.label.sortitems"
     };
 
-    protected final EntityPlayer player;
-    protected final ContainerHandyBag container;
-    protected final InventoryItemModular invModular;
-    protected final int invSize;
-    protected final int numModuleSlots;
-    protected final int bagTier;
-
-    protected float oldMouseX;
-    protected float oldMouseY;
-    protected int firstModuleSlotX;
-    protected int firstModuleSlotY;
-    protected int firstArmorSlotX;
-    protected int firstArmorSlotY;
+    private final ContainerHandyBag containerHB;
+    private final InventoryItemModular invModular;
+    private final int invSize;
+    private final int numModuleSlots;
+    private final int bagTier;
+    private float oldMouseX;
+    private float oldMouseY;
+    private int firstModuleSlotX;
+    private int firstModuleSlotY;
     private boolean hasActivePotionEffects;
     private int[] lastPos = new int[2];
 
@@ -57,22 +52,19 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     {
         super(container, 256, 256, "gui.container.handybag." + container.getBagTier());
 
-        this.player = container.player;
-        this.container = container;
+        this.containerHB = container;
         this.invModular = container.inventoryItemModular;
         this.invSize = this.invModular.getSlots();
         this.numModuleSlots = this.invModular.getModuleInventory().getSlots();
-        this.bagTier = this.container.getBagTier();
+        this.bagTier = this.containerHB.getBagTier();
 
         this.scaledStackSizeTextInventories.add(this.invModular);
     }
 
     private void updatePositions()
     {
-        this.firstModuleSlotX  = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 5 * 18;
-        this.firstModuleSlotY  = this.guiTop  + this.container.getSlot(0).yDisplayPosition - 33;
-        this.firstArmorSlotX   = this.guiLeft + this.container.getSlot(this.invSize + this.numModuleSlots + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.container.getSlot(this.invSize + this.numModuleSlots + 36).yDisplayPosition;
+        this.firstModuleSlotX  = this.guiLeft + this.containerHB.getSlot(0).xDisplayPosition + 5 * 18;
+        this.firstModuleSlotY  = this.guiTop  + this.containerHB.getSlot(0).yDisplayPosition - 33;
 
         this.createButtons();
 
@@ -137,14 +129,14 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             // Draw the dark background icon over the disabled inventory slots
             for (int i = 0; i < this.invSize; i++)
             {
-                Slot slot = this.container.getSlot(i);
+                Slot slot = this.containerHB.getSlot(i);
                 this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
             }
         }
         // Draw the colored background for the selected slot (for swapping), if any
-        else if (this.container.getSelectedSlot() != -1)
+        else if (this.containerHB.getSelectedSlot() != -1)
         {
-            Slot slot = this.container.getSlot(this.container.getSelectedSlot());
+            Slot slot = this.containerHB.getSlot(this.containerHB.getSelectedSlot());
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
@@ -201,8 +193,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
-        int x = this.guiLeft + this.container.getSlot(0).xDisplayPosition + 2;
-        int y = this.guiTop + this.container.getSlot(0).yDisplayPosition + 55;
+        int x = this.guiLeft + this.containerHB.getSlot(0).xDisplayPosition + 2;
+        int y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition + 55;
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitemsexcepthotbar",

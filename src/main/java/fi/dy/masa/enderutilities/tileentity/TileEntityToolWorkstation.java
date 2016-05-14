@@ -31,7 +31,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
         this.itemHandlerBase = new ItemStackHandlerTileEntity(11, this);
         // itemHandlerExternal is left as null, because this block should not expose it's inventory ie. connect to other blocks
-        this.itemHandlerToolWorkstation = new ItemHandlerWrapperToolWorkstation(this.itemHandlerBase);
+        this.itemHandlerToolWorkstation = new ItemHandlerWrapperToolWorkstation(this.getBaseItemHandler());
     }
 
     @Override

@@ -52,7 +52,7 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = (ICrafting)this.listeners.get(i);
+            ICrafting icrafting = this.listeners.get(i);
 
             // The values need to fit into a short, where these get truncated to in non-local SMP
 

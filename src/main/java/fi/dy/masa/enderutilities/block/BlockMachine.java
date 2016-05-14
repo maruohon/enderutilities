@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 import java.util.Random;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -19,9 +18,7 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -29,6 +26,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -58,7 +56,8 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,
                 ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,
-                ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION
+                ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION,
+                ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED
         };
     }
 
@@ -68,9 +67,10 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         EnumMachineType type = state.getValue(TYPE);
         switch (type)
         {
-            case ENDER_INFUSER: return new TileEntityEnderInfuser();
-            case TOOL_WORKSTATION: return new TileEntityToolWorkstation();
             case CREATION_STATION: return new TileEntityCreationStation();
+            case ENDER_INFUSER: return new TileEntityEnderInfuser();
+            case QUICK_STACKER: return new TileEntityQuickStackerAdvanced();
+            case TOOL_WORKSTATION: return new TileEntityToolWorkstation();
         }
 
         return new TileEntityEnderInfuser();
@@ -82,9 +82,9 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         if (worldIn.isRemote == false)
         {
             TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityCreationStation)
+            if (te instanceof TileEntityEnderUtilities)
             {
-                ((TileEntityCreationStation)te).onLeftClickBlock(playerIn);
+                ((TileEntityEnderUtilities)te).onLeftClickBlock(playerIn);
             }
         }
     }
@@ -167,7 +167,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < 3; meta++)
+        for (int meta = 0; meta < EnumMachineType.values().length; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
@@ -177,7 +177,8 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     {
         ENDER_INFUSER(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
         TOOL_WORKSTATION(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
-        CREATION_STATION(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        CREATION_STATION(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION),
+        QUICK_STACKER(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
 
         private final String name;
 

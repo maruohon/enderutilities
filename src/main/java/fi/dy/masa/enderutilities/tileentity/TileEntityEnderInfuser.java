@@ -43,7 +43,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
         this.itemHandlerBase = new ItemStackHandlerTileEntity(3, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperEnderInfuser(this.itemHandlerBase);
+        this.itemHandlerExternal = new ItemHandlerWrapperEnderInfuser(this.getBaseItemHandler());
     }
 
     @Override
@@ -84,9 +84,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         boolean dirty = false;
 
         // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo?
-        if (this.itemHandlerBase.getStackInSlot(SLOT_MATERIAL) != null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_MATERIAL) != null)
         {
-            Item item = this.itemHandlerBase.getStackInSlot(0).getItem();
+            Item item = this.getBaseItemHandler().getStackInSlot(0).getItem();
             int amount = 0;
 
             if (item == Items.ENDER_PEARL)
@@ -106,7 +106,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                 {
                     this.amountStored += amount;
                     this.meltingProgress = 0;
-                    this.itemHandlerBase.extractItem(SLOT_MATERIAL, 1, false);
+                    this.getBaseItemHandler().extractItem(SLOT_MATERIAL, 1, false);
                 }
 
                 dirty = true;
@@ -120,7 +120,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         // NOTE: This does break the IItemHandler contract of not modifying the items
         // you get from getStackInSlot(), but since this is internal usage, whatever...
         // Otherwise we would be constantly extracting and inserting it back.
-        ItemStack inputStack = this.itemHandlerBase.getStackInSlot(SLOT_CAP_IN);
+        ItemStack inputStack = this.getBaseItemHandler().getStackInSlot(SLOT_CAP_IN);
 
         // Charge IChargeable items with the Ender Goo
         if (inputStack != null)
@@ -195,9 +195,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                     this.chargeableItemCapacity = 0;
 
                     // Move the item from the input slot to the output slot
-                    if (this.itemHandlerBase.insertItem(SLOT_CAP_OUT, this.itemHandlerBase.extractItem(SLOT_CAP_IN, 1, true), true) == null)
+                    if (this.getBaseItemHandler().insertItem(SLOT_CAP_OUT, this.getBaseItemHandler().extractItem(SLOT_CAP_IN, 1, true), true) == null)
                     {
-                        this.itemHandlerBase.insertItem(SLOT_CAP_OUT, this.itemHandlerBase.extractItem(SLOT_CAP_IN, 1, false), false);
+                        this.getBaseItemHandler().insertItem(SLOT_CAP_OUT, this.getBaseItemHandler().extractItem(SLOT_CAP_IN, 1, false), false);
                         dirty = true;
                     }
                 }
