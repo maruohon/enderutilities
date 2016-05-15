@@ -71,7 +71,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {
-                prevStack = currentStack != null ? currentStack.copy() : null;
+                prevStack = ItemStack.copyItemStack(currentStack);
                 this.inventoryItemStacks.set(slot, prevStack);
 
                 for (int j = 0; j < this.listeners.size(); ++j)

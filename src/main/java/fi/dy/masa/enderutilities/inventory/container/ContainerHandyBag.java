@@ -34,7 +34,6 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     private final InventoryCrafting craftMatrix;
     private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
-    public MergeSlotRange offhandSlot;
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
@@ -92,15 +91,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
 
-        this.offhandSlot = new MergeSlotRange(this.inventorySlots.size(), 1);
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX + 4 * 18, 51)
-        {
-            @SideOnly(Side.CLIENT)
-            public String getSlotTexture()
-            {
-                return "minecraft:items/empty_armor_slot_shield";
-            }
-        });
+        this.addOffhandSlot(posX + 4 * 18, 51);
 
         // Player crafting slots
         posX += 90;

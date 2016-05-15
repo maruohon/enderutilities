@@ -19,6 +19,7 @@ enderutilities.container.inventoryswapper=Inventory Swapper
 enderutilities.container.memorychest=Memory Chest
 enderutilities.container.pickupmanager=Pickup Manager
 enderutilities.container.quickstacker=Quick Stacker
+enderutilities.container.quickstacker.advanced=Advanced Quick Stacker
 enderutilities.container.toolworkstation=Tool Workstation
 
 
@@ -213,6 +214,8 @@ enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 enderutilities.gui.label.templatedchest.info=- Middle click to lock the current item type for the slot|lf- Only that type of item can enter an empty slot|lf- When there is space in locked slots, that item type|lf  can only go to those slots until they are full
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
+enderutilities.gui.label.use.areaplayer=Use area around player
+enderutilities.gui.label.use.linkcrystaltargets=Use Link Crystal targets
 enderutilities.gui.label.useitemsfrominventory=Take items from inventory
 enderutilities.gui.label.useoredictionary=Use Ore Dictionary
 enderutilities.gui.label.whitelist=White list

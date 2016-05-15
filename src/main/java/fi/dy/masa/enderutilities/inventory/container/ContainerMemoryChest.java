@@ -8,7 +8,6 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -29,7 +28,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
         this.templateStacksLast = new ArrayList<ItemStack>();
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 58);
+        this.addPlayerInventorySlots(8, this.inventorySlots.get(this.inventorySlots.size() - 1).yDisplayPosition + 32);
     }
 
     @Override
@@ -51,14 +50,6 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
         }
 
         this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
-    }
-
-    @Override
-    protected void addPlayerInventorySlots(int posX, int posY)
-    {
-        posY = this.inventorySlots.get(this.inventorySlots.size() - 1).yDisplayPosition + 32;
-
-        super.addPlayerInventorySlots(posX, posY);
     }
 
     @Override

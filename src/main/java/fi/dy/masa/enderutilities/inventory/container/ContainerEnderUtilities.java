@@ -7,6 +7,8 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -79,6 +81,22 @@ public class ContainerEnderUtilities extends Container
         }
 
         this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
+    }
+
+    protected void addOffhandSlot(int posX, int posY)
+    {
+        // Add the Offhand slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX, posY)
+        {
+            @SideOnly(Side.CLIENT)
+            public String getSlotTexture()
+            {
+                return "minecraft:items/empty_armor_slot_shield";
+            }
+        });
+
+        // Update the slot range set in the super class, to add the Offhand slot
+        this.playerMainSlots = new MergeSlotRange(this.playerMainSlots.first, this.playerMainSlots.lastExc - this.playerMainSlots.first + 1);
     }
 
     public EntityPlayer getPlayer()

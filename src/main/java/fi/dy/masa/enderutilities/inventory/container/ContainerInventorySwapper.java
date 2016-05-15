@@ -28,6 +28,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(31, 167);
+        this.addOffhandSlot(8, 129);
     }
 
     @Override
@@ -69,16 +70,6 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         }
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
-
-        // Off Hand slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX, posY + 4 * 18)
-        {
-            @SideOnly(Side.CLIENT)
-            public String getSlotTexture()
-            {
-                return "minecraft:items/empty_armor_slot_shield";
-            }
-        });
     }
 
     @Override

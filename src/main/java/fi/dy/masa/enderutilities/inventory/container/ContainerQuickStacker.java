@@ -3,11 +3,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
-import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -18,31 +14,13 @@ public class ContainerQuickStacker extends ContainerCustomSlotClick implements I
         super(player, null);
 
         this.addPlayerInventorySlots(25, 45);
+        this.addOffhandSlot(25 - 18, 45 - 18);
     }
 
     @Override
-    protected void addPlayerInventorySlots(int posX, int posY)
+    public ItemStack getContainerItem()
     {
-        super.addPlayerInventorySlots(posX, posY);
-
-        // Add the Offhand slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX - 18, posY - 18)
-        {
-            @SideOnly(Side.CLIENT)
-            public String getSlotTexture()
-            {
-                return "minecraft:items/empty_armor_slot_shield";
-            }
-        });
-
-        // Update the slot range set in the super class, to add the Offhand slot
-        this.playerMainSlots = new MergeSlotRange(this.playerMainSlots.first, 37);
-    }
-
-    @Override
-    public boolean canInteractWith(EntityPlayer player)
-    {
-        return true;
+        return ItemQuickStacker.getEnabledItem(this.player);
     }
 
     @Override
@@ -68,11 +46,5 @@ public class ContainerQuickStacker extends ContainerCustomSlotClick implements I
         }
 
         return super.slotClick(slotNum, dragType, clickType, player);
-    }
-
-    @Override
-    public ItemStack getContainerItem()
-    {
-        return ItemQuickStacker.getEnabledItem(this.player);
     }
 }

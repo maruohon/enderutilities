@@ -6,7 +6,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public class ContainerTileEntityInventory extends ContainerCustomSlotClick
 {
-    protected TileEntityEnderUtilitiesInventory te;
+    public final TileEntityEnderUtilitiesInventory te;
 
     public ContainerTileEntityInventory(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
     {

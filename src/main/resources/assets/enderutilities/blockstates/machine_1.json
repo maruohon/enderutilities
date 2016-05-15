@@ -24,7 +24,7 @@
             },
             "quickstackeradvanced":    {
                 "textures": {
-                    "front":    "enderutilities:blocks/enderinfuser_front",
+                    "front":    "enderutilities:blocks/quickstackeradvanced_front",
                     "side":     "enderutilities:blocks/enderinfuser_side",
                     "top":      "enderutilities:blocks/enderinfuser_top",
                     "bottom":   "enderutilities:blocks/enderinfuser_bottom"
@@ -43,9 +43,9 @@
             "north": {},
             "south": { "y": 180 },
             "west":  { "y": 270 },
-            "east":  { "y": 90 },
-            "up":    {},
-            "down":  {}
+            "east":  { "y":  90 },
+            "up":    { "x": 270 },
+            "down":  { "x":  90 }
         }
     }
 }

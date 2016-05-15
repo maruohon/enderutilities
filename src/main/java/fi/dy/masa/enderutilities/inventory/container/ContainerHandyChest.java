@@ -4,13 +4,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
+import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerHandyChest extends ContainerLargeStacks
 {
@@ -24,7 +23,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
         this.tehc = te;
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 95);
+        this.addPlayerInventorySlots(8, te.getStorageTier() >= 0 && te.getStorageTier() <= 2 ? 95 + te.getStorageTier() * 36 : 95);
     }
 
     @Override
@@ -59,15 +58,6 @@ public class ContainerHandyChest extends ContainerLargeStacks
         {
             this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
-    }
-
-    @Override
-    protected void addPlayerInventorySlots(int posX, int posY)
-    {
-        int tier = this.tehc.getStorageTier();
-        posY = tier >= 0 && tier <= 2 ? posY + tier * 36 : posY;
-
-        super.addPlayerInventorySlots(posX, posY);
     }
 
     @Override
