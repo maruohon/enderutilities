@@ -1,15 +1,14 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.util.math.MathHelper;
-
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ContainerEnderFurnace extends ContainerLargeStacks
 {
@@ -50,10 +49,10 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
     {
         super.detectAndSendChanges();
 
-        ICrafting icrafting;
+        IContainerListener listener;
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            icrafting = (ICrafting)this.listeners.get(i);
+            listener = this.listeners.get(i);
 
             // Note: the value gets truncated to a short in non-local SMP
             if (this.teef.burnTimeRemaining != this.burnTimeRemaining
@@ -68,12 +67,12 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
                 c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
                 // smelting progress and fuel burning progress are both 0..100, we send the smelting progress in the upper byte of the short
-                icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
+                listener.sendProgressBarUpdate(this, 0, c << 8 | b);
             }
 
             if (this.teef.outputToEnderChest != this.outputToEnderChest)
             {
-                icrafting.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
+                listener.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
             }
 
             this.burnTimeRemaining = this.teef.burnTimeRemaining;
@@ -84,9 +83,9 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(IContainerListener listener)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(listener);
 
         int b = 0;
         if (this.teef.burnTimeFresh != 0)
@@ -96,8 +95,8 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
 
         int c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
-        icrafting.sendProgressBarUpdate(this, 0, c << 8 | b);
-        icrafting.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
+        listener.sendProgressBarUpdate(this, 0, c << 8 | b);
+        listener.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
     }
 
     @SideOnly(Side.CLIENT)

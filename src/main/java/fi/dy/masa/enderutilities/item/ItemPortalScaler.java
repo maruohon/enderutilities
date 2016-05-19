@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -17,11 +17,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -239,7 +236,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.format("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -265,7 +262,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             }
             else
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.nodata"));
+                list.add(I18n.format("enderutilities.tooltip.item.nodata"));
             }
 
             if (verbose == true)
@@ -273,13 +270,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                list.add(I18n.format("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
         }
 
         if (verbose == true)

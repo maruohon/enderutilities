@@ -9,11 +9,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -41,8 +41,8 @@ public class RulerRenderer
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDim = I18n.translateToLocal("enderutilities.tooltip.item.dimensions");
-        this.modeStrDiff = I18n.translateToLocal("enderutilities.tooltip.item.difference");
+        this.modeStrDim = I18n.format("enderutilities.tooltip.item.dimensions");
+        this.modeStrDiff = I18n.format("enderutilities.tooltip.item.difference");
     }
 
     @SubscribeEvent

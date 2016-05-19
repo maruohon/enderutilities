@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -247,20 +247,20 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(IContainerListener listener)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(listener);
 
         int modeMask = this.tecs.getModeMask();
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
-        icrafting.sendProgressBarUpdate(this, 0, modeMask);
-        icrafting.sendProgressBarUpdate(this, 1, selection);
-        icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
-        icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
-        icrafting.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
+        listener.sendProgressBarUpdate(this, 0, modeMask);
+        listener.sendProgressBarUpdate(this, 1, selection);
+        listener.sendProgressBarUpdate(this, 2, fuelProgress);
+        listener.sendProgressBarUpdate(this, 3, smeltProgress);
+        listener.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
 
         this.detectAndSendChanges();
     }
@@ -282,27 +282,27 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = (ICrafting)this.listeners.get(i);
+            IContainerListener listener = this.listeners.get(i);
 
             if (this.modeMask != modeMask)
             {
-                icrafting.sendProgressBarUpdate(this, 0, modeMask);
+                listener.sendProgressBarUpdate(this, 0, modeMask);
             }
             if (this.selectionsLast != selection)
             {
-                icrafting.sendProgressBarUpdate(this, 1, selection);
+                listener.sendProgressBarUpdate(this, 1, selection);
             }
             if (this.fuelProgress != fuelProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 2, fuelProgress);
+                listener.sendProgressBarUpdate(this, 2, fuelProgress);
             }
             if (this.smeltProgress != smeltProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 3, smeltProgress);
+                listener.sendProgressBarUpdate(this, 3, smeltProgress);
             }
             if (this.lastInteractedCraftingGrid != this.tecs.lastInteractedCraftingGrid)
             {
-                icrafting.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
+                listener.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
             }
         }
 

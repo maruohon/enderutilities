@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
@@ -117,10 +117,10 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
 
                 for (int j = 0; j < this.listeners.size(); j++)
                 {
-                    ICrafting icrafting = (ICrafting)this.listeners.get(j);
-                    if (icrafting instanceof EntityPlayerMP)
+                    IContainerListener listener = this.listeners.get(j);
+                    if (listener instanceof EntityPlayerMP)
                     {
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP)icrafting);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP)listener);
                     }
                 }
             }
@@ -132,12 +132,12 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
         {
             if (this.templateMask != mask)
             {
-                ICrafting icrafting = (ICrafting)this.listeners.get(j);
+                IContainerListener listener = this.listeners.get(j);
                 // Send the long in 16-bit pieces because of the network packet limitation in MP
-                icrafting.sendProgressBarUpdate(this, 0, (int)(mask & 0xFFFF));
-                icrafting.sendProgressBarUpdate(this, 1, (int)((mask >> 16) & 0xFFFF));
-                icrafting.sendProgressBarUpdate(this, 2, (int)((mask >> 32) & 0xFFFF));
-                icrafting.sendProgressBarUpdate(this, 3, (int)((mask >> 48) & 0xFFFF));
+                listener.sendProgressBarUpdate(this, 0, (int)(mask & 0xFFFF));
+                listener.sendProgressBarUpdate(this, 1, (int)((mask >> 16) & 0xFFFF));
+                listener.sendProgressBarUpdate(this, 2, (int)((mask >> 32) & 0xFFFF));
+                listener.sendProgressBarUpdate(this, 3, (int)((mask >> 48) & 0xFFFF));
             }
         }
 

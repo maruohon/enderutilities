@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,9 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
@@ -115,7 +113,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         TargetData target = this.getTarget(stack);
         if (target == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
+            list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
             return;
         }
 
@@ -145,7 +143,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             // Full tooltip
             if (verbose == true)
             {
-                String s = I18n.translateToLocal("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
+                String s = I18n.format("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
                 if (dimName.length() > 0)
                 {
                     s = s + " - " + preDGreen + dimName + rst;
@@ -155,7 +153,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
 
                 if (showBlock == true)
                 {
-                    list.add(I18n.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
+                    list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
                     if (advancedTooltips == true)
                     {
                         list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
@@ -168,7 +166,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 String s = preDGreen + dimName + rst;
                 if (dimName.length() == 0)
                 {
-                    s = I18n.translateToLocal("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
+                    s = I18n.format("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
                 }
 
                 if (showBlock == true)
@@ -192,18 +190,18 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         String strPublic = "";
         if (playerData.getIsPublic() == true)
         {
-            strPublic = TextFormatting.GREEN.toString() + I18n.translateToLocal("enderutilities.tooltip.item.public") + rst;
+            strPublic = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.public") + rst;
         }
         else
         {
-            strPublic = TextFormatting.RED.toString() + I18n.translateToLocal("enderutilities.tooltip.item.private") + rst;
+            strPublic = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.private") + rst;
         }
 
         // Full tooltip
         if (verbose == true)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + strPublic);
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.getOwnerName() + rst);
+            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + strPublic);
+            list.add(I18n.format("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.getOwnerName() + rst);
         }
         // Compact/short tooltip
         else

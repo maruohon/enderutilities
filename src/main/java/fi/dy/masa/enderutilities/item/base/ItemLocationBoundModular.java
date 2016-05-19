@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -11,12 +11,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -95,7 +92,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.format("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -115,7 +112,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             }
             else
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
+                list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
             }
 
             if (verbose == true)
@@ -123,12 +120,12 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
                 String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+                list.add(I18n.format("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+            list.add(I18n.format("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
         if (verbose == true)
@@ -139,11 +136,11 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 String s;
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);

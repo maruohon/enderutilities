@@ -2,8 +2,6 @@ package fi.dy.masa.enderutilities.entity;
 
 import java.util.List;
 import java.util.UUID;
-
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -34,11 +32,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-
 import fi.dy.masa.enderutilities.entity.base.IEntityDoubleTargeting;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -592,9 +588,8 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
             {
                 BlockPos pos1 = pos.down();
                 IBlockState state = this.worldObj.getBlockState(pos1);
-                Block block = state.getBlock();
 
-                if (block.getMaterial(state).blocksMovement())
+                if (state.getMaterial().blocksMovement())
                 {
                     foundSolidFloor = true;
                 }

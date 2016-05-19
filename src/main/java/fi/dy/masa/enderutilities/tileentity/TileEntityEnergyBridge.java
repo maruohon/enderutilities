@@ -56,17 +56,19 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
         nbt.setByte("Flags", (byte)((this.isActive ? 0x80 : 0x00) | this.blockType));
+
+        return nbt;
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
+        nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setByte("f", (byte)((this.isPowered ? 0x40 : 0x00) | (this.isActive ? 0x80 : 0x00) | this.blockType));
 

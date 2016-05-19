@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
@@ -74,12 +74,12 @@ public class ContainerHandyChest extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(IContainerListener listener)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(listener);
 
-        icrafting.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
-        icrafting.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
+        listener.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
+        listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
     }
 
     @Override
@@ -92,16 +92,16 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = (ICrafting)this.listeners.get(i);
+            IContainerListener listener = this.listeners.get(i);
 
             if (this.selectedModule != this.tehc.getSelectedModule())
             {
-                icrafting.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
+                listener.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
             }
 
             if (this.actionMode != this.tehc.getQuickMode())
             {
-                icrafting.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
+                listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
             }
         }
 

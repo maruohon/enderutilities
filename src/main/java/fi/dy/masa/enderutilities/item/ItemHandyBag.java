@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -20,7 +21,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -125,7 +125,7 @@ public class ItemHandyBag extends ItemInventoryModular
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
-            String itemName = super.getItemStackDisplayName(stack); //I18n.translateToLocal(this.getUnlocalizedName(stack) + ".name").trim();
+            String itemName = super.getItemStackDisplayName(stack); //I18n.format(this.getUnlocalizedName(stack) + ".name").trim();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
@@ -159,8 +159,8 @@ public class ItemHandyBag extends ItemInventoryModular
         String preWhite = TextFormatting.WHITE.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
-        String strPickupMode = I18n.translateToLocal("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
-        String strRestockMode = I18n.translateToLocal("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
+        String strPickupMode = I18n.format("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
+        String strRestockMode = I18n.format("enderutilities.tooltip.item.restockmode" + (verbose ? "" : ".short")) + ": ";
 
         PickupMode pickupMode = PickupMode.fromStack(containerStack);
         if (pickupMode == PickupMode.NONE) strPickupMode += preRed;
@@ -186,13 +186,13 @@ public class ItemHandyBag extends ItemInventoryModular
         String str;
         if (bagIsOpenable(containerStack) == true)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes");
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + I18n.format("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preRed + I18n.translateToLocal("enderutilities.tooltip.item.no");
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + I18n.format("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
@@ -202,7 +202,7 @@ public class ItemHandyBag extends ItemInventoryModular
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             String preBlue = TextFormatting.BLUE.toString();
             String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
-            String strShort = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
@@ -216,13 +216,13 @@ public class ItemHandyBag extends ItemInventoryModular
             }
             else
             {
-                String strNo = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                String strNo = I18n.format("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
                 list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
             }
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 
@@ -759,7 +759,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         public String getDisplayName()
         {
-            return I18n.translateToLocal(this.displayName);
+            return I18n.format(this.displayName);
         }
 
         public String getVariantName()
@@ -788,7 +788,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         public String getDisplayName()
         {
-            return I18n.translateToLocal(this.displayName);
+            return I18n.format(this.displayName);
         }
 
         public static RestockMode fromStack(ItemStack stack)

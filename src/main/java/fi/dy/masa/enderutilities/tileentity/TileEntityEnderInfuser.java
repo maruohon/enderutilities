@@ -62,7 +62,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
@@ -71,6 +71,8 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         tag.setString("FluidName", "ender"); // For future compatibility
         nbt.setTag("Fluid", tag);
         nbt.setByte("Progress", (byte)this.meltingProgress);
+
+        return nbt;
     }
 
     @Override

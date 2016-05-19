@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
-
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,9 +11,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -21,7 +19,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -618,8 +615,8 @@ public class UtilItemModular
 
         if (overflow > 0)
         {
-            String str1 = I18n.translateToLocal("enderutilities.tooltip.item.and");
-            String str2 = I18n.translateToLocal("enderutilities.tooltip.item.morestacksnotlisted");
+            String str1 = I18n.format("enderutilities.tooltip.item.and");
+            String str2 = I18n.format("enderutilities.tooltip.item.morestacksnotlisted");
             listLines.add(String.format("     ... %s %s%d%s %s", str1, preWhite, overflow, rst, str2));
         }
 

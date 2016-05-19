@@ -2,14 +2,14 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
@@ -32,20 +32,21 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting iCrafting)
+    public void addListener(IContainerListener listener)
     {
-        if (this.listeners.contains(iCrafting))
+        if (this.listeners.contains(listener))
         {
             throw new IllegalArgumentException("Listener already listening");
         }
         else
         {
-            this.listeners.add(iCrafting);
+            this.listeners.add(listener);
 
-            if (iCrafting instanceof EntityPlayerMP)
+            if (listener instanceof EntityPlayerMP)
             {
-                this.syncAllSlots((EntityPlayerMP)iCrafting);
-                ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
+                EntityPlayerMP player = (EntityPlayerMP)listener;
+                this.syncAllSlots(player);
+                player.connection.sendPacket(new SPacketSetSlot(-1, -1, player.inventory.getItemStack()));
             }
 
             this.detectAndSendChanges();
@@ -76,11 +77,10 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
 
                 for (int j = 0; j < this.listeners.size(); ++j)
                 {
-                    ICrafting ic = (ICrafting)this.listeners.get(j);
+                    IContainerListener ic = this.listeners.get(j);
                     if (ic instanceof EntityPlayerMP)
                     {
-                        EntityPlayerMP player = (EntityPlayerMP)ic;
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), player);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP)ic);
                     }
                 }
             }

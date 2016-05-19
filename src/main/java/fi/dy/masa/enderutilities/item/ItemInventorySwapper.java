@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -164,25 +164,25 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String str;
         if (isEnabled(containerStack) == true)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes");
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
+                    preGreen + I18n.format("enderutilities.tooltip.item.yes");
         }
         else
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " +
-                    preRed + I18n.translateToLocal("enderutilities.tooltip.item.no");
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
+                    preRed + I18n.format("enderutilities.tooltip.item.no");
         }
         list.add(str);
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
+        list.add(I18n.format("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
 
         int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (installed > 0)
         {
             int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
-            String strShort = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
             ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
@@ -197,7 +197,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 

@@ -74,18 +74,20 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("ChestTier", (byte)this.chestTier);
         nbt.setLong("TemplateMask", this.templateMask);
 
         super.writeToNBT(nbt);
+
+        return nbt;
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
+        nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setByte("tier", (byte)this.chestTier);
 

@@ -91,19 +91,21 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("ChestTier", (byte)this.chestTier);
         nbt.setByte("QuickMode", (byte)this.actionMode);
         nbt.setByte("SelModule", (byte)this.selectedModule);
 
         super.writeToNBT(nbt);
+
+        return nbt;
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
+        nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setByte("tier", (byte)this.chestTier);
         nbt.setByte("msel", (byte)this.selectedModule);

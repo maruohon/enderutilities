@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -25,9 +25,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -40,7 +38,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -197,7 +194,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         else
         {
-            fluidName = I18n.translateToLocal("enderutilities.tooltip.item.empty");
+            fluidName = I18n.format("enderutilities.tooltip.item.empty");
         }
 
         byte mode = this.getBucketMode(stack);
@@ -215,20 +212,20 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
+                list.add(I18n.format("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
+                list.add(I18n.format("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
             }
             else
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.fluid") + ": " + fluidName);
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.amount") + ": " + amountStr);
+                list.add(I18n.format("enderutilities.tooltip.item.fluid") + ": " + fluidName);
+                list.add(I18n.format("enderutilities.tooltip.item.amount") + ": " + amountStr);
             }
         }
         else
         {
             if (linkMode == LINK_MODE_ENABLED)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
+                list.add(I18n.format("enderutilities.tooltip.item.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
             }
             else
             {
@@ -236,7 +233,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
         }
 
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + I18n.translateToLocal(modeStr));
+        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + I18n.format(modeStr));
 
         if (linkMode == LINK_MODE_ENABLED)
         {
@@ -399,7 +396,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         IBlockState state = world.getBlockState(pos);
         // Check if there is a fluid block on the side of the targeted block
-        if (state.getBlock().getMaterial(state).isLiquid() == true)
+        if (state.getMaterial().isLiquid() == true)
         {
             // Note: the side is technically wrong unless we ray trace it again, but it won't matter with fluid blocks... right?
             return this.useBucketOnFluidBlock(stack, world, player, pos, side, bucketMode);
@@ -430,7 +427,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public EnumActionResult useBucketOnFluidBlock(ItemStack stack, World world, EntityPlayer player, byte bucketMode)
     {
         // First find out what block we are targeting
-        // FIXME the boolean flag does what exactly? In vanilla it seems to indicate that the bucket is empty.
         RayTraceResult rayTrace = this.rayTrace(world, player, true);
 
         if (rayTrace == null || rayTrace.typeOfHit != RayTraceResult.Type.BLOCK)
@@ -447,7 +443,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         Block targetBlock = state.getBlock();
 
         // Spawn safe zone checks etc.
-        if (this.isTargetUsable(stack, player, world, pos, side) == false || targetBlock.getMaterial(state).isLiquid() == false)
+        if (this.isTargetUsable(stack, player, world, pos, side) == false || state.getMaterial().isLiquid() == false)
         {
             return EnumActionResult.PASS;
         }
@@ -576,7 +572,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         IBlockState state = world.getBlockState(pos);
-        Material material = state.getBlock().getMaterial(state);
+        Material material = state.getMaterial();
 
         if (world.isAirBlock(pos) == false && material.isSolid() == true)
         {

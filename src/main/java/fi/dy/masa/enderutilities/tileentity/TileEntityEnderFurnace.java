@@ -96,7 +96,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
@@ -114,12 +114,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         nbt.setShort("BurnTimeRemaining", (short)this.burnTimeRemaining);
         nbt.setShort("BurnTimeFresh", (short)this.burnTimeFresh);
         nbt.setShort("CookTime", (short)this.cookTime);
+
+        return nbt;
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
+        nbt = super.getUpdatePacketTag(nbt);
 
         byte flags = (byte)(this.getRotation() & 0x07);
         // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active

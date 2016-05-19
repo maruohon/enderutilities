@@ -167,7 +167,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("QuickMode", (byte)this.actionMode);
         nbt.setByte("SelModule", (byte)this.selectedModule);
@@ -181,6 +181,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         super.writeToNBT(nbt);
+
+        return nbt;
     }
 
     @Override
@@ -192,9 +194,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
+        nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setByte("msel", (byte)this.selectedModule);
 

@@ -84,7 +84,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
@@ -94,6 +94,8 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
         {
             nbt.setString("CustomName", this.customInventoryName);
         }
+
+        return nbt;
     }
 
     @Override

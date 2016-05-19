@@ -1,18 +1,14 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.UUID;
-
+import javax.annotation.Nullable;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-
 import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
@@ -90,13 +86,15 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
+        System.out.printf("readFromNBT @ %s\n", this.getPos());
         super.readFromNBT(nbt);
         this.readFromNBTCustom(nbt); // This call needs to be at the super-most custom TE class
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
+        System.out.printf("writeToNBT @ %s\n", this.getPos());
         super.writeToNBT(nbt);
 
         nbt.setString("Version", Reference.MOD_VERSION);
@@ -106,10 +104,13 @@ public class TileEntityEnderUtilities extends TileEntity
         {
             OwnerData.writePlayerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
         }
+
+        return nbt;
     }
 
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
+        System.out.printf("getUpdatePacketTag @ %s\n", this.getPos());
         nbt.setByte("r", (byte)(this.getRotation() & 0x07));
 
         if (this.ownerName != null)
@@ -121,11 +122,20 @@ public class TileEntityEnderUtilities extends TileEntity
     }
 
     @Override
-    public Packet<INetHandlerPlayClient> getDescriptionPacket()
+    public NBTTagCompound getUpdateTag()
+    {
+        System.out.printf("getUpdateTag @ %s\n", this.getPos());
+        return this.getUpdatePacketTag(new NBTTagCompound());
+    }
+
+    @Override
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         if (this.worldObj != null)
         {
-            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getDescriptionPacketTag(new NBTTagCompound()));
+            System.out.printf("getUpdatePacket @ %s\n", this.getPos());
+            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdateTag());
         }
 
         return null;
@@ -136,6 +146,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         NBTTagCompound nbt = packet.getNbtCompound();
 
+        System.out.printf("onDataPacket @ %s - Data: %s\n", this.getPos(), nbt.toString());
         if (nbt.hasKey("r") == true)
         {
             this.setRotation((byte)(nbt.getByte("r") & 0x07));

@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -14,7 +15,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -219,13 +219,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
         // TP self to impact point
         if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.translateToLocal("enderutilities.tooltip.item.tpself") + rst);
+            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.format("enderutilities.tooltip.item.tpself") + rst);
         }
         // TP the target entity
         else
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.translateToLocal("enderutilities.tooltip.item.tptarget") + rst);
+            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.format("enderutilities.tooltip.item.tptarget") + rst);
         }
     }
 

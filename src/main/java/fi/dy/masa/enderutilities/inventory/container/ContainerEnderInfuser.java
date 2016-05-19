@@ -1,13 +1,12 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
-
+import net.minecraft.inventory.IContainerListener;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ContainerEnderInfuser extends ContainerTileEntityInventory
 {
@@ -52,23 +51,23 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting icrafting = this.listeners.get(i);
+            IContainerListener listener = this.listeners.get(i);
 
             // The values need to fit into a short, where these get truncated to in non-local SMP
 
             if (this.teef.amountStored != this.amountStored)
             {
-                icrafting.sendProgressBarUpdate(this, 0, this.teef.amountStored);
+                listener.sendProgressBarUpdate(this, 0, this.teef.amountStored);
             }
 
             if (this.teef.meltingProgress != this.meltingProgress)
             {
-                icrafting.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
+                listener.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
             }
 
             if (this.ciCurrentLast != this.ciCurrent)
             {
-                icrafting.sendProgressBarUpdate(this, 2, this.chargeProgress);
+                listener.sendProgressBarUpdate(this, 2, this.chargeProgress);
             }
         }
 
@@ -78,14 +77,14 @@ public class ContainerEnderInfuser extends ContainerTileEntityInventory
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(IContainerListener listener)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(listener);
 
         this.updateChargingProgress();
-        icrafting.sendProgressBarUpdate(this, 0, this.amountStored);
-        icrafting.sendProgressBarUpdate(this, 1, this.meltingProgress);
-        icrafting.sendProgressBarUpdate(this, 2, this.chargeProgress);
+        listener.sendProgressBarUpdate(this, 0, this.amountStored);
+        listener.sendProgressBarUpdate(this, 1, this.meltingProgress);
+        listener.sendProgressBarUpdate(this, 2, this.chargeProgress);
     }
 
     @SideOnly(Side.CLIENT)

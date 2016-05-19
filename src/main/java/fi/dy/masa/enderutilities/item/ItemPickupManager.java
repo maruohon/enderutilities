@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -16,7 +17,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -133,17 +133,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         String str;
         if (isEnabled(containerStack) == true)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.enabled") + ": " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
         }
 
         list.add(str);
 
         int preset = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.preset") + ": " + TextFormatting.BLUE.toString() + preset + rst);
+        list.add(I18n.format("enderutilities.tooltip.item.preset") + ": " + TextFormatting.BLUE.toString() + preset + rst);
 
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
     }

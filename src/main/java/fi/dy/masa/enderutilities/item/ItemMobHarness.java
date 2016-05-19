@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import java.util.UUID;
-
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,13 +20,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -235,12 +232,12 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         if (stack.getTagCompound() == null || this.hasTarget(stack) == false)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.notlinked"));
+            list.add(I18n.format("enderutilities.tooltip.item.notlinked"));
             return;
         }
 
         String target = stack.getTagCompound().getString("TargetName");
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.linked") + ": " + TextFormatting.GREEN + target + TextFormatting.RESET + TextFormatting.GRAY);
+        list.add(I18n.format("enderutilities.tooltip.item.linked") + ": " + TextFormatting.GREEN + target + TextFormatting.RESET + TextFormatting.GRAY);
     }
 
     @Override

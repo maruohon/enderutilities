@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -28,7 +29,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
@@ -584,24 +584,24 @@ public class ItemEnderSword extends ItemLocationBoundModular
                     : mode == SwordMode.PLAYER ? "enderutilities.tooltip.item.endertool.playerinv"
                     : mode == SwordMode.REMOTE ? "enderutilities.tooltip.item.endertool.remote"
                     : "enderutilities.tooltip.item.endersword.summon");
-        str = I18n.translateToLocal(str);
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
+        str = I18n.format(str);
+        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
 
         // Installed Ender Core type
-        str = I18n.translateToLocal("enderutilities.tooltip.item.endercore") + ": ";
+        str = I18n.format("enderutilities.tooltip.item.endercore") + ": ";
         if (coreTier >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC && coreTier <= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
             String coreType = (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC ? "enderutilities.tooltip.item.basic" :
                               (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED ? "enderutilities.tooltip.item.enhanced" :
                                       "enderutilities.tooltip.item.advanced"));
-            coreType = I18n.translateToLocal(coreType);
-            str += preDGreen + coreType + rst + " (" + preBlue + I18n.translateToLocal("enderutilities.tooltip.item.tier") +
+            coreType = I18n.format(coreType);
+            str += preDGreen + coreType + rst + " (" + preBlue + I18n.format("enderutilities.tooltip.item.tier") +
                     " " + (coreTier + 1) + rst + ")";
         }
         else
         {
             String preRed = TextFormatting.RED.toString();
-            str += preRed + I18n.translateToLocal("enderutilities.tooltip.item.none") + rst;
+            str += preRed + I18n.format("enderutilities.tooltip.item.none") + rst;
         }
         list.add(str);
 
@@ -616,18 +616,18 @@ public class ItemEnderSword extends ItemLocationBoundModular
             }
             else
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.notargetset"));
+                list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
             }
 
             int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
             int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
             String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+            list.add(I18n.format("enderutilities.tooltip.item.selectedlinkcrystal.short") +
                     String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nolinkcrystals"));
+            list.add(I18n.format("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
         // Capacitor installed
@@ -666,7 +666,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         public String getDisplayName()
         {
-            return I18n.translateToLocal(this.unlocalized);
+            return I18n.format(this.unlocalized);
         }
     }
 

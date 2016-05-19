@@ -23,13 +23,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
-import net.minecraftforge.common.util.Constants;
 
 public class EntityEnderArrow extends EntityArrow
 {
@@ -189,7 +189,7 @@ public class EntityEnderArrow extends EntityArrow
         IBlockState state = this.worldObj.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (block.getMaterial(state) != Material.AIR)
+        if (state.getMaterial() != Material.AIR)
         {
             AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, pos);
 

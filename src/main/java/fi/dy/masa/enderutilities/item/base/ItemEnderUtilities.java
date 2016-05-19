@@ -3,20 +3,17 @@ package fi.dy.masa.enderutilities.item.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
-
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -77,7 +74,7 @@ public class ItemEnderUtilities extends Item
 
             if (verbose == false && tmpList.size() > 1)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -98,7 +95,7 @@ public class ItemEnderUtilities extends Item
             {
                 list.add(tmpList.get(0));
             }
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshift"));
+            list.add(I18n.format("enderutilities.tooltip.item.holdshift"));
         }
         else
         {
@@ -108,7 +105,7 @@ public class ItemEnderUtilities extends Item
 
     public static void addTooltips(String key, List<String> list, boolean verbose)
     {
-        String translated = I18n.translateToLocal(key);
+        String translated = I18n.format(key);
         // Translation found
         if (translated.equals(key) == false)
         {

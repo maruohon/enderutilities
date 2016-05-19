@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,11 +14,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -124,11 +121,11 @@ public class ItemRuler extends ItemModular
         /*displayName.append(" - A: ");
         if (this.getRenderAllLocations(rulerStack) == true)
         {
-            displayName.append(preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst);
+            displayName.append(preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst);
         }
         else
         {
-            displayName.append(preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst);
+            displayName.append(preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
         }*/
 
         int count = this.getLocationCount(rulerStack);
@@ -141,11 +138,11 @@ public class ItemRuler extends ItemModular
 
             if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
             {
-                displayName.append(preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst);
+                displayName.append(preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst);
             }
             else
             {
-                displayName.append(preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst);
+                displayName.append(preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
             }
         }
 
@@ -157,7 +154,7 @@ public class ItemRuler extends ItemModular
     {
         if (rulerStack.getTagCompound() == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.format("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -188,63 +185,63 @@ public class ItemRuler extends ItemModular
 
         if (posStart != null)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.start");
+            str = I18n.format("enderutilities.tooltip.item.start");
             list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posStart.posX, rst,
                     preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst));
         }
 
         if (posEnd != null)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.end");
+            str = I18n.format("enderutilities.tooltip.item.end");
             list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posEnd.posX, rst,
                     preBlue, posEnd.posY, rst, preBlue, posEnd.posZ, rst));
         }
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": ";
+        str = I18n.format("enderutilities.tooltip.item.mode") + ": ";
         if (this.getDistanceMode(rulerStack) == DISTANCE_MODE_DIMENSIONS)
         {
-            str = str + preDGreen + I18n.translateToLocal("enderutilities.tooltip.item.dimensions") + rst;
+            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.dimensions") + rst;
         }
         else
         {
-            str = str + preDGreen + I18n.translateToLocal("enderutilities.tooltip.item.difference") + rst;
+            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.difference") + rst;
         }
         list.add(str);
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.rendercurrentwithall");
+        str = I18n.format("enderutilities.tooltip.item.rendercurrentwithall");
         if (this.getAlwaysRenderLocation(rulerStack, selected) == true)
         {
-            list.add(str + ": " + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst);
+            list.add(str + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst);
         }
         else
         {
-            list.add(str + ": " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst);
+            list.add(str + ": " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
         }
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.renderall") + ": ";
+        str = I18n.format("enderutilities.tooltip.item.renderall") + ": ";
         if (this.getRenderAllLocations(rulerStack) == true)
         {
-            str = str + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str = str + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str = str + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str = str + preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
         }
         list.add(str);
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.renderwhenunselected") + ": ";
+        str = I18n.format("enderutilities.tooltip.item.renderwhenunselected") + ": ";
         if (this.getRenderWhenUnselected(rulerStack) == true)
         {
-            str = str + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str = str + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str = str + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str = str + preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
         }
         list.add(str);
 
         int count = this.getLocationCount(rulerStack);
-        str = I18n.translateToLocal("enderutilities.tooltip.item.selected") + ": ";
+        str = I18n.format("enderutilities.tooltip.item.selected") + ": ";
         list.add(str + preBlue + (selected + 1) + rst + " / " + preBlue + count + rst);
 
         int installed = this.getInstalledModuleCount(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
@@ -253,7 +250,7 @@ public class ItemRuler extends ItemModular
             int slotNum = UtilItemModular.getClampedModuleSelection(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
             int max = this.getMaxModules(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
             String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
-            String strShort = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short");
+            String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
 
             ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
             if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
@@ -263,7 +260,7 @@ public class ItemRuler extends ItemModular
             }
             else
             {
-                String strNo = I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                String strNo = I18n.format("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
                 list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
             }
         }

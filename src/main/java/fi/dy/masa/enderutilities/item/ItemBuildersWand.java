@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +28,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
@@ -237,7 +237,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
-            itemName = itemName + " flip: " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            itemName = itemName + " flip: " + TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
         }
 
         int sel = getSelectedBlockTypeIndex(stack);
@@ -260,11 +260,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             String str;
             if (sel == BLOCK_TYPE_TARGETED)
             {
-                str = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+                str = I18n.format("enderutilities.tooltip.item.blocktype.targeted");
             }
             else
             {
-                str = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+                str = I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
             itemName = itemName + " - " + preBT + str + rst;
@@ -278,7 +278,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.format("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -286,7 +286,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         Mode mode = Mode.getMode(stack);
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
+        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
         int sel = getSelectedBlockTypeIndex(stack);
         if (sel >= 0)
@@ -297,66 +297,66 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
                 if (blockStack != null && blockStack.getItem() != null)
                 {
-                    String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedblock");
+                    String str = I18n.format("enderutilities.tooltip.item.selectedblock");
                     list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
                 }
             }
         }
         else
         {
-            String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedblock");
+            String str = I18n.format("enderutilities.tooltip.item.selectedblock");
             String str2;
             if (sel == BLOCK_TYPE_TARGETED)
             {
-                str2 = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.targeted");
+                str2 = I18n.format("enderutilities.tooltip.item.blocktype.targeted");
             }
             else
             {
-                str2 = I18n.translateToLocal("enderutilities.tooltip.item.blocktype.adjacent");
+                str2 = I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
             }
 
             list.add(str + ": " + pre + str2 + rst);
         }
 
-        String str = I18n.translateToLocal("enderutilities.tooltip.item.area.flipped");
+        String str = I18n.format("enderutilities.tooltip.item.area.flipped");
         String str2;
         if (this.getAreaFlipped(stack) == true)
         {
-            str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str2 = TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
             list.add(str + ": " + str2 + rst);
 
-            str = I18n.translateToLocal("enderutilities.tooltip.item.flipaxis");
+            str = I18n.format("enderutilities.tooltip.item.flipaxis");
             String preBlue = TextFormatting.BLUE.toString();
             list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
         }
         else
         {
-            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str2 = TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
             list.add(str + ": " + str2 + rst);
         }
 
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
-            str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
+            str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
             if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
             {
-                str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                str2 = TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
             }
             else
             {
-                str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                str2 = TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
             }
             list.add(str + ": " + str2 + rst);
         }
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
+        str = I18n.format("enderutilities.tooltip.item.builderswand.renderghostblocks");
         if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
         {
-            str2 = TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str2 = TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
         }
         else
         {
-            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            str2 = TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
         }
         list.add(str + ": " + str2 + rst);
 
@@ -818,7 +818,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
         // The block on the back face must not be air or fluid ...
-        if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
+        if (block.isAir(state, world, blockPos) == true || state.getMaterial().isLiquid() == true)
         {
             return;
         }
@@ -1027,7 +1027,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                             // It must also be a matching block with our current build block, or we must have no fixed block requirement.
                             // sel >= 0 means that we want to build with a fixed/bound block type,
                             // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
-                            if (block.isAir(state, world, posTgt) == false && block.getMaterial(state).isLiquid() == false)
+                            if (block.isAir(state, world, posTgt) == false && state.getMaterial().isLiquid() == false)
                             {
                                 if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
                                    (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta))
@@ -1387,7 +1387,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         public String getDisplayName()
         {
-            return I18n.translateToLocal(this.unlocName);
+            return I18n.format(this.unlocName);
         }
 
         public static Mode getMode(ItemStack stack)

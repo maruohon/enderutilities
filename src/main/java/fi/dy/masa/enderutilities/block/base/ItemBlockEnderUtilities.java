@@ -2,16 +2,13 @@ package fi.dy.masa.enderutilities.block.base;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -68,7 +65,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
 
             if (verbose == false && tmpList.size() > 2)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
             }
             else
             {

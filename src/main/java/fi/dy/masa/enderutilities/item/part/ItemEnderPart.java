@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -18,17 +19,16 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -145,13 +145,13 @@ public class ItemEnderPart extends ItemModule
         String preWh = TextFormatting.WHITE.toString();
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
-        String strOwner = I18n.translateToLocal("enderutilities.tooltip.item.owner");
+        String strOwner = I18n.format("enderutilities.tooltip.item.owner");
 
         // Set to private and not the owner
         OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
         if (ownerData != null && ownerData.canAccess(player) == false)
         {
-            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, preRed, I18n.translateToLocal("enderutilities.tooltip.item.private"), rst));
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, preRed, I18n.format("enderutilities.tooltip.item.private"), rst));
             return;
         }
 
@@ -159,7 +159,7 @@ public class ItemEnderPart extends ItemModule
         NBTTagCompound nbt = stack.getTagCompound();
         if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags() == true))
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+            list.add(I18n.format("enderutilities.tooltip.item.memorycard.nodata"));
             return;
         }
 
@@ -178,14 +178,14 @@ public class ItemEnderPart extends ItemModule
 
             if (listDataTypes.size() > 0)
             {
-                String str1 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.1");
-                String str2 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.datatypecount.2");
+                String str1 = I18n.format("enderutilities.tooltip.item.memorycard.datatypecount.1");
+                String str2 = I18n.format("enderutilities.tooltip.item.memorycard.datatypecount.2");
                 list.add(String.format("%s %d %s", str1, listDataTypes.size(), str2));
                 list.addAll(listDataTypes);
             }
             else
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.nodata"));
+                list.add(I18n.format("enderutilities.tooltip.item.memorycard.nodata"));
             }
         }
         else if (meta >= 51 && meta <= 54) // Memory Card (items)
@@ -196,22 +196,22 @@ public class ItemEnderPart extends ItemModule
             {
                 NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
                 int stackCount = tagList != null ? tagList.tagCount() : 0;
-                String str1 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.1");
-                String str2 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.2");
-                String str3 = I18n.translateToLocal("enderutilities.tooltip.item.memorycard.items.stackcount.3");
+                String str1 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.1");
+                String str2 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.2");
+                String str3 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.3");
                 list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
             }
             else if (meta != 50)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.memorycard.unknowndata"));
+                list.add(I18n.format("enderutilities.tooltip.item.memorycard.unknowndata"));
             }
         }
 
         // Print the owner data after the contents if the player can access/see the contents
         if (ownerData != null)
         {
-            String mode = ownerData.getIsPublic() ? I18n.translateToLocal("enderutilities.tooltip.item.public") : I18n.translateToLocal("enderutilities.tooltip.item.private");
+            String mode = ownerData.getIsPublic() ? I18n.format("enderutilities.tooltip.item.public") : I18n.format("enderutilities.tooltip.item.private");
             String modeColor = ownerData.getIsPublic() ? TextFormatting.GREEN.toString() : preRed;
             list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, modeColor, mode, rst));
         }

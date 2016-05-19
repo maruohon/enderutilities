@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -18,13 +18,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -251,7 +248,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                 {
                     String id = tag.getString("id");
-                    String translated = I18n.translateToLocal("entity." + id + ".name");
+                    String translated = I18n.format("entity." + id + ".name");
                     if (id.equals(translated) == false)
                     {
                         id = translated;
@@ -340,7 +337,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     {
         if (stack.getTagCompound() == null)
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.usetoolworkstation"));
+            list.add(I18n.format("enderutilities.tooltip.item.usetoolworkstation"));
             return;
         }
 
@@ -351,7 +348,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
-        list.add(I18n.translateToLocal("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
+        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
 
         if (verbose == true)
         {
@@ -361,13 +358,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 String s;
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
-                            TextFormatting.GREEN + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = I18n.translateToLocal("enderutilities.tooltip.item.jailer") + ": " +
-                            TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);
@@ -382,7 +379,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.selectedmemorycard.short") +
+                list.add(I18n.format("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
 
                 NBTTagList tagList = NBTUtils.getTagList(memoryCardStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
@@ -403,7 +400,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                         if (tag.hasKey("id", Constants.NBT.TAG_STRING))
                         {
                             String id = tag.getString("id");
-                            String translated = I18n.translateToLocal("entity." + id + ".name");
+                            String translated = I18n.format("entity." + id + ".name");
                             if (id.equals(translated) == false)
                             {
                                 id = translated;
@@ -419,7 +416,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
         else
         {
-            list.add(I18n.translateToLocal("enderutilities.tooltip.item.nomemorycards"));
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
         }
     }
 
@@ -504,7 +501,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         public String getDisplayName()
         {
-            return I18n.translateToLocal(this.unlocName);
+            return I18n.format(this.unlocName);
         }
 
         public String getVariant()

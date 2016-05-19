@@ -8,27 +8,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.OrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.PlayerOrderedLoadingCallback;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
@@ -65,7 +61,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             //System.out.println("void ticketsLoaded(): looping tickets");
             if (ticket != null)
             {
-                for (ChunkCoordIntPair chunk : ticket.getChunkList())
+                for (ChunkPos chunk : ticket.getChunkList())
                 {
                     //System.out.println("void ticketsLoaded(): forcing chunk: " + chunk + " in dimension: " + ticket.world.provider.getDimensionId());
                     ForgeChunkManager.forceChunk(ticket, chunk);
@@ -296,12 +292,12 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     public class DimChunkCoordTimeout
     {
         public int dimension;
-        public ChunkCoordIntPair chunkCoords;
+        public ChunkPos chunkCoords;
         public int timeout;
         public int timeoutFresh;
         public Ticket ticket;
 
-        public DimChunkCoordTimeout(Ticket ticket, int dimension, ChunkCoordIntPair cc, int timeout)
+        public DimChunkCoordTimeout(Ticket ticket, int dimension, ChunkPos cc, int timeout)
         {
             this.ticket = ticket;
             this.dimension = dimension;
@@ -341,7 +337,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return this.dimension == dcct.dimension && this.chunkCoords.equals(dcct.chunkCoords);
         }
 
-        public boolean equals(int dim, ChunkCoordIntPair ccip)
+        public boolean equals(int dim, ChunkPos ccip)
         {
             return this.dimension == dim && this.chunkCoords.equals(ccip);
         }
@@ -418,7 +414,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return false;
         }
 
-        ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(chunkX, chunkZ));
+        ForgeChunkManager.forceChunk(ticket, new ChunkPos(chunkX, chunkZ));
         if (unloadDelay > 0)
         {
             //System.out.println("loadChunkForcedWithTicket() adding timeout: " + unloadDelay);
@@ -451,7 +447,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         else if (ticket != null)
         {
             //System.out.println("addChunkTimeout(): adding");
-            this.timeOuts.put(s, new DimChunkCoordTimeout(ticket, dimension, new ChunkCoordIntPair(chunkX, chunkZ), timeout));
+            this.timeOuts.put(s, new DimChunkCoordTimeout(ticket, dimension, new ChunkPos(chunkX, chunkZ), timeout));
         }
     }
 

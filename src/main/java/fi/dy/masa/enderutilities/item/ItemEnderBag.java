@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -20,16 +20,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -103,7 +100,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
         if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player) == true)
         {
-            player.addChatMessage(new TextComponentTranslation(I18n.translateToLocal("enderutilities.chat.message.enderbag.outofrange")));
+            player.addChatMessage(new TextComponentTranslation(I18n.format("enderutilities.chat.message.enderbag.outofrange")));
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
@@ -304,7 +301,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                 String textPre = TextFormatting.DARK_GREEN.toString();
                 String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
+                list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
                 return;
             }
         }
