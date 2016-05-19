@@ -2,18 +2,14 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
@@ -114,15 +110,13 @@ public class GuiMemoryChest extends GuiEnderUtilities
             Slot slot = this.inventorySlots.getSlot(i);
             if ((mask & bit) != 0)
             {
-                int x = this.guiLeft + slot.xDisplayPosition;
-                int y = this.guiTop + slot.yDisplayPosition;
-
-                ItemStack stack = this.inventory.getStackInSlot(i);
-                if (stack == null)
+                if (this.inventory.getStackInSlot(i) == null)
                 {
-                    stack = this.temc.getTemplateStack(i);
+                    ItemStack stack = this.temc.getTemplateStack(i);
                     if (stack != null)
                     {
+                        int x = this.guiLeft + slot.xDisplayPosition;
+                        int y = this.guiTop + slot.yDisplayPosition;
                         GlStateManager.enableLighting();
                         GlStateManager.enableDepth();
                         GlStateManager.enableBlend();

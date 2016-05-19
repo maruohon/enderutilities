@@ -190,6 +190,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.initStorage(this.invSize, this.worldObj.isRemote);
     }
 
+    @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
         if (this.worldObj.isRemote == true)
