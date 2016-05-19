@@ -171,13 +171,11 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
      */
     public Result quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
     {
-        final int invSizePlayer = playerInv.getSlots();
-        final int invSizeExt = externalInv.getSlots();
         Result ret = Result.MOVED_NONE;
         boolean movedAll = true;
 
         long bit = 0x1;
-        for (int slotPlayer = 0; slotPlayer < invSizePlayer; slotPlayer++)
+        for (int slotPlayer = 0; slotPlayer < playerInv.getSlots(); slotPlayer++)
         {
             // Only swap slots that have been enabled
             if ((slotMask & bit) != 0 && playerInv.getStackInSlot(slotPlayer) != null)
@@ -188,29 +186,15 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                     continue;
                 }
 
-                int sizeOrig = stack.stackSize;
-                for (int slotExt = 0; slotExt < invSizeExt; slotExt++)
+                if (matchingOnly == false ||
+                    InventoryUtils.getSlotOfLastMatchingItemStack(externalInv, stack) != -1)
                 {
-                    if (matchingOnly == true && InventoryUtils.areItemStacksEqual(stack, externalInv.getStackInSlot(slotExt)) == true)
-                    {
-                        stack = externalInv.insertItem(slotExt, stack, false);
-                    }
-                    else if (matchingOnly == false)
-                    {
-                        stack = InventoryUtils.tryInsertItemStackToInventory(externalInv, stack);
-                    }
+                    int sizeOrig = stack.stackSize;
+                    stack = InventoryUtils.tryInsertItemStackToInventory(externalInv, stack);
 
-                    if (ret == Result.MOVED_NONE)
+                    if (ret == Result.MOVED_NONE && (stack == null || stack.stackSize != sizeOrig))
                     {
-                        if (stack == null || stack.stackSize != sizeOrig)
-                        {
-                            ret = Result.MOVED_SOME;
-                        }
-                    }
-
-                    if (stack == null)
-                    {
-                        break;
+                        ret = Result.MOVED_SOME;
                     }
                 }
 
