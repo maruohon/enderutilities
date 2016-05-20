@@ -4,12 +4,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-
 import fi.dy.masa.enderutilities.item.*;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
@@ -72,7 +70,6 @@ public class EnderUtilitiesItems
         ItemStack diamond = new ItemStack(Items.DIAMOND);
         ItemStack emerald = new ItemStack(Items.EMERALD);
         ItemStack enderChest = new ItemStack(Blocks.ENDER_CHEST);
-        ItemStack egg = new ItemStack(Items.EGG);
         ItemStack eye = new ItemStack(Items.ENDER_EYE);
         ItemStack feather = new ItemStack(Items.FEATHER);
         ItemStack hopper = new ItemStack(Blocks.HOPPER);
@@ -90,7 +87,7 @@ public class EnderUtilitiesItems
         ItemStack alloy2 = new ItemStack(enderPart, 1, 2);
         ItemStack core0 = new ItemStack(enderPart, 1, 10);
         ItemStack core1 = new ItemStack(enderPart, 1, 11);
-        ItemStack core2 = new ItemStack(enderPart, 1, 12);
+        //ItemStack core2 = new ItemStack(enderPart, 1, 12);
         //ItemStack active_core0 = new ItemStack(enderPart, 1, 15);
         ItemStack active_core1 = new ItemStack(enderPart, 1, 16);
         ItemStack active_core2 = new ItemStack(enderPart, 1, 17);
@@ -253,7 +250,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderRelic == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 40), "GEG", "ECE", "GEG", 'G', egg, 'E', emerald, 'C', core2);
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 40), "GEG", "EDE", "GEG", 'G', "blockGlass", 'E', Items.EGG, 'D', Items.DRAGON_BREATH));
         }
         if (Configs.disableRecipePartEnderRope == false && Configs.disableItemCraftingPart == false)
         {
