@@ -53,6 +53,25 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     }
 
     @Override
+    protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
+    {
+        boolean ret = false;
+        long mask = this.temc.getTemplateMask();
+        long bit = 0x1;
+
+        // Try to shift-click to locked slots first
+        for (int i = 0; i < this.inventorySlots.size(); i++, bit <<= 1)
+        {
+            if ((mask & bit) != 0)
+            {
+                ret |= this.transferStackToSlotRange(player, slotNum, new MergeSlotRange(i, 1), reverse);
+            }
+        }
+
+        return ret;
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         // Middle click
