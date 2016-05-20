@@ -111,12 +111,20 @@ public class TileEntityEnderUtilities extends TileEntity
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
         System.out.printf("getUpdatePacketTag @ %s\n", this.getPos());
+        // In 1.9.4 the client side reads the position from the SPacketChunkData packet
+        // and then tries to get a TileEntity from that position and call readFromNBT() on it
+        nbt.setInteger("x", this.getPos().getX());
+        nbt.setInteger("y", this.getPos().getY());
+        nbt.setInteger("z", this.getPos().getZ());
+
         nbt.setByte("r", (byte)(this.getRotation() & 0x07));
 
         if (this.ownerName != null)
         {
             nbt.setString("o", this.ownerName);
         }
+
+        this.writeToNBT(nbt); // FIXME temporary testing in 1.9.4 for the initial chunk data
 
         return nbt;
     }
