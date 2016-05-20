@@ -8,17 +8,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
 
 public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
@@ -41,7 +42,14 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     {
         this.templateStacks = new ItemStack[invSize];
         this.itemHandlerBase = new ItemStackHandlerTileEntity(invSize, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChest(this.getBaseItemHandler(), this);
+        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChestExternal(this.getBaseItemHandler(), this);
+    }
+
+    @Override
+    public IItemHandler getWrappedInventoryForContainer()
+    {
+        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(),
+                new ItemHandlerWrapperMemoryChestContainer(this.getBaseItemHandler(), this));
     }
 
     @Override
@@ -164,11 +172,11 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         }
     }
 
-    private class ItemHandlerWrapperMemoryChest extends ItemHandlerWrapperSelective
+    private class ItemHandlerWrapperMemoryChestExternal extends ItemHandlerWrapperSelective
     {
         private final TileEntityMemoryChest temc;
 
-        public ItemHandlerWrapperMemoryChest(IItemHandler baseHandler, TileEntityMemoryChest te)
+        public ItemHandlerWrapperMemoryChestExternal(IItemHandler baseHandler, TileEntityMemoryChest te)
         {
             super(baseHandler);
             this.temc = te;
@@ -182,9 +190,8 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
                 return false;
             }
 
-            // Simple cases for allowing items in: no templated slots, or matching item already in the slot 
-            if (this.temc.templateMask == 0 ||
-                (this.getStackInSlot(slot) != null && InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true))
+            // Simple cases for allowing items in: no templated slots, or matching item already in the slot
+            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true)
             {
                 return true;
             }
@@ -202,10 +209,10 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
                     return InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]) == true;
                 }
 
+                ItemStack stackTmp = this.getStackInSlot(i);
                 // Space in the inventory slot for this template slot, and the input item matches the template item
                 // => disallow putting the input item in slotNum, unless slotNum was this slot (see above check)
-                if ((this.getStackInSlot(i) == null || this.getStackInSlot(i).stackSize < max) &&
-                     InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[i]) == true)
+                if ((stackTmp == null || stackTmp.stackSize < max) && InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[i]) == true)
                 {
                     //System.out.println("isValid denied - " + (this.worldObj.isRemote ? "client" : "server"));
                     return false;
@@ -222,6 +229,35 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
             return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
             */
+        }
+    }
+
+    private class ItemHandlerWrapperMemoryChestContainer extends ItemHandlerWrapperSelective
+    {
+        private final TileEntityMemoryChest temc;
+
+        public ItemHandlerWrapperMemoryChestContainer(IItemHandler baseHandler, TileEntityMemoryChest te)
+        {
+            super(baseHandler);
+            this.temc = te;
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack == null)
+            {
+                return false;
+            }
+
+            // Simple cases for allowing items in: no templated slots, or matching item already in the slot
+            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true)
+            {
+                return true;
+            }
+
+            // No template locked for this slot, or the item matches with the template item
+            return (this.temc.templateMask & (1 << slot)) == 0 || InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]);
         }
     }
 
