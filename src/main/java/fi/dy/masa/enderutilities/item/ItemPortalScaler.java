@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,10 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -30,6 +28,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
@@ -123,6 +122,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         BlockPos normalDest = this.getNormalDestinationPosition(player, dim);
         BlockPos posDest = this.getDestinationPosition(stack, player, dim);
         int cost = this.getTeleportCost(player, posDest, dim);
+        //System.out.printf("cost1: %d normal: %s new: %s\n", cost, normalDest, posDest);
 
         if (UtilItemModular.useEnderCharge(stack, cost, true) == true)
         {
@@ -139,7 +139,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return false;
     }
 
-    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int dimension)
+    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int destDimension)
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
@@ -162,35 +162,30 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         if (scaleZ < 0) { dScaleZ = -1.0d / (double)scaleZ; }
 
         // Going from the Overworld to the Nether
-        if (dimension == -1)
+        if (destDimension == DimensionType.NETHER.getId())
         {
             dScaleX = 1.0d / dScaleX;
             dScaleY = 1.0d / dScaleY;
             dScaleZ = 1.0d / dScaleZ;
         }
 
-        return new BlockPos(player.posX * dScaleX, player.posY * dScaleY, player.posZ * dScaleZ);
+        return new BlockPos(PositionUtils.getScaledClampedPosition(player, destDimension, dScaleX, dScaleY, dScaleZ, 48));
     }
 
-    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDim)
+    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDimension)
     {
-        // Going from Nether to Overworld
-        if (destDim == 0)
-        {
-            return new BlockPos(player.posX * 8, player.posY, player.posZ * 8);
-        }
+        double scale = destDimension == DimensionType.OVERWORLD.getId() ? 8d : 1d / 8d;
 
-        // Going from Overworld to Nether
-        return new BlockPos(player.posX / 8, player.posY, player.posZ / 8);
+        return new BlockPos(PositionUtils.getScaledClampedPosition(player, destDimension, scale, 1d, scale, 48));
     }
 
     public int getTeleportCost(int x1, int y1, int z1, int x2, int y2, int z2)
     {
-        x1 = x1 - x2;
-        y1 = y1 - y2;
-        z1 = z1 - z2;
+        long xDiff = x1 - x2;
+        long yDiff = y1 - y2;
+        long zDiff = z1 - z2;
 
-        return (int)(TELEPORTATION_EC_COST * Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1));
+        return (int)(TELEPORTATION_EC_COST * Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff));
     }
 
     public int getTeleportCost(EntityPlayer player, BlockPos dest, int destDim)
@@ -310,7 +305,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Shift + (Ctrl + ) Alt + Toggle Mode: Change scaling factor
         else if (ReferenceKeys.keypressContainsShift(key) == true && ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            int amount = ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsControl(key) ? -1 : 1;
+            int amount = ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsControl(key) ? 1 : -1;
             this.changeCoordinateScaleFactor(stack, player, amount);
         }
     }
@@ -318,15 +313,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public boolean memoryCardHasScaleFactor(ItemStack cardStack)
     {
         NBTTagCompound tag = NBTUtils.getCompoundTag(cardStack, "PortalScaler", false);
-        if (tag != null &&
-            tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) &&
-            tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) &&
-            tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE))
-        {
-            return true;
-        }
 
-        return false;
+        return tag != null && tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) &&
+            tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) && tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE);
     }
 
     public boolean itemHasScaleFactor(ItemStack stack)
@@ -339,34 +328,41 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public void changeCoordinateScaleFactor(ItemStack stack, EntityPlayer player, int amount)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack != null)
+        if (moduleStack == null)
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(moduleStack, "PortalScaler", true);
-
-            int x = tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleX") : 8;
-            int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;
-            int z = tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleZ") : 8;
-
-            EnumFacing facing = EntityUtils.getLookingDirection(player);
-            x += Math.abs(facing.getFrontOffsetX()) * amount;
-            y += Math.abs(facing.getFrontOffsetY()) * amount;
-            z += Math.abs(facing.getFrontOffsetZ()) * amount;
-
-            // Hop over zero
-            if (x == 0) { x += Math.abs(facing.getFrontOffsetX()) * amount; }
-            if (y == 0) { y += Math.abs(facing.getFrontOffsetY()) * amount; }
-            if (z == 0) { z += Math.abs(facing.getFrontOffsetZ()) * amount; }
-
-            x = MathHelper.clamp_int(x, -64, 64);
-            y = MathHelper.clamp_int(y, -64, 64);
-            z = MathHelper.clamp_int(z, -64, 64);
-
-            tag.setByte("scaleX", (byte)x);
-            tag.setByte("scaleY", (byte)y);
-            tag.setByte("scaleZ", (byte)z);
-
-            this.setSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
+            return;
         }
+
+        NBTTagCompound tag = NBTUtils.getCompoundTag(moduleStack, "PortalScaler", true);
+
+        int x = tag.hasKey("scaleX", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleX") : 8;
+        int y = tag.hasKey("scaleY", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleY") : 1;
+        int z = tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleZ") : 8;
+
+        EnumFacing facing = EntityUtils.getLookingDirection(player);
+        x += Math.abs(facing.getFrontOffsetX()) * amount;
+        y += Math.abs(facing.getFrontOffsetY()) * amount;
+        z += Math.abs(facing.getFrontOffsetZ()) * amount;
+
+        // Hop over zero and 1/1 (ie. -1)
+        if (x == -1) { x += Math.abs(facing.getFrontOffsetX()) * amount * 2; }
+        if (y == -1) { y += Math.abs(facing.getFrontOffsetY()) * amount * 2; }
+        if (z == -1) { z += Math.abs(facing.getFrontOffsetZ()) * amount * 2; }
+
+        // Hop over zero
+        if (x == 0) { x += Math.abs(facing.getFrontOffsetX()) * amount * 2; }
+        if (y == 0) { y += Math.abs(facing.getFrontOffsetY()) * amount * 2; }
+        if (z == 0) { z += Math.abs(facing.getFrontOffsetZ()) * amount * 2; }
+
+        x = MathHelper.clamp_int(x, -64, 64);
+        y = MathHelper.clamp_int(y, -64, 64);
+        z = MathHelper.clamp_int(z, -64, 64);
+
+        tag.setByte("scaleX", (byte)x);
+        tag.setByte("scaleY", (byte)y);
+        tag.setByte("scaleZ", (byte)z);
+
+        this.setSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
     }
 
     @Override
