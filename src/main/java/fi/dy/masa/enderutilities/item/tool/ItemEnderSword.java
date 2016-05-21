@@ -73,7 +73,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
-        this.damageVsEntity = 5.0f + this.material.getDamageVsEntity();
+        this.damageVsEntity = 7.0f;
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_SWORD);
     }
 
@@ -453,8 +453,10 @@ public class ItemEnderSword extends ItemLocationBoundModular
                 dmg = 0.0d;
             }
 
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", dmg, 0));
-            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -2.4000000953674316D, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(),
+                    new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", dmg, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(),
+                    new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -2.3D, 0));
         }
 
         return multimap;

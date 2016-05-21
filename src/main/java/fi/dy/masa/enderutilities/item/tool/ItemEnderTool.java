@@ -75,12 +75,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
 {
     public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
         EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
-            Configs.harvestLevelEnderAlloyAdvanced, 3120, 12.0f, 4.0f, 15);
+            Configs.harvestLevelEnderAlloyAdvanced, 3120, 12.0f, 0.0f, 15);
 
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
-    public float damageVsEntity;
-    protected float attackSpeed;
     private final Item.ToolMaterial material;
 
     public ItemEnderTool()
@@ -92,8 +90,6 @@ public class ItemEnderTool extends ItemLocationBoundModular
         this.setMaxDamage(0);
         this.setNoRepair();
         this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
-        this.damageVsEntity = 2.0f + this.material.getDamageVsEntity();
-        this.attackSpeed = -2.8f;
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERTOOL);
     }
 
@@ -813,22 +809,23 @@ public class ItemEnderTool extends ItemLocationBoundModular
     {
         Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot, stack);
         //System.out.println("getAttributeModifiers()");
-        double dmg = this.damageVsEntity;
+        double dmg = 0.5f; // Default to almost no damage if the tool is broken
 
-        // Broken tool
-        if (this.isToolBroken(stack) == true)
+        ToolType toolType = ToolType.fromStack(stack);
+        // Broken not tool
+        if (this.isToolBroken(stack) == false)
         {
-            dmg = 1.0d;
-        }
-        else
-        {
-            dmg += ToolType.fromStack(stack).getAttackDamage();
+            dmg = toolType.getAttackDamage();
         }
 
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", dmg, 0));
-            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", this.attackSpeed, 0));
+            String modifierName = toolType == ToolType.HOE ? "Weapon modifier" : "Tool modifier";
+
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(),
+                    new AttributeModifier(ATTACK_DAMAGE_MODIFIER, modifierName, dmg, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(),
+                    new AttributeModifier(ATTACK_SPEED_MODIFIER, modifierName, toolType.getAttackSpeed(), 0));
         }
 
         return multimap;
@@ -1101,33 +1098,35 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public enum ToolType
     {
-        PICKAXE (0, "pickaxe",  ReferenceNames.NAME_ITEM_ENDER_PICKAXE, 2.0f),
-        AXE     (1, "axe",      ReferenceNames.NAME_ITEM_ENDER_AXE,     3.0f),
-        SHOVEL  (2, "shovel",   ReferenceNames.NAME_ITEM_ENDER_SHOVEL,  1.0f),
-        HOE     (3, "hoe",      ReferenceNames.NAME_ITEM_ENDER_HOE,     0.0f),
-        INVALID (-1, "null",    "null",                                 0.0f);
+        PICKAXE (0, "pickaxe",  ReferenceNames.NAME_ITEM_ENDER_PICKAXE, 5.0f, -2.7f),
+        AXE     (1, "axe",      ReferenceNames.NAME_ITEM_ENDER_AXE,     9.0f, -2.9f),
+        SHOVEL  (2, "shovel",   ReferenceNames.NAME_ITEM_ENDER_SHOVEL,  5.5f, -2.9f),
+        HOE     (3, "hoe",      ReferenceNames.NAME_ITEM_ENDER_HOE,     1.0f,  0.1f),
+        INVALID (-1, "null",    "null",                                 0.0f,  0.0f);
 
         private final int id;
         private final String toolClass;
         private final String name;
         private final float attackDamage;
+        private final float attackSpeed;
 
-        private static final Map<String, ToolType> mapType = new HashMap<String, ToolType>();
+        private static final Map<String, ToolType> TYPES = new HashMap<String, ToolType>();
 
         static
         {
             for (ToolType type : ToolType.values())
             {
-                mapType.put(type.getToolClass(), type);
+                TYPES.put(type.getToolClass(), type);
             }
         }
 
-        private ToolType(int id, String toolClass, String name, float attackDamage)
+        private ToolType(int id, String toolClass, String name, float attackDamage, float attackSpeed)
         {
             this.id = id;
             this.toolClass = toolClass;
             this.name = name;
             this.attackDamage = attackDamage;
+            this.attackSpeed = attackSpeed;
         }
 
         public int getId()
@@ -1145,6 +1144,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return this.attackDamage;
         }
 
+        public float getAttackSpeed()
+        {
+            return this.attackSpeed;
+        }
+
         public String getToolClass()
         {
             return this.toolClass;
@@ -1157,13 +1161,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static ToolType fromToolClass(String toolClass)
         {
-            ToolType type = mapType.get(toolClass);
+            ToolType type = TYPES.get(toolClass);
             return type != null ? type : SHOVEL;
         }
 
         public static ToolType fromStack(ItemStack stack)
         {
-            int meta = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
+            int meta = MathHelper.clamp_int(stack.getMetadata(), 0, values().length - 2);
             return values()[meta];
         }
     }
