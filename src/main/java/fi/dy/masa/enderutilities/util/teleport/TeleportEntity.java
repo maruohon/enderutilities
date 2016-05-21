@@ -480,7 +480,7 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.playerNetServerHandler.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
+        player.connection.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
         player.mcServer.getPlayerList().updatePermissionLevel(player);
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);
@@ -490,9 +490,9 @@ public class TeleportEntity
         worldServerDst.updateEntityWithOptionalForce(player, false);
         player.setWorld(worldServerDst);
         player.mcServer.getPlayerList().preparePlayer(player, worldServerSrc); // remove player from the source world
-        player.playerNetServerHandler.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
+        player.connection.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
         player.interactionManager.setWorld(worldServerDst);
-        player.playerNetServerHandler.sendPacket(new SPacketPlayerAbilities(player.capabilities));
+        player.connection.sendPacket(new SPacketPlayerAbilities(player.capabilities));
         player.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(player, worldServerDst);
         player.mcServer.getPlayerList().syncPlayerInventory(player);
         player.addExperienceLevel(0);
@@ -522,7 +522,7 @@ public class TeleportEntity
 
         for (PotionEffect potioneffect : player.getActivePotionEffects())
         {
-            player.playerNetServerHandler.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
+            player.connection.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
         }
 
         FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, dimSrc, dimDst);

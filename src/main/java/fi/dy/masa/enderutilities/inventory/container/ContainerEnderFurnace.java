@@ -84,9 +84,9 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(ICrafting icrafting)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(icrafting);
 
         int b = 0;
         if (this.teef.burnTimeFresh != 0)

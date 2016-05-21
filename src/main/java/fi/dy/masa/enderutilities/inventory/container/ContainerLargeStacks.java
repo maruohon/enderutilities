@@ -6,10 +6,10 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
-import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
@@ -32,7 +32,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting iCrafting)
+    public void addListener(ICrafting iCrafting)
     {
         if (this.listeners.contains(iCrafting))
         {
@@ -45,7 +45,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
             if (iCrafting instanceof EntityPlayerMP)
             {
                 this.syncAllSlots((EntityPlayerMP)iCrafting);
-                ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
+                ((EntityPlayerMP)iCrafting).connection.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
             }
 
             this.detectAndSendChanges();

@@ -74,9 +74,9 @@ public class ContainerHandyChest extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(ICrafting icrafting)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(icrafting);
 
         icrafting.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
         icrafting.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());

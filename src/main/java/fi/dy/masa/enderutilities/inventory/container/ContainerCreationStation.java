@@ -247,9 +247,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting icrafting)
+    public void addListener(ICrafting icrafting)
     {
-        super.onCraftGuiOpened(icrafting);
+        super.addListener(icrafting);
 
         int modeMask = this.tecs.getModeMask();
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
