@@ -24,7 +24,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -52,6 +51,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public static final int GUI_ACTION_RECIPE_STORE        = 5;
     public static final int GUI_ACTION_RECIPE_CLEAR        = 6;
     public static final int GUI_ACTION_TOGGLE_MODE         = 7;
+    public static final int GUI_ACTION_SORT_ITEMS          = 8;
 
     public static final int INV_SIZE_ITEMS = 27;
 
@@ -724,7 +724,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 return;
             }
 
-            IItemHandlerModifiable playerMainInv = new PlayerMainInvWrapper(player.inventory);
+            IItemHandlerModifiable playerMainInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
             IItemHandlerModifiable offhandInv = new PlayerOffhandInvWrapper(player.inventory);
             IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
 
@@ -873,6 +873,20 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             this.writeModeMaskToModule();
+        }
+        else if (action == GUI_ACTION_SORT_ITEMS && element >= 0 && element <= 1)
+        {
+            // Station's item inventory
+            if (element == 0)
+            {
+                InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
+            }
+            // Player inventory (don't sort the hotbar)
+            else
+            {
+                IItemHandlerModifiable inv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                InventoryUtils.sortInventoryWithinRange(inv, new SlotRange(9, 27));
+            }
         }
     }
 
