@@ -140,8 +140,11 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                     this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
 
-        // Add the sort button
+        // Add the sort button for the Handy Chest inventory
         this.buttonList.add(new GuiButtonHoverText(10, x + 9, y + 30, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+
+        // Add the sort button for the player inventory
+        this.buttonList.add(new GuiButtonHoverText(11, x + 84, y + yOff + 4, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
     }
 
     @Override
@@ -170,10 +173,10 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                         ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
             }
         }
-        else if (button.id == 10)
+        else if (button.id >= 10 && button.id <= 11)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, 0));
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, button.id - 10));
         }
     }
 }
