@@ -30,8 +30,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
+import net.minecraftforge.items.wrapper.RangedWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
@@ -62,6 +62,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_SELECT_MODULE = 0;
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
     public static final int GUI_ACTION_SORT_ITEMS    = 2;
+    public static final int GUI_ACTION_TOGGLE_BLOCK  = 3;
 
     public ItemHandyBag()
     {
@@ -239,26 +240,28 @@ public class ItemHandyBag extends ItemInventoryModular
         if (world.isRemote == false && entity instanceof EntityPlayer && RestockMode.fromStack(stack) == RestockMode.ENABLED)
         {
             EntityPlayer player = (EntityPlayer)entity;
-            InventoryItemModular inv;
+            InventoryItemModular bagInv;
 
             // Only re-stock stacks when the player doesn't have a GUI open
             //if (player.openContainer == player.inventoryContainer)
             {
                 if (player.openContainer instanceof ContainerHandyBag)
                 {
-                    inv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
+                    bagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
                 }
                 else
                 {
-                    inv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+                    bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 }
 
-                if (inv.isUseableByPlayer(player) == false)
+                if (bagInv.isUseableByPlayer(player) == false)
                 {
                     return;
                 }
 
-                InventoryUtils.fillStacksOfMatchingItems(inv, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
+                IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
+
+                InventoryUtils.fillStacksOfMatchingItems(wrappedBagInv, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
                 player.openContainer.detectAndSendChanges();
             }
         }
@@ -273,17 +276,19 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-        InventoryItemModular bagInvnv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (inv == null || bagInvnv.isUseableByPlayer(player) == false)
+        InventoryItemModular bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        if (inv == null || bagInv.isUseableByPlayer(player) == false)
         {
             return EnumActionResult.PASS;
         }
+
+        IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
 
         if (RestockMode.fromStack(stack) == RestockMode.ENABLED)
         {
             if (world.isRemote == false)
             {
-                InventoryUtils.tryMoveAllItems(bagInvnv, inv);
+                InventoryUtils.tryMoveAllItems(wrappedBagInv, inv);
                 player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
@@ -297,11 +302,11 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 if (pickupMode == PickupMode.MATCHING)
                 {
-                    InventoryUtils.tryMoveMatchingItems(inv, bagInvnv);
+                    InventoryUtils.tryMoveMatchingItems(inv, wrappedBagInv);
                 }
                 else
                 {
-                    InventoryUtils.tryMoveAllItems(inv, bagInvnv);
+                    InventoryUtils.tryMoveAllItems(inv, wrappedBagInv);
                 }
 
                 player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
@@ -342,12 +347,14 @@ public class ItemHandyBag extends ItemInventoryModular
             bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         }
 
+        IItemHandler wrappedBagInv = getWrappedEnabledInv(bagStack, bagInv);
+
         // If there is no space left in existing stacks in the player's inventory
         // then add the items to the bag, if one of the pickup modes is enabled.
         if (pickupMode == PickupMode.ALL ||
             (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, itemsIn) != -1))
         {
-            itemsIn = InventoryUtils.tryInsertItemStackToInventory(bagInv, itemsIn);
+            itemsIn = InventoryUtils.tryInsertItemStackToInventory(wrappedBagInv, itemsIn);
         }
 
         return itemsIn;
@@ -547,9 +554,10 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_MOVE_ITEMS)
                 {
-                    IItemHandlerModifiable playerMainInv = new PlayerMainInvWrapper(player.inventory);
+                    IItemHandlerModifiable playerMainInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
                     IItemHandlerModifiable offhandInv = new PlayerOffhandInvWrapper(player.inventory);
                     IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
+                    IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, inv);
 
                     switch(element & 0x7FFF)
                     {
@@ -557,32 +565,41 @@ public class ItemHandyBag extends ItemInventoryModular
                             // Holding shift, move all items, even from hotbar
                             if ((element & 0x8000) != 0)
                             {
-                                InventoryUtils.tryMoveAllItems(playerInv, inv);
+                                InventoryUtils.tryMoveAllItems(playerInv, wrappedBagInv);
                             }
                             else
                             {
-                                InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, inv, new SlotRange(9, 27), new SlotRange(inv));
+                                InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, wrappedBagInv, new SlotRange(9, 27), new SlotRange(wrappedBagInv));
                             }
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItems(playerInv, inv);
+                            InventoryUtils.tryMoveMatchingItems(playerInv, wrappedBagInv);
                             break;
                         case 2: // Leave one stack of each item type and fill that stack
-                            InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, inv, true);
+                            InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, wrappedBagInv, true);
                             break;
                         case 3: // Fill stacks in player inventory from bag
-                            InventoryUtils.fillStacksOfMatchingItems(inv, playerInv);
+                            InventoryUtils.fillStacksOfMatchingItems(wrappedBagInv, playerInv);
                             break;
                         case 4: // Move matching items to player inventory
-                            InventoryUtils.tryMoveMatchingItems(inv, playerInv);
+                            InventoryUtils.tryMoveMatchingItems(wrappedBagInv, playerInv);
                             break;
                         case 5: // Move all items to player inventory
-                            InventoryUtils.tryMoveAllItems(inv, playerInv);
+                            InventoryUtils.tryMoveAllItems(wrappedBagInv, playerInv);
                             break;
                     }
                 }
-                else if (action == GUI_ACTION_SORT_ITEMS && element >= 0 && element <= 2)
+                else if (action == GUI_ACTION_SORT_ITEMS && element >= 0 && element <= 3)
                 {
+                    // Player inventory
+                    if (element == 3)
+                    {
+                        IItemHandlerModifiable playerMainInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                        InventoryUtils.sortInventoryWithinRange(playerMainInv, new SlotRange(9, 27));
+
+                        return;
+                    }
+
                     int meta = stack.getMetadata();
                     // The basic tier bag only has one sort button/inventory section
                     if (element > 0 && meta == 0)
@@ -590,24 +607,56 @@ public class ItemHandyBag extends ItemInventoryModular
                         return;
                     }
 
-                    SlotRange range;
-                    if (element == 1)
-                    {
-                        range = new SlotRange(27, 14);
-                    }
-                    else if (element == 2)
-                    {
-                        range = new SlotRange(41, 14);
-                    }
-                    else
-                    {
-                        range = new SlotRange(0, 27);
-                    }
-
-                    InventoryUtils.sortInventoryWithinRange(inv, range);
+                    InventoryUtils.sortInventoryWithinRange(inv, getSlotRangeForSection(element));
+                }
+                else if (action == GUI_ACTION_TOGGLE_BLOCK && element >= 0 && element <= 2)
+                {
+                    long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+                    long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+                    lockMask ^= masks[element];
+                    NBTUtils.setLong(stack, "HandyBag", "LockMask", lockMask);
                 }
             }
         }
+    }
+
+    public static SlotRange getSlotRangeForSection(int section)
+    {
+        if (section == 0)
+        {
+            return new SlotRange(0, 27);
+        }
+        else if (section == 1)
+        {
+            return new SlotRange(27, 14);
+        }
+
+        return new SlotRange(41, 14);
+    }
+
+    public static IItemHandler getWrappedEnabledInv(ItemStack stack, IItemHandlerModifiable baseInv)
+    {
+        long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+        long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+
+        IItemHandlerModifiable inv = null;
+        for (int i = 0; i < 3; i++)
+        {
+            if ((lockMask & masks[i]) == 0)
+            {
+                SlotRange range = getSlotRangeForSection(i);
+                if (inv == null)
+                {
+                    inv = new RangedWrapper(baseInv, range.first, range.lastExc);
+                }
+                else
+                {
+                    inv = new CombinedInvWrapper(inv, new RangedWrapper(baseInv, range.first, range.lastExc));
+                }
+            }
+        }
+
+        return inv != null ? inv : InventoryUtils.NULL_INV;
     }
 
     @Override

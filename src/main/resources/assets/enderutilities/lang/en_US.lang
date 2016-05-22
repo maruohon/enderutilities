@@ -180,6 +180,7 @@ tile.enderutilities.memorychest_2.tooltips=Each slot can be locked to an item ty
 ###################################
 
 enderutilities.gui.label.blacklist=Black list
+enderutilities.gui.label.blockquickactions=Block quick actions
 enderutilities.gui.label.clearcraftinggrid=Clear grid
 enderutilities.gui.label.creationstation.info=Crafting presets:|lf- Left click (1st): Load recipe|lf- Left click (2nd): Add an item to the grid|lf- Left Click (3rd): Fill grid up to largest existing stack|lf- Shift + left click: Store recipe|lf- Right click: Clear grid (same as 'x')|lf- Middle click: Remove stored recipe|lf- Clear the grid (again) when empty to hide the recipe|lf- Shift + click the quick move buttons to set the quick|lf  action, which happens on double-left-click on the block|lf- The crafting grid you last interact with|lf (hilighted) is used for JEI recipe filling
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender

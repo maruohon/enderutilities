@@ -17,11 +17,13 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
     public static final int SLOT_ITER_LIMIT = 128;
+    public static final ItemStackHandlerBasic NULL_INV = new ItemStackHandlerBasic(0);
 
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
