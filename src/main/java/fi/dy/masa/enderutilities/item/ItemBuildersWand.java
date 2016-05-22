@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
@@ -29,7 +30,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -464,9 +464,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return EnumActionResult.SUCCESS;
     }
 
-    public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist pos)
+    public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist posStateDist)
     {
-        if (world.isAirBlock(pos.toBlockPos()) == false || UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
+        if (world.isAirBlock(posStateDist.toBlockPos()) == false || UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
@@ -475,37 +475,29 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (getSelectedBlockTypeIndex(wandStack) == BLOCK_TYPE_ADJACENT)
         {
-            blockInfo = getBlockInfoForAdjacentBlock(world, pos.toBlockPos(), pos.side);
+            blockInfo = getBlockInfoForAdjacentBlock(world, posStateDist.toBlockPos(), posStateDist.side);
         }
         else
         {
-            blockInfo = pos.blockInfo;
+            blockInfo = posStateDist.blockInfo;
         }
 
-        //IBlockState state = world.getBlockState(pos.toBlockPos());
-        //if (blockInfo == null || blockInfo.block.getMaterial().isLiquid() == true)
-        if (blockInfo == null)
+        if (blockInfo == null || blockInfo.block == Blocks.AIR)
         {
             return false;
         }
 
         Block block = blockInfo.block;
         int itemMeta = blockInfo.itemMeta;
+        IBlockState iBlockState = block.getStateFromMeta(blockInfo.blockMeta);
+        BlockPos pos = posStateDist.toBlockPos();
 
         if (player.capabilities.isCreativeMode == true)
         {
-            ItemStack targetStack = new ItemStack(block, 1, itemMeta);
-            if (targetStack.getItem() instanceof ItemBlock)
-            {
-                // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == true)
-                {
-                    if (ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f, EnumHand.MAIN_HAND) == EnumActionResult.SUCCESS)
-                    {
-                        return true;
-                    }
-                }
-            }
+            world.setBlockState(pos, iBlockState, 3);
+            SoundType soundtype = block.getSoundType();
+            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+            return true;
         }
         else
         {
@@ -516,18 +508,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
             {
                 // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, pos.toBlockPos(), pos.side, player, targetStack) == false ||
-                    ForgeHooks.onPlaceItemIntoWorld(targetStack, player, world, pos.toBlockPos(), pos.side, 0.5f, 0.5f, 0.5f, EnumHand.MAIN_HAND) != EnumActionResult.SUCCESS)
+                if (BlockUtils.checkCanPlaceBlockAt(world, posStateDist.toBlockPos(), posStateDist.side, player, targetStack) == true)
                 {
-                    targetStack = InventoryUtils.tryInsertItemStackToInventory(inv, targetStack);
-                    if (targetStack != null)
-                    {
-                        EntityItem item = new EntityItem(world, player.posX, player.posY, player.posZ, targetStack);
-                        world.spawnEntityInWorld(item);
-                    }
-                }
-                else
-                {
+                    world.setBlockState(pos, iBlockState, 3);
+
+                    SoundType soundtype = block.getSoundType();
+                    world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+
                     UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
                     return true;
                 }
@@ -591,7 +578,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
         int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
 
-        tag.setByte("ItemMeta", (byte)itemMeta);
+        tag.setShort("ItemMeta", (short)itemMeta);
     }
 
     public static BlockInfo getSelectedFixedBlockType(ItemStack stack)
@@ -824,9 +811,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         // The block on the back face must not be air and also it must not be fluid.
-        // It must also be a matching block with our current build block, or we must have no fixed block requirement.
-        // sel >= 0 means that we want to build with a fixed/bound block type,
-        // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
+        // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
+        // to his position must match the targeted block.
 
         //if (blockType >= 0 || blockType == BLOCK_TYPE_TARGETED || blockInfo == null || (blockInfo.block == block && blockInfo.meta == meta))
         if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && blockInfo != null) ||
@@ -949,40 +935,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     {
                         positions.add(new BlockPosStateDist(posTmp, dim, face, biTarget));
                     }
-                    else
-                    {
-                        break;
-                    }
                 }
                 break;
 
             case LINE:
-                // The line has to start from the center and go out, because it terminates on the first block encountered
-                for (int i = 0; i <= area.rPosH; i++)
+                for (int i = -area.rNegH; i <= area.rPosH; i++)
                 {
                     BlockPos posTmp = center.offset(axisRight, i);
                     if (world.isAirBlock(posTmp) == true)
                     {
                         positions.add(new BlockPosStateDist(posTmp, dim, face,
                                         this.getBlockInfoForBlockType(world, posTmp, face, blockType, biTarget, biBound)));
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                for (int i = -1; i >= -area.rNegH; i--)
-                {
-                    BlockPos posTmp = center.offset(axisRight, i);
-                    if (world.isAirBlock(posTmp) == true)
-                    {
-                        positions.add(new BlockPosStateDist(posTmp, dim, face,
-                                        this.getBlockInfoForBlockType(world, posTmp, face, blockType, biTarget, biBound)));
-                    }
-                    else
-                    {
-                        break;
                     }
                 }
                 break;
@@ -1024,9 +987,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                             int meta = block.getMetaFromState(state);
 
                             // The block on the back face must not be air and also it must not be fluid.
-                            // It must also be a matching block with our current build block, or we must have no fixed block requirement.
-                            // sel >= 0 means that we want to build with a fixed/bound block type,
-                            // as does BLOCK_TYPE_TARGETED, so in those cases we don't require a specific block type on the back.
+                            // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
+                            // to his position must match the targeted block.
                             if (block.isAir(state, world, posTgt) == false && block.getMaterial(state).isLiquid() == false)
                             {
                                 if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
@@ -1304,7 +1266,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             }
             else
             {
-                this.init(0x08080808);
+                this.init(0);
             }
         }
 

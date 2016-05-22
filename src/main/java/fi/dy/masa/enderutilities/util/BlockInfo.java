@@ -6,34 +6,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class BlockInfo
 {
     public Block block;
-    public ResourceLocation resource;
     public int blockMeta;
     public int itemMeta;
+    public ResourceLocation resource;
 
     public BlockInfo(World world, BlockPos pos)
     {
         IBlockState state = world.getBlockState(pos);
-        Block block = state.getBlock();
-        int blockMeta = block.getMetaFromState(state);
-        int itemMeta = 0;
+        this.block = state.getBlock();
+        this.blockMeta = this.block.getMetaFromState(state);
+        this.itemMeta = 0;
+        this.resource = ForgeRegistries.BLOCKS.getKey(this.block);
 
         @SuppressWarnings("deprecation")
-        ItemStack stack = block.getItem(world, pos, state);
+        ItemStack stack = this.block.getItem(world, pos, state);
         if (stack != null)
         {
-            itemMeta = stack.getMetadata();
+            this.itemMeta = stack.getMetadata();
         }
-
-        this.block = block;
-        this.resource = ForgeRegistries.BLOCKS.getKey(block);
-        this.blockMeta = blockMeta;
-        this.itemMeta = itemMeta;
     }
 
     public BlockInfo(Block block, int blockMeta, int itemMeta)
