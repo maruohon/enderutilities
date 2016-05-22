@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -31,10 +30,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.setup.Registry;
@@ -478,6 +475,36 @@ public class EntityUtils
     }
 
     /**
+     * Recursively gets a list of all the entities in this "tower of mobs"
+     */
+    public static List<Entity> getAllEntitiesInStack(Entity entity)
+    {
+        List<Entity> entities = new ArrayList<Entity>();
+
+        getAllEntitiesInStack(entity, entities, true);
+
+        return entities;
+    }
+
+    private static void getAllEntitiesInStack(Entity entity, List<Entity> entities, boolean startFromBottom)
+    {
+        if (startFromBottom == true)
+        {
+            entity = getBottomEntity(entity);
+        }
+
+        entities.add(entity);
+
+        if (entity.isBeingRidden() == true)
+        {
+            for (Entity passenger : entity.getPassengers())
+            {
+                getAllEntitiesInStack(passenger, entities, false);
+            }
+        }
+    }
+
+    /**
      * Check if the given Entity <b>entity</b> is among the 'stack' of entities
      * that the second argument <b>entityInStack</b> is part of.
      * @param entity
@@ -759,7 +786,7 @@ public class EntityUtils
      * @param afterTasks
      * @return
      */
-    public static boolean addAITaskAfterTasks(EntityLiving living, EntityAIBase task, boolean replaceMatching, Class<? extends EntityAIBase>[] afterTasks)
+    public static <T extends EntityAIBase> boolean addAITaskAfterTasks(EntityLiving living, EntityAIBase task, boolean replaceMatching, Class<T>[] afterTasks)
     {
         if (living == null)
         {
@@ -772,24 +799,27 @@ public class EntityUtils
         while (taskEntryIter.hasNext() == true)
         {
             EntityAITaskEntry taskEntry = taskEntryIter.next();
+            //System.out.printf("addAITaskAfterTasks() - start - task: %s\n", taskEntry.action);
 
             // If this entity already has the same AI task
-            if (taskEntry.action.getClass().equals(task.getClass()))
+            if (taskEntry.action.getClass() == task.getClass())
             {
                 // Replace the old matching task with the new instance
                 if (replaceMatching == true)
                 {
+                    //System.out.printf("addAITaskAfterTasks() - task already present - replacing %s with %s\n", taskEntry.action, task);
                     int p = taskEntry.priority;
                     living.tasks.removeTask(taskEntry.action);
                     living.tasks.addTask(p, task);
                 }
+                //else System.out.printf("addAITaskAfterTasks() - task already present: %s (not replacing)\n", task);
 
                 return true;
             }
 
-            for (Class<? extends EntityAIBase> clazz : afterTasks)
+            for (Class<T> clazz : afterTasks)
             {
-                if (priority <= taskEntry.priority && clazz.equals(taskEntry.action.getClass()))
+                if (priority <= taskEntry.priority && taskEntry.action.getClass() == clazz)
                 {
                     priority = taskEntry.priority + 1;
                 }
@@ -799,8 +829,11 @@ public class EntityUtils
         // Didn't find any matching AI tasks, insert ours as the highest priority task
         if (priority == -1)
         {
+            //System.out.printf("addAITaskAfterTasks() - no matches for afterTasks\n");
             priority = 0;
         }
+
+        //System.out.printf("addAITaskAfterTasks() - priority: %d\n", priority);
 
         living.tasks.addTask(priority, task);
 
