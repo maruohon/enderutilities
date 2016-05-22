@@ -205,6 +205,8 @@ public class BuildersWandRenderer
                 GlStateManager.enableCull();
                 GlStateManager.enableDepth();
                 GlStateManager.translate(pos.posX - dx + 0.0d, pos.posY - dy + 0.0d, pos.posZ - dz + 1.0d);
+                GlStateManager.translate(0, 0, -1);
+                GlStateManager.rotate(-90, 0, 1, 0);
 
                 Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
 

@@ -59,9 +59,9 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class ItemBuildersWand extends ItemLocationBoundModular
 {
     /** How much Ender Charge does placing each block cost */
-    public static final int ENDER_CHARGE_COST = 10;
+    public static final int ENDER_CHARGE_COST = 2;
     /** Max number of stored block types */
-    public static final int MAX_BLOCKS = 6;
+    public static final int MAX_BLOCKS = 16;
     public static final String WRAPPER_TAG_NAME = "BuildersWand";
     public static final String TAG_NAME_MODE = "Mode";
     public static final String TAG_NAME_CONFIGS = "Configs";
@@ -466,7 +466,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist posStateDist)
     {
-        if (world.isAirBlock(posStateDist.toBlockPos()) == false || UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
+        if (world.isAirBlock(posStateDist.toBlockPos()) == false ||
+            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
         {
             return false;
         }
