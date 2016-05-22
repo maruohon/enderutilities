@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -33,8 +35,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.BlockPosDistance;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, IKeyBoundUnselected
@@ -49,6 +51,9 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public static final int GUI_ACTION_CHANGE_PRESET = 0;
     public static final int GUI_ACTION_TOGGLE_ROWS = 1;
     public static final int GUI_ACTION_TOGGLE_COLUMNS = 2;
+
+    public static final int MAX_RANGE_HORIZONTAL = 4;
+    public static final int MAX_RANGE_VERTICAL   = 3;
 
     public ItemQuickStacker()
     {
@@ -245,9 +250,9 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         long slotMask = getEnabledSlotsMask(stackerStack);
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
-        for (BlockPos pos : getPositions(player))
+        for (BlockPosDistance posDist : getPositions(player))
         {
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getTileEntity(posDist.pos);
             if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
@@ -259,7 +264,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                     if (result != Result.MOVED_NONE)
                     {
                         player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
-                        Effects.spawnParticlesFromServer(world.provider.getDimension(), pos, EnumParticleTypes.VILLAGER_HAPPY);
+                        Effects.spawnParticlesFromServer(world.provider.getDimension(), posDist.pos, EnumParticleTypes.VILLAGER_HAPPY);
                     }
 
                     if (result == Result.MOVED_ALL)
@@ -271,13 +276,41 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         }
     }
 
-    public static List<BlockPos> getPositions(EntityPlayer player)
+    public static List<BlockPosDistance> getPositions(EntityPlayer player)
     {
-        List<BlockPos> positions = new ArrayList<BlockPos>();
+        List<BlockPosDistance> posDist = new ArrayList<BlockPosDistance>();
+        BlockPos playerPos = player.getPosition();
 
-        PositionUtils.getPositionsInBoxSpiralingOutwards(positions, 3, 4, (int)(player.posY + 1.0d), (int)player.posX, (int)player.posZ);
+        int range = MAX_RANGE_HORIZONTAL;
 
-        return positions;
+        for (int cx = (playerPos.getX() - range) >> 4; cx <= ((playerPos.getX() - range) >> 4); cx++)
+        {
+            for (int cz = (playerPos.getZ() - range) >> 4; cz <= ((playerPos.getZ() - range) >> 4); cz++)
+            {
+                Chunk chunk = player.worldObj.getChunkFromChunkCoords(cx, cz);
+                if (chunk != null)
+                {
+                    for (BlockPos pos : chunk.getTileEntityMap().keySet())
+                    {
+                        if (isWithinRange(pos, player))
+                        {
+                            posDist.add(new BlockPosDistance(pos, player));
+                        }
+                    }
+                }
+            }
+        }
+
+        Collections.sort(posDist);
+
+        return posDist;
+    }
+
+    public static boolean isWithinRange(BlockPos pos, EntityPlayer player)
+    {
+        return Math.abs(pos.getX() - player.posX + 0.5) <= MAX_RANGE_HORIZONTAL &&
+               Math.abs(pos.getZ() - player.posZ + 0.5) <= MAX_RANGE_HORIZONTAL &&
+               Math.abs(pos.getY() - player.posY + 1.0) <= MAX_RANGE_VERTICAL;
     }
 
     @Override

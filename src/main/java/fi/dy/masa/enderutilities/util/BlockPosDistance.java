@@ -1,27 +1,34 @@
 package fi.dy.masa.enderutilities.util;
 
-public class BlockPosDistance extends BlockPosEU implements Comparable<BlockPosDistance>
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
+
+public class BlockPosDistance implements Comparable<BlockPosDistance>
 {
-    public double distance;
+    public final BlockPos pos;
+    public final double distance;
 
-    public BlockPosDistance(BlockPosEU pos)
+    public BlockPosDistance(BlockPos pos, Entity entity)
     {
-        this(pos.posX, pos.posY, pos.posZ, pos.dimension, pos.face);
+        this(pos, entity.posX, entity.posY, entity.posZ);
     }
 
-    public BlockPosDistance(int x, int y, int z, int dim, int face)
+    public BlockPosDistance(BlockPos pos, double x, double y, double z)
     {
-        super(x, y, z, dim, face);
+        this.pos = pos;
+        this.distance = this.getSquaredCenterDistanceFrom(x, y, z);
     }
 
-    public void setSquaredDistance(double dist)
+    public double getSquaredCenterDistanceFrom(double x, double y, double z)
     {
-        this.distance = dist;
+        return this.getSquaredDistanceFrom(x - 0.5, y - 0.5, z - 0.5);
     }
 
     public double getSquaredDistanceFrom(double x, double y, double z)
     {
-        return (x - this.posX) * (x - this.posX) + (y - this.posY) * (y - this.posY) + (z - this.posZ) * (z - this.posZ);
+        return (x - this.pos.getX()) * (x - this.pos.getX()) +
+               (y - this.pos.getY()) * (y - this.pos.getY()) +
+               (z - this.pos.getZ()) * (z - this.pos.getZ());
     }
 
     @Override
