@@ -13,6 +13,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class TaskBuildersWand implements IPlayerTask
 {
@@ -54,7 +55,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public boolean execute(World world, EntityPlayer player)
     {
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.positions.size();)
@@ -94,7 +95,7 @@ public class TaskBuildersWand implements IPlayerTask
                     ((ItemBuildersWand)stack.getItem()).setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
                 }
 
-                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.3f, 1.0f);
+                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);
             }
 
             return true;

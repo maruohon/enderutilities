@@ -179,7 +179,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
         {
             // Check if we can place the block
-            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, playerIn, targetStack) == true)
+            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block, targetStack) == true)
             {
                 EnumActionResult success;
                 // Off-hand

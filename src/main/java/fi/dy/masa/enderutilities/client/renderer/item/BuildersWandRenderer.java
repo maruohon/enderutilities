@@ -3,9 +3,7 @@ package fi.dy.masa.enderutilities.client.renderer.item;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.lwjgl.opengl.GL11;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,16 +15,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BuildersWandRenderer
@@ -44,7 +41,7 @@ public class BuildersWandRenderer
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        ItemStack stack = this.mc.thePlayer.getHeldItemMainhand();
+        ItemStack stack = EntityUtils.getHeldItemOfType(this.mc.thePlayer, EnderUtilitiesItems.buildersWand);
         if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
         {
             return;
@@ -68,10 +65,10 @@ public class BuildersWandRenderer
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
         ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
-        BlockPosEU posTargeted = item.getPosition(stack, ItemBuildersWand.POS_START);
+        BlockPosEU posStart = item.getPosition(stack, ItemBuildersWand.POS_START);
 
         RayTraceResult rayTraceResult = this.mc.objectMouseOver;
-        if (posTargeted == null && rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
+        if (posStart == null && rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
         {
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
@@ -80,18 +77,16 @@ public class BuildersWandRenderer
                 return;
             }
 
-            posTargeted = new BlockPosEU(rayTraceResult.getBlockPos(), player.dimension, rayTraceResult.sideHit);
+            posStart = new BlockPosEU(rayTraceResult.getBlockPos().offset(rayTraceResult.sideHit), player.dimension, rayTraceResult.sideHit);
         }
 
-        if (posTargeted == null || player.dimension != posTargeted.dimension)
+        if (posStart == null || player.dimension != posStart.dimension)
         {
             return;
         }
 
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posStart = posTargeted.offset(posTargeted.side, 1);
-        BlockPosEU posEnd = item.getPosition(stack, ItemBuildersWand.POS_END);
-        posEnd = (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE)) ? posEnd.offset(posEnd.side, 1) : null;
+        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE) ? item.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
         if (partialTicks < this.partialTicksLast)
         {
@@ -100,11 +95,11 @@ public class BuildersWandRenderer
             if (mode == Mode.CUBE || mode == Mode.WALLS)
             {
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
-                item.getBlockPositionsWalls(stack, posTargeted, world, this.positions, posStart, posEnd);
+                item.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
             }
             else
             {
-                item.getBlockPositions(stack, posTargeted.toBlockPos(), posTargeted.side, player, world, this.positions);
+                item.getBlockPositions(stack, world, player, this.positions, posStart);
             }
         }
 
