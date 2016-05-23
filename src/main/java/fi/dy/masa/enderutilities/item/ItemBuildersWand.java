@@ -902,6 +902,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, side);
             axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
             axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
+            //System.out.printf("flipAxis: %s axisRight: %s axisUp: %s\n", flipAxis, axisRight, axisUp);
         }
 
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, center.offset(side, -1).toBlockPos());

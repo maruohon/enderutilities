@@ -156,7 +156,14 @@ public class BlockPosEU
     public static EnumFacing getRotation(EnumFacing facing, EnumFacing axis)
     {
         EnumFacing newFacing = facing.rotateAround(axis.getAxis());
-        return axis.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE ? newFacing : newFacing.getOpposite();
+
+        if (axis.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE)
+        {
+            return newFacing;
+        }
+
+        // Negative axis direction, if the facing was actually rotated then get the opposite
+        return newFacing != facing ? newFacing.getOpposite() : facing;
     }
 
     @Override
