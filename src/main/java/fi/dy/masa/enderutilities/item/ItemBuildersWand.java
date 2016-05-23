@@ -735,7 +735,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             lookDir = EntityUtils.getClosestLookingDirection(player);
 
-            if (Math.abs(player.rotationPitch) > 15.0f && (lookDir == faceAxisFlipped || lookDir == faceAxisFlipped.getOpposite()))
+            if (Math.abs(player.rotationPitch) > 20.0f &&
+                (lookDir.getAxis() == faceAxisFlipped.getAxis() || lookDir.getAxis() == EnumFacing.Axis.Y))
             {
                 lookDir = EntityUtils.getVerticalLookingDirection(player);
             }
