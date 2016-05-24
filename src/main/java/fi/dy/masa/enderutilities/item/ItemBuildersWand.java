@@ -482,16 +482,28 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else if (mode == Mode.COPY)
         {
-            this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
+            if (Configs.buildersWandEnableCopyPaste == true)
+            {
+                this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
+            }
+            else
+            {
+                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            }
+
             return EnumActionResult.SUCCESS;
         }
         else if (mode == Mode.PASTE)
         {
-            // TODO
-            //TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.buildersWandBlocksPerTick);
-            //PlayerTaskScheduler.getInstance().addTask(player, task, 1);
+            if (Configs.buildersWandEnableCopyPaste == true)
+            {
+                this.pasteAreaIntoWorld(stack, world, player, posStart);
+            }
+            else
+            {
+                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            }
 
-            this.pasteAreaIntoWorld(stack, world, player, posStart);
             return EnumActionResult.SUCCESS;
         }
         else
