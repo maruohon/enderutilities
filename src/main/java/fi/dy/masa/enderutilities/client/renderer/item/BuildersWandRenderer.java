@@ -62,6 +62,15 @@ public class BuildersWandRenderer
         return new AxisAlignedBB(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
     }
 
+    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double partialTicks, EntityPlayer player)
+    {
+        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+
+        return new AxisAlignedBB(minX - dx, minY - dy, minZ - dz, maxX - dx, maxY - dy, maxZ - dz);
+    }
+
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
         ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
@@ -152,6 +161,19 @@ public class BuildersWandRenderer
 
     public void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
+        // Draw the area bounding box
+        if (posStart != null && posEnd != null && (mode == Mode.COPY || mode == Mode.PASTE))
+        {
+            int minX = Math.min(posStart.posX, posEnd.posX);
+            int minY = Math.min(posStart.posY, posEnd.posY);
+            int minZ = Math.min(posStart.posZ, posEnd.posZ);
+            int maxX = Math.max(posStart.posX, posEnd.posX) + 1;
+            int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
+            int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
+            AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, partialTicks, player);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xCC);
+        }
+
         if (posStart != null)
         {
             // Render the targeted position in a different (hilighted) color

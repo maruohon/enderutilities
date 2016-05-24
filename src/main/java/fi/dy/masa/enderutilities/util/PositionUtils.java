@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.util;
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -13,18 +14,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
-    public static final int[] CORNER_ROTATIONS = new int[] { };
-
-    public static BlockPos getPosOffset(BlockPosEU pos1, BlockPosEU posFrom)
-    {
-        return new BlockPos(posFrom.posX - pos1.posX, posFrom.posY - pos1.posY, posFrom.posZ - pos1.posZ);
-    }
-
-    public static BlockPos getPosOffset(BlockPos posWhat, BlockPos posFrom)
-    {
-        return new BlockPos(posFrom.getX() - posWhat.getX(), posFrom.getY() - posWhat.getY(), posFrom.getZ() - posWhat.getZ());
-    }
-
     public static BlockPos getAreaSize(BlockPosEU pos1, BlockPosEU pos2)
     {
         return new BlockPos(pos2.posX - pos1.posX + 1, pos2.posY - pos1.posY + 1, pos2.posZ - pos1.posZ + 1);
@@ -48,7 +37,7 @@ public class PositionUtils
     /**
      * Rotates the given position around the origin
      */
-    public static BlockPos getTransformedPosition(BlockPos pos, Rotation rotation)
+    public static BlockPos getTransformedBlockPos(BlockPos pos, Rotation rotation)
     {
         int x = pos.getX();
         int y = pos.getY();
@@ -66,6 +55,70 @@ public class PositionUtils
         }
 
         return pos;
+    }
+
+    public static BlockPos getTransformedBlockPos(BlockPos pos, Mirror mirror, Rotation rotation)
+    {
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
+        boolean flag = true;
+
+        switch (mirror)
+        {
+            case LEFT_RIGHT:
+                z = -z;
+                break;
+            case FRONT_BACK:
+                x = -x;
+                break;
+            default:
+                flag = false;
+        }
+
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                return new BlockPos(-z, y, x);
+            case COUNTERCLOCKWISE_90:
+                return new BlockPos(z, y, -x);
+            case CLOCKWISE_180:
+                return new BlockPos(-x, y, -z);
+            default:
+                return flag ? new BlockPos(x, y, z) : pos;
+        }
+    }
+
+    public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
+    {
+        double d0 = vec.xCoord;
+        double d1 = vec.yCoord;
+        double d2 = vec.zCoord;
+        boolean flag = true;
+
+        switch (mirrorIn)
+        {
+            case LEFT_RIGHT:
+                d2 = 1.0D - d2;
+                break;
+            case FRONT_BACK:
+                d0 = 1.0D - d0;
+                break;
+            default:
+                flag = false;
+        }
+
+        switch (rotationIn)
+        {
+            case COUNTERCLOCKWISE_90:
+                return new Vec3d(d2, d1, 1.0D - d0);
+            case CLOCKWISE_90:
+                return new Vec3d(1.0D - d2, d1, d0);
+            case CLOCKWISE_180:
+                return new Vec3d(1.0D - d0, d1, 1.0D - d2);
+            default:
+                return flag ? new Vec3d(d0, d1, d2) : vec;
+        }
     }
 
     public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)

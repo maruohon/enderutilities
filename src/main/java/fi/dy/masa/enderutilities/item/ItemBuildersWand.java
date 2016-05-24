@@ -35,8 +35,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
-import net.minecraft.world.gen.structure.template.Template;
-import net.minecraft.world.gen.structure.template.TemplateManager;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -46,6 +44,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
+import fi.dy.masa.enderutilities.event.tasks.TaskStructureBuild;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -54,15 +53,8 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
-import fi.dy.masa.enderutilities.util.BlockInfo;
-import fi.dy.masa.enderutilities.util.BlockPosEU;
-import fi.dy.masa.enderutilities.util.BlockPosStateDist;
-import fi.dy.masa.enderutilities.util.BlockUtils;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.*;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -555,13 +547,30 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return false;
         }
 
-        Block block = blockInfo.block;
-        IBlockState iBlockState = block.getStateFromMeta(blockInfo.blockMeta);
-        BlockPos pos = posStateDist.toBlockPos();
+        return placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(),
+                posStateDist.side, blockInfo.block.getStateFromMeta(blockInfo.blockMeta));
+    }
+
+    public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
+            BlockPos pos, EnumFacing side, IBlockState iBlockState)
+    {
+        return placeBlockToPosition(wandStack, world, player, pos, side, iBlockState, 3);
+    }
+
+    public static boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
+            BlockPos pos, EnumFacing side, IBlockState iBlockState, int setBlockStateFlag)
+    {
+        if (world.isAirBlock(pos) == false ||
+            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
+        {
+            return false;
+        }
+
+        Block block = iBlockState.getBlock();
 
         if (player.capabilities.isCreativeMode == true)
         {
-            world.setBlockState(pos, iBlockState, 3);
+            world.setBlockState(pos, iBlockState, setBlockStateFlag);
             SoundType soundtype = block.getSoundType();
             world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
             return true;
@@ -576,9 +585,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             if (targetStack != null)
             {
                 // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, posStateDist.toBlockPos(), posStateDist.side, block, targetStack) == true)
+                if (BlockUtils.checkCanPlaceBlockAt(world, pos, side, block, targetStack) == true)
                 {
-                    world.setBlockState(pos, iBlockState, 3);
+                    world.setBlockState(pos, iBlockState, setBlockStateFlag);
 
                     SoundType soundtype = block.getSoundType();
                     world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
@@ -1197,18 +1206,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        MinecraftServer server = world.getMinecraftServer();
-        TemplateManager templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack, player);
-
         // Template#getBlockFromWorld() is stupid and doesn't support negative or zero sizes >_<
         BlockPos posStart = PositionUtils.getMinCorner(posStartIn.toBlockPos(), posEndIn.toBlockPos());
         BlockPos posEnd   = PositionUtils.getMaxCorner(posStartIn.toBlockPos(), posEndIn.toBlockPos());
         BlockPos size = PositionUtils.getAreaSize(posStart, posEnd);
 
-        Template template = templateManager.getTemplate(server, rl);
-        template.takeBlocksFromWorld(world, posStart, size, true, null);
+        MinecraftServer server = world.getMinecraftServer();
+        ResourceLocation rl = this.getTemplateResource(stack);
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        TemplateEnderUtilities template = templateManager.getTemplate(server, rl);
+
+        template.takeBlocksFromWorld(world, posStart, size, true);
         template.setAuthor(player.getName());
+
         templateManager.writeTemplate(server, rl);
 
         player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areacopiedtotemplate"));
@@ -1216,40 +1226,56 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private void pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
+        BlockPosEU posStartCopyEU = this.getCopyModeAreaCorner(stack, true);
+        BlockPosEU posEndCopy = this.getCopyModeAreaCorner(stack, false);
+        if (posStartIn == null || posStartCopyEU == null || posEndCopy == null ||
+            posStartIn.dimension != player.dimension || player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
+        {
+            return;
+        }
+
+        PlacementSettings placement = this.getPasteModePlacement(stack, player);
+
+        BlockPos posStartCopy = posStartCopyEU.toBlockPos();
+        BlockPos posMinCopyArea = PositionUtils.getMinCorner(posStartCopy, posEndCopy.toBlockPos());
+        BlockPos posDiffCopy = posMinCopyArea.subtract(posStartCopy);
+        posDiffCopy = PositionUtils.getTransformedBlockPos(posDiffCopy, placement.getRotation());
+        BlockPos pos = posStartIn.toBlockPos().add(posDiffCopy);
+        //System.out.printf("posStartIn: %s posMinCopyArea: %s posDiffCopy: %s pos: %s\n", posStartIn, posMinCopyArea, posDiffCopy, pos);
+
+        TemplateEnderUtilities template = this.getTemplate(world, stack, placement);
+
         if (player.capabilities.isCreativeMode == true)
         {
-            MinecraftServer server = world.getMinecraftServer();
-            TemplateManager templateManager = this.getTemplateManager();
-            ResourceLocation rl = this.getTemplateResource(stack, player);
-            PlacementSettings placement = this.getPasteModePlacement(stack);
-
-            BlockPosEU posStartCopyEU = this.getCopyModeAreaCorner(stack, true);
-            BlockPosEU posEndCopy = this.getCopyModeAreaCorner(stack, false);
-            if (posStartCopyEU == null || posEndCopy == null)
-            {
-                return;
-            }
-
-            BlockPos posStartCopy = posStartCopyEU.toBlockPos();
-            BlockPos posMinCopyArea = PositionUtils.getMinCorner(posStartCopy, posEndCopy.toBlockPos());
-            BlockPos posDiffCopy = posMinCopyArea.subtract(posStartCopy);
-            posDiffCopy = PositionUtils.getTransformedPosition(posDiffCopy, placement.getRotation());
-            BlockPos pos = posStartIn.toBlockPos().add(posDiffCopy);
-            //System.out.printf("posStartIn: %s posMinCopyArea: %s posDiffCopy: %s pos: %s\n", posStartIn, posMinCopyArea, posDiffCopy, pos);
-
-            Template template = templateManager.getTemplate(server, rl);
-            template.addBlocksToWorld(world, pos, placement);
+            template.addBlocksToWorld(world, pos);
+        }
+        else
+        {
+            TaskStructureBuild task = new TaskStructureBuild(template, pos, player.dimension, player.getUniqueID(),
+                    Configs.buildersWandBlocksPerTick, false, false);
+            PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
     }
 
-    private ResourceLocation getTemplateResource(ItemStack stack, EntityPlayer player)
+    private TemplateEnderUtilities getTemplate(World world, ItemStack stack, PlacementSettings placement)
+    {
+        MinecraftServer server = world.getMinecraftServer();
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        ResourceLocation rl = this.getTemplateResource(stack);
+        TemplateEnderUtilities template = templateManager.getTemplate(server, rl);
+        template.setPlacementSettings(placement);
+
+        return template;
+    }
+
+    private ResourceLocation getTemplateResource(ItemStack stack)
     {
         int id = getSelectedBlockTypeIndex(stack);
         UUID uuid = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
         return new ResourceLocation(Reference.MOD_ID, uuid.toString() + "_" + id);
     }
 
-    private TemplateManager getTemplateManager()
+    private TemplateManagerEU getTemplateManager()
     {
         File saveDir = DimensionManager.getCurrentSaveRootDirectory();
         if (saveDir == null)
@@ -1258,7 +1284,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         File file = new File(new File(saveDir, Reference.MOD_ID), this.name);
-        return new TemplateManager(file.getPath());
+        return new TemplateManagerEU(file.getPath());
     }
 
     private BlockPosEU getPasteModeEndPosition(ItemStack stack)
@@ -1272,10 +1298,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return null;
         }
 
-        PlacementSettings placement = this.getPasteModePlacement(stack);
-        BlockPos posOffset = PositionUtils.getPosOffset(pos1, pos2);
+        PlacementSettings placement = this.getPasteModePlacement(stack, null);
+        BlockPos posOffset = pos2.subtract(pos1).toBlockPos();
         //System.out.printf("getPasteModeEndPosition - posOffset: %s, rot: %s\n", posOffset, placement.getRotation());
-        posOffset = Template.transformedBlockPos(placement, posOffset);
+        posOffset = TemplateEnderUtilities.transformedBlockPos(placement, posOffset);
 
         return posStartEU.add(posOffset.getX(), posOffset.getY(), posOffset.getZ());
     }
@@ -1308,18 +1334,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return this.getFacingFromPositions(pos1, pos2);
     }
 
-    private PlacementSettings getPasteModePlacement(ItemStack stack)
+    private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getCopyAreaFacing(stack);
         if (facing == null)
         {
-            return null;
+            facing = EnumFacing.NORTH;
         }
 
         Rotation rotation = PositionUtils.getRotation(facing, this.getAreaFlipAxis(stack, facing));
         //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
 
-        return new PlacementSettings(Mirror.NONE, rotation, false, Blocks.BARRIER, null);
+        boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
+
+        return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
     private EnumFacing getFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
