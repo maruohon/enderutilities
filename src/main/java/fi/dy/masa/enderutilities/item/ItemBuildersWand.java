@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,19 +17,27 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
+import net.minecraft.world.gen.structure.template.Template;
+import net.minecraft.world.gen.structure.template.TemplateManager;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -41,6 +50,7 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -52,6 +62,7 @@ import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -70,7 +81,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
     public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
-    public static final String TAG_NAME_GHOST_BLOCKS ="Ghost";
+    public static final String TAG_NAME_GHOST_BLOCKS = "Ghost";
+    public static final String TAG_NAME_TEMPLATE_ID = "Template";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
     public static final boolean POS_START = true;
@@ -104,14 +116,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 PlayerTaskScheduler.getInstance().removeTask(player, TaskBuildersWand.class);
                 return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
             }
-            else if (mode != Mode.CUBE && mode != Mode.WALLS)
+            else if (mode != Mode.CUBE && mode != Mode.WALLS && mode != Mode.COPY && mode != Mode.PASTE)
             {
                 EnumActionResult result = this.useWand(stack, world, player, pos);
                 return new ActionResult<ItemStack>(result, stack);
             }
         }
 
-        if ((mode == Mode.CUBE || mode == Mode.WALLS) && this.getPosition(stack, POS_END) != null)
+        if ((mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.PASTE) &&
+            this.getPosition(stack, POS_END) != null)
         {
             player.setActiveHand(hand);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
@@ -130,7 +143,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         Mode mode = Mode.getMode(stack);
-        if (mode == Mode.CUBE || mode == Mode.WALLS)
+        if (mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY)
         {
             if (world.isRemote == false && player.isSneaking() == false)
             {
@@ -368,36 +381,93 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public BlockPosEU getPosition(ItemStack stack, boolean isStart)
     {
-        String tagName = isStart == true ? "Pos1" : "Pos2";
-        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, false);
-        if (tag != null)
+        return this.getPosition(stack, Mode.getMode(stack), isStart);
+    }
+
+    public BlockPosEU getPosition(ItemStack stack, Mode mode, boolean isStart)
+    {
+        if (mode == Mode.PASTE && isStart == false)
         {
-            return BlockPosEU.readFromTag(tag);
+            return this.getPasteModeEndPosition(stack);
         }
 
-        return null;
+        int modeId = mode.ordinal();
+        NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + modeId, true);
+        return BlockPosEU.readFromTag(tag.getCompoundTag(isStart == true ? "Pos1" : "Pos2"));
+    }
+
+    private BlockPosEU getPasteModeEndPosition(ItemStack stack)
+    {
+        BlockPosEU pos1 = this.getPosition(stack, Mode.COPY, true);
+        BlockPosEU pos2 = this.getPosition(stack, Mode.COPY, false);
+        BlockPosEU posStartEU = this.getPosition(stack, Mode.PASTE, true);
+
+        if (pos1 == null || pos2 == null || posStartEU == null)
+        {
+            return null;
+        }
+
+        PlacementSettings placement = this.getPasteModePlacement(stack);
+        BlockPos posOffset = PositionUtils.getPosOffset(pos1, pos2);
+        posOffset = Template.transformedBlockPos(placement, posOffset);
+
+        return posStartEU.add(posOffset.getX(), posOffset.getY(), posOffset.getZ());
+    }
+
+    private PlacementSettings getPasteModePlacement(ItemStack stack)
+    {
+        BlockPosEU pos1 = this.getPosition(stack, Mode.COPY, true);
+        BlockPosEU pos2 = this.getPosition(stack, Mode.COPY, false);
+
+        if (pos1 == null || pos2 == null)
+        {
+            return null;
+        }
+
+        Rotation rotation = Rotation.NONE;
+
+        if (this.getAreaFlipped(stack) == true)
+        {
+            EnumFacing facingOriginal = this.getOriginalFacingFromPositions(pos1, pos2);
+            rotation = PositionUtils.getRotation(facingOriginal, this.getAreaFlipAxis(stack, facingOriginal).getOpposite());
+        }
+
+        return new PlacementSettings(Mirror.NONE, rotation, true, Blocks.BARRIER, null);
+    }
+
+    private EnumFacing getOriginalFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        if (pos2.posX >= pos1.posX)
+        {
+            return pos2.posZ >= pos1.posZ ? EnumFacing.WEST : EnumFacing.NORTH;
+        }
+
+        return pos2.posZ >= pos1.posZ ? EnumFacing.EAST : EnumFacing.SOUTH;
     }
 
     public void setPosition(ItemStack stack, BlockPosEU pos, boolean isStart)
     {
+        int mode = Mode.getModeOrdinal(stack);
+        NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode, true);
+
         String tagName = isStart == true ? "Pos1" : "Pos2";
-        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, true);
-        if (nbt != null && nbt.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true)
+        if (tag.hasKey(tagName, Constants.NBT.TAG_COMPOUND) == true)
         {
-            BlockPosEU oldPos = BlockPosEU.readFromTag(nbt.getCompoundTag(tagName));
+            BlockPosEU oldPos = BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
             if (oldPos != null && oldPos.equals(pos) == true)
             {
-                nbt.removeTag(tagName);
+                tag.removeTag(tagName);
             }
             else
             {
-                nbt.setTag(tagName, pos.writeToTag(new NBTTagCompound()));
+                tag.setTag(tagName, pos.writeToTag(new NBTTagCompound()));
             }
         }
         else
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, true);
-            pos.writeToTag(tag);
+            tag.setTag(tagName, pos.writeToTag(new NBTTagCompound()));
         }
     }
 
@@ -420,6 +490,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         else if (mode == Mode.WALLS)
         {
             this.getBlockPositionsWalls(stack, world, positions, posStart, posEnd);
+        }
+        else if (mode == Mode.COPY)
+        {
+            this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
+            return EnumActionResult.SUCCESS;
+        }
+        else if (mode == Mode.PASTE)
+        {
+            // TODO
+            //TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.buildersWandBlocksPerTick);
+            //PlayerTaskScheduler.getInstance().addTask(player, task, 1);
+
+            this.pasteAreaIntoWorld(stack, world, player, posStart);
+            return EnumActionResult.SUCCESS;
         }
         else
         {
@@ -1114,6 +1198,57 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
+    private void copyAreaToTemplate(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd)
+    {
+        if (posStart == null || posEnd == null)
+        {
+            return;
+        }
+
+        MinecraftServer server = world.getMinecraftServer();
+        TemplateManager templateManager = this.getTemplateManager();
+        ResourceLocation rl = this.getTemplateResource(stack, player);
+
+        Template template = templateManager.getTemplate(server, rl);
+        template.takeBlocksFromWorld(world, posStart.toBlockPos(), PositionUtils.getAreaDimensions(posStart, posEnd), false, null);
+        template.setAuthor(player.getName());
+        templateManager.writeTemplate(server, rl);
+
+        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areacopiedtotemplate"));
+    }
+
+    private void pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStart)
+    {
+        if (player.capabilities.isCreativeMode == true)
+        {
+            MinecraftServer server = world.getMinecraftServer();
+            TemplateManager templateManager = this.getTemplateManager();
+            ResourceLocation rl = this.getTemplateResource(stack, player);
+            PlacementSettings placement = this.getPasteModePlacement(stack);
+
+            Template template = templateManager.getTemplate(server, rl);
+            template.addBlocksToWorldChunk(world, posStart.toBlockPos(), placement);
+        }
+    }
+
+    private ResourceLocation getTemplateResource(ItemStack stack, EntityPlayer player)
+    {
+        byte id = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_TEMPLATE_ID);
+        return new ResourceLocation(Reference.MOD_ID, player.getUniqueID().toString() + "_" + id);
+    }
+
+    private TemplateManager getTemplateManager()
+    {
+        File saveDir = DimensionManager.getCurrentSaveRootDirectory();
+        if (saveDir == null)
+        {
+            return null;
+        }
+
+        File file = new File(new File(saveDir, Reference.MOD_ID), this.name);
+        return new TemplateManager(file.getPath());
+    }
+
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -1327,7 +1462,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         PLANE ("enderutilities.tooltip.item.build.plane"),
         COLUMN ("enderutilities.tooltip.item.build.column"),
         WALLS ("enderutilities.tooltip.item.build.walls"),
-        CUBE ("enderutilities.tooltip.item.build.cube");
+        CUBE ("enderutilities.tooltip.item.build.cube"),
+        COPY ("enderutilities.tooltip.item.build.copy"),
+        PASTE ("enderutilities.tooltip.item.build.paste");
 
         private String unlocName;
 

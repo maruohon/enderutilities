@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.util;
 
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -11,6 +13,31 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
+    public static BlockPos getPosOffset(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        return new BlockPos(pos2.posX - pos1.posX, pos2.posY - pos1.posY, pos2.posZ - pos1.posZ);
+    }
+
+    public static BlockPos getAreaDimensions(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        return new BlockPos(Math.abs(pos1.posX - pos2.posX) + 1, Math.abs(pos1.posY - pos2.posY) + 1, Math.abs(pos1.posZ - pos2.posZ) + 1);
+    }
+
+    public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)
+    {
+        if (facingOriginal.getAxis() == EnumFacing.Axis.Y || facingOriginal == facingRotated)
+        {
+            return Rotation.NONE;
+        }
+
+        if (facingRotated == facingOriginal.getOpposite())
+        {
+            return Rotation.CLOCKWISE_180;
+        }
+
+        return facingRotated == facingOriginal.rotateY() ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+    }
+
     public static void getPositionsInBoxSpiralingOutwards(List<BlockPos> positions, int vertR, int horizR, int yLevel, int centerX, int centerZ)
     {
         getPositionsOnPlaneSpiralingOutwards(positions, horizR, yLevel, centerX, centerZ);

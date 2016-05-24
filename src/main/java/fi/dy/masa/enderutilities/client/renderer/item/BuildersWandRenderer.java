@@ -86,7 +86,8 @@ public class BuildersWandRenderer
         }
 
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE) ? item.getPosition(stack, ItemBuildersWand.POS_END) : null;
+        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY  || mode == Mode.PASTE) ?
+                item.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
         if (partialTicks < this.partialTicksLast)
         {
@@ -96,6 +97,9 @@ public class BuildersWandRenderer
             {
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
                 item.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
+            }
+            else if (mode == Mode.COPY || mode == Mode.PASTE)
+            {
             }
             else
             {
@@ -156,7 +160,7 @@ public class BuildersWandRenderer
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
-        if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE))
+        if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE))
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
