@@ -13,14 +13,59 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
-    public static BlockPos getPosOffset(BlockPosEU pos1, BlockPosEU pos2)
+    public static final int[] CORNER_ROTATIONS = new int[] { };
+
+    public static BlockPos getPosOffset(BlockPosEU pos1, BlockPosEU posFrom)
     {
-        return new BlockPos(pos2.posX - pos1.posX, pos2.posY - pos1.posY, pos2.posZ - pos1.posZ);
+        return new BlockPos(posFrom.posX - pos1.posX, posFrom.posY - pos1.posY, posFrom.posZ - pos1.posZ);
     }
 
-    public static BlockPos getAreaDimensions(BlockPosEU pos1, BlockPosEU pos2)
+    public static BlockPos getPosOffset(BlockPos posWhat, BlockPos posFrom)
     {
-        return new BlockPos(Math.abs(pos1.posX - pos2.posX) + 1, Math.abs(pos1.posY - pos2.posY) + 1, Math.abs(pos1.posZ - pos2.posZ) + 1);
+        return new BlockPos(posFrom.getX() - posWhat.getX(), posFrom.getY() - posWhat.getY(), posFrom.getZ() - posWhat.getZ());
+    }
+
+    public static BlockPos getAreaSize(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        return new BlockPos(pos2.posX - pos1.posX + 1, pos2.posY - pos1.posY + 1, pos2.posZ - pos1.posZ + 1);
+    }
+
+    public static BlockPos getAreaSize(BlockPos pos1, BlockPos pos2)
+    {
+        return new BlockPos(pos2.getX() - pos1.getX() + 1, pos2.getY() - pos1.getY() + 1, pos2.getZ() - pos1.getZ() + 1);
+    }
+
+    public static BlockPos getMinCorner(BlockPos pos1, BlockPos pos2)
+    {
+        return new BlockPos(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
+    }
+
+    public static BlockPos getMaxCorner(BlockPos pos1, BlockPos pos2)
+    {
+        return new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
+    }
+
+    /**
+     * Rotates the given position around the origin
+     */
+    public static BlockPos getTransformedPosition(BlockPos pos, Rotation rotation)
+    {
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
+
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                return new BlockPos(-z, y, x);
+            case COUNTERCLOCKWISE_90:
+                return new BlockPos(z, y, -x);
+            case CLOCKWISE_180:
+                return new BlockPos(-x, y, -z);
+            default:
+        }
+
+        return pos;
     }
 
     public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)

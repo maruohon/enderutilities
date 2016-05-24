@@ -4,7 +4,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-
 import net.minecraftforge.common.util.Constants;
 
 public class BlockPosEU
@@ -58,6 +57,16 @@ public class BlockPosEU
     public BlockPosEU add(int x, int y, int z)
     {
         return new BlockPosEU(this.posX + x, this.posY + y, this.posZ + z, this.dimension, this.face);
+    }
+
+    public BlockPosEU subtract(BlockPosEU other)
+    {
+        if (other.posX == 0 && other.posY == 0 && other.posZ == 0)
+        {
+            return this;
+        }
+
+        return new BlockPosEU(this.posX - other.posX, this.posY - other.posY, this.posZ - other.posZ);
     }
 
     /**
