@@ -31,14 +31,16 @@ public class TemplateEnderUtilities
     public PlacementSettings placement;
     public BlockPos size = BlockPos.ORIGIN;
     public String author = "?";
+    private boolean replaceExisting;
 
     public TemplateEnderUtilities()
     {
     }
 
-    public TemplateEnderUtilities(PlacementSettings placement)
+    public TemplateEnderUtilities(PlacementSettings placement, boolean replaceExisting)
     {
         this.placement = placement;
+        this.replaceExisting = replaceExisting;
     }
 
     public void setAuthor(String author)
@@ -49,6 +51,11 @@ public class TemplateEnderUtilities
     public void setPlacementSettings(PlacementSettings placement)
     {
         this.placement = placement;
+    }
+
+    public void setReplaceExistingBlocks(boolean replace)
+    {
+        this.replaceExisting = replace;
     }
 
     public void addBlocksToWorld(World world, BlockPos posStart)
@@ -70,7 +77,7 @@ public class TemplateEnderUtilities
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
 
-            if (world.isAirBlock(pos) == true)
+            if (this.replaceExisting == true || world.isAirBlock(pos) == true)
             {
                 //IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
                 IBlockState state = blockInfo.blockState.withRotation(this.placement.getRotation());

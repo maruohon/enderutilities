@@ -225,6 +225,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         Mode mode = Mode.getMode(stack);
         String preBT = TextFormatting.AQUA.toString();
         String preGreen = TextFormatting.GREEN.toString();
+        String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         if (itemName.length() >= 14)
@@ -242,7 +243,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 EnumFacing facing = this.getCopyAreaFacing(stack);
                 if (facing != null)
                 {
-                    itemName = itemName + " R: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
+                    itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
+                }
+
+                if (this.getReplaceExisting(stack) == true)
+                {
+                    itemName += " rep: " + preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                }
+                else
+                {
+                    itemName += " rep: " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
                 }
             }
 
@@ -259,7 +269,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else
         {
-            itemName = itemName + " flip: " + TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            itemName = itemName + " flip: " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
         }
 
         if (sel >= 0)
@@ -314,7 +324,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (mode == Mode.COPY || mode == Mode.PASTE)
         {
             String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedarea");
-            list.add(str + ": " + pre + (sel + 1) + rst);
+            list.add(str + ": " + preGreen + (sel + 1) + rst);
         }
         else if (sel >= 0)
         {
@@ -375,6 +385,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
             str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.allowdiagonals");
+
             if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
             {
                 str2 = preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
@@ -383,19 +394,25 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             {
                 str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
             }
+
             list.add(str + ": " + str2 + rst);
         }
 
-        str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
-        if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
+        if (mode != Mode.COPY && mode != Mode.PASTE)
         {
-            str2 = preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
+
+            if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
+            {
+                str2 = preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+            }
+            else
+            {
+                str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            }
+
+            list.add(str + ": " + str2 + rst);
         }
-        else
-        {
-            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
-        }
-        list.add(str + ": " + str2 + rst);
 
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
@@ -1259,6 +1276,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         if (player.capabilities.isCreativeMode == true)
         {
+            template.setReplaceExistingBlocks(this.getReplaceExisting(stack));
             template.addBlocksToWorld(world, pos);
         }
         else
@@ -1344,6 +1362,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPosEU pos1 = this.getPosition(stack, Mode.COPY, true);
         BlockPosEU pos2 = this.getPosition(stack, Mode.COPY, false);
         return this.getFacingFromPositions(pos1, pos2);
+    }
+
+    private void toggleReplaceExisting(ItemStack stack)
+    {
+        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + Mode.PASTE.ordinal(), true);
+        tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
+    }
+
+    private boolean getReplaceExisting(ItemStack stack)
+    {
+        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + Mode.PASTE.ordinal(), true);
+        return tag.getBoolean("Replace");
     }
 
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
@@ -1434,7 +1466,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsShift(key) == true &&
                  ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
+            if (Mode.getMode(stack) == Mode.PASTE)
+            {
+                this.toggleReplaceExisting(stack);
+            }
+            else
+            {
+                NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
+            }
         }
         // Just Toggle key: Toggle the area flipped property
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
