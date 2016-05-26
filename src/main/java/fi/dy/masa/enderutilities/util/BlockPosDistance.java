@@ -13,6 +13,12 @@ public class BlockPosDistance implements Comparable<BlockPosDistance>
         this(pos, entity.posX, entity.posY, entity.posZ);
     }
 
+    public BlockPosDistance(BlockPos blockPos, BlockPos fromPos)
+    {
+        this.pos = blockPos;
+        this.distance = this.getSquaredDistanceFrom(fromPos.getX(), fromPos.getY(), fromPos.getZ());
+    }
+
     public BlockPosDistance(BlockPos pos, double x, double y, double z)
     {
         this.pos = pos;

@@ -113,17 +113,6 @@ public class EntityUtils
         return null;
     }
 
-    public static enum LeftRight
-    {
-        LEFT,
-        RIGHT;
-
-        public LeftRight opposite()
-        {
-            return this == LEFT ? RIGHT : LEFT;
-        }
-    }
-
     public static EnumFacing getLookingDirection(Entity entity)
     {
         if (entity.rotationPitch < -45)
@@ -891,6 +880,17 @@ public class EntityUtils
             entityItem.motionZ = worldIn.rand.nextGaussian() * motionScale;
 
             worldIn.spawnEntityInWorld(entityItem);
+        }
+    }
+
+    public static enum LeftRight
+    {
+        LEFT,
+        RIGHT;
+
+        public LeftRight opposite()
+        {
+            return this == LEFT ? RIGHT : LEFT;
         }
     }
 }

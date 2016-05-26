@@ -9,6 +9,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
+import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -16,13 +18,13 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 
 public class GuiQuickStackerAdvanced extends GuiEnderUtilities
 {
-    private final ContainerQuickStackerAdvanced containerQSA;
+    private final TileEntityQuickStackerAdvanced teqsa;
     private final IItemHandler inventoryModules;
 
     public GuiQuickStackerAdvanced(ContainerQuickStackerAdvanced container, TileEntityQuickStackerAdvanced te)
     {
-        super(container, 220, 244, "gui.container.quickstacker.advanced");
-        this.containerQSA = container;
+        super(container, 192, 256, "gui.container.quickstacker.advanced");
+        this.teqsa = te;
         this.inventoryModules = te.getBaseItemHandler();
     }
 
@@ -43,7 +45,8 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker.advanced", new Object[0]), 8, 6, 0x404040);
+        String str = I18n.format("enderutilities.container.quickstacker.advanced", new Object[0]);
+        this.fontRendererObj.drawString(str, this.xSize / 2 - this.fontRendererObj.getStringWidth(str) / 2, 5, 0x404040);
     }
 
     @Override
@@ -56,29 +59,104 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        int index = this.containerQSA.activeModulesMask;
+        // Draw a blue background for the enabled player inventory slots
 
-        for (int i = 0, bit = 1; i < TileEntityQuickStackerAdvanced.NUM_LINK_CRYSTALS; i++)
+        long mask = this.teqsa.getEnabledSlotsMask();
+        //System.out.printf("slotMask: 0x%09X\n", mask);
+        long bit = 0x1;
+        int posX = x + 22;
+        int posY = y + 231;
+
+        // Hotbar
+        for (int c = 0; c < 9; c++)
         {
-            if (this.inventoryModules.getStackInSlot(i) == null)
+            if ((mask & bit) != 0)
             {
-                // Draw the background icon over empty Link Crystal slots
-                this.drawTexturedModalRect(x + 7, y + 18 + i * 18, 240, 32, 16, 16);
+                this.drawTexturedModalRect(posX + c * 18, posY, 102, 18, 18, 18);
             }
-            else if ((index & bit) != 0)
-            {
-                // Draw the green background for active Link Crystal slots
-                this.drawTexturedModalRect(x + 6, y + 17 + i * 18, 102, 54, 18, 18);
-                // Draw the selection border around the active Link Crystals' selection button
-                this.drawTexturedModalRect(x + 25, y + 21 + i * 18, 120, 0, 10, 10);
-            }
-
             bit <<= 1;
         }
 
-        // Draw the selection border around the selected preset's button
-        index = this.containerQSA.selectedPreset;
-        this.drawTexturedModalRect(x + 205, y + 165 + index * 18, 120, 0, 10, 10);
+        posY = y + 173;
+        // Inventory
+        for (int r = 0; r < 3; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if ((mask & bit) != 0)
+                {
+                    this.drawTexturedModalRect(posX + c * 18, posY + r * 18, 102, 18, 18, 18);
+                }
+                bit <<= 1;
+            }
+        }
+
+        // Offhand slot
+        bit = 1L << 40;
+        if ((mask & bit) != 0)
+        {
+            this.drawTexturedModalRect(x + 4, y + 155, 102, 18, 18, 18);
+        }
+
+        if (this.teqsa.isAreaMode() == false)
+        {
+            int index = this.teqsa.getSelectedTarget();
+            // Draw the selection border around the active Link Crystals' selection button
+            this.drawTexturedModalRect(x + 26 + index * 18, y + 53, 120, 24, 10, 10);
+        }
+
+        int enabledTargets = this.teqsa.getEnabledTargetsMask();
+
+        bit = 0x1;
+        for (int slotNum = 0, dx = 22, dy = 16; slotNum < TileEntityQuickStackerAdvanced.NUM_TARGET_INVENTORIES * 2; slotNum++)
+        {
+            if (this.teqsa.isAreaMode())
+            {
+                // Module slots are disabled in Area mode
+                this.drawTexturedModalRect(x + dx, y + dy, 102, 0, 18, 18);
+            }
+            else
+            {
+                if ((enabledTargets & bit) != 0)
+                {
+                    // Draw the blue background for active Link Crystal and Memory Card slots
+                    this.drawTexturedModalRect(x + dx, y + dy     , 102, 18, 18, 18);
+                    this.drawTexturedModalRect(x + dx, y + dy + 18, 102, 18, 18, 18);
+                }
+
+                Slot slot = this.inventorySlots.getSlot(slotNum);
+
+                // Draw the module type background to empty module slots
+                if (slot instanceof SlotItemHandlerModule && slot.getHasStack() == false)
+                {
+                    if (((SlotItemHandlerModule) slot).getModuleType() == ModuleType.TYPE_INVALID)
+                    {
+                        this.drawTexturedModalRect(x + dx + 1, y + dy + 1, 102, 0, 18, 18);
+                    }
+                    else
+                    {
+                        // Draw a darker background for the disabled slots, and the module type background for enabled slots
+                        int u = ((SlotItemHandlerModule) slot).getBackgroundIconU();
+                        int v = ((SlotItemHandlerModule) slot).getBackgroundIconV();
+
+                        // Only one type of module is allowed in this slot
+                        if (u >= 0 && v >= 0)
+                        {
+                            this.drawTexturedModalRect(x + dx + 1, y + dy + 1, u, v, 16, 16);
+                        }
+                    }
+                }
+            }
+
+            bit <<= 1;
+            dx += 18;
+
+            if (slotNum == 8)
+            {
+                dx = 22;
+                dy += 18;
+            }
+        }
     }
 
     @Override
@@ -96,17 +174,33 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         }
     }
 
-    protected void addConditionalButton(int id, int x, int y, int w, int h, ContainerQuickStackerAdvanced container, int u1, int v1, int u2, int v2, String s1, String s2)
+    private int getButtonVariant(int buttonId)
     {
-        // TODO
-        if (id == 0)
+        switch (buttonId)
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s1));
+            case 22:
+                return this.teqsa.isAreaMode() ? 1 : 0;
+            case 23:
+                return this.teqsa.getFilterEnabled() ? 1 : 0;
+            case 24:
+                return this.teqsa.getFilterIsWhitelist() ? 1 : 0;
+            case 25:
+                return this.teqsa.getFilterMatchMeta() ? 1 : 0;
+            case 26:
+                return this.teqsa.getFilterMatchNBT() ? 1 : 0;
         }
-        else
-        {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s2));
-        }
+
+        return 0;
+    }
+
+    protected void addConditionalButton(int id, int x, int y, int w, int h, int u1, int v1, int u2, int v2, String s1, String s2)
+    {
+        int variant = this.getButtonVariant(id);
+        int u = variant == 1 ? u2 : u1;
+        int v = variant == 1 ? v2 : v1;
+        String str = variant == 1 ? s2 : s1;
+
+        this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u, v, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + str));
     }
 
     protected void createButtons()
@@ -118,101 +212,95 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
 
         int id = 0;
         // Add the Link Crystal selection buttons
-        for (int i = 0; i < TileEntityQuickStackerAdvanced.NUM_LINK_CRYSTALS; i++)
+        for (int i = 0; i < TileEntityQuickStackerAdvanced.NUM_TARGET_INVENTORIES; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 26, y + 22 + i * 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
-        }
+            GuiButton button = new GuiButtonIcon(id++, x + 27 + i * 18, y + 54, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0);
+            if (this.teqsa.isAreaMode())
+            {
+                button.enabled = false;
+            }
 
-        // Add the preset selection buttons
-        for (int i = 0; i < TileEntityQuickStackerAdvanced.NUM_PRESETS; i++)
-        {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 206, y + 166 + i * 13, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(button);
         }
 
         // Add the column selection buttons
         for (int i = 0; i < 9; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 44 + i * 18, y + 146, 14, 14, 60, 42, this.guiTextureWidgets, 14, 0));
+            this.buttonList.add(new GuiButtonIcon(id++, x + 24 + i * 18, y + 157, 14, 14, 60, 42, this.guiTextureWidgets, 14, 0));
         }
 
-        // Add the row selection buttons
-        for (int i = 0, yOff = 0; i < 4; i++)
+        // Add the row selection buttons, hotbar is first
+        this.buttonList.add(new GuiButtonIcon(id++, x + 6, y + 233, 14, 14, 60, 28, this.guiTextureWidgets, 14, 0));
+
+        for (int i = 0; i < 3; i++)
         {
-            if (i == 3) yOff = 4;
-            this.buttonList.add(new GuiButtonIcon(id++, x + 26, y + yOff + 164 + i * 18, 14, 14, 60, 28, this.guiTextureWidgets, 14, 0));
+            this.buttonList.add(new GuiButtonIcon(id++, x + 6, y + 175 + i * 18, 14, 14, 60, 28, this.guiTextureWidgets, 14, 0));
         }
 
-        // Add the Link Crystals toggle button
-        this.addConditionalButton(id++, x + 8, y + 164, 14, 14, this.containerQSA, 60, 56, 60, 182, "use.uselinkcrystaltargets", "use.areaplayer");
-
-        // Add the filter settings buttons for group 1
+        // Add the Link Crystals vs. Area toggle button
+        this.addConditionalButton(id++, x + 6, y + 36, 14, 14, 60, 28, 60, 168, "use.linkcrystaltargets", "use.areaplayer");
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x + 43, y + 19, 14, 14, this.containerQSA, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
+        this.addConditionalButton(id++, x + 24, y + 66, 14, 14, 60, 98, 60, 28, "filters.disabled", "filters.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 61, y + 19, 14, 14, this.containerQSA, 60, 70, 60, 84, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 42, y + 66, 14, 14, 60, 70, 60, 84, "blacklist", "whitelist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 79, y + 19, 14, 14, this.containerQSA, 60, 112, 60, 126, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 60, y + 66, 14, 14, 60, 112, 60, 126, "meta.match", "meta.ignore");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 97, y + 19, 14, 14, this.containerQSA, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
-
-
-        // Add the filter settings buttons for group 2
-
-        // Match or ignore this group of filters
-        this.addConditionalButton(id++, x + 43, y + 77, 14, 14, this.containerQSA, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
-
-        // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 61, y + 77, 14, 14, this.containerQSA, 60, 70, 60, 84, "blacklist", "whitelist");
-
-        // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 79, y + 77, 14, 14, this.containerQSA, 60, 112, 60, 126, "meta.match", "meta.ignore");
-
-        // Match or ignore NBT
-        this.addConditionalButton(id++, x + 97, y + 77, 14, 14, this.containerQSA, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 78, y + 66, 14, 14, 60, 140, 60, 154, "nbt.match", "nbt.ignore");
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
     {
-        super.actionPerformed(button);
+        int action = 0;
+        int element = 0;
+        boolean valid = true;
+        int dim = this.teqsa.getWorld().provider.getDimension();
+        BlockPos pos = this.teqsa.getPos();
 
-        int first = 0;
-        int dim = this.containerQSA.te.getWorld().provider.getDimension();
-        BlockPos pos = this.containerQSA.te.getPos();
-
-        if (button.id >= first && button.id < (first + TileEntityQuickStackerAdvanced.NUM_LINK_CRYSTALS))
+        // Toggle targets on/off
+        if (button.id >= 0 && button.id < 9)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos,
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityQuickStackerAdvanced.GUI_ACTION_SELECT_MODULE, button.id - first));
-            return;
+            action = mouseButton == 1 ? TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_TARGET_ENABLED :
+                TileEntityQuickStackerAdvanced.GUI_ACTION_SET_ACTIVE_TARGET;
+            element = button.id;
         }
-        first += TileEntityQuickStackerAdvanced.NUM_LINK_CRYSTALS;
-
-        if (button.id >= first && button.id < (first + TileEntityQuickStackerAdvanced.NUM_PRESETS))
+        // Toggle column selection
+        else if (button.id >= 9 && button.id < 18)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos,
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityQuickStackerAdvanced.GUI_ACTION_CHANGE_PRESET, button.id - first));
-            return;
+            action = TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_COLUMNS;
+            element = button.id - 9;
         }
-        first += TileEntityQuickStackerAdvanced.NUM_PRESETS;
-
-        if (button.id >= first && button.id < (first + 4))
+        // Toggle row selection
+        else if (button.id >= 18 && button.id < 22)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos,
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_SETTINGS_1, button.id - first));
-            return;
+            action = TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_ROWS;
+            element = button.id - 18;
         }
-        first += 4;
+        // Toggle Link Crystal targets vs. Area
+        else if (button.id == 22)
+        {
+            action = TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_TARGET_TYPE;
+        }
+        // Toggle filter settings
+        else if (button.id >= 23 && button.id < 27)
+        {
+            action = TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_FILTER_SETTINGS;
+            element = button.id - 23;
+        }
+        else
+        {
+            valid = false;
+        }
 
-        if (button.id >= first && button.id < (first + 4))
+        if (valid == true)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos,
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityQuickStackerAdvanced.GUI_ACTION_TOGGLE_SETTINGS_2, button.id - first));
-            return;
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
     }
 }

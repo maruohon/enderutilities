@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
 import java.util.List;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -134,6 +135,23 @@ public class PositionUtils
         }
 
         return facingRotated == facingOriginal.rotateY() ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+    }
+
+    public static boolean isWithinRange(BlockPos pos, Entity entity, int rangeH, int rangeV)
+    {
+        return isWithinRange(pos, entity.posX, entity.posY, entity.posZ, rangeH, rangeV);
+    }
+
+    public static boolean isWithinRange(BlockPos pos1, BlockPos pos2, int rangeH, int rangeV)
+    {
+        return isWithinRange(pos1, pos2.getX() + 0.5, pos2.getY() + 0.5, pos2.getZ() + 0.5, rangeH, rangeV);
+    }
+
+    public static boolean isWithinRange(BlockPos pos, double x, double y, double z, int rangeH, int rangeV)
+    {
+        return Math.abs(pos.getX() - x + 0.5) <= rangeH &&
+               Math.abs(pos.getZ() - z + 0.5) <= rangeH &&
+               Math.abs(pos.getY() - y + 1.0) <= rangeV;
     }
 
     public static void getPositionsInBoxSpiralingOutwards(List<BlockPos> positions, int vertR, int horizR, int yLevel, int centerX, int centerZ)

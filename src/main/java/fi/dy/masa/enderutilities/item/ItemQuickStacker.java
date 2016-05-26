@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.item;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,20 +10,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
@@ -35,7 +30,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.BlockPosDistance;
+import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -76,7 +71,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking() == true)
         {
@@ -86,7 +82,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
                 if (world.isRemote == false && inv != null)
                 {
-                    this.quickStackItems(player, stack, inv);
+                    quickStackItems(player, stack, inv);
                 }
 
                 return EnumActionResult.SUCCESS;
@@ -171,62 +167,12 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
     }
 
-    /**
-     * Tries to move all items from enabled slots in the player's inventory to the given external inventory
-     */
-    public Result quickStackItems(IItemHandler playerInv, IItemHandler externalInv, long slotMask, boolean matchingOnly)
-    {
-        Result ret = Result.MOVED_NONE;
-        boolean movedAll = true;
-
-        long bit = 0x1;
-        for (int slotPlayer = 0; slotPlayer < playerInv.getSlots(); slotPlayer++)
-        {
-            // Only swap slots that have been enabled
-            if ((slotMask & bit) != 0 && playerInv.getStackInSlot(slotPlayer) != null)
-            {
-                ItemStack stack = playerInv.extractItem(slotPlayer, 64, false);
-                if (stack == null)
-                {
-                    continue;
-                }
-
-                if (matchingOnly == false ||
-                    InventoryUtils.getSlotOfLastMatchingItemStack(externalInv, stack) != -1)
-                {
-                    int sizeOrig = stack.stackSize;
-                    stack = InventoryUtils.tryInsertItemStackToInventory(externalInv, stack);
-
-                    if (ret == Result.MOVED_NONE && (stack == null || stack.stackSize != sizeOrig))
-                    {
-                        ret = Result.MOVED_SOME;
-                    }
-                }
-
-                // Return the items that were left over
-                if (stack != null)
-                {
-                    playerInv.insertItem(slotPlayer, stack, false);
-                    movedAll = false;
-                }
-            }
-
-            bit <<= 1;
-        }
-
-        if (movedAll == true && ret == Result.MOVED_SOME)
-        {
-            ret = Result.MOVED_ALL;
-        }
-
-        return ret;
-    }
-
-    public Result quickStackItems(EntityPlayer player, ItemStack stackerStack, IItemHandler inventory)
+    public static Result quickStackItems(EntityPlayer player, ItemStack stackerStack, IItemHandler inventory)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
-        Result ret = this.quickStackItems(playerInv, inventory, getEnabledSlotsMask(stackerStack), player.isSneaking() == false);
+        Result ret = TileEntityQuickStackerAdvanced.quickStackItems(playerInv, inventory,
+                getEnabledSlotsMask(stackerStack), player.isSneaking() == false, null);
         if (ret != Result.MOVED_NONE)
         {
             player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
@@ -243,74 +189,10 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             return;
         }
 
-        World world = player.worldObj;
         //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
-
-        ItemQuickStacker item = (ItemQuickStacker) stackerStack.getItem();
-        long slotMask = getEnabledSlotsMask(stackerStack);
-        IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-
-        for (BlockPosDistance posDist : getPositions(player))
-        {
-            TileEntity te = world.getTileEntity(posDist.pos);
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
-            {
-                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-
-                if (inv != null)
-                {
-                    Result result = item.quickStackItems(playerInv, inv, slotMask, player.isSneaking() == false);
-
-                    if (result != Result.MOVED_NONE)
-                    {
-                        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
-                        Effects.spawnParticlesFromServer(world.provider.getDimension(), posDist.pos, EnumParticleTypes.VILLAGER_HAPPY);
-                    }
-
-                    if (result == Result.MOVED_ALL)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    public static List<BlockPosDistance> getPositions(EntityPlayer player)
-    {
-        List<BlockPosDistance> posDist = new ArrayList<BlockPosDistance>();
-        BlockPos playerPos = player.getPosition();
-
-        int range = MAX_RANGE_HORIZONTAL;
-
-        for (int cx = (playerPos.getX() - range) >> 4; cx <= ((playerPos.getX() - range) >> 4); cx++)
-        {
-            for (int cz = (playerPos.getZ() - range) >> 4; cz <= ((playerPos.getZ() - range) >> 4); cz++)
-            {
-                Chunk chunk = player.worldObj.getChunkFromChunkCoords(cx, cz);
-                if (chunk != null)
-                {
-                    for (BlockPos pos : chunk.getTileEntityMap().keySet())
-                    {
-                        if (isWithinRange(pos, player))
-                        {
-                            posDist.add(new BlockPosDistance(pos, player));
-                        }
-                    }
-                }
-            }
-        }
-
-        Collections.sort(posDist);
-
-        return posDist;
-    }
-
-    public static boolean isWithinRange(BlockPos pos, EntityPlayer player)
-    {
-        return Math.abs(pos.getX() - player.posX + 0.5) <= MAX_RANGE_HORIZONTAL &&
-               Math.abs(pos.getZ() - player.posZ + 0.5) <= MAX_RANGE_HORIZONTAL &&
-               Math.abs(pos.getY() - player.posY + 1.0) <= MAX_RANGE_VERTICAL;
+        TileEntityQuickStackerAdvanced.quickStackToInventories(player.worldObj, player, getEnabledSlotsMask(stackerStack),
+                TileEntityQuickStackerAdvanced.getTileEntityPositions(player.worldObj,
+                        player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL));
     }
 
     @Override
