@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.item.ItemStack;
@@ -39,7 +40,7 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
 
         posX = 23;
         posY = 17;
-        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 18);
+        this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), this.inventory.getSlots());
 
         // The Link Crystal slots
         for (int slot = 0; slot < 9; slot++)
@@ -54,7 +55,7 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
             this.addSlotToContainer(new SlotItemHandlerModule(this.inventory, slot + 9, posX + slot * 18, posY, ModuleType.TYPE_MEMORY_CARD_MISC));
         }
 
-        this.filterSlots = new SlotRange(this.inventorySlots.size(), 36);
+        this.filterSlots = new SlotRange(this.inventorySlots.size(), this.inventoryFilters.getSlots());
 
         posY = 83;
 
@@ -76,7 +77,8 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
         // Regular or shift + left click or right click
         if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1))
         {
-            if (slot == null || slot.getItemHandler() != this.inventoryFilters)
+            if (slot == null || slot.getItemHandler() != this.inventoryFilters ||
+                this.teqsa.isInventoryAccessible(player) == false)
             {
                 return false;
             }
@@ -91,8 +93,6 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
             {
                 slot.putStack(null);
             }
-
-            return true;
         }
         else if (this.isDragging == true)
         {
@@ -107,7 +107,8 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
                     for (int i : this.draggedSlots)
                     {
                         SlotItemHandlerGeneric slotTmp = this.getSlotItemHandler(i);
-                        if (slotTmp != null && slotTmp.getItemHandler() == this.inventoryFilters)
+                        if (slotTmp != null && slotTmp.getItemHandler() == this.inventoryFilters &&
+                            this.teqsa.isInventoryAccessible(player))
                         {
                             slotTmp.putStack(stackTmp.copy());
                         }
@@ -128,6 +129,11 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
             this.isDragging = true;
             this.draggingRightClick = button == 4;
             this.draggedSlots.clear();
+        }
+
+        if (player instanceof EntityPlayerMP)
+        {
+            this.detectAndSendChanges();
         }
 
         return false;
@@ -170,7 +176,14 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
             return null;
         }
 
-        return super.slotClick(slotNum, dragType, clickType, player);
+        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
+
+        if (player instanceof EntityPlayerMP)
+        {
+            this.detectAndSendChanges();
+        }
+
+        return stack;
     }
 
     @Override
@@ -192,8 +205,6 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
     @Override
     public void detectAndSendChanges()
     {
-        super.detectAndSendChanges();
-
         byte areaMode = this.teqsa.isAreaMode() ? (byte)1 : (byte)0;
         long mask = this.teqsa.getEnabledSlotsMask();
 
@@ -233,6 +244,8 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
         this.valuesLast[2] = this.teqsa.getEnabledTargetsMask();
         this.valuesLast[3] = this.teqsa.getSelectedTarget();
         this.enabledSlotsMask = mask;
+
+        super.detectAndSendChanges();
     }
 
     @Override

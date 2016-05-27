@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -19,13 +18,11 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 public class GuiQuickStackerAdvanced extends GuiEnderUtilities
 {
     private final TileEntityQuickStackerAdvanced teqsa;
-    private final IItemHandler inventoryModules;
 
     public GuiQuickStackerAdvanced(ContainerQuickStackerAdvanced container, TileEntityQuickStackerAdvanced te)
     {
         super(container, 192, 256, "gui.container.quickstacker.advanced");
         this.teqsa = te;
-        this.inventoryModules = te.getBaseItemHandler();
     }
 
     @Override
@@ -59,45 +56,6 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        // Draw a blue background for the enabled player inventory slots
-
-        long mask = this.teqsa.getEnabledSlotsMask();
-        //System.out.printf("slotMask: 0x%09X\n", mask);
-        long bit = 0x1;
-        int posX = x + 22;
-        int posY = y + 231;
-
-        // Hotbar
-        for (int c = 0; c < 9; c++)
-        {
-            if ((mask & bit) != 0)
-            {
-                this.drawTexturedModalRect(posX + c * 18, posY, 102, 18, 18, 18);
-            }
-            bit <<= 1;
-        }
-
-        posY = y + 173;
-        // Inventory
-        for (int r = 0; r < 3; r++)
-        {
-            for (int c = 0; c < 9; c++)
-            {
-                if ((mask & bit) != 0)
-                {
-                    this.drawTexturedModalRect(posX + c * 18, posY + r * 18, 102, 18, 18, 18);
-                }
-                bit <<= 1;
-            }
-        }
-
-        // Offhand slot
-        bit = 1L << 40;
-        if ((mask & bit) != 0)
-        {
-            this.drawTexturedModalRect(x + 4, y + 155, 102, 18, 18, 18);
-        }
-
         if (this.teqsa.isAreaMode() == false)
         {
             int index = this.teqsa.getSelectedTarget();
@@ -106,8 +64,8 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         }
 
         int enabledTargets = this.teqsa.getEnabledTargetsMask();
+        long bit = 0x1;
 
-        bit = 0x1;
         for (int slotNum = 0, dx = 22, dy = 16; slotNum < TileEntityQuickStackerAdvanced.NUM_TARGET_INVENTORIES * 2; slotNum++)
         {
             if (this.teqsa.isAreaMode())
@@ -119,9 +77,9 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
             {
                 if ((enabledTargets & bit) != 0)
                 {
-                    // Draw the blue background for active Link Crystal and Memory Card slots
-                    this.drawTexturedModalRect(x + dx, y + dy     , 102, 18, 18, 18);
-                    this.drawTexturedModalRect(x + dx, y + dy + 18, 102, 18, 18, 18);
+                    // Draw the green background for active Link Crystal and Memory Card slots
+                    this.drawTexturedModalRect(x + dx, y + dy     , 102, 54, 18, 18);
+                    this.drawTexturedModalRect(x + dx, y + dy + 18, 102, 54, 18, 18);
                 }
 
                 Slot slot = this.inventorySlots.getSlot(slotNum);
@@ -156,6 +114,58 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
                 dx = 22;
                 dy += 18;
             }
+        }
+
+        int posX = x + 22;
+        int posY = y + 82;
+
+        // Non-accessible filter inventory, draw the dark background
+        if (this.teqsa.isInventoryAccessible(this.player) == false)
+        {
+            for (int r = 0; r < 4; r++)
+            {
+                for (int c = 0; c < 9; c++)
+                {
+                    this.drawTexturedModalRect(posX + c * 18, posY + r * 18, 102, 0, 18, 18);
+                }
+            }
+        }
+
+        // Draw a blue background for the enabled player inventory slots
+        posX = x + 22;
+        posY = y + 231;
+        long mask = this.teqsa.getEnabledSlotsMask();
+        bit = 0x1;
+
+        // Hotbar
+        for (int c = 0; c < 9; c++)
+        {
+            if ((mask & bit) != 0)
+            {
+                this.drawTexturedModalRect(posX + c * 18, posY, 102, 18, 18, 18);
+            }
+            bit <<= 1;
+        }
+
+        posY = y + 173;
+        // Inventory
+        for (int r = 0; r < 3; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if ((mask & bit) != 0)
+                {
+                    this.drawTexturedModalRect(posX + c * 18, posY + r * 18, 102, 18, 18, 18);
+                }
+                bit <<= 1;
+            }
+        }
+
+        // Offhand slot
+        bit = 1L << 40;
+        if ((mask & bit) != 0)
+        {
+            this.drawTexturedModalRect(x + 4, y + 155, 102, 18, 18, 18);
         }
     }
 
@@ -200,7 +210,14 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         int v = variant == 1 ? v2 : v1;
         String str = variant == 1 ? s2 : s1;
 
-        this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u, v, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + str));
+        GuiButton button = new GuiButtonHoverText(id, x, y, w, h, u, v, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + str);
+        // Disable the filter mode buttons if there is no Memory Card present
+        if (id >= 23 && id <= 26)
+        {
+            button.enabled = this.teqsa.isInventoryAccessible(this.player);
+        }
+
+        this.buttonList.add(button);
     }
 
     protected void createButtons()

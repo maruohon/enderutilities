@@ -19,13 +19,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiQuickStackerAdvanced;
+import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemCallback;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker.Result;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -35,10 +38,11 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosDistance;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
-public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInventory
+public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder
 {
     public static final int NUM_TARGET_INVENTORIES            = 9;
     public static final int GUI_ACTION_TOGGLE_TARGET_TYPE     = 0;
@@ -53,7 +57,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     public static final int BIT_META        = 0x04;
     public static final int BIT_NBT         = 0x08;
 
-    private final IItemHandler inventoryFilters;
+    private final ItemStackHandlerTileEntity inventoryFiltersAreaMode;
+    private InventoryItemCallback inventoryFiltersBound;
     private boolean isAreaMode;
     private byte areaModeSettings;
     private short enabledTargetsMask;
@@ -66,8 +71,14 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         super(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_TARGET_INVENTORIES * 2, 1, false, "Items", this);
-        this.inventoryFilters = new ItemStackHandlerTileEntity(1, 36, 1, false, "FilterItems", this);
+        this.inventoryFiltersAreaMode = new ItemStackHandlerTileEntity(1, 36, 1, false, "FilterItems", this);
         this.clickTimes = new HashMap<UUID, Long>();
+    }
+
+    private void initStorage(boolean isRemote)
+    {
+        this.inventoryFiltersBound = new InventoryItemCallback(null, 36, 1, false, isRemote, null, this, "FilterItems");
+        this.inventoryFiltersBound.setContainerItemStack(this.getContainerStack());
     }
 
     @Override
@@ -78,12 +89,45 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public IItemHandler getFilterInventory()
     {
-        return this.inventoryFilters;
+        return new ItemHandlerWrapperFilters(this.inventoryFiltersAreaMode, this.inventoryFiltersBound);
     }
 
     public FilterSettings getFilterSettings(int filterId)
     {
-        return new FilterSettings(this.itemHandlerBase.getStackInSlot(filterId + NUM_TARGET_INVENTORIES));
+        return new FilterSettings(filterId, this.inventoryFiltersBound);
+    }
+
+    public ItemStack getContainerStack()
+    {
+        //System.out.printf("getContainerStack: %s\n", this.worldObj.isRemote ? "client" : "server");
+        return this.getContainerStack(this.selectedTarget);
+    }
+
+    public ItemStack getContainerStack(int filterId)
+    {
+        if (filterId < NUM_TARGET_INVENTORIES)
+        {
+            return this.getBaseItemHandler().getStackInSlot(filterId + NUM_TARGET_INVENTORIES);
+        }
+
+        return null;
+    }
+
+    public boolean isInventoryAccessible(EntityPlayer player)
+    {
+        if (this.isAreaMode)
+        {
+            return true;
+        }
+
+        return this.inventoryFiltersBound.isUseableByPlayer(player);
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        this.inventoryFiltersBound.setContainerItemStack(this.getContainerStack());
+        this.markDirty();
     }
 
     public boolean isAreaMode()
@@ -138,7 +182,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean getFilterEnabled()
     {
-        if (this.isAreaMode)
+        if (this.isAreaMode())
         {
             return (this.areaModeSettings & BIT_ENABLED) != 0;
         }
@@ -148,7 +192,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean getFilterIsWhitelist()
     {
-        if (this.isAreaMode)
+        if (this.isAreaMode())
         {
             return (this.areaModeSettings & BIT_WHITELIST) != 0;
         }
@@ -158,7 +202,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean getFilterMatchMeta()
     {
-        if (this.isAreaMode)
+        if (this.isAreaMode())
         {
             return (this.areaModeSettings & BIT_META) != 0;
         }
@@ -168,7 +212,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean getFilterMatchNBT()
     {
-        if (this.isAreaMode)
+        if (this.isAreaMode())
         {
             return (this.areaModeSettings & BIT_NBT) != 0;
         }
@@ -193,11 +237,33 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     {
         super.writeToNBT(nbt);
 
-        nbt.setBoolean("AreaMode", this.isAreaMode);
+        nbt.setBoolean("AreaMode", this.isAreaMode());
         nbt.setByte("AreaModeSettings", this.areaModeSettings);
-        nbt.setByte("EnabledTargets", (byte)this.enabledTargetsMask);;
+        nbt.setByte("EnabledTargets", (byte)this.enabledTargetsMask);
         nbt.setByte("SelectedTarget", this.selectedTarget);
         nbt.setLong("EnabledSlots", this.slotMask);
+    }
+
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
+        super.readItemsFromNBT(nbt);
+
+        this.inventoryFiltersAreaMode.deserializeNBT(nbt);
+    }
+
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        super.writeItemsToNBT(nbt);
+
+        nbt.merge(this.inventoryFiltersAreaMode.serializeNBT());
+    }
+
+    @Override
+    public void onLoad()
+    {
+        this.initStorage(this.getWorld().isRemote);
     }
 
     @Override
@@ -210,7 +276,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             if (last != null && this.worldObj.getTotalWorldTime() - last < 5)
             {
                 // Area mode
-                if (this.isAreaMode == true)
+                if (this.isAreaMode())
                 {
                     quickStackToInventories(this.getWorld(), player, this.slotMask,
                             getTileEntityPositions(this.getWorld(), this.getPos(), 32, 32));
@@ -238,7 +304,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         {
             if ((this.enabledTargetsMask & bit) != 0)
             {
-                ItemStack lcStack = this.itemHandlerBase.getStackInSlot(i);
+                ItemStack lcStack = this.getBaseItemHandler().getStackInSlot(i);
                 if (lcStack != null)
                 {
                     TargetData target = TargetData.getTargetFromItem(lcStack);
@@ -397,6 +463,70 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         }
     }
 
+    private class ItemHandlerWrapperFilters implements IItemHandlerModifiable
+    {
+        private final IItemHandlerModifiable inventoryAreaMode;
+        private final IItemHandlerModifiable inventoryBoundTarget;
+
+        public ItemHandlerWrapperFilters(IItemHandlerModifiable inventoryAreaMode, IItemHandlerModifiable inventoryBoundTarget)
+        {
+            this.inventoryAreaMode = inventoryAreaMode;
+            this.inventoryBoundTarget = inventoryBoundTarget;
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return this.inventoryAreaMode.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            if (TileEntityQuickStackerAdvanced.this.isAreaMode())
+            {
+                return this.inventoryAreaMode.getStackInSlot(slot);
+            }
+
+            return this.inventoryBoundTarget.getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            if (TileEntityQuickStackerAdvanced.this.isAreaMode())
+            {
+                return this.inventoryAreaMode.insertItem(slot, stack, simulate);
+            }
+
+            return this.inventoryBoundTarget.insertItem(slot, stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            if (TileEntityQuickStackerAdvanced.this.isAreaMode())
+            {
+                return this.inventoryAreaMode.extractItem(slot, amount, simulate);
+            }
+
+            return this.inventoryBoundTarget.extractItem(slot, amount, simulate);
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack)
+        {
+            if (TileEntityQuickStackerAdvanced.this.isAreaMode())
+            {
+                this.inventoryAreaMode.setStackInSlot(slot, stack);
+            }
+            else
+            {
+                this.inventoryBoundTarget.setStackInSlot(slot, stack);
+            }
+        }
+    }
+
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
@@ -404,7 +534,9 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         {
             if (element >= 0 && element < NUM_TARGET_INVENTORIES)
             {
+                this.inventoryFiltersBound.onContentsChanged(element);
                 this.selectedTarget = (byte)element;
+                this.inventoryChanged(0, element);
             }
         }
         else if (action == GUI_ACTION_TOGGLE_TARGET_ENABLED)
@@ -414,6 +546,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         else if (action == GUI_ACTION_TOGGLE_TARGET_TYPE)
         {
             this.isAreaMode = ! this.isAreaMode;
+            this.inventoryChanged(0, 0);
         }
         else if (action == GUI_ACTION_TOGGLE_ROWS)
         {
@@ -439,7 +572,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     private void toggleFilterSettings(int element)
     {
-        if (this.isAreaMode)
+        if (this.isAreaMode())
         {
             switch (element)
             {
@@ -475,23 +608,32 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         return new GuiQuickStackerAdvanced(this.getContainer(player), this);
     }
 
-    public static class FilterSettings
+    public class FilterSettings
     {
-        private ItemStack containerStack;
+        private final IItemHandler filterInventory;
+        private final int filterId;
 
-        private FilterSettings(ItemStack containerStack)
+        private FilterSettings(int filterId, IItemHandler filterInventory)
         {
-            this.containerStack = containerStack;
+            this.filterId = filterId;
+            this.filterInventory = filterInventory;
+        }
+
+        private ItemStack getContainerStack()
+        {
+            return TileEntityQuickStackerAdvanced.this.getContainerStack(this.filterId);
         }
 
         private NBTTagCompound getTag(boolean create)
         {
-            if (this.containerStack == null)
+            ItemStack containerStack = getContainerStack();
+
+            if (containerStack == null)
             {
                 return new NBTTagCompound();
             }
 
-            NBTTagCompound nbt = NBTUtils.getCompoundTag(this.containerStack, "QuickStackerAdvanced", create);
+            NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, "QuickStackerAdvanced", create);
             if (nbt == null)
             {
                 nbt = new NBTTagCompound();
@@ -546,12 +688,14 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
         public boolean itemAllowedByFilter(ItemStack stack)
         {
-            if (this.containerStack == null)
+            ItemStack containerStack = getContainerStack();
+
+            if (containerStack == null)
             {
                 return true;
             }
 
-            NBTTagCompound nbt = NBTUtils.getCompoundTag(this.containerStack, "QuickStackerAdvanced", false);
+            NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, "QuickStackerAdvanced", false);
             if (nbt == null)
             {
                 return false;
@@ -567,9 +711,9 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             boolean matchMeta = nbt.getBoolean("UseMeta");
             boolean matchNBT = nbt.getBoolean("UseNBT");
 
-            if (stack.getItem() == this.containerStack.getItem() &&
-                (matchMeta == false || stack.getMetadata() == this.containerStack.getMetadata()) &&
-                (matchNBT == false || ItemStack.areItemStackTagsEqual(stack, this.containerStack) == true))
+            boolean match = InventoryUtils.matchingStackFoundInSlotRange(this.filterInventory,
+                    new SlotRange(this.filterInventory), stack, ! matchMeta, ! matchNBT);
+            if (match == true)
             {
                 return isWhitelist;
             }
