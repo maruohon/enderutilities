@@ -1,17 +1,16 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
@@ -75,7 +74,10 @@ public class PlayerEventHandler
                 player.inventory.markDirty();
             }
 
-            player.inventoryContainer.detectAndSendChanges();
+            if (player instanceof EntityPlayerMP)
+            {
+                player.inventoryContainer.detectAndSendChanges();
+            }
         }
     }
 }

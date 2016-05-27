@@ -187,7 +187,7 @@ public class ContainerEnderUtilities extends Container
         }
 
         // From external inventory to player inventory
-        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, true);
+        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
     }
 
     protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)

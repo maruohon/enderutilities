@@ -20,6 +20,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -150,7 +151,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
         else if (player != null && (player instanceof FakePlayer) == false)
         {
-            return this.placeBlock(stack, player, world, pos, side, hitX, hitY, hitZ);
+            if (world.isRemote == false)
+            {
+                return this.placeBlock(stack, player, world, pos, side, hitX, hitY, hitZ);
+            }
+
+            return EnumActionResult.SUCCESS;
         }
 
         return EnumActionResult.PASS;
@@ -374,7 +380,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 inv.insertItem(slot, plantStack, false);
             }
 
-            if (inv instanceof PlayerMainInvWrapper)
+            if (inv instanceof PlayerMainInvWrapper && player instanceof EntityPlayerMP)
             {
                 player.inventoryContainer.detectAndSendChanges();
             }
