@@ -5,10 +5,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.BlockMachine;
@@ -45,7 +43,7 @@ public class EnderUtilitiesBlocks
         ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1);
         ItemStack alloy2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 2);
         ItemStack core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 10);
-        //ItemStack core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 11);
+        ItemStack core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 11);
         //ItemStack core2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 12);
         //ItemStack active_core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 15);
         ItemStack active_core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 16);
@@ -58,6 +56,7 @@ public class EnderUtilitiesBlocks
         {
             GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', furnace, 'C', core0);
         }
+
         if (Configs.disableRecipeEnderInfuser == false && Configs.disableBlockMachine_1 == false)
         {
             GameRegistry.addRecipe(new ItemStack(blockMachine_1, 1, 0), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
@@ -68,7 +67,11 @@ public class EnderUtilitiesBlocks
         }
         if (Configs.disableRecipeCreationStation == false && Configs.disableBlockMachine_1 == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 2), "FRF", "ACA", "OAO", 'F', new ItemStack(blockMachine_0, 1, 0), 'R', craftingtable, 'A', alloy2, 'C', active_core1, 'O', obsidian));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 2), "FRF", "ACA", "OAO", 'F', new ItemStack(blockMachine_0, 1, 0), 'R', craftingtable, 'A', alloy1, 'C', core1, 'O', obsidian));
+        }
+        if (Configs.disableRecipeAdvancedQuickStacker == false && Configs.disableBlockMachine_1 == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 3), "AAA", "AQA", "AAA", 'A', alloy0, 'Q', EnderUtilitiesItems.quickStacker));
         }
 
         if (Configs.disableRecipeEnergyBridgeResonator == false && Configs.disableBlockEnergyBridge == false)

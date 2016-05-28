@@ -9,6 +9,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -174,12 +175,17 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
     {
         super.drawTooltips(mouseX, mouseY);
 
-        Slot slot = this.getSlotUnderMouse();
-        // Hovering over the tool slot
-        if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        x += 4;
+        y += 16;
+
+        // Hovering over the info icon
+        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.transportitemsslot", new Object[0]));
+            ItemEnderUtilities.addTooltips("enderutilities.gui.label.quickstackeradvanced.info", list, false);
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
@@ -191,13 +197,13 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
             case 22:
                 return this.teqsa.isAreaMode() ? 1 : 0;
             case 23:
-                return this.teqsa.getFilterEnabled() ? 1 : 0;
+                return this.teqsa.getSelectedFilterSettings().isEnabled() ? 1 : 0;
             case 24:
-                return this.teqsa.getFilterIsWhitelist() ? 1 : 0;
+                return this.teqsa.getSelectedFilterSettings().isBlacklist() ? 1 : 0;
             case 25:
-                return this.teqsa.getFilterMatchMeta() ? 1 : 0;
+                return this.teqsa.getSelectedFilterSettings().getMatchMeta() ? 1 : 0;
             case 26:
-                return this.teqsa.getFilterMatchNBT() ? 1 : 0;
+                return this.teqsa.getSelectedFilterSettings().getMatchNBT() ? 1 : 0;
         }
 
         return 0;
@@ -255,19 +261,19 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         }
 
         // Add the Link Crystals vs. Area toggle button
-        this.addConditionalButton(id++, x + 6, y + 36, 14, 14, 60, 28, 60, 168, "use.linkcrystaltargets", "use.areaplayer");
+        this.addConditionalButton(id++, x + 6, y + 36, 14, 14, 60, 28, 60, 168, "use.linkcrystaltargets", "use.areablock");
 
         // Match or ignore this group of filters
         this.addConditionalButton(id++, x + 24, y + 66, 14, 14, 60, 98, 60, 28, "filters.disabled", "filters.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 42, y + 66, 14, 14, 60, 70, 60, 84, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 42, y + 66, 14, 14, 60, 84, 60, 70, "whitelist", "blacklist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 60, y + 66, 14, 14, 60, 112, 60, 126, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 60, y + 66, 14, 14, 60, 126, 60, 112, "meta.ignore", "meta.match");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 78, y + 66, 14, 14, 60, 140, 60, 154, "nbt.match", "nbt.ignore");
+        this.addConditionalButton(id++, x + 78, y + 66, 14, 14, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
     }
 
     @Override

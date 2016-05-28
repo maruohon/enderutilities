@@ -23,7 +23,7 @@ public class ConfigReader
         EnderUtilities.logger.info("Loading configuration...");
 
         configurationFile = configFile;
-        config = new Configuration(configFile, "0.5.0", true);
+        config = new Configuration(configFile, null, true);
         config.load();
 
         ConfigReader.loadConfigGeneric(config);
@@ -164,6 +164,7 @@ public class ConfigReader
         Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeAdvancedQuickStacker = conf.get(category, "disableRecipeAdvancedQuickStacker", false).setRequiresMcRestart(true).getBoolean();
 
         Configs.disableRecipeEnergyBridgeTransmitter = conf.get(category, "disableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnergyBridgeReceiver    = conf.get(category, "disableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true).getBoolean();

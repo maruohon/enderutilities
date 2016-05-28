@@ -58,15 +58,16 @@ public class Configs
 
     // Recipe disable
     // Blocks
-    public static boolean disableRecipeEnderFurnace;
     public static boolean disableRecipeEnderInfuser;
     public static boolean disableRecipeToolWorkstation;
+    public static boolean disableRecipeCreationStation;
+    public static boolean disableRecipeAdvancedQuickStacker;
+
+    public static boolean disableRecipeEnderFurnace;
 
     public static boolean disableRecipeEnergyBridgeTransmitter;
     public static boolean disableRecipeEnergyBridgeReceiver;
     public static boolean disableRecipeEnergyBridgeResonator;
-
-    public static boolean disableRecipeCreationStation;
 
     public static boolean disableRecipeHandyChest_0;
     public static boolean disableRecipeHandyChest_1;
