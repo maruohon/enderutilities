@@ -1240,6 +1240,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         BlockPos posEnd   = PositionUtils.getMaxCorner(posStartIn.toBlockPos(), posEndIn.toBlockPos());
         BlockPos size = PositionUtils.getAreaSize(posStart, posEnd);
 
+        if (this.isAreaWithinSizeLimit(size, player) == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
+            return;
+        }
+
         MinecraftServer server = world.getMinecraftServer();
         ResourceLocation rl = this.getTemplateResource(stack);
         TemplateManagerEU templateManager = this.getTemplateManager();
@@ -1274,6 +1280,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         TemplateEnderUtilities template = this.getTemplate(world, stack, placement);
 
+        if (this.isAreaWithinSizeLimit(template.getTemplateSize(), player) == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
+            return;
+        }
+
         if (player.capabilities.isCreativeMode == true)
         {
             template.setReplaceExistingBlocks(this.getReplaceExisting(stack));
@@ -1285,6 +1297,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                     Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
+    }
+
+    private int getMaxAreaDimension(EntityPlayer player)
+    {
+        return player.capabilities.isCreativeMode ? 128 : 64;
+    }
+
+    private boolean isAreaWithinSizeLimit(BlockPos size, EntityPlayer player)
+    {
+        int limit = this.getMaxAreaDimension(player);
+        return size.getX() <= limit && size.getY() <= limit && size.getZ() <= limit;
     }
 
     private TemplateEnderUtilities getTemplate(World world, ItemStack stack, PlacementSettings placement)

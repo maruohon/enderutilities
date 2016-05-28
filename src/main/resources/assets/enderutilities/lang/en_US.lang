@@ -333,6 +333,7 @@ enderutilities.tooltip.item.yes=yes
 # Chat messages:
 
 enderutilities.chat.message.areacopiedtotemplate=Area copied to template
+enderutilities.chat.message.areatoolarge=Area is too large, maximum dimensions are %d
 enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range

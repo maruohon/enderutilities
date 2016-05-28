@@ -26,12 +26,12 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 
 public class TemplateEnderUtilities
 {
-    public final List<TemplateEnderUtilities.BlockInfo> blocks = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-    public final List<TemplateEnderUtilities.EntityInfo> entities = Lists.<TemplateEnderUtilities.EntityInfo>newArrayList();
-    public PlacementSettings placement;
-    public BlockPos size = BlockPos.ORIGIN;
-    public String author = "?";
-    private boolean replaceExisting;
+    protected final List<TemplateEnderUtilities.BlockInfo> blocks = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
+    protected final List<TemplateEnderUtilities.EntityInfo> entities = Lists.<TemplateEnderUtilities.EntityInfo>newArrayList();
+    protected PlacementSettings placement;
+    protected BlockPos size = BlockPos.ORIGIN;
+    protected String author = "?";
+    protected boolean replaceExisting;
 
     public TemplateEnderUtilities()
     {
@@ -48,14 +48,34 @@ public class TemplateEnderUtilities
         this.author = author;
     }
 
+    public String getAuthor()
+    {
+        return this.author;
+    }
+
+    public BlockPos getTemplateSize()
+    {
+        return this.size;
+    }
+
     public void setPlacementSettings(PlacementSettings placement)
     {
         this.placement = placement;
     }
 
+    public PlacementSettings getPlacementSettings()
+    {
+        return this.placement;
+    }
+
     public void setReplaceExistingBlocks(boolean replace)
     {
         this.replaceExisting = replace;
+    }
+
+    public List<BlockInfo> getBlockList()
+    {
+        return this.blocks;
     }
 
     public void addBlocksToWorld(World world, BlockPos posStart)

@@ -66,11 +66,11 @@ public class TaskStructureBuild implements IPlayerTask
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
-            for (int i = 0; i < this.blocksPerTick && this.listIndex < this.template.blocks.size();)
+            for (int i = 0; i < this.blocksPerTick && this.listIndex < this.template.getBlockList().size();)
             {
-                BlockInfo blockInfo = this.template.blocks.get(this.listIndex);
-                IBlockState state = blockInfo.blockState.withRotation(this.template.placement.getRotation());
-                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.placement, blockInfo.pos).add(this.posStart);
+                BlockInfo blockInfo = this.template.getBlockList().get(this.listIndex);
+                IBlockState state = blockInfo.blockState.withRotation(this.template.getPlacementSettings().getRotation());
+                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(), blockInfo.pos).add(this.posStart);
 
                 if (ItemBuildersWand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
                 {
@@ -96,7 +96,7 @@ public class TaskStructureBuild implements IPlayerTask
         }
 
         // Finished looping through the block positions
-        if (this.listIndex >= this.template.blocks.size())
+        if (this.listIndex >= this.template.getBlockList().size())
         {
             this.template.notifyBlocks(world, this.posStart);
             this.template.addEntitiesToWorld(world, this.posStart);
