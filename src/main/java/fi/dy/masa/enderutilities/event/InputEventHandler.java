@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.block.BlockMachine;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -130,8 +129,7 @@ public class InputEventHandler
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
                 IBlockState state = player.worldObj.getBlockState(pos.down());
 
-                if (state.getBlock() == EnderUtilitiesBlocks.blockMachine_1 &&
-                    state.getValue(BlockMachine.TYPE) == BlockMachine.EnumMachineType.ENDERELEVATOR)
+                if (state.getBlock() == EnderUtilitiesBlocks.blockElevator)
                 {
                     int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? ReferenceKeys.KEYCODE_JUMP : ReferenceKeys.KEYCODE_SNEAK;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));

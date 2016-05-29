@@ -27,6 +27,7 @@ public class Configs
     public static String[] teleportBlacklist;
 
     // Block disable
+    public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
@@ -58,6 +59,7 @@ public class Configs
 
     // Recipe disable
     // Blocks
+    public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
     public static boolean disableRecipeToolWorkstation;
     public static boolean disableRecipeCreationStation;

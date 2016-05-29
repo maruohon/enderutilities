@@ -50,7 +50,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR,

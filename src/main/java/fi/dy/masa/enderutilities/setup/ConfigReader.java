@@ -112,6 +112,10 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
+        prop = conf.get(category, "disableBlockEnderElevator", false).setRequiresMcRestart(true);
+        prop.setComment("Disable Ender Elevator");
+        Configs.disableBlockEnderElevator = prop.getBoolean();
+
         prop = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
         prop.setComment("Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter");
         Configs.disableBlockEnergyBridge = prop.getBoolean();
@@ -160,6 +164,7 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Disable block or item recipies");
 
         // Blocks
+        Configs.disableRecipeEnderElevator        = conf.get(category, "disableRecipeEnderElevator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderFurnace         = conf.get(category, "disableRecipeEnderFurnace", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true).getBoolean();

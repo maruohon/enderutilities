@@ -67,7 +67,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_0",

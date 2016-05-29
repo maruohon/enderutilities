@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 
 public class BlockEnderUtilities extends Block
@@ -20,7 +19,7 @@ public class BlockEnderUtilities extends Block
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setSoundType(SoundType.STONE);
         this.blockName = name;
-        this.unlocalizedNames = this.getUnlocalizedNames();
+        this.unlocalizedNames = this.generateUnlocalizedNames();
     }
 
     @Override
@@ -29,8 +28,13 @@ public class BlockEnderUtilities extends Block
         return this.getMetaFromState(state);
     }
 
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] { this.blockName };
+    }
+
+    public String[] getUnlocalizedNames()
+    {
+        return this.unlocalizedNames;
     }
 }

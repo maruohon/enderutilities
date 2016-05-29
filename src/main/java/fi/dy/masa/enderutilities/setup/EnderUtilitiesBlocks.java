@@ -4,9 +4,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.BlockMachine;
@@ -17,17 +19,19 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
 {
+    public static final BlockEnderUtilities blockElevator = new BlockElevator(ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR, 4.0f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0 = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1, 8.0f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.IRON);
     public static final BlockEnderUtilities blockStorage_0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.IRON);
 
     public static void init()
     {
         // Register blocks
+        registerBlock(blockElevator,        ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    Configs.disableBlockEnderElevator);
+        registerBlock(blockEnergyBridge,    ReferenceNames.NAME_TILE_ENERGY_BRIDGE,     Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       ReferenceNames.NAME_TILE_MACHINE_0,         Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       ReferenceNames.NAME_TILE_MACHINE_1,         Configs.disableBlockMachine_1);
-        registerBlock(blockEnergyBridge,    ReferenceNames.NAME_TILE_ENERGY_BRIDGE,     Configs.disableBlockEnergyBridge);
         registerBlock(blockStorage_0,       ReferenceNames.NAME_TILE_STORAGE_0,         Configs.disableBlockStorage_0);
 
         ItemStack chest = new ItemStack(Blocks.CHEST);
@@ -52,6 +56,15 @@ public class EnderUtilitiesBlocks
         //ItemStack rope = new ItemStack(EnderUtilitiesItems.enderPart, 1, 21);
 
         // Register block recipes
+        if (Configs.disableRecipeEnderElevator == false && Configs.disableBlockEnderElevator == false)
+        {
+            for (EnumDyeColor color : EnumDyeColor.values())
+            {
+                int meta = color.getMetadata();
+                GameRegistry.addRecipe(new ItemStack(blockElevator, 2, meta), "WSW", "APA", "AAA", 'W', new ItemStack(Blocks.WOOL, 1, meta), 'A', alloy1, 'S', Blocks.SLIME_BLOCK, 'P', Blocks.STICKY_PISTON);
+            }
+        }
+
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
         {
             GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', furnace, 'C', core0);

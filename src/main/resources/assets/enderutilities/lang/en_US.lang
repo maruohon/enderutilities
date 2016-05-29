@@ -28,7 +28,22 @@ enderutilities.container.toolworkstation=Tool Workstation
 ##############
 
 tile.enderutilities.creationstation.name=Creation Station
-tile.enderutilities.enderelevator.name=Ender Elevator
+tile.enderutilities.enderelevator_white.name=Ender Elevator (White)
+tile.enderutilities.enderelevator_orange.name=Ender Elevator (Orange)
+tile.enderutilities.enderelevator_magenta.name=Ender Elevator (Magenta)
+tile.enderutilities.enderelevator_light_blue.name=Ender Elevator (Light Blue)
+tile.enderutilities.enderelevator_yellow.name=Ender Elevator (Yellow)
+tile.enderutilities.enderelevator_lime.name=Ender Elevator (Lime)
+tile.enderutilities.enderelevator_pink.name=Ender Elevator (Pink)
+tile.enderutilities.enderelevator_gray.name=Ender Elevator (Gray)
+tile.enderutilities.enderelevator_silver.name=Ender Elevator (Light Gray)
+tile.enderutilities.enderelevator_cyan.name=Ender Elevator (Cyan)
+tile.enderutilities.enderelevator_purple.name=Ender Elevator (Purple)
+tile.enderutilities.enderelevator_blue.name=Ender Elevator (Blue)
+tile.enderutilities.enderelevator_brown.name=Ender Elevator (Brown)
+tile.enderutilities.enderelevator_green.name=Ender Elevator (Green)
+tile.enderutilities.enderelevator_red.name=Ender Elevator (Red)
+tile.enderutilities.enderelevator_black.name=Ender Elevator (Black)
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.energybridge_transmitter.name=Energy Bridge Transmitter

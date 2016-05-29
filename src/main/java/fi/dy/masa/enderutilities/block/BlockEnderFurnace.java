@@ -47,7 +47,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE

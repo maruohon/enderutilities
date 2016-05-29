@@ -6,14 +6,16 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.color.IBlockColor;
+import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -26,7 +28,7 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.block.BlockMachine;
+import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
@@ -48,7 +50,6 @@ import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class ClientProxy extends CommonProxy
@@ -77,18 +78,29 @@ public class ClientProxy extends CommonProxy
                 @Override
                 public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                 {
-                    if (tintIndex == 1 && state.getValue(BlockMachine.TYPE) == BlockMachine.EnumMachineType.ENDERELEVATOR)
+                    if (tintIndex == 1)
                     {
-                        TileEntity te = worldIn.getTileEntity(pos);
-                        if (te instanceof TileEntityEnderElevator)
-                        {
-                            return ((TileEntityEnderElevator)te).getColor().getMapColor().colorValue;
-                        }
+                        return state.getValue(BlockElevator.COLOR).getMapColor().colorValue;
                     }
 
                     return 0xFFFFFF;
                 }
-            }, EnderUtilitiesBlocks.blockMachine_1);
+            }, EnderUtilitiesBlocks.blockElevator);
+
+        Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                new IItemColor()
+                {
+                    @Override
+                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                    {
+                        if (tintIndex == 1)
+                        {
+                            return EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue;
+                        }
+
+                        return 0xFFFFFF;
+                    }
+                }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevator));
     }
 
     @Override
@@ -233,6 +245,9 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockElevator);
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0, 0,  "facing=north,mode=off");
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
@@ -258,6 +273,19 @@ public class ClientProxy extends CommonProxy
             int meta = stack.getMetadata();
             ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + names[meta] + variantPost);
             ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
+        }
+    }
+
+    private void registerAllItemBlockModels(BlockEnderUtilities blockIn)
+    {
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+
+        for (ItemStack stack : stacks)
+        {
+            Item item = stack.getItem();
+            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), "inventory");
+            ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
         }
     }
 }

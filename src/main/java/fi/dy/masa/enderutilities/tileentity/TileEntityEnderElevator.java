@@ -2,17 +2,19 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.List;
 import com.google.common.base.Predicate;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.BlockPosDistance;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 
@@ -24,28 +26,23 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         {
             public boolean apply(TileEntity te)
             {
-                return te instanceof TileEntityEnderElevator && ((TileEntityEnderElevator)te).getColor() == color;
+                if ((te instanceof TileEntityEnderElevator) == false)
+                {
+                    return false;
+                }
+
+                IBlockState state = te.getWorld().getBlockState(te.getPos());
+
+                return state.getBlock() == EnderUtilitiesBlocks.blockElevator && state.getValue(BlockElevator.COLOR) == color;
             }
         };
     }
 
     private boolean redstoneState;
-    private EnumDyeColor color;
 
     public TileEntityEnderElevator()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR);
-        this.color = EnumDyeColor.WHITE;
-    }
-
-    public EnumDyeColor getColor()
-    {
-        return this.color;
-    }
-
-    public void setColor(EnumDyeColor color)
-    {
-        this.color = color;
     }
 
     @Override
@@ -54,7 +51,6 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         super.readFromNBTCustom(nbt);
 
         this.redstoneState = nbt.getBoolean("Redstone");
-        this.color = EnumDyeColor.byMetadata(nbt.getByte("Color"));
     }
 
     @Override
@@ -63,26 +59,6 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         super.writeToNBT(nbt);
 
         nbt.setBoolean("Redstone", this.redstoneState);
-        nbt.setByte("Color", (byte)this.color.getMetadata());
-    }
-
-    @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
-    {
-        nbt = super.getDescriptionPacketTag(nbt);
-
-        nbt.setByte("c", (byte)this.color.getMetadata());
-
-        return nbt;
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
-    {
-        super.onDataPacket(net, packet);
-
-        NBTTagCompound nbt = packet.getNbtCompound();
-        this.color = EnumDyeColor.byMetadata(nbt.getByte("c"));
     }
 
     public void onNeighbourChange()
@@ -119,12 +95,19 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
     private BlockPos getMoveVector(boolean goingUp)
     {
         BlockPos center = goingUp ? this.getPos().up() : this.getPos().down();
-        int rangeHorizontal = 8;
-        int rangeVerticalUp = goingUp ? 64 : 0;
-        int rangeVerticalDown = goingUp ? 0 : 64;
+        int rangeHorizontal = 32;
+        int rangeVerticalUp = goingUp ? 256 : 0;
+        int rangeVerticalDown = goingUp ? 0 : 256;
+
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        if (state.getBlock() != EnderUtilitiesBlocks.blockElevator)
+        {
+            EnderUtilities.logger.warn("Wrong block in {}#getMoveVector", this.getClass().getSimpleName());
+            return null;
+        }
 
         List<BlockPosDistance> elevators = PositionUtils.getTileEntityPositions(this.getWorld(), center,
-                rangeHorizontal, rangeVerticalUp, rangeVerticalDown, isMatchingElevator(this.color));
+                rangeHorizontal, rangeVerticalUp, rangeVerticalDown, isMatchingElevator(state.getValue(BlockElevator.COLOR)));
 
         if (elevators.size() > 0)
         {
