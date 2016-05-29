@@ -5,6 +5,8 @@ import java.util.UUID;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 
 import net.minecraftforge.common.util.Constants;
@@ -358,6 +360,30 @@ public class NBTUtils
     {
         NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
         nbt.setLong(tagName, value);
+    }
+
+    public static NBTTagList writeInts(int... values)
+    {
+        NBTTagList tagList = new NBTTagList();
+
+        for (int i : values)
+        {
+            tagList.appendTag(new NBTTagInt(i));
+        }
+
+        return tagList;
+    }
+
+    public static NBTTagList writeDoubles(double... values)
+    {
+        NBTTagList tagList = new NBTTagList();
+
+        for (double d : values)
+        {
+            tagList.appendTag(new NBTTagDouble(d));
+        }
+
+        return tagList;
     }
 
     /**

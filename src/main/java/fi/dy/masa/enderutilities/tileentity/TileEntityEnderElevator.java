@@ -97,7 +97,7 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
     private BlockPos getMoveVector(boolean goingUp)
     {
         BlockPos center = goingUp ? this.getPos().up() : this.getPos().down();
-        int rangeHorizontal = 32;
+        int rangeHorizontal = 64;
         int rangeVerticalUp = goingUp ? 256 : 0;
         int rangeVerticalDown = goingUp ? 0 : 256;
 

@@ -50,6 +50,11 @@ public class BlockPosEU
         this.side = EnumFacing.getFront(face);
     }
 
+    public BlockPosEU add(BlockPosEU pos)
+    {
+        return this.add(pos.posX, pos.posY, pos.posZ);
+    }
+
     /**
      * Add the given offsets to the position.
      * Returns a new instance with the changes applied and does not modify the original.

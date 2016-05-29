@@ -21,14 +21,17 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
-    public static BlockPos getAreaSize(BlockPosEU pos1, BlockPosEU pos2)
+    public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEnd)
     {
-        return new BlockPos(pos2.posX - pos1.posX + 1, pos2.posY - pos1.posY + 1, pos2.posZ - pos1.posZ + 1);
-    }
+        int x = posEnd.getX();
+        int y = posEnd.getY();
+        int z = posEnd.getZ();
 
-    public static BlockPos getAreaSize(BlockPos pos1, BlockPos pos2)
-    {
-        return new BlockPos(pos2.getX() - pos1.getX() + 1, pos2.getY() - pos1.getY() + 1, pos2.getZ() - pos1.getZ() + 1);
+        x = x >= 0 ? x + 1 : x - 1;
+        y = y >= 0 ? y + 1 : y - 1;
+        z = z >= 0 ? z + 1 : z - 1;
+
+        return new BlockPos(x, y, z);
     }
 
     public static BlockPos getMinCorner(BlockPos pos1, BlockPos pos2)
@@ -96,6 +99,38 @@ public class PositionUtils
         }
     }
 
+    public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, Mirror mirror, Rotation rotation)
+    {
+        int x = pos.posX;
+        int y = pos.posY;
+        int z = pos.posZ;
+        boolean flag = true;
+
+        switch (mirror)
+        {
+            case LEFT_RIGHT:
+                z = -z;
+                break;
+            case FRONT_BACK:
+                x = -x;
+                break;
+            default:
+                flag = false;
+        }
+
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                return new BlockPosEU(-z, y, x);
+            case COUNTERCLOCKWISE_90:
+                return new BlockPosEU(z, y, -x);
+            case CLOCKWISE_180:
+                return new BlockPosEU(-x, y, -z);
+            default:
+                return flag ? new BlockPosEU(x, y, z) : pos;
+        }
+    }
+
     public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
     {
         double d0 = vec.xCoord;
@@ -130,7 +165,8 @@ public class PositionUtils
 
     public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)
     {
-        if (facingOriginal.getAxis() == EnumFacing.Axis.Y || facingOriginal == facingRotated)
+        if (facingOriginal.getAxis() == EnumFacing.Axis.Y ||
+            facingRotated.getAxis() == EnumFacing.Axis.Y || facingOriginal == facingRotated)
         {
             return Rotation.NONE;
         }

@@ -37,6 +37,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -55,6 +56,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.*;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
+import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -74,6 +76,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
     public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
+    public static final String TAG_NAME_TEMPLATES = "Templates";
     public static final String TAG_NAME_GHOST_BLOCKS = "Ghost";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
@@ -240,11 +243,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (mode == Mode.PASTE)
             {
-                EnumFacing facing = this.getCopyAreaFacing(stack);
-                if (facing != null)
-                {
-                    itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
-                }
+                EnumFacing facing = this.getTemplateFacing(stack);
+                itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
 
                 if (this.getReplaceExisting(stack) == true)
                 {
@@ -360,12 +360,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         if (mode == Mode.COPY) { }
         else if (mode == Mode.PASTE)
         {
-            EnumFacing facing = this.getCopyAreaFacing(stack);
-            if (facing != null)
-            {
-                str2 = I18n.translateToLocal("enderutilities.tooltip.item.rotation") + ": ";
-                list.add(str2 + preGreen + this.getAreaFlipAxis(stack, facing).toString().toLowerCase() + rst);
-            }
+            EnumFacing facing = this.getTemplateFacing(stack);
+            str2 = I18n.translateToLocal("enderutilities.tooltip.item.rotation") + ": ";
+            list.add(str2 + preGreen + this.getAreaFlipAxis(stack, facing).toString().toLowerCase() + rst);
         }
         else if (this.getAreaFlipped(stack) == true)
         {
@@ -1235,12 +1232,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        // Template#getBlockFromWorld() is stupid and doesn't support negative or zero sizes >_<
-        BlockPos posStart = PositionUtils.getMinCorner(posStartIn.toBlockPos(), posEndIn.toBlockPos());
-        BlockPos posEnd   = PositionUtils.getMaxCorner(posStartIn.toBlockPos(), posEndIn.toBlockPos());
-        BlockPos size = PositionUtils.getAreaSize(posStart, posEnd);
+        BlockPos posStart = posStartIn.toBlockPos();
+        BlockPos endOffset = posEndIn.toBlockPos().subtract(posStart);
+        //System.out.printf("posStart: %s posEnd: %s endOffset: %s\n", posStart, posEndIn.toBlockPos(), endOffset);
 
-        if (this.isAreaWithinSizeLimit(size, player) == false)
+        if (this.isAreaWithinSizeLimit(endOffset, player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
             return;
@@ -1249,52 +1245,49 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         MinecraftServer server = world.getMinecraftServer();
         ResourceLocation rl = this.getTemplateResource(stack);
         TemplateManagerEU templateManager = this.getTemplateManager();
+
         TemplateEnderUtilities template = templateManager.getTemplate(server, rl);
-
-        template.takeBlocksFromWorld(world, posStart, size, true);
+        template.takeBlocksFromWorld(world, posStart, endOffset, true);
         template.setAuthor(player.getName());
-
         templateManager.writeTemplate(server, rl);
 
-        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areacopiedtotemplate"));
+        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(server, rl);
+        EnumFacing facing = this.getFacingFromPositions(posStart, posStart.add(endOffset));
+        templateMeta.setValues(endOffset, facing, player.getName());
+        templateManager.writeTemplateMetadata(server, rl);
+
+        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (getSelectedBlockTypeIndex(stack) + 1)));
     }
 
     private void pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
-        BlockPosEU posStartCopyEU = this.getCopyModeAreaCorner(stack, true);
-        BlockPosEU posEndCopy = this.getCopyModeAreaCorner(stack, false);
-        if (posStartIn == null || posStartCopyEU == null || posEndCopy == null ||
-            posStartIn.dimension != player.dimension || player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
+        if (posStartIn == null || posStartIn.dimension != player.dimension ||
+            player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
         {
             return;
         }
 
-        PlacementSettings placement = this.getPasteModePlacement(stack, player);
+        TemplateMetadata templateMeta = this.getTemplateMetadata(world, stack);
 
-        BlockPos posStartCopy = posStartCopyEU.toBlockPos();
-        BlockPos posMinCopyArea = PositionUtils.getMinCorner(posStartCopy, posEndCopy.toBlockPos());
-        BlockPos posDiffCopy = posMinCopyArea.subtract(posStartCopy);
-        posDiffCopy = PositionUtils.getTransformedBlockPos(posDiffCopy, placement.getRotation());
-        BlockPos pos = posStartIn.toBlockPos().add(posDiffCopy);
-        //System.out.printf("posStartIn: %s posMinCopyArea: %s posDiffCopy: %s pos: %s\n", posStartIn, posMinCopyArea, posDiffCopy, pos);
-
-        TemplateEnderUtilities template = this.getTemplate(world, stack, placement);
-
-        if (this.isAreaWithinSizeLimit(template.getTemplateSize(), player) == false)
+        if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
             return;
         }
 
+        PlacementSettings placement = this.getPasteModePlacement(stack, player);
+        TemplateEnderUtilities template = this.getTemplate(world, stack, placement);
+        //System.out.printf("pasting - posStartIn: %s size: %s rotation: %s\n", posStartIn, template.getTemplateSize(), placement.getRotation());
+
         if (player.capabilities.isCreativeMode == true)
         {
             template.setReplaceExistingBlocks(this.getReplaceExisting(stack));
-            template.addBlocksToWorld(world, pos);
+            template.addBlocksToWorld(world, posStartIn.toBlockPos());
         }
         else
         {
-            TaskStructureBuild task = new TaskStructureBuild(template, pos, player.dimension, player.getUniqueID(),
-                    Configs.buildersWandBlocksPerTick, false, false);
+            TaskStructureBuild task = new TaskStructureBuild(template, posStartIn.toBlockPos(), player.dimension,
+                    player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
     }
@@ -1307,7 +1300,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     private boolean isAreaWithinSizeLimit(BlockPos size, EntityPlayer player)
     {
         int limit = this.getMaxAreaDimension(player);
-        return size.getX() <= limit && size.getY() <= limit && size.getZ() <= limit;
+        return Math.abs(size.getX()) <= limit && Math.abs(size.getY()) <= limit && Math.abs(size.getZ()) <= limit;
     }
 
     private TemplateEnderUtilities getTemplate(World world, ItemStack stack, PlacementSettings placement)
@@ -1319,6 +1312,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         template.setPlacementSettings(placement);
 
         return template;
+    }
+
+    private TemplateMetadata getTemplateMetadata(World world, ItemStack stack)
+    {
+        MinecraftServer server = world.getMinecraftServer();
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        ResourceLocation rl = this.getTemplateResource(stack);
+        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(server, rl);
+
+        return templateMeta;
     }
 
     private ResourceLocation getTemplateResource(ItemStack stack)
@@ -1342,21 +1345,55 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private BlockPosEU getPasteModeEndPosition(ItemStack stack)
     {
-        BlockPosEU pos1 = this.getCopyModeAreaCorner(stack, true);
-        BlockPosEU pos2 = this.getCopyModeAreaCorner(stack, false);
         BlockPosEU posStartEU = this.getPosition(stack, Mode.PASTE, true);
-
-        if (pos1 == null || pos2 == null || posStartEU == null)
+        if (posStartEU == null)
         {
             return null;
         }
 
-        PlacementSettings placement = this.getPasteModePlacement(stack, null);
-        BlockPos posOffset = pos2.subtract(pos1).toBlockPos();
-        //System.out.printf("getPasteModeEndPosition - posOffset: %s, rot: %s\n", posOffset, placement.getRotation());
-        posOffset = TemplateEnderUtilities.transformedBlockPos(placement, posOffset);
+        NBTTagCompound tag = this.getPasteModeSelectedTemplateTag(stack, false);
+        if (tag == null)
+        {
+            return null;
+        }
 
-        return posStartEU.add(posOffset.getX(), posOffset.getY(), posOffset.getZ());
+        BlockPosEU endOffset = new BlockPosEU(tag.getInteger("endOffsetX"), tag.getInteger("endOffsetY"), tag.getInteger("endOffsetZ"));
+        PlacementSettings placement = this.getPasteModePlacement(stack, null);
+        endOffset = PositionUtils.getTransformedBlockPos(endOffset, placement.getMirror(), placement.getRotation());
+
+        return posStartEU.add(endOffset);
+    }
+
+    private NBTTagCompound getPasteModeSelectedTemplateTag(ItemStack stack, boolean create)
+    {
+        int sel = getSelectedBlockTypeIndex(stack);
+        int modeId = Mode.PASTE.ordinal();
+        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + modeId, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_TEMPLATES + "_" + sel, create);
+
+        return tag;
+    }
+
+    private void updateTemplateMetadata(ItemStack stack)
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        ResourceLocation rl = this.getTemplateResource(stack);
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        FileInfo info = templateManager.getTemplateInfo(server, rl);
+        NBTTagCompound tag = this.getPasteModeSelectedTemplateTag(stack, true);
+
+        if (tag.getLong("Timestamp") != info.timestamp || tag.getLong("FileSize") != info.fileSize)
+        {
+            TemplateMetadata meta = templateManager.getTemplateMetadata(server, rl);
+            BlockPos size = meta.getRelativeEndPosition();
+            tag.setLong("TimeStamp", info.timestamp);
+            tag.setLong("FileSize", info.fileSize);
+            tag.setInteger("endOffsetX", size.getX());
+            tag.setInteger("endOffsetY", size.getY());
+            tag.setInteger("endOffsetZ", size.getZ());
+            tag.setByte("TemplateFacing", (byte)meta.getFacing().getIndex());
+        }
     }
 
     private BlockPosEU getCopyModeAreaCorner(ItemStack stack, boolean isStart)
@@ -1380,11 +1417,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         pos.writeToTag(tag);
     }
 
-    private EnumFacing getCopyAreaFacing(ItemStack stack)
+    private EnumFacing getTemplateFacing(ItemStack stack)
     {
-        BlockPosEU pos1 = this.getPosition(stack, Mode.COPY, true);
-        BlockPosEU pos2 = this.getPosition(stack, Mode.COPY, false);
-        return this.getFacingFromPositions(pos1, pos2);
+        int sel = getSelectedBlockTypeIndex(stack);
+        int modeId = Mode.PASTE.ordinal();
+        NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + modeId, true);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_TEMPLATES + "_" + sel, true);
+        return EnumFacing.getFront(tag.getByte("TemplateFacing"));
     }
 
     private void toggleReplaceExisting(ItemStack stack)
@@ -1403,43 +1443,37 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
-        EnumFacing facing = this.getCopyAreaFacing(stack);
-        if (facing == null)
-        {
-            facing = EnumFacing.NORTH;
-        }
-
+        EnumFacing facing = this.getTemplateFacing(stack);
         Rotation rotation = PositionUtils.getRotation(facing, this.getAreaFlipAxis(stack, facing));
-        //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
-
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
+        //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
 
         return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
-    private EnumFacing getFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
+    private EnumFacing getFacingFromPositions(BlockPos pos1, BlockPos pos2)
     {
         if (pos1 == null || pos2 == null)
         {
             return null;
         }
 
-        if (pos2.posX == pos1.posX)
+        if (pos2.getX() == pos1.getX())
         {
-            return pos2.posZ > pos1.posZ ? EnumFacing.SOUTH : EnumFacing.NORTH;
+            return pos2.getZ() > pos1.getZ() ? EnumFacing.SOUTH : EnumFacing.NORTH;
         }
 
-        if (pos2.posZ == pos1.posZ)
+        if (pos2.getZ() == pos1.getZ())
         {
-            return pos2.posX > pos1.posX ? EnumFacing.EAST : EnumFacing.WEST;
+            return pos2.getX() > pos1.getX() ? EnumFacing.EAST : EnumFacing.WEST;
         }
 
-        if (pos2.posX > pos1.posX)
+        if (pos2.getX() > pos1.getX())
         {
-            return pos2.posZ > pos1.posZ ? EnumFacing.EAST : EnumFacing.NORTH;
+            return pos2.getZ() > pos1.getZ() ? EnumFacing.EAST : EnumFacing.NORTH;
         }
 
-        return pos2.posZ > pos1.posZ ? EnumFacing.SOUTH : EnumFacing.WEST;
+        return pos2.getZ() > pos1.getZ() ? EnumFacing.SOUTH : EnumFacing.WEST;
     }
 
     @Override
@@ -1456,6 +1490,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             ReferenceKeys.keypressContainsAlt(key) == true)
         {
             this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key));
+            if (Mode.getMode(stack) == Mode.PASTE)
+            {
+                this.updateTemplateMetadata(stack);
+            }
         }
         // Shift + Toggle Mode: Change the dimensions of the current mode
         else if (ReferenceKeys.keypressContainsControl(key) == false &&
@@ -1469,6 +1507,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsAlt(key) == false)
         {
             Mode.cycleMode(stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            if (Mode.getMode(stack) == Mode.PASTE)
+            {
+                this.updateTemplateMetadata(stack);
+            }
         }
         // Ctrl + Alt + Shift + Toggle key: Change the selected link crystal
         else if (ReferenceKeys.keypressContainsControl(key) == true &&
@@ -1482,21 +1524,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                  ReferenceKeys.keypressContainsShift(key) == false &&
                  ReferenceKeys.keypressContainsAlt(key) == true)
         {
-            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
-        }
-        // Alt + Shift + Toggle key: Toggle ghost blocks
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
-        {
             if (Mode.getMode(stack) == Mode.PASTE)
             {
                 this.toggleReplaceExisting(stack);
             }
             else
             {
-                NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
+                NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
             }
+        }
+        // Alt + Shift + Toggle key: Toggle ghost blocks
+        else if (ReferenceKeys.keypressContainsControl(key) == false &&
+                 ReferenceKeys.keypressContainsShift(key) == true &&
+                 ReferenceKeys.keypressContainsAlt(key) == true)
+        {
+            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
         }
         // Just Toggle key: Toggle the area flipped property
         else if (ReferenceKeys.keypressContainsControl(key) == false &&

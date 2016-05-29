@@ -13,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
 {
@@ -96,6 +96,7 @@ public class TemplateEnderUtilities
             TemplateEnderUtilities.BlockInfo blockInfo = this.blocks.get(index);
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
+            //System.out.printf("placing, i: %d orig pos: %s tr pos: %s\n", index, blockInfo.pos, pos);
 
             if (this.replaceExisting == true || world.isAirBlock(pos) == true)
             {
@@ -209,24 +210,20 @@ public class TemplateEnderUtilities
         }
     }
 
-    public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos areaSize, boolean takeEntities)
+    public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos endPosRelative, boolean takeEntities)
     {
-        if (areaSize.getX() == 0 && areaSize.getY() == 0 && areaSize.getZ() == 0)
-        {
-            return;
-        }
-
-        BlockPos pos = startPos.add(areaSize).add(-1, -1, -1);
+        BlockPos endPos = startPos.add(endPosRelative);
         List<TemplateEnderUtilities.BlockInfo> list = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
         List<TemplateEnderUtilities.BlockInfo> list1 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
         List<TemplateEnderUtilities.BlockInfo> list2 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-        BlockPos pos1 = new BlockPos(Math.min(startPos.getX(), pos.getX()), Math.min(startPos.getY(), pos.getY()), Math.min(startPos.getZ(), pos.getZ()));
-        BlockPos pos2 = new BlockPos(Math.max(startPos.getX(), pos.getX()), Math.max(startPos.getY(), pos.getY()), Math.max(startPos.getZ(), pos.getZ()));
-        this.size = areaSize;
+        //BlockPos pos1 = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
+        //BlockPos pos2 = new BlockPos(Math.max(startPos.getX(), endPos.getX()), Math.max(startPos.getY(), endPos.getY()), Math.max(startPos.getZ(), endPos.getZ()));
 
-        for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(pos1, pos2))
+        this.size = PositionUtils.getAreaSizeFromRelativeEndPosition(endPosRelative);
+
+        for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(startPos, endPos))
         {
-            BlockPos posRelative = posMutable.subtract(pos1);
+            BlockPos posRelative = posMutable.subtract(startPos);
             IBlockState state = worldIn.getBlockState(posMutable);
 
             TileEntity te = worldIn.getTileEntity(posMutable);
@@ -259,7 +256,7 @@ public class TemplateEnderUtilities
 
         if (takeEntities)
         {
-            this.takeEntitiesFromWorld(worldIn, pos1, pos2.add(1, 1, 1));
+            this.takeEntitiesFromWorld(worldIn, startPos, endPos.add(1, 1, 1));
         }
         else
         {
@@ -306,7 +303,7 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.BlockInfo blockInfo : this.blocks)
         {
             NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setTag("pos", writeInts(new int[] {blockInfo.pos.getX(), blockInfo.pos.getY(), blockInfo.pos.getZ()}));
+            nbt.setTag("pos", NBTUtils.writeInts(new int[] {blockInfo.pos.getX(), blockInfo.pos.getY(), blockInfo.pos.getZ()}));
             nbt.setInteger("state", Block.getStateId(blockInfo.blockState));
 
             if (blockInfo.tileEntityData != null)
@@ -322,8 +319,8 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.EntityInfo entityInfo : this.entities)
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-            nbttagcompound1.setTag("pos", writeDoubles(new double[] {entityInfo.pos.xCoord, entityInfo.pos.yCoord, entityInfo.pos.zCoord}));
-            nbttagcompound1.setTag("blockPos", writeInts(new int[] {entityInfo.blockPos.getX(), entityInfo.blockPos.getY(), entityInfo.blockPos.getZ()}));
+            nbttagcompound1.setTag("pos", NBTUtils.writeDoubles(new double[] {entityInfo.pos.xCoord, entityInfo.pos.yCoord, entityInfo.pos.zCoord}));
+            nbttagcompound1.setTag("blockPos", NBTUtils.writeInts(new int[] {entityInfo.blockPos.getX(), entityInfo.blockPos.getY(), entityInfo.blockPos.getZ()}));
 
             if (entityInfo.entityData != null)
             {
@@ -335,7 +332,7 @@ public class TemplateEnderUtilities
 
         compound.setTag("blocks", nbttaglist);
         compound.setTag("entities", nbttaglist1);
-        compound.setTag("size", writeInts(new int[] {this.size.getX(), this.size.getY(), this.size.getZ()}));
+        compound.setTag("size", NBTUtils.writeInts(new int[] {this.size.getX(), this.size.getY(), this.size.getZ()}));
         compound.setInteger("version", 1);
         compound.setString("author", this.author);
     }
@@ -391,30 +388,6 @@ public class TemplateEnderUtilities
                 this.entities.add(new TemplateEnderUtilities.EntityInfo(vec3d, blockpos1, tagEntityNBT));
             }
         }
-    }
-
-    public static NBTTagList writeInts(int... values)
-    {
-        NBTTagList nbttaglist = new NBTTagList();
-
-        for (int i : values)
-        {
-            nbttaglist.appendTag(new NBTTagInt(i));
-        }
-
-        return nbttaglist;
-    }
-
-    public static NBTTagList writeDoubles(double... values)
-    {
-        NBTTagList nbttaglist = new NBTTagList();
-
-        for (double d : values)
-        {
-            nbttaglist.appendTag(new NBTTagDouble(d));
-        }
-
-        return nbttaglist;
     }
 
     public static BlockPos transformedBlockPos(PlacementSettings placement, BlockPos pos)
