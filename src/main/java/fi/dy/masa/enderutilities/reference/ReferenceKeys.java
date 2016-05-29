@@ -18,6 +18,9 @@ public class ReferenceKeys
     public static final int KEYBIND_MODIFIER_ALT        = 0x00040000;
     public static final int KEYBIND_MODIFIER_REVERSE    = 0x00080000;
 
+    public static final int KEYCODE_SNEAK               = 0x01000000;
+    public static final int KEYCODE_JUMP                = 0x02000000;
+
     public static int getBaseKey(int key)
     {
         return (key & 0xFFFF);

@@ -3,16 +3,18 @@ package fi.dy.masa.enderutilities.network.message;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import io.netty.buffer.ByteBuf;
@@ -80,6 +82,11 @@ public class MessageKeyPressed implements IMessage
 
         protected void processMessage(final MessageKeyPressed message, EntityPlayer player)
         {
+            if (this.handleEnderElevator(message, player))
+            {
+                return;
+            }
+
             ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
             if (stack != null)
             {
@@ -93,6 +100,23 @@ public class MessageKeyPressed implements IMessage
                     ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);
                 }
             }
+        }
+
+        protected boolean handleEnderElevator(final MessageKeyPressed message, EntityPlayer player)
+        {
+            if (message.keyPressed == ReferenceKeys.KEYCODE_JUMP || message.keyPressed == ReferenceKeys.KEYCODE_SNEAK)
+            {
+                BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+                TileEntity te = player.worldObj.getTileEntity(pos.down());
+
+                if (te instanceof TileEntityEnderElevator)
+                {
+                    ((TileEntityEnderElevator)te).activateForEntity(player, message.keyPressed == ReferenceKeys.KEYCODE_JUMP);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

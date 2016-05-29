@@ -1,8 +1,13 @@
 package fi.dy.masa.enderutilities.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import com.google.common.base.Predicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -11,6 +16,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
@@ -142,16 +148,69 @@ public class PositionUtils
         return isWithinRange(pos, entity.posX, entity.posY, entity.posZ, rangeH, rangeV);
     }
 
-    public static boolean isWithinRange(BlockPos pos1, BlockPos pos2, int rangeH, int rangeV)
-    {
-        return isWithinRange(pos1, pos2.getX() + 0.5, pos2.getY() + 0.5, pos2.getZ() + 0.5, rangeH, rangeV);
-    }
-
     public static boolean isWithinRange(BlockPos pos, double x, double y, double z, int rangeH, int rangeV)
     {
         return Math.abs(pos.getX() - x + 0.5) <= rangeH &&
                Math.abs(pos.getZ() - z + 0.5) <= rangeH &&
-               Math.abs(pos.getY() - y + 1.0) <= rangeV;
+               Math.abs(pos.getY() - y + 0.5) <= rangeV;
+    }
+
+    public static boolean isWithinRange(BlockPos pos1, BlockPos pos2, int rangeH, int rangeVertPos, int rangeVertNeg)
+    {
+        return Math.abs(pos2.getX() - pos1.getX()) <= rangeH &&
+               Math.abs(pos2.getZ() - pos1.getZ()) <= rangeH &&
+               (pos2.getY() - pos1.getY()) <= rangeVertPos && (pos1.getY() - pos2.getY()) <= rangeVertNeg;
+    }
+
+    /**
+     * Gets a list of all the TileEntities within the given range of the center position.
+     * The list is sorted by distance to the center position.
+     * @param world
+     * @param centerPos
+     * @param rangeH
+     * @param rangeVertPos the range upwards from the center position
+     * @param rangeVertNeg the range downwards from the center position
+     * @return
+     */
+    public static List<BlockPosDistance> getTileEntityPositions(World world, BlockPos centerPos, int rangeH, int rangeVertPos, int rangeVertNeg)
+    {
+        return getTileEntityPositions(world, centerPos, rangeH, rangeVertPos, rangeVertNeg, null);
+    }
+
+    public static List<BlockPosDistance> getTileEntityPositions(World world, BlockPos centerPos, int rangeH,
+            int rangeVertPos, int rangeVertNeg, Predicate <? super TileEntity> filter)
+    {
+        List<BlockPosDistance> posDist = new ArrayList<BlockPosDistance>();
+
+        for (int cx = (centerPos.getX() - rangeH) >> 4; cx <= ((centerPos.getX() + rangeH) >> 4); cx++)
+        {
+            for (int cz = (centerPos.getZ() - rangeH) >> 4; cz <= ((centerPos.getZ() + rangeH) >> 4); cz++)
+            {
+                if (world.isBlockLoaded(new BlockPos(cx << 4, centerPos.getY(), cz << 4), world.isRemote) == false)
+                {
+                    continue;
+                }
+
+                Chunk chunk = world.getChunkFromChunkCoords(cx, cz);
+                if (chunk != null)
+                {
+                    Map<BlockPos, TileEntity> map = chunk.getTileEntityMap();
+
+                    for (BlockPos pos : map.keySet())
+                    {
+                        if (PositionUtils.isWithinRange(centerPos, pos, rangeH, rangeVertPos, rangeVertNeg) &&
+                            (filter == null || filter.apply(map.get(pos))))
+                        {
+                            posDist.add(new BlockPosDistance(pos, centerPos));
+                        }
+                    }
+                }
+            }
+        }
+
+        Collections.sort(posDist);
+
+        return posDist;
     }
 
     public static void getPositionsInBoxSpiralingOutwards(List<BlockPos> positions, int vertR, int horizR, int yLevel, int centerX, int centerZ)

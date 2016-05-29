@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +12,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -315,7 +311,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
                 if (this.isAreaMode())
                 {
                     quickStackToInventories(this.getWorld(), player, this.slotMask,
-                            getTileEntityPositions(this.getWorld(), this.getPos(), 16, 16), this.getSelectedFilterSettings());
+                            PositionUtils.getTileEntityPositions(this.getWorld(), this.getPos(), 16, 16, 16), this.getSelectedFilterSettings());
                 }
                 else
                 {
@@ -346,7 +342,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
                     TargetData target = TargetData.getTargetFromItem(lcStack);
                     if (target != null && this.getWorld().isBlockLoaded(target.pos, true) &&
                         target.dimension == this.getWorld().provider.getDimension() &&
-                        PositionUtils.isWithinRange(target.pos, this.getPos(), 32, 32) && target.isTargetBlockUnchanged() == true)
+                        PositionUtils.isWithinRange(target.pos, this.getPos(), 32, 32, 32) && target.isTargetBlockUnchanged() == true)
                     {
                         TileEntity te = this.getWorld().getTileEntity(target.pos);
                         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
@@ -468,33 +464,6 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         {
             world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.5f, 1.8f);
         }
-    }
-
-    public static List<BlockPosDistance> getTileEntityPositions(World world, BlockPos centerPos, int rangeH, int rangeV)
-    {
-        List<BlockPosDistance> posDist = new ArrayList<BlockPosDistance>();
-
-        for (int cx = (centerPos.getX() - rangeH) >> 4; cx <= ((centerPos.getX() + rangeH) >> 4); cx++)
-        {
-            for (int cz = (centerPos.getZ() - rangeH) >> 4; cz <= ((centerPos.getZ() + rangeH) >> 4); cz++)
-            {
-                Chunk chunk = world.getChunkFromChunkCoords(cx, cz);
-                if (chunk != null)
-                {
-                    for (BlockPos pos : chunk.getTileEntityMap().keySet())
-                    {
-                        if (PositionUtils.isWithinRange(pos, centerPos, rangeH, rangeV))
-                        {
-                            posDist.add(new BlockPosDistance(pos, centerPos));
-                        }
-                    }
-                }
-            }
-        }
-
-        Collections.sort(posDist);
-
-        return posDist;
     }
 
     private class ItemHandlerWrapperQuickStackerAdvanced extends ItemHandlerWrapperSelective

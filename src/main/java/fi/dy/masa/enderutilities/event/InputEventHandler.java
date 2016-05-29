@@ -1,23 +1,24 @@
 package fi.dy.masa.enderutilities.event;
 
 import org.lwjgl.input.Keyboard;
-
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
+import fi.dy.masa.enderutilities.block.BlockMachine;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.Configs;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -90,8 +91,9 @@ public class InputEventHandler
                 scrollingMask &= ~mask;
             }
         }
+
         // In-game (no GUI open)
-        else if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
+        if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
         {
             if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState == true)
             {
@@ -118,6 +120,22 @@ public class InputEventHandler
             else if (eventKey == Keyboard.KEY_ESCAPE)
             {
                 GuiEventHandler.instance().setHandyBagShouldOpen(false);
+            }
+
+            // Jump or sneak above an Ender Elevator - activate it
+            if (keyState == true && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
+                eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
+            {
+                // EntityPlayerSP adds 0.5 to all the coordinates for some reason...
+                BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+                IBlockState state = player.worldObj.getBlockState(pos.down());
+
+                if (state.getBlock() == EnderUtilitiesBlocks.blockMachine_1 &&
+                    state.getValue(BlockMachine.TYPE) == BlockMachine.EnumMachineType.ENDERELEVATOR)
+                {
+                    int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? ReferenceKeys.KEYCODE_JUMP : ReferenceKeys.KEYCODE_SNEAK;
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                }
             }
         }
     }

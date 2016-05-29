@@ -14,6 +14,9 @@
                     "bottom":   "enderutilities:blocks/creationstation_side"
                 }
             },
+            "enderelevator": {
+                "model": "enderutilities:enderelevator"
+            },
             "enderinfuser":    {
                 "textures": {
                     "front":    "enderutilities:blocks/enderinfuser_front",

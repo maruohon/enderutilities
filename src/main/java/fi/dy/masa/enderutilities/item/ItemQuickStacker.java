@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, IKeyBoundUnselected
@@ -191,8 +192,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
         //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
         TileEntityQuickStackerAdvanced.quickStackToInventories(player.worldObj, player, getEnabledSlotsMask(stackerStack),
-                TileEntityQuickStackerAdvanced.getTileEntityPositions(player.worldObj,
-                        player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL));
+                PositionUtils.getTileEntityPositions(player.worldObj,
+                        player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL, MAX_RANGE_VERTICAL));
     }
 
     @Override

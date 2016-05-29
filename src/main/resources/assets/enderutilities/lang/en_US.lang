@@ -28,6 +28,7 @@ enderutilities.container.toolworkstation=Tool Workstation
 ##############
 
 tile.enderutilities.creationstation.name=Creation Station
+tile.enderutilities.enderelevator.name=Ender Elevator
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.energybridge_transmitter.name=Energy Bridge Transmitter

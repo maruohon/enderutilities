@@ -9,20 +9,27 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -57,7 +64,8 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,
                 ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,
                 ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION,
-                ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED
+                ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED,
+                ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR
         };
     }
 
@@ -71,9 +79,41 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
             case ENDER_INFUSER: return new TileEntityEnderInfuser();
             case QUICK_STACKER: return new TileEntityQuickStackerAdvanced();
             case TOOL_WORKSTATION: return new TileEntityToolWorkstation();
+            case ENDERELEVATOR: return new TileEntityEnderElevator();
         }
 
         return new TileEntityEnderInfuser();
+    }
+
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (state.getValue(TYPE) == EnumMachineType.ENDERELEVATOR)
+        {
+            ItemStack stack = EntityUtils.getHeldItemOfType(playerIn, ItemDye.class);
+
+            if (worldIn.isRemote == false && stack != null)
+            {
+                TileEntity te = worldIn.getTileEntity(pos);
+                if (te instanceof TileEntityEnderElevator)
+                {
+                    EnumDyeColor stackColor = EnumDyeColor.byDyeDamage(stack.getMetadata());
+
+                    if (((TileEntityEnderElevator)te).getColor() != stackColor)
+                    {
+                        ((TileEntityEnderElevator)te).setColor(stackColor);
+                        worldIn.notifyBlockUpdate(pos, state, state, 3);
+                        stack.stackSize--;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -109,6 +149,24 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         }
 
         super.breakBlock(worldIn, pos, state);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public BlockRenderLayer getBlockLayer()
+    {
+        return BlockRenderLayer.CUTOUT;
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        if (state.getValue(TYPE) == EnumMachineType.ENDERELEVATOR)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -178,7 +236,8 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         ENDER_INFUSER(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
         TOOL_WORKSTATION(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
         CREATION_STATION(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION),
-        QUICK_STACKER(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        QUICK_STACKER(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED),
+        ENDERELEVATOR(ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR);
 
         private final String name;
 

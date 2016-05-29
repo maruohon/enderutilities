@@ -2,15 +2,21 @@ package fi.dy.masa.enderutilities.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,6 +26,7 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.BlockMachine;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
@@ -41,6 +48,7 @@ import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 
 public class ClientProxy extends CommonProxy
@@ -58,6 +66,29 @@ public class ClientProxy extends CommonProxy
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
         }
+    }
+
+    @Override
+    public void registerColorHandlers()
+    {
+        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+            new IBlockColor()
+            {
+                @Override
+                public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                {
+                    if (tintIndex == 1 && state.getValue(BlockMachine.TYPE) == BlockMachine.EnumMachineType.ENDERELEVATOR)
+                    {
+                        TileEntity te = worldIn.getTileEntity(pos);
+                        if (te instanceof TileEntityEnderElevator)
+                        {
+                            return ((TileEntityEnderElevator)te).getColor().getMapColor().colorValue;
+                        }
+                    }
+
+                    return 0xFFFFFF;
+                }
+            }, EnderUtilitiesBlocks.blockMachine_1);
     }
 
     @Override

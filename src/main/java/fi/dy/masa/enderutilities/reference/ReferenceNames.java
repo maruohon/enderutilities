@@ -56,6 +56,7 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
+    public static final String NAME_TILE_ENTITY_ENDER_ELEVATOR       = "enderelevator";
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";

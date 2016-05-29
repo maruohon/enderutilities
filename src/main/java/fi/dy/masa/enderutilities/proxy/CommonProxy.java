@@ -4,13 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -27,6 +25,7 @@ import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
@@ -52,6 +51,9 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
+    public void registerColorHandlers() { }
+
+    @Override
     public void registerEntities()
     {
         int id = 0;
@@ -75,15 +77,26 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
-    public void registerFuelHandlers()
+    public void registerKeyBindings() { }
+
+    @Override
+    public void registerModels() { }
+
+    @Override
+    public void registerRenderers() { }
+
+    @Override
+    public void registerSounds()
     {
-        //GameRegistry.registerFuelHandler(new FuelHandler());
+        ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, "jailer");
+        Sounds.jailer = GameRegistry.register(new SoundEvent(resloc), resloc);
     }
 
     @Override
     public void registerTileEntities()
     {
         this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntity(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR);
         this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
         this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
@@ -94,26 +107,7 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
-    public void registerKeyBindings()
-    {
-    }
-
-    @Override
-    public void registerRenderers()
-    {
-    }
-
-    @Override
-    public void registerSounds()
-    {
-        ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, "jailer");
-        Sounds.jailer = GameRegistry.register(new SoundEvent(resloc), resloc);
-    }
-
-    @Override
-    public void setupReflection()
-    {
-    }
+    public void setupReflection() { }
 
     @Override
     public boolean isShiftKeyDown()

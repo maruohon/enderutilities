@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.util.teleport;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -25,7 +24,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.end.DragonFightManager;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -33,7 +31,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensio
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -319,24 +316,7 @@ public class TeleportEntity
             }
             else
             {
-                if (entity instanceof EntityPlayer)
-                {
-                    ((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
-                }
-                // Forcing a recreate even in the same dimension, mainly used when teleporting mounted entities where a player is one of them
-                /*else if (forceRecreate == true)
-                {
-                    System.out.println("re-creating...");
-                    entity = TeleportEntity.reCreateEntity(entity, x, y, z);
-                }*/
-                else if (entity instanceof EntityLivingBase)
-                {
-                    ((EntityLivingBase)entity).setPositionAndUpdate(x, y, z);
-                }
-                else
-                {
-                    entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-                }
+                entity.setPositionAndUpdate(x, y, z);
             }
         }
 
