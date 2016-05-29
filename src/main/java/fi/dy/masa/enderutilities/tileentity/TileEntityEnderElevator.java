@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.List;
 import com.google.common.base.Predicate;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.SoundEvents;
@@ -11,6 +12,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -61,13 +63,13 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         nbt.setBoolean("Redstone", this.redstoneState);
     }
 
-    public void onNeighbourChange()
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
-        boolean redstone = this.getWorld().isBlockPowered(this.getPos());
+        boolean redstone = worldIn.isBlockPowered(pos);
 
         if (redstone != this.redstoneState && redstone == true)
         {
-            this.activateByRedstone(this.getWorld().isBlockIndirectlyGettingPowered(this.getPos()) >= 8);
+            this.activateByRedstone(worldIn.isBlockIndirectlyGettingPowered(pos) < 8);
         }
     }
 
