@@ -11,16 +11,21 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
+import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class PlayerEventHandler
 {
     @SubscribeEvent
-    public void onPlayerInteract(PlayerInteractEvent.LeftClickBlock event)
+    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
     {
         EntityPlayer player = event.getEntityPlayer();
         // You can only left click with the main hand, so this is fine here
@@ -43,6 +48,20 @@ public class PlayerEventHandler
         {
             ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onRightClickAir(PlayerInteractEvent.RightClickItem event)
+    {
+        if (event.getSide() == Side.CLIENT)
+        {
+            ItemStack stack = EntityUtils.getHeldItemOfType(event.getEntityPlayer(), EnderUtilitiesItems.buildersWand);
+
+            if (stack != null && EnderUtilities.proxy.isControlKeyDown())
+            {
+                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(ReferenceKeys.KEYCODE_CUSTOM_1));
+            }
         }
     }
 

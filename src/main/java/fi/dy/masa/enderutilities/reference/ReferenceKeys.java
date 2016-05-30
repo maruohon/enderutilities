@@ -20,6 +20,7 @@ public class ReferenceKeys
 
     public static final int KEYCODE_SNEAK               = 0x01000000;
     public static final int KEYCODE_JUMP                = 0x02000000;
+    public static final int KEYCODE_CUSTOM_1            = 0x10000000;
 
     public static int getBaseKey(int key)
     {

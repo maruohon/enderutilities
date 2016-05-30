@@ -44,6 +44,24 @@ public class PositionUtils
         return new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
     }
 
+    public static BlockPos getPositionInfrontOfEntity(Entity entity)
+    {
+        BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
+
+        if (entity.rotationPitch >= 80)
+        {
+            return pos.down();
+        }
+        else if (entity.rotationPitch <= -80)
+        {
+            return pos.up((int)Math.ceil(entity.getEntityBoundingBox().maxY - entity.posY) + 1);
+        }
+
+        EnumFacing facing = entity.getHorizontalFacing();
+
+        return pos.up().offset(facing, 2);
+    }
+
     /**
      * Rotates the given position around the origin
      */

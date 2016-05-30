@@ -1321,6 +1321,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
     }
 
+    public void placeHelperBlock(EntityPlayer player)
+    {
+        BlockPos pos = PositionUtils.getPositionInfrontOfEntity(player);
+        player.worldObj.setBlockState(pos, Blocks.RED_MUSHROOM_BLOCK.getDefaultState(), 3);
+    }
+
     private int getMaxAreaDimension(EntityPlayer player)
     {
         return player.capabilities.isCreativeMode ? 128 : 64;
@@ -1508,7 +1514,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        if (stack == null)
+        {
+            return;
+        }
+
+        if (key == ReferenceKeys.KEYCODE_CUSTOM_1)
+        {
+            this.placeHelperBlock(player);
+            return;
+        }
+
+        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             return;
         }
