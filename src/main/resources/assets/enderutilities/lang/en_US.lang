@@ -262,6 +262,7 @@ enderutilities.tooltip.item.bucket.mode.normal=Normal
 enderutilities.tooltip.item.build.column=Column
 enderutilities.tooltip.item.build.copy=Copy
 enderutilities.tooltip.item.build.cube=Cube (solid)
+enderutilities.tooltip.item.build.delete=Delete
 enderutilities.tooltip.item.build.line=Line
 enderutilities.tooltip.item.build.paste=Paste
 enderutilities.tooltip.item.build.plane=Plane
@@ -351,6 +352,7 @@ enderutilities.tooltip.item.yes=yes
 
 enderutilities.chat.message.areasavedtotemplate=Area saved to template %d
 enderutilities.chat.message.areatoolarge=Area is too large, maximum dimensions are %d
+enderutilities.chat.message.creativeonly=This feature is only available in Creative mode
 enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range

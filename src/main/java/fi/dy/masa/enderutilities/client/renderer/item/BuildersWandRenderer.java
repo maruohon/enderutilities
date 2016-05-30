@@ -95,7 +95,7 @@ public class BuildersWandRenderer
         }
 
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY  || mode == Mode.PASTE) ?
+        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE) ?
                 item.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
         if (partialTicks < this.partialTicksLast)
@@ -107,10 +107,7 @@ public class BuildersWandRenderer
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
                 item.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
             }
-            else if (mode == Mode.COPY || mode == Mode.PASTE)
-            {
-            }
-            else
+            else if (mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
             {
                 item.getBlockPositions(stack, world, player, this.positions, posStart);
             }
@@ -162,7 +159,7 @@ public class BuildersWandRenderer
     public void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         // Draw the area bounding box
-        if (posStart != null && posEnd != null && (mode == Mode.COPY || mode == Mode.PASTE))
+        if (posStart != null && posEnd != null && (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
         {
             int minX = Math.min(posStart.posX, posEnd.posX);
             int minY = Math.min(posStart.posY, posEnd.posY);
@@ -182,7 +179,7 @@ public class BuildersWandRenderer
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
-        if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE))
+        if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);

@@ -111,14 +111,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 PlayerTaskScheduler.getInstance().removeTask(player, TaskBuildersWand.class);
                 return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
             }
-            else if (mode != Mode.CUBE && mode != Mode.WALLS && mode != Mode.COPY && mode != Mode.PASTE)
+            else if (mode != Mode.CUBE && mode != Mode.WALLS && mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
             {
                 EnumActionResult result = this.useWand(stack, world, player, pos);
                 return new ActionResult<ItemStack>(result, stack);
             }
         }
 
-        if ((mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.PASTE) &&
+        if ((mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE) &&
             this.getPosition(stack, POS_END) != null)
         {
             player.setActiveHand(hand);
@@ -138,7 +138,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
 
         Mode mode = Mode.getMode(stack);
-        if (mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY)
+        if (mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.DELETE)
         {
             if (world.isRemote == false && player.isSneaking() == false)
             {
@@ -496,28 +496,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         }
         else if (mode == Mode.COPY)
         {
-            if (Configs.buildersWandEnableCopyPaste == true)
-            {
-                this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
-            }
-            else
-            {
-                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
-            }
-
+            this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
             return EnumActionResult.SUCCESS;
         }
         else if (mode == Mode.PASTE)
         {
-            if (Configs.buildersWandEnableCopyPaste == true)
-            {
-                this.pasteAreaIntoWorld(stack, world, player, posStart);
-            }
-            else
-            {
-                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
-            }
-
+            this.pasteAreaIntoWorld(stack, world, player, posStart);
+            return EnumActionResult.SUCCESS;
+        }
+        else if (mode == Mode.DELETE)
+        {
+            this.deleteArea(stack, world, player, posStart, posEnd);
             return EnumActionResult.SUCCESS;
         }
         else
@@ -1227,6 +1216,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private void copyAreaToTemplate(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
     {
+        if (Configs.buildersWandEnableCopyPaste == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            return;
+        }
+
         if (posStartIn == null || posEndIn == null)
         {
             return;
@@ -1261,6 +1256,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private void pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
+        if (Configs.buildersWandEnableCopyPaste == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            return;
+        }
+
         if (posStartIn == null || posStartIn.dimension != player.dimension ||
             player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
         {
@@ -1289,6 +1290,34 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             TaskStructureBuild task = new TaskStructureBuild(template, posStartIn.toBlockPos(), player.dimension,
                     player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
+        }
+    }
+
+    private void deleteArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
+    {
+        if (player.capabilities.isCreativeMode == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.creativeonly"));
+            return;
+        }
+
+        if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
+        {
+            return;
+        }
+
+        BlockPos posStart = posStartIn.toBlockPos();
+        BlockPos posEnd = posEndIn.toBlockPos();
+
+        if (player.getDistanceSq(posStart) >= 16384 || player.getDistanceSq(posEnd) >= 16384 ||
+            this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
+        {
+            return;
+        }
+
+        for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, posEnd))
+        {
+            world.setBlockToAir(posMutable);
         }
     }
 
@@ -1706,7 +1735,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         WALLS ("enderutilities.tooltip.item.build.walls"),
         CUBE ("enderutilities.tooltip.item.build.cube"),
         COPY ("enderutilities.tooltip.item.build.copy"),
-        PASTE ("enderutilities.tooltip.item.build.paste");
+        PASTE ("enderutilities.tooltip.item.build.paste"),
+        DELETE ("enderutilities.tooltip.item.build.delete");
 
         private String unlocName;
 
