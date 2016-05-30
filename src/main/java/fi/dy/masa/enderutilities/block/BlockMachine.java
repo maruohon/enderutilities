@@ -35,9 +35,9 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     public static final PropertyEnum<BlockMachine.EnumMachineType> TYPE =
             PropertyEnum.<BlockMachine.EnumMachineType>create("type", BlockMachine.EnumMachineType.class);
 
-    public BlockMachine(String name, float hardness, int harvestLevel, Material material)
+    public BlockMachine(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)

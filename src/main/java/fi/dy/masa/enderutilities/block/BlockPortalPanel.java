@@ -1,0 +1,176 @@
+package fi.dy.masa.enderutilities.block;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
+
+public class BlockPortalPanel extends BlockEnderUtilitiesInventory
+{
+    protected static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 0.25D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(0.0D, 0.0D, 0.75D, 1.0D, 1.0D, 1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB(0.75D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.25D, 1.0D, 1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.25D, 1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(0.0D, 0.75D, 0.0D, 1.0D, 1.0D, 1.0D);
+
+    public BlockPortalPanel(String name, float hardness, float resistance, int harvestLevel, Material material)
+    {
+        super(name, hardness, resistance, harvestLevel, material);
+
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState()
+    {
+        return new BlockStateContainer(this, new IProperty[] { FACING });
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta)
+    {
+        return this.getDefaultState();
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state)
+    {
+        return 0;
+    }
+
+    @Override
+    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    {
+        TileEntityEnderUtilities te = new TileEntityPortalPanel();
+        te.setFacing(state.getValue(FACING));
+
+        return te;
+    }
+
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+    }
+
+    @Override
+    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    {
+        return super.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(FACING, facing);
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te == null || (te instanceof TileEntityEnderUtilities) == false)
+        {
+            return;
+        }
+
+        TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
+        NBTTagCompound nbt = stack.getTagCompound();
+
+        // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
+        if (nbt != null && nbt.hasKey("BlockEntityData", Constants.NBT.TAG_COMPOUND) == true)
+        {
+            teeu.readFromNBTCustom(nbt.getCompoundTag("BlockEntityData"));
+        }
+        else
+        {
+            if (placer instanceof EntityPlayer)
+            {
+                teeu.setOwner((EntityPlayer)placer);
+            }
+
+            if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
+            {
+                ((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
+            }
+        }
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityEnderUtilities)
+        {
+            state = state.withProperty(FACING, ((TileEntityEnderUtilities)te).getFacing());
+        }
+
+        return state;
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+    {
+        state = state.getActualState(blockAccess, pos);
+        EnumFacing facing = state.getValue(FACING);
+
+        switch (facing)
+        {
+            case EAST:
+                return PANEL_BOUNDS_EAST;
+            case WEST:
+                return PANEL_BOUNDS_WEST;
+            case NORTH:
+                return PANEL_BOUNDS_NORTH;
+            case SOUTH:
+                return PANEL_BOUNDS_SOUTH;
+            case UP:
+                return PANEL_BOUNDS_UP;
+            default:
+                return PANEL_BOUNDS_DOWN;
+        }
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    protected String[] generateUnlocalizedNames()
+    {
+        return new String[] { ReferenceNames.NAME_TILE_PORTAL_PANEL };
+    }
+
+    @Override
+    public boolean hasComparatorInputOverride(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
+    {
+        return 0;
+    }
+}

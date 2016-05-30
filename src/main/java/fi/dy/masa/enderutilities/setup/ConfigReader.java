@@ -112,9 +112,9 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
-        prop = conf.get(category, "disableBlockEnderElevator", false).setRequiresMcRestart(true);
-        prop.setComment("Disable Ender Elevator");
-        Configs.disableBlockEnderElevator = prop.getBoolean();
+        Configs.disableBlockEnderElevator = conf.get(category, "disableBlockEnderElevator", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockFrame         = conf.get(category, "disableBlockFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortalPanel   = conf.get(category, "disableBlockPortalPanel", false).setRequiresMcRestart(true).getBoolean();
 
         prop = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
         prop.setComment("Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter");
@@ -164,12 +164,14 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Disable block or item recipies");
 
         // Blocks
+        Configs.disableRecipeAdvancedQuickStacker = conf.get(category, "disableRecipeAdvancedQuickStacker", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderElevator        = conf.get(category, "disableRecipeEnderElevator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderFurnace         = conf.get(category, "disableRecipeEnderFurnace", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeFrame                = conf.get(category, "disableRecipeFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipePortalPanel          = conf.get(category, "disableRecipePortalPanel", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true).getBoolean();
-        Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true).getBoolean();
-        Configs.disableRecipeAdvancedQuickStacker = conf.get(category, "disableRecipeAdvancedQuickStacker", false).setRequiresMcRestart(true).getBoolean();
 
         Configs.disableRecipeEnergyBridgeTransmitter = conf.get(category, "disableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnergyBridgeReceiver    = conf.get(category, "disableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true).getBoolean();

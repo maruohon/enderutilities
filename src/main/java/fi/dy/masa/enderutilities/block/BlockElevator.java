@@ -30,9 +30,9 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 {
     public static final PropertyEnum<EnumDyeColor> COLOR = PropertyEnum.<EnumDyeColor>create("color", EnumDyeColor.class);
 
-    public BlockElevator(String name, float hardness, int harvestLevel, Material material)
+    public BlockElevator(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(COLOR, EnumDyeColor.WHITE)
@@ -53,7 +53,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         int i = 0;
         for (EnumDyeColor color : EnumDyeColor.values())
         {
-            names[i++] = ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR + "_" + color.getName();
+            names[i++] = ReferenceNames.NAME_TILE_ENDER_ELEVATOR + "_" + color.getName();
         }
 
         return names;

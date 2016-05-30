@@ -11,7 +11,10 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
+import fi.dy.masa.enderutilities.block.BlockFrame;
 import fi.dy.masa.enderutilities.block.BlockMachine;
+import fi.dy.masa.enderutilities.block.BlockPortal;
+import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
@@ -19,20 +22,26 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
 {
-    public static final BlockEnderUtilities blockElevator = new BlockElevator(ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR, 4.0f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockEnergyBridge = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_0 = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0, 8.0f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_1 = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1, 8.0f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockStorage_0 = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0, 10.0f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,  400f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockFrame          = new BlockFrame(ReferenceNames.NAME_TILE_FRAME,                4.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,  400f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_1      = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,  400f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockPortal         = new BlockPortal(ReferenceNames.NAME_TILE_PORTAL,              4.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f, 1000f, 1, Material.IRON);
 
     public static void init()
     {
         // Register blocks
-        registerBlock(blockElevator,        ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    Configs.disableBlockEnderElevator);
-        registerBlock(blockEnergyBridge,    ReferenceNames.NAME_TILE_ENERGY_BRIDGE,     Configs.disableBlockEnergyBridge);
-        registerBlock(blockMachine_0,       ReferenceNames.NAME_TILE_MACHINE_0,         Configs.disableBlockMachine_0);
-        registerBlock(blockMachine_1,       ReferenceNames.NAME_TILE_MACHINE_1,         Configs.disableBlockMachine_1);
-        registerBlock(blockStorage_0,       ReferenceNames.NAME_TILE_STORAGE_0,         Configs.disableBlockStorage_0);
+        registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
+        registerBlock(blockFrame,           Configs.disableBlockFrame);
+        registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
+        registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
+        registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
+        registerBlock(blockPortal,          false, true); // FIXME disable item
+        registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel);
+        registerBlock(blockStorage_0,       Configs.disableBlockStorage_0);
 
         ItemStack chest = new ItemStack(Blocks.CHEST);
         ItemStack craftingtable = new ItemStack(Blocks.CRAFTING_TABLE);
@@ -63,6 +72,11 @@ public class EnderUtilitiesBlocks
                 int meta = color.getMetadata();
                 GameRegistry.addRecipe(new ItemStack(blockElevator, 2, meta), "WSW", "APA", "AAA", 'W', new ItemStack(Blocks.WOOL, 1, meta), 'A', alloy1, 'S', Blocks.SLIME_BLOCK, 'P', Blocks.STICKY_PISTON);
             }
+        }
+
+        if (Configs.disableRecipeFrame == false && Configs.disableBlockFrame == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockFrame, 4, 0), "GAG", "APA", "GAG", 'G', "blockGlass", 'A', alloy0, 'P', Items.ENDER_PEARL));
         }
 
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
@@ -127,13 +141,21 @@ public class EnderUtilitiesBlocks
         }
     }
 
-    private static void registerBlock(Block block, String registryName, boolean isDisabled)
+    private static void registerBlock(Block block, boolean isDisabled)
+    {
+        registerBlock(block, isDisabled, true);
+    }
+
+    private static void registerBlock(Block block, boolean isDisabled, boolean createItemBlock)
     {
         if (isDisabled == false)
         {
-            block.setRegistryName(registryName);
             GameRegistry.register(block);
-            GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(block.getRegistryName()));
+
+            if (createItemBlock)
+            {
+                GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(block.getRegistryName()));
+            }
         }
     }
 }

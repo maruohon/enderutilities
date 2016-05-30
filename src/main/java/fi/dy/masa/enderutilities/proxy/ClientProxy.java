@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -50,6 +51,8 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class ClientProxy extends CommonProxy
 {
@@ -85,6 +88,45 @@ public class ClientProxy extends CommonProxy
                     return 0xFFFFFF;
                 }
             }, EnderUtilitiesBlocks.blockElevator);
+
+        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                new IBlockColor()
+                {
+                    @Override
+                    public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                    {
+                        if (tintIndex == 1)
+                        {
+                            TileEntity te = worldIn.getTileEntity(pos);
+                            if (te instanceof TileEntityPortal)
+                            {
+                                return ((TileEntityPortal) te).getColor().getMapColor().colorValue;
+                            }
+                        }
+
+                        return 0xA010F0;
+                    }
+                }, EnderUtilitiesBlocks.blockPortal);
+
+        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                new IBlockColor()
+                {
+                    @Override
+                    public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                    {
+                        if (tintIndex >= 1 && tintIndex <= 8)
+                        {
+                            TileEntity te = worldIn.getTileEntity(pos);
+                            if (te instanceof TileEntityPortalPanel)
+                            {
+                                return ((TileEntityPortalPanel) te).getColor(tintIndex - 1);
+                            }
+                            //return EnumDyeColor.byMetadata(tintIndex).getMapColor().colorValue;
+                        }
+
+                        return 0xFFFFFF;
+                    }
+                }, EnderUtilitiesBlocks.blockPortalPanel);
 
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
                 new IItemColor()
@@ -245,11 +287,14 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockElevator);
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator, (new StateMap.Builder()).ignore(BlockElevator.COLOR, BlockElevator.FACING).build());
 
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0, 0,  "facing=north,mode=off");
-
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
+
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockFrame,        0, "inventory");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0,    0, "facing=north,mode=off");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortal,       0, "facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalPanel,  0, "facing=north");
     }
 
     private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)

@@ -31,9 +31,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     public static final PropertyEnum<BlockEnergyBridge.EnumMachineType> TYPE =
             PropertyEnum.<BlockEnergyBridge.EnumMachineType>create("type", BlockEnergyBridge.EnumMachineType.class);
 
-    public BlockEnergyBridge(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnergyBridge(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(ACTIVE, false)

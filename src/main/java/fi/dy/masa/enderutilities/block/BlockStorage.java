@@ -31,9 +31,9 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     public static final PropertyEnum<BlockStorage.EnumStorageType> TYPE =
             PropertyEnum.<BlockStorage.EnumStorageType>create("type", BlockStorage.EnumStorageType.class);
 
-    public BlockStorage(String name, float hardness, int harvestLevel, Material material)
+    public BlockStorage(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockStorage.EnumStorageType.MEMORY_CHEST_0)

@@ -29,8 +29,10 @@ public class Configs
     // Block disable
     public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
+    public static boolean disableBlockFrame;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
+    public static boolean disableBlockPortalPanel;
     public static boolean disableBlockStorage_0;
 
     // Item disable
@@ -59,11 +61,13 @@ public class Configs
 
     // Recipe disable
     // Blocks
+    public static boolean disableRecipeAdvancedQuickStacker;
+    public static boolean disableRecipeCreationStation;
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
+    public static boolean disableRecipeFrame;
+    public static boolean disableRecipePortalPanel;
     public static boolean disableRecipeToolWorkstation;
-    public static boolean disableRecipeCreationStation;
-    public static boolean disableRecipeAdvancedQuickStacker;
 
     public static boolean disableRecipeEnderFurnace;
 

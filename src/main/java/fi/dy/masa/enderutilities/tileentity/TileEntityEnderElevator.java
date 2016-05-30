@@ -44,7 +44,7 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
 
     public TileEntityEnderElevator()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENDER_ELEVATOR);
+        super(ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
     }
 
     @Override

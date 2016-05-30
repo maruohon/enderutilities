@@ -29,9 +29,9 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     //public static final PropertyEnum<EnumMachineType> TYPE = PropertyEnum.<EnumMachineType>create("type", EnumMachineType.class);
     public static final PropertyEnum<EnumMachineMode> MODE = PropertyEnum.<EnumMachineMode>create("mode", EnumMachineMode.class);
 
-    public BlockEnderFurnace(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnderFurnace(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(MODE, EnumMachineMode.OFF)

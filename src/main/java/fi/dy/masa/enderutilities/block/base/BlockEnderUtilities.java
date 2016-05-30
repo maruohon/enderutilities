@@ -11,10 +11,12 @@ public class BlockEnderUtilities extends Block
     protected String blockName;
     protected String[] unlocalizedNames;
 
-    public BlockEnderUtilities(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnderUtilities(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(material);
+        this.setRegistryName(name);
         this.setHardness(hardness);
+        this.setResistance(resistance);
         this.setHarvestLevel("pickaxe", harvestLevel);
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.setSoundType(SoundType.STONE);

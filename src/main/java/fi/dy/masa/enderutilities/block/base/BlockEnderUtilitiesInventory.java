@@ -22,9 +22,9 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
 {
-    public BlockEnderUtilitiesInventory(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnderUtilitiesInventory(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
     }
 
     @Override

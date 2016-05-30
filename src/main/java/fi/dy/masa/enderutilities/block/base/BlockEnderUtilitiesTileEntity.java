@@ -21,9 +21,9 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
     public static final PropertyDirection FACING = BlockProperties.FACING;
 
-    public BlockEnderUtilitiesTileEntity(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnderUtilitiesTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
     }
 
     @Override
