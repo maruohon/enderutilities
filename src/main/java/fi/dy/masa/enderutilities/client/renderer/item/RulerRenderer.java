@@ -41,8 +41,8 @@ public class RulerRenderer
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDim = I18n.translateToLocal("enderutilities.tooltip.item.dimensions");
-        this.modeStrDiff = I18n.translateToLocal("enderutilities.tooltip.item.difference");
+        this.modeStrDim = I18n.translateToLocal("enderutilities.tooltip.item.ruler.dimensions");
+        this.modeStrDiff = I18n.translateToLocal("enderutilities.tooltip.item.ruler.difference");
     }
 
     @SubscribeEvent

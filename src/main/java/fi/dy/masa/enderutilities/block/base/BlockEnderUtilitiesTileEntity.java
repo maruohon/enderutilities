@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -63,8 +62,7 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         }
 
         // FIXME add the 24-way rotation stuff
-        EnumFacing facing = placer.getHorizontalFacing().getOpposite();
-        teeu.setRotation(facing.getIndex());
+        teeu.setFacing(placer.getHorizontalFacing().getOpposite());
     }
 
     public boolean isTileEntityValid(TileEntity te)

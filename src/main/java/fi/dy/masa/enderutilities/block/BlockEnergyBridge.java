@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -20,7 +19,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -62,7 +60,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        return new TileEntityEnergyBridge();
+        TileEntityEnergyBridge te = new TileEntityEnergyBridge();
+        te.setFacing(state.getValue(FACING));
+        return te;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
             TileEntityEnergyBridge teeb = (TileEntityEnergyBridge)te;
             state = state.withProperty(ACTIVE, teeb.getIsActive());
 
-            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
+            EnumFacing facing = ((TileEntityEnderUtilities)te).getFacing();
             if (facing.getAxis().isHorizontal() == true)
             {
                 state = state.withProperty(FACING, facing);

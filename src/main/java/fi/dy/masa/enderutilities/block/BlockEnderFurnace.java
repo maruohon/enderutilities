@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 import java.util.Random;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -20,7 +19,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -57,7 +55,9 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        return new TileEntityEnderFurnace();
+        TileEntityEnderFurnace te = new TileEntityEnderFurnace();
+        te.setFacing(state.getValue(FACING));
+        return te;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 
             state = state.withProperty(MODE, mode);
 
-            EnumFacing facing = EnumFacing.getFront(teef.getRotation());
+            EnumFacing facing = teef.getFacing();
             if (facing.getAxis().isHorizontal() == true)
             {
                 state = state.withProperty(FACING, facing);

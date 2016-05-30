@@ -121,7 +121,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         nbt = super.getDescriptionPacketTag(nbt);
 
-        byte flags = (byte)(this.getRotation() & 0x07);
+        byte flags = 0;
         // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active
         if (canSmelt() == true) { flags |= 0x10; }
         if (isBurning() == true) { flags |= 0x20; }
@@ -136,7 +136,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         NBTTagCompound nbt = packet.getNbtCompound();
         byte flags = nbt.getByte("f");
-        this.setRotation((byte)(flags & 0x07));
         this.isCookingLast = (flags & 0x10) == 0x10;
         this.isBurningLast = (flags & 0x20) == 0x20;
         this.fastMode = (flags & 0x40) == 0x40;

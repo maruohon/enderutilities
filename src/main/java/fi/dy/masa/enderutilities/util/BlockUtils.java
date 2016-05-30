@@ -39,7 +39,7 @@ public class BlockUtils
         }
 
         if (te != null && TEClass != null && TEClass.isAssignableFrom(te.getClass()) == true && (requiredOrientation == null
-            || (te instanceof TileEntityEnderUtilities && EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation()).equals(requiredOrientation))))
+            || (te instanceof TileEntityEnderUtilities && ((TileEntityEnderUtilities)te).getFacing() == requiredOrientation)))
         {
             return true;
         }

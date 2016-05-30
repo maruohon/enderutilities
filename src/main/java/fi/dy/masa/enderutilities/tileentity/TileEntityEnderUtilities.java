@@ -9,6 +9,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -16,14 +17,14 @@ import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 public class TileEntityEnderUtilities extends TileEntity
 {
     protected String tileEntityName;
-    protected int rotation;
+    protected EnumFacing facing;
     protected String ownerName;
     protected UUID ownerUUID;
     protected boolean isPublic;
 
     public TileEntityEnderUtilities(String name)
     {
-        this.rotation = 0;
+        this.facing = EnumFacing.NORTH;
         this.ownerName = null;
         this.ownerUUID = null;
         this.isPublic = false;
@@ -35,14 +36,14 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.tileEntityName;
     }
 
-    public void setRotation(int rot)
+    public void setFacing(EnumFacing facing)
     {
-        this.rotation = rot;
+        this.facing = facing;
     }
 
-    public int getRotation()
+    public EnumFacing getFacing()
     {
-        return this.rotation;
+        return this.facing;
     }
 
     public void setOwner(EntityPlayer player)
@@ -73,7 +74,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.rotation = nbt.getByte("Rotation");
+        this.facing = EnumFacing.getFront(nbt.getByte("Rotation"));
 
         OwnerData playerData = OwnerData.getPlayerDataFromNBT(nbt);
         if (playerData != null)
@@ -97,7 +98,7 @@ public class TileEntityEnderUtilities extends TileEntity
         super.writeToNBT(nbt);
 
         nbt.setString("Version", Reference.MOD_VERSION);
-        nbt.setByte("Rotation", (byte)this.rotation);
+        nbt.setByte("Rotation", (byte)this.facing.getIndex());
 
         if (this.ownerUUID != null && this.ownerName != null)
         {
@@ -107,7 +108,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
     {
-        nbt.setByte("r", (byte)(this.getRotation() & 0x07));
+        nbt.setByte("r", (byte)(this.facing.getIndex() & 0x07));
 
         if (this.ownerName != null)
         {
@@ -135,7 +136,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
         if (nbt.hasKey("r") == true)
         {
-            this.setRotation((byte)(nbt.getByte("r") & 0x07));
+            this.setFacing(EnumFacing.getFront((byte)(nbt.getByte("r") & 0x07)));
         }
         if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
         {

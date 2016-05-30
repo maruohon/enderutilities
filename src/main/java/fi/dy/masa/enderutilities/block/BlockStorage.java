@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -18,7 +17,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
@@ -82,18 +80,21 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        EnumStorageType type = state.getValue(TYPE);
-        switch(type)
+        TileEntityEnderUtilities te = new TileEntityMemoryChest();
+
+        switch(state.getValue(TYPE))
         {
-            case MEMORY_CHEST_0: return new TileEntityMemoryChest();
-            case MEMORY_CHEST_1: return new TileEntityMemoryChest();
-            case MEMORY_CHEST_2: return new TileEntityMemoryChest();
-            case HANDY_CHEST_0: return new TileEntityHandyChest();
-            case HANDY_CHEST_1: return new TileEntityHandyChest();
-            case HANDY_CHEST_2: return new TileEntityHandyChest();
+            case MEMORY_CHEST_0:    te = new TileEntityMemoryChest(); break;
+            case MEMORY_CHEST_1:    te = new TileEntityMemoryChest(); break;
+            case MEMORY_CHEST_2:    te = new TileEntityMemoryChest(); break;
+            case HANDY_CHEST_0:     te = new TileEntityHandyChest(); break;
+            case HANDY_CHEST_1:     te = new TileEntityHandyChest(); break;
+            case HANDY_CHEST_2:     te = new TileEntityHandyChest(); break;
         }
 
-        return new TileEntityMemoryChest();
+        te.setFacing(state.getValue(FACING));
+
+        return te;
     }
 
     @Override
@@ -148,7 +149,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnderUtilities)
         {
-            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
+            EnumFacing facing = ((TileEntityEnderUtilities)te).getFacing();
             if (facing.getAxis().isHorizontal() == true)
             {
                 state = state.withProperty(FACING, facing);

@@ -64,16 +64,19 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        EnumMachineType type = state.getValue(TYPE);
-        switch (type)
+        TileEntityEnderUtilities te = new TileEntityEnderInfuser();
+
+        switch (state.getValue(TYPE))
         {
-            case CREATION_STATION: return new TileEntityCreationStation();
-            case ENDER_INFUSER: return new TileEntityEnderInfuser();
-            case QUICK_STACKER: return new TileEntityQuickStackerAdvanced();
-            case TOOL_WORKSTATION: return new TileEntityToolWorkstation();
+            case CREATION_STATION:  te = new TileEntityCreationStation(); break;
+            case ENDER_INFUSER:     te = new TileEntityEnderInfuser(); break;
+            case QUICK_STACKER:     te = new TileEntityQuickStackerAdvanced(); break;
+            case TOOL_WORKSTATION:  te = new TileEntityToolWorkstation(); break;
         }
 
-        return new TileEntityEnderInfuser();
+        te.setFacing(state.getValue(FACING));
+
+        return te;
     }
 
     @Override
@@ -140,8 +143,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnderUtilities)
         {
-            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
-
+            EnumFacing facing = ((TileEntityEnderUtilities)te).getFacing();
             if (facing.getAxis().isHorizontal() == true)
             {
                 state = state.withProperty(FACING, facing);
