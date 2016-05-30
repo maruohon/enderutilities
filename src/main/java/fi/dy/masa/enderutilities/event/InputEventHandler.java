@@ -4,6 +4,7 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -11,6 +12,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.gui.client.GuiScreenBuilderWandTemplate;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -18,6 +22,7 @@ import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.setup.Keybindings;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -96,6 +101,11 @@ public class InputEventHandler
         {
             if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState == true)
             {
+                if (this.buildersWandClientSideHandling())
+                {
+                    return;
+                }
+
                 if (isHoldingKeyboundItem(player) == true || hasKeyBoundUnselectedItem(player) == true)
                 {
                     int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
@@ -172,6 +182,19 @@ public class InputEventHandler
                 }
             }
         }
+    }
+
+    private boolean buildersWandClientSideHandling()
+    {
+        ItemStack stack = Minecraft.getMinecraft().thePlayer.getHeldItemMainhand();
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand &&
+            ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiScreenBuilderWandTemplate());
+            return true;
+        }
+
+        return false;
     }
 
     static

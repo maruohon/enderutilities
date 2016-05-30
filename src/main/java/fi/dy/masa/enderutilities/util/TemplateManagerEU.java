@@ -13,21 +13,24 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class TemplateManagerEU
 {
+    protected final MinecraftServer server;
     protected final Map<String, TemplateEnderUtilities> templates;
     protected final Map<String, TemplateMetadata> templateMetas;
     protected final String baseFolder;
 
     public TemplateManagerEU(String baseFolder)
     {
+        this.server = FMLCommonHandler.instance().getMinecraftServerInstance();
         this.templates = Maps.<String, TemplateEnderUtilities>newHashMap();
         this.templateMetas = Maps.<String, TemplateMetadata>newHashMap();
         this.baseFolder = baseFolder;
     }
 
-    public TemplateEnderUtilities getTemplate(MinecraftServer server, ResourceLocation id)
+    public TemplateEnderUtilities getTemplate(ResourceLocation id)
     {
         String s = id.getResourcePath();
 
@@ -36,10 +39,7 @@ public class TemplateManagerEU
             return this.templates.get(s);
         }
 
-        if (server != null)
-        {
-            this.readTemplate(server, id);
-        }
+        this.readTemplate(id);
 
         if (this.templates.containsKey(s))
         {
@@ -51,10 +51,10 @@ public class TemplateManagerEU
         return template;
     }
 
-    public boolean readTemplate(MinecraftServer server, ResourceLocation id)
+    public boolean readTemplate(ResourceLocation id)
     {
         String fileName = id.getResourcePath();
-        File templateDir = server.getFile(this.baseFolder);
+        File templateDir = this.server.getFile(this.baseFolder);
         File templateFile = new File(templateDir, fileName + ".nbt");
         InputStream inputStream = null;
 
@@ -83,7 +83,7 @@ public class TemplateManagerEU
         this.templates.put(id, template);
     }
 
-    public boolean writeTemplate(MinecraftServer server, ResourceLocation id)
+    public boolean writeTemplate(ResourceLocation id)
     {
         String fileName = id.getResourcePath();
 
@@ -93,7 +93,7 @@ public class TemplateManagerEU
         }
         else
         {
-            File templateDir = server.getFile(this.baseFolder);
+            File templateDir = this.server.getFile(this.baseFolder);
 
             if (templateDir.exists() == false)
             {
@@ -131,7 +131,7 @@ public class TemplateManagerEU
         }
     }
 
-    public TemplateMetadata getTemplateMetadata(MinecraftServer server, ResourceLocation rl)
+    public TemplateMetadata getTemplateMetadata(ResourceLocation rl)
     {
         String s = rl.getResourcePath();
 
@@ -140,10 +140,7 @@ public class TemplateManagerEU
             return this.templateMetas.get(s);
         }
 
-        if (server != null)
-        {
-            this.readTemplateMetadata(server, rl);
-        }
+        this.readTemplateMetadata(rl);
 
         if (this.templateMetas.containsKey(s))
         {
@@ -155,9 +152,9 @@ public class TemplateManagerEU
         return templateMeta;
     }
 
-    public boolean readTemplateMetadata(MinecraftServer server, ResourceLocation rl)
+    public boolean readTemplateMetadata(ResourceLocation rl)
     {
-        File templateFile = this.getTemplateMetadataFile(server, rl);
+        File templateFile = this.getTemplateMetadataFile(rl);
         InputStream inputStream = null;
 
         try
@@ -177,10 +174,10 @@ public class TemplateManagerEU
         return false;
     }
 
-    protected File getTemplateMetadataFile(MinecraftServer server, ResourceLocation rl)
+    protected File getTemplateMetadataFile(ResourceLocation rl)
     {
         String fileName = rl.getResourcePath();
-        File templateDir = server.getFile(this.baseFolder);
+        File templateDir = this.server.getFile(this.baseFolder);
 
         return new File(templateDir, fileName + "_meta.nbt");
     }
@@ -193,7 +190,7 @@ public class TemplateManagerEU
         this.templateMetas.put(id, templateMeta);
     }
 
-    public boolean writeTemplateMetadata(MinecraftServer server, ResourceLocation rl)
+    public boolean writeTemplateMetadata(ResourceLocation rl)
     {
         String fileName = rl.getResourcePath();
 
@@ -203,7 +200,7 @@ public class TemplateManagerEU
         }
         else
         {
-            File templateDir = server.getFile(this.baseFolder);
+            File templateDir = this.server.getFile(this.baseFolder);
 
             if (templateDir.exists() == false)
             {
@@ -241,9 +238,9 @@ public class TemplateManagerEU
         }
     }
 
-    public FileInfo getTemplateInfo(MinecraftServer server, ResourceLocation rl)
+    public FileInfo getTemplateInfo(ResourceLocation rl)
     {
-        File file = this.getTemplateMetadataFile(server, rl);
+        File file = this.getTemplateMetadataFile(rl);
 
         return new FileInfo(file.lastModified(), file.length());
     }

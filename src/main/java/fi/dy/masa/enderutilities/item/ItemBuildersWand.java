@@ -18,7 +18,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
@@ -38,7 +37,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -48,6 +46,7 @@ import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.event.tasks.TaskStructureBuild;
 import fi.dy.masa.enderutilities.item.base.IModule;
+import fi.dy.masa.enderutilities.item.base.IStringInput;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -61,7 +60,7 @@ import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class ItemBuildersWand extends ItemLocationBoundModular
+public class ItemBuildersWand extends ItemLocationBoundModular implements IStringInput
 {
     /** How much Ender Charge does placing each block cost */
     public static final int ENDER_CHARGE_COST = 2;
@@ -1246,19 +1245,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        MinecraftServer server = world.getMinecraftServer();
-        ResourceLocation rl = this.getTemplateResource(stack);
         TemplateManagerEU templateManager = this.getTemplateManager();
+        ResourceLocation rl = this.getTemplateResource(stack);
 
-        TemplateEnderUtilities template = templateManager.getTemplate(server, rl);
+        TemplateEnderUtilities template = templateManager.getTemplate(rl);
         template.takeBlocksFromWorld(world, posStart, endOffset, true);
         template.setAuthor(player.getName());
-        templateManager.writeTemplate(server, rl);
+        templateManager.writeTemplate(rl);
 
-        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(server, rl);
+        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
         EnumFacing facing = this.getFacingFromPositions(posStart, posStart.add(endOffset));
-        templateMeta.setValues(endOffset, facing, player.getName());
-        templateManager.writeTemplateMetadata(server, rl);
+        templateMeta.setValues(endOffset, facing, player.getName(), this.getTemplateName(stack, Mode.PASTE));
+        templateManager.writeTemplateMetadata(rl);
 
         player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (getSelectedBlockTypeIndex(stack) + 1)));
     }
@@ -1277,7 +1275,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return;
         }
 
-        TemplateMetadata templateMeta = this.getTemplateMetadata(world, stack);
+        TemplateMetadata templateMeta = this.getTemplateMetadata(stack);
 
         if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), player) == false)
         {
@@ -1358,23 +1356,50 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private TemplateEnderUtilities getTemplate(World world, ItemStack stack, PlacementSettings placement)
     {
-        MinecraftServer server = world.getMinecraftServer();
         TemplateManagerEU templateManager = this.getTemplateManager();
         ResourceLocation rl = this.getTemplateResource(stack);
-        TemplateEnderUtilities template = templateManager.getTemplate(server, rl);
+        TemplateEnderUtilities template = templateManager.getTemplate(rl);
         template.setPlacementSettings(placement);
 
         return template;
     }
 
-    private TemplateMetadata getTemplateMetadata(World world, ItemStack stack)
+    private TemplateMetadata getTemplateMetadata(ItemStack stack)
     {
-        MinecraftServer server = world.getMinecraftServer();
         TemplateManagerEU templateManager = this.getTemplateManager();
         ResourceLocation rl = this.getTemplateResource(stack);
-        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(server, rl);
+        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
 
         return templateMeta;
+    }
+
+    public String getTemplateName(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound nbt = this.getSelectedTemplateTag(stack, mode, false);
+        if (nbt != null)
+        {
+            return nbt.getString("TemplateName");
+        }
+
+        return "";
+    }
+
+    public void setTemplateName(ItemStack stack, String name)
+    {
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        ResourceLocation rl = this.getTemplateResource(stack);
+        TemplateMetadata meta = templateManager.getTemplateMetadata(rl);
+        meta.setTemplateName(name);
+        templateManager.writeTemplateMetadata(rl);
+
+        this.setTemplateNameOnItem(stack, Mode.COPY, name);
+        this.updateTemplateMetadata(stack);
+    }
+
+    public void setTemplateNameOnItem(ItemStack stack, Mode mode, String name)
+    {
+        NBTTagCompound nbt = this.getSelectedTemplateTag(stack, mode, true);
+        nbt.setString("TemplateName", name);
     }
 
     private ResourceLocation getTemplateResource(ItemStack stack)
@@ -1404,7 +1429,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             return null;
         }
 
-        NBTTagCompound tag = this.getPasteModeSelectedTemplateTag(stack, false);
+        NBTTagCompound tag = this.getSelectedTemplateTag(stack, Mode.PASTE, false);
         if (tag == null)
         {
             return null;
@@ -1417,10 +1442,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return posStartEU.add(endOffset);
     }
 
-    private NBTTagCompound getPasteModeSelectedTemplateTag(ItemStack stack, boolean create)
+    private NBTTagCompound getSelectedTemplateTag(ItemStack stack, Mode mode, boolean create)
     {
         int sel = getSelectedBlockTypeIndex(stack);
-        int modeId = Mode.PASTE.ordinal();
+        int modeId = mode.ordinal();
         NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + modeId, true);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_TEMPLATES + "_" + sel, create);
@@ -1430,15 +1455,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     private void updateTemplateMetadata(ItemStack stack)
     {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        ResourceLocation rl = this.getTemplateResource(stack);
         TemplateManagerEU templateManager = this.getTemplateManager();
-        FileInfo info = templateManager.getTemplateInfo(server, rl);
-        NBTTagCompound tag = this.getPasteModeSelectedTemplateTag(stack, true);
+        ResourceLocation rl = this.getTemplateResource(stack);
+        FileInfo info = templateManager.getTemplateInfo(rl);
+        NBTTagCompound tag = this.getSelectedTemplateTag(stack, Mode.PASTE, true);
 
         if (tag.getLong("Timestamp") != info.timestamp || tag.getLong("FileSize") != info.fileSize)
         {
-            TemplateMetadata meta = templateManager.getTemplateMetadata(server, rl);
+            TemplateMetadata meta = templateManager.getTemplateMetadata(rl);
             BlockPos size = meta.getRelativeEndPosition();
             tag.setLong("TimeStamp", info.timestamp);
             tag.setLong("FileSize", info.fileSize);
@@ -1446,6 +1470,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             tag.setInteger("endOffsetY", size.getY());
             tag.setInteger("endOffsetZ", size.getZ());
             tag.setByte("TemplateFacing", (byte)meta.getFacing().getIndex());
+            tag.setString("TemplateName", meta.getTemplateName());
         }
     }
 
@@ -1611,6 +1636,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             this.toggleAreaFlipped(stack, player);
         }
+    }
+
+    @Override
+    public void handleString(EntityPlayer player, ItemStack stack, String text)
+    {
+        this.setTemplateName(stack, text);
     }
 
     @Override

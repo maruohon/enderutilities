@@ -14,7 +14,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.EncoderException;
 
-public class ByteBufUtils
+public class ByteBufUtilsEU
 {
     public static void writeItemStackToBuffer(ByteBuf buf, ItemStack stack)
     {

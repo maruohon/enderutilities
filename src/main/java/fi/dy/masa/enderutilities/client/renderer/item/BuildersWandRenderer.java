@@ -260,13 +260,14 @@ public class BuildersWandRenderer
         String preGreen = TextFormatting.GREEN.toString();
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+        String preIta = TextFormatting.ITALIC.toString();
         int index = ItemBuildersWand.getSelectedBlockTypeIndex(stack);
 
         if (mode == Mode.COPY || mode == Mode.PASTE)
         {
             String str1 = I18n.format("enderutilities.tooltip.item.template");
-            // TODO template name
-            lines.add(str1 + String.format(": (%s%d/%d%s) - %s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, ""));
+            String name = wand.getTemplateName(stack, mode);
+            lines.add(str1 + String.format(": %s%d/%d%s - %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name));
 
             str1 = I18n.format("enderutilities.tooltip.item.rotation");
 
