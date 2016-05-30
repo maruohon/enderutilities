@@ -22,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
@@ -100,6 +102,7 @@ public class TemplateEnderUtilities
 
             if (this.replaceExisting == true || world.isAirBlock(pos) == true)
             {
+                //IBlockState state = blockInfo.blockState;
                 //IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
                 IBlockState state = blockInfo.blockState.withRotation(this.placement.getRotation());
 
@@ -107,16 +110,17 @@ public class TemplateEnderUtilities
                 {
                     TileEntity te = world.getTileEntity(pos);
 
-                    if (te != null)
+                    if (te instanceof IInventory)
                     {
-                        if (te instanceof IInventory)
-                        {
-                            ((IInventory)te).clear();
-                        }
-
+                        ((IInventory)te).clear();
                         //world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
                     }
                 }
+                /*else
+                {
+                    // No TileEntity, we can rotate this block already
+                    state = blockInfo.blockState.withRotation(this.placement.getRotation());
+                }*/
 
                 if (world.setBlockState(pos, state, 2) == true && blockInfo.tileEntityData != null)
                 {
@@ -139,7 +143,6 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.BlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
-
             world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
 
             if (blockInfo.tileEntityData != null)
@@ -148,8 +151,22 @@ public class TemplateEnderUtilities
 
                 if (te != null)
                 {
+                    IBlockState state = world.getBlockState(pos);
+
+                    if (te instanceof TileEntityEnderUtilities &&
+                        state.getBlock() instanceof BlockEnderUtilitiesTileEntity)
+                    {
+                        state = state.getActualState(world, pos);
+                        state = state.withRotation(this.placement.getRotation());
+                        ((TileEntityEnderUtilities) te).setFacing(state.getValue(BlockEnderUtilitiesTileEntity.FACING));
+                    }
+
                     te.markDirty();
                 }
+            }
+            else
+            {
+                world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
             }
         }
     }

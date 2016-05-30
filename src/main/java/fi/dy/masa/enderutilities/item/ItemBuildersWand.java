@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
@@ -1317,7 +1318,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, posEnd))
         {
-            world.setBlockToAir(posMutable);
+            if (world.isAirBlock(posMutable) == false)
+            {
+                TileEntity te = world.getTileEntity(posMutable);
+                if (te instanceof IInventory)
+                {
+                    ((IInventory) te).clear();
+                }
+
+                world.setBlockToAir(posMutable);
+            }
         }
     }
 

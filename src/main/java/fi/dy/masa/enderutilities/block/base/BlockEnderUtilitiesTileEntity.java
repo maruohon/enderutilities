@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -68,6 +69,22 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     public boolean isTileEntityValid(TileEntity te)
     {
         return te != null && te.isInvalid() == false;
+    }
+
+    /**
+     * Rotates the block so that that front is the given EnumFacing axis.
+     */
+    @Override
+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
+    {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof TileEntityEnderUtilities)
+        {
+            ((TileEntityEnderUtilities) te).setFacing(axis);
+            return true;
+        }
+
+        return false;
     }
 
     @Override

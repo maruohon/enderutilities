@@ -34,13 +34,15 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     {
         super(name, hardness, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
+        this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(COLOR, EnumDyeColor.WHITE)
+                .withProperty(FACING, EnumFacing.NORTH));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { COLOR });
+        return new BlockStateContainer(this, new IProperty[] { COLOR, FACING });
     }
 
     @Override
