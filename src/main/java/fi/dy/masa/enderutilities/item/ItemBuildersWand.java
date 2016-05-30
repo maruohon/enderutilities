@@ -236,7 +236,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             itemName = EUStringUtils.getInitialsWithDots(itemName);
         }
-        itemName = itemName + " " + preGreen + Mode.getMode(stack).getDisplayName() + rst;
+        itemName = itemName + " " + preGreen + mode.getDisplayName() + rst;
 
         int sel = getSelectedBlockTypeIndex(stack);
 
@@ -244,8 +244,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         {
             if (mode == Mode.PASTE)
             {
-                EnumFacing facing = this.getTemplateFacing(stack);
-                itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
+                //EnumFacing facing = this.getTemplateFacing(stack);
+                //itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
 
                 if (this.getReplaceExisting(stack) == true)
                 {
@@ -257,20 +257,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular
                 }
             }
 
-            itemName = itemName + " - " + I18n.translateToLocal("enderutilities.tooltip.item.area") +
+            itemName = itemName + " - " + I18n.translateToLocal("enderutilities.tooltip.item.template") +
                     ": " + preGreen + (sel + 1) + rst;
 
             return itemName;
         }
 
-        if (this.getAreaFlipped(stack) == true)
+        if (mode != Mode.CUBE && mode != Mode.WALLS)
         {
-            String strFlip = this.getAreaFlipAxis(stack, EnumFacing.NORTH).toString();
-            itemName = itemName + " flip: " + preGreen + strFlip + rst;
-        }
-        else
-        {
-            itemName = itemName + " flip: " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            if (this.getAreaFlipped(stack) == true)
+            {
+                String strFlip = this.getAreaFlipAxis(stack, EnumFacing.NORTH).toString();
+                itemName = itemName + " flip: " + preGreen + strFlip + rst;
+            }
+            else
+            {
+                itemName = itemName + " flip: " + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+            }
         }
 
         if (sel >= 0)
@@ -324,8 +327,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         int sel = getSelectedBlockTypeIndex(stack);
         if (mode == Mode.COPY || mode == Mode.PASTE)
         {
-            String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedarea");
+            String str = I18n.translateToLocal("enderutilities.tooltip.item.selectedtemplate");
             list.add(str + ": " + preGreen + (sel + 1) + rst);
+        }
+        else if (mode == Mode.DELETE)
+        {
         }
         else if (sel >= 0)
         {
@@ -358,7 +364,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
         String str = I18n.translateToLocal("enderutilities.tooltip.item.area.flipped");
         String str2;
-        if (mode == Mode.COPY) { }
+        if (mode == Mode.COPY || mode == Mode.DELETE)
+        {
+        }
         else if (mode == Mode.PASTE)
         {
             EnumFacing facing = this.getTemplateFacing(stack);
@@ -396,7 +404,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
             list.add(str + ": " + str2 + rst);
         }
 
-        if (mode != Mode.COPY && mode != Mode.PASTE)
+        if (mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
         {
             str = I18n.translateToLocal("enderutilities.tooltip.item.builderswand.renderghostblocks");
 
@@ -1462,7 +1470,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         pos.writeToTag(tag);
     }
 
-    private EnumFacing getTemplateFacing(ItemStack stack)
+    public EnumFacing getTemplateFacing(ItemStack stack)
     {
         int sel = getSelectedBlockTypeIndex(stack);
         int modeId = Mode.PASTE.ordinal();
@@ -1479,7 +1487,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
     }
 
-    private boolean getReplaceExisting(ItemStack stack)
+    public boolean getReplaceExisting(ItemStack stack)
     {
         NBTTagCompound tag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CONFIG_PRE + Mode.PASTE.ordinal(), true);
@@ -1496,7 +1504,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular
         return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
-    private EnumFacing getFacingFromPositions(BlockPos pos1, BlockPos pos2)
+    public EnumFacing getFacingFromPositions(BlockPos pos1, BlockPos pos2)
     {
         if (pos1 == null || pos2 == null)
         {
@@ -1754,8 +1762,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular
 
     public static enum Mode
     {
-        EXTEND_CONTINUOUS ("enderutilities.tooltip.item.extend.continuous"),
-        EXTEND_AREA ("enderutilities.tooltip.item.extend.area"),
+        EXTEND_CONTINUOUS ("enderutilities.tooltip.item.build.extend.continuous"),
+        EXTEND_AREA ("enderutilities.tooltip.item.build.extend.area"),
         LINE ("enderutilities.tooltip.item.build.line"),
         PLANE ("enderutilities.tooltip.item.build.plane"),
         COLUMN ("enderutilities.tooltip.item.build.column"),

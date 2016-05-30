@@ -6,69 +6,38 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BuildersWandRenderer
 {
-    public Minecraft mc;
-    public float partialTicksLast;
-    List<BlockPosStateDist> positions;
+    protected final Minecraft mc;
+    protected final List<BlockPosStateDist> positions;
+    protected float partialTicksLast;
 
     public BuildersWandRenderer()
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new ArrayList<BlockPosStateDist>();
-    }
-
-    @SubscribeEvent
-    public void onRenderWorldLast(RenderWorldLastEvent event)
-    {
-        ItemStack stack = EntityUtils.getHeldItemOfType(this.mc.thePlayer, EnderUtilitiesItems.buildersWand);
-        if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
-        {
-            return;
-        }
-
-        this.renderSelectedArea(this.mc.theWorld, this.mc.thePlayer, stack, event.getPartialTicks());
-    }
-
-    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
-    {
-        double offset1 = 0.000d;
-        double offset2 = 1.000d;
-
-        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
-        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
-        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-
-        return new AxisAlignedBB(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
-    }
-
-    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double partialTicks, EntityPlayer player)
-    {
-        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
-        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
-        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-
-        return new AxisAlignedBB(minX - dx, minY - dy, minZ - dz, maxX - dx, maxY - dy, maxZ - dz);
     }
 
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
@@ -142,7 +111,7 @@ public class BuildersWandRenderer
         this.partialTicksLast = partialTicks;
     }
 
-    public void renderBlockOutlines(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    private void renderBlockOutlines(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         GL11.glLineWidth(2.0f);
         for (int i = 0; i < this.positions.size(); i++)
@@ -156,7 +125,7 @@ public class BuildersWandRenderer
         }
     }
 
-    public void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    private void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         // Draw the area bounding box
         if (posStart != null && posEnd != null && (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
@@ -188,7 +157,7 @@ public class BuildersWandRenderer
         }
     }
 
-    public void renderGhostBlocks(EntityPlayer player, float partialTicks)
+    private void renderGhostBlocks(EntityPlayer player, float partialTicks)
     {
         double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
@@ -233,5 +202,184 @@ public class BuildersWandRenderer
         }
 
         GlStateManager.popMatrix();
+    }
+
+    public void renderHud()
+    {
+        ItemStack stack = this.mc.thePlayer.getHeldItemMainhand();
+        if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
+        {
+            return;
+        }
+
+        List<String> lines = new ArrayList<String>();
+
+        this.getText(lines, stack);
+
+        ScaledResolution scaledResolution = new ScaledResolution(this.mc);
+        int scaledY = scaledResolution.getScaledHeight();
+        int lineHeight = this.mc.fontRendererObj.FONT_HEIGHT + 2;
+        int y = scaledY - (lineHeight * lines.size());
+
+        this.renderText(4, y, lines);
+    }
+
+    private void renderText(int posX, int posY, List<String> lines)
+    {
+        int y = posY;
+        boolean useTextBackground = true;
+        boolean useFontShadow = true;
+        int textBgColor = 0x80000000;
+        FontRenderer fontRenderer = this.mc.fontRendererObj;
+
+        for (String line : lines)
+        {
+            if (useTextBackground)
+            {
+                Gui.drawRect(posX - 2, y - 2, posX + fontRenderer.getStringWidth(line) + 2, y + fontRenderer.FONT_HEIGHT, textBgColor);
+            }
+
+            if (useFontShadow)
+            {
+                this.mc.ingameGUI.drawString(fontRenderer, line, posX, y, 0xFFFFFFFF);
+            }
+            else
+            {
+                fontRenderer.drawString(line, posX, y, 0xFFFFFFFF);
+            }
+
+            y += fontRenderer.FONT_HEIGHT + 2;
+        }
+    }
+
+    private void getText(List<String> lines, ItemStack stack)
+    {
+        ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
+        Mode mode = Mode.getMode(stack);
+        String preAq = TextFormatting.AQUA.toString();
+        String preGreen = TextFormatting.GREEN.toString();
+        String preRed = TextFormatting.RED.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+        int index = ItemBuildersWand.getSelectedBlockTypeIndex(stack);
+
+        if (mode == Mode.COPY || mode == Mode.PASTE)
+        {
+            String str1 = I18n.format("enderutilities.tooltip.item.template");
+            // TODO template name
+            lines.add(str1 + String.format(": (%s%d/%d%s) - %s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, ""));
+
+            str1 = I18n.format("enderutilities.tooltip.item.rotation");
+
+            if (mode == Mode.PASTE)
+            {
+                lines.add(str1 + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.NORTH));
+            }
+            else
+            {
+                BlockPosEU pos1 = wand.getPosition(stack, true);
+                BlockPosEU pos2 = wand.getPosition(stack, false);
+                if (pos1 != null && pos2 != null)
+                {
+                    lines.add(str1 + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()));
+                }
+            }
+        }
+        else if (mode != Mode.DELETE)
+        {
+            String str = I18n.format("enderutilities.tooltip.item.block");
+
+            if (index >= 0)
+            {
+                lines.add(str + String.format(": (%s%d/%d%s) - %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
+                        rst, preGreen, this.getBlockTypeName(stack, index)));
+            }
+            else
+            {
+                lines.add(str + ": " + preAq + this.getBlockTypeName(stack, index));
+            }
+
+            str = I18n.format("enderutilities.tooltip.item.area.flipped");
+
+            if (mode != Mode.WALLS && mode != Mode.CUBE)
+            {
+                if (wand.getAreaFlipped(stack))
+                {
+                    lines.add(str + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst +
+                            " - " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP));
+                }
+                else
+                {
+                    lines.add(str + ": " + preRed + I18n.format("enderutilities.tooltip.item.no"));
+                }
+            }
+        }
+
+        String strMode = I18n.format("enderutilities.tooltip.item.mode") + ": " + preGreen + mode.getDisplayName();
+
+        if (mode == Mode.PASTE)
+        {
+            strMode += rst + " - " + I18n.format("enderutilities.tooltip.item.replace") + ": ";
+
+            if (wand.getReplaceExisting(stack) == true)
+            {
+                strMode += preRed + I18n.format("enderutilities.tooltip.item.yes");
+            }
+            else
+            {
+                strMode += preGreen + I18n.format("enderutilities.tooltip.item.no");
+            }
+        }
+
+        lines.add(strMode);
+    }
+
+    private String getBlockTypeName(ItemStack stack, int index)
+    {
+        if (index >= 0)
+        {
+            BlockInfo blockInfo = ItemBuildersWand.getSelectedFixedBlockType(stack);
+            if (blockInfo != null)
+            {
+                ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
+                if (blockStack != null && blockStack.getItem() != null)
+                {
+                    return blockStack.getDisplayName();
+                }
+            }
+
+            return "N/A";
+        }
+        else
+        {
+            if (index == ItemBuildersWand.BLOCK_TYPE_TARGETED)
+            {
+                return I18n.format("enderutilities.tooltip.item.blocktype.targeted");
+            }
+            else
+            {
+                return I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
+            }
+        }
+    }
+
+    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
+    {
+        double offset1 = 0.000d;
+        double offset2 = 1.000d;
+
+        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+
+        return new AxisAlignedBB(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
+    }
+
+    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double partialTicks, EntityPlayer player)
+    {
+        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+
+        return new AxisAlignedBB(minX - dx, minY - dy, minZ - dz, maxX - dx, maxY - dy, maxZ - dz);
     }
 }

@@ -14,10 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -29,41 +25,20 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 @SideOnly(Side.CLIENT)
 public class RulerRenderer
 {
-    public Minecraft mc;
+    public static final int[] COLORS = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+    protected final Minecraft mc;
+    protected final Map<Integer, List<BlockPosEU>> positions;
     public float partialTicks;
     public float partialTicksLast;
-    Map<Integer, List<BlockPosEU>> positions;
-    public String modeStrDim;
-    public String modeStrDiff;
-    public static int[] colors = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+    public String modeStrDimensions;
+    public String modeStrDifference;
 
     public RulerRenderer()
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDim = I18n.translateToLocal("enderutilities.tooltip.item.ruler.dimensions");
-        this.modeStrDiff = I18n.translateToLocal("enderutilities.tooltip.item.ruler.difference");
-    }
-
-    @SubscribeEvent
-    public void onRenderWorldLast(RenderWorldLastEvent event)
-    {
-        this.partialTicks = event.getPartialTicks();
-
-        this.renderAllPositionPairs();
-
-        this.partialTicksLast = this.partialTicks;
-    }
-
-    @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
-    {
-        if (event.getType() != ElementType.ALL)
-        {
-            return;
-        }
-
-        this.renderHud();
+        this.modeStrDimensions = I18n.translateToLocal("enderutilities.tooltip.item.ruler.dimensions");
+        this.modeStrDifference = I18n.translateToLocal("enderutilities.tooltip.item.ruler.difference");
     }
 
     public void renderHud()
@@ -113,14 +88,14 @@ public class RulerRenderer
         int lenX = Math.abs(posStart.posX - posEnd.posX);
         int lenY = Math.abs(posStart.posY - posEnd.posY);
         int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
-        String modeStr = this.modeStrDiff;
+        String modeStr = this.modeStrDifference;
 
         if (item.getDistanceMode(stack) == ItemRuler.DISTANCE_MODE_DIMENSIONS)
         {
             lenX += 1;
             lenY += 1;
             lenZ += 1;
-            modeStr = this.modeStrDim;
+            modeStr = this.modeStrDimensions;
         }
 
         ScaledResolution scaledResolution = new ScaledResolution(this.mc);
@@ -132,8 +107,10 @@ public class RulerRenderer
         this.mc.fontRendererObj.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
     }
 
-    public void renderAllPositionPairs()
+    public void renderAllPositionPairs(float partialTicks)
     {
+        this.partialTicks = partialTicks;
+
         EntityPlayer player = this.mc.thePlayer;
         if (player == null)
         {
@@ -169,7 +146,7 @@ public class RulerRenderer
 
             for (int i = 0; i < count; i++)
             {
-                int color = i < colors.length ? colors[i] : 0x70FFFF;
+                int color = i < COLORS.length ? COLORS[i] : 0x70FFFF;
 
                 // We render the selected location pair last
                 if (i != selected && item.getAlwaysRenderLocation(stack, i) == true)
@@ -190,6 +167,8 @@ public class RulerRenderer
         GlStateManager.enableTexture2D();
         GlStateManager.enableCull();
         GlStateManager.depthMask(true);
+
+        this.partialTicksLast = this.partialTicks;
     }
 
     public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
@@ -200,7 +179,7 @@ public class RulerRenderer
         }
 
         // Only update the positions once per game tick
-        //if (this.partialTicks < this.partialTicksLast)
+        if (this.partialTicks < this.partialTicksLast)
         {
             this.updatePositions(player, posStart, posEnd);
         }

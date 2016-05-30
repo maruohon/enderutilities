@@ -33,8 +33,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
-import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
-import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
@@ -44,6 +42,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
+import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
@@ -111,7 +110,7 @@ public class ClientProxy extends CommonProxy
         MinecraftForge.EVENT_BUS.register(new ConfigReader());
         MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
         MinecraftForge.EVENT_BUS.register(new InputEventHandler());
-        MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
+        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
     }
 
     @Override
@@ -147,8 +146,6 @@ public class ClientProxy extends CommonProxy
                 });
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
-        MinecraftForge.EVENT_BUS.register(new BuildersWandRenderer());
-        MinecraftForge.EVENT_BUS.register(new RulerRenderer());
     }
 
     @Override
