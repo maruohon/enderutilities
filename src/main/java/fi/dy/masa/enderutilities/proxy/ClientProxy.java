@@ -114,12 +114,12 @@ public class ClientProxy extends CommonProxy
                     @Override
                     public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                     {
-                        if (tintIndex >= 1 && tintIndex <= 8)
+                        if (tintIndex >= 0 && tintIndex <= 8)
                         {
                             TileEntity te = worldIn.getTileEntity(pos);
                             if (te instanceof TileEntityPortalPanel)
                             {
-                                return ((TileEntityPortalPanel) te).getColor(tintIndex - 1);
+                                return ((TileEntityPortalPanel) te).getColor(tintIndex);
                             }
                             //return EnumDyeColor.byMetadata(tintIndex).getMapColor().colorValue;
                         }

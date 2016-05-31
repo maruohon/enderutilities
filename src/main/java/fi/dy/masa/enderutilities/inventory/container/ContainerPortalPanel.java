@@ -1,16 +1,21 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ICrafting;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class ContainerPortalPanel extends ContainerTileEntityInventory
 {
-    public ContainerPortalPanel(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
+    private final TileEntityPortalPanel tepp;
+    private int targetLast;
+
+    public ContainerPortalPanel(EntityPlayer player, TileEntityPortalPanel te)
     {
         super(player, te);
 
+        this.tepp = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 121);
     }
@@ -40,6 +45,41 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
             {
                 this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, r * 4 + c + 8, posX + c * 18, posY + r * 50));
             }
+        }
+    }
+
+    @Override
+    public void addListener(ICrafting listener)
+    {
+        super.addListener(listener);
+
+        listener.sendProgressBarUpdate(this, 0, this.tepp.getActiveTarget());
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        super.detectAndSendChanges();
+
+        for (int i = 0; i < this.listeners.size(); ++i)
+        {
+            if (this.targetLast != this.tepp.getActiveTarget())
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.tepp.getActiveTarget());
+            }
+        }
+
+        this.targetLast = this.tepp.getActiveTarget();
+    }
+
+    @Override
+    public void updateProgressBar(int id, int data)
+    {
+        super.updateProgressBar(id, data);
+
+        if (id == 0)
+        {
+            this.tepp.setActiveTarget(data);
         }
     }
 }

@@ -1,8 +1,16 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class GuiPortalPanel extends GuiEnderUtilities
@@ -13,6 +21,14 @@ public class GuiPortalPanel extends GuiEnderUtilities
     {
         super(container, 176, 203, "gui.container." + te.getTEName());
         this.tepp = te;
+    }
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+
+        this.createButtons();
     }
 
     @Override
@@ -36,10 +52,19 @@ public class GuiPortalPanel extends GuiEnderUtilities
         int y = (this.height - this.ySize) / 2;
         int u = 240;
         int v = 32;
+        int active = this.tepp.getActiveTarget();
 
         for (int i = 0; i < 16; i++)
         {
             Slot slot = this.container.getSlot(i);
+
+            if (i < 8 && active == i)
+            {
+                //System.out.println("active: " + i);
+                this.drawTexturedModalRect(x + slot.xDisplayPosition - 1, y + slot.yDisplayPosition - 1,      102, 54, 18, 18);
+                this.drawTexturedModalRect(x + slot.xDisplayPosition - 1, y + slot.yDisplayPosition - 1 + 18, 102, 54, 18, 18);
+            }
+
             if (slot.getHasStack() == false)
             {
                 this.drawTexturedModalRect(x + slot.xDisplayPosition, y + slot.yDisplayPosition, u, v, 16, 16);
@@ -56,23 +81,47 @@ public class GuiPortalPanel extends GuiEnderUtilities
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        /*int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
         Slot slot = this.getSlotUnderMouse();
-        // Hovering over an empty material slot
-        if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
+        // Hovering over an empty dye slot
+        if (slot != null && slot.getHasStack() == false && slot.slotNumber >= 8 && slot.slotNumber <= 15)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.enderinfuser.input", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.dyeslot", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
-        // Hovering over an empty capacitor input slot
-        else if (slot != null && slot == this.inventorySlots.getSlot(1) && slot.getHasStack() == false)
+    }
+
+    protected void createButtons()
+    {
+        this.buttonList.clear();
+
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+        int xOff = 57;
+        int yOff = 56;
+
+        for (int i = 0; i < 8; i++)
         {
-            List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput", new Object[0]));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }*/
+            this.buttonList.add(new GuiButtonIcon(i, x + xOff, y + yOff, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
+            xOff += 18;
+
+            if (i == 3)
+            {
+                xOff = 57;
+                yOff = 106;
+            }
+        }
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        super.actionPerformed(button);
+
+        if (button.id >= 0 && button.id < 8)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, this.tepp.getPos(),
+                    ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, 0, button.id));
+        }
     }
 }

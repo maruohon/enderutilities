@@ -69,6 +69,26 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        int id = this.getTargetId(hitX, hitY, hitZ, side);
+
+        if (id >= 0)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityPortalPanel)
+            {
+                if (id == 8)
+                {
+                    ((TileEntityPortalPanel) te).toggleActive();
+                }
+                else
+                {
+                    ((TileEntityPortalPanel) te).setActiveTarget(id);
+                }
+            }
+
+            return true;
+        }
+
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
@@ -172,5 +192,58 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
         return 0;
+    }
+
+    private int getTargetId(float x, float y, float z, EnumFacing side)
+    {
+        //System.out.printf("x: %.3f, y: %.3f, z: %.3f side: %s\n", x, y, z, side);
+
+        float tmp = 0f;
+
+        switch (side)
+        {
+            case UP:
+                x = 1f - x;
+                y = z;
+                break;
+            case DOWN:
+                x = 1f - x;
+                y = 1f - z;
+                break;
+            case WEST:
+                tmp = z;
+                z = x;
+                x = tmp;
+                break;
+            case EAST:
+                tmp = 1f - z;
+                z = 1f - x;
+                x = tmp;
+                break;
+            case NORTH:
+                x = 1f - x;
+                z = 1f - z;
+                break;
+            case SOUTH:
+        }
+
+        if (this.isPointInsideRegion(x, y,  1f / 32f, 12f / 16f,  7f / 32f, 15f / 16f)) { return 0; }
+        if (this.isPointInsideRegion(x, y,  9f / 32f, 12f / 16f, 15f / 32f, 15f / 16f)) { return 1; }
+        if (this.isPointInsideRegion(x, y, 17f / 32f, 12f / 16f, 23f / 32f, 15f / 16f)) { return 2; }
+        if (this.isPointInsideRegion(x, y, 25f / 32f, 12f / 16f, 31f / 32f, 15f / 16f)) { return 3; }
+
+        if (this.isPointInsideRegion(x, y,  1f / 32f,  1f / 16f,  7f / 32f,  4f / 16f)) { return 4; }
+        if (this.isPointInsideRegion(x, y,  9f / 32f,  1f / 16f, 15f / 32f,  4f / 16f)) { return 5; }
+        if (this.isPointInsideRegion(x, y, 17f / 32f,  1f / 16f, 23f / 32f,  4f / 16f)) { return 6; }
+        if (this.isPointInsideRegion(x, y, 25f / 32f,  1f / 16f, 31f / 32f,  4f / 16f)) { return 7; }
+
+        if (this.isPointInsideRegion(x, y,  4f / 16f, 11f / 32f, 12f / 16f, 21f / 32f)) { return 8; }
+
+        return -1;
+    }
+
+    private boolean isPointInsideRegion(float x, float y, float minX, float minY, float maxX, float maxY)
+    {
+        return x >= minX && x <= maxX && y >= minY && y <= maxY;
     }
 }

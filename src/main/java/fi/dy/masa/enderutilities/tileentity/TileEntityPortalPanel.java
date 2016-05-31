@@ -41,9 +41,17 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         return new ItemHandlerWrapperContainer(this.itemHandlerBase, this.inventoryWrapper);
     }
 
+    public int getActiveTarget()
+    {
+        return this.activeTarget;
+    }
+
     public void setActiveTarget(int target)
     {
         this.activeTarget = (byte)MathHelper.clamp_int(target, 0, 7);
+
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 2);
     }
 
     public void toggleActive()
@@ -53,6 +61,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public int getColor(int target)
     {
+        // The large button in the center will take the color of the active target
+        if (target == 8)
+        {
+            target = this.activeTarget;
+        }
+
         if (target >= 0 && target < 8)
         {
             ItemStack stack = this.itemHandlerBase.getStackInSlot(target + 8);
@@ -111,6 +125,15 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         IBlockState state = this.getWorld().getBlockState(this.getPos());
         this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 2);
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0 && element >= 0 && element < 8)
+        {
+            this.setActiveTarget(element);
+        }
     }
 
     private class ItemHandlerWrapper extends ItemHandlerWrapperSelectiveModifiable
