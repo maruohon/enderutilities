@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
