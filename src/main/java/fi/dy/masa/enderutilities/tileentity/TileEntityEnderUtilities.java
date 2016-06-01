@@ -10,9 +10,11 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityEnderUtilities extends TileEntity
@@ -75,7 +77,25 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.facing = EnumFacing.getFront(nbt.getByte("Rotation"));
+        if (nbt.hasKey("Rotation", Constants.NBT.TAG_BYTE))
+        {
+            EnumFacing facing = EnumFacing.getFront(nbt.getByte("Rotation"));
+
+            // If the TileEntity has been rotated already from the default facing,
+            // then that probably means that it is being rotated while placing
+            // blocks from a structure template.
+            // In that case we want to adjust the current facing by the same rotation
+            // that the saved facing in NBT differs from the default facing.
+            if (this.facing != BlockEnderUtilities.DEFAULT_FACING)
+            {
+                Rotation rotation = PositionUtils.getRotation(BlockEnderUtilities.DEFAULT_FACING, facing);
+                this.facing = rotation.rotate(this.facing);
+            }
+            else
+            {
+                this.facing = facing;
+            }
+        }
 
         OwnerData playerData = OwnerData.getPlayerDataFromNBT(nbt);
         if (playerData != null)
