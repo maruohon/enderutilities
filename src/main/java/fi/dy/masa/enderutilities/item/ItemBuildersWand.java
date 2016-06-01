@@ -143,9 +143,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.DELETE)
         {
-            if (world.isRemote == false && player.isSneaking() == false)
+            if (world.isRemote == false)
             {
-                this.setPosition(stack, new BlockPosEU(pos.offset(side), player.dimension, side), POS_END);
+                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_END);
             }
 
             return EnumActionResult.SUCCESS;
@@ -179,14 +179,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Long last = this.lastLeftClick.get(player.getUniqueID());
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
-            if (player.isSneaking() == false)
-            {
-                this.setPosition(stack, new BlockPosEU(pos.offset(side), player.dimension, side), POS_START);
-            }
-            // Sneak + left click: Set the selected block type
-            else
+            Mode mode = Mode.getMode(stack);
+            // Sneak + left click: Set the selected block type (in the appropriate modes)
+            if (player.isSneaking() == true && mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
             {
                 this.setSelectedFixedBlockType(stack, player, world, pos);
+            }
+            else
+            {
+                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_START);
             }
         }
 
