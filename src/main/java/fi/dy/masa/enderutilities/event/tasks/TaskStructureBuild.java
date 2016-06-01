@@ -72,7 +72,7 @@ public class TaskStructureBuild implements IPlayerTask
                 IBlockState state = blockInfo.blockState.withRotation(this.template.getPlacementSettings().getRotation());
                 BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(), blockInfo.pos).add(this.posStart);
 
-                if (ItemBuildersWand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
+                if (((ItemBuildersWand) stack.getItem()).placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

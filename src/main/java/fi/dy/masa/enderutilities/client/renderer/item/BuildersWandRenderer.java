@@ -261,7 +261,7 @@ public class BuildersWandRenderer
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
         String preIta = TextFormatting.ITALIC.toString();
-        int index = ItemBuildersWand.getSelectedBlockTypeIndex(stack);
+        int index = wand.getSelectedBlockTypeIndex(stack);
 
         if (mode == Mode.COPY || mode == Mode.PASTE)
         {
@@ -292,11 +292,11 @@ public class BuildersWandRenderer
             if (index >= 0)
             {
                 lines.add(str + String.format(" [%s%d/%d%s]: %s%s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
-                        rst, preGreen, this.getBlockTypeName(stack, index), rst));
+                        rst, preGreen, this.getBlockTypeName(wand, stack, index), rst));
             }
             else
             {
-                lines.add(str + ": " + preAq + this.getBlockTypeName(stack, index) + rst);
+                lines.add(str + ": " + preAq + this.getBlockTypeName(wand, stack, index) + rst);
             }
 
             str = I18n.format("enderutilities.tooltip.item.area.flipped");
@@ -337,11 +337,11 @@ public class BuildersWandRenderer
         lines.add(strMode);
     }
 
-    private String getBlockTypeName(ItemStack stack, int index)
+    private String getBlockTypeName(ItemBuildersWand wand, ItemStack stack, int index)
     {
         if (index >= 0)
         {
-            BlockInfo blockInfo = ItemBuildersWand.getSelectedFixedBlockType(stack);
+            BlockInfo blockInfo = wand.getSelectedFixedBlockType(stack);
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
