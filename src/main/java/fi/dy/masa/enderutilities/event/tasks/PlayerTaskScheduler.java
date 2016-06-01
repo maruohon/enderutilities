@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.event.tasks.TaskScheduler.Timer;
 
 public class PlayerTaskScheduler
 {
@@ -142,33 +142,5 @@ public class PlayerTaskScheduler
 
     public void clearTasks()
     {
-    }
-
-    public class Timer
-    {
-        public int interval;
-        public int counter;
-
-        public Timer(int interval)
-        {
-            this.interval = interval;
-            this.counter = interval;
-        }
-
-        public boolean tick()
-        {
-            if (--this.counter <= 0)
-            {
-                this.reset();
-                return true;
-            }
-
-            return false;
-        }
-
-        public void reset()
-        {
-            this.counter = this.interval;
-        }
     }
 }

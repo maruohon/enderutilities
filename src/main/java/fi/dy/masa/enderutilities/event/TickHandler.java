@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
+import fi.dy.masa.enderutilities.event.tasks.TaskScheduler;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -43,6 +44,8 @@ public class TickHandler
 
             ChunkLoading.getInstance().tickChunkTimeouts();
         }
+
+        TaskScheduler.getInstance().runTasks();
 
         ++this.playerTickCounter;
     }

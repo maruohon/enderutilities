@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
@@ -14,13 +15,17 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.block.BlockPortal;
+import fi.dy.masa.enderutilities.event.tasks.TaskPositionDebug;
+import fi.dy.masa.enderutilities.event.tasks.TaskScheduler;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiPortalPanel;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
@@ -281,7 +286,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         }
 
         System.out.println("plop - activate");
-        for (EnumFacing side : EnumFacing.values())
+        /*for (EnumFacing side : EnumFacing.values())
         {
             BlockPos pos = posFrame.offset(side);
 
@@ -297,7 +302,20 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     success = true;
                 }
             }
-        }
+        }*/
+
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame);
+        portalFormer.analyzePortal();
+
+        //List<BlockPos> list = portalFormer.getVisited();
+        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+        List<BlockPos> list = portalFormer.getBranches();
+        IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
+        //List<BlockPos> list = portalFormer.getVisited();
+        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+
+        TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
+        TaskScheduler.getInstance().addTask(task, 5);
 
         if (success)
         {
@@ -398,5 +416,209 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         List<BlockPos> positions = new ArrayList<BlockPos>();
 
         return positions;
+    }
+
+    public static class PortalFormer
+    {
+        public static final Vec3i[] ADJACENT_POSITIONS = new Vec3i[] {
+                new Vec3i(  0,  1,  0), new Vec3i(  0, -1,  0),
+                new Vec3i(  1,  0,  0), new Vec3i( -1,  0,  0),
+                new Vec3i(  0,  0,  1), new Vec3i(  0,  0, -1) };
+        public static final Vec3i[] DIAGONAL_POSITIONS = new Vec3i[] {
+                new Vec3i( -1,  1,  0), new Vec3i(  1,  1,  0),
+                new Vec3i(  0,  1, -1), new Vec3i(  0,  1,  1),
+                new Vec3i( -1,  0, -1), new Vec3i( -1,  0,  1),
+                new Vec3i(  1,  0, -1), new Vec3i(  1,  0,  1),
+                new Vec3i( -1, -1,  0), new Vec3i(  1, -1,  0),
+                new Vec3i(  0, -1, -1), new Vec3i(  0, -1,  1)};
+        private final World world;
+        /*private final Set<BlockPos> visited;
+        private final Set<BlockPos> branches;
+        private final Set<BlockPos> corners;*/
+        private final List<BlockPos> visited;
+        private final List<BlockPos> branches;
+        private final List<BlockPos> corners;
+        private final Block block;
+        private final BlockPos startPos;
+        //private BlockPos endPos;
+        private BlockPos lastPos;
+        //private MutableBlockPos workingPos1;
+        //private MutableBlockPos workingPos2;
+        private SegmentResult result;
+        private boolean diagonals;
+
+        public PortalFormer(World world, BlockPos startPos, Block targetBlock)
+        {
+            this.world = world;
+            /*this.visited = new HashSet<BlockPos>();
+            this.branches = new HashSet<BlockPos>();
+            this.corners = new HashSet<BlockPos>();*/
+            this.visited = new ArrayList<BlockPos>();
+            this.branches = new ArrayList<BlockPos>();
+            this.corners = new ArrayList<BlockPos>();
+            this.block = targetBlock;
+            this.startPos = startPos;
+            //this.endPos = startPos;
+            this.lastPos = startPos;
+            //this.workingPos1 = new MutableBlockPos(startPos);
+            //this.workingPos2 = new MutableBlockPos(startPos);
+            this.result = SegmentResult.UNPROCESSED;
+        }
+
+        public List<BlockPos> getVisited() { return this.visited; }
+        public List<BlockPos> getBranches() { return this.branches; }
+        public List<BlockPos> getCorners() { return this.corners; }
+
+        public void analyzePortal()
+        {
+            int counter = 0;
+            BlockPos pos = this.startPos;
+            EnumFacing side = this.checkPositionIgnoringSide(pos, null);
+
+            while (side != null && counter < 100)
+            {
+                pos = pos.offset(side);
+                side = this.checkPositionIgnoringSide(pos, null);
+                counter++;
+            }
+        }
+
+        private EnumFacing checkPositionIgnoringSide(BlockPos posIn, EnumFacing ignoreSide)
+        {
+            BlockPos pos = posIn;
+            Block block;
+            EnumFacing continueTo = null;
+            int frames = 0;
+
+            for (EnumFacing side : EnumFacing.values())
+            {
+                if (side != ignoreSide)
+                {
+                    pos = posIn.offset(side);
+
+                    if (pos.equals(this.lastPos))
+                    {
+                        continue;
+                    }
+
+                    //this.changeWorkingPosition1(pos, sideTmp);
+                    //block = this.world.getBlockState(this.workingPos1).getBlock();
+                    block = this.world.getBlockState(pos).getBlock();
+
+                    if (block == Blocks.AIR)
+                    {
+                        //this.checkForCorner(this.workingPos1);
+                        this.checkForCorner(pos);
+                    }
+                    else if (block == this.block)
+                    {
+                        if (this.visited.contains(pos) == false)
+                        {
+                            if (frames == 0)
+                            {
+                                continueTo = side;
+                            }
+                            else
+                            {
+                                this.branches.add(pos);
+                            }
+                        }
+                        frames++;
+                    }
+                }
+            }
+
+            this.visited.add(posIn);
+            this.lastPos = posIn;
+
+            return continueTo;
+        }
+
+        private void checkBlockOnSide(EnumFacing side)
+        {
+            EnumFacing opposite = side.getOpposite();
+
+        }
+
+        private boolean checkForCorner(BlockPos posIn)
+        {
+            if (this.corners.contains(posIn))
+            {
+                return true;
+            }
+
+            Block block;
+            int adjacents = 0;
+            EnumFacing frames[] = new EnumFacing[6];
+
+            for (EnumFacing side : EnumFacing.values())
+            {
+                //this.changeWorkingPosition2(pos, sideTmp);
+                //block = this.world.getBlockState(this.workingPos2).getBlock();
+                block = this.world.getBlockState(posIn.offset(side)).getBlock();
+
+                if (block == this.block)
+                {
+                    frames[adjacents] = side;
+                    adjacents++;
+                }
+            }
+
+            if (adjacents >= 3 || (adjacents == 2 && frames[0] != frames[1].getOpposite()))
+            {
+                this.corners.add(posIn);
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean checkForIntersection(BlockPos pos)
+        {
+            Block block;
+            int adjacents = 0;
+
+            for (EnumFacing side : EnumFacing.values())
+            {
+                //this.changeWorkingPosition2(pos, sideTmp);
+                //block = this.world.getBlockState(this.workingPos2).getBlock();
+                block = this.world.getBlockState(pos.offset(side)).getBlock();
+
+                if (block == this.block)
+                {
+                    adjacents++;
+                }
+            }
+
+            return adjacents >= 3;
+        }
+
+        /*private MutableBlockPos changeWorkingPosition1(BlockPos base, EnumFacing side)
+        {
+            this.workingPos1.set(base.getX(), base.getY(), base.getZ());
+            this.workingPos1.offsetMutable(side);
+
+            return this.workingPos1;
+        }
+
+        private MutableBlockPos changeWorkingPosition2(BlockPos base, EnumFacing side)
+        {
+            this.workingPos2.set(base.getX(), base.getY(), base.getZ());
+            this.workingPos2.offsetMutable(side);
+
+            return this.workingPos2;
+        }*/
+    }
+
+    public static enum SegmentResult
+    {
+        UNPROCESSED,
+        IN_PROGRESS,
+        DEAD_END,
+        INTERSECTION,
+        LOOP,
+        LOOP_DIAGONALS,
+        PATH,
+        PATH_DIAGONALS;
     }
 }
