@@ -21,9 +21,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockElevator extends BlockEnderUtilitiesTileEntity
@@ -36,7 +38,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(COLOR, EnumDyeColor.WHITE)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityEnderElevator();
     }

@@ -11,6 +11,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
@@ -24,7 +25,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public TileEntityEnderUtilities(String name)
     {
-        this.facing = EnumFacing.NORTH;
+        this.facing = BlockEnderUtilities.DEFAULT_FACING;
         this.ownerName = null;
         this.ownerUUID = null;
         this.isPublic = false;

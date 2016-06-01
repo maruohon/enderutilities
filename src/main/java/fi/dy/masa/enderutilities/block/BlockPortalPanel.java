@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -17,11 +16,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class BlockPortalPanel extends BlockEnderUtilitiesInventory
@@ -37,7 +35,13 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+    }
+
+    @Override
+    protected String[] generateUnlocalizedNames()
+    {
+        return new String[] { ReferenceNames.NAME_TILE_PORTAL_PANEL };
     }
 
     @Override
@@ -59,12 +63,9 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityEnderUtilities te = new TileEntityPortalPanel();
-        te.setFacing(state.getValue(FACING));
-
-        return te;
+        return new TileEntityPortalPanel();
     }
 
     @Override
@@ -107,55 +108,18 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    protected EnumFacing getPlacementFacing(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te == null || (te instanceof TileEntityEnderUtilities) == false)
-        {
-            return;
-        }
-
-        TileEntityEnderUtilities teeu = (TileEntityEnderUtilities)te;
-        NBTTagCompound nbt = stack.getTagCompound();
-
-        // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
-        if (nbt != null && nbt.hasKey("BlockEntityData", Constants.NBT.TAG_COMPOUND) == true)
-        {
-            teeu.readFromNBTCustom(nbt.getCompoundTag("BlockEntityData"));
-        }
-        else
-        {
-            if (placer instanceof EntityPlayer)
-            {
-                teeu.setOwner((EntityPlayer)placer);
-            }
-
-            if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
-            {
-                ((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
-            }
-        }
-    }
-
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
-        {
-            state = state.withProperty(FACING, ((TileEntityEnderUtilities)te).getFacing());
-        }
-
-        return state;
+        // Retain the facing from onBlockPlaced
+        return state.getValue(FACING);
     }
 
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
         state = state.getActualState(blockAccess, pos);
-        EnumFacing facing = state.getValue(FACING);
 
-        switch (facing)
+        switch (state.getValue(FACING))
         {
             case EAST:
                 return PANEL_BOUNDS_EAST;
@@ -182,24 +146,6 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public boolean isFullCube(IBlockState state)
     {
         return false;
-    }
-
-    @Override
-    protected String[] generateUnlocalizedNames()
-    {
-        return new String[] { ReferenceNames.NAME_TILE_PORTAL_PANEL };
-    }
-
-    @Override
-    public boolean hasComparatorInputOverride(IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
-    {
-        return 0;
     }
 
     private int getTargetId(float x, float y, float z, EnumFacing side)

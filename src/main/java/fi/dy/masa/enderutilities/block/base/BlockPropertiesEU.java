@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.properties.PropertyDirection;
 
-public class BlockProperties
+public class BlockPropertiesEU
 {
     //public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
     public static final PropertyDirection FACING   = PropertyDirection.create("facing");

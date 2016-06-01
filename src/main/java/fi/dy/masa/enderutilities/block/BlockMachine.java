@@ -8,17 +8,16 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -41,7 +40,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -62,34 +61,17 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityEnderUtilities te = new TileEntityEnderInfuser();
-
         switch (state.getValue(TYPE))
         {
-            case CREATION_STATION:  te = new TileEntityCreationStation(); break;
-            case ENDER_INFUSER:     te = new TileEntityEnderInfuser(); break;
-            case QUICK_STACKER:     te = new TileEntityQuickStackerAdvanced(); break;
-            case TOOL_WORKSTATION:  te = new TileEntityToolWorkstation(); break;
+            case CREATION_STATION:  return new TileEntityCreationStation();
+            case ENDER_INFUSER:     return new TileEntityEnderInfuser();
+            case QUICK_STACKER:     return new TileEntityQuickStackerAdvanced();
+            case TOOL_WORKSTATION:  return new TileEntityToolWorkstation();
         }
 
-        te.setFacing(state.getValue(FACING));
-
-        return te;
-    }
-
-    @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
-    {
-        if (worldIn.isRemote == false)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityEnderUtilities)
-            {
-                ((TileEntityEnderUtilities)te).onLeftClickBlock(playerIn);
-            }
-        }
+        return new TileEntityEnderInfuser();
     }
 
     @Override
@@ -135,22 +117,6 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     public int getMetaFromState(IBlockState state)
     {
         return state.getValue(TYPE).getMeta();
-    }
-
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
-        {
-            EnumFacing facing = ((TileEntityEnderUtilities)te).getFacing();
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
-        }
-
-        return state;
     }
 
     @Override

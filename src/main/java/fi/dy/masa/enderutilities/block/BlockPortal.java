@@ -6,12 +6,10 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +17,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -27,7 +26,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class BlockPortal extends BlockEnderUtilitiesInventory
+public class BlockPortal extends BlockEnderUtilitiesTileEntity
 {
     protected static final AxisAlignedBB PORTAL_BOUNDS_NS = new AxisAlignedBB(0.0D, 0.0D, 0.375D, 1.0D, 1.0D, 0.625D);
     protected static final AxisAlignedBB PORTAL_BOUNDS_WE = new AxisAlignedBB(0.375D, 0.0D, 0.0D, 0.625D, 1.0D, 1.0D);
@@ -37,7 +36,7 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -59,32 +58,10 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityEnderUtilities te = new TileEntityPortal();
-        te.setFacing(state.getValue(FACING));
-
-        return te;
+        return new TileEntityPortal();
     }
-
-    @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        return false;
-    }
-
-    /*@Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
-        {
-            state = state.withProperty(FACING, ((TileEntityEnderUtilities)te).getFacing());
-        }
-
-        return state;
-    }*/
 
     @Override
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
@@ -104,9 +81,8 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
         state = state.getActualState(blockAccess, pos);
-        EnumFacing facing = state.getValue(FACING);
 
-        switch (facing)
+        switch (state.getValue(FACING))
         {
             case EAST:
             case WEST:
@@ -186,6 +162,7 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
 
             if (target != null)
             {
+                // FIXME add new TP method for TargetData
                 TeleportEntity.teleportEntity(entityIn, target.dPosX, target.dPosY, target.dPosZ, target.dimension, true, true);
             }
         }

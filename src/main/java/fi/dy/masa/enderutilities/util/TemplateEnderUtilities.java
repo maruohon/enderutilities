@@ -22,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -158,7 +159,7 @@ public class TemplateEnderUtilities
                     {
                         state = state.getActualState(world, pos);
                         state = state.withRotation(this.placement.getRotation());
-                        ((TileEntityEnderUtilities) te).setFacing(state.getValue(BlockEnderUtilitiesTileEntity.FACING));
+                        ((TileEntityEnderUtilities) te).setFacing(state.getValue(BlockEnderUtilities.FACING));
                     }
 
                     te.markDirty();

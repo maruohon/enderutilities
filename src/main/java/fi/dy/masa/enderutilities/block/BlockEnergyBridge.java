@@ -9,16 +9,14 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -27,7 +25,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 {
     public static final PropertyBool ACTIVE = PropertyBool.create("active");
-
     public static final PropertyEnum<BlockEnergyBridge.EnumMachineType> TYPE =
             PropertyEnum.<BlockEnergyBridge.EnumMachineType>create("type", BlockEnergyBridge.EnumMachineType.class);
 
@@ -37,7 +34,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(ACTIVE, false)
-                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING)
                 .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR));
     }
 
@@ -58,11 +55,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityEnergyBridge te = new TileEntityEnergyBridge();
-        te.setFacing(state.getValue(FACING));
-        return te;
+        return new TileEntityEnergyBridge();
     }
 
     @Override
@@ -97,12 +92,6 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        return false;
-    }
-
-    @Override
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(TYPE, EnumMachineType.fromMeta(meta));
@@ -117,17 +106,12 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
+        state = super.getActualState(state, worldIn, pos);
+
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
         {
-            TileEntityEnergyBridge teeb = (TileEntityEnergyBridge)te;
-            state = state.withProperty(ACTIVE, teeb.getIsActive());
-
-            EnumFacing facing = ((TileEntityEnderUtilities)te).getFacing();
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
+            state = state.withProperty(ACTIVE, ((TileEntityEnergyBridge) te).getIsActive());
         }
 
         return state;
