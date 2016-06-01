@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -182,12 +181,9 @@ public class BuildersWandRenderer
         for (int i = 0; i < this.positions.size(); i++)
         {
             BlockPosStateDist pos = this.positions.get(i);
-            BlockInfo blockInfo = pos.blockInfo;
 
-            if (blockInfo != null && blockInfo.block != null)
+            if (pos.blockInfo != null && pos.blockInfo.blockState != null)
             {
-                IBlockState state = blockInfo.block.getStateFromMeta(blockInfo.blockMeta);
-
                 GlStateManager.pushMatrix();
                 GlStateManager.enableCull();
                 GlStateManager.enableDepth();
@@ -195,7 +191,7 @@ public class BuildersWandRenderer
                 GlStateManager.translate(0, 0, -1);
                 GlStateManager.rotate(-90, 0, 1, 0);
 
-                Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
+                Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(pos.blockInfo.blockState, 1.0f);
 
                 GlStateManager.popMatrix();
             }

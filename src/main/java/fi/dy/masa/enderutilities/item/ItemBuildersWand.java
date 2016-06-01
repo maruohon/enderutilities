@@ -682,8 +682,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(),
-                posStateDist.side, blockInfo.block.getStateFromMeta(blockInfo.blockMeta), 3);
+        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockState, 3);
     }
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
@@ -1020,9 +1019,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Block block = state.getBlock();
         int blockMeta = block.getMetaFromState(state);
 
-        ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, blockPos, player);
-        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
-
         // The block on the back face must not be air or fluid ...
         if (block.isAir(state, world, blockPos) == true || block.getMaterial(state).isLiquid() == true)
         {
@@ -1039,7 +1035,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (blockType == BLOCK_TYPE_ADJACENT)
             {
-                blockInfo = new BlockInfo(block, blockMeta, itemMeta);
+                blockInfo = new BlockInfo(world, blockPos);
             }
 
             BlockPosStateDist pos = new BlockPosStateDist(new BlockPos(x, y, z), 0, center.side, blockInfo);

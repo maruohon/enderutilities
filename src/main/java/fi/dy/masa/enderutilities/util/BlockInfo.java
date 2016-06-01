@@ -10,46 +10,41 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class BlockInfo
 {
-    public Block block;
-    public int blockMeta;
-    public int itemMeta;
-    public ResourceLocation resource;
+    public final IBlockState blockState;
+    public final Block block;
+    public final int blockMeta;
+    public final int itemMeta;
+    public final ResourceLocation resource;
 
     public BlockInfo(World world, BlockPos pos)
     {
-        IBlockState state = world.getBlockState(pos);
-        this.block = state.getBlock();
-        this.blockMeta = this.block.getMetaFromState(state);
-        this.itemMeta = 0;
+        this.blockState = world.getBlockState(pos).getActualState(world, pos);
+        this.block = this.blockState.getBlock();
+        this.blockMeta = this.block.getMetaFromState(this.blockState);
         this.resource = ForgeRegistries.BLOCKS.getKey(this.block);
 
         @SuppressWarnings("deprecation")
-        ItemStack stack = this.block.getItem(world, pos, state);
-        if (stack != null)
-        {
-            this.itemMeta = stack.getMetadata();
-        }
+        ItemStack stack = this.block.getItem(world, pos, this.blockState);
+        this.itemMeta = stack != null ? stack.getMetadata() : 0;
+    }
+
+    public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
+    {
+        this(ForgeRegistries.BLOCKS.getValue(resource), blockMeta, itemMeta);
     }
 
     public BlockInfo(Block block, int blockMeta, int itemMeta)
     {
         this.block = block;
+        this.blockMeta = blockMeta;
+        this.itemMeta = itemMeta;
+        this.blockState = this.block.getStateFromMeta(this.blockMeta);
         this.resource = ForgeRegistries.BLOCKS.getKey(block);
-        this.blockMeta = blockMeta;
-        this.itemMeta = itemMeta;
-    }
-
-    public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
-    {
-        this.block = ForgeRegistries.BLOCKS.getValue(resource);
-        this.resource = resource;
-        this.blockMeta = blockMeta;
-        this.itemMeta = itemMeta;
     }
 
     @Override
     public String toString()
     {
-        return String.format("BlockInfo: {block rl: %s, blockMeta: %d, itemMeta: %d}", this.resource, this.blockMeta, this.itemMeta);
+        return String.format("BlockInfo: {ResourceLocation: %s, blockMeta: %d, itemMeta: %d}", this.resource, this.blockMeta, this.itemMeta);
     }
 }

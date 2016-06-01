@@ -14,7 +14,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
-import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.BlockInfo;
+import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.TemplateBlockInfo;
 
 public class TaskStructureBuild implements IPlayerTask
 {
@@ -68,7 +68,7 @@ public class TaskStructureBuild implements IPlayerTask
         {
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.template.getBlockList().size();)
             {
-                BlockInfo blockInfo = this.template.getBlockList().get(this.listIndex);
+                TemplateBlockInfo blockInfo = this.template.getBlockList().get(this.listIndex);
                 IBlockState state = blockInfo.blockState.withRotation(this.template.getPlacementSettings().getRotation());
                 BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(), blockInfo.pos).add(this.posStart);
 

@@ -26,8 +26,8 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
 {
-    protected final List<TemplateEnderUtilities.BlockInfo> blocks = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-    protected final List<TemplateEnderUtilities.EntityInfo> entities = Lists.<TemplateEnderUtilities.EntityInfo>newArrayList();
+    protected final List<TemplateEnderUtilities.TemplateBlockInfo> blocks = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
+    protected final List<TemplateEnderUtilities.TemplateEntityInfo> entities = Lists.<TemplateEnderUtilities.TemplateEntityInfo>newArrayList();
     protected PlacementSettings placement;
     protected BlockPos size = BlockPos.ORIGIN;
     protected String author = "?";
@@ -73,7 +73,7 @@ public class TemplateEnderUtilities
         this.replaceExisting = replace;
     }
 
-    public List<BlockInfo> getBlockList()
+    public List<TemplateBlockInfo> getBlockList()
     {
         return this.blocks;
     }
@@ -93,7 +93,7 @@ public class TemplateEnderUtilities
     {
         if (index < this.blocks.size())
         {
-            TemplateEnderUtilities.BlockInfo blockInfo = this.blocks.get(index);
+            TemplateEnderUtilities.TemplateBlockInfo blockInfo = this.blocks.get(index);
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
             //System.out.printf("placing, i: %d orig pos: %s tr pos: %s\n", index, blockInfo.pos, pos);
@@ -132,7 +132,7 @@ public class TemplateEnderUtilities
 
     public void notifyBlocks(World world, BlockPos posStart)
     {
-        for (TemplateEnderUtilities.BlockInfo blockInfo : this.blocks)
+        for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
 
@@ -160,7 +160,7 @@ public class TemplateEnderUtilities
         Mirror mirror = this.placement.getMirror();
         Rotation rotation = this.placement.getRotation();
 
-        for (TemplateEnderUtilities.EntityInfo entityInfo : this.entities)
+        for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
             BlockPos pos = transformedBlockPos(this.placement, entityInfo.blockPos).add(posStart);
 
@@ -208,9 +208,9 @@ public class TemplateEnderUtilities
     public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos endPosRelative, boolean takeEntities)
     {
         BlockPos endPos = startPos.add(endPosRelative);
-        List<TemplateEnderUtilities.BlockInfo> list = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-        List<TemplateEnderUtilities.BlockInfo> list1 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-        List<TemplateEnderUtilities.BlockInfo> list2 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
+        List<TemplateEnderUtilities.TemplateBlockInfo> list = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
+        List<TemplateEnderUtilities.TemplateBlockInfo> list1 = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
+        List<TemplateEnderUtilities.TemplateBlockInfo> list2 = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
 
         this.size = PositionUtils.getAreaSizeFromRelativeEndPosition(endPosRelative);
 
@@ -230,15 +230,15 @@ public class TemplateEnderUtilities
                 tag.removeTag("y");
                 tag.removeTag("z");
 
-                list1.add(new TemplateEnderUtilities.BlockInfo(posRelative, state, tag));
+                list1.add(new TemplateEnderUtilities.TemplateBlockInfo(posRelative, state, tag));
             }
             else if (state.isFullBlock() == false && state.isFullCube() == false)
             {
-                list2.add(new TemplateEnderUtilities.BlockInfo(posRelative, state, null));
+                list2.add(new TemplateEnderUtilities.TemplateBlockInfo(posRelative, state, null));
             }
             else
             {
-                list.add(new TemplateEnderUtilities.BlockInfo(posRelative, state, null));
+                list.add(new TemplateEnderUtilities.TemplateBlockInfo(posRelative, state, null));
             }
         }
 
@@ -285,7 +285,7 @@ public class TemplateEnderUtilities
                 pos = new BlockPos(vec3d);
             }
 
-            this.entities.add(new TemplateEnderUtilities.EntityInfo(vec3d, pos, nbt));
+            this.entities.add(new TemplateEnderUtilities.TemplateEntityInfo(vec3d, pos, nbt));
         }
     }
 
@@ -293,7 +293,7 @@ public class TemplateEnderUtilities
     {
         NBTTagList nbttaglist = new NBTTagList();
 
-        for (TemplateEnderUtilities.BlockInfo blockInfo : this.blocks)
+        for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             NBTTagCompound nbt = new NBTTagCompound();
             nbt.setTag("pos", NBTUtils.writeInts(new int[] {blockInfo.pos.getX(), blockInfo.pos.getY(), blockInfo.pos.getZ()}));
@@ -309,7 +309,7 @@ public class TemplateEnderUtilities
 
         NBTTagList nbttaglist1 = new NBTTagList();
 
-        for (TemplateEnderUtilities.EntityInfo entityInfo : this.entities)
+        for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
             nbttagcompound1.setTag("pos", NBTUtils.writeDoubles(new double[] {entityInfo.pos.xCoord, entityInfo.pos.yCoord, entityInfo.pos.zCoord}));
@@ -361,7 +361,7 @@ public class TemplateEnderUtilities
                 tagTileEntityData = null;
             }
 
-            this.blocks.add(new TemplateEnderUtilities.BlockInfo(blockpos, iblockstate, tagTileEntityData));
+            this.blocks.add(new TemplateEnderUtilities.TemplateBlockInfo(blockpos, iblockstate, tagTileEntityData));
         }
 
         tagList = compound.getTagList("entities", 10);
@@ -378,7 +378,7 @@ public class TemplateEnderUtilities
             if (tag.hasKey("nbt"))
             {
                 NBTTagCompound tagEntityNBT = tag.getCompoundTag("nbt");
-                this.entities.add(new TemplateEnderUtilities.EntityInfo(vec3d, blockpos1, tagEntityNBT));
+                this.entities.add(new TemplateEnderUtilities.TemplateEntityInfo(vec3d, blockpos1, tagEntityNBT));
             }
         }
     }
@@ -388,13 +388,13 @@ public class TemplateEnderUtilities
         return PositionUtils.getTransformedBlockPos(pos, placement.getMirror(), placement.getRotation());
     }
 
-    public static class BlockInfo
+    public static class TemplateBlockInfo
     {
         public final BlockPos pos;
         public final IBlockState blockState;
         public final NBTTagCompound tileEntityData;
 
-        BlockInfo(BlockPos posIn, IBlockState stateIn, NBTTagCompound tileEntityNBT)
+        TemplateBlockInfo(BlockPos posIn, IBlockState stateIn, NBTTagCompound tileEntityNBT)
         {
             this.pos = posIn;
             this.blockState = stateIn;
@@ -402,13 +402,13 @@ public class TemplateEnderUtilities
         }
     }
 
-    public static class EntityInfo
+    public static class TemplateEntityInfo
     {
         public final Vec3d pos;
         public final BlockPos blockPos;
         public final NBTTagCompound entityData;
 
-        EntityInfo(Vec3d vecIn, BlockPos posIn, NBTTagCompound entityNBT)
+        TemplateEntityInfo(Vec3d vecIn, BlockPos posIn, NBTTagCompound entityNBT)
         {
             this.pos = vecIn;
             this.blockPos = posIn;
