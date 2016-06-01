@@ -6,8 +6,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 
 public class BlockEnderUtilities extends Block
@@ -45,17 +43,5 @@ public class BlockEnderUtilities extends Block
     public String[] getUnlocalizedNames()
     {
         return this.unlocalizedNames;
-    }
-
-    @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
-    {
-        return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
-    {
-        return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
     }
 }
