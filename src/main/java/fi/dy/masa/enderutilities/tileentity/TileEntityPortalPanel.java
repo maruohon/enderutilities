@@ -309,10 +309,10 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         //List<BlockPos> list = portalFormer.getVisited();
         //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
-        List<BlockPos> list = portalFormer.getBranches();
-        IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
-        //List<BlockPos> list = portalFormer.getVisited();
-        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+        //List<BlockPos> list = portalFormer.getBranches();
+        //IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
+        List<BlockPos> list = portalFormer.getCorners();
+        IBlockState state = Blocks.DIAMOND_BLOCK.getDefaultState();
 
         TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
         TaskScheduler.getInstance().addTask(task, 5);
@@ -440,12 +440,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         private final List<BlockPos> corners;
         private final Block block;
         private final BlockPos startPos;
-        //private BlockPos endPos;
         private BlockPos lastPos;
-        //private MutableBlockPos workingPos1;
-        //private MutableBlockPos workingPos2;
-        private SegmentResult result;
-        private boolean diagonals;
 
         public PortalFormer(World world, BlockPos startPos, Block targetBlock)
         {
@@ -458,11 +453,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             this.corners = new ArrayList<BlockPos>();
             this.block = targetBlock;
             this.startPos = startPos;
-            //this.endPos = startPos;
             this.lastPos = startPos;
-            //this.workingPos1 = new MutableBlockPos(startPos);
-            //this.workingPos2 = new MutableBlockPos(startPos);
-            this.result = SegmentResult.UNPROCESSED;
         }
 
         public List<BlockPos> getVisited() { return this.visited; }
@@ -472,14 +463,30 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         public void analyzePortal()
         {
             int counter = 0;
+            int branchIndex = 0;
             BlockPos pos = this.startPos;
-            EnumFacing side = this.checkPositionIgnoringSide(pos, null);
+            EnumFacing side = null;
 
-            while (side != null && counter < 100)
+            while (counter < 100)
             {
-                pos = pos.offset(side);
-                side = this.checkPositionIgnoringSide(pos, null);
-                counter++;
+                while (counter < 100)
+                {
+                    side = this.checkPositionIgnoringSide(pos, null);
+                    counter++;
+
+                    if (side == null)
+                    {
+                        break;
+                    }
+
+                    pos = pos.offset(side);
+                }
+
+                if (branchIndex < this.branches.size())
+                {
+                    pos = this.branches.get(branchIndex);
+                    branchIndex++;
+                }
             }
         }
 
@@ -489,6 +496,11 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             Block block;
             EnumFacing continueTo = null;
             int frames = 0;
+
+            if (this.visited.contains(posIn))
+            {
+                return null;
+            }
 
             for (EnumFacing side : EnumFacing.values())
             {
@@ -501,13 +513,10 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                         continue;
                     }
 
-                    //this.changeWorkingPosition1(pos, sideTmp);
-                    //block = this.world.getBlockState(this.workingPos1).getBlock();
                     block = this.world.getBlockState(pos).getBlock();
 
                     if (block == Blocks.AIR)
                     {
-                        //this.checkForCorner(this.workingPos1);
                         this.checkForCorner(pos);
                     }
                     else if (block == this.block)
@@ -534,12 +543,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return continueTo;
         }
 
-        private void checkBlockOnSide(EnumFacing side)
-        {
-            EnumFacing opposite = side.getOpposite();
-
-        }
-
         private boolean checkForCorner(BlockPos posIn)
         {
             if (this.corners.contains(posIn))
@@ -553,8 +556,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
             for (EnumFacing side : EnumFacing.values())
             {
-                //this.changeWorkingPosition2(pos, sideTmp);
-                //block = this.world.getBlockState(this.workingPos2).getBlock();
                 block = this.world.getBlockState(posIn.offset(side)).getBlock();
 
                 if (block == this.block)
@@ -572,42 +573,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
             return false;
         }
-
-        private boolean checkForIntersection(BlockPos pos)
-        {
-            Block block;
-            int adjacents = 0;
-
-            for (EnumFacing side : EnumFacing.values())
-            {
-                //this.changeWorkingPosition2(pos, sideTmp);
-                //block = this.world.getBlockState(this.workingPos2).getBlock();
-                block = this.world.getBlockState(pos.offset(side)).getBlock();
-
-                if (block == this.block)
-                {
-                    adjacents++;
-                }
-            }
-
-            return adjacents >= 3;
-        }
-
-        /*private MutableBlockPos changeWorkingPosition1(BlockPos base, EnumFacing side)
-        {
-            this.workingPos1.set(base.getX(), base.getY(), base.getZ());
-            this.workingPos1.offsetMutable(side);
-
-            return this.workingPos1;
-        }
-
-        private MutableBlockPos changeWorkingPosition2(BlockPos base, EnumFacing side)
-        {
-            this.workingPos2.set(base.getX(), base.getY(), base.getZ());
-            this.workingPos2.offsetMutable(side);
-
-            return this.workingPos2;
-        }*/
     }
 
     public static enum SegmentResult
