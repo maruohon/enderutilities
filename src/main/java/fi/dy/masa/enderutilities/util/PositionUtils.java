@@ -12,6 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -179,6 +180,30 @@ public class PositionUtils
             default:
                 return flag ? new Vec3d(d0, d1, d2) : vec;
         }
+    }
+
+    /**
+     * Returns the MutableBlockPos <b>pos</b> with a position set to <b>posReference</b> offset by <b>amount</b> in the direction <b>side</b>.
+     */
+    public static MutableBlockPos getOffsetPosition(MutableBlockPos pos, BlockPos posReference, EnumFacing side, int amount)
+    {
+        switch (side)
+        {
+            case NORTH:
+                pos.set(posReference.getX(), posReference.getY(), posReference.getZ() - amount);
+            case SOUTH:
+                pos.set(posReference.getX(), posReference.getY(), posReference.getZ() + amount);
+            case EAST:
+                pos.set(posReference.getX() + amount, posReference.getY(), posReference.getZ());
+            case WEST:
+                pos.set(posReference.getX() - amount, posReference.getY(), posReference.getZ());
+            case UP:
+                pos.set(posReference.getX(), posReference.getY() + amount, posReference.getZ());
+            case DOWN:
+                pos.set(posReference.getX(), posReference.getY() - amount, posReference.getZ());
+        }
+
+        return pos;
     }
 
     public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)

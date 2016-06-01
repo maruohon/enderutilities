@@ -6,11 +6,13 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -24,12 +26,12 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class BlockPortalPanel extends BlockEnderUtilitiesInventory
 {
-    protected static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 0.25D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(0.0D, 0.0D, 0.75D, 1.0D, 1.0D, 1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB(0.75D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.25D, 1.0D, 1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.25D, 1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(0.0D, 0.75D, 0.0D, 1.0D, 1.0D, 1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(  0.0D,  0.0D,  0.0D,  1.0D,  1.0D, 0.25D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(  0.0D,  0.0D, 0.75D,  1.0D,  1.0D,  1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB( 0.75D,  0.0D,  0.0D,  1.0D,  1.0D,  1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(  0.0D,  0.0D,  0.0D, 0.25D,  1.0D,  1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(  0.0D,  0.0D,  0.0D,  1.0D, 0.25D,  1.0D);
+    protected static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(  0.0D, 0.75D,  0.0D,  1.0D,  1.0D,  1.0D);
 
     public BlockPortalPanel(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -69,24 +71,30 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        int id = this.getTargetId(hitX, hitY, hitZ, side);
-
-        if (id >= 0)
+        if (worldIn.isRemote == false && side == state.getActualState(worldIn, pos).getValue(FACING))
         {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityPortalPanel)
-            {
-                if (id == 8)
-                {
-                    ((TileEntityPortalPanel) te).toggleActive();
-                }
-                else
-                {
-                    ((TileEntityPortalPanel) te).setActiveTarget(id);
-                }
-            }
+            int id = this.getTargetId(hitX, hitY, hitZ, side);
 
-            return true;
+            if (id >= 0)
+            {
+                TileEntity te = worldIn.getTileEntity(pos);
+                if (te instanceof TileEntityPortalPanel)
+                {
+                    if (id == 8)
+                    {
+                        ((TileEntityPortalPanel) te).tryTogglePortal();
+                    }
+                    else
+                    {
+                        ((TileEntityPortalPanel) te).setActiveTargetId(id);
+                        worldIn.notifyBlockUpdate(pos, state, state, 3);
+                    }
+
+                    worldIn.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.MASTER, 0.5f, 1.0f);
+                }
+
+                return true;
+            }
         }
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);

@@ -51,7 +51,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         int y = (this.height - this.ySize) / 2;
         int u = 240;
         int v = 32;
-        int active = this.tepp.getActiveTarget();
+        int active = this.tepp.getActiveTargetId();
 
         for (int i = 0; i < 16; i++)
         {

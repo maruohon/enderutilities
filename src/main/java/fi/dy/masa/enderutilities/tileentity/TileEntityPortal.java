@@ -1,28 +1,29 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TileEntityPortal extends TileEntityEnderUtilities
 {
     private TargetData destination;
-    private EnumDyeColor color;
+    private int color;
 
     public TileEntityPortal()
     {
         super(ReferenceNames.NAME_TILE_PORTAL);
 
-        this.color = EnumDyeColor.GREEN;
+        this.color = 0xA010E0;
     }
 
-    public EnumDyeColor getColor()
+    public int getColor()
     {
         return this.color;
     }
 
-    public void setColor(EnumDyeColor color)
+    public void setColor(int color)
     {
         this.color = color;
     }
@@ -42,7 +43,7 @@ public class TileEntityPortal extends TileEntityEnderUtilities
     {
         super.readFromNBTCustom(nbt);
 
-        this.color = EnumDyeColor.byMetadata(nbt.getByte("Color"));
+        this.color = nbt.getInteger("Color");
         this.destination = TargetData.readTargetFromNBT(nbt);
     }
 
@@ -51,11 +52,34 @@ public class TileEntityPortal extends TileEntityEnderUtilities
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Color", (byte)this.color.getMetadata());
+        nbt.setInteger("Color", this.color);
 
         if (this.destination != null)
         {
             this.destination.writeToNBT(nbt);
         }
+    }
+
+    @Override
+    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    {
+        nbt = super.getDescriptionPacketTag(nbt);
+
+        nbt.setInteger("c", this.color);
+
+        return nbt;
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    {
+        NBTTagCompound nbt = packet.getNbtCompound();
+
+        if (nbt.hasKey("c"))
+        {
+            this.color = nbt.getInteger("c");
+        }
+
+        super.onDataPacket(net, packet);
     }
 }

@@ -62,7 +62,7 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
         TileEntityEnderUtilities te = new TileEntityPortal();
-        //te.setFacing(state.getValue(FACING));
+        te.setFacing(state.getValue(FACING));
 
         return te;
     }
@@ -89,6 +89,7 @@ public class BlockPortal extends BlockEnderUtilitiesInventory
     @Override
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
+        // TODO
         //return null;
         return super.getItem(worldIn, pos, state);
     }

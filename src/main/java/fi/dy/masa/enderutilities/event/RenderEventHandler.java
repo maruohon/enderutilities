@@ -18,7 +18,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
@@ -86,21 +85,12 @@ public class RenderEventHandler
                 if (te instanceof TileEntityPortalPanel)
                 {
                     String name = ((TileEntityPortalPanel) te).getDisplayName();
+                    EnumFacing facing = ((TileEntityPortalPanel) te).getFacing();
 
                     if (name != null && name.length() > 0)
                     {
-                        EntityPlayer player = this.mc.thePlayer;
                         GlStateManager.alphaFunc(516, 0.1F);
-                        //System.out.printf("plop - name: %s - x: %f y: %f z: %f\n", name, trace.hitVec.xCoord, trace.hitVec.yCoord, trace.hitVec.zCoord);
-                        //this.renderLabel(name, trace.hitVec.xCoord, trace.hitVec.yCoord, trace.hitVec.zCoord, 0);
-                        //this.renderLabel(name, player.posX - pos.getX(), player.posY - pos.getY(), player.posZ - pos.getZ(), 0);
-                        //this.renderLabel(name, pos.getX() - player.posX + 0.5f, pos.getY() - player.posY + 1.5f, pos.getZ() - player.posZ + 0.5f, 0);
-                        //this.renderLabel(name, trace.hitVec.xCoord - player.posX, trace.hitVec.yCoord - player.posY + 2, trace.hitVec.zCoord - player.posZ, 0);
-                        //this.renderLabel(name, player.posX - trace.hitVec.xCoord, player.posY - trace.hitVec.yCoord, player.posZ - trace.hitVec.zCoord, 0);
-                        //this.renderLabel(name, player.posX, player.posY, player.posZ, 0);
-                        //this.renderLabel(name, 0, 2, 0, 0);
-                        //this.renderLabel(name, trace.hitVec.xCoord - player.posX + 0.5f, pos.getY() - player.posY + 1.5f, trace.hitVec.zCoord - player.posZ + 0.5f, 0);
-                        this.renderPortalPanelText(name, player, pos, state.getValue(BlockPortalPanel.FACING), partialTicks);
+                        this.renderPortalPanelText(name, this.mc.thePlayer, pos, facing, partialTicks);
                     }
                 }
             }

@@ -53,7 +53,7 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
     {
         super.addListener(listener);
 
-        listener.sendProgressBarUpdate(this, 0, this.tepp.getActiveTarget());
+        listener.sendProgressBarUpdate(this, 0, this.tepp.getActiveTargetId());
     }
 
     @Override
@@ -63,13 +63,13 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            if (this.targetLast != this.tepp.getActiveTarget())
+            if (this.targetLast != this.tepp.getActiveTargetId())
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.tepp.getActiveTarget());
+                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.tepp.getActiveTargetId());
             }
         }
 
-        this.targetLast = this.tepp.getActiveTarget();
+        this.targetLast = this.tepp.getActiveTargetId();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
 
         if (id == 0)
         {
-            this.tepp.setActiveTarget(data);
+            this.tepp.setActiveTargetId(data);
         }
     }
 }

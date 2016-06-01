@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.event.tasks;
 
 import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -9,7 +8,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Effects;
 
@@ -18,14 +16,26 @@ public class TaskPositionDebug implements IPlayerTask
     private final int dimension;
     private List<BlockPos> positions;
     private final int blocksPerTick;
+    private boolean placeBlocks;
+    private boolean useParticles;
+    private EnumParticleTypes particle;
     private int listIndex;
     private int count;
 
     public TaskPositionDebug(World world, List<BlockPos> positions, int blocksPerTick)
     {
+        this(world, positions, blocksPerTick, true, true, EnumParticleTypes.VILLAGER_ANGRY);
+    }
+
+    public TaskPositionDebug(World world, List<BlockPos> positions, int blocksPerTick,
+            boolean placeBlocks, boolean useParticles, EnumParticleTypes particle)
+    {
         this.dimension = world.provider.getDimension();
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
+        this.placeBlocks = placeBlocks;
+        this.useParticles = useParticles;
+        this.particle = particle;
         this.listIndex = 0;
         this.count = 0;
     }
@@ -59,9 +69,16 @@ public class TaskPositionDebug implements IPlayerTask
             int meta = this.listIndex & 0xF;
             BlockPos pos = this.positions.get(this.listIndex++);
 
-            world.setBlockState(pos, Blocks.STAINED_GLASS.getStateFromMeta(meta), 3);
-            world.playSound(null, pos, SoundEvents.BLOCK_GLASS_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f);
-            Effects.spawnParticlesFromServer(world.provider.getDimension(), pos, EnumParticleTypes.VILLAGER_ANGRY);
+            if (this.placeBlocks)
+            {
+                world.setBlockState(pos, Blocks.STAINED_GLASS.getStateFromMeta(meta), 3);
+                world.playSound(null, pos, SoundEvents.BLOCK_GLASS_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            }
+
+            if (this.useParticles)
+            {
+                Effects.spawnParticlesFromServer(this.dimension, pos, this.particle);
+            }
 
             this.count++;
         }

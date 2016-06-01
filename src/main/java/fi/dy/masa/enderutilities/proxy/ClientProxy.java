@@ -100,7 +100,7 @@ public class ClientProxy extends CommonProxy
                             TileEntity te = worldIn.getTileEntity(pos);
                             if (te instanceof TileEntityPortal)
                             {
-                                return ((TileEntityPortal) te).getColor().getMapColor().colorValue;
+                                return ((TileEntityPortal) te).getColor();
                             }
                         }
 
@@ -121,7 +121,6 @@ public class ClientProxy extends CommonProxy
                             {
                                 return ((TileEntityPortalPanel) te).getColor(tintIndex);
                             }
-                            //return EnumDyeColor.byMetadata(tintIndex).getMapColor().colorValue;
                         }
 
                         return 0xFFFFFF;
