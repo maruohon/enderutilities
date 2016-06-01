@@ -73,7 +73,7 @@ public class ItemRuler extends ItemModular
         if (last == null || (world.getTotalWorldTime() - last) >= 6)
         {
             // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
-            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START, player.isSneaking() == false);
+            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_END, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());
@@ -94,7 +94,7 @@ public class ItemRuler extends ItemModular
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
             // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
-            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_END, player.isSneaking() == false);
+            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());

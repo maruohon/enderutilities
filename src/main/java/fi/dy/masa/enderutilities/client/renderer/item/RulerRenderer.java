@@ -244,11 +244,11 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
