@@ -1260,7 +1260,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
         EnumFacing facing = this.getFacingFromPositions(posStart, posStart.add(endOffset));
-        templateMeta.setValues(endOffset, facing, player.getName(), this.getTemplateName(stack, Mode.PASTE));
+        templateMeta.setValues(endOffset, facing, this.getTemplateName(stack, Mode.COPY), player.getName());
         templateManager.writeTemplateMetadata(rl);
 
         player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (getSelectedBlockTypeIndex(stack) + 1)));
