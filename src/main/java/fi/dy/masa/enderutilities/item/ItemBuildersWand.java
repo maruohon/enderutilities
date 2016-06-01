@@ -262,6 +262,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return itemName;
         }
 
+        if (mode == Mode.DELETE)
+        {
+            return itemName;
+        }
+
         if (mode != Mode.CUBE && mode != Mode.WALLS)
         {
             if (this.getAreaFlipped(stack) == true)
@@ -1376,12 +1381,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public String getTemplateName(ItemStack stack, Mode mode)
     {
         NBTTagCompound nbt = this.getSelectedTemplateTag(stack, mode, false);
-        if (nbt != null)
+        if (nbt != null && nbt.hasKey("TemplateName"))
         {
             return nbt.getString("TemplateName");
         }
 
-        return "";
+        return "N/A";
     }
 
     public void setTemplateName(ItemStack stack, String name)

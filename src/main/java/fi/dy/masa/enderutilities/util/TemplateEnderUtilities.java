@@ -22,9 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
-import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
-import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
@@ -103,7 +100,6 @@ public class TemplateEnderUtilities
 
             if (this.replaceExisting == true || world.isAirBlock(pos) == true)
             {
-                //IBlockState state = blockInfo.blockState;
                 //IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
                 IBlockState state = blockInfo.blockState.withRotation(this.placement.getRotation());
 
@@ -117,11 +113,6 @@ public class TemplateEnderUtilities
                         //world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
                     }
                 }
-                /*else
-                {
-                    // No TileEntity, we can rotate this block already
-                    state = blockInfo.blockState.withRotation(this.placement.getRotation());
-                }*/
 
                 if (world.setBlockState(pos, state, 2) == true && blockInfo.tileEntityData != null)
                 {
@@ -144,6 +135,7 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.BlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
+
             world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
 
             if (blockInfo.tileEntityData != null)
@@ -152,22 +144,8 @@ public class TemplateEnderUtilities
 
                 if (te != null)
                 {
-                    IBlockState state = world.getBlockState(pos);
-
-                    if (te instanceof TileEntityEnderUtilities &&
-                        state.getBlock() instanceof BlockEnderUtilitiesTileEntity)
-                    {
-                        state = state.getActualState(world, pos);
-                        state = state.withRotation(this.placement.getRotation());
-                        ((TileEntityEnderUtilities) te).setFacing(state.getValue(BlockEnderUtilities.FACING));
-                    }
-
                     te.markDirty();
                 }
-            }
-            else
-            {
-                world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
             }
         }
     }
@@ -184,7 +162,6 @@ public class TemplateEnderUtilities
 
         for (TemplateEnderUtilities.EntityInfo entityInfo : this.entities)
         {
-            //BlockPos blockpos = transformedBlockPos(template$entityinfo.blockPos, mirrorIn, rotationIn).add(pos);
             BlockPos pos = transformedBlockPos(this.placement, entityInfo.blockPos).add(posStart);
 
             NBTTagCompound nbt = entityInfo.entityData;
@@ -234,8 +211,6 @@ public class TemplateEnderUtilities
         List<TemplateEnderUtilities.BlockInfo> list = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
         List<TemplateEnderUtilities.BlockInfo> list1 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
         List<TemplateEnderUtilities.BlockInfo> list2 = Lists.<TemplateEnderUtilities.BlockInfo>newArrayList();
-        //BlockPos pos1 = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
-        //BlockPos pos2 = new BlockPos(Math.max(startPos.getX(), endPos.getX()), Math.max(startPos.getY(), endPos.getY()), Math.max(startPos.getZ(), endPos.getZ()));
 
         this.size = PositionUtils.getAreaSizeFromRelativeEndPosition(endPosRelative);
 

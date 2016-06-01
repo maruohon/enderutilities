@@ -267,13 +267,13 @@ public class BuildersWandRenderer
         {
             String str1 = I18n.format("enderutilities.tooltip.item.template");
             String name = wand.getTemplateName(stack, mode);
-            lines.add(str1 + String.format(": %s%d/%d%s - %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name));
+            lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str1, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
 
             str1 = I18n.format("enderutilities.tooltip.item.rotation");
 
             if (mode == Mode.PASTE)
             {
-                lines.add(str1 + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.NORTH));
+                lines.add(str1 + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.NORTH) + rst);
             }
             else
             {
@@ -281,7 +281,7 @@ public class BuildersWandRenderer
                 BlockPosEU pos2 = wand.getPosition(stack, false);
                 if (pos1 != null && pos2 != null)
                 {
-                    lines.add(str1 + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()));
+                    lines.add(str1 + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()) + rst);
                 }
             }
         }
@@ -291,12 +291,12 @@ public class BuildersWandRenderer
 
             if (index >= 0)
             {
-                lines.add(str + String.format(": (%s%d/%d%s) - %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
-                        rst, preGreen, this.getBlockTypeName(stack, index)));
+                lines.add(str + String.format(" [%s%d/%d%s]: %s%s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
+                        rst, preGreen, this.getBlockTypeName(stack, index), rst));
             }
             else
             {
-                lines.add(str + ": " + preAq + this.getBlockTypeName(stack, index));
+                lines.add(str + ": " + preAq + this.getBlockTypeName(stack, index) + rst);
             }
 
             str = I18n.format("enderutilities.tooltip.item.area.flipped");
@@ -306,28 +306,31 @@ public class BuildersWandRenderer
                 if (wand.getAreaFlipped(stack))
                 {
                     lines.add(str + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst +
-                            " - " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP));
+                            " - " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
                 }
                 else
                 {
-                    lines.add(str + ": " + preRed + I18n.format("enderutilities.tooltip.item.no"));
+                    lines.add(str + ": " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
                 }
             }
         }
 
-        String strMode = I18n.format("enderutilities.tooltip.item.mode") + ": " + preGreen + mode.getDisplayName();
+        int modeId = mode.ordinal() + 1;
+        int maxModeId = Mode.values().length;
+        String str = I18n.format("enderutilities.tooltip.item.mode");
+        String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, mode.getDisplayName(), rst);
 
         if (mode == Mode.PASTE)
         {
-            strMode += rst + " - " + I18n.format("enderutilities.tooltip.item.replace") + ": ";
+            strMode += " - " + I18n.format("enderutilities.tooltip.item.replace") + ": ";
 
             if (wand.getReplaceExisting(stack) == true)
             {
-                strMode += preRed + I18n.format("enderutilities.tooltip.item.yes");
+                strMode += preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
             }
             else
             {
-                strMode += preGreen + I18n.format("enderutilities.tooltip.item.no");
+                strMode += preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
             }
         }
 
