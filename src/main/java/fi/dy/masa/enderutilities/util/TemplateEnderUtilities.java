@@ -100,8 +100,8 @@ public class TemplateEnderUtilities
 
             if (this.replaceExisting == true || world.isAirBlock(pos) == true)
             {
-                //IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
-                IBlockState state = blockInfo.blockState.withRotation(this.placement.getRotation());
+                IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
+                state = state.withRotation(this.placement.getRotation());
 
                 if (blockInfo.tileEntityData != null)
                 {

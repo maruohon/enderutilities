@@ -265,15 +265,27 @@ public class BuildersWandRenderer
 
         if (mode == Mode.COPY || mode == Mode.PASTE)
         {
-            String str1 = I18n.format("enderutilities.tooltip.item.template");
+            String str = I18n.format("enderutilities.tooltip.item.template");
             String name = wand.getTemplateName(stack, mode);
-            lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str1, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
+            lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
 
-            str1 = I18n.format("enderutilities.tooltip.item.rotation");
+            str = I18n.format("enderutilities.tooltip.item.rotation");
 
             if (mode == Mode.PASTE)
             {
-                lines.add(str1 + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.NORTH) + rst);
+                if (wand.isMirrored(stack))
+                {
+                    String mirror = wand.getMirror(stack).toString().toLowerCase();
+                    str = String.format("%s: %s%s%s - %s: %s%s%s", str, preGreen, wand.getAreaFlipAxis(stack, EnumFacing.NORTH), rst,
+                            I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
+                }
+                else
+                {
+                    str = String.format("%s: %s%s%s - %s: %s%s%s", str, preGreen, wand.getAreaFlipAxis(stack, EnumFacing.NORTH), rst,
+                            I18n.format("enderutilities.tooltip.item.mirror"), preRed, I18n.format("enderutilities.tooltip.item.no"), rst);
+                }
+
+                lines.add(str);
             }
             else
             {
@@ -281,7 +293,7 @@ public class BuildersWandRenderer
                 BlockPosEU pos2 = wand.getPosition(stack, false);
                 if (pos1 != null && pos2 != null)
                 {
-                    lines.add(str1 + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()) + rst);
+                    lines.add(str + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()) + rst);
                 }
             }
         }

@@ -327,6 +327,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         String pre = TextFormatting.DARK_GREEN.toString();
         String preGreen = TextFormatting.GREEN.toString();
+        String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         Mode mode = Mode.getMode(stack);
@@ -370,7 +371,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             list.add(str + ": " + pre + str2 + rst);
         }
 
-        String str = I18n.translateToLocal("enderutilities.tooltip.item.area.flipped");
+        String str;
         String str2;
         if (mode == Mode.COPY || mode == Mode.DELETE)
         {
@@ -380,20 +381,35 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             EnumFacing facing = this.getTemplateFacing(stack);
             str2 = I18n.translateToLocal("enderutilities.tooltip.item.rotation") + ": ";
             list.add(str2 + preGreen + this.getAreaFlipAxis(stack, facing).toString().toLowerCase() + rst);
-        }
-        else if (this.getAreaFlipped(stack) == true)
-        {
-            str2 = preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
-            list.add(str + ": " + str2 + rst);
 
-            str = I18n.translateToLocal("enderutilities.tooltip.item.flipaxis");
-            String preBlue = TextFormatting.BLUE.toString();
-            list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
+            str2 = I18n.translateToLocal("enderutilities.tooltip.item.mirror") + ": ";
+            if (this.isMirrored(stack))
+            {
+                list.add(str2 + preGreen + this.getMirror(stack).toString().toLowerCase() + rst);
+            }
+            else
+            {
+                list.add(str2 + preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst);
+            }
         }
         else
         {
-            str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
-            list.add(str + ": " + str2 + rst);
+            str = I18n.translateToLocal("enderutilities.tooltip.item.area.flipped");
+
+            if (this.getAreaFlipped(stack) == true)
+            {
+                str2 = preGreen + I18n.translateToLocal("enderutilities.tooltip.item.yes") + rst;
+                list.add(str + ": " + str2 + rst);
+
+                str = I18n.translateToLocal("enderutilities.tooltip.item.flipaxis");
+                String preBlue = TextFormatting.BLUE.toString();
+                list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
+            }
+            else
+            {
+                str2 = preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                list.add(str + ": " + str2 + rst);
+            }
         }
 
         if (mode == Mode.EXTEND_CONTINUOUS)
@@ -406,7 +422,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else
             {
-                str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                str2 = preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
             }
 
             list.add(str + ": " + str2 + rst);
@@ -422,7 +438,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else
             {
-                str2 = TextFormatting.RED + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
+                str2 = preRed + I18n.translateToLocal("enderutilities.tooltip.item.no") + rst;
             }
 
             list.add(str + ": " + str2 + rst);
@@ -806,6 +822,33 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         int min = mode == Mode.COPY || mode == Mode.PASTE ? 0 : -2;
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, min, MAX_BLOCKS - 1, reverse);
+    }
+
+    private void toggleMirroring(ItemStack stack, EntityPlayer player)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, Mode.getMode(stack));
+        EnumFacing.Axis axisPlayer = player.getHorizontalFacing().getAxis();
+        EnumFacing.Axis axisTemplate = this.getTemplateFacing(stack).getAxis();
+        Mirror mirror = axisPlayer == axisTemplate ? Mirror.FRONT_BACK : Mirror.LEFT_RIGHT;
+        tag.setByte("Mirror", (byte)mirror.ordinal());
+        tag.setBoolean("IsMirrored", ! tag.getBoolean("IsMirrored"));
+    }
+
+    public boolean isMirrored(ItemStack stack)
+    {
+        return this.getModeTag(stack, Mode.getMode(stack)).getBoolean("IsMirrored");
+    }
+
+    public Mirror getMirror(ItemStack stack)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, Mode.getMode(stack));
+
+        if (tag.getBoolean("IsMirrored") && tag.hasKey("Mirror", Constants.NBT.TAG_BYTE) == true)
+        {
+            return Mirror.values()[tag.getByte("Mirror") % Mirror.values().length];
+        }
+
+        return Mirror.NONE;
     }
 
     public boolean getAreaFlipped(ItemStack stack)
@@ -1561,7 +1604,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
         //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
 
-        return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);
+        return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
     private EnumFacing getFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
@@ -1639,7 +1682,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                  ReferenceKeys.keypressContainsShift(key) == true &&
                  ReferenceKeys.keypressContainsAlt(key) == false)
         {
-            this.changeAreaDimensions(player, stack, ReferenceKeys.keypressActionIsReversed(key));
+            Mode mode = Mode.getMode(stack);
+            if (mode == Mode.PASTE)
+            {
+                this.toggleMirroring(stack, player);
+            }
+            else if (mode != Mode.COPY && mode != Mode.DELETE)
+            {
+                this.changeAreaDimensions(player, stack, ReferenceKeys.keypressActionIsReversed(key));
+            }
         }
         // Ctrl + Toggle key: Cycle the mode
         else if (ReferenceKeys.keypressContainsControl(key) == true &&

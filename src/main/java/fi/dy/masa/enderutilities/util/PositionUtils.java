@@ -66,32 +66,12 @@ public class PositionUtils
     /**
      * Rotates the given position around the origin
      */
-    public static BlockPos getTransformedBlockPos(BlockPos pos, Rotation rotation)
-    {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-
-        switch (rotation)
-        {
-            case CLOCKWISE_90:
-                return new BlockPos(-z, y, x);
-            case COUNTERCLOCKWISE_90:
-                return new BlockPos(z, y, -x);
-            case CLOCKWISE_180:
-                return new BlockPos(-x, y, -z);
-            default:
-        }
-
-        return pos;
-    }
-
     public static BlockPos getTransformedBlockPos(BlockPos pos, Mirror mirror, Rotation rotation)
     {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
-        boolean flag = true;
+        boolean isMirrored = true;
 
         switch (mirror)
         {
@@ -102,7 +82,7 @@ public class PositionUtils
                 x = -x;
                 break;
             default:
-                flag = false;
+                isMirrored = false;
         }
 
         switch (rotation)
@@ -114,7 +94,7 @@ public class PositionUtils
             case CLOCKWISE_180:
                 return new BlockPos(-x, y, -z);
             default:
-                return flag ? new BlockPos(x, y, z) : pos;
+                return isMirrored ? new BlockPos(x, y, z) : pos;
         }
     }
 
@@ -123,7 +103,7 @@ public class PositionUtils
         int x = pos.posX;
         int y = pos.posY;
         int z = pos.posZ;
-        boolean flag = true;
+        boolean isMirrored = true;
 
         switch (mirror)
         {
@@ -134,51 +114,51 @@ public class PositionUtils
                 x = -x;
                 break;
             default:
-                flag = false;
+                isMirrored = false;
         }
 
         switch (rotation)
         {
             case CLOCKWISE_90:
-                return new BlockPosEU(-z, y, x);
+                return new BlockPosEU(-z, y, x, pos.dimension, pos.face);
             case COUNTERCLOCKWISE_90:
-                return new BlockPosEU(z, y, -x);
+                return new BlockPosEU(z, y, -x, pos.dimension, pos.face);
             case CLOCKWISE_180:
-                return new BlockPosEU(-x, y, -z);
+                return new BlockPosEU(-x, y, -z, pos.dimension, pos.face);
             default:
-                return flag ? new BlockPosEU(x, y, z) : pos;
+                return isMirrored ? new BlockPosEU(x, y, z, pos.dimension, pos.face) : pos;
         }
     }
 
     public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
     {
-        double d0 = vec.xCoord;
-        double d1 = vec.yCoord;
-        double d2 = vec.zCoord;
-        boolean flag = true;
+        double x = vec.xCoord;
+        double y = vec.yCoord;
+        double z = vec.zCoord;
+        boolean isMirrored = true;
 
         switch (mirrorIn)
         {
             case LEFT_RIGHT:
-                d2 = 1.0D - d2;
+                z = 1.0D - z;
                 break;
             case FRONT_BACK:
-                d0 = 1.0D - d0;
+                x = 1.0D - x;
                 break;
             default:
-                flag = false;
+                isMirrored = false;
         }
 
         switch (rotationIn)
         {
             case COUNTERCLOCKWISE_90:
-                return new Vec3d(d2, d1, 1.0D - d0);
+                return new Vec3d(z, y, 1.0D - x);
             case CLOCKWISE_90:
-                return new Vec3d(1.0D - d2, d1, d0);
+                return new Vec3d(1.0D - z, y, x);
             case CLOCKWISE_180:
-                return new Vec3d(1.0D - d0, d1, 1.0D - d2);
+                return new Vec3d(1.0D - x, y, 1.0D - z);
             default:
-                return flag ? new Vec3d(d0, d1, d2) : vec;
+                return isMirrored ? new Vec3d(x, y, z) : vec;
         }
     }
 
