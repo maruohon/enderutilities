@@ -191,17 +191,27 @@ public class TeleportEntity
         TargetData target = TargetData.getTargetFromItem(stack);
         if (target != null)
         {
-            adjustTargetPosition(target, entity);
-
-            if (target.hasRotation == true && entity != null)
-            {
-                entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
-            }
-
-            return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
+            return teleportEntityUsingTarget(entity, target, allowMounts, allowRiders);
         }
 
         return null;
+    }
+
+    public static Entity teleportEntityUsingTarget(Entity entity, TargetData target, boolean allowMounts, boolean allowRiders)
+    {
+        if (target == null || entity == null)
+        {
+            return null;
+        }
+
+        adjustTargetPosition(target, entity);
+
+        if (target.hasRotation == true && entity != null)
+        {
+            entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+        }
+
+        return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
     }
 
     public static Entity teleportEntity(Entity entityIn, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)

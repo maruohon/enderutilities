@@ -13,13 +13,15 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class PortalFormer
 {
     private final World world;
-    private final TargetData target;
-    private final int portalColor;
+    private TargetData target;
+    private OwnerData owner;
+    private int portalColor;
     /*private final Set<BlockPos> visited;
     private final Set<BlockPos> branches;
     private final Set<BlockPos> corners;*/
@@ -39,11 +41,10 @@ public class PortalFormer
     private boolean validated;
     private boolean formed;
 
-    public PortalFormer(World world, BlockPos startPos, Block frameBlock, Block portalBlock, TargetData target, int portalColor)
+    public PortalFormer(World world, BlockPos startPos, Block frameBlock, Block portalBlock)
     {
         this.world = world;
-        this.target = target;
-        this.portalColor = portalColor;
+        this.portalColor = 8339378;
         /*this.visited = new HashSet<BlockPos>();
         this.branches = new HashSet<BlockPos>();
         this.corners = new HashSet<BlockPos>();*/
@@ -62,6 +63,24 @@ public class PortalFormer
     /*public List<BlockPos> getVisited() { return this.visited; }
     public List<BlockPos> getBranches() { return this.branches; }
     public List<BlockPos> getCorners() { return this.corners; }*/
+
+    public PortalFormer setTarget(TargetData target)
+    {
+        this.target = target;
+        return this;
+    }
+
+    public PortalFormer setOwner(OwnerData owner)
+    {
+        this.owner = owner;
+        return this;
+    }
+
+    public PortalFormer setColor(int color)
+    {
+        this.portalColor = color;
+        return this;
+    }
 
     public void setLimits(int frameCheckLimit, int frameLoopCheckLimit, int portalAreaCheckLimit)
     {
@@ -243,6 +262,7 @@ public class PortalFormer
                     if (te instanceof TileEntityPortal)
                     {
                         ((TileEntityPortal) te).setDestination(this.target);
+                        ((TileEntityPortal) te).setOwner(this.owner);
                         ((TileEntityPortal) te).setColor(this.portalColor);
                     }
                 }

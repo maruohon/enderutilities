@@ -4,11 +4,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TileEntityPortal extends TileEntityEnderUtilities
 {
     private TargetData destination;
+    private OwnerData owner;
     private int color;
 
     public TileEntityPortal()
@@ -33,9 +35,19 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         return this.destination;
     }
 
+    public OwnerData getOwner()
+    {
+        return this.owner;
+    }
+
     public void setDestination(TargetData destination)
     {
         this.destination = destination;
+    }
+
+    public void setOwner(OwnerData owner)
+    {
+        this.owner = owner;
     }
 
     @Override
@@ -45,6 +57,7 @@ public class TileEntityPortal extends TileEntityEnderUtilities
 
         this.color = nbt.getInteger("Color");
         this.destination = TargetData.readTargetFromNBT(nbt);
+        this.owner = OwnerData.getOwnerDataFromNBT(nbt);
     }
 
     @Override
@@ -57,6 +70,11 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         if (this.destination != null)
         {
             this.destination.writeToNBT(nbt);
+        }
+
+        if (this.owner != null)
+        {
+            this.owner.writeToNBT(nbt);
         }
     }
 

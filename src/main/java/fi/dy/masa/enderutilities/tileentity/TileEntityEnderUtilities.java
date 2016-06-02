@@ -97,7 +97,7 @@ public class TileEntityEnderUtilities extends TileEntity
             }
         }
 
-        OwnerData playerData = OwnerData.getPlayerDataFromNBT(nbt);
+        OwnerData playerData = OwnerData.getOwnerDataFromNBT(nbt);
         if (playerData != null)
         {
             this.ownerUUID = playerData.getOwnerUUID();
@@ -123,7 +123,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
         if (this.ownerUUID != null && this.ownerName != null)
         {
-            OwnerData.writePlayerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
+            OwnerData.writeOwnerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
         }
     }
 

@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.PortalFormer;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
@@ -67,6 +68,19 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         if (stack != null)
         {
             return TargetData.getTargetFromItem(stack);
+        }
+
+        return null;
+    }
+
+    private OwnerData getOwner()
+    {
+        int slot = this.getActiveTargetId();
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
+
+        if (stack != null)
+        {
+            return OwnerData.getOwnerDataFromItem(stack);
         }
 
         return null;
@@ -279,8 +293,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return false;
         }
 
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, destination, this.getActiveColor());
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
         portalFormer.setLimits(500, 1000, 4000);
+        portalFormer.setTarget(destination).setOwner(this.getOwner()).setColor(this.getActiveColor());
         portalFormer.analyzePortalFrame();
         portalFormer.validatePortalAreas();
         success = portalFormer.formPortals();
@@ -308,7 +323,8 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return;
         }
 
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
+        portalFormer.setLimits(500, 1000, 4000);
         portalFormer.analyzePortalFrame();
         success = portalFormer.destroyPortals();
 
@@ -326,14 +342,16 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         World world = this.getWorld();
         BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
         boolean success = false;
+        TargetData destination = this.getActiveTarget();
 
-        if (world.getBlockState(posFrame).getBlock() != blockFrame)
+        if (destination == null || world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return;
         }
 
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
         portalFormer.setLimits(500, 1000, 4000);
+        portalFormer.setTarget(destination).setOwner(this.getOwner()).setColor(this.getActiveColor());
         portalFormer.analyzePortalFrame();
         success = portalFormer.destroyPortals();
         portalFormer.validatePortalAreas();

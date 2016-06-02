@@ -163,7 +163,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             return false;
         }
 
-        OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
+        OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
         return ownerData == null || ownerData.canAccess(player) == true;
     }
 

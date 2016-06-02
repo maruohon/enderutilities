@@ -849,7 +849,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        OwnerData data = OwnerData.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        OwnerData data = OwnerData.getOwnerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (data != null && data.isOwner(player) == true)
         {
             data.setIsPublic(! data.getIsPublic());

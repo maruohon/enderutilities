@@ -793,9 +793,9 @@ public class UtilItemModular
         TargetData.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side, player,
                 hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (OwnerData.selectedModuleHasPlayerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
+        if (OwnerData.selectedModuleHasOwnerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
         {
-            OwnerData.writePlayerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
+            OwnerData.writeOwnerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
         }
     }
 
@@ -808,13 +808,13 @@ public class UtilItemModular
      */
     public static void changePrivacyModeOnSelectedModule(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
     {
-        if (OwnerData.selectedModuleHasPlayerTag(containerStack, moduleType) == false)
+        if (OwnerData.selectedModuleHasOwnerTag(containerStack, moduleType) == false)
         {
-            OwnerData.writePlayerTagToSelectedModule(containerStack, moduleType, player, false);
+            OwnerData.writeOwnerTagToSelectedModule(containerStack, moduleType, player, false);
         }
         else
         {
-            OwnerData data = OwnerData.getPlayerDataFromSelectedModule(containerStack, moduleType);
+            OwnerData data = OwnerData.getOwnerDataFromSelectedModule(containerStack, moduleType);
             if (data != null && data.isOwner(player) == true)
             {
                 data.setIsPublic(! data.getIsPublic());
@@ -840,14 +840,14 @@ public class UtilItemModular
             return;
         }
 
-        if (OwnerData.itemHasPlayerTag(moduleStack) == false)
+        if (OwnerData.itemHasOwnerTag(moduleStack) == false)
         {
-            OwnerData.writePlayerTagToItem(moduleStack, player, false);
+            OwnerData.writeOwnerTagToItem(moduleStack, player, false);
             setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
         }
         else
         {
-            OwnerData data = OwnerData.getPlayerDataFromItem(moduleStack);
+            OwnerData data = OwnerData.getOwnerDataFromItem(moduleStack);
             if (data != null && data.isOwner(player) == true)
             {
                 data.setIsPublic(! data.getIsPublic());

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -14,7 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
@@ -153,6 +151,11 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 list.add(s);
                 list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
 
+                if (target.hasRotation == true)
+                {
+                    list.add(String.format("yaw: %s%.1f%s pitch: %s%.1f%s", preBlue, target.yaw, rst, preBlue, target.pitch, rst));
+                }
+
                 if (showBlock == true)
                 {
                     list.add(I18n.translateToLocal("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
@@ -183,7 +186,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         }
 
         // Player tag data
-        OwnerData playerData = OwnerData.getPlayerDataFromItem(stack);
+        OwnerData playerData = OwnerData.getOwnerDataFromItem(stack);
         if (playerData == null)
         {
             return;
@@ -220,13 +223,13 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
      */
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        if (OwnerData.itemHasPlayerTag(stack) == false)
+        if (OwnerData.itemHasOwnerTag(stack) == false)
         {
-            OwnerData.writePlayerTagToItem(stack, player, false);
+            OwnerData.writeOwnerTagToItem(stack, player, false);
         }
         else
         {
-            OwnerData data = OwnerData.getPlayerDataFromItem(stack);
+            OwnerData data = OwnerData.getOwnerDataFromItem(stack);
             if (data != null && data.isOwner(player) == true)
             {
                 data.setIsPublic(! data.getIsPublic());
@@ -287,9 +290,9 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
 
         TargetData.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (OwnerData.itemHasPlayerTag(stack) == false)
+        if (OwnerData.itemHasOwnerTag(stack) == false)
         {
-            OwnerData.writePlayerTagToItem(stack, player, true);
+            OwnerData.writeOwnerTagToItem(stack, player, true);
         }
     }
 }

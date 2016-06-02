@@ -188,7 +188,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
         }
 
         NBTTagCompound nbt = ticket.getModData();
-        OwnerData.writePlayerTagToNBT(nbt, player);
+        OwnerData.writeOwnerTagToNBT(nbt, player);
 
         if (isTemporary == false)
         {
@@ -258,7 +258,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        OwnerData playerData = OwnerData.getPlayerDataFromNBT(ticket.getModData());
+        OwnerData playerData = OwnerData.getOwnerDataFromNBT(ticket.getModData());
         if (playerData != null)
         {
             return playerData.getOwnerUUID();

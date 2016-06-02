@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -164,8 +165,11 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
 
             if (target != null)
             {
-                // FIXME add new TP method for TargetData
-                TeleportEntity.teleportEntity(entityIn, target.dPosX, target.dPosY, target.dPosZ, target.dimension, true, true);
+                OwnerData owner = ((TileEntityPortal) te).getOwner();
+                if (owner == null || owner.canAccess(entityIn))
+                {
+                    TeleportEntity.teleportEntityUsingTarget(entityIn, target, true, true);
+                }
             }
         }
     }
