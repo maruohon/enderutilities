@@ -113,7 +113,8 @@ public class ConfigReader
 
         // Block disable
         Configs.disableBlockEnderElevator = conf.get(category, "disableBlockEnderElevator", false).setRequiresMcRestart(true).getBoolean();
-        Configs.disableBlockFrame         = conf.get(category, "disableBlockFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortal        = conf.get(category, "disableBlockPortal", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortalFrame   = conf.get(category, "disableBlockPortalFrame", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableBlockPortalPanel   = conf.get(category, "disableBlockPortalPanel", false).setRequiresMcRestart(true).getBoolean();
 
         prop = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
@@ -169,7 +170,7 @@ public class ConfigReader
         Configs.disableRecipeEnderElevator        = conf.get(category, "disableRecipeEnderElevator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderFurnace         = conf.get(category, "disableRecipeEnderFurnace", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true).getBoolean();
-        Configs.disableRecipeFrame                = conf.get(category, "disableRecipeFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipePortalFrame                = conf.get(category, "disableRecipeFrame", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipePortalPanel          = conf.get(category, "disableRecipePortalPanel", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true).getBoolean();
 

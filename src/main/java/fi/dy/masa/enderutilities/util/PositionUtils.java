@@ -22,6 +22,20 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
+    public static final EnumFacing[] ADJACENT_SIDES_ZY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH };
+    public static final EnumFacing[] ADJACENT_SIDES_XY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST };
+    public static final EnumFacing[] ADJACENT_SIDES_XZ = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
+
+    public static EnumFacing[] getSidesForAxis(EnumFacing.Axis axis)
+    {
+        if (axis == EnumFacing.Axis.X)
+        {
+            return ADJACENT_SIDES_ZY;
+        }
+
+        return axis == EnumFacing.Axis.Z ? ADJACENT_SIDES_XY : ADJACENT_SIDES_XZ;
+    }
+
     public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEnd)
     {
         int x = posEnd.getX();

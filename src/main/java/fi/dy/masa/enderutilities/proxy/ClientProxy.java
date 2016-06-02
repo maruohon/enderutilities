@@ -290,9 +290,8 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
 
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockFrame,        0, "inventory");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,        0, "inventory");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0,    0, "facing=north,mode=off");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortal,       0, "facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalPanel,  0, "facing=north");
     }
 
