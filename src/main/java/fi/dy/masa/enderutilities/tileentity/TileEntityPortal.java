@@ -18,6 +18,8 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         super(ReferenceNames.NAME_TILE_PORTAL);
 
         this.color = 0xA010E0;
+        this.destination = null;
+        this.owner = null;
     }
 
     public int getColor()

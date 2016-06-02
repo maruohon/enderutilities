@@ -604,6 +604,11 @@ public class EntityUtils
      */
     public static boolean isEntityCollidingWithBlockSpace(World world, Entity entity, Block block)
     {
+        return getPositionOfBlockEntityIsCollidingWith(world, entity, block) != null;
+    }
+
+    public static BlockPos getPositionOfBlockEntityIsCollidingWith(World world, Entity entity, Block block)
+    {
         AxisAlignedBB bb = entity.getEntityBoundingBox();
         int minX = MathHelper.floor_double(bb.minX);
         int minY = MathHelper.floor_double(bb.minY);
@@ -618,15 +623,17 @@ public class EntityUtils
             {
                 for (int z2 = minZ; z2 <= maxZ; z2++)
                 {
-                    if (world.getBlockState(new BlockPos(x2, y2, z2)).getBlock() == block)
+                    BlockPos pos = new BlockPos(x2, y2, z2);
+
+                    if (world.getBlockState(pos).getBlock() == block)
                     {
-                        return true;
+                        return pos;
                     }
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
     public static void copyDataFromOld(Entity target, Entity old)

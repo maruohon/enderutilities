@@ -113,7 +113,11 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
                 if (worldIn.isRemote == false)
                 {
                     worldIn.setBlockState(pos, state.withProperty(COLOR, stackColor), 3);
-                    stack.stackSize--;
+
+                    if (playerIn.capabilities.isCreativeMode == false)
+                    {
+                        stack.stackSize--;
+                    }
                 }
 
                 return true;

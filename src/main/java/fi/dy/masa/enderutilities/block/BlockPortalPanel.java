@@ -53,13 +53,19 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState();
+        return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta & 0x7));
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return 0;
+        return state.getValue(FACING).getIndex();
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    {
+        return state;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote == false && side == state.getActualState(worldIn, pos).getValue(FACING))
+        if (worldIn.isRemote == false && side == state.getValue(FACING))
         {
             int id = this.getTargetId(hitX, hitY, hitZ, side);
 

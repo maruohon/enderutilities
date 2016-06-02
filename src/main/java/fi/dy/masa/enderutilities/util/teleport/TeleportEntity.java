@@ -208,7 +208,7 @@ public class TeleportEntity
 
         if (target.hasRotation == true && entity != null)
         {
-            entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+            entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
         }
 
         return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
@@ -324,9 +324,14 @@ public class TeleportEntity
             {
                 entity = transferEntityToDimension(entity, dimDst, x, y, z);
             }
+            else if (entity instanceof EntityPlayerMP)
+            {
+                ((EntityPlayerMP) entity).connection.setPlayerLocation(x, y, z, entity.rotationYaw, entity.rotationPitch);
+            }
             else
             {
-                entity.setPositionAndUpdate(x, y, z);
+                //entity.setPositionAndUpdate(x, y, z);
+                entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
             }
         }
 

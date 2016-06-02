@@ -2,6 +2,8 @@ package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
@@ -13,10 +15,14 @@ import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
+import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class TickHandler
 {
@@ -94,6 +100,30 @@ public class TickHandler
                     if (target != null)
                     {
                         ChunkLoading.getInstance().refreshChunkTimeout(target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4);
+                    }
+                }
+            }
+        }
+
+        BlockPos pos = EntityUtils.getPositionOfBlockEntityIsCollidingWith(event.player.worldObj, event.player, EnderUtilitiesBlocks.blockPortal);
+
+        if (pos != null)
+        {
+            //IBlockState state = event.player.worldObj.getBlockState(pos);
+            //state.getBlock().onEntityCollidedWithBlock(event.player.worldObj, pos, state, event.player);
+
+            TileEntity te = event.player.worldObj.getTileEntity(pos);
+            if (te instanceof TileEntityPortal)
+            {
+                TargetData target = ((TileEntityPortal) te).getDestination();
+
+                if (target != null)
+                {
+                    OwnerData owner = ((TileEntityPortal) te).getOwner();
+                    if (owner == null || owner.canAccess(event.player))
+                    {
+                        TeleportEntity.teleportEntityUsingTarget(event.player, target, true, true);
+                        //TeleportEntity.teleportEntity(entityIn, -1070, 6, -450, entityIn.dimension, true, true);
                     }
                 }
             }

@@ -8,6 +8,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -23,6 +24,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -58,7 +60,13 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(FACING).ordinal();
+        return state.getValue(FACING).getIndex();
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    {
+        return state;
     }
 
     @Override
@@ -83,15 +91,11 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
-        state = state.getActualState(blockAccess, pos);
-
-        switch (state.getValue(FACING))
+        switch (state.getValue(FACING).getAxis())
         {
-            case EAST:
-            case WEST:
+            case X:
                 return PORTAL_BOUNDS_WE;
-            case NORTH:
-            case SOUTH:
+            case Z:
                 return PORTAL_BOUNDS_NS;
             default:
                 return PORTAL_BOUNDS_UD;
@@ -158,6 +162,11 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
+        if (worldIn.isRemote == true || entityIn instanceof EntityPlayer)
+        {
+            return;
+        }
+
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityPortal)
         {
@@ -177,13 +186,15 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
-        EnumFacing facing = state.getActualState(worldIn, pos).getValue(FACING);
+        EnumFacing facing = state.getValue(FACING);
 
         for (EnumFacing side : EnumFacing.values())
         {
             if (side.getAxis() != facing.getAxis())
             {
-                if (worldIn.getBlockState(pos.offset(side)).getBlock() != this)
+                Block block = worldIn.getBlockState(pos.offset(side)).getBlock();
+
+                if (block != this && block != EnderUtilitiesBlocks.blockPortalFrame)
                 {
                     worldIn.setBlockToAir(pos);
                     break;

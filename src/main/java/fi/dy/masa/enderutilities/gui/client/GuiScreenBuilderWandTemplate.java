@@ -57,7 +57,7 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
         this.nameField.setCursorPositionEnd();
 
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(1, this.guiLeft + 8, this.guiTop + 40, 80, 20, I18n.format("enderutilities.gui.label.save")));
+        this.buttonList.add(new GuiButton(1, this.guiLeft + 8, this.guiTop + 40, 80, 20, I18n.format("enderutilities.gui.label.setname")));
     }
 
     @Override

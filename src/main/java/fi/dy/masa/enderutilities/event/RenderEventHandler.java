@@ -18,6 +18,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
@@ -85,7 +86,7 @@ public class RenderEventHandler
                 if (te instanceof TileEntityPortalPanel)
                 {
                     String name = ((TileEntityPortalPanel) te).getDisplayName();
-                    EnumFacing facing = ((TileEntityPortalPanel) te).getFacing();
+                    EnumFacing facing = state.getValue(BlockPortalPanel.FACING);
 
                     if (name != null && name.length() > 0)
                     {

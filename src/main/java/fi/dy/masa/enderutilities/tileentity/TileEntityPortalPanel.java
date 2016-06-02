@@ -14,8 +14,11 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiPortalPanel;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
@@ -256,6 +259,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         return new ContainerPortalPanel(player, this);
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public GuiEnderUtilities getGui(EntityPlayer player)
     {
@@ -284,11 +288,11 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
         BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(this.getFacing().getOpposite());
+        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
         boolean success = false;
         TargetData destination = this.getActiveTarget();
 
-        if (destination == null || world.getBlockState(posFrame).getBlock() != blockFrame)
+        if (/*destination == null || */world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return false;
         }
@@ -315,7 +319,8 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         Block blockFrame = EnderUtilitiesBlocks.blockPortalFrame;
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
-        BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
+        BlockPos posPanel = this.getPos();
+        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
         boolean success = false;
 
         if (world.getBlockState(posFrame).getBlock() != blockFrame)
@@ -327,10 +332,10 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         portalFormer.setLimits(500, 1000, 4000);
         portalFormer.analyzePortalFrame();
         success = portalFormer.destroyPortals();
+        this.active = false;
 
         if (success)
         {
-            this.active = false;
             world.playSound(null, this.getPos(), SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.5f, 0.85f);
         }
     }
@@ -340,11 +345,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         Block blockFrame = EnderUtilitiesBlocks.blockPortalFrame;
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
-        BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
+        BlockPos posPanel = this.getPos();
+        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
         boolean success = false;
         TargetData destination = this.getActiveTarget();
 
-        if (destination == null || world.getBlockState(posFrame).getBlock() != blockFrame)
+        if (/*destination == null || */world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return;
         }
