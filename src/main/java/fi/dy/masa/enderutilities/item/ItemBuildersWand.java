@@ -466,9 +466,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private BlockPosEU getPosition(ItemStack stack, Mode mode, boolean isStart)
     {
-        if (mode == Mode.COPY)
+        if (mode == Mode.COPY || (isStart == true && mode == Mode.PASTE))
         {
-            return this.getCopyModeAreaCorner(stack, isStart);
+            return this.getPerTemplateAreaCorner(stack, mode, isStart);
         }
 
         if (isStart == false && (mode == Mode.PASTE || mode == Mode.DELETE))
@@ -528,18 +528,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return posStart.add(endOffset);
     }
 
-    private BlockPosEU getCopyModeAreaCorner(ItemStack stack, boolean isStart)
+    private BlockPosEU getPerTemplateAreaCorner(ItemStack stack, Mode mode, boolean isStart)
     {
         int sel = this.getSelectedBlockTypeIndex(stack);
-        NBTTagCompound tag = this.getModeTag(stack, Mode.COPY);
+        NBTTagCompound tag = this.getModeTag(stack, mode);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CORNERS, true);
         return BlockPosEU.readFromTag(tag.getCompoundTag((isStart == true ? "start" : "end") + "_" + sel));
     }
 
-    private void setCopyModeAreaCorner(ItemStack stack, boolean isStart, BlockPosEU pos)
+    private void setPerTemplateAreaCorner(ItemStack stack, Mode mode, boolean isStart, BlockPosEU pos)
     {
         int sel = this.getSelectedBlockTypeIndex(stack);
-        NBTTagCompound tag = this.getModeTag(stack, Mode.COPY);
+        NBTTagCompound tag = this.getModeTag(stack, mode);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CORNERS, true);
         tag = NBTUtils.getCompoundTag(tag, (isStart == true ? "start" : "end") + "_" + sel, true);
         pos.writeToTag(tag);
@@ -549,9 +549,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
 
-        if (mode == Mode.COPY)
+        if (mode == Mode.COPY || (isStart == true && mode == Mode.PASTE))
         {
-            this.setCopyModeAreaCorner(stack, isStart, pos);
+            this.setPerTemplateAreaCorner(stack, mode, isStart, pos);
             return;
         }
 
