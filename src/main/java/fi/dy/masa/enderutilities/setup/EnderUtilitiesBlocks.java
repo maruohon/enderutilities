@@ -125,15 +125,15 @@ public class EnderUtilitiesBlocks
 
         if (Configs.disableRecipeHandyChest_0 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 3), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy0, 'C', enderChest, 'O', active_core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 3), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy0, 'C', enderChest, 'O', core1, 'R', repeater);
         }
         if (Configs.disableRecipeHandyChest_1 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 4), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy1, 'C', enderChest, 'O', active_core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 4), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy1, 'C', enderChest, 'O', core1, 'R', repeater);
         }
         if (Configs.disableRecipeHandyChest_2 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy2, 'C', enderChest, 'O', active_core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy2, 'C', enderChest, 'O', core1, 'R', repeater);
         }
 
         if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)

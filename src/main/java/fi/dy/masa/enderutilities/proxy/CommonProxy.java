@@ -27,7 +27,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.*;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
-public abstract class CommonProxy implements IProxy
+public class CommonProxy implements IProxy
 {
     @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
