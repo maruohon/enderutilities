@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.Random;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -26,13 +27,13 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
-public class BlockPortal extends BlockEnderUtilitiesTileEntity
+public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
 {
     protected static final AxisAlignedBB PORTAL_BOUNDS_NS = new AxisAlignedBB(0.0D, 0.0D, 0.375D, 1.0D, 1.0D, 0.625D);
     protected static final AxisAlignedBB PORTAL_BOUNDS_WE = new AxisAlignedBB(0.375D, 0.0D, 0.0D, 0.625D, 1.0D, 1.0D);
     protected static final AxisAlignedBB PORTAL_BOUNDS_UD = new AxisAlignedBB(0.0D, 0.375D, 0.0D, 1.0D, 0.625D, 1.0D);
 
-    public BlockPortal(String name, float hardness, float resistance, int harvestLevel, Material material)
+    public BlockEnderUtilitiesPortal(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
@@ -164,6 +165,24 @@ public class BlockPortal extends BlockEnderUtilitiesTileEntity
             {
                 // FIXME add new TP method for TargetData
                 TeleportEntity.teleportEntity(entityIn, target.dPosX, target.dPosY, target.dPosZ, target.dimension, true, true);
+            }
+        }
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
+    {
+        EnumFacing facing = state.getActualState(worldIn, pos).getValue(FACING);
+
+        for (EnumFacing side : EnumFacing.values())
+        {
+            if (side.getAxis() != facing.getAxis())
+            {
+                if (worldIn.getBlockState(pos.offset(side)).getBlock() != this)
+                {
+                    worldIn.setBlockToAir(pos);
+                    break;
+                }
             }
         }
     }

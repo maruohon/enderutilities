@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -22,7 +23,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import fi.dy.masa.enderutilities.block.BlockPortal;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.event.tasks.TaskPositionDebug;
 import fi.dy.masa.enderutilities.event.tasks.TaskScheduler;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
@@ -83,6 +85,11 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     public void setActiveTargetId(int target)
     {
         this.activeTargetId = (byte)MathHelper.clamp_int(target, 0, 7);
+    }
+
+    public int getActiveColor()
+    {
+        return this.getColorFromItems(8);
     }
 
     private int getColorFromItems(int target)
@@ -275,9 +282,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         BlockPos posPanel = this.getPos();
         BlockPos posFrame = posPanel.offset(this.getFacing().getOpposite());
         boolean success = false;
-        IBlockState statePortal = blockPortal.getDefaultState().withProperty(BlockPortal.FACING, EnumFacing.NORTH);
         TargetData destination = this.getActiveTarget();
-        int color = this.getColorFromItems(8); // The active color
 
         if (destination == null || world.getBlockState(posFrame).getBlock() != blockFrame)
         {
@@ -285,37 +290,20 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         }
 
         System.out.println("plop - activate");
-        /*for (EnumFacing side : EnumFacing.values())
-        {
-            BlockPos pos = posFrame.offset(side);
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, destination, this.getActiveColor());
+        portalFormer.analyzePortalFrame();
+        portalFormer.validatePortalAreas();
+        //portalFormer.formPortals();
 
-            if (world.isAirBlock(pos))
-            {
-                world.setBlockState(pos, statePortal, 2);
-                TileEntity te = world.getTileEntity(pos);
-
-                if (te instanceof TileEntityPortal)
-                {
-                    ((TileEntityPortal) te).setDestination(destination);
-                    ((TileEntityPortal) te).setColor(color);
-                    success = true;
-                }
-            }
-        }*/
-
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame);
-        portalFormer.analyzePortal();
-        portalFormer.formPortals();
-
-        //List<BlockPos> list = portalFormer.getVisited();
-        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+        List<BlockPos> list = portalFormer.getVisited();
+        IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getBranches();
         //IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getCorners();
         //IBlockState state = Blocks.DIAMOND_BLOCK.getDefaultState();
 
-        //TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
-        //TaskScheduler.getInstance().addTask(task, 5);
+        TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
+        TaskScheduler.getInstance().addTask(task, 2);
 
         if (success)
         {
@@ -327,103 +315,56 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         return success;
     }
 
-    private boolean tryDisablePortal()
+    private void tryDisablePortal()
     {
         Block blockFrame = EnderUtilitiesBlocks.blockFrame;
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
-        BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(this.getFacing().getOpposite());
-        boolean success = false;
-
-        if (world.getBlockState(posFrame).getBlock() != blockFrame)
-        {
-            return false;
-        }
-
-        System.out.println("plop - disable");
-        //List<BlockPos> positions = this.getExistingPortalPositions(world, posFrame);
-        //for (BlockPos pos : positions)
-        //{
-        for (EnumFacing side : EnumFacing.values())
-        {
-            BlockPos pos = posFrame.offset(side);
-            if (world.getBlockState(pos).getBlock() == blockPortal)
-            {
-                world.setBlockToAir(pos);
-                success = true;
-            }
-        }
-
-        if (success)
-        {
-            world.playSound(null, posPanel, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 0.5f, 1.0f);
-        }
-
-        this.active = false;
-
-        return success;
-    }
-
-    private void tryUpdatePortal()
-    {
-        Block blockFrame = EnderUtilitiesBlocks.blockFrame;
-        World world = this.getWorld();
-        BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(this.getFacing().getOpposite());
+        BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
 
         if (world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return;
         }
 
-        TargetData destination = this.getActiveTarget();
-        int color = this.getColorFromItems(8); // The active color
+        System.out.println("plop - disable");
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
+        portalFormer.analyzePortalFrame();
+        portalFormer.destroyPortals();
+        this.active = false;
+    }
+
+    private void tryUpdatePortal()
+    {
+        Block blockFrame = EnderUtilitiesBlocks.blockFrame;
+        Block blockPortal = EnderUtilitiesBlocks.blockPortal;
+        World world = this.getWorld();
+        BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
+
+        if (world.getBlockState(posFrame).getBlock() != blockFrame)
+        {
+            return;
+        }
 
         System.out.println("plop - update");
-        //List<BlockPos> positions = this.getExistingPortalPositions(world, posFrame);
-        //for (BlockPos pos : positions)
-        //{
-        for (EnumFacing side : EnumFacing.values())
-        {
-            BlockPos pos = posFrame.offset(side);
-            TileEntity te = world.getTileEntity(pos);
-
-            if (te instanceof TileEntityPortal)
-            {
-                ((TileEntityPortal) te).setDestination(destination);
-                ((TileEntityPortal) te).setColor(color);
-                IBlockState state = world.getBlockState(pos);
-                world.notifyBlockUpdate(pos, state, state, 3);
-            }
-        }
+        //PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
+        //portalFormer.analyzePortalFrame();
+        //portalFormer.destroyPortals();
+        //portalFormer.validatePortalAreas();
+        //portalFormer.formPortals();
 
         this.active = true;
         this.portalTargetId = this.activeTargetId;
     }
 
-    private List<BlockPos> getExistingPortalPositions(World world, BlockPos posFrame)
-    {
-        Block blockPortal = EnderUtilitiesBlocks.blockPortal;
-        List<BlockPos> positions = new ArrayList<BlockPos>();
-
-        return positions;
-    }
-
-    private List<BlockPos> getPortalPositionsForCreation(World world, BlockPos posFrame)
-    {
-        Block blockFrame = EnderUtilitiesBlocks.blockFrame;
-        List<BlockPos> positions = new ArrayList<BlockPos>();
-
-        return positions;
-    }
-
     public static class PortalFormer
     {
-        public static final EnumFacing[] SIDES_X = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH };
-        public static final EnumFacing[] SIDES_Z = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST };
-        public static final EnumFacing[] SIDES_Y = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
+        public static final EnumFacing[] ADJACENT_SIDES_ZY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH };
+        public static final EnumFacing[] ADJACENT_SIDES_XY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST };
+        public static final EnumFacing[] ADJACENT_SIDES_XZ = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
         private final World world;
+        private final TargetData target;
+        private final int portalColor;
         /*private final Set<BlockPos> visited;
         private final Set<BlockPos> branches;
         private final Set<BlockPos> corners;*/
@@ -431,15 +372,20 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         private final List<BlockPos> branches;
         private final List<BlockPos> corners;
         private final Block blockFrame;
-        //private final Block blockInside;
+        private final Block blockPortal;
         private final BlockPos startPos;
         private BlockPos lastPos;
         private EnumFacing nextSide;
         private EnumFacing.Axis portalAxis;
+        private boolean analyzed;
+        private boolean validated;
+        private boolean formed;
 
-        public PortalFormer(World world, BlockPos startPos, Block frameBlock)
+        public PortalFormer(World world, BlockPos startPos, Block frameBlock, Block portalBlock, TargetData target, int portalColor)
         {
             this.world = world;
+            this.target = target;
+            this.portalColor = portalColor;
             /*this.visited = new HashSet<BlockPos>();
             this.branches = new HashSet<BlockPos>();
             this.corners = new HashSet<BlockPos>();*/
@@ -447,7 +393,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             this.branches = new ArrayList<BlockPos>();
             this.corners = new ArrayList<BlockPos>();
             this.blockFrame = frameBlock;
-            //this.blockInside = insideBlock;
+            this.blockPortal = portalBlock;
             this.startPos = startPos;
             this.lastPos = startPos;
         }
@@ -456,8 +402,17 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         public List<BlockPos> getBranches() { return this.branches; }
         public List<BlockPos> getCorners() { return this.corners; }
 
-        public void analyzePortal()
+        /**
+         * Analyzes the portal frame structure and marks all the corner locations.
+         * Call this method first.
+         */
+        public void analyzePortalFrame()
         {
+            if (this.analyzed)
+            {
+                return;
+            }
+
             this.visited.clear();
             this.branches.clear();
             this.corners.clear();
@@ -467,9 +422,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             BlockPos pos = this.startPos;
             EnumFacing side = null;
 
-            while (counter < 100)
+            while (counter < 1000)
             {
-                while (counter < 100)
+                while (counter < 1000)
                 {
                     side = this.checkFramePositionIgnoringSide(pos, null);
                     counter++;
@@ -488,10 +443,69 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     branchIndex++;
                 }
             }
+
+            this.analyzed = true;
         }
 
+        /**
+         * Validates all the corner locations by trying to find an enclosing frame loop.
+         * Call this after analyzePortalFrame().
+         */
+        public void validatePortalAreas()
+        {
+            if (this.validated)
+            {
+                return;
+            }
+
+            this.visited.clear();
+            Iterator<BlockPos> iter = this.corners.iterator();
+
+            while (iter.hasNext())
+            {
+                BlockPos pos = iter.next();
+
+                if (this.checkForCorner(pos, true) == true)
+                {
+                    EnumFacing.Axis axis = this.getPortalAxisFromCorner(pos);
+
+                    if (axis == null)
+                    {
+                        EnderUtilities.logger.warn("null axis in PortalFormer#validateCorners()");
+                        break;
+                    }
+
+                    EnumFacing side = this.getSideWithFrame(pos, axis);
+                    if (side == null)
+                    {
+                        EnderUtilities.logger.warn("Didn't find an adjacent portal frame in PortalFormer#validateCorners()");
+                        break;
+                    }
+
+                    //System.out.printf("validating corner %s - valid; axis: %s side: %s\n", pos, axis, side);
+                    this.walkFrameLoop(pos, axis, side, 1000);
+                }
+                else
+                {
+                    //System.out.printf("validating corner %s - invalid\n", pos);
+                    iter.remove();
+                }
+            }
+
+            this.validated = true;
+        }
+
+        /**
+         * Forms/creates the actual portal blocks into the validated areas.
+         * Call this as the final step after validatePortalAreas().
+         */
         public void formPortals()
         {
+            if (this.formed)
+            {
+                return;
+            }
+
             EnumFacing ignoreSide = null;
             boolean valid = false;
             BlockPos posTmp;
@@ -562,18 +576,138 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 {
                     EnumFacing facing = this.portalAxis == EnumFacing.Axis.X ? EnumFacing.EAST :
                                         this.portalAxis == EnumFacing.Axis.Z ? EnumFacing.NORTH : EnumFacing.UP;
-                    IBlockState state = EnderUtilitiesBlocks.blockPortal.getDefaultState().withProperty(BlockPortal.FACING, facing);
+                    IBlockState state = EnderUtilitiesBlocks.blockPortal.getDefaultState().withProperty(BlockEnderUtilitiesPortal.FACING, facing);
 
                     for (BlockPos posPortal : this.visited)
                     {
                         //System.out.printf("setting at %s\n", posPortal);
                         this.world.setBlockState(posPortal, state, 2);
+
+                        TileEntity te = this.world.getTileEntity(posPortal);
+                        if (te instanceof TileEntityPortal)
+                        {
+                            ((TileEntityPortal) te).setDestination(this.target);
+                            ((TileEntityPortal) te).setColor(this.portalColor);
+                        }
                     }
 
                     // FIXME debug return to keep the list from the first area for the debug task
                     //return;
                 }
             }
+
+            this.formed = true;
+        }
+
+        /**
+         * Destroys all the portal corner blocks, which should cause them to update
+         * and destroy any adjacent portal blocks automatically.
+         */
+        public void destroyPortals()
+        {
+            for (BlockPos pos : this.corners)
+            {
+                if (this.world.getBlockState(pos).getBlock() == this.blockPortal)
+                {
+                    this.world.setBlockToAir(pos);
+                    world.playSound(null, pos, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 0.5f, 1.0f);
+                }
+            }
+        }
+
+        private boolean walkFrameLoop(BlockPos pos, EnumFacing.Axis axis, EnumFacing frameSide, int distanceLimit)
+        {
+            //this.visited.clear();
+            // FIXME: This is just for debugging
+            if (this.visited.contains(pos) == false)
+            {
+                this.visited.add(pos);
+            }
+
+            int counter = 0;
+            int turns = 0;
+            int tries = 0;
+            IBlockState state;
+            Block block;
+            BlockPos startPos = pos;
+            BlockPos posLast = startPos;
+            //EnumFacing firstTrySide = axis == Axis.X || axis == Axis.Z ? EnumFacing.DOWN : EnumFacing.EAST;
+            EnumFacing firstTrySide = frameSide;
+            EnumFacing moveDirection = frameSide;
+
+            while (counter < distanceLimit)
+            {
+                moveDirection = firstTrySide;
+
+                for (tries = 0; tries < 4; tries++)
+                {
+                    pos = posLast.offset(moveDirection);
+                    state = this.world.getBlockState(pos);
+                    block = state.getBlock();
+
+                    if (block.isAir(state, this.world, pos))
+                    {
+                        // FIXME: This is just for debugging
+                        if (this.visited.contains(pos) == false)
+                        {
+                            this.visited.add(pos);
+                        }
+
+                        //System.out.printf("frame loop, AIR @ %s, dir: %s\n", pos, moveDirection);
+                        posLast = pos;
+
+                        // The firstTrySide is facing into the adjacent portal frame when traveling
+                        // along a straight frame. Thus we need to rotate it once to keep going straight.
+                        // If we need to rotate it more than once, then we have hit a "right hand corner".
+                        if (tries > 1)
+                        {
+                            //System.out.printf("frame loop, AIR @ %s, dir: %s, tries: %d -> turns++\n", pos, moveDirection, tries);
+                            turns++;
+                        }
+                        // If we didn't have to rotate the firstTrySide at all, then we hit a "left hand turn"
+                        // ie. traveled through an outer bend.
+                        else if (tries == 0)
+                        {
+                            //System.out.printf("frame loop, AIR @ %s, dir: %s, tries: %d -> turns-- old firstTrySide: %s", pos, moveDirection, tries, firstTrySide);
+                            turns--;
+
+                            //System.out.printf(" new firstTrySide: %s\n", firstTrySide);
+                        }
+
+                        // Set the firstTrySide one rotation back from the side that we successfully moved to
+                        // so that we can go around possible outer bends.
+                        firstTrySide = moveDirection.rotateAround(axis).getOpposite();
+
+                        break;
+                    }
+                    // Found a portal frame block, try the next adjacent side...
+                    else if (block == this.blockFrame)
+                    {
+                        //System.out.printf("frame loop, frame @ %s, dirOld: %s dirNew: %s\n", pos, moveDirection, moveDirection.rotateAround(axis));
+                        moveDirection = moveDirection.rotateAround(axis);
+                    }
+                    // Found a non-air, non-portal-frame block -> invalid area.
+                    else
+                    {
+                        //System.out.printf("frame loop, non-air @ %s\n", pos);
+                        return false;
+                    }
+                }
+
+                counter++;
+
+                // If we can return to the starting position hugging the portal frame,
+                // then this is a valid portal frame loop.
+                // Note that it is only valid if it forms an inside area, thus the turns check.
+                if (pos.equals(startPos) && counter > 0)
+                {
+                    //System.out.printf("frame loop, back to start - valid: %s - counter: %d tries: %d turns: %d pos: %s\n", (turns > 0), counter, tries, turns, pos);
+                    return turns > 0;
+                }
+            }
+
+            //System.out.printf("frame loop, invalid - counter: %d tries: %d turns: %d pos: %s\n", counter, tries, turns, pos);
+            return false;
         }
 
         private EnumFacing checkFramePositionIgnoringSide(BlockPos posIn, EnumFacing ignoreSide)
@@ -605,7 +739,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
                     if (block.isAir(state, this.world, pos))
                     {
-                        this.checkForCorner(pos);
+                        this.checkForCorner(pos, false);
                     }
                     else if (block == this.blockFrame)
                     {
@@ -631,8 +765,13 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return continueTo;
         }
 
-        private boolean checkForCorner(BlockPos posIn)
+        private boolean checkForCorner(BlockPos posIn, boolean checkIsAir)
         {
+            if (checkIsAir && this.world.isAirBlock(posIn) == false)
+            {
+                return false;
+            }
+
             if (this.corners.contains(posIn))
             {
                 return true;
@@ -761,14 +900,27 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return null;
         }
 
+        private EnumFacing getSideWithFrame(BlockPos pos, EnumFacing.Axis axis)
+        {
+            for (EnumFacing side : this.getSides(axis))
+            {
+                if (this.world.getBlockState(pos.offset(side)).getBlock() == this.blockFrame)
+                {
+                    return side;
+                }
+            }
+
+            return null;
+        }
+
         private EnumFacing[] getSides(EnumFacing.Axis axis)
         {
             if (axis == EnumFacing.Axis.X)
             {
-                return SIDES_X;
+                return ADJACENT_SIDES_ZY;
             }
 
-            return axis == EnumFacing.Axis.Z ? SIDES_Z : SIDES_Y;
+            return axis == EnumFacing.Axis.Z ? ADJACENT_SIDES_XY : ADJACENT_SIDES_XZ;
         }
     }
 

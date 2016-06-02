@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.BlockFrame;
 import fi.dy.masa.enderutilities.block.BlockMachine;
-import fi.dy.masa.enderutilities.block.BlockPortal;
+import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
@@ -24,11 +24,11 @@ public class EnderUtilitiesBlocks
 {
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.IRON);
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,  400f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockFrame          = new BlockFrame(ReferenceNames.NAME_TILE_FRAME,                4.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockFrame          = new BlockFrame(ReferenceNames.NAME_TILE_FRAME,                4.0f,   20f, 2, Material.GLASS);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,  400f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1      = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,  400f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockPortal         = new BlockPortal(ReferenceNames.NAME_TILE_PORTAL,              4.0f,   20f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.GLASS);
+    public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.GLASS);
     public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f, 1000f, 1, Material.IRON);
 
     public static void init()
