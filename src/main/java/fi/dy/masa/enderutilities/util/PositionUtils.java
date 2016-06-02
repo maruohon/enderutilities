@@ -77,6 +77,40 @@ public class PositionUtils
         return pos.up().offset(facing, 2);
     }
 
+    public static Rotation getRotationFromMirror(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
+    {
+        EnumFacing.Axis facingAxis = facingIn.getAxis();
+
+        if (facingAxis.isHorizontal() == false)
+        {
+            return Rotation.NONE;
+        }
+
+        if (facingAxis == mirrorAxis)
+        {
+            return mirror == Mirror.FRONT_BACK ? Rotation.CLOCKWISE_180 : Rotation.NONE;
+        }
+
+        return mirror == Mirror.LEFT_RIGHT ? Rotation.CLOCKWISE_180 : Rotation.NONE;
+    }
+
+    public static EnumFacing getMirroredFacing(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
+    {
+        EnumFacing.Axis facingAxis = facingIn.getAxis();
+
+        if (facingAxis.isHorizontal() == false)
+        {
+            return facingIn;
+        }
+
+        if (facingAxis == mirrorAxis)
+        {
+            return mirror == Mirror.FRONT_BACK ? facingIn.getOpposite() : facingIn;
+        }
+
+        return mirror == Mirror.LEFT_RIGHT ? facingIn.getOpposite() : facingIn;
+    }
+
     /**
      * Rotates the given position around the origin
      */

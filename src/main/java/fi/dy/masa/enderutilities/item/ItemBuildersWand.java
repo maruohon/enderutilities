@@ -1596,10 +1596,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
-        Rotation rotation = PositionUtils.getRotation(facing, this.getAreaFlipAxis(stack, facing));
+        EnumFacing areaFacing = this.getAreaFlipAxis(stack, facing);
+        Rotation rotation = PositionUtils.getRotation(facing, areaFacing);
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
         //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
 
+        /*Mirror mirror = this.getMirror(stack);
+        EnumFacing.Axis mirrorAxis = mirror == Mirror.LEFT_RIGHT ? areaFacing.rotateY().getAxis() : areaFacing.getAxis();
+        rotation = rotation.add(PositionUtils.getRotationFromMirror(facing, mirror, mirrorAxis));
+
+        return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);*/
         return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
