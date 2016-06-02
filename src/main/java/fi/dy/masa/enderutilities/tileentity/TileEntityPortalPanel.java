@@ -291,20 +291,20 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         //System.out.println("plop - activate");
         PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, destination, this.getActiveColor());
-        portalFormer.setLimits(100, 100, 200);
+        portalFormer.setLimits(200, 200, 400);
         portalFormer.analyzePortalFrame();
         portalFormer.validatePortalAreas();
-        //success = portalFormer.formPortals();
+        success = portalFormer.formPortals();
 
-        List<BlockPos> list = portalFormer.getVisited();
-        IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+        //List<BlockPos> list = portalFormer.getVisited();
+        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getBranches();
         //IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getCorners();
         //IBlockState state = Blocks.DIAMOND_BLOCK.getDefaultState();
 
-        TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
-        TaskScheduler.getInstance().addTask(task, 2);
+        //TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
+        //TaskScheduler.getInstance().addTask(task, 2);
 
         if (success)
         {
@@ -739,16 +739,16 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     }
                 }
 
-                counter++;
-
                 // If we can return to the starting position hugging the portal frame,
                 // then this is a valid portal frame loop.
                 // Note that it is only valid if it forms an inside area, thus the turns check.
-                if (pos.equals(startPos) && counter > 0)
+                if ((tries == 4 && counter == 0) || pos.equals(startPos))
                 {
                     //System.out.printf("frame loop, back to start - valid: %s - counter: %d tries: %d turns: %d pos: %s\n", (turns > 0), counter, tries, turns, pos);
-                    return turns > 0;
+                    return turns >= 0;
                 }
+
+                counter++;
             }
 
             //System.out.printf("frame loop, invalid - counter: %d tries: %d turns: %d pos: %s\n", counter, tries, turns, pos);
