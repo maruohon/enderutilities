@@ -106,12 +106,12 @@ public class TemplateEnderUtilities
                 if (blockInfo.tileEntityData != null)
                 {
                     TileEntity te = world.getTileEntity(pos);
-
                     if (te instanceof IInventory)
                     {
                         ((IInventory)te).clear();
-                        //world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
                     }
+
+                    //world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
                 }
 
                 if (world.setBlockState(pos, state, 2) == true && blockInfo.tileEntityData != null)
@@ -135,8 +135,7 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
-
-            world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
+            //world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
 
             if (blockInfo.tileEntityData != null)
             {
@@ -146,6 +145,12 @@ public class TemplateEnderUtilities
                 {
                     te.markDirty();
                 }
+
+                world.notifyBlockUpdate(pos, blockInfo.blockState, blockInfo.blockState, 7);
+            }
+            else
+            {
+                world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
             }
         }
     }
