@@ -289,11 +289,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             return false;
         }
 
-        System.out.println("plop - activate");
+        //System.out.println("plop - activate");
         PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, destination, this.getActiveColor());
+        portalFormer.setLimits(100, 100, 200);
         portalFormer.analyzePortalFrame();
         portalFormer.validatePortalAreas();
-        //portalFormer.formPortals();
+        //success = portalFormer.formPortals();
 
         List<BlockPos> list = portalFormer.getVisited();
         IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
@@ -307,9 +308,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         if (success)
         {
-            world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
             this.active = true;
             this.portalTargetId = this.activeTargetId;
+            world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
         }
 
         return success;
@@ -321,17 +322,22 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
         BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
+        boolean success = false;
 
         if (world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return;
         }
 
-        System.out.println("plop - disable");
         PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
         portalFormer.analyzePortalFrame();
-        portalFormer.destroyPortals();
-        this.active = false;
+        success = portalFormer.destroyPortals();
+
+        if (success)
+        {
+            this.active = false;
+            world.playSound(null, this.getPos(), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 0.5f, 1.0f);
+        }
     }
 
     private void tryUpdatePortal()
@@ -340,21 +346,25 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
         BlockPos posFrame = this.getPos().offset(this.getFacing().getOpposite());
+        boolean success = false;
 
         if (world.getBlockState(posFrame).getBlock() != blockFrame)
         {
             return;
         }
 
-        System.out.println("plop - update");
-        //PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
-        //portalFormer.analyzePortalFrame();
-        //portalFormer.destroyPortals();
-        //portalFormer.validatePortalAreas();
-        //portalFormer.formPortals();
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal, this.getActiveTarget(), this.getActiveColor());
+        portalFormer.setLimits(100, 100, 200); // TODO update values
+        portalFormer.analyzePortalFrame();
+        success = portalFormer.destroyPortals();
+        portalFormer.validatePortalAreas();
+        success &= portalFormer.formPortals();
 
-        this.active = true;
-        this.portalTargetId = this.activeTargetId;
+        if (success)
+        {
+            this.active = true;
+            this.portalTargetId = this.activeTargetId;
+        }
     }
 
     public static class PortalFormer
@@ -377,6 +387,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         private BlockPos lastPos;
         private EnumFacing nextSide;
         private EnumFacing.Axis portalAxis;
+        private int frameCheckLimit;
+        private int frameLoopCheckLimit;
+        private int portalAreaCheckLimit;
         private boolean analyzed;
         private boolean validated;
         private boolean formed;
@@ -396,11 +409,21 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             this.blockPortal = portalBlock;
             this.startPos = startPos;
             this.lastPos = startPos;
+            this.frameCheckLimit = 400;
+            this.frameLoopCheckLimit = 800;
+            this.portalAreaCheckLimit = 4000;
         }
 
         public List<BlockPos> getVisited() { return this.visited; }
         public List<BlockPos> getBranches() { return this.branches; }
         public List<BlockPos> getCorners() { return this.corners; }
+
+        public void setLimits(int frameCheckLimit, int frameLoopCheckLimit, int portalAreaCheckLimit)
+        {
+            this.frameCheckLimit = frameCheckLimit;
+            this.frameLoopCheckLimit = frameLoopCheckLimit;
+            this.portalAreaCheckLimit = portalAreaCheckLimit;
+        }
 
         /**
          * Analyzes the portal frame structure and marks all the corner locations.
@@ -422,9 +445,10 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             BlockPos pos = this.startPos;
             EnumFacing side = null;
 
-            while (counter < 1000)
+            while (counter < this.frameCheckLimit)
             {
-                while (counter < 1000)
+                // FIXME one loop will do
+                while (counter < this.frameCheckLimit)
                 {
                     side = this.checkFramePositionIgnoringSide(pos, null);
                     counter++;
@@ -467,6 +491,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
                 if (this.checkForCorner(pos, true) == true)
                 {
+                    // TODO: Check all axes, if multiple are valid for this corner position
                     EnumFacing.Axis axis = this.getPortalAxisFromCorner(pos);
 
                     if (axis == null)
@@ -482,12 +507,20 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                         break;
                     }
 
-                    //System.out.printf("validating corner %s - valid; axis: %s side: %s\n", pos, axis, side);
-                    this.walkFrameLoop(pos, axis, side, 1000);
+                    //System.out.printf("validating corner %s - corner valid; axis: %s side: %s\n", pos, axis, side);
+                    if (this.walkFrameLoop(pos, axis, side, this.frameLoopCheckLimit) == false)
+                    {
+                        System.out.printf("validating area for corner %s - area invalid; axis: %s side: %s\n", pos, axis, side);
+                        iter.remove();
+                    }
+                    else
+                    {
+                        System.out.printf("validating area for corner %s - area valid; axis: %s side: %s\n", pos, axis, side);
+                    }
                 }
                 else
                 {
-                    //System.out.printf("validating corner %s - invalid\n", pos);
+                    //System.out.printf("validating corner %s - corner invalid\n", pos);
                     iter.remove();
                 }
             }
@@ -499,17 +532,19 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
          * Forms/creates the actual portal blocks into the validated areas.
          * Call this as the final step after validatePortalAreas().
          */
-        public void formPortals()
+        public boolean formPortals()
         {
             if (this.formed)
             {
-                return;
+                return false;
             }
 
             EnumFacing ignoreSide = null;
             boolean valid = false;
+            boolean success = false;
             BlockPos posTmp;
-            int limit = 160;
+            int counter = 0;
+            int formCount = 0;
 
             for (BlockPos pos : this.corners)
             {
@@ -523,14 +558,14 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     continue;
                 }
 
-                int counter = 0;
+                counter = 0;
                 int branchIndex = 0;
                 posTmp = pos;
 
-                // TODO: We should try to walk the frame boundary before trying to check/fill the area
-                while (counter < limit)
+                // FIXME: One loop should do
+                while (counter < this.portalAreaCheckLimit)
                 {
-                    while (counter < limit)
+                    while (counter < this.portalAreaCheckLimit)
                     {
                         valid = this.checkForValidPortalPosition(posTmp, ignoreSide);
                         counter++;
@@ -572,7 +607,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 }
 
                 //System.out.printf("valid %s counter: %d\n", valid, counter);
-                if (valid == true && counter < limit)
+                if (valid == true && counter < this.portalAreaCheckLimit)
                 {
                     EnumFacing facing = this.portalAxis == EnumFacing.Axis.X ? EnumFacing.EAST :
                                         this.portalAxis == EnumFacing.Axis.Z ? EnumFacing.NORTH : EnumFacing.UP;
@@ -580,7 +615,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
                     for (BlockPos posPortal : this.visited)
                     {
-                        //System.out.printf("setting at %s\n", posPortal);
                         this.world.setBlockState(posPortal, state, 2);
 
                         TileEntity te = this.world.getTileEntity(posPortal);
@@ -589,30 +623,41 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                             ((TileEntityPortal) te).setDestination(this.target);
                             ((TileEntityPortal) te).setColor(this.portalColor);
                         }
+
+                        formCount++;
                     }
 
-                    // FIXME debug return to keep the list from the first area for the debug task
-                    //return;
+                    //System.out.printf("valid: true, made portal - counter: %d formCount: %d\n", counter, formCount);
+                    success = true;
                 }
+                /*else
+                {
+                    System.out.printf("valid: %s counter: %d formCount: %d\n", valid, counter, formCount);
+                }*/
             }
 
             this.formed = true;
+            return success;
         }
 
         /**
          * Destroys all the portal corner blocks, which should cause them to update
          * and destroy any adjacent portal blocks automatically.
          */
-        public void destroyPortals()
+        public boolean destroyPortals()
         {
+            boolean success = false;
+
             for (BlockPos pos : this.corners)
             {
                 if (this.world.getBlockState(pos).getBlock() == this.blockPortal)
                 {
                     this.world.setBlockToAir(pos);
-                    world.playSound(null, pos, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 0.5f, 1.0f);
+                    success = true;
                 }
             }
+
+            return success;
         }
 
         private boolean walkFrameLoop(BlockPos pos, EnumFacing.Axis axis, EnumFacing frameSide, int distanceLimit)
@@ -737,7 +782,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     state = this.world.getBlockState(pos);
                     block = state.getBlock();
 
-                    if (block.isAir(state, this.world, pos))
+                    if (block == this.blockPortal || block.isAir(state, this.world, pos))
                     {
                         this.checkForCorner(pos, false);
                     }

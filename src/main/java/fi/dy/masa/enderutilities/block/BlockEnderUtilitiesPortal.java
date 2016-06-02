@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.Random;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -38,6 +39,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+        this.setSoundType(SoundType.GLASS);
     }
 
     @Override
