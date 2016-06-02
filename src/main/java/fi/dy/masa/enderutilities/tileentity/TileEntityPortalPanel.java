@@ -307,15 +307,15 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         portalFormer.analyzePortal();
         portalFormer.formPortals();
 
-        List<BlockPos> list = portalFormer.getVisited();
-        IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
+        //List<BlockPos> list = portalFormer.getVisited();
+        //IBlockState state = Blocks.EMERALD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getBranches();
         //IBlockState state = Blocks.GOLD_BLOCK.getDefaultState();
         //List<BlockPos> list = portalFormer.getCorners();
         //IBlockState state = Blocks.DIAMOND_BLOCK.getDefaultState();
 
-        TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
-        TaskScheduler.getInstance().addTask(task, 5);
+        //TaskPositionDebug task = new TaskPositionDebug(world, list, state, 1, true, false, EnumParticleTypes.VILLAGER_ANGRY);
+        //TaskScheduler.getInstance().addTask(task, 5);
 
         if (success)
         {
@@ -495,7 +495,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             EnumFacing ignoreSide = null;
             boolean valid = false;
             BlockPos posTmp;
-            int limit = 40;
+            int limit = 160;
 
             for (BlockPos pos : this.corners)
             {
@@ -503,7 +503,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 this.visited.clear();
 
                 this.portalAxis = this.getPortalAxisFromCorner(pos);
-                System.out.printf("corner: %s - axis: %s\n", pos, this.portalAxis);
+                //System.out.printf("corner: %s - axis: %s\n", pos, this.portalAxis);
                 if (this.portalAxis == null)
                 {
                     continue;
@@ -524,12 +524,14 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                         // This position invalidates this portal area
                         if (valid == false)
                         {
+                            //System.out.printf("inner - not valid\n");
                             break;
                         }
 
                         // Valid position, but no more positions adjacent to it to go to
                         if (this.nextSide == null)
                         {
+                            //System.out.printf("inner - nextSide = null\n");
                             break;
                         }
 
@@ -539,16 +541,23 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     // This position invalidates this portal area
                     if (valid == false)
                     {
+                        //System.out.printf("outer - not valid\n");
                         break;
                     }
 
                     if (branchIndex < this.branches.size())
                     {
+                        //System.out.printf("outer - new branch\n");
                         posTmp = this.branches.get(branchIndex);
                         branchIndex++;
                     }
+                    else
+                    {
+                        break;
+                    }
                 }
 
+                //System.out.printf("valid %s counter: %d\n", valid, counter);
                 if (valid == true && counter < limit)
                 {
                     EnumFacing facing = this.portalAxis == EnumFacing.Axis.X ? EnumFacing.EAST :
@@ -557,11 +566,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
                     for (BlockPos posPortal : this.visited)
                     {
-                        //this.world.setBlockState(posPortal, state, 2);
+                        //System.out.printf("setting at %s\n", posPortal);
+                        this.world.setBlockState(posPortal, state, 2);
                     }
 
                     // FIXME debug return to keep the list from the first area for the debug task
-                    return;
+                    //return;
                 }
             }
         }
