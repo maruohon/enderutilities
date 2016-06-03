@@ -9,11 +9,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
@@ -59,11 +57,7 @@ public class EntityEventHandler
         }
         else if (item == EnderUtilitiesItems.mobHarness && event.getTarget() instanceof EntityLivingBase)
         {
-            if (isRemote == false)
-            {
-              ((ItemMobHarness) item).handleInteraction(stack, player, event.getTarget());
-            }
-
+            ((ItemMobHarness) item).handleInteraction(stack, player, event.getTarget());
             event.setCanceled(true);
         }
         else if (item == EnderUtilitiesItems.enderLasso && event.getTarget() instanceof EntityLivingBase)
