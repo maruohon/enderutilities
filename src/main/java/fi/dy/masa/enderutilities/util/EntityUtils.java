@@ -512,14 +512,14 @@ public class EntityUtils
 
     private static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack, boolean startFromBottom)
     {
-        if (entity.equals(entityInStack) == true)
-        {
-            return true;
-        }
-
         if (startFromBottom == true)
         {
             entityInStack = getBottomEntity(entityInStack);
+        }
+
+        if (entity == entityInStack)
+        {
+            return true;
         }
 
         if (entityInStack.isBeingRidden() == true)
@@ -528,7 +528,7 @@ public class EntityUtils
 
             for (Entity passenger : passengers)
             {
-                if (passenger.equals(entity) == true || doesEntityStackContainEntity(entity, passenger, false) == true)
+                if (passenger == entity || doesEntityStackContainEntity(entity, passenger, false) == true)
                 {
                     return true;
                 }

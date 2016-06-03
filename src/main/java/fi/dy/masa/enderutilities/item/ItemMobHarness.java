@@ -223,11 +223,15 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Matching (stored) entity found
             if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-                //EntityUtils.unmountFirstRider(targetEntity);
-                storedEntity.startRiding(targetEntity, true);
-                this.clearData(stack);
 
-                return true;
+                // Don't allow mounting the entity into the same stack, or nasty infinite loops will happen >_>
+                if (EntityUtils.doesEntityStackContainEntity(storedEntity, targetEntity) == false)
+                {
+                    //EntityUtils.unmountFirstRider(targetEntity);
+                    storedEntity.startRiding(targetEntity, true);
+                    this.clearData(stack);
+                    return true;
+                }
             }
             else if (storedEntity == null && world.isRemote == false)
             {
