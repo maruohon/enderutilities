@@ -1,10 +1,15 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
+        "1.9.4-latest": "0.6.0",
+        "1.9.4-recommended": "0.6.0",
         "1.9-latest": "0.6.0",
         "1.9-recommended": "0.6.0",
         "1.8.9-latest": "0.5.4",
         "1.8.9-recommended": "0.5.4"
+    },
+    "1.9.4": {
+        "0.6.0": "Ported the 0.6.0 release from MC 1.9 to MC 1.9.4.\nFixed some small rendering bugs.\nFixed a Mob Harness crash and another glitch."
     },
     "1.9": {
         "0.6.0": "Too many changes to list here - check the full changelog on the CurseForge file page.",
