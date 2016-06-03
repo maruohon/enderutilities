@@ -110,12 +110,12 @@ public class RenderEventHandler
 
         float angleH = 0f;
         float angleV = 0f;
+        double frontOffset = 0.32D;
 
         if (facing.getAxis().isHorizontal())
         {
             int frontX = facing.getFrontOffsetX();
             int frontZ = facing.getFrontOffsetZ();
-            double frontOffset = 0.2D;
 
             if (facing == EnumFacing.NORTH || facing == EnumFacing.WEST)
             {
@@ -132,7 +132,6 @@ public class RenderEventHandler
         }
         else
         {
-            double frontOffset = 0.2D;
             if (facing == EnumFacing.DOWN)
             {
                 frontOffset = 1.0D - frontOffset;
@@ -163,7 +162,6 @@ public class RenderEventHandler
         GlStateManager.rotate(-angleH, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-angleV, 1.0F, 0.0F, 0.0F);
         GlStateManager.scale(-0.025F, -0.025F, 0.025F);
-        //GlStateManager.scale(-0.75F, -0.75F, 0.75F);
         GlStateManager.disableLighting();
         GlStateManager.depthMask(false);
         GlStateManager.disableDepth();
@@ -192,7 +190,7 @@ public class RenderEventHandler
         GlStateManager.depthMask(true);
         fontrenderer.drawString(text, -strLenHalved, 0, flag ? 0x20FFFFFF : 0xFFFFFFFF);
 
-        //GlStateManager.enableLighting();
+        GlStateManager.enableLighting();
         GlStateManager.disableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();

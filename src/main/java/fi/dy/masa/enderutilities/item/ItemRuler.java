@@ -200,11 +200,11 @@ public class ItemRuler extends ItemModular
         str = I18n.format("enderutilities.tooltip.item.mode") + ": ";
         if (this.getDistanceMode(rulerStack) == DISTANCE_MODE_DIMENSIONS)
         {
-            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.dimensions") + rst;
+            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.ruler.dimensions") + rst;
         }
         else
         {
-            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.difference") + rst;
+            str = str + preDGreen + I18n.format("enderutilities.tooltip.item.ruler.difference") + rst;
         }
         list.add(str);
 
