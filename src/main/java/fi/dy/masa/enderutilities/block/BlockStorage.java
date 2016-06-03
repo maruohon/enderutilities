@@ -1,24 +1,21 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
@@ -33,13 +30,13 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     public static final PropertyEnum<BlockStorage.EnumStorageType> TYPE =
             PropertyEnum.<BlockStorage.EnumStorageType>create("type", BlockStorage.EnumStorageType.class);
 
-    public BlockStorage(String name, float hardness, int harvestLevel, Material material)
+    public BlockStorage(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockStorage.EnumStorageType.MEMORY_CHEST_0)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -67,7 +64,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_0",
@@ -80,17 +77,16 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        EnumStorageType type = state.getValue(TYPE);
-        switch(type)
+        switch(state.getValue(TYPE))
         {
-            case MEMORY_CHEST_0: return new TileEntityMemoryChest();
-            case MEMORY_CHEST_1: return new TileEntityMemoryChest();
-            case MEMORY_CHEST_2: return new TileEntityMemoryChest();
-            case HANDY_CHEST_0: return new TileEntityHandyChest();
-            case HANDY_CHEST_1: return new TileEntityHandyChest();
-            case HANDY_CHEST_2: return new TileEntityHandyChest();
+            case MEMORY_CHEST_0:    return new TileEntityMemoryChest();
+            case MEMORY_CHEST_1:    return new TileEntityMemoryChest();
+            case MEMORY_CHEST_2:    return new TileEntityMemoryChest();
+            case HANDY_CHEST_0:     return new TileEntityHandyChest();
+            case HANDY_CHEST_1:     return new TileEntityHandyChest();
+            case HANDY_CHEST_2:     return new TileEntityHandyChest();
         }
 
         return new TileEntityMemoryChest();
@@ -116,21 +112,6 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
-    {
-        if (worldIn.isRemote == true)
-        {
-            return;
-        }
-
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityHandyChest)
-        {
-            ((TileEntityHandyChest)te).onLeftClickBlock(playerIn);
-        }
-    }
-
-    @Override
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(TYPE, EnumStorageType.fromMeta(meta));
@@ -140,22 +121,6 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     public int getMetaFromState(IBlockState state)
     {
         return state.getValue(TYPE).getMeta();
-    }
-
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
-        {
-            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
-        }
-
-        return state;
     }
 
     @Override

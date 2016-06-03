@@ -8,21 +8,25 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityEnderUtilities extends TileEntity
 {
     protected String tileEntityName;
-    protected int rotation;
+    protected EnumFacing facing;
     protected String ownerName;
     protected UUID ownerUUID;
     protected boolean isPublic;
 
     public TileEntityEnderUtilities(String name)
     {
-        this.rotation = 0;
+        this.facing = BlockEnderUtilities.DEFAULT_FACING;
         this.ownerName = null;
         this.ownerUUID = null;
         this.isPublic = false;
@@ -34,14 +38,14 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.tileEntityName;
     }
 
-    public void setRotation(int rot)
+    public void setFacing(EnumFacing facing)
     {
-        this.rotation = rot;
+        this.facing = facing;
     }
 
-    public int getRotation()
+    public EnumFacing getFacing()
     {
-        return this.rotation;
+        return this.facing;
     }
 
     public void setOwner(EntityPlayer player)
@@ -72,9 +76,27 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.rotation = nbt.getByte("Rotation");
+        if (nbt.hasKey("Rotation", Constants.NBT.TAG_BYTE))
+        {
+            EnumFacing facing = EnumFacing.getFront(nbt.getByte("Rotation"));
 
-        OwnerData playerData = OwnerData.getPlayerDataFromNBT(nbt);
+            // If the TileEntity has been rotated already from the default facing,
+            // then that probably means that it is being rotated while placing
+            // blocks from a structure template.
+            // In that case we want to adjust the current facing by the same rotation
+            // that the saved facing in NBT differs from the default facing.
+            if (this.facing != BlockEnderUtilities.DEFAULT_FACING)
+            {
+                Rotation rotation = PositionUtils.getRotation(BlockEnderUtilities.DEFAULT_FACING, facing);
+                this.facing = rotation.rotate(this.facing);
+            }
+            else
+            {
+                this.facing = facing;
+            }
+        }
+
+        OwnerData playerData = OwnerData.getOwnerDataFromNBT(nbt);
         if (playerData != null)
         {
             this.ownerUUID = playerData.getOwnerUUID();
@@ -86,45 +108,40 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
-        System.out.printf("readFromNBT @ %s\n", this.getPos());
         super.readFromNBT(nbt);
+
         this.readFromNBTCustom(nbt); // This call needs to be at the super-most custom TE class
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        System.out.printf("writeToNBT @ %s\n", this.getPos());
         super.writeToNBT(nbt);
 
         nbt.setString("Version", Reference.MOD_VERSION);
-        nbt.setByte("Rotation", (byte)this.rotation);
+        nbt.setByte("Rotation", (byte)this.facing.getIndex());
 
         if (this.ownerUUID != null && this.ownerName != null)
         {
-            OwnerData.writePlayerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
+            OwnerData.writeOwnerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
         }
 
         return nbt;
     }
 
+    /**
+     * Get the data used for syncing the TileEntity to the client.
+     * The data returned from this method doesn't have the position,
+     * the position will be added in getUpdateTag() which calls this method.
+     */
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        System.out.printf("getUpdatePacketTag @ %s\n", this.getPos());
-        // In 1.9.4 the client side reads the position from the SPacketChunkData packet
-        // and then tries to get a TileEntity from that position and call readFromNBT() on it
-        nbt.setInteger("x", this.getPos().getX());
-        nbt.setInteger("y", this.getPos().getY());
-        nbt.setInteger("z", this.getPos().getZ());
-
-        nbt.setByte("r", (byte)(this.getRotation() & 0x07));
+        nbt.setByte("r", (byte)(this.facing.getIndex() & 0x07));
 
         if (this.ownerName != null)
         {
             nbt.setString("o", this.ownerName);
         }
-
-        this.writeToNBT(nbt); // FIXME temporary testing in 1.9.4 for the initial chunk data
 
         return nbt;
     }
@@ -132,8 +149,15 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public NBTTagCompound getUpdateTag()
     {
-        System.out.printf("getUpdateTag @ %s\n", this.getPos());
-        return this.getUpdatePacketTag(new NBTTagCompound());
+        // The tag from this method is used for the initial chunk packet,
+        // and it needs to have the TE position!
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("x", this.getPos().getX());
+        nbt.setInteger("y", this.getPos().getY());
+        nbt.setInteger("z", this.getPos().getZ());
+
+        // Add the per-block data to the tag
+        return this.getUpdatePacketTag(nbt);
     }
 
     @Override
@@ -142,30 +166,32 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (this.worldObj != null)
         {
-            System.out.printf("getUpdatePacket @ %s\n", this.getPos());
-            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdateTag());
+            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdatePacketTag(new NBTTagCompound()));
         }
 
         return null;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
-
-        System.out.printf("onDataPacket @ %s - Data: %s\n", this.getPos(), nbt.toString());
-        if (nbt.hasKey("r") == true)
+        if (tag.hasKey("r") == true)
         {
-            this.setRotation((byte)(nbt.getByte("r") & 0x07));
+            this.setFacing(EnumFacing.getFront((byte)(tag.getByte("r") & 0x07)));
         }
-        if (nbt.hasKey("o", Constants.NBT.TAG_STRING) == true)
+        if (tag.hasKey("o", Constants.NBT.TAG_STRING) == true)
         {
-            this.ownerName = nbt.getString("o");
+            this.ownerName = tag.getString("o");
         }
 
         IBlockState state = this.worldObj.getBlockState(this.getPos());
         this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    {
+        this.handleUpdateTag(packet.getNbtCompound());
     }
 
     @Override

@@ -3,17 +3,13 @@ package fi.dy.masa.enderutilities.util;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.oredict.OreDictionary;
-
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
@@ -43,7 +39,7 @@ public class BlockUtils
         }
 
         if (te != null && TEClass != null && TEClass.isAssignableFrom(te.getClass()) == true && (requiredOrientation == null
-            || (te instanceof TileEntityEnderUtilities && EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation()).equals(requiredOrientation))))
+            || (te instanceof TileEntityEnderUtilities && ((TileEntityEnderUtilities)te).getFacing() == requiredOrientation)))
         {
             return true;
         }
@@ -55,25 +51,24 @@ public class BlockUtils
      * Check if the block in the given ItemStack stack can be placed in the given position.
      * Note: This method is a functional copy of ItemBlock.func_150936_a() which is client side only.
      */
-    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
+    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, EnumFacing side, Block blockNew, ItemStack stack)
     {
-        if (stack == null || (stack.getItem() instanceof ItemBlock) == false)
+        if (stack == null)
         {
             return false;
         }
 
-        ItemBlock itemBlock = (ItemBlock)stack.getItem();
-        Block block = world.getBlockState(pos).getBlock();
+        Block blockExisting = world.getBlockState(pos).getBlock();
 
-        if (block == Blocks.SNOW_LAYER && block.isReplaceable(world, pos) == true)
+        if (blockExisting == Blocks.SNOW_LAYER && blockExisting.isReplaceable(world, pos) == true)
         {
             side = EnumFacing.UP;
         }
-        else if (block.isReplaceable(world, pos) == false)
+        else if (blockExisting.isReplaceable(world, pos) == false)
         {
             pos = pos.offset(side);
         }
 
-        return world.canBlockBePlaced(itemBlock.block, pos, false, side, (Entity)null, stack);
+        return world.canBlockBePlaced(blockNew, pos, false, side, (Entity)null, stack);
     }
 }

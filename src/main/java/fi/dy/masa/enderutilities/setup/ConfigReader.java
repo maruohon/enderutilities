@@ -1,13 +1,13 @@
 package fi.dy.masa.enderutilities.setup;
 
 import java.io.File;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.Reference;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.ItemEnderBucket;
+import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ConfigReader
 {
@@ -23,7 +23,7 @@ public class ConfigReader
         EnderUtilities.logger.info("Loading configuration...");
 
         configurationFile = configFile;
-        config = new Configuration(configFile, "0.5.0", true);
+        config = new Configuration(configFile, null, true);
         config.load();
 
         ConfigReader.loadConfigGeneric(config);
@@ -47,6 +47,10 @@ public class ConfigReader
         prop = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick, default = 10");
         Configs.buildersWandBlocksPerTick = prop.getInt(10);
+
+        prop = conf.get(category, "lazyBuildersWandEnableCopyPaste", true).setRequiresMcRestart(false);
+        prop.setComment("Controls whether the Copy and Paste modes can be used on the Wand of the Lazy Builder");
+        Configs.buildersWandEnableCopyPaste = prop.getBoolean();
 
         prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
         prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
@@ -108,6 +112,11 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Completely disable blocks (don't register them to the game.) Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
+        Configs.disableBlockEnderElevator = conf.get(category, "disableBlockEnderElevator", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortal        = conf.get(category, "disableBlockPortal", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortalFrame   = conf.get(category, "disableBlockPortalFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableBlockPortalPanel   = conf.get(category, "disableBlockPortalPanel", false).setRequiresMcRestart(true).getBoolean();
+
         prop = conf.get(category, "disableBlockEnergyBridge", false).setRequiresMcRestart(true);
         prop.setComment("Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter");
         Configs.disableBlockEnergyBridge = prop.getBoolean();
@@ -156,10 +165,14 @@ public class ConfigReader
         conf.addCustomCategoryComment(category, "Disable block or item recipies");
 
         // Blocks
+        Configs.disableRecipeAdvancedQuickStacker = conf.get(category, "disableRecipeAdvancedQuickStacker", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeEnderElevator        = conf.get(category, "disableRecipeEnderElevator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderFurnace         = conf.get(category, "disableRecipeEnderFurnace", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderInfuser         = conf.get(category, "disableRecipeEnderInfuser", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipePortalFrame                = conf.get(category, "disableRecipeFrame", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipePortalPanel          = conf.get(category, "disableRecipePortalPanel", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeToolWorkstation      = conf.get(category, "disableRecipeToolWorkstation", false).setRequiresMcRestart(true).getBoolean();
-        Configs.disableRecipeCreationStation      = conf.get(category, "disableRecipeCreationStation", false).setRequiresMcRestart(true).getBoolean();
 
         Configs.disableRecipeEnergyBridgeTransmitter = conf.get(category, "disableRecipeEnergyBridgeTransmitter", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnergyBridgeReceiver    = conf.get(category, "disableRecipeEnergyBridgeReceiver", false).setRequiresMcRestart(true).getBoolean();

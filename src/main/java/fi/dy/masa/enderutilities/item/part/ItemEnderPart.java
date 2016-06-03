@@ -148,7 +148,7 @@ public class ItemEnderPart extends ItemModule
         String strOwner = I18n.format("enderutilities.tooltip.item.owner");
 
         // Set to private and not the owner
-        OwnerData ownerData = OwnerData.getPlayerDataFromItem(stack);
+        OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
         if (ownerData != null && ownerData.canAccess(player) == false)
         {
             list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, preRed, I18n.format("enderutilities.tooltip.item.private"), rst));

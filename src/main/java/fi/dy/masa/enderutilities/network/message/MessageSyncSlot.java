@@ -40,7 +40,7 @@ public class MessageSyncSlot implements IMessage
         {
             this.windowId = buf.readByte();
             this.slotNum = buf.readShort();
-            this.stack = ByteBufUtils.readItemStackFromBuffer(buf);
+            this.stack = ByteBufUtilsEU.readItemStackFromBuffer(buf);
         }
         catch (IOException e)
         {
@@ -54,7 +54,7 @@ public class MessageSyncSlot implements IMessage
     {
         buf.writeByte(this.windowId);
         buf.writeShort(this.slotNum);
-        ByteBufUtils.writeItemStackToBuffer(buf, this.stack);
+        ByteBufUtilsEU.writeItemStackToBuffer(buf, this.stack);
     }
 
     public static class Handler implements IMessageHandler<MessageSyncSlot, IMessage>

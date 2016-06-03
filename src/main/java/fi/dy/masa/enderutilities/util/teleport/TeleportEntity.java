@@ -191,17 +191,27 @@ public class TeleportEntity
         TargetData target = TargetData.getTargetFromItem(stack);
         if (target != null)
         {
-            adjustTargetPosition(target, entity);
-
-            if (target.hasRotation == true && entity != null)
-            {
-                entity.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
-            }
-
-            return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
+            return teleportEntityUsingTarget(entity, target, allowMounts, allowRiders);
         }
 
         return null;
+    }
+
+    public static Entity teleportEntityUsingTarget(Entity entity, TargetData target, boolean allowMounts, boolean allowRiders)
+    {
+        if (target == null || entity == null)
+        {
+            return null;
+        }
+
+        adjustTargetPosition(target, entity);
+
+        if (target.hasRotation == true && entity != null)
+        {
+            entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+        }
+
+        return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
     }
 
     public static Entity teleportEntity(Entity entityIn, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
@@ -314,26 +324,14 @@ public class TeleportEntity
             {
                 entity = transferEntityToDimension(entity, dimDst, x, y, z);
             }
+            else if (entity instanceof EntityPlayerMP)
+            {
+                ((EntityPlayerMP) entity).connection.setPlayerLocation(x, y, z, entity.rotationYaw, entity.rotationPitch);
+            }
             else
             {
-                if (entity instanceof EntityPlayer)
-                {
-                    ((EntityPlayer)entity).setPositionAndUpdate(x, y, z);
-                }
-                // Forcing a recreate even in the same dimension, mainly used when teleporting mounted entities where a player is one of them
-                /*else if (forceRecreate == true)
-                {
-                    System.out.println("re-creating...");
-                    entity = TeleportEntity.reCreateEntity(entity, x, y, z);
-                }*/
-                else if (entity instanceof EntityLivingBase)
-                {
-                    ((EntityLivingBase)entity).setPositionAndUpdate(x, y, z);
-                }
-                else
-                {
-                    entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-                }
+                //entity.setPositionAndUpdate(x, y, z);
+                entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
             }
         }
 

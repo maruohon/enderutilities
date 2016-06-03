@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.entity.ai.EntityAIBlockRiderIdleTasks;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -74,19 +75,36 @@ public class ItemMobHarness extends ItemEnderUtilities
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean addAITask(Entity entity, boolean replaceOld)
+    public static void addAITask(Entity entity, boolean replaceOld)
     {
         Entity bottom = EntityUtils.getBottomEntity(entity);
-        if (bottom instanceof EntityLiving)
-        {
-            ((EntityLiving)bottom).getNavigator().clearPathEntity();
-            // Add a new AI task as the highest priority task after swimming and panic AI tasks
-            EntityUtils.addAITaskAfterTasks((EntityLiving)bottom, new EntityAIControlledByPlayerUsingHarness((EntityLiving)bottom, 0.3f), replaceOld, new Class[] {EntityAISwimming.class, EntityAIPanic.class});
+        List<Entity> entities = EntityUtils.getAllEntitiesInStack(entity);
+        //List<Entity> entities = bottom.getPassengers();
 
-            return true;
+        // Block the idle tasks like Wander from all the riding entities, so that they don't try to
+        // move the bottom entity
+        for (Entity entityTmp : entities)
+        {
+            if (entityTmp instanceof EntityLiving)
+            {
+                EntityLiving living = (EntityLiving) entityTmp;
+
+                living.getNavigator().clearPathEntity();
+
+                // Add a new AI task as the highest priority task after swimming and panic AI tasks
+                EntityUtils.addAITaskAfterTasks(living, new EntityAIBlockRiderIdleTasks(living),
+                        replaceOld, new Class[] {EntityAISwimming.class, EntityAIPanic.class});
+            }
         }
 
-        return false;
+        if (bottom instanceof EntityLiving)
+        {
+            EntityLiving living = (EntityLiving) bottom;
+
+            // Add a new AI task as the highest priority task after swimming and panic AI tasks
+            EntityUtils.addAITaskAfterTasks(living, new EntityAIControlledByPlayerUsingHarness(living, 0.3f),
+                    replaceOld, new Class[] {EntityAISwimming.class, EntityAIPanic.class});
+        }
     }
 
     public boolean handleInteraction(ItemStack stack, EntityPlayer player, Entity entity)

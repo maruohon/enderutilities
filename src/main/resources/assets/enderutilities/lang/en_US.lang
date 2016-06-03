@@ -18,6 +18,7 @@ enderutilities.container.handychest=Handy Chest
 enderutilities.container.inventoryswapper=Inventory Swapper
 enderutilities.container.memorychest=Memory Chest
 enderutilities.container.pickupmanager=Pickup Manager
+enderutilities.container.portal_panel=Portal Panel
 enderutilities.container.quickstacker=Quick Stacker
 enderutilities.container.quickstacker.advanced=Advanced Quick Stacker
 enderutilities.container.toolworkstation=Tool Workstation
@@ -28,17 +29,37 @@ enderutilities.container.toolworkstation=Tool Workstation
 ##############
 
 tile.enderutilities.creationstation.name=Creation Station
+tile.enderutilities.enderelevator_white.name=Ender Elevator (White)
+tile.enderutilities.enderelevator_orange.name=Ender Elevator (Orange)
+tile.enderutilities.enderelevator_magenta.name=Ender Elevator (Magenta)
+tile.enderutilities.enderelevator_light_blue.name=Ender Elevator (Light Blue)
+tile.enderutilities.enderelevator_yellow.name=Ender Elevator (Yellow)
+tile.enderutilities.enderelevator_lime.name=Ender Elevator (Lime)
+tile.enderutilities.enderelevator_pink.name=Ender Elevator (Pink)
+tile.enderutilities.enderelevator_gray.name=Ender Elevator (Gray)
+tile.enderutilities.enderelevator_silver.name=Ender Elevator (Light Gray)
+tile.enderutilities.enderelevator_cyan.name=Ender Elevator (Cyan)
+tile.enderutilities.enderelevator_purple.name=Ender Elevator (Purple)
+tile.enderutilities.enderelevator_blue.name=Ender Elevator (Blue)
+tile.enderutilities.enderelevator_brown.name=Ender Elevator (Brown)
+tile.enderutilities.enderelevator_green.name=Ender Elevator (Green)
+tile.enderutilities.enderelevator_red.name=Ender Elevator (Red)
+tile.enderutilities.enderelevator_black.name=Ender Elevator (Black)
 tile.enderutilities.enderfurnace.name=Ender Furnace
 tile.enderutilities.enderinfuser.name=Ender Infuser
 tile.enderutilities.energybridge_transmitter.name=Energy Bridge Transmitter
 tile.enderutilities.energybridge_receiver.name=Energy Bridge Receiver
 tile.enderutilities.energybridge_resonator.name=Energy Bridge Resonator
+tile.enderutilities.frame.name=Portal Frame
 tile.enderutilities.handychest_0.name=Handy Chest
 tile.enderutilities.handychest_1.name=Large Handy Chest
 tile.enderutilities.handychest_2.name=Extended Handy Chest
 tile.enderutilities.memorychest_0.name=Small Memory Chest
 tile.enderutilities.memorychest_1.name=Memory Chest
 tile.enderutilities.memorychest_2.name=Large Memory Chest
+tile.enderutilities.portal.name=Portal
+tile.enderutilities.portal_panel.name=Portal Control Panel
+tile.enderutilities.quickstackeradvanced.name=Advanced Quick Stacker
 tile.enderutilities.toolworkstation.name=Tool Workstation
 
 
@@ -117,7 +138,7 @@ enderutilities.tooltips.itemlocationboundmodular=- Sneak + right click to bind|l
 ###################
 # Individual items:
 ###################
-item.enderutilities_builderswand.tooltips=- Can build with blocks from the player's|lf  or a linked external inventory|lf- Ctrl + scroll: Change build mode|lf- Left click: set/unset position|lf- Cube & Walls: right click to set 2nd position|lf- Sneak + left click: Store the block type|lf- Alt + scroll: Change selected block type|lf- Shift + scroll: Change area dimensions|lf  in the direction you are looking at|lf  (you need to set the position first)|lf- Ctrl + Alt + Toggle: Toggle "allow diagonals"|lf  in the Extend Continuous mode|lf- Alt + Shift + Toggle: Toggle ghost|lf  block rendering on/off|lf- Just Toggle key: Flip the area around|lf the axis the player is looking at|lf- Ctrl + Alt + Shift + Toggle: Cycle selected LC|lf- Sneak + right click on inventories to bind
+item.enderutilities_builderswand.tooltips=- Can build with blocks from the player's|lf  or a linked external inventory|lf- Ctrl + scroll: Change mode|lf- Left click: set/unset primary position|lf- Cube, Walls, Copy and Delete modes: right click to set 2nd position|lf- Sneak + left click: Store the block type|lf- Copy/Paste/Delete modes: Sneak to set positions inside the block|lf- Alt + scroll: Change selected block type|lf- Alt + Scroll (Copy/Paste mode): Change selected template|lf- Shift + scroll: Change area dimensions in the looking direction|lf  (you need to set the primary position first by left clicking)|lf- Shift + Toggle (Paste mode): Toggle template mirroring|lf- Ctrl + Alt + Toggle: Toggle "allow diagonals"|lf  in the Extend Continuous mode|lf- Ctrl + Alt + Toggle (Paste mode): Toggle|lf  replace blocks mode ON/OFF (creative only)|lf- Alt + Shift + Toggle: Toggle ghost block rendering|lf- Toggle: Flip the area around the looking axis|lf- Toggle (Copy mode): (Re-)name the current template|lf- Toggle (Paste/Delete modes): Set the area rotation|lf  to the player's current looking direction|lf- Ctrl + Alt + Shift + Toggle: Cycle selected Link Crystal|lf- Sneak + right click on inventories to bind|lf- Ctrl + right click on air to place a helper block|lf- Templates are saved in Vanilla 1.9's structure format|lf- They are named by a UUID (= per wand)
 item.enderutilities_enderarrow.tooltips=- Hit mobs with the arrow for entertainment!|lf  (Chicken tennis maybe?)
 item.enderutilities_enderbag.tooltips=- Only properly works with some vanilla blocks atm|lf- Sneak + right click to bind to inventories|lf- Ctrl (+ Shift) + Toggle/scroll: Change selected Link Crystal|lf- Alt + Toggle: Toggle privacy mode on selected Link Crystal
 item.enderutilities_enderbow.tooltips=- Toggle mode key to switch between TP Target/TP Self|lf- Add a mob persistence module|lf  to prevent some mobs from despawning|lf- Repair in an Anvil with Enhanced Ender Alloy
@@ -161,33 +182,37 @@ item.enderutilities_ruler.tooltips=Measure distances and visualize positions|lf-
 tile.enderutilities.creationstation.tooltips=Combines two crafting tables (with recipe storage,|lfquick fill etc.), two furnaces and some modular storage
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder as fuel|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or TE4 Portable Tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest|lf- Has a 1024 item output buffer in addition to the output slot
 tile.enderutilities.enderinfuser.tooltips=- Can charge the Ender Capacitors|lf- Use Ender Pearls or Eyes of Ender as "fuel"|lf- One of the three charging options atm
-tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items
-
+tile.enderutilities.enderelevator_white.tooltips=- Teleports an entity to the closest matching colored elevator|lf- Maximum range is 256 vertically, 64 horizontally|lf- Jump to go up, sneak to go down|lf- Can also be activated by redstone (rising edge)|lf- Power level of less than 8 goes up|lf  and 8 or higher goes down|lf- Can be re-colored by right clicking with a dye
 tile.enderutilities.energybridge_transmitter.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Transmitter in The End|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Build the Transmitter around an Ender Crystal|lf  (on top of the Obsidian pillars in The End)|lf- Leave two blocks of air above the Crystal|lf  and then place the Transmitter|lf- Place four Resonators on the same level as|lf  the Ender Crystal, two blocks of air between them|lf- The Resonators must face the Crystal|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  the Transmitter all the way up to the sky
 tile.enderutilities.energybridge_receiver.tooltips=- An active Energy Bridge gives automatic|lf  Ender Capacitor recharging, when the capacitor is|lf  installed in a modular item|lf  and the item is in the player's inventory|lf- You need one Receiver in each dimension you|lf  want the recharging to work in|lf- It doesn't need to be chunk loaded|lf  (it doesn't actually actively do anything)|lf- Place the Receiver in the middle|lf- Place four Resonators on the same level as|lf  the Receiver, two blocks of air between them|lf- The Resonators must face the Receiver|lf  (place them when looking out)|lf- There can only be transparent blocks above|lf  and below the Receiver all the way down|lf  to Bedrock and up to the sky
 tile.enderutilities.energybridge_resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
-
 tile.enderutilities.handychest_0.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
 tile.enderutilities.handychest_1.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
 tile.enderutilities.handychest_2.tooltips=- Easier inventory management|lf- Middle click to swap two|lf  large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action
-
 tile.enderutilities.memorychest_0.tooltips=Each slot can be locked to an item type
 tile.enderutilities.memorychest_1.tooltips=Each slot can be locked to an item type
 tile.enderutilities.memorychest_2.tooltips=Each slot can be locked to an item type
+tile.enderutilities.quickstackeradvanced.tooltips=- A more configurable, stationary version of Quick Stacker
+tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items
 
 ###################################
 # GUI and item labels/tooltips etc:
 ###################################
 
 enderutilities.gui.label.blacklist=Black list
+enderutilities.gui.label.blockquickactions=Block quick actions
+enderutilities.gui.label.builderswand.template=Template name
 enderutilities.gui.label.clearcraftinggrid=Clear grid
 enderutilities.gui.label.creationstation.info=Crafting presets:|lf- Left click (1st): Load recipe|lf- Left click (2nd): Add an item to the grid|lf- Left Click (3rd): Fill grid up to largest existing stack|lf- Shift + left click: Store recipe|lf- Right click: Clear grid (same as 'x')|lf- Middle click: Remove stored recipe|lf- Clear the grid (again) when empty to hide the recipe|lf- Shift + click the quick move buttons to set the quick|lf  action, which happens on double-left-click on the block|lf- The crafting grid you last interact with|lf (hilighted) is used for JEI recipe filling
+enderutilities.gui.label.dyeslot=Dyes
 enderutilities.gui.label.enderinfuser.input=Ender Pearls or Eyes of Ender
 enderutilities.gui.label.enderinfuser.chargeableinput=Chargeable items
 enderutilities.gui.label.fillstacks=Fill all existing stacks
 enderutilities.gui.label.filtergroup.disabled=Bypass this group of filters
 enderutilities.gui.label.filtergroup.enabled=Use this group of filters
 enderutilities.gui.label.filterpresets=Filter presets
+enderutilities.gui.label.filters.disabled=Ignore filters
+enderutilities.gui.label.filters.enabled=Use filters
 enderutilities.gui.label.inventoryfilters=Inventory filters
 enderutilities.gui.label.inventoryswapper.info=- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots
 enderutilities.gui.label.leaveonefilledstack=Leave one filled stack of every item type
@@ -206,14 +231,17 @@ enderutilities.gui.label.outputbuffer=Buffer
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
 enderutilities.gui.label.slotpresets=Slot presets
 enderutilities.gui.label.quickstacker.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that|lf  already exist in the target inventory|lf- Use the Toggle hotkey to activate|lf- Sneak to move all items from enabled slots|lf- Can also be sneak + right clicked on|lf  inventories to quick stack matching items to|lf  that inventory
+enderutilities.gui.label.quickstackeradvanced.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
+enderutilities.gui.label.setname=Set name
 enderutilities.gui.label.sortitems=Sort items
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 enderutilities.gui.label.templatedchest.info=- Middle click to lock the current item type for the slot|lf- Only that type of item can enter an empty slot|lf- When there is space in locked slots, that item type|lf  can only go to those slots until they are full
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
+enderutilities.gui.label.use.areablock=Use area around the block
 enderutilities.gui.label.use.areaplayer=Use area around player
 enderutilities.gui.label.use.linkcrystaltargets=Use Link Crystal targets
 enderutilities.gui.label.useitemsfrominventory=Take items from inventory
@@ -231,6 +259,7 @@ enderutilities.tooltip.item.amount=Amount
 enderutilities.tooltip.item.and=and
 enderutilities.tooltip.item.area.flipped=Area flipped
 enderutilities.tooltip.item.basic=Basic
+enderutilities.tooltip.item.block=Block
 enderutilities.tooltip.item.blocktype.adjacent=Adjacent
 enderutilities.tooltip.item.blocktype.targeted=Targeted
 enderutilities.tooltip.item.bucket.mode.bind=Bind to tanks
@@ -238,8 +267,13 @@ enderutilities.tooltip.item.bucket.mode.fill=Fill bucket
 enderutilities.tooltip.item.bucket.mode.drain=Drain bucket
 enderutilities.tooltip.item.bucket.mode.normal=Normal
 enderutilities.tooltip.item.build.column=Column
+enderutilities.tooltip.item.build.copy=Copy
 enderutilities.tooltip.item.build.cube=Cube (solid)
+enderutilities.tooltip.item.build.delete=Delete
+enderutilities.tooltip.item.build.extend.area=Extend area
+enderutilities.tooltip.item.build.extend.continuous=Extend cont.
 enderutilities.tooltip.item.build.line=Line
+enderutilities.tooltip.item.build.paste=Paste
 enderutilities.tooltip.item.build.plane=Plane
 enderutilities.tooltip.item.build.walls=Walls
 enderutilities.tooltip.item.builderswand.allowdiagonals=Allow diagonals
@@ -250,8 +284,6 @@ enderutilities.tooltip.item.cached.fluid.compact=Last
 enderutilities.tooltip.item.capture=Capture
 enderutilities.tooltip.item.charge=Charge
 enderutilities.tooltip.item.craftingingredient=Crafting ingredient
-enderutilities.tooltip.item.difference=Difference
-enderutilities.tooltip.item.dimensions=Dimensions
 enderutilities.tooltip.item.disabled=Disabled
 enderutilities.tooltip.item.durability=Durability
 enderutilities.tooltip.item.enabled=Enabled
@@ -264,8 +296,6 @@ enderutilities.tooltip.item.endertool.playerinv=Player
 enderutilities.tooltip.item.endertool.remote=Remote
 enderutilities.tooltip.item.enhanced=Enhanced
 enderutilities.tooltip.item.empty=empty
-enderutilities.tooltip.item.extend.area=Extend area
-enderutilities.tooltip.item.extend.continuous=Extend cont.
 enderutilities.tooltip.item.fast=Fast
 enderutilities.tooltip.item.flipaxis=Flip axis
 enderutilities.tooltip.item.fluid=Fluid
@@ -282,6 +312,7 @@ enderutilities.tooltip.item.memorycard.items.stackcount.2=stacks and
 enderutilities.tooltip.item.memorycard.items.stackcount.3=items in total
 enderutilities.tooltip.item.memorycard.nodata=Empty
 enderutilities.tooltip.item.memorycard.unknowndata=Unknown data
+enderutilities.tooltip.item.mirror=Mirror
 enderutilities.tooltip.item.mode=Mode
 enderutilities.tooltip.item.morestacksnotlisted=more stacks not listed
 enderutilities.tooltip.item.no=no
@@ -302,8 +333,12 @@ enderutilities.tooltip.item.release=Release
 enderutilities.tooltip.item.renderall=Render all
 enderutilities.tooltip.item.rendercurrentwithall=Render current with all
 enderutilities.tooltip.item.renderwhenunselected=Render when unselected
+enderutilities.tooltip.item.replace=Replace
 enderutilities.tooltip.item.restockmode=Restock mode
 enderutilities.tooltip.item.restockmode.short=RM
+enderutilities.tooltip.item.rotation=Rotation
+enderutilities.tooltip.item.ruler.difference=Ruler - Difference
+enderutilities.tooltip.item.ruler.dimensions=Ruler - Dimensions
 enderutilities.tooltip.item.selected=Selected
 enderutilities.tooltip.item.selectedblock=Selected block
 enderutilities.tooltip.item.selectedlinkcrystal=Selected Link Crystal:
@@ -311,9 +346,11 @@ enderutilities.tooltip.item.selectedlinkcrystal.short=LC:
 enderutilities.tooltip.item.selectedmemorycard=Selected Memory Card:
 enderutilities.tooltip.item.selectedmemorycard.notinstalled=no card selected
 enderutilities.tooltip.item.selectedmemorycard.short=MC:
+enderutilities.tooltip.item.selectedtemplate=Selected template
 enderutilities.tooltip.item.slots=Slots
 enderutilities.tooltip.item.start=Start
 enderutilities.tooltip.item.target=Target
+enderutilities.tooltip.item.template=Template
 enderutilities.tooltip.item.tier=Tier
 enderutilities.tooltip.item.tpself=TP self
 enderutilities.tooltip.item.tptarget=TP target
@@ -323,9 +360,13 @@ enderutilities.tooltip.item.yes=yes
 
 # Chat messages:
 
+enderutilities.chat.message.areasavedtotemplate=Area saved to template %d
+enderutilities.chat.message.areatoolarge=Area is too large, maximum dimensions are %d
+enderutilities.chat.message.creativeonly=This feature is only available in Creative mode
 enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
 enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range
+enderutilities.chat.message.featuredisabled=This feature has been disabled on the server
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
 

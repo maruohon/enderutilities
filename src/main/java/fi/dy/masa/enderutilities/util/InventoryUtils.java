@@ -17,11 +17,13 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
     public static final int SLOT_ITER_LIMIT = 128;
+    public static final ItemStackHandlerBasic NULL_INV = new ItemStackHandlerBasic(0);
 
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
@@ -1307,15 +1309,39 @@ public class InventoryUtils
                     }
                 }
 
+                //System.out.printf("setting stack: %s to slot: %d - slots: %d\n", stack, slot, slots + 1);
                 // Put the stack (collected starting from this slot towards the end of the inventory) into this slot
                 inv.setStackInSlot(slot, stack);
-                //System.out.printf("setting stack: %s to slot: %d - slots: %d\n", stack, slot, slots + 1);
+
+                /*if (inv instanceof IItemHandlerModifiable)
+                {
+                    ((IItemHandlerModifiable)inv).setStackInSlot(slot, stack);
+                }
+                else
+                {
+                    tryToEmptySlot(inv, slots, 128);
+                    inv.insertItem(slot, stack, false);
+                }*/
+
                 slot++;
                 slots++;
             }
         }
 
         return slots;
+    }
+
+    /**
+     * Tries to empty out the given slot by repeatedly calling extractItem() on it and just ignoring the items
+     */
+    public static boolean tryToEmptySlot(IItemHandler inv, int slot, int maxIterations)
+    {
+        for (int i = 0; i < maxIterations && inv.getStackInSlot(slot) != null; i++)
+        {
+            inv.extractItem(slot, 1048576, false); // 1M because why not :p
+        }
+
+        return inv.getStackInSlot(slot) == null;
     }
 
     public static class ItemTypeByName extends ItemType implements Comparable<ItemTypeByName>

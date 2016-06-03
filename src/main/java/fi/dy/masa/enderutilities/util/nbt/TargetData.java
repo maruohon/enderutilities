@@ -12,11 +12,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -141,6 +139,11 @@ public class TargetData
 
     public static TargetData readTargetFromNBT(NBTTagCompound nbt)
     {
+        if (nbtHasTargetTag(nbt) == false)
+        {
+            return null;
+        }
+
         TargetData target = new TargetData();
         target.readTargetTagFromNBT(nbt);
 

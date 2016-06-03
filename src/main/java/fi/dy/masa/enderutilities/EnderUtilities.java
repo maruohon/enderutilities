@@ -1,17 +1,15 @@
 package fi.dy.masa.enderutilities;
 
 import java.util.List;
-
 import org.apache.logging.log4j.Logger;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -20,7 +18,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
@@ -37,8 +34,8 @@ import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
-     dependencies = "required-after:Forge@[12.16.0.1859,);",
-     acceptedMinecraftVersions = "1.9")
+     dependencies = "required-after:Forge@[12.17.0.1922,);",
+     acceptedMinecraftVersions = "1.9.4")
 public class EnderUtilities
 {
     @Instance(Reference.MOD_ID)
@@ -67,6 +64,12 @@ public class EnderUtilities
         proxy.registerRenderers();
         proxy.registerSounds();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        proxy.registerColorHandlers();
     }
 
     @EventHandler

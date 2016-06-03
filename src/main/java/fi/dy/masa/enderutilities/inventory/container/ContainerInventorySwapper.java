@@ -169,10 +169,9 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         ItemStack stack = this.getContainerItem();
 
-        int slots = this.inventoryItemModular.getSlots();
-
         // Middle click
-        if (clickType == ClickType.CLONE && dragType == 2 && stack != null && slotNum >= (slots + 4) && slotNum < ((2 * slots) + 4))
+        if (clickType == ClickType.CLONE && dragType == 2 && stack != null &&
+            (this.playerMainSlots.contains(slotNum) || this.playerArmorSlots.contains(slotNum)))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)

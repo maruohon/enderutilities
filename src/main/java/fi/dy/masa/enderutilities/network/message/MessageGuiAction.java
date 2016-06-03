@@ -6,6 +6,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -14,11 +19,6 @@ import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class MessageGuiAction implements IMessage
 {
@@ -114,10 +114,15 @@ public class MessageGuiAction implements IMessage
                 switch(message.guiId)
                 {
                     case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                        TileEntity te = world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
-                        if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+                        BlockPos pos = new BlockPos(message.posX, message.posY, message.posZ);
+
+                        if (world.isBlockLoaded(pos))
                         {
-                            ((TileEntityEnderUtilitiesInventory)te).performGuiAction(player, message.action, message.elementId);
+                            TileEntity te = world.getTileEntity(pos);
+                            if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+                            {
+                                ((TileEntityEnderUtilitiesInventory) te).performGuiAction(player, message.action, message.elementId);
+                            }
                         }
                         break;
 

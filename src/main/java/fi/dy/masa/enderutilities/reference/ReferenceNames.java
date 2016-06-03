@@ -45,9 +45,13 @@ public class ReferenceNames
     public static final String NAME_ITEM_RULER                  = "ruler";
 
 
+    public static final String NAME_TILE_ENDER_ELEVATOR         = "enderelevator";
     public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
+    public static final String NAME_TILE_FRAME                  = "frame";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";
     public static final String NAME_TILE_MACHINE_1              = "machine_1";
+    public static final String NAME_TILE_PORTAL                 = "portal";
+    public static final String NAME_TILE_PORTAL_PANEL           = "portal_panel";
     public static final String NAME_TILE_STORAGE_0              = "storage_0";
 
     public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge_transmitter";

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.client.renderer.tileentity;
 
 import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -11,10 +10,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge.Type;
 
@@ -133,7 +130,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         // Energy Bridge Resonator
         else if (type == Type.RESONATOR)
         {
-            EnumFacing dirFront = EnumFacing.getFront(teeb.getRotation());
+            EnumFacing dirFront = teeb.getFacing();
             EnumFacing dirSide = dirFront.rotateY();
 
             // From Resonator to Receiver

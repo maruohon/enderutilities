@@ -2,24 +2,19 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.BlockUtils;
@@ -76,17 +71,16 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
-        byte f = nbt.getByte("f");
+        byte f = tag.getByte("f");
 
         this.isActive = ((f & 0x80) != 0);
         this.isPowered = ((f & 0x40) != 0);
         this.blockType = f & 0x03;
         this.getBeamEndPoints();
 
-        super.onDataPacket(net, packet);
+        super.handleUpdateTag(tag);
     }
 
     protected void setActiveState(boolean isActive)
@@ -205,7 +199,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // position of the middle block in the y-plane of the resonators
         BlockPos posResonatorBase = pos;
         BlockPos posMaster = pos;
-        EnumFacing facing = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
+        EnumFacing facing = ((TileEntityEnergyBridge)te).getFacing();
 
         int yOffset = type == Type.TRANSMITTER ? 3 : 0;
 
@@ -391,7 +385,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // The given location is a resonator, not the master block; get the master block's location
         if (type == Type.RESONATOR)
         {
-            EnumFacing dir = EnumFacing.getFront(((TileEntityEnergyBridge)te).getRotation());
+            EnumFacing dir = ((TileEntityEnergyBridge)te).getFacing();
             type = this.worldObj.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
             int yOffset = type == Type.TRANSMITTER ? 3 : 0;
             posMaster = pos.add(0, yOffset, 0).offset(dir, 3);

@@ -8,17 +8,16 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -35,13 +34,13 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     public static final PropertyEnum<BlockMachine.EnumMachineType> TYPE =
             PropertyEnum.<BlockMachine.EnumMachineType>create("type", BlockMachine.EnumMachineType.class);
 
-    public BlockMachine(String name, float hardness, int harvestLevel, Material material)
+    public BlockMachine(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -51,7 +50,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,
@@ -62,31 +61,17 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        EnumMachineType type = state.getValue(TYPE);
-        switch (type)
+        switch (state.getValue(TYPE))
         {
-            case CREATION_STATION: return new TileEntityCreationStation();
-            case ENDER_INFUSER: return new TileEntityEnderInfuser();
-            case QUICK_STACKER: return new TileEntityQuickStackerAdvanced();
-            case TOOL_WORKSTATION: return new TileEntityToolWorkstation();
+            case CREATION_STATION:  return new TileEntityCreationStation();
+            case ENDER_INFUSER:     return new TileEntityEnderInfuser();
+            case QUICK_STACKER:     return new TileEntityQuickStackerAdvanced();
+            case TOOL_WORKSTATION:  return new TileEntityToolWorkstation();
         }
 
         return new TileEntityEnderInfuser();
-    }
-
-    @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
-    {
-        if (worldIn.isRemote == false)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityEnderUtilities)
-            {
-                ((TileEntityEnderUtilities)te).onLeftClickBlock(playerIn);
-            }
-        }
     }
 
     @Override
@@ -132,23 +117,6 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     public int getMetaFromState(IBlockState state)
     {
         return state.getValue(TYPE).getMeta();
-    }
-
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities)
-        {
-            EnumFacing facing = EnumFacing.getFront(((TileEntityEnderUtilities)te).getRotation());
-
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
-        }
-
-        return state;
     }
 
     @Override

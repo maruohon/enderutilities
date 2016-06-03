@@ -7,12 +7,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
@@ -114,17 +114,15 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
-
-        this.chestTier = nbt.getByte("tier");
-        this.selectedModule = nbt.getByte("msel");
+        this.chestTier = tag.getByte("tier");
+        this.selectedModule = tag.getByte("msel");
         this.invSize = INV_SIZES[this.chestTier];
 
         this.initStorage(this.invSize, true);
 
-        super.onDataPacket(net, packet);
+        super.handleUpdateTag(tag);
     }
 
     @Override
@@ -292,9 +290,19 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         {
             this.actionMode = element;
         }
-        else if (action == GUI_ACTION_SORT_ITEMS)
+        else if (action == GUI_ACTION_SORT_ITEMS && element >= 0 && element <= 1)
         {
-            InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
+            // Chest inventory
+            if (element == 0)
+            {
+                InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
+            }
+            // Player inventory (don't sort the hotbar)
+            else
+            {
+                IItemHandlerModifiable inv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                InventoryUtils.sortInventoryWithinRange(inv, new SlotRange(9, 27));
+            }
         }
     }
 

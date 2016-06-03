@@ -34,7 +34,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             "enderutilities.gui.label.clearcraftinggrid",
             "enderutilities.gui.label.useoredictionary",
             "enderutilities.gui.label.leaveoneitemongrid",
-            "enderutilities.gui.label.useitemsfrominventory"
+            "enderutilities.gui.label.useitemsfrominventory",
+            "enderutilities.gui.label.sortitems"
     };
 
     private final TileEntityCreationStation tecs;
@@ -310,6 +311,12 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         this.buttonList.add(new GuiButtonHoverText(16, x + 174, y + 89, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
         this.buttonList.add(new GuiButtonHoverText(17, x + 187, y + 89, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
 
+        // Add the sort button for the station inventory
+        this.buttonList.add(new GuiButtonHoverText(30, x + 116, y + 90, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[11]));
+
+        // Add the sort button for the player inventory
+        this.buttonList.add(new GuiButtonHoverText(31, x + 116, y + 162, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[11]));
+
         // Add the left and right side furnace mode buttons
         this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
                 0, this, BUTTON_STRINGS[6]));
@@ -409,6 +416,12 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                 action = TileEntityCreationStation.GUI_ACTION_RECIPE_CLEAR;
                 element = button.id - 20;
             }
+        }
+        // Sort buttons
+        else if (button.id >= 30 && button.id <= 31)
+        {
+            action = TileEntityCreationStation.GUI_ACTION_SORT_ITEMS;
+            element = button.id - 30;
         }
         else
         {

@@ -14,8 +14,6 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -123,7 +121,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         nbt = super.getUpdatePacketTag(nbt);
 
-        byte flags = (byte)(this.getRotation() & 0x07);
+        byte flags = 0;
         // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active
         if (canSmelt() == true) { flags |= 0x10; }
         if (isBurning() == true) { flags |= 0x20; }
@@ -134,16 +132,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
-        byte flags = nbt.getByte("f");
-        this.setRotation((byte)(flags & 0x07));
+        byte flags = tag.getByte("f");
         this.isCookingLast = (flags & 0x10) == 0x10;
         this.isBurningLast = (flags & 0x20) == 0x20;
         this.fastMode = (flags & 0x40) == 0x40;
 
-        super.onDataPacket(net, packet);
+        super.handleUpdateTag(tag);
 
         this.worldObj.checkLight(this.getPos());
     }

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
@@ -19,12 +20,14 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class GuiHandyBag extends GuiContainerLargeStacks
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
     public static final int BTN_ID_FIRST_SORT          = 10;
+    public static final int BTN_ID_FIRST_BLOCK         = 14;
 
     private static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
@@ -33,7 +36,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
             "enderutilities.gui.label.moveallitems",
-            "enderutilities.gui.label.sortitems"
+            "enderutilities.gui.label.sortitems",
+            "enderutilities.gui.label.blockquickactions"
     };
 
     private final ContainerHandyBag containerHB;
@@ -168,6 +172,25 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             }
         }
 
+        // Draw the hilight border for active Block buttons
+        ItemStack stack = this.containerHB.getContainerItem();
+        if (stack != null)
+        {
+            int x = (this.width - this.xSize) / 2;
+            int y = (this.height - this.ySize) / 2;
+            long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+            int[] xPos = new int[] { 112 - 1, 21 - 1, 227 - 1 };
+            long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+
+            for (int i = 0; i < 3; i++)
+            {
+                if ((lockMask & masks[i]) == masks[i])
+                {
+                    this.drawTexturedModalRect(x + xPos[i], y + 90, 120, 24, 10, 10);
+                }
+            }
+        }
+
         int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
         // Draw the player model
         GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.thePlayer);
@@ -211,16 +234,26 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         x = (this.width - this.xSize) / 2;
         y = (this.height - this.ySize) / 2;
 
-        // Add the sort button(s)
         if (this.bagTier == 0)
         {
+            // Add the sort buttons
             this.buttonList.add(new GuiButtonHoverText(10, x + 84, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            // Sort player inventory
+            this.buttonList.add(new GuiButtonHoverText(13, x + 84, y + 161, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
         }
         else
         {
-            this.buttonList.add(new GuiButtonHoverText(10, x + 124, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            // Add the sort buttons
             this.buttonList.add(new GuiButtonHoverText(11, x +  33, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(10, x + 124, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             this.buttonList.add(new GuiButtonHoverText(12, x + 215, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            // Sort player inventory
+            this.buttonList.add(new GuiButtonHoverText(13, x + 124, y + 161, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+
+            // Add the section locking buttons
+            this.buttonList.add(new GuiButtonHoverText(15, x +  21, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonHoverText(14, x + 112, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonHoverText(16, x + 227, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
         }
     }
 
@@ -264,10 +297,15 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_MOVE_ITEMS, value));
         }
-        else if (button.id >= BTN_ID_FIRST_SORT && button.id < (BTN_ID_FIRST_SORT + 3))
+        else if (button.id >= BTN_ID_FIRST_SORT && button.id < (BTN_ID_FIRST_SORT + 4))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_SORT_ITEMS, button.id - BTN_ID_FIRST_SORT));
+        }
+        else if (button.id >= BTN_ID_FIRST_BLOCK && button.id < (BTN_ID_FIRST_BLOCK + 3))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_BLOCK, button.id - BTN_ID_FIRST_BLOCK));
         }
     }
 

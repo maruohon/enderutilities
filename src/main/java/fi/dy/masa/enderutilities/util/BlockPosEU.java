@@ -4,7 +4,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-
 import net.minecraftforge.common.util.Constants;
 
 public class BlockPosEU
@@ -51,6 +50,11 @@ public class BlockPosEU
         this.side = EnumFacing.getFront(face);
     }
 
+    public BlockPosEU add(BlockPosEU pos)
+    {
+        return this.add(pos.posX, pos.posY, pos.posZ);
+    }
+
     /**
      * Add the given offsets to the position.
      * Returns a new instance with the changes applied and does not modify the original.
@@ -58,6 +62,16 @@ public class BlockPosEU
     public BlockPosEU add(int x, int y, int z)
     {
         return new BlockPosEU(this.posX + x, this.posY + y, this.posZ + z, this.dimension, this.face);
+    }
+
+    public BlockPosEU subtract(BlockPosEU other)
+    {
+        if (other.posX == 0 && other.posY == 0 && other.posZ == 0)
+        {
+            return this;
+        }
+
+        return new BlockPosEU(this.posX - other.posX, this.posY - other.posY, this.posZ - other.posZ);
     }
 
     /**
@@ -156,7 +170,14 @@ public class BlockPosEU
     public static EnumFacing getRotation(EnumFacing facing, EnumFacing axis)
     {
         EnumFacing newFacing = facing.rotateAround(axis.getAxis());
-        return axis.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE ? newFacing : newFacing.getOpposite();
+
+        if (axis.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE)
+        {
+            return newFacing;
+        }
+
+        // Negative axis direction, if the facing was actually rotated then get the opposite
+        return newFacing != facing ? newFacing.getOpposite() : facing;
     }
 
     @Override

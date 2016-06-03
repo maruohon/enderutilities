@@ -6,55 +6,46 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class BlockInfo
 {
-    public Block block;
-    public ResourceLocation resource;
-    public int blockMeta;
-    public int itemMeta;
+    public final IBlockState blockState;
+    public final Block block;
+    public final int blockMeta;
+    public final int itemMeta;
+    public final ResourceLocation resource;
 
     public BlockInfo(World world, BlockPos pos)
     {
-        IBlockState state = world.getBlockState(pos);
-        Block block = state.getBlock();
-        int blockMeta = block.getMetaFromState(state);
-        int itemMeta = 0;
+        this.blockState = world.getBlockState(pos).getActualState(world, pos);
+        this.block = this.blockState.getBlock();
+        this.blockMeta = this.block.getMetaFromState(this.blockState);
+        this.resource = ForgeRegistries.BLOCKS.getKey(this.block);
 
         @SuppressWarnings("deprecation")
-        ItemStack stack = block.getItem(world, pos, state);
-        if (stack != null)
-        {
-            itemMeta = stack.getMetadata();
-        }
-
-        this.block = block;
-        this.resource = ForgeRegistries.BLOCKS.getKey(block);
-        this.blockMeta = blockMeta;
-        this.itemMeta = itemMeta;
-    }
-
-    public BlockInfo(Block block, int blockMeta, int itemMeta)
-    {
-        this.block = block;
-        this.resource = ForgeRegistries.BLOCKS.getKey(block);
-        this.blockMeta = blockMeta;
-        this.itemMeta = itemMeta;
+        ItemStack stack = this.block.getItem(world, pos, this.blockState);
+        this.itemMeta = stack != null ? stack.getMetadata() : 0;
     }
 
     public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
     {
-        this.block = ForgeRegistries.BLOCKS.getValue(resource);
-        this.resource = resource;
+        this(ForgeRegistries.BLOCKS.getValue(resource), blockMeta, itemMeta);
+    }
+
+    @SuppressWarnings("deprecation")
+    public BlockInfo(Block block, int blockMeta, int itemMeta)
+    {
+        this.block = block;
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
+        this.blockState = this.block.getStateFromMeta(this.blockMeta);
+        this.resource = ForgeRegistries.BLOCKS.getKey(block);
     }
 
     @Override
     public String toString()
     {
-        return String.format("BlockInfo: {block rl: %s, blockMeta: %d, itemMeta: %d}", this.resource, this.blockMeta, this.itemMeta);
+        return String.format("BlockInfo: {ResourceLocation: %s, blockMeta: %d, itemMeta: %d}", this.resource, this.blockMeta, this.itemMeta);
     }
 }

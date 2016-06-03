@@ -9,6 +9,7 @@ public class Configs
 
     // Generic
     public static int configFileVersion;
+    public static boolean buildersWandEnableCopyPaste;
     public static int buildersWandBlocksPerTick;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;
@@ -26,9 +27,13 @@ public class Configs
     public static String[] teleportBlacklist;
 
     // Block disable
+    public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
+    public static boolean disableBlockPortal;
+    public static boolean disableBlockPortalFrame;
+    public static boolean disableBlockPortalPanel;
     public static boolean disableBlockStorage_0;
 
     // Item disable
@@ -57,15 +62,19 @@ public class Configs
 
     // Recipe disable
     // Blocks
-    public static boolean disableRecipeEnderFurnace;
+    public static boolean disableRecipeAdvancedQuickStacker;
+    public static boolean disableRecipeCreationStation;
+    public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
+    public static boolean disableRecipePortalFrame;
+    public static boolean disableRecipePortalPanel;
     public static boolean disableRecipeToolWorkstation;
+
+    public static boolean disableRecipeEnderFurnace;
 
     public static boolean disableRecipeEnergyBridgeTransmitter;
     public static boolean disableRecipeEnergyBridgeReceiver;
     public static boolean disableRecipeEnergyBridgeResonator;
-
-    public static boolean disableRecipeCreationStation;
 
     public static boolean disableRecipeHandyChest_0;
     public static boolean disableRecipeHandyChest_1;

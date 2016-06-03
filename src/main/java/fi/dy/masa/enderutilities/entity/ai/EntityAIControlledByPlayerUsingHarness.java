@@ -11,8 +11,8 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
 {
-    public EntityLiving entity;
-    public float maxSpeed;
+    public final EntityLiving entity;
+    public final float maxSpeed;
 
     public EntityAIControlledByPlayerUsingHarness(EntityLiving living, float maxSpeed)
     {
@@ -29,18 +29,21 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     @Override
     public void startExecuting()
     {
+        //System.out.printf("%s - startExecuting()\n", this.getClass().getSimpleName());
         this.setMutexBits(7); // Block most other AI tasks while riding a mob. Mostly just the swim task is allowed.
     }
 
     @Override
     public void resetTask()
     {
+        //System.out.printf("%s - resetTask()\n", this.getClass().getSimpleName());
         this.setMutexBits(0); // Don't block other AI tasks when not running
     }
 
     @Override
     public void updateTask()
     {
+        //System.out.printf("%s - updateTask()\n", this.getClass().getSimpleName());
         Entity top = EntityUtils.getTopEntity(this.entity);
         if (top instanceof EntityPlayer)
         {
@@ -51,6 +54,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
     @Override
     public boolean shouldExecute()
     {
+        //System.out.printf("%s - shouldExecute()\n", this.getClass().getSimpleName());
         Entity rider = EntityUtils.getTopEntity(this.entity);
         return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer &&
                 ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));

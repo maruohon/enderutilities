@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.block;
 
 import java.util.List;
 import java.util.Random;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -13,31 +12,31 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 {
     //public static final PropertyEnum<EnumMachineType> TYPE = PropertyEnum.<EnumMachineType>create("type", EnumMachineType.class);
     public static final PropertyEnum<EnumMachineMode> MODE = PropertyEnum.<EnumMachineMode>create("mode", EnumMachineMode.class);
 
-    public BlockEnderFurnace(String name, float hardness, int harvestLevel, Material material)
+    public BlockEnderFurnace(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(MODE, EnumMachineMode.OFF)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
@@ -47,7 +46,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE
@@ -55,7 +54,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityEnderFurnace();
     }
@@ -96,6 +95,8 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
+        state = super.getActualState(state, worldIn, pos);
+
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnderFurnace)
         {
@@ -106,12 +107,6 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
                     teef.fastMode == true ? EnumMachineMode.ON_FAST : EnumMachineMode.ON_NORMAL);
 
             state = state.withProperty(MODE, mode);
-
-            EnumFacing facing = EnumFacing.getFront(teef.getRotation());
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
         }
 
         return state;

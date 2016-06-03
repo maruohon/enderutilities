@@ -1,16 +1,21 @@
 package fi.dy.masa.enderutilities.event;
 
+import java.io.IOException;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageOpenGui;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiEventHandler
@@ -56,6 +61,27 @@ public class GuiEventHandler
                 }
 
                 PacketHandler.INSTANCE.sendToServer(new MessageOpenGui(player.dimension, ReferenceGuiIds.GUI_ID_HANDY_BAG));
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void mouseInputEvent(MouseInputEvent.Pre event)
+    {
+        // Handle the mouse input inside all of the mod's GUIs via the event and then cancel the event,
+        // so that some mods like Inventory Sorter don't try to sort the Ender Utilities inventories.
+        // Using priority LOW should still allow even older versions of Item Scroller to work,
+        // since it uses normal priority.
+        if (event.getGui() instanceof GuiEnderUtilities)
+        {
+            try
+            {
+                event.getGui().handleMouseInput();
+                event.setCanceled(true);
+            }
+            catch (IOException e)
+            {
+                EnderUtilities.logger.warn("Exception while executing handleMouseInput() on {}", event.getGui().getClass().getName());
             }
         }
     }

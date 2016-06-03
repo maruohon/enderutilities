@@ -8,11 +8,11 @@ public interface IProxy
 {
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);
 
+    public void registerColorHandlers();
+
     public void registerEntities();
 
     public void registerEventHandlers();
-
-    public void registerFuelHandlers();
 
     public void registerKeyBindings();
 

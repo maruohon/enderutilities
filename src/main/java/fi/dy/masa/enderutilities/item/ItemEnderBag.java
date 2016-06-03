@@ -346,7 +346,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        OwnerData playerData = OwnerData.getPlayerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        OwnerData playerData = OwnerData.getOwnerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         String locked = (playerData != null && playerData.getIsPublic() == false) ? "locked=true" : "locked=false";
         String mode = (target != null && "minecraft:ender_chest".equals(target.blockName)) ? ",mode=ender" : ",mode=normal";
         String isOpen = (stack.getTagCompound() != null && stack.getTagCompound().getBoolean("IsOpen") == true) ? "_open" : "_closed";

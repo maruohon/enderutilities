@@ -267,7 +267,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return itemsIn;
         }
 
-        OwnerData owner = OwnerData.getPlayerDataFromItem(moduleStack);
+        OwnerData owner = OwnerData.getOwnerDataFromItem(moduleStack);
         if (owner != null && owner.canAccess(player) == false)
         {
             return itemsIn;

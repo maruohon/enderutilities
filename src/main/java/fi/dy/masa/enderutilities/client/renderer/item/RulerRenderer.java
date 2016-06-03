@@ -14,10 +14,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -29,41 +25,19 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 @SideOnly(Side.CLIENT)
 public class RulerRenderer
 {
-    public Minecraft mc;
-    public float partialTicks;
+    public static final int[] COLORS = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+    protected final Minecraft mc;
+    protected final Map<Integer, List<BlockPosEU>> positions;
     public float partialTicksLast;
-    Map<Integer, List<BlockPosEU>> positions;
-    public String modeStrDim;
-    public String modeStrDiff;
-    public static int[] colors = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+    public String modeStrDimensions;
+    public String modeStrDifference;
 
     public RulerRenderer()
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDim = I18n.format("enderutilities.tooltip.item.dimensions");
-        this.modeStrDiff = I18n.format("enderutilities.tooltip.item.difference");
-    }
-
-    @SubscribeEvent
-    public void onRenderWorldLast(RenderWorldLastEvent event)
-    {
-        this.partialTicks = event.getPartialTicks();
-
-        this.renderAllPositionPairs();
-
-        this.partialTicksLast = this.partialTicks;
-    }
-
-    @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
-    {
-        if (event.getType() != ElementType.ALL)
-        {
-            return;
-        }
-
-        this.renderHud();
+        this.modeStrDimensions = I18n.format("enderutilities.tooltip.item.ruler.dimensions");
+        this.modeStrDifference = I18n.format("enderutilities.tooltip.item.ruler.difference");
     }
 
     public void renderHud()
@@ -113,14 +87,14 @@ public class RulerRenderer
         int lenX = Math.abs(posStart.posX - posEnd.posX);
         int lenY = Math.abs(posStart.posY - posEnd.posY);
         int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
-        String modeStr = this.modeStrDiff;
+        String modeStr = this.modeStrDifference;
 
         if (item.getDistanceMode(stack) == ItemRuler.DISTANCE_MODE_DIMENSIONS)
         {
             lenX += 1;
             lenY += 1;
             lenZ += 1;
-            modeStr = this.modeStrDim;
+            modeStr = this.modeStrDimensions;
         }
 
         ScaledResolution scaledResolution = new ScaledResolution(this.mc);
@@ -132,7 +106,7 @@ public class RulerRenderer
         this.mc.fontRendererObj.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
     }
 
-    public void renderAllPositionPairs()
+    public void renderAllPositionPairs(float partialTicks)
     {
         EntityPlayer player = this.mc.thePlayer;
         if (player == null)
@@ -169,14 +143,14 @@ public class RulerRenderer
 
             for (int i = 0; i < count; i++)
             {
-                int color = i < colors.length ? colors[i] : 0x70FFFF;
+                int color = i < COLORS.length ? COLORS[i] : 0x70FFFF;
 
                 // We render the selected location pair last
                 if (i != selected && item.getAlwaysRenderLocation(stack, i) == true)
                 {
                     BlockPosEU posStart = item.getPosition(stack, i, ItemRuler.POS_START);
                     BlockPosEU posEnd = item.getPosition(stack, i, ItemRuler.POS_END);
-                    this.renderPointPair(player, posStart, posEnd, color, this.partialTicks);
+                    this.renderPointPair(player, posStart, posEnd, color, partialTicks);
                 }
             }
         }
@@ -184,15 +158,17 @@ public class RulerRenderer
         // Render the currently selected point pair in white
         BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
         BlockPosEU posEnd = item.getPosition(stack, selected, ItemRuler.POS_END);
-        this.renderPointPair(player, posStart, posEnd, 0xFFFFFF, this.partialTicks);
+        this.renderPointPair(player, posStart, posEnd, 0xFFFFFF, partialTicks);
 
         GlStateManager.popMatrix();
         GlStateManager.enableTexture2D();
         GlStateManager.enableCull();
         GlStateManager.depthMask(true);
+
+        this.partialTicksLast = partialTicks;
     }
 
-    public void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
+    private void renderPointPair(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
         if ((posStart != null && posStart.dimension != player.dimension) || (posEnd != null && posEnd.dimension != player.dimension))
         {
@@ -200,7 +176,7 @@ public class RulerRenderer
         }
 
         // Only update the positions once per game tick
-        //if (this.partialTicks < this.partialTicksLast)
+        //if (partialTicks < this.partialTicksLast)
         {
             this.updatePositions(player, posStart, posEnd);
         }
@@ -209,7 +185,7 @@ public class RulerRenderer
         this.renderStartAndEndPositions(player, posStart, posEnd, partialTicks);
     }
 
-    public void renderPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
+    private void renderPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
         GL11.glLineWidth(2.0f);
         for (int a = 0; a < 3; a++)
@@ -232,7 +208,7 @@ public class RulerRenderer
         }
     }
 
-    public void renderStartAndEndPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    private void renderStartAndEndPositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         if (posStart != null)
         {
@@ -251,7 +227,7 @@ public class RulerRenderer
         }
     }
 
-    public void updatePositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd)
+    private void updatePositions(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd)
     {
         if (posStart == null && posEnd == null)
         {
@@ -265,11 +241,11 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
@@ -301,7 +277,7 @@ public class RulerRenderer
         }
     }
 
-    public List<BlockPosEU> getColumn(BlockPosEU posNear, BlockPosEU posFar, int axis, boolean includeStart, boolean includeEnd)
+    private List<BlockPosEU> getColumn(BlockPosEU posNear, BlockPosEU posFar, int axis, boolean includeStart, boolean includeEnd)
     {
         List<BlockPosEU> list = new ArrayList<BlockPosEU>();
 
@@ -341,7 +317,7 @@ public class RulerRenderer
         return list;
     }
 
-    public class BlockPosAligner
+    private class BlockPosAligner
     {
         public final double[] playerPos;
         public int longestAxis;
@@ -358,11 +334,11 @@ public class RulerRenderer
             };
         }
 
-        public int getLongestAxisLength()
+        /*public int getLongestAxisLength()
         {
             this.getLongestAxis();
             return this.axisLength;
-        }
+        }*/
 
         public int getLongestAxis()
         {

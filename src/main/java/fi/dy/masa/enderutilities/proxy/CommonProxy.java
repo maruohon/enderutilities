@@ -4,13 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -26,17 +24,10 @@ import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import fi.dy.masa.enderutilities.tileentity.*;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
-public abstract class CommonProxy implements IProxy
+public class CommonProxy implements IProxy
 {
     @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
@@ -50,6 +41,9 @@ public abstract class CommonProxy implements IProxy
                 return null;
         }
     }
+
+    @Override
+    public void registerColorHandlers() { }
 
     @Override
     public void registerEntities()
@@ -75,33 +69,13 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
-    public void registerFuelHandlers()
-    {
-        //GameRegistry.registerFuelHandler(new FuelHandler());
-    }
+    public void registerKeyBindings() { }
 
     @Override
-    public void registerTileEntities()
-    {
-        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
-        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
-        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
-        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
-        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-    }
+    public void registerModels() { }
 
     @Override
-    public void registerKeyBindings()
-    {
-    }
-
-    @Override
-    public void registerRenderers()
-    {
-    }
+    public void registerRenderers() { }
 
     @Override
     public void registerSounds()
@@ -111,9 +85,23 @@ public abstract class CommonProxy implements IProxy
     }
 
     @Override
-    public void setupReflection()
+    public void registerTileEntities()
     {
+        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntity(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
+        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
+        this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
+        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
     }
+
+    @Override
+    public void setupReflection() { }
 
     @Override
     public boolean isShiftKeyDown()
