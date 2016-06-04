@@ -15,6 +15,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
@@ -134,6 +135,10 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 UtilItemModular.useEnderCharge(stack, cost, false);
                 return true;
             }
+        }
+        else
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.notenoughendercharge"));
         }
 
         return false;
