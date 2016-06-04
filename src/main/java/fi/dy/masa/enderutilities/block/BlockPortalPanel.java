@@ -1,9 +1,12 @@
 package fi.dy.masa.enderutilities.block;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -14,22 +17,47 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
+import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 
 public class BlockPortalPanel extends BlockEnderUtilitiesInventory
 {
-    protected static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(  0.0D,  0.0D,  0.0D,  1.0D,  1.0D, 0.25D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(  0.0D,  0.0D, 0.75D,  1.0D,  1.0D,  1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB( 0.75D,  0.0D,  0.0D,  1.0D,  1.0D,  1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(  0.0D,  0.0D,  0.0D, 0.25D,  1.0D,  1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(  0.0D,  0.0D,  0.0D,  1.0D, 0.25D,  1.0D);
-    protected static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(  0.0D, 0.75D,  0.0D,  1.0D,  1.0D,  1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_BASE  = new AxisAlignedBB(    1.0D,    0.0D,    1.0D,    0.0D,    1.0D,   0.75D);
+    public static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(    0.0D,    0.0D,    0.0D,    1.0D,    1.0D, 0.3125D);
+    public static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(    0.0D,    0.0D, 0.6875D,    1.0D,    1.0D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB( 0.6875D,    0.0D,    0.0D,    1.0D,    1.0D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(    0.0D,    0.0D,    0.0D, 0.3225D,    1.0D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(    0.0D,    0.0D,    0.0D,    1.0D, 0.3225D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(    0.0D, 0.6875D,    0.0D,    1.0D,    1.0D,    1.0D);
+
+    public static final float BTN_X  = 15.5f / 16f;
+    public static final float BTN_Y1 =   12f / 16f;
+    public static final float BTN_Y2 =    1f / 16f;
+    public static final float BTN_W  =    3f / 16f;
+    public static final float BTN_D  =    4f / 16f;
+    public static final float BTN_ZS =   12f / 16f;
+    public static final float BTN_ZE =   11f / 16f;
+
+    public static final AxisAlignedBB BUTTON_1 = new AxisAlignedBB(BTN_X - 0 * BTN_D, BTN_Y1, BTN_ZS, BTN_X - 0 * BTN_D - BTN_W, BTN_Y1 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_2 = new AxisAlignedBB(BTN_X - 1 * BTN_D, BTN_Y1, BTN_ZS, BTN_X - 1 * BTN_D - BTN_W, BTN_Y1 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_3 = new AxisAlignedBB(BTN_X - 2 * BTN_D, BTN_Y1, BTN_ZS, BTN_X - 2 * BTN_D - BTN_W, BTN_Y1 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_4 = new AxisAlignedBB(BTN_X - 3 * BTN_D, BTN_Y1, BTN_ZS, BTN_X - 3 * BTN_D - BTN_W, BTN_Y1 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_5 = new AxisAlignedBB(BTN_X - 0 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 0 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_6 = new AxisAlignedBB(BTN_X - 1 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 1 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_7 = new AxisAlignedBB(BTN_X - 2 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 2 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_8 = new AxisAlignedBB(BTN_X - 3 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 3 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
+    public static final AxisAlignedBB BUTTON_M = new AxisAlignedBB(4f / 16f, 5.5f / 16f, BTN_ZS, 12f / 16f, 10.5f / 16f, 10.5f / 16f);
 
     public BlockPortalPanel(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -84,11 +112,11 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote == false && side == state.getValue(FACING))
+        if (worldIn.isRemote == false)
         {
-            int id = this.getTargetId(hitX, hitY, hitZ, side);
+            int id = this.getTargetId(pos, state.getValue(FACING), playerIn);
 
-            if (id >= 0)
+            if (id >= 0 && id <= 8)
             {
                 TileEntity te = worldIn.getTileEntity(pos);
                 if (te instanceof TileEntityPortalPanel)
@@ -148,6 +176,19 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
         }
     }
 
+    @SideOnly(Side.CLIENT)
+    @Override
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
+    {
+        AxisAlignedBB bb = RenderEventHandler.getInstance().getSelectedBoundingBox();
+        if (bb != null)
+        {
+            return bb;
+        }
+
+        return state.getBoundingBox(worldIn, pos).offset(pos);
+    }
+
     @Override
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -160,56 +201,24 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
         return false;
     }
 
-    private int getTargetId(float x, float y, float z, EnumFacing side)
+    private int getTargetId(BlockPos pos, EnumFacing side, Entity entity)
     {
-        //System.out.printf("x: %.3f, y: %.3f, z: %.3f side: %s\n", x, y, z, side);
+        List<AxisAlignedBB> panelBoxes = new ArrayList<AxisAlignedBB>();
 
-        float tmp = 0f;
+        Vec3d reference = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 
-        switch (side)
-        {
-            case UP:
-                x = 1f - x;
-                y = z;
-                break;
-            case DOWN:
-                x = 1f - x;
-                y = 1f - z;
-                break;
-            case WEST:
-                tmp = z;
-                z = x;
-                x = tmp;
-                break;
-            case EAST:
-                tmp = 1f - z;
-                z = 1f - x;
-                x = tmp;
-                break;
-            case NORTH:
-                x = 1f - x;
-                z = 1f - z;
-                break;
-            case SOUTH:
-        }
+        // The button AABBs are defined in the NORTH orientation
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_1.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_2.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_3.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_4.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_5.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_6.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_7.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_8.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_M.offset(pos), reference, EnumFacing.NORTH, side));
+        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(PANEL_BOUNDS_BASE.offset(pos), reference, EnumFacing.NORTH, side));
 
-        if (this.isPointInsideRegion(x, y,  1f / 32f, 12f / 16f,  7f / 32f, 15f / 16f)) { return 0; }
-        if (this.isPointInsideRegion(x, y,  9f / 32f, 12f / 16f, 15f / 32f, 15f / 16f)) { return 1; }
-        if (this.isPointInsideRegion(x, y, 17f / 32f, 12f / 16f, 23f / 32f, 15f / 16f)) { return 2; }
-        if (this.isPointInsideRegion(x, y, 25f / 32f, 12f / 16f, 31f / 32f, 15f / 16f)) { return 3; }
-
-        if (this.isPointInsideRegion(x, y,  1f / 32f,  1f / 16f,  7f / 32f,  4f / 16f)) { return 4; }
-        if (this.isPointInsideRegion(x, y,  9f / 32f,  1f / 16f, 15f / 32f,  4f / 16f)) { return 5; }
-        if (this.isPointInsideRegion(x, y, 17f / 32f,  1f / 16f, 23f / 32f,  4f / 16f)) { return 6; }
-        if (this.isPointInsideRegion(x, y, 25f / 32f,  1f / 16f, 31f / 32f,  4f / 16f)) { return 7; }
-
-        if (this.isPointInsideRegion(x, y,  4f / 16f, 11f / 32f, 12f / 16f, 21f / 32f)) { return 8; }
-
-        return -1;
-    }
-
-    private boolean isPointInsideRegion(float x, float y, float minX, float minY, float maxX, float maxY)
-    {
-        return x >= minX && x <= maxX && y >= minY && y <= maxY;
+        return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, panelBoxes);
     }
 }

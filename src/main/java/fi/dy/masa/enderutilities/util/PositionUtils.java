@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -22,9 +23,19 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class PositionUtils
 {
+    public static final AxisAlignedBB ZERO_BB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
     public static final EnumFacing[] ADJACENT_SIDES_ZY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH };
     public static final EnumFacing[] ADJACENT_SIDES_XY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST };
     public static final EnumFacing[] ADJACENT_SIDES_XZ = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
+
+    public static final EnumFacing[][] FROM_TO_CW_ROTATION_AXES = new EnumFacing[][] {
+        { null, null, EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH }, // from down
+        { null, null, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH }, // from up
+        { EnumFacing.EAST, EnumFacing.WEST, null, null, EnumFacing.DOWN, EnumFacing.UP }, // from north
+        { EnumFacing.WEST, EnumFacing.EAST, null, null, EnumFacing.UP, EnumFacing.DOWN }, // from south
+        { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN, null, null }, // from west
+        { EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP, null, null } // from east
+    };
 
     public static EnumFacing[] getSidesForAxis(EnumFacing.Axis axis)
     {
@@ -208,6 +219,120 @@ public class PositionUtils
             default:
                 return isMirrored ? new Vec3d(x, y, z) : vec;
         }
+    }
+
+    public static Vec3d rotatePointAroundAxis(Vec3d point, Vec3d reference, EnumFacing from, EnumFacing to)
+    {
+        if (from == to)
+        {
+            return point;
+        }
+
+        return rotatePointAroundAxis(point.xCoord, point.yCoord, point.zCoord, reference, from, to);
+    }
+
+    public static Vec3d rotatePointAroundAxis(double x, double y, double z, Vec3d reference, EnumFacing from, EnumFacing to)
+    {
+        if (to == from.getOpposite())
+        {
+            double rx = reference.xCoord;
+
+            if (from.getAxis().isHorizontal())
+            {
+                //System.out.printf("rotatePointAroundAxis - opposite, horizontal, from: %s to: %s\n", from, to);
+                double rz = reference.zCoord;
+                x = rx + (rx - x);
+                z = rz + (rz - z);
+            }
+            // Rotate around the z-axis when the to/from axes are vertical
+            else
+            {
+                //System.out.printf("rotatePointAroundAxis - opposite, vertical, from: %s to: %s\n", from, to);
+                double ry = reference.yCoord;
+                x = rx + (rx - x);
+                y = ry + (ry - y);
+            }
+
+            return new Vec3d(x, y, z);
+        }
+
+        return rotatePointCWAroundAxis(x, y, z, reference, FROM_TO_CW_ROTATION_AXES[from.getIndex()][to.getIndex()]);
+    }
+
+    public static Vec3d rotatePointCWAroundAxis(Vec3d point, Vec3d reference, EnumFacing facing)
+    {
+        return rotatePointCWAroundAxis(point.xCoord, point.yCoord, point.zCoord, reference, facing);
+    }
+
+    public static Vec3d rotatePointCWAroundAxis(double x, double y, double z, Vec3d reference, EnumFacing facing)
+    {
+        //System.out.printf("rotatePointCWAroundAxis - axis: %s, ref: %s, x: %.4f, y: %.4f, z: %.4f -> ", facing, reference, x, y, z);
+        //System.out.printf("rotatePointCWAroundAxis - axis: %s, ref: %s, vec: %s -> ", facing, reference, new Vec3d(x, y, z));
+        //System.out.printf("rotatePointCWAroundAxis - axis: %s\n", facing);
+        double rx = reference.xCoord;
+        double ry = reference.yCoord;
+        double rz = reference.zCoord;
+        double newX = x;
+        double newY = y;
+        double newZ = z;
+
+        if (facing.getAxis() == EnumFacing.Axis.Y)
+        {
+            if (facing.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE)
+            {
+                newX = rx - (z - rz);
+                newZ = rz + (x - rx);
+            }
+            else
+            {
+                newX = rx + (z - rz);
+                newZ = rz - (x - rx);
+            }
+        }
+        else if (facing.getAxis() == EnumFacing.Axis.Z)
+        {
+            if (facing.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE)
+            {
+                newX = rx + (y - ry);
+                newY = ry - (x - rx);
+            }
+            else
+            {
+                newX = rx - (y - ry);
+                newY = ry + (x - rx);
+            }
+        }
+        else if (facing.getAxis() == EnumFacing.Axis.X)
+        {
+            if (facing.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE)
+            {
+                newZ = rz - (y - ry);
+                newY = ry + (z - rz);
+            }
+            else
+            {
+                newZ = rz + (y - ry);
+                newY = ry - (z - rz);
+            }
+        }
+
+        //System.out.printf("x: %.4f, y: %.4f, z: %.4f\n", newX, newY, newZ);
+        //System.out.printf("vec: %s\n", new Vec3d(newX, newY, newZ));
+        return new Vec3d(newX, newY, newZ);
+    }
+
+    public static AxisAlignedBB rotateBoxAroundPoint(AxisAlignedBB bb, Vec3d reference, EnumFacing from, EnumFacing to)
+    {
+        if (from == to)
+        {
+            return bb;
+        }
+
+        Vec3d min = rotatePointAroundAxis(bb.minX, bb.minY, bb.minZ, reference, from, to);
+        Vec3d max = rotatePointAroundAxis(bb.maxX, bb.maxY, bb.maxZ, reference, from, to);
+
+        //System.out.printf("rotateBoxAroundPoint - from: %s to: %s ref: %s bb: %s, min: %s, max: %s\n", from, to, reference, bb, min, max);
+        return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
     }
 
     /**

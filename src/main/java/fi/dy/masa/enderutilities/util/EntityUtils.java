@@ -61,6 +61,67 @@ public class EntityUtils
         return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false);
     }
 
+    public static Vec3d getEyesVec(Entity entity)
+    {
+        return new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+    }
+
+    /**
+     * Returns the index of the BB in the given list that the given entity is currently looking at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    public static int getPointedBox(Entity entity, double reach, List<AxisAlignedBB> boxes, float partialTicks)
+    {
+        Vec3d eyesVec = entity.getPositionEyes(partialTicks);
+        Vec3d lookVec = entity.getLook(partialTicks);
+
+        return getPointedBox(eyesVec, lookVec, reach, boxes);
+    }
+
+    /**
+     * Returns the index of the BB in the given list that the given vectors are currently pointing at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    public static int getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, List<AxisAlignedBB> boxes)
+    {
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        //AxisAlignedBB box = null;
+        //Vec3d hitVec = null;
+        double distance = reach;
+        int index = -1;
+
+        for (int i = 0; i < boxes.size(); ++i)
+        {
+            AxisAlignedBB bb = boxes.get(i);
+            RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
+
+            if (bb.isVecInside(eyesVec))
+            {
+                if (distance >= 0.0D)
+                {
+                    //box = bb;
+                    //hitVec = rayTrace == null ? eyesVec : rayTrace.hitVec;
+                    distance = 0.0D;
+                    index = i;
+                }
+            }
+            else if (rayTrace != null)
+            {
+                double distanceTmp = eyesVec.distanceTo(rayTrace.hitVec);
+
+                if (distanceTmp < distance)
+                {
+                    //box = bb;
+                    //hitVec = rayTrace.hitVec;
+                    distance = distanceTmp;
+                    index = i;
+                }
+            }
+        }
+
+        return index;
+    }
+
     public static boolean isHoldingItem(EntityLivingBase entity, Item item)
     {
         return getHeldItemOfType(entity, item) != null;

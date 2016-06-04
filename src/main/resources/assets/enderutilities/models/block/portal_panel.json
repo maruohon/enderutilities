@@ -107,8 +107,8 @@
             }
         },
         {
-            "from": [  4, 5.5, 10.5 ],
-            "to":   [ 12, 10.5, 12 ],
+            "from": [  4,  5.5, 10.5 ],
+            "to":   [ 12, 10.5,   12 ],
             "faces": {
                 "down":  { "uv": [    4, 10.5, 12,   12 ], "texture": "#largebutton", "tintindex": 8 },
                 "up":    { "uv": [    4, 10.5, 12,   12 ], "texture": "#largebutton", "tintindex": 8 },
