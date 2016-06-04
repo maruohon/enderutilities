@@ -369,6 +369,7 @@ enderutilities.chat.message.enderbag.outofrange=The target is outside of the cli
 enderutilities.chat.message.featuredisabled=This feature has been disabled on the server
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
+enderutilities.chat.message.notenoughendercharge=Not enough Ender Charge
 
 ##################
 #   Subtitles    #
