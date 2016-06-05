@@ -63,6 +63,12 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public int damageDropped(IBlockState state)
+    {
+        return 0;
+    }
+
+    @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return state;
