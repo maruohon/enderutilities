@@ -308,7 +308,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             Entity entity = event.getEntity();
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                    entity.posX + 0.5d, entity.posY + 0.5d, entity.posZ + 0.5d, 8, 0.2d, 0.3d),
+                    entity.posX + 0.5d, entity.posY + 0.5d, entity.posZ + 0.5d, 8, 0.2f, 0.3f),
                         new NetworkRegistry.TargetPoint(entity.dimension, entity.posX, entity.posY, entity.posZ, 24.0d));
         }
 

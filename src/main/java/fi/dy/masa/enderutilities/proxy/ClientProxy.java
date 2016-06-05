@@ -231,6 +231,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.iceMelter);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
         this.registerItemModel(EnderUtilitiesItems.mobHarness);
@@ -290,7 +291,7 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
 
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,        0, "inventory");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0,    0, "facing=north,mode=off");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalPanel,  0, "facing=north");
     }

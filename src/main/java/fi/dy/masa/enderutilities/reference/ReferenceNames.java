@@ -36,6 +36,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDER_PEARL_REUSABLE   = "enderpearlreusable";
     public static final String NAME_ITEM_ENDER_PORTER           = "enderporter";
     public static final String NAME_ITEM_HANDY_BAG              = "handybag";
+    public static final String NAME_ITEM_ICE_MELTER             = "icemelter";
     public static final String NAME_ITEM_INVENTORY_SWAPPER      = "inventoryswapper";
     public static final String NAME_ITEM_LIVING_MANIPULATOR     = "livingmanipulator";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";

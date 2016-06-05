@@ -1,15 +1,12 @@
 package fi.dy.masa.enderutilities.effects;
 
 import java.util.Random;
-
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 
@@ -72,8 +69,13 @@ public class Effects
 
     public static void spawnParticlesFromServer(int dimension, BlockPos pos, EnumParticleTypes particle, int count)
     {
+        spawnParticlesFromServer(dimension, pos, particle, count, 1.8f, 0.9f);
+    }
+
+    public static void spawnParticlesFromServer(int dimension, BlockPos pos, EnumParticleTypes particle, int count, float offset, float velocity)
+    {
         PacketHandler.INSTANCE.sendToAllAround(new MessageAddEffects(MessageAddEffects.EFFECT_PARTICLES, particle.getParticleID(),
-                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, count, 1.8f, 0.9f),
+                pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, count, offset, velocity),
                     new NetworkRegistry.TargetPoint(dimension, pos.getX(), pos.getY(), pos.getZ(), 24.0d));
     }
 
@@ -81,7 +83,7 @@ public class Effects
     {
         PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
-                    pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2d, 0.3d),
+                    pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, 8, 0.2f, 0.3f),
                     new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 24.0d));
     }
 }

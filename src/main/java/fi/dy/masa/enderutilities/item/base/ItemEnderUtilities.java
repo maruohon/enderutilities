@@ -72,7 +72,7 @@ public class ItemEnderUtilities extends Item
         {
             this.addTooltips(stack, tmpList, verbose);
 
-            if (verbose == false && tmpList.size() > 1)
+            if (verbose == false && tmpList.size() > 2)
             {
                 list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
             }

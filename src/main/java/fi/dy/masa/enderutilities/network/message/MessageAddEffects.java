@@ -6,13 +6,11 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.setup.Configs;
@@ -42,15 +40,15 @@ public class MessageAddEffects implements IMessage
 
     public MessageAddEffects(int id, int flags, double x, double y, double z)
     {
-        this(id, flags, x, y, z, 32, 0.2d, 2.0d);
+        this(id, flags, x, y, z, 32, 0.2f, 2.0f);
     }
 
     public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount)
     {
-        this(id, flags, x, y, z, particleCount, 0.2d, 2.0d);
+        this(id, flags, x, y, z, particleCount, 0.2f, 2.0f);
     }
 
-    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount, double offset, double velocity)
+    public MessageAddEffects(int id, int flags, double x, double y, double z, int particleCount, float offset, float velocity)
     {
         this.effectType = id;
         this.flags = flags;

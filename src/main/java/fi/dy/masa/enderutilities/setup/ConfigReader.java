@@ -152,6 +152,7 @@ public class ConfigReader
         Configs.disableItemEnderSword             = conf.get(category, "disableItemEnderSword", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemEnderTools             = conf.get(category, "disableItemEnderTools", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemHandyBag               = conf.get(category, "disableItemHandyBag", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableItemIceMelter              = conf.get(category, "disableItemIceMelter", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemInventorySwapper       = conf.get(category, "disableItemInventorySwapper", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemLivingManipulator      = conf.get(category, "disableItemLivingManipulator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemMobHarness             = conf.get(category, "disableItemMobHarness", false).setRequiresMcRestart(true).getBoolean();
@@ -198,6 +199,8 @@ public class ConfigReader
         Configs.disableRecipeEnderPorterBasic     = conf.get(category, "disableRecipeEnderPorterBasic", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeEnderPorterAdvanced  = conf.get(category, "disableRecipeEnderPorterAdvanced", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeHandyBag             = conf.get(category, "disableRecipeHandyBag", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeIceMelter            = conf.get(category, "disableRecipeIceMelter", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeIceMelterSuper       = conf.get(category, "disableRecipeIceMelterSuper", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeInventorySwapper     = conf.get(category, "disableRecipeInventorySwapper", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeLivingManipulator    = conf.get(category, "disableRecipeLivingManipulator", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeMobHarness           = conf.get(category, "disableRecipeMobHarness", false).setRequiresMcRestart(true).getBoolean();

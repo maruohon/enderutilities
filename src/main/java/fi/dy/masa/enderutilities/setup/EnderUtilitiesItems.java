@@ -34,6 +34,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities enderSword = new ItemEnderSword();
     public static final ItemEnderUtilities enderTool = new ItemEnderTool();
     public static final ItemEnderUtilities handyBag = new ItemHandyBag();
+    public static final ItemEnderUtilities iceMelter = new ItemIceMelter();
     public static final ItemEnderUtilities inventorySwapper = new ItemInventorySwapper();
     public static final ItemEnderUtilities livingManipulator = new ItemLivingManipulator();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
@@ -58,6 +59,7 @@ public class EnderUtilitiesItems
         registerItem(enderSword,            ReferenceNames.NAME_ITEM_ENDER_SWORD,               Configs.disableItemEnderSword);
         registerItem(enderTool,             ReferenceNames.NAME_ITEM_ENDERTOOL,                 Configs.disableItemEnderTools);
         registerItem(handyBag,              ReferenceNames.NAME_ITEM_HANDY_BAG,                 Configs.disableItemHandyBag);
+        registerItem(iceMelter,             ReferenceNames.NAME_ITEM_ICE_MELTER,                Configs.disableItemIceMelter);
         registerItem(inventorySwapper,      ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER,         Configs.disableItemInventorySwapper);
         registerItem(livingManipulator,     ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR,        Configs.disableItemLivingManipulator);
         registerItem(mobHarness,            ReferenceNames.NAME_ITEM_MOB_HARNESS,               Configs.disableItemMobHarness);
@@ -143,6 +145,14 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeInventorySwapper == false && Configs.disableItemInventorySwapper == false)
         {
             GameRegistry.addRecipe(new ItemStack(inventorySwapper), "RAR", "ACA", "PAP", 'R', rope, 'A', alloy1, 'C', enderChest, 'P', piston);
+        }
+        if (Configs.disableRecipeIceMelter == false && Configs.disableItemIceMelter == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(iceMelter), "   ", " C ", "R  ", 'R', Items.BLAZE_ROD, 'C', active_core2);
+        }
+        if (Configs.disableRecipeIceMelterSuper == false && Configs.disableItemIceMelter == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(iceMelter, 1, 1), "  N", " C ", "R  ", 'R', Items.BLAZE_ROD, 'C', active_core2, 'N', Items.NETHER_STAR);
         }
         if (Configs.disableRecipeLivingManipulator == false && Configs.disableItemLivingManipulator == false)
         {

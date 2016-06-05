@@ -52,6 +52,7 @@ public class Configs
     public static boolean disableItemEnderSword;
     public static boolean disableItemEnderTools;
     public static boolean disableItemHandyBag;
+    public static boolean disableItemIceMelter;
     public static boolean disableItemInventorySwapper;
     public static boolean disableItemLivingManipulator;
     public static boolean disableItemMobHarness;
@@ -96,6 +97,8 @@ public class Configs
     public static boolean disableRecipeEnderPorterBasic;
     public static boolean disableRecipeEnderPorterAdvanced;
     public static boolean disableRecipeHandyBag;
+    public static boolean disableRecipeIceMelter;
+    public static boolean disableRecipeIceMelterSuper;
     public static boolean disableRecipeInventorySwapper;
     public static boolean disableRecipeLivingManipulator;
     public static boolean disableRecipeMobHarness;
