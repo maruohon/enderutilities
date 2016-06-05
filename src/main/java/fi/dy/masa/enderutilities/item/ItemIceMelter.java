@@ -49,10 +49,24 @@ public class ItemIceMelter extends ItemEnderUtilities
         {
             if (worldIn.isRemote == false)
             {
+                int num = 8;
+                float velocity = 0.2f;
                 // The Super variant (meta = 1) doesn't cause a block update
-                worldIn.setBlockState(pos, Blocks.WATER.getDefaultState(), stack.getMetadata() == 1 ? 2 : 3);
+                int flag = stack.getMetadata() == 1 ? 2 : 3;
+
+                if (worldIn.provider.doesWaterVaporize() == false)
+                {
+                    worldIn.setBlockState(pos, Blocks.WATER.getDefaultState(), flag);
+                }
+                else
+                {
+                    worldIn.setBlockToAir(pos);
+                    num = 32;
+                    velocity = 0.4f;
+                }
+
+                Effects.spawnParticlesFromServer(worldIn.provider.getDimension(), pos.up(), EnumParticleTypes.SMOKE_LARGE, num, 0.5f, velocity);
                 worldIn.playSound(null, playerIn.getPosition(), SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 0.8f, 1.0f);
-                Effects.spawnParticlesFromServer(worldIn.provider.getDimension(), pos.up(), EnumParticleTypes.SMOKE_LARGE, 8, 0.5f, 0.2f);
             }
 
             return EnumActionResult.SUCCESS;
