@@ -1,17 +1,19 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.9.4-latest": "0.6.0",
-        "1.9.4-recommended": "0.6.0",
-        "1.9-latest": "0.6.0",
-        "1.9-recommended": "0.6.0",
-        "1.8.9-latest": "0.5.4",
-        "1.8.9-recommended": "0.5.4"
+        "1.9.4-latest": "0.6.1",
+        "1.9.4-recommended": "0.6.1",
+        "1.9-latest": "0.6.1",
+        "1.9-recommended": "0.6.1",
+        "1.8.9-latest": "0.5.6",
+        "1.8.9-recommended": "0.5.6"
     },
     "1.9.4": {
+        "0.6.1": "Add a chat message/warning if the Portal Scaler doesn't have enough charge for the teleport\nFix Portal Panel dropping with incorrect metadata\nAdd individual selection bounds and thus also proper detection for the Portal Panel buttons\nAdd new item: Cheaty Water Wand and a second variant of it, Super Cheaty Water Wand",
         "0.6.0": "Ported the 0.6.0 release from MC 1.9 to MC 1.9.4.\nFixed some small rendering bugs.\nFixed a Mob Harness crash and another glitch."
     },
     "1.9": {
+        "0.6.1": "Fix a crash and another glitch with the Mob Harness\nFix a localization derp with the Ruler\nMinor fixes to Portal Panel text rendering",
         "0.6.0": "Too many changes to list here - check the full changelog on the CurseForge file page.",
         "0.5.3": "Added sorting functionality/buttons to Handy Bag and Handy Chest",
         "0.5.2": "Added a Quick Stacker item\nAdded Off hand slot support to the Inventory Swapper\nRe-enabled the scaled stack size text rendering now that MCP has been fixed\nReduced the Ender Crystal spawn explosion strength\nAdded new chest models and textures\nFixed Ender Dragon boss bar got stuck when teleporting away from The End dimension\nAdded JEI recipe category crafting item support\nAdded support for the Forge update checker",
@@ -19,6 +21,8 @@
         "0.5.0": "Port the 1.8.9-0.5.3 version to Minecraft 1.9\nChanged various things to work with new 1.9 stuff like the dual wielding/off-hand stuff\nAdded some 1.9 sounds"
     },
     "1.8.9": {
+        "0.5.6": "Fix couldn't take items from the Ender Furnace output slot (and possibly some others) except via shift-clicking",
+        "0.5.5": "Fix Ender Tool recipes being mixed up\nFix a one block offset in negative coordinates when binding items using the Alt + Shift + Toggle key combo to include rotation",
         "0.5.4": "Handy Bag: Fix an item loss bug on item pickup if the Handy Bag GUI is open\nFix required minimum Forge version\nFix/clean up some BlockState things\nAdd support for the Forge update checker\nAdd new chest models and textures",
         "0.5.3": "Fixed a few Container/slotClick bugs\nFixed a nasty bug in the Ender Hoe crop planting code - it destroyed items from the inventory it was accessing\nFixed Ender Tools right click block place code not removing the stack when the size reaches 0\nFixed an item validity check in the Memory Chest, which resulted in losing the item in the cursor, when trying to manually swap stacks of different items, when there was a locked slot with free space for the item that was held in the cursor\nFixed Ender Bucket not applying the fluid color to the model\nChanged the logic behind opening the Handy Bag. Now it shouldn't open \"on its own\" for example when browsing recipies in JEI if the originally opened inventory was the regular player inventory instead of the Handy Bag.\nChanged the \"Move all items (FROM the player inventory)\" functionality to ignore the hotbar. In the Handy Bag GUI, you can still move everything, including the hotbar, by holding shift when clicking the button.",
         "0.5.2": "Fix Handy Bag GUI buttons and slot backgrounds etc. being messed up with potion effects active\nA couple of minor clean-ups/fixes to inventory/container things",
