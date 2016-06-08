@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +38,7 @@ public class PortalFormer
     private int frameCheckLimit;
     private int frameLoopCheckLimit;
     private int portalAreaCheckLimit;
+    private int portalsFound;
     private boolean analyzed;
     private boolean validated;
     private boolean formed;
@@ -55,31 +57,21 @@ public class PortalFormer
         this.blockPortal = portalBlock;
         this.startPos = startPos;
         this.lastPos = startPos;
-        this.frameCheckLimit = 400;
-        this.frameLoopCheckLimit = 800;
+        this.frameCheckLimit = 500;
+        this.frameLoopCheckLimit = 1000;
         this.portalAreaCheckLimit = 4000;
+        this.portalsFound = 0;
     }
 
     /*public List<BlockPos> getVisited() { return this.visited; }
     public List<BlockPos> getBranches() { return this.branches; }
     public List<BlockPos> getCorners() { return this.corners; }*/
 
-    public PortalFormer setTarget(TargetData target)
+    public void setPortalData(TargetData target, OwnerData owner, int color)
     {
         this.target = target;
-        return this;
-    }
-
-    public PortalFormer setOwner(OwnerData owner)
-    {
         this.owner = owner;
-        return this;
-    }
-
-    public PortalFormer setColor(int color)
-    {
         this.portalColor = color;
-        return this;
     }
 
     public void setLimits(int frameCheckLimit, int frameLoopCheckLimit, int portalAreaCheckLimit)
@@ -89,11 +81,48 @@ public class PortalFormer
         this.portalAreaCheckLimit = portalAreaCheckLimit;
     }
 
+    public boolean getPortalState()
+    {
+        return this.portalsFound > 0;
+
+    }
+    public boolean togglePortalState()
+    {
+        this.analyzePortal();
+
+        if (this.portalsFound > 0)
+        {
+            this.destroyPortals();
+            return true;
+        }
+        else
+        {
+            this.validatePortalAreas();
+            return this.formPortals();
+        }
+    }
+
+    public boolean updateActivePortal()
+    {
+        this.analyzePortal();
+
+        if (this.portalsFound > 0)
+        {
+            this.destroyPortals();
+            this.validatePortalAreas();
+            this.formPortals();
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Analyzes the portal frame structure and marks all the corner locations.
      * Call this method first.
      */
-    public void analyzePortalFrame()
+    private void analyzePortal()
     {
         if (this.analyzed)
         {
@@ -103,6 +132,13 @@ public class PortalFormer
         this.visited.clear();
         this.branches.clear();
         this.corners.clear();
+        this.portalsFound = 0;
+
+        if (this.world.getBlockState(this.startPos).getBlock() != this.blockFrame)
+        {
+            this.analyzed = true;
+            return;
+        }
 
         int counter = 0;
         int branchIndex = 0;
@@ -139,7 +175,7 @@ public class PortalFormer
      * Validates all the corner locations by trying to find an enclosing frame loop.
      * Call this after analyzePortalFrame().
      */
-    public void validatePortalAreas()
+    private void validatePortalAreas()
     {
         if (this.validated)
         {
@@ -189,7 +225,7 @@ public class PortalFormer
      * Forms/creates the actual portal blocks into the validated areas.
      * Call this as the final step after validatePortalAreas().
      */
-    public boolean formPortals()
+    private boolean formPortals()
     {
         if (this.formed)
         {
@@ -279,7 +315,7 @@ public class PortalFormer
      * Destroys all the portal corner blocks, which should cause them to update
      * and destroy any adjacent portal blocks automatically.
      */
-    public boolean destroyPortals()
+    private boolean destroyPortals()
     {
         boolean success = false;
 
@@ -395,7 +431,7 @@ public class PortalFormer
                 state = this.world.getBlockState(pos);
                 block = state.getBlock();
 
-                if (block == this.blockPortal || block.isAir(state, this.world, pos))
+                if (block == Blocks.AIR || block == this.blockPortal)
                 {
                     this.checkForCorner(pos, false);
                 }
@@ -447,6 +483,14 @@ public class PortalFormer
             {
                 frames[adjacents] = side;
                 adjacents++;
+            }
+            else if (block == this.blockPortal)
+            {
+                this.portalsFound++;
+            }
+            else if (block != Blocks.AIR)
+            {
+                return false;
             }
         }
 

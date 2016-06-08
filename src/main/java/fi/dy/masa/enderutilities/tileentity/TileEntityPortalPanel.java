@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -38,7 +37,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     private final ItemHandlerWrapper inventoryWrapper;
     private byte activeTargetId;
     private byte portalTargetId;
-    private boolean active;
     private String displayName;
     private int[] colors = new int[9];
 
@@ -151,7 +149,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         this.setActiveTargetId(nbt.getByte("SelectedTarget"));
         this.portalTargetId = nbt.getByte("PortalTarget");
-        this.active = nbt.getBoolean("Active");
     }
 
     @Override
@@ -161,7 +158,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         nbt.setByte("SelectedTarget", this.activeTargetId);
         nbt.setByte("PortalTarget", this.portalTargetId);
-        nbt.setBoolean("Active", this.active);
 
         return nbt;
     }
@@ -266,106 +262,34 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public void tryTogglePortal()
     {
-        if (this.active == false)
-        {
-            this.tryActivatePortal();
-        }
-        else if (this.activeTargetId != this.portalTargetId)
-        {
-            this.tryUpdatePortal();
-        }
-        else
-        {
-            this.tryDisablePortal();
-        }
-    }
-
-    private boolean tryActivatePortal()
-    {
-        Block blockFrame = EnderUtilitiesBlocks.blockPortalFrame;
-        Block blockPortal = EnderUtilitiesBlocks.blockPortal;
         World world = this.getWorld();
         BlockPos posPanel = this.getPos();
         BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
-        boolean success = false;
-        TargetData destination = this.getActiveTarget();
 
-        if (/*destination == null || */world.getBlockState(posFrame).getBlock() != blockFrame)
+        PortalFormer portalFormer = new PortalFormer(world, posFrame,
+                EnderUtilitiesBlocks.blockPortalFrame, EnderUtilitiesBlocks.blockPortal);
+        portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getActiveColor());
+
+        if (this.activeTargetId != this.portalTargetId)
         {
-            return false;
+            if (portalFormer.updateActivePortal())
+            {
+                this.portalTargetId = this.activeTargetId;
+                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+            }
         }
-
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
-        portalFormer.setLimits(500, 1000, 4000);
-        portalFormer.setTarget(destination).setOwner(this.getOwner()).setColor(this.getActiveColor());
-        portalFormer.analyzePortalFrame();
-        portalFormer.validatePortalAreas();
-        success = portalFormer.formPortals();
-
-        if (success)
+        else if (portalFormer.togglePortalState())
         {
-            this.active = true;
-            this.portalTargetId = this.activeTargetId;
-            world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
-        }
-
-        return success;
-    }
-
-    private void tryDisablePortal()
-    {
-        Block blockFrame = EnderUtilitiesBlocks.blockPortalFrame;
-        Block blockPortal = EnderUtilitiesBlocks.blockPortal;
-        World world = this.getWorld();
-        BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
-        boolean success = false;
-
-        if (world.getBlockState(posFrame).getBlock() != blockFrame)
-        {
-            return;
-        }
-
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
-        portalFormer.setLimits(500, 1000, 4000);
-        portalFormer.analyzePortalFrame();
-        success = portalFormer.destroyPortals();
-        this.active = false;
-
-        if (success)
-        {
-            world.playSound(null, this.getPos(), SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.5f, 0.85f);
-        }
-    }
-
-    private void tryUpdatePortal()
-    {
-        Block blockFrame = EnderUtilitiesBlocks.blockPortalFrame;
-        Block blockPortal = EnderUtilitiesBlocks.blockPortal;
-        World world = this.getWorld();
-        BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
-        boolean success = false;
-        TargetData destination = this.getActiveTarget();
-
-        if (/*destination == null || */world.getBlockState(posFrame).getBlock() != blockFrame)
-        {
-            return;
-        }
-
-        PortalFormer portalFormer = new PortalFormer(world, posFrame, blockFrame, blockPortal);
-        portalFormer.setLimits(500, 1000, 4000);
-        portalFormer.setTarget(destination).setOwner(this.getOwner()).setColor(this.getActiveColor());
-        portalFormer.analyzePortalFrame();
-        success = portalFormer.destroyPortals();
-        portalFormer.validatePortalAreas();
-        success &= portalFormer.formPortals();
-
-        if (success)
-        {
-            this.active = true;
-            this.portalTargetId = this.activeTargetId;
-            world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+            // Portal was active before toggling the state
+            if (portalFormer.getPortalState())
+            {
+                world.playSound(null, posPanel, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.4f, 0.85f);
+            }
+            // Portal was inactive
+            else
+            {
+                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+            }
         }
     }
 }
