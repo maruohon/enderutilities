@@ -46,7 +46,6 @@ public class EnderUtilitiesBlocks
 
         ItemStack chest = new ItemStack(Blocks.CHEST);
         ItemStack craftingtable = new ItemStack(Blocks.CRAFTING_TABLE);
-        ItemStack enderChest = new ItemStack(Blocks.ENDER_CHEST);
         ItemStack furnace = new ItemStack(Blocks.FURNACE);
         ItemStack hopper = new ItemStack(Blocks.HOPPER);
         ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
@@ -71,13 +70,13 @@ public class EnderUtilitiesBlocks
             for (EnumDyeColor color : EnumDyeColor.values())
             {
                 int meta = color.getMetadata();
-                GameRegistry.addRecipe(new ItemStack(blockElevator, 2, meta), "WSW", "APA", "AAA", 'W', new ItemStack(Blocks.WOOL, 1, meta), 'A', alloy1, 'S', Blocks.SLIME_BLOCK, 'P', Blocks.STICKY_PISTON);
+                GameRegistry.addRecipe(new ItemStack(blockElevator, 2, meta), "WLW", "APA", "ARA", 'W', new ItemStack(Blocks.WOOL, 1, meta), 'A', alloy0, 'L', Blocks.STONE_PRESSURE_PLATE, 'P', Blocks.STICKY_PISTON, 'R', Items.REDSTONE);
             }
         }
 
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy1, 'F', furnace, 'C', core0);
+            GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', furnace, 'C', core0);
         }
 
         if (Configs.disableRecipeEnderInfuser == false && Configs.disableBlockMachine_1 == false)
@@ -94,7 +93,7 @@ public class EnderUtilitiesBlocks
         }
         if (Configs.disableRecipeAdvancedQuickStacker == false && Configs.disableBlockMachine_1 == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 3), "AAA", "AQA", "AAA", 'A', alloy0, 'Q', EnderUtilitiesItems.quickStacker));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 3), "PAP", "AQA", "PAP", 'P', piston, 'A', alloy0, 'Q', EnderUtilitiesItems.quickStacker));
         }
 
         if (Configs.disableRecipeEnergyBridgeResonator == false && Configs.disableBlockEnergyBridge == false)
@@ -112,37 +111,37 @@ public class EnderUtilitiesBlocks
 
         if (Configs.disableRecipeMemoryChest_0 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 2, 0), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy0, 'C', chest);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 3, 0), "   ", "R R", "ACA", 'R', repeater, 'A', alloy0, 'C', chest);
         }
         if (Configs.disableRecipeMemoryChest_1 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 2, 1), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy1, 'C', chest);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 2, 1), "   ", "RCR", "ACA", 'R', repeater, 'A', alloy0, 'C', chest);
         }
         if (Configs.disableRecipeMemoryChest_2 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 2, 2), "RAR", "ACA", "RAR", 'R', repeater, 'A', alloy2, 'C', chest);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 2), "   ", "RCR", "ACA", 'R', repeater, 'A', alloy1, 'C', chest);
         }
 
         if (Configs.disableRecipeHandyChest_0 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 3), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy0, 'C', enderChest, 'O', core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 2, 3), "   ", "ACA", "POP", 'P', piston, 'A', alloy0, 'C', chest, 'O', core0);
         }
         if (Configs.disableRecipeHandyChest_1 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 4), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy1, 'C', enderChest, 'O', core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 4), "ACA", "ACA", "POP", 'P', piston, 'A', alloy0, 'C', chest, 'O', core0);
         }
         if (Configs.disableRecipeHandyChest_2 == false && Configs.disableBlockStorage_0 == false)
         {
-            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "PAP", "ACA", "ROR", 'P', piston, 'A', alloy2, 'C', enderChest, 'O', core1, 'R', repeater);
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "ACA", "ACA", "POP", 'P', piston, 'A', alloy1, 'C', chest, 'O', core0);
         }
 
         if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalFrame, 4, 0), "GAG", "APA", "GAG", 'G', "blockGlass", 'A', alloy0, 'P', Items.ENDER_PEARL));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalFrame, 8, 0), "GAG", "ARA", "GAG", 'G', "blockGlass", 'A', alloy0, 'R', Items.REDSTONE));
         }
         if (Configs.disableRecipePortalPanel == false && Configs.disableBlockPortalPanel == false && Configs.disableBlockPortal == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalPanel, 1, 0), "FFF", "FCF", "FRF", 'F', blockPortalFrame, 'C', active_core1, 'R', repeater));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalPanel, 2, 0), "FRF", "FCF", "FRF", 'F', blockPortalFrame, 'C', active_core1, 'R', repeater));
         }
     }
 
