@@ -1,14 +1,15 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.9.4-latest": "0.6.1",
-        "1.9.4-recommended": "0.6.1",
+        "1.9.4-latest": "0.6.2",
+        "1.9.4-recommended": "0.6.2",
         "1.9-latest": "0.6.1",
         "1.9-recommended": "0.6.1",
         "1.8.9-latest": "0.5.6",
         "1.8.9-recommended": "0.5.6"
     },
     "1.9.4": {
+        "0.6.2": "Fix a crash with the Portal Panel and running particles(!!)\nTweak the Portal Panel internal logic - multiple panels on one portal should work better now\nChange several recipes, generally making things cheaper",
         "0.6.1": "Add a chat message/warning if the Portal Scaler doesn't have enough charge for the teleport\nFix Portal Panel dropping with incorrect metadata\nAdd individual selection bounds and thus also proper detection for the Portal Panel buttons\nAdd new item: Cheaty Water Wand and a second variant of it, Super Cheaty Water Wand",
         "0.6.0": "Ported the 0.6.0 release from MC 1.9 to MC 1.9.4.\nFixed some small rendering bugs.\nFixed a Mob Harness crash and another glitch."
     },

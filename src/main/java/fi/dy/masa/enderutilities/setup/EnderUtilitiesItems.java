@@ -126,11 +126,11 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeHandyBag == false && Configs.disableItemHandyBag == false)
         {
             GameRegistry.addRecipe(new ItemStack(handyBag, 1, 0), "RAR", "ACA", "LAL", 'R', rope, 'A', alloy1, 'C', Blocks.ENDER_CHEST, 'L', Items.LEATHER);
-            GameRegistry.addRecipe(new ItemStack(handyBag, 1, 1), " C ", "ABA", " C ", 'A', alloy2, 'B', new ItemStack(handyBag, 1, 0), 'C', Blocks.CHEST);
+            GameRegistry.addRecipe(new ItemStack(handyBag, 1, 1), "DAD", "CBC", "DAD", 'D', alloy0, 'A', alloy2, 'B', new ItemStack(handyBag, 1, 0), 'C', Blocks.CHEST);
         }
         if (Configs.disableRecipeInventorySwapper == false && Configs.disableItemInventorySwapper == false)
         {
-            GameRegistry.addRecipe(new ItemStack(inventorySwapper), "RAR", "ACA", "PAP", 'R', rope, 'A', alloy1, 'C', Blocks.CHEST, 'P', Blocks.PISTON);
+            GameRegistry.addRecipe(new ItemStack(inventorySwapper), "RAR", "ACA", "SAS", 'R', rope, 'A', alloy0, 'C', Blocks.CHEST, 'S', Blocks.STICKY_PISTON);
         }
         if (Configs.disableRecipeIceMelter == false && Configs.disableItemIceMelter == false)
         {
@@ -254,7 +254,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderStick == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 4, 20), "stickWood", "stickWood", "stickWood", "stickWood", pearl));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 2, 20), "stickWood", "stickWood", "stickWood", "stickWood", pearl));
         }
 
         if (Configs.disableRecipeModuleEnderCapacitor0 == false && Configs.disableItemEnderCapacitor == false)
