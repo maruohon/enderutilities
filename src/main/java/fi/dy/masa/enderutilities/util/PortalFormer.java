@@ -84,45 +84,31 @@ public class PortalFormer
     public boolean getPortalState()
     {
         return this.portalsFound > 0;
-
     }
-    public boolean togglePortalState()
+
+    public boolean togglePortalState(boolean recreate)
     {
         this.analyzePortal();
 
-        if (this.portalsFound > 0)
+        if (this.getPortalState() == true)
         {
             this.destroyPortals();
-            return true;
-        }
-        else
-        {
-            this.validatePortalAreas();
-            return this.formPortals();
-        }
-    }
 
-    public boolean updateActivePortal()
-    {
-        this.analyzePortal();
-
-        if (this.portalsFound > 0)
-        {
-            this.destroyPortals();
-            this.validatePortalAreas();
-            this.formPortals();
-
-            return true;
+            if (recreate == false)
+            {
+                return true;
+            }
         }
 
-        return false;
+        this.validatePortalAreas();
+        return this.formPortals();
     }
 
     /**
      * Analyzes the portal frame structure and marks all the corner locations.
      * Call this method first.
      */
-    private void analyzePortal()
+    public void analyzePortal()
     {
         if (this.analyzed)
         {

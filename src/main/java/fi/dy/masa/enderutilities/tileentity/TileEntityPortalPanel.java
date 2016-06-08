@@ -269,26 +269,32 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         PortalFormer portalFormer = new PortalFormer(world, posFrame,
                 EnderUtilitiesBlocks.blockPortalFrame, EnderUtilitiesBlocks.blockPortal);
         portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getActiveColor());
+        portalFormer.analyzePortal();
+        boolean state = portalFormer.getPortalState();
+        boolean recreate = this.activeTargetId != this.portalTargetId;
 
-        if (this.activeTargetId != this.portalTargetId)
+        // Portal was inactive
+        if (state == false)
         {
-            if (portalFormer.updateActivePortal())
+            if (portalFormer.togglePortalState(false))
             {
                 this.portalTargetId = this.activeTargetId;
                 world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
             }
         }
-        else if (portalFormer.togglePortalState())
+        // Portal was active
+        else if (portalFormer.togglePortalState(recreate))
         {
-            // Portal was active before toggling the state
-            if (portalFormer.getPortalState())
+            // Portal was active but the target id has changed, so it was just updated
+            if (recreate)
             {
-                world.playSound(null, posPanel, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.4f, 0.85f);
+                this.portalTargetId = this.activeTargetId;
+                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
             }
-            // Portal was inactive
+            // Portal was active and the target id hasn't changed, so it was shut down
             else
             {
-                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+                world.playSound(null, posPanel, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.4f, 0.85f);
             }
         }
     }
