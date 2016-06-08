@@ -95,7 +95,8 @@ public class ClientProxy extends CommonProxy
                     @Override
                     public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                     {
-                        if (tintIndex == 1)
+                        // ParticleDigging#init() passes a null BlockPos for running/digging particles... wtf
+                        if (tintIndex == 1 && pos != null)
                         {
                             TileEntity te = worldIn.getTileEntity(pos);
                             if (te instanceof TileEntityPortal)
@@ -114,7 +115,8 @@ public class ClientProxy extends CommonProxy
                     @Override
                     public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                     {
-                        if (tintIndex >= 0 && tintIndex <= 8)
+                        // ParticleDigging#init() passes a null BlockPos for running/digging particles... wtf
+                        if (tintIndex >= 0 && tintIndex <= 8 && pos != null)
                         {
                             TileEntity te = worldIn.getTileEntity(pos);
                             if (te instanceof TileEntityPortalPanel)
