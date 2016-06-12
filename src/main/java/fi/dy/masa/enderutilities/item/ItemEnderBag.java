@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -302,6 +303,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
                 String textPre = TextFormatting.DARK_GREEN.toString();
                 String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
                 list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + textPre + targetName + rst);
+
+                // Ender Capacitor charge, if one has been installed
+                ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
+                if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+                {
+                    ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
+                }
+
                 return;
             }
         }
