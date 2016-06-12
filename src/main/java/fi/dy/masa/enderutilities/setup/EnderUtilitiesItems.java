@@ -230,15 +230,14 @@ public class EnderUtilitiesItems
             && Configs.disableRecipePartMemoryCardItems8b == false && Configs.disableItemCraftingPart == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 53), "MM", "MM", "SS", 'M', new ItemStack(enderPart, 1, 52), 'S', "slimeball"));
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 53), " G ", "ACA", "ACA", 'A', alloy1, 'G', "ingotGold", 'C', Blocks.CHEST));
-            //GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 52), new ItemStack(enderPart, 1, 53));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 2, 53), " G ", "ACA", "ACA", 'A', alloy2, 'G', "ingotGold", 'C', Blocks.CHEST));
+            GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 52), new ItemStack(enderPart, 1, 53));
         }
         if (Configs.disableRecipePartMemoryCardItems12b == false
             && Configs.disableRecipePartMemoryCardItems10b == false && Configs.disableItemCraftingPart == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 54), "MM", "MM", "SS", 'M', new ItemStack(enderPart, 1, 53), 'S', "slimeball"));
-            //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 54), "AGA", "ACA", "ARA", 'A', alloy2, 'G', "ingotGold", 'C', enderChest, 'R', repeater));
-            //GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 53), new ItemStack(enderPart, 1, 54));
+            GameRegistry.addShapelessRecipe(new ItemStack(enderPart, 4, 53), new ItemStack(enderPart, 1, 54));
         }
         if (Configs.disableRecipePartMobPersistence == false && Configs.disableItemCraftingPart == false)
         {
