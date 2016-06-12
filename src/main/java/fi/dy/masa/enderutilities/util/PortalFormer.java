@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -417,7 +416,7 @@ public class PortalFormer
                 state = this.world.getBlockState(pos);
                 block = state.getBlock();
 
-                if (block == Blocks.AIR || block == this.blockPortal)
+                if (block.isAir(state, this.world, pos) || block == this.blockPortal)
                 {
                     this.checkForCorner(pos, false);
                 }
@@ -473,10 +472,6 @@ public class PortalFormer
             else if (block == this.blockPortal)
             {
                 this.portalsFound++;
-            }
-            else if (block != Blocks.AIR)
-            {
-                return false;
             }
         }
 
