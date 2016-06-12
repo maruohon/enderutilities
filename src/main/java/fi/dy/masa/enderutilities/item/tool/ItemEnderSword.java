@@ -183,7 +183,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
         if (mode == SwordMode.PLAYER && (player instanceof FakePlayer) == false &&
-                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
+            this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
         {
             return player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP); // main inventory
         }
@@ -268,7 +268,9 @@ public class ItemEnderSword extends ItemLocationBoundModular
             ItemStack stackTmp = stack;
 
             // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
-            if (mode == SwordMode.PLAYER && MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == true)
+            if (mode == SwordMode.PLAYER &&
+                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
+                MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == true)
             {
                 Effects.addItemTeleportEffects(player.worldObj, player.getPosition());
                 stackTmp = null;
@@ -312,8 +314,8 @@ public class ItemEnderSword extends ItemLocationBoundModular
                         new NetworkRegistry.TargetPoint(entity.dimension, entity.posX, entity.posY, entity.posZ, 24.0d));
         }
 
-        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
-        if (drops.size() > 0 && mode == SwordMode.REMOTE)
+        // If we failed to handle the drops ourselves, then try to handle them via other means
+        if (drops.size() > 0)
         {
             iter = drops.iterator();
             while (iter.hasNext() == true)

@@ -590,7 +590,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
         boolean transported = false;
 
         // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
-        if (mode != DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
+        if (mode == DropsMode.PLAYER &&
+            this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
+            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
         {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
             return;
@@ -674,8 +676,10 @@ public class ItemEnderTool extends ItemLocationBoundModular
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
         }
 
-        // If we failed to handle the drops ourself in the Remote mode, then try to handle them via other means
-        if (drops.size() > 0 && mode == DropsMode.REMOTE && MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
+        // If we failed to handle the drops ourselves, then try to handle them via other means
+        if (drops.size() > 0 &&
+            this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
+            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
         {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
         }
