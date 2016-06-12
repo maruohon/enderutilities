@@ -78,14 +78,14 @@ public class GuiPickupManager extends GuiContainerLargeStacks
 
         // Transmit slot is not accessible, because the item isn't currently accessible
         // Draw the dark background icon over the disabled slot
-        if (this.inventoryItemTransmit.isUseableByPlayer(this.player) == false)
+        if (this.inventoryItemTransmit.isAccessibleByPlayer(this.player) == false)
         {
             this.drawTexturedModalRect(x + 88, y + 28, 102, 0, 18, 18);
         }
 
         // Memory Card slots are not accessible, because the item isn't currently accessible
         // Draw the dark background icon over the disabled slots
-        if (this.inventoryItemModules.isUseableByPlayer(this.player) == false)
+        if (this.inventoryItemModules.isAccessibleByPlayer(this.player) == false)
         {
             for (int i = 0; i < NUM_LINK_CRYSTAL_SLOTS; i++)
             {
@@ -95,7 +95,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
 
         // Filter slots are not accessible, because the item isn't currently accessible
         // Draw the dark background icon over the disabled slots
-        if (this.inventoryItemFilters.isUseableByPlayer(this.player) == false)
+        if (this.inventoryItemFilters.isAccessibleByPlayer(this.player) == false)
         {
             // Transport filters
             for (int i = 0; i < 2; i++)

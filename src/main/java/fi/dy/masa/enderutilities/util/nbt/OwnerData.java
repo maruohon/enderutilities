@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
@@ -16,12 +15,21 @@ public class OwnerData
     private UUID ownerUUID;
     private boolean isPublic;
 
+    public OwnerData(Entity entity)
+    {
+        UUID uuid = entity.getUniqueID();
+        this.ownerUUIDMost = uuid != null ? uuid.getMostSignificantBits() : 0;
+        this.ownerUUIDLeast = uuid != null ? uuid.getLeastSignificantBits() : 0;
+        this.ownerName = entity.getName();
+        this.isPublic = true;
+    }
+
     public OwnerData()
     {
         this.ownerUUIDMost = 0;
         this.ownerUUIDLeast = 0;
         this.ownerName = "";
-        this.isPublic = false;
+        this.isPublic = true;
     }
 
     public boolean getIsPublic()
@@ -44,166 +52,99 @@ public class OwnerData
         return this.ownerUUID;
     }
 
-    public static boolean nbtHasOwnerTag(NBTTagCompound nbt)
-    {
-        if (nbt == null || nbt.hasKey("Player", Constants.NBT.TAG_COMPOUND) == false)
-        {
-            return false;
-        }
-
-        NBTTagCompound tag = nbt.getCompoundTag("Player");
-        if (tag != null &&
-            tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("UUIDL", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("Name", Constants.NBT.TAG_STRING) == true)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean itemHasOwnerTag(ItemStack stack)
-    {
-        return (stack != null && nbtHasOwnerTag(stack.getTagCompound()));
-    }
-
-    public static boolean selectedModuleHasOwnerTag(ItemStack toolStack, ModuleType moduleType)
-    {
-        return itemHasOwnerTag(UtilItemModular.getSelectedModuleStack(toolStack, moduleType));
-    }
-
-    public NBTTagCompound readFromNBT(NBTTagCompound nbt)
-    {
-        if (nbtHasOwnerTag(nbt) == false)
-        {
-            return null;
-        }
-
-        NBTTagCompound tag = nbt.getCompoundTag("Player");
-        this.ownerUUIDMost = tag.getLong("UUIDM");
-        this.ownerUUIDLeast = tag.getLong("UUIDL");
-        this.ownerName = tag.getString("Name");
-        this.isPublic = tag.getBoolean("Public");
-        this.ownerUUID = new UUID(this.ownerUUIDMost, this.ownerUUIDLeast);
-
-        return tag;
-    }
-
-    public String getPlayerName()
-    {
-        if (this.ownerName == null)
-        {
-            this.ownerName = "";
-        }
-
-        // FIXME we should get the player name from the UUID
-        return this.ownerName;
-    }
-
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         return writeOwnerTagToNBT(nbt, this.ownerUUIDMost, this.ownerUUIDLeast, this.ownerName, this.isPublic);
     }
 
-    public boolean writeToItem(ItemStack stack)
+    public static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, Entity entity)
     {
-        if (stack != null)
-        {
-            stack.setTagCompound(this.writeToNBT(stack.getTagCompound()));
-            return true;
-        }
-
-        return false;
+        return writeOwnerTagToNBT(nbt, entity, true);
     }
 
-    public boolean writeToSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    /**
+     * Adds OwnerData to the item, but only if it doesn't exist yet.
+     */
+    public static void addOwnerDataToItemOptional(ItemStack stack, Entity entity)
     {
-        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
-        {
-            if (this.writeToItem(moduleStack) == false)
-            {
-                return false;
-            }
-
-            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
-
-            return true;
-        }
-
-        return false;
+        addOwnerDataToItemOptional(stack, entity, false);
     }
 
-    public static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, long uuidMost, long uuidLeast, String name, boolean isPublic)
+    /**
+     * Adds OwnerData to the item, but only if it doesn't exist yet.
+     */
+    public static void addOwnerDataToItemOptional(ItemStack stack, Entity entity, boolean isPublic)
     {
-        if (nbt == null)
+        OwnerData data = getOwnerDataFromItem(stack);
+
+        if (data == null)
         {
-            nbt = new NBTTagCompound();
-        }
-
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setLong("UUIDM", uuidMost);
-        tag.setLong("UUIDL", uuidLeast);
-        tag.setString("Name", name);
-        tag.setBoolean("Public", isPublic);
-        nbt.setTag("Player", tag);
-
-        return nbt;
-    }
-
-    public static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, Entity entity, boolean isPublic)
-    {
-        if (nbt == null)
-        {
-            nbt = new NBTTagCompound();
-        }
-
-        if (entity == null)
-        {
-            nbt.removeTag("Player");
-            return nbt;
-        }
-
-        return writeOwnerTagToNBT(nbt, entity.getUniqueID().getMostSignificantBits(), entity.getUniqueID().getLeastSignificantBits(), entity.getName(), isPublic);
-    }
-
-    public static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, EntityPlayer player)
-    {
-        return writeOwnerTagToNBT(nbt, player, true);
-    }
-
-    public static void writeOwnerTagToItem(ItemStack stack, Entity entity, boolean isPublic)
-    {
-        if (stack != null)
-        {
-            stack.setTagCompound(writeOwnerTagToNBT(stack.getTagCompound(), entity, isPublic));
+            writeOwnerTagToItem(stack, entity, isPublic);
         }
     }
 
-    public static boolean writeOwnerTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity, boolean isPublic)
+    /**
+     * Adds OwnerData to the selected module in the item, but only if it doesn't exist yet.
+     */
+    public static void addOwnerDataToSelectedModuleOptional(ItemStack toolStack, ModuleType moduleType, Entity entity)
     {
-        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
+        addOwnerDataToSelectedModuleOptional(toolStack, moduleType, entity, false);
+    }
+
+    /**
+     * Adds OwnerData to the selected module in the item, but only if it doesn't exist yet.
+     */
+    public static void addOwnerDataToSelectedModuleOptional(ItemStack toolStack, ModuleType moduleType, Entity entity, boolean isPublic)
+    {
+        OwnerData data = getOwnerDataFromSelectedModule(toolStack, moduleType);
+
+        if (data == null)
         {
-            writeOwnerTagToItem(moduleStack, entity, isPublic);
-            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
-
-            return true;
+            writeOwnerTagToSelectedModule(toolStack, moduleType, entity, isPublic);
         }
+    }
 
-        return false;
+    /**
+     * Toggles the privacy mode on the item, if the entity is the owner.
+     * If the item doesn't yet have OwnerData, then the data will be added, in Private mode.
+     */
+    public static void togglePrivacyModeOnItem(ItemStack stack, Entity entity)
+    {
+        OwnerData data = getOwnerDataFromItem(stack);
+
+        if (data == null)
+        {
+            addOwnerDataToItemOptional(stack, entity);
+        }
+        else if (data.isOwner(entity))
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToItem(stack);
+        }
+    }
+
+    /**
+     * Toggles the privacy mode on the selected module on the item, if the entity is the owner.
+     * If the module doesn't yet have OwnerData, then the data will be added, in Private mode.
+     */
+    public static void togglePrivacyModeOnSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity)
+    {
+        OwnerData data = getOwnerDataFromSelectedModule(toolStack, moduleType);
+
+        if (data == null)
+        {
+            addOwnerDataToSelectedModuleOptional(toolStack, moduleType, entity);
+        }
+        else if (data.isOwner(entity))
+        {
+            data.isPublic = ! data.isPublic;
+            data.writeToSelectedModule(toolStack, moduleType);
+        }
     }
 
     public static OwnerData getOwnerDataFromNBT(NBTTagCompound nbt)
     {
-        OwnerData owner = new OwnerData();
-        if (owner.readFromNBT(nbt) != null)
-        {
-            return owner;
-        }
-
-        return null;
+        return new OwnerData().readFromNBT(nbt);
     }
 
     public static OwnerData getOwnerDataFromItem(ItemStack stack)
@@ -228,30 +169,36 @@ public class OwnerData
             return false;
         }
 
-        // FIXME verify that this would work: if (this.playerUUID != null && this.playerUUID.equals(player.getUniqueID()) == true)
-        if (this.ownerUUIDMost == entity.getUniqueID().getMostSignificantBits() &&
-            this.ownerUUIDLeast == entity.getUniqueID().getLeastSignificantBits())
+        return this.ownerUUID != null && this.ownerUUID.equals(entity.getUniqueID());
+    }
+
+    private boolean isOwner(UUID uuid)
+    {
+        if (uuid == null)
         {
-            return true;
+            return false;
         }
 
-        return false;
+        return this.ownerUUID != null && this.ownerUUID.equals(uuid);
     }
 
     public boolean canAccess(Entity entity)
     {
-        return (this.isPublic || this.isOwner(entity));
+        return this.isPublic || this.isOwner(entity);
     }
 
+    public boolean canAccess(UUID uuid)
+    {
+        return this.isPublic || this.isOwner(uuid);
+    }
+
+    /*
     public static boolean isOwnerOfItem(ItemStack stack, Entity entity)
     {
         if (stack != null && stack.getTagCompound() != null)
         {
-            OwnerData owner = new OwnerData();
-            if (owner.readFromNBT(stack.getTagCompound()) != null)
-            {
-                return owner.isOwner(entity);
-            }
+            OwnerData data = getOwnerDataFromItem(stack);
+            return data != null && data.isOwner(entity);
         }
 
         return false;
@@ -261,6 +208,7 @@ public class OwnerData
     {
         return isOwnerOfItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType), entity);
     }
+    */
 
     /**
      * Check if the given player is allowed to access this item.
@@ -278,12 +226,163 @@ public class OwnerData
             return true;
         }
 
-        OwnerData owner = getOwnerDataFromItem(stack);
-        return (owner == null || owner.isPublic == true || owner.isOwner(entity) == true);
+        OwnerData data = getOwnerDataFromItem(stack);
+        return data == null || data.isPublic || data.isOwner(entity);
+    }
+
+    /**
+     * Check if the given player is allowed to access this item.
+     * Returns true if there is no player information stored yet, or if the privacy mode is set to Public, or if the given player is the owner.
+     */
+    public static boolean canAccessItem(ItemStack stack, UUID uuid)
+    {
+        if (stack == null)
+        {
+            return false;
+        }
+
+        if (stack.getTagCompound() == null)
+        {
+            return true;
+        }
+
+        OwnerData data = getOwnerDataFromItem(stack);
+        return data == null || data.isPublic || data.isOwner(uuid);
     }
 
     public static boolean canAccessSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity)
     {
         return canAccessItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType), entity);
+    }
+
+    private static boolean nbtHasOwnerTag(NBTTagCompound nbt)
+    {
+        if (nbt == null)
+        {
+            return false;
+        }
+
+        if (nbt.hasKey("Owner", Constants.NBT.TAG_COMPOUND) == false &&
+            nbt.hasKey("Player", Constants.NBT.TAG_COMPOUND) == false)
+        {
+            return false;
+        }
+
+        NBTTagCompound tag = nbt.hasKey("Owner", Constants.NBT.TAG_COMPOUND) ?
+                nbt.getCompoundTag("Owner") : nbt.getCompoundTag("Player");
+
+        if (tag != null &&
+            tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) == true &&
+            tag.hasKey("UUIDL", Constants.NBT.TAG_LONG) == true &&
+            tag.hasKey("Name", Constants.NBT.TAG_STRING) == true)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private OwnerData readFromNBT(NBTTagCompound nbt)
+    {
+        if (nbtHasOwnerTag(nbt) == false)
+        {
+            return null;
+        }
+
+        NBTTagCompound tag = nbt.hasKey("Owner", Constants.NBT.TAG_COMPOUND) ?
+                nbt.getCompoundTag("Owner") : nbt.getCompoundTag("Player");
+
+                this.ownerUUIDMost = tag.getLong("UUIDM");
+        this.ownerUUIDLeast = tag.getLong("UUIDL");
+        this.ownerName = tag.getString("Name");
+        this.isPublic = tag.getBoolean("Public");
+        this.ownerUUID = new UUID(this.ownerUUIDMost, this.ownerUUIDLeast);
+
+        return this;
+    }
+
+    private static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, long uuidMost, long uuidLeast, String name, boolean isPublic)
+    {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setLong("UUIDM", uuidMost);
+        tag.setLong("UUIDL", uuidLeast);
+        tag.setString("Name", name);
+        tag.setBoolean("Public", isPublic);
+        nbt.setTag("Owner", tag);
+
+        return nbt;
+    }
+
+    private static NBTTagCompound writeOwnerTagToNBT(NBTTagCompound nbt, Entity entity, boolean isPublic)
+    {
+        if (nbt == null)
+        {
+            nbt = new NBTTagCompound();
+        }
+
+        if (entity == null)
+        {
+            nbt.removeTag("Owner");
+            nbt.removeTag("Player"); // legacy
+            return nbt;
+        }
+
+        return writeOwnerTagToNBT(nbt, entity.getUniqueID().getMostSignificantBits(), entity.getUniqueID().getLeastSignificantBits(), entity.getName(), isPublic);
+    }
+
+    private static void writeOwnerTagToItem(ItemStack stack, Entity entity, boolean isPublic)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(writeOwnerTagToNBT(stack.getTagCompound(), entity, isPublic));
+        }
+    }
+
+    private static boolean writeOwnerTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity, boolean isPublic)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+        if (moduleStack != null)
+        {
+            writeOwnerTagToItem(moduleStack, entity, isPublic);
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean writeToItem(ItemStack stack)
+    {
+        if (stack != null)
+        {
+            stack.setTagCompound(this.writeToNBT(stack.getTagCompound()));
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean writeToSelectedModule(ItemStack toolStack, ModuleType moduleType)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+        if (moduleStack != null)
+        {
+            if (this.writeToItem(moduleStack) == false)
+            {
+                return false;
+            }
+
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
     }
 }

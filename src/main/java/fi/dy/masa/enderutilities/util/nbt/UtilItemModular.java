@@ -790,34 +790,7 @@ public class UtilItemModular
         TargetData.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side, player,
                 hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
-        if (OwnerData.selectedModuleHasOwnerTag(containerStack, ModuleType.TYPE_LINKCRYSTAL) == false)
-        {
-            OwnerData.writeOwnerTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
-        }
-    }
-
-    /**
-     * Toggle the Public/Private mode on the selected module of the given type.
-     * If the module doesn't have the Player tag yet, it will be created and set to Private.
-     * @param containerStack
-     * @param player
-     * @param moduleType
-     */
-    public static void changePrivacyModeOnSelectedModule(ItemStack containerStack, EntityPlayer player, ModuleType moduleType)
-    {
-        if (OwnerData.selectedModuleHasOwnerTag(containerStack, moduleType) == false)
-        {
-            OwnerData.writeOwnerTagToSelectedModule(containerStack, moduleType, player, false);
-        }
-        else
-        {
-            OwnerData data = OwnerData.getOwnerDataFromSelectedModule(containerStack, moduleType);
-            if (data != null && data.isOwner(player) == true)
-            {
-                data.setIsPublic(! data.getIsPublic());
-                data.writeToSelectedModule(containerStack, moduleType);
-            }
-        }
+        OwnerData.addOwnerDataToSelectedModuleOptional(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
     }
 
     /**
@@ -837,21 +810,8 @@ public class UtilItemModular
             return;
         }
 
-        if (OwnerData.itemHasOwnerTag(moduleStack) == false)
-        {
-            OwnerData.writeOwnerTagToItem(moduleStack, player, false);
-            setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
-        }
-        else
-        {
-            OwnerData data = OwnerData.getOwnerDataFromItem(moduleStack);
-            if (data != null && data.isOwner(player) == true)
-            {
-                data.setIsPublic(! data.getIsPublic());
-                data.writeToItem(moduleStack);
-                setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
-            }
-        }
+        OwnerData.togglePrivacyModeOnItem(moduleStack, player);
+        setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
     }
 
     /**

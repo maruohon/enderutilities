@@ -44,9 +44,9 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
 
             if (listener instanceof EntityPlayerMP)
             {
-                EntityPlayerMP player = (EntityPlayerMP)listener;
-                this.syncAllSlots(player);
+                EntityPlayerMP player = (EntityPlayerMP) listener;
                 player.connection.sendPacket(new SPacketSetSlot(-1, -1, player.inventory.getItemStack()));
+                this.syncAllSlots(player);
             }
 
             this.detectAndSendChanges();
@@ -75,12 +75,13 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
                 prevStack = ItemStack.copyItemStack(currentStack);
                 this.inventoryItemStacks.set(slot, prevStack);
 
-                for (int j = 0; j < this.listeners.size(); ++j)
+                for (int i = 0; i < this.listeners.size(); i++)
                 {
-                    IContainerListener ic = this.listeners.get(j);
-                    if (ic instanceof EntityPlayerMP)
+                    IContainerListener listener = this.listeners.get(i);
+
+                    if (listener instanceof EntityPlayerMP)
                     {
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP)ic);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP) listener);
                     }
                 }
             }

@@ -2,14 +2,13 @@ package fi.dy.masa.enderutilities.inventory.item;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class InventoryItemModular extends InventoryItem
+public class InventoryItemModular extends InventoryItemPermissions
 {
     protected ItemStack modularItemStack;
     protected InventoryItemMemoryCards moduleInventory;
@@ -136,7 +135,7 @@ public class InventoryItemModular extends InventoryItem
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player)
+    public boolean isAccessibleByPlayer(EntityPlayer player)
     {
         ItemStack stack = this.getModularItemStack();
         if (stack == null)
@@ -145,6 +144,6 @@ public class InventoryItemModular extends InventoryItem
             return false;
         }
 
-        return super.isUseableByPlayer(player);
+        return super.isAccessibleByPlayer(player);
     }
 }

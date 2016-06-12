@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderFurnace;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory implements ITickable
 {
@@ -378,47 +379,33 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private boolean moveItemsToEnderChest()
     {
-        if (this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) == null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) == null ||
+            this.ownerData == null || this.ownerData.getOwnerUUID() == null)
         {
             return false;
         }
 
-        EntityPlayer player = this.getWorld().getPlayerEntityByUUID(this.ownerUUID);
+        EntityPlayer player = this.getWorld().getPlayerEntityByUUID(this.ownerData.getOwnerUUID());
         if (player == null)
         {
             return false;
         }
         // Player is online
 
-        IItemHandler enderChestHandler = new InvWrapper(player.getInventoryEnderChest());
         ItemStack stack = this.getBaseItemHandler().extractItem(SLOT_OUTPUT, 64, false);
-
-        int origSize = stack.stackSize;
-        int invSize = enderChestHandler.getSlots();
-
-        // First loop through the Ender Chest: fill matching stacks
-        for (int slot = 0; slot < invSize; slot++)
+        if (stack == null)
         {
-            if (enderChestHandler.getStackInSlot(slot) != null)
-            {
-                stack = enderChestHandler.insertItem(slot, stack, false);
-
-                if (stack == null)
-                {
-                    return true;
-                }
-            }
+            return false;
         }
 
-        // Second loop (if we still have more items): move items to an empty slot
-        for (int slot = 0; slot < invSize; slot++)
-        {
-            stack = enderChestHandler.insertItem(slot, stack, false);
+        int origSize = stack.stackSize;
+        IItemHandler inv = new InvWrapper(player.getInventoryEnderChest());
 
-            if (stack == null)
-            {
-                return true;
-            }
+        stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
+
+        if (stack == null)
+        {
+            return true;
         }
 
         this.getBaseItemHandler().insertItem(SLOT_OUTPUT, stack, false);

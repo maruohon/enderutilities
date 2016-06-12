@@ -75,7 +75,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         this.bindTexture(this.guiTextureWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
-        if (this.inventory.isUseableByPlayer(this.player) == false)
+        if (this.inventory.isAccessibleByPlayer(this.player) == false)
         {
             // Draw the dark background icon over the disabled inventory slots
             for (int i = 0; i < this.invSize; i++)
@@ -87,7 +87,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
 
         // Memory Card slots are not accessible, because the item isn't currently accessible
         // Draw the dark background icon over the disabled slots
-        if (this.inventory.getModuleInventory().isUseableByPlayer(this.player) == false)
+        if (this.inventory.getModuleInventory().isAccessibleByPlayer(this.player) == false)
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {

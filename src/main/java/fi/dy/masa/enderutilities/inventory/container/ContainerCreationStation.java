@@ -38,7 +38,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
-        super(player, te.getItemInventory());
+        super(player, te.getItemInventory(player));
         this.tecs = te;
         this.tecs.openInventory(player);
 
@@ -216,6 +216,14 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
+        if (this.tecs.isInventoryAccessible(player) == false)
+        {
+            if (this.craftingGridSlotsLeft.contains(slotNum) || this.craftingGridSlotsRight.contains(slotNum))
+            {
+                return null;
+            }
+        }
+
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
         if (this.craftingGridSlotsLeft.contains(slotNum) == true || slotNum == 40)
         {

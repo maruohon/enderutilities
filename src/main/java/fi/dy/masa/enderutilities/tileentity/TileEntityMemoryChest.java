@@ -44,7 +44,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
         return new ItemHandlerWrapperContainer(this.getBaseItemHandler(),
                 new ItemHandlerWrapperMemoryChestContainer(this.getBaseItemHandler(), this));

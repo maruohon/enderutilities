@@ -91,9 +91,10 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), new ItemHandlerWrapperQuickStackerAdvanced(this.getBaseItemHandler()));
+        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(),
+                new ItemHandlerWrapperQuickStackerAdvanced(this.getBaseItemHandler()));
     }
 
     public IItemHandler getFilterInventory()
@@ -173,7 +174,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean isInventoryAccessible(EntityPlayer player)
     {
-        return this.isAreaMode || this.inventoryFiltersBound.isUseableByPlayer(player);
+        return this.isAreaMode || this.inventoryFiltersBound.isAccessibleByPlayer(player);
     }
 
     @Override

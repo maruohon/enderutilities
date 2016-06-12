@@ -26,6 +26,7 @@ import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
@@ -80,6 +81,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private final IItemHandler itemHandlerMemoryCards;
     private final InventoryItemCallback itemInventory;
+    private final ItemHandlerWrapperPermissions wrappedInventory;
     private final ItemStackHandlerTileEntity furnaceInventory;
     private final IItemHandler furnaceInventoryWrapper;
 
@@ -111,7 +113,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
 
         this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
-        this.itemHandlerExternal = this.itemInventory;
+        this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
+        this.itemHandlerExternal = this.wrappedInventory;
 
         this.craftingInventories = new InventoryItemCrafting[2];
         this.craftingInventoryWrappers = new IItemHandler[2];
@@ -212,19 +215,20 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super.handleUpdateTag(tag);
     }
 
-    public IItemHandler getItemInventory()
+    public IItemHandler getItemInventory(EntityPlayer player)
     {
-        return this.itemInventory;
+        return new ItemHandlerWrapperPermissions(this.itemInventory, player);
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return this.getFurnaceInventory();
+        return this.getItemInventory(player);
     }
 
     public InventoryItemCrafting getCraftingInventory(int id, Container container, EntityPlayer player)
     {
+        // FIXME the crafting inventories should be permission wrapped too...
         if (this.craftingInventories[id] == null)
         {
             this.craftingInventories[id] = new InventoryItemCrafting(container, 3, 3, this.getContainerStack(),
@@ -264,11 +268,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public void setQuickMode(int mode)
     {
         this.actionMode = mode;
-    }
-
-    public boolean isInventoryAccessible(EntityPlayer player)
-    {
-        return this.itemInventory.isUseableByPlayer(player);
     }
 
     public int getSelectedModuleSlot()
@@ -667,6 +666,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.markDirty();
     }
 
+    public boolean isInventoryAccessible(EntityPlayer player)
+    {
+        return this.wrappedInventory.isAccessibleByPlayer(player);
+    }
+
     public void openInventory(EntityPlayer player)
     {
         this.numPlayersUsing++;
@@ -717,7 +721,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
-            if (this.itemInventory.isUseableByPlayer(player) == false)
+            ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+
+            if (inventory.isAccessibleByPlayer(player) == false)
             {
                 return;
             }
@@ -729,22 +735,22 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, this.itemInventory, new SlotRange(9, 27), new SlotRange(this.itemInventory));
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, inventory, new SlotRange(9, 27), new SlotRange(inventory));
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);
+                    InventoryUtils.tryMoveMatchingItems(playerInv, inventory);
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
-                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, this.itemInventory, true);
+                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, inventory, true);
                     break;
                 case 3: // Fill stacks in player inventory from Chest
-                    InventoryUtils.fillStacksOfMatchingItems(this.itemInventory, playerInv);
+                    InventoryUtils.fillStacksOfMatchingItems(inventory, playerInv);
                     break;
                 case 4: // Move matching items to player inventory
-                    InventoryUtils.tryMoveMatchingItems(this.itemInventory, playerInv);
+                    InventoryUtils.tryMoveMatchingItems(inventory, playerInv);
                     break;
                 case 5: // Move all items to player inventory
-                    InventoryUtils.tryMoveAllItems(this.itemInventory, playerInv);
+                    InventoryUtils.tryMoveAllItems(inventory, playerInv);
                     break;
             }
         }
@@ -877,6 +883,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             // Station's item inventory
             if (element == 0)
             {
+                ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+
+                if (inventory.isAccessibleByPlayer(player) == false)
+                {
+                    return;
+                }
+
                 InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
             }
             // Player inventory (don't sort the hotbar)

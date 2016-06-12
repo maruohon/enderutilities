@@ -847,16 +847,6 @@ public class ItemEnderTool extends ItemLocationBoundModular
         NBTUtils.cycleByteValue(stack, null, "DropsMode", 2);
     }
 
-    public void changePrivacyMode(ItemStack stack, EntityPlayer player)
-    {
-        OwnerData data = OwnerData.getOwnerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (data != null && data.isOwner(player) == true)
-        {
-            data.setIsPublic(! data.getIsPublic());
-            data.writeToSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-        }
-    }
-
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {

@@ -10,7 +10,7 @@ public class ContainerTileEntityInventory extends ContainerCustomSlotClick
 
     public ContainerTileEntityInventory(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
     {
-        super(player, te.getWrappedInventoryForContainer());
+        super(player, te.getWrappedInventoryForContainer(player));
         this.te = te;
     }
 

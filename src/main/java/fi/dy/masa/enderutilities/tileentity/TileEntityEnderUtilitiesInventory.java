@@ -55,7 +55,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
      * <b>NOTE:</b> Override this for any TileEntity that doesn't have a valid
      * IItemHandler in the itemHandlerExternal field!!
      */
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
         return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), this.itemHandlerExternal);
     }

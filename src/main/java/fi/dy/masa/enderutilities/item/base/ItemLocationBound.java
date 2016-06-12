@@ -223,19 +223,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
      */
     public void changePrivacyMode(ItemStack stack, EntityPlayer player)
     {
-        if (OwnerData.itemHasOwnerTag(stack) == false)
-        {
-            OwnerData.writeOwnerTagToItem(stack, player, false);
-        }
-        else
-        {
-            OwnerData data = OwnerData.getOwnerDataFromItem(stack);
-            if (data != null && data.isOwner(player) == true)
-            {
-                data.setIsPublic(! data.getIsPublic());
-                data.writeToItem(stack);
-            }
-        }
+        OwnerData.togglePrivacyModeOnItem(stack, player);
     }
 
     @Override
@@ -289,10 +277,6 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         }
 
         TargetData.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
-
-        if (OwnerData.itemHasOwnerTag(stack) == false)
-        {
-            OwnerData.writeOwnerTagToItem(stack, player, true);
-        }
+        OwnerData.addOwnerDataToItemOptional(stack, player, true);
     }
 }

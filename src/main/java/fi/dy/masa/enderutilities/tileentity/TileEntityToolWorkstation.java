@@ -35,7 +35,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
         return this.itemHandlerToolWorkstation;
     }

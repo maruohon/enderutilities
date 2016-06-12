@@ -20,16 +20,14 @@ public class TileEntityEnderUtilities extends TileEntity
 {
     protected String tileEntityName;
     protected EnumFacing facing;
+    protected OwnerData ownerData;
     protected String ownerName;
-    protected UUID ownerUUID;
-    protected boolean isPublic;
 
     public TileEntityEnderUtilities(String name)
     {
         this.facing = BlockEnderUtilities.DEFAULT_FACING;
+        this.ownerData = null;
         this.ownerName = null;
-        this.ownerUUID = null;
-        this.isPublic = false;
         this.tileEntityName = name;
     }
 
@@ -50,16 +48,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public void setOwner(EntityPlayer player)
     {
-        if (player != null)
-        {
-            this.ownerName = player.getName();
-            this.ownerUUID = player.getUniqueID();
-        }
-        else
-        {
-            this.ownerName = null;
-            this.ownerUUID = null;
-        }
+        this.ownerData = player != null ? new OwnerData(player) : null;
     }
 
     public String getOwnerName()
@@ -69,7 +58,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public UUID getOwnerUUID()
     {
-        return this.ownerUUID;
+        return this.ownerData != null ? this.ownerData.getOwnerUUID() : null;
     }
 
     public void onLeftClickBlock(EntityPlayer player) { }
@@ -96,13 +85,7 @@ public class TileEntityEnderUtilities extends TileEntity
             }
         }
 
-        OwnerData playerData = OwnerData.getOwnerDataFromNBT(nbt);
-        if (playerData != null)
-        {
-            this.ownerUUID = playerData.getOwnerUUID();
-            this.ownerName = playerData.getOwnerName();
-            this.isPublic = playerData.getIsPublic();
-        }
+        this.ownerData = OwnerData.getOwnerDataFromNBT(nbt);
     }
 
     @Override
@@ -121,9 +104,9 @@ public class TileEntityEnderUtilities extends TileEntity
         nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Rotation", (byte)this.facing.getIndex());
 
-        if (this.ownerUUID != null && this.ownerName != null)
+        if (this.ownerData != null)
         {
-            OwnerData.writeOwnerTagToNBT(nbt, this.ownerUUID.getMostSignificantBits(), this.ownerUUID.getLeastSignificantBits(), this.ownerName, this.isPublic);
+            this.ownerData.writeToNBT(nbt);
         }
 
         return nbt;
@@ -138,9 +121,9 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         nbt.setByte("r", (byte)(this.facing.getIndex() & 0x07));
 
-        if (this.ownerName != null)
+        if (this.ownerData != null)
         {
-            nbt.setString("o", this.ownerName);
+            nbt.setString("o", this.ownerData.getOwnerName());
         }
 
         return nbt;

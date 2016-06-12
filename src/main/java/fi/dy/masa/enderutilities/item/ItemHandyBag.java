@@ -254,7 +254,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 }
 
-                if (bagInv.isUseableByPlayer(player) == false)
+                if (bagInv.isAccessibleByPlayer(player) == false)
                 {
                     return;
                 }
@@ -277,7 +277,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
         InventoryItemModular bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (inv == null || bagInv.isUseableByPlayer(player) == false)
+        if (inv == null || bagInv.isAccessibleByPlayer(player) == false)
         {
             return EnumActionResult.PASS;
         }

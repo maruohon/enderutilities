@@ -1,19 +1,16 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import java.io.IOException;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.inventory.container.ContainerLargeStacks;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import io.netty.buffer.ByteBuf;
 
 public class MessageSyncSlot implements IMessage
@@ -89,9 +86,10 @@ public class MessageSyncSlot implements IMessage
 
         protected void processMessage(final MessageSyncSlot message, EntityPlayer player)
         {
-            if (player.openContainer instanceof ContainerLargeStacks && message.windowId == player.openContainer.windowId)
+            if (player.openContainer instanceof ContainerEnderUtilities && message.windowId == player.openContainer.windowId)
             {
-                player.openContainer.putStackInSlot(message.slotNum, message.stack);
+                //System.out.printf("MessageSyncSlot - slot: %3d stack: %s\n", message.slotNum, message.stack);
+                ((ContainerEnderUtilities) player.openContainer).syncStackInSlot(message.slotNum, message.stack);
             }
         }
     }

@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -189,7 +190,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
         else
         {
-            UtilItemModular.changePrivacyModeOnSelectedModule(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
+            OwnerData.togglePrivacyModeOnSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, player);
         }
     }
 

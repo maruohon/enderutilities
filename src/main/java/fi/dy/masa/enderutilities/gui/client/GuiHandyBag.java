@@ -128,7 +128,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.bindTexture(this.guiTextureWidgets);
 
         // The inventory is not accessible (because there is no valid Memory Card selected)
-        if (this.invModular.isUseableByPlayer(this.player) == false)
+        if (this.invModular.isAccessibleByPlayer(this.player) == false)
         {
             // Draw the dark background icon over the disabled inventory slots
             for (int i = 0; i < this.invSize; i++)
@@ -146,7 +146,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
         // Draw the dark background icon over the disabled slots
-        if (this.invModular.getModuleInventory().isUseableByPlayer(this.player) == false)
+        if (this.invModular.getModuleInventory().isAccessibleByPlayer(this.player) == false)
         {
             for (int i = 0; i < this.numModuleSlots; i++)
             {

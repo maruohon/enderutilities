@@ -1,48 +1,40 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
 import java.util.UUID;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class InventoryItem extends ItemStackHandlerBasic
 {
     protected ItemStack containerStack;
-    protected final EntityPlayer player;
-    //protected String customInventoryName;
     protected boolean isRemote;
     protected UUID containerUUID;
     protected IItemHandler hostInventory;
 
-    public InventoryItem(ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
-    {
-        this(containerStack, invSize, 64, false, isRemote, player, "Items");
-    }
-
-    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player)
+    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
+            boolean isRemote, EntityPlayer player)
     {
         this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, "Items");
     }
 
-    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player, String tagName)
+    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
+            boolean isRemote, EntityPlayer player, String tagName)
     {
         this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, tagName, null, null);
     }
 
-    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IItemHandler hostInv)
+    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
+            boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IItemHandler hostInv)
     {
         super(invSize, stackLimit, allowCustomStackSizes, tagName);
         this.containerStack = containerStack;
-        this.player = player;
         this.isRemote = isRemote;
         this.containerUUID = containerUUID;
         this.hostInventory = hostInv;
@@ -55,7 +47,7 @@ public class InventoryItem extends ItemStackHandlerBasic
 
     protected void clearInventory()
     {
-        for (int i = 0; i < this.invSize; i++)
+        for (int i = 0; i < this.items.length; i++)
         {
             this.items[i] = null;
         }
@@ -130,7 +122,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             this.clearInventory();
 
             ItemStack stack = this.getContainerItemStack();
-            if (stack != null && stack.hasTagCompound() == true && this.isUseableByPlayer(this.player) == true)
+            if (stack != null && stack.hasTagCompound() == true && this.isCurrentlyAccessible() == true)
             {
                 this.deserializeNBT(stack.getTagCompound());
             }
@@ -146,25 +138,35 @@ public class InventoryItem extends ItemStackHandlerBasic
         {
             //System.out.println("InventoryItem#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
             ItemStack stack = this.getContainerItemStack();
-            if (stack != null && this.isUseableByPlayer(this.player) == true)
+            if (stack != null && this.isCurrentlyAccessible() == true)
             {
                 NBTUtils.writeItemsToContainerItem(stack, this.items, this.tagName, true);
             }
         }
     }
 
-    public boolean isUseableByPlayer(EntityPlayer player)
+    public boolean isCurrentlyAccessible()
     {
-        //System.out.println("InventoryItem#isUseableByPlayer() - " + (this.isRemote ? "client" : "server"));
-        ItemStack stack = this.getContainerItemStack();
-        if (stack == null)
-        {
-            //System.out.println("isUseableByPlayer(): false - containerStack == null");
-            return false;
-        }
+        //System.out.println("InventoryItem#isCurrentlyAccessible() - " + (this.isRemote ? "client" : "server"));
+        return true;
+    }
 
-        OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
-        return ownerData == null || ownerData.canAccess(player) == true;
+    public boolean isAccessibleByPlayer(EntityPlayer player)
+    {
+        //System.out.println("InventoryItem#isAccessibleByPlayer() - " + (this.isRemote ? "client" : "server"));
+        return true;
+    }
+
+    public boolean isAccessibleBy(UUID uuid)
+    {
+        //System.out.println("InventoryItem#isAccessibleBy() - " + (this.isRemote ? "client" : "server"));
+        return true;
+    }
+
+    public boolean isPrivate()
+    {
+        OwnerData owner = OwnerData.getOwnerDataFromItem(this.getContainerItemStack());
+        return owner != null && owner.getIsPublic() == false;
     }
 
     @Override
@@ -191,7 +193,7 @@ public class InventoryItem extends ItemStackHandlerBasic
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
         //System.out.println("InventoryItem#isItemValidForSlot(" + slot + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
-        return this.getContainerItemStack() != null;
+        return this.getContainerItemStack() != null && this.isCurrentlyAccessible();
     }
 
     @Override

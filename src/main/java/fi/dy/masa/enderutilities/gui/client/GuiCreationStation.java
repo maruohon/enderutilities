@@ -40,12 +40,14 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
     private final TileEntityCreationStation tecs;
     private final ContainerCreationStation containerCS;
+    private final int invSize;
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {
         super(container, 240, 256, "gui.container.creationstation");
         this.tecs = te;
         this.containerCS = container;
+        this.invSize = container.inventory.getSlots();
         this.scaledStackSizeTextInventories.add(this.tecs.getFurnaceInventory());
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
@@ -71,7 +73,6 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         this.bindTexture(this.guiTextureWidgets);
 
-        int invSize = this.tecs.getItemInventory().getSlots();
         int modeMask = this.tecs.getModeMask();
 
         // Draw the selection marker around the selected module's button
@@ -115,7 +116,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         if (this.tecs.isInventoryAccessible(this.container.getPlayer()) == false)
         {
             // Draw the dark background over the disabled inventory slots
-            for (int i = 0; i < invSize; i++)
+            for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xDisplayPosition - 1;

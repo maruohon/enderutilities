@@ -49,7 +49,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
         return new ItemHandlerWrapperContainer(this.itemHandlerBase, this.inventoryWrapper);
     }

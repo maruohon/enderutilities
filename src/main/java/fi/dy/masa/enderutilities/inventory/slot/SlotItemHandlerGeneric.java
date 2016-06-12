@@ -8,6 +8,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSyncable;
 
 public class SlotItemHandlerGeneric extends SlotItemHandler
 {
@@ -45,7 +46,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.getItemHandler() instanceof IItemHandlerModifiable)
         {
-            //System.out.println("SlotItemHandlerGeneric#putStack() - setStackInSlot()");
+            //System.out.printf("SlotItemHandlerGeneric#putStack() - setStackInSlot() - slot: %3d stack: %s\n", this.getSlotIndex(), stack);
             ((IItemHandlerModifiable)this.getItemHandler()).setStackInSlot(this.getSlotIndex(), stack);
         }
         else
@@ -55,6 +56,18 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         }
 
         this.onSlotChanged();
+    }
+
+    public void syncStack(ItemStack stack)
+    {
+        if (this.getItemHandler() instanceof IItemHandlerSyncable)
+        {
+            ((IItemHandlerSyncable) this.getItemHandler()).syncStackInSlot(this.getSlotIndex(), stack);
+        }
+        else
+        {
+            this.putStack(stack);
+        }
     }
 
     public ItemStack insertItem(ItemStack stack, boolean simulate)

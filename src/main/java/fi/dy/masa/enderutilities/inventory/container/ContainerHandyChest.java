@@ -19,7 +19,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
     public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
-        super(player, te.getWrappedInventoryForContainer());
+        super(player, te.getWrappedInventoryForContainer(player));
         this.tehc = te;
 
         this.addCustomInventorySlots();

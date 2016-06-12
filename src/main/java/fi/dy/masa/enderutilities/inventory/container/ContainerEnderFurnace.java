@@ -23,7 +23,7 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
 
     public ContainerEnderFurnace(EntityPlayer player, TileEntityEnderFurnace te)
     {
-        super(player, te.getWrappedInventoryForContainer());
+        super(player, te.getWrappedInventoryForContainer(player));
         this.teef = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 84);

@@ -142,6 +142,26 @@ public class ContainerEnderUtilities extends Container
         return (slot instanceof SlotItemHandlerGeneric) ? (SlotItemHandlerGeneric) slot : null;
     }
 
+    /**
+     * Will put the given stack into the slot, ignoring any validity checks.
+     * This will and should only be used for syncing slots to the client.
+     * @param slot
+     * @param stack
+     */
+    public void syncStackInSlot(int slotId, ItemStack stack)
+    {
+        Slot slot = this.getSlot(slotId);
+
+        if (slot instanceof SlotItemHandlerGeneric)
+        {
+            ((SlotItemHandlerGeneric) slot).syncStack(stack);
+        }
+        else
+        {
+            this.putStackInSlot(slotId, stack);
+        }
+    }
+
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {

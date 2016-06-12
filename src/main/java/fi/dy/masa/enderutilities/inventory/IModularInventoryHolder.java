@@ -5,4 +5,6 @@ import net.minecraft.item.ItemStack;
 public interface IModularInventoryHolder
 {
     public ItemStack getContainerStack();
+
+    public void markDirty();
 }

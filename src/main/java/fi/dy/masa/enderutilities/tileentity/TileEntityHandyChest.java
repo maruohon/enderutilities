@@ -21,6 +21,7 @@ import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyChest;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyChest;
@@ -45,6 +46,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     private final IItemHandler itemHandlerMemoryCards;
     protected InventoryItemCallback itemInventory;
+    protected ItemHandlerWrapperPermissions wrappedInventory;
     protected int selectedModule;
     protected int chestTier;
     protected int actionMode;
@@ -57,8 +59,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
-        this.itemInventory = new InventoryItemCallback(null, 54, true, false, null, this);
-        this.itemHandlerExternal = this.itemInventory;
+        //this.itemInventory = new InventoryItemCallback(null, 54, true, false, null, this);
+        //this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
+        //this.itemHandlerExternal = this.wrappedInventory;
         this.clickTimes = new HashMap<UUID, Long>();
     }
 
@@ -66,7 +69,16 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         this.itemInventory = new InventoryItemCallback(null, invSize, true, isRemote, null, this);
         this.itemInventory.setContainerItemStack(this.getContainerStack());
-        this.itemHandlerExternal = this.itemInventory;
+        this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
+        this.itemHandlerExternal = this.wrappedInventory;
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+
+        this.initStorage(this.invSize, this.getWorld().isRemote);
     }
 
     @Override
@@ -87,7 +99,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super.readItemsFromNBT(nbt);
 
         // ... and this will read the item inventory from the selected Memory Card
-        this.initStorage(this.invSize, false);
+        //this.initStorage(this.invSize, false);
     }
 
     @Override
@@ -126,9 +138,14 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer()
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return this.itemHandlerExternal;
+        return new ItemHandlerWrapperPermissions(this.itemInventory, player);
+    }
+
+    public boolean isInventoryAccessible(EntityPlayer player)
+    {
+        return this.wrappedInventory.isAccessibleByPlayer(player);
     }
 
     public IItemHandler getModuleInventory()
@@ -144,11 +161,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void setQuickMode(int mode)
     {
         this.actionMode = mode;
-    }
-
-    public boolean isInventoryAccessible(EntityPlayer player)
-    {
-        return this.itemInventory.isUseableByPlayer(player);
     }
 
     public int getSelectedModule()
@@ -170,7 +182,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        this.itemInventory.setContainerItemStack(this.itemHandlerMemoryCards.getStackInSlot(this.selectedModule));
+        this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.markDirty();
     }
 
@@ -187,7 +199,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.chestTier = tier;
         this.invSize = INV_SIZES[this.chestTier];
 
-        this.initStorage(this.invSize, this.worldObj.isRemote);
+        this.initStorage(this.invSize, this.getWorld().isRemote);
     }
 
     @Override
@@ -253,7 +265,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
-            if (this.itemInventory.isUseableByPlayer(player) == false)
+            ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+
+            if (inventory.isAccessibleByPlayer(player) == false)
             {
                 return;
             }
@@ -265,22 +279,22 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
             switch (element)
             {
                 case 0: // Move all items to Chest
-                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, this.itemInventory, new SlotRange(9, 27), new SlotRange(this.itemInventory));
+                    InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, inventory, new SlotRange(9, 27), new SlotRange(inventory));
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItems(playerInv, this.itemInventory);
+                    InventoryUtils.tryMoveMatchingItems(playerInv, inventory);
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
-                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, this.itemInventory, true);
+                    InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, inventory, true);
                     break;
                 case 3: // Fill stacks in player inventory from Chest
-                    InventoryUtils.fillStacksOfMatchingItems(this.itemInventory, playerInv);
+                    InventoryUtils.fillStacksOfMatchingItems(inventory, playerInv);
                     break;
                 case 4: // Move matching items to player inventory
-                    InventoryUtils.tryMoveMatchingItems(this.itemInventory, playerInv);
+                    InventoryUtils.tryMoveMatchingItems(inventory, playerInv);
                     break;
                 case 5: // Move all items to player inventory
-                    InventoryUtils.tryMoveAllItems(this.itemInventory, playerInv);
+                    InventoryUtils.tryMoveAllItems(inventory, playerInv);
                     break;
             }
 
@@ -295,7 +309,14 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
             // Chest inventory
             if (element == 0)
             {
-                InventoryUtils.sortInventoryWithinRange(this.itemInventory, new SlotRange(this.itemInventory));
+                ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+
+                if (inventory.isAccessibleByPlayer(player) == false)
+                {
+                    return;
+                }
+
+                InventoryUtils.sortInventoryWithinRange(inventory, new SlotRange(this.itemInventory));
             }
             // Player inventory (don't sort the hotbar)
             else
