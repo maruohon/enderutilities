@@ -559,7 +559,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     IItemHandler playerInv = new CombinedInvWrapper(playerMainInv, offhandInv);
                     IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, inv);
 
-                    switch(element & 0x7FFF)
+                    switch (element & 0x7FFF)
                     {
                         case 0: // Move all items to Bag
                             // Holding shift, move all items, even from hotbar
@@ -573,7 +573,15 @@ public class ItemHandyBag extends ItemInventoryModular
                             }
                             break;
                         case 1: // Move matching items to Bag
-                            InventoryUtils.tryMoveMatchingItems(playerInv, wrappedBagInv);
+                            // Holding shift, move all items, even from hotbar
+                            if ((element & 0x8000) != 0)
+                            {
+                                InventoryUtils.tryMoveMatchingItems(playerInv, wrappedBagInv);
+                            }
+                            else
+                            {
+                                InventoryUtils.tryMoveMatchingItemsWithinSlotRange(playerInv, wrappedBagInv, new SlotRange(9, 27), new SlotRange(wrappedBagInv));
+                            }
                             break;
                         case 2: // Leave one stack of each item type and fill that stack
                             InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, wrappedBagInv, true);

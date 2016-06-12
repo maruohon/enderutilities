@@ -31,7 +31,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
     private static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
-            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.movematchingitemsexcepthotbar",
             "enderutilities.gui.label.leaveonefilledstack",
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
@@ -221,13 +221,17 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitemsexcepthotbar",
-                "enderutilities.gui.label.moveallitemsexcepthotbar.holdshift"));
+                "enderutilities.gui.label.holdshifttoincludehotbar"));
 
-        int[] xOff = new int[] { 18, 36, 108, 126, 144 };
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
+                "enderutilities.gui.label.movematchingitemsexcepthotbar",
+                "enderutilities.gui.label.holdshifttoincludehotbar"));
 
-        for (int i = 1; i < 6; i++)
+        int[] xOff = new int[] { 36, 108, 126, 144 };
+
+        for (int i = 2; i < 6; i++)
         {
-            this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + i, x + xOff[i - 1], y,
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + i, x + xOff[i - 2], y,
                 12, 12, 24, i * 12, this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
 
