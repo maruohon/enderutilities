@@ -215,6 +215,10 @@ public class ItemEnderPart extends ItemModule
                 list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
             }
+            else
+            {
+                list.add(I18n.format("enderutilities.tooltip.item.memorycard.noitems"));
+            }
         }
 
         // Print the owner data after the contents if the player can access/see the contents

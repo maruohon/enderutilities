@@ -172,8 +172,14 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             }
         }
 
-        // Draw the hilight border for active Block buttons
-        ItemStack stack = this.containerHB.getContainerItem();
+        // Draw the hilight border for active Block-Quick-Actions buttons
+        ItemStack stack = null;
+        int selected = this.invModular.getSelectedModuleIndex();
+        if (selected >= 0)
+        {
+            stack = this.invModular.getModuleInventory().getStackInSlot(selected);
+        }
+
         if (stack != null)
         {
             int x = (this.width - this.xSize) / 2;
@@ -223,7 +229,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 "enderutilities.gui.label.moveallitemsexcepthotbar",
                 "enderutilities.gui.label.holdshifttoincludehotbar"));
 
-        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
+        this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 1, x +  18, y + 0, 12, 12, 24, 12, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.movematchingitemsexcepthotbar",
                 "enderutilities.gui.label.holdshifttoincludehotbar"));
 

@@ -619,10 +619,21 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_TOGGLE_BLOCK && element >= 0 && element <= 2)
                 {
-                    long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
-                    long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
-                    lockMask ^= masks[element];
-                    NBTUtils.setLong(stack, "HandyBag", "LockMask", lockMask);
+                    int slot = inv.getSelectedModuleIndex();
+
+                    if (slot >= 0)
+                    {
+                        ItemStack cardStack = inv.getModuleInventory().getStackInSlot(slot);
+
+                        if (cardStack != null)
+                        {
+                            long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+                            long lockMask = NBTUtils.getLong(cardStack, "HandyBag", "LockMask");
+                            lockMask ^= masks[element];
+                            NBTUtils.setLong(cardStack, "HandyBag", "LockMask", lockMask);
+                            UtilItemModular.setSelectedModuleStackAbs(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
+                        }
+                    }
                 }
             }
         }
@@ -645,7 +656,14 @@ public class ItemHandyBag extends ItemInventoryModular
     public static IItemHandler getWrappedEnabledInv(ItemStack stack, IItemHandlerModifiable baseInv)
     {
         long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
-        long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+
+        ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        if (cardStack == null)
+        {
+            return InventoryUtils.NULL_INV;
+        }
+
+        long lockMask = NBTUtils.getLong(cardStack, "HandyBag", "LockMask");
 
         IItemHandlerModifiable inv = null;
         for (int i = 0; i < 3; i++)
