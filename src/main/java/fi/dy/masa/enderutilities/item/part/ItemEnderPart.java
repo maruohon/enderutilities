@@ -13,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -123,6 +124,18 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
+    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldIn, EntityPlayer playerIn, EnumHand hand)
+    {
+        if (worldIn.isRemote == false && stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
+        {
+            OwnerData.togglePrivacyModeOnItem(stack, playerIn);
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+        }
+
+        return super.onItemRightClick(stack, worldIn, playerIn, hand);
+    }
+
+    @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase, EnumHand hand)
     {
         // Jailer module
@@ -201,10 +214,6 @@ public class ItemEnderPart extends ItemModule
                 String str3 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.3");
                 list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
                 list.addAll(lines);
-            }
-            else if (meta != 50)
-            {
-                list.add(I18n.format("enderutilities.tooltip.item.memorycard.unknowndata"));
             }
         }
 

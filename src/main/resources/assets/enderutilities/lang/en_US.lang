@@ -156,10 +156,10 @@ item.enderutilities_enderpart_endercore_0_inactive.tooltips=- Right click an End
 item.enderutilities_enderpart_endercore_1_inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities_enderpart_endercore_2_inactive.tooltips=- Right click an Ender Crystal to activate (in The End)
 item.enderutilities_enderpart_enderrelic.tooltips=- Spawns a new Ender Crystal|lf- Use on an Obsidian block on top of|lf  the obsidian pillars in The End|lf- In The End, it requires at least a 3x3x6 base of Obsidian|lf- Might be dangerous to your health...|lf- Can also spawn decorative Ender Crystals|lf  in other dimensions (no special requirements there)
-item.enderutilities_enderpart_memorycard_items_0.tooltips=- Can store items in stacks up to 2^(bits) = 64
-item.enderutilities_enderpart_memorycard_items_1.tooltips=- Can store items in stacks up to 2^(bits) = 256
-item.enderutilities_enderpart_memorycard_items_2.tooltips=- Can store items in stacks up to 2^(bits) = 1024
-item.enderutilities_enderpart_memorycard_items_3.tooltips=- Can store items in stacks up to 2^(bits) = 4096
+item.enderutilities_enderpart_memorycard_items_0.tooltips=- Can store items in stacks up to 2^(bits) = 64|lf- Right click to toggle Public/Private
+item.enderutilities_enderpart_memorycard_items_1.tooltips=- Can store items in stacks up to 2^(bits) = 256|lf- Right click to toggle Public/Private
+item.enderutilities_enderpart_memorycard_items_2.tooltips=- Can store items in stacks up to 2^(bits) = 1024|lf- Right click to toggle Public/Private
+item.enderutilities_enderpart_memorycard_items_3.tooltips=- Can store items in stacks up to 2^(bits) = 4096|lf- Right click to toggle Public/Private
 item.enderutilities_enderpart_mobpersistence.tooltips=- Right click on a mob to prevent it from despawning|lf- Install into some modular items to achieve the same|lf- Using it directly consumes the item, modular items won't
 item.enderutilities_enderpearlreusable_elite.tooltips=Lets you fly! w00t!
 item.enderutilities_enderporter.tooltips=- Can teleport the player or another|lf  entity inside the same dimension|lf- Not single-use anymore!|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)
