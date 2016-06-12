@@ -21,6 +21,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -164,12 +165,21 @@ public class TemplateEnderUtilities
 
         Mirror mirror = this.placement.getMirror();
         Rotation rotation = this.placement.getRotation();
+        int x1 = posStart.getX();
+        int y1 = posStart.getY();
+        int z1 = posStart.getZ();
+        int x2 = this.size.getX();
+        int y2 = this.size.getY();
+        int z2 = this.size.getZ();
+        AxisAlignedBB bb = new AxisAlignedBB(x1, y1, z1, x1 + x2, y1 + y2, z1 + z2);
+        List<Entity> existingEntities = world.getEntitiesWithinAABBExcludingEntity(null, bb);
 
         for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
             BlockPos pos = transformedBlockPos(this.placement, entityInfo.blockPos).add(posStart);
 
             NBTTagCompound nbt = entityInfo.entityData;
+            UUID uuidOriginal = nbt.getUniqueId("UUID");
             Vec3d vec3d = PositionUtils.transformedVec3d(entityInfo.pos, mirror, rotation);
             Vec3d vec3d1 = vec3d.addVector((double)posStart.getX(), (double)posStart.getY(), (double)posStart.getZ());
             NBTTagList tagList = new NBTTagList();
@@ -203,6 +213,20 @@ public class TemplateEnderUtilities
                     float f = entity.getMirroredYaw(mirror);
                     f = f + (entity.rotationYaw - entity.getRotatedYaw(rotation));
                     entity.setLocationAndAngles(vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, f, entity.rotationPitch);
+                }
+
+                // Use the original UUID if possible. If there is an entity with the same UUID within the pasted area,
+                // then the old one will be killed. Otherwise if there is no entity currently in the world with
+                // the same UUID, then the original UUID will be used.
+                Entity existing = EntityUtils.findEntityByUUID(existingEntities, uuidOriginal);
+                if (existing != null)
+                {
+                    world.removeEntityDangerously(existing);
+                    entity.setUniqueId(uuidOriginal);
+                }
+                else if (world instanceof WorldServer && ((WorldServer) world).getEntityFromUuid(uuidOriginal) == null)
+                {
+                    entity.setUniqueId(uuidOriginal);
                 }
 
                 world.spawnEntityInWorld(entity);
