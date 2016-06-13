@@ -136,7 +136,6 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
-            //world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
 
             if (blockInfo.tileEntityData != null)
             {
@@ -147,12 +146,12 @@ public class TemplateEnderUtilities
                     te.markDirty();
                 }
 
-                world.notifyBlockUpdate(pos, blockInfo.blockState, blockInfo.blockState, 7);
+                //world.notifyBlockUpdate(pos, blockInfo.blockState, blockInfo.blockState, 7);
             }
-            else
+            /*else
             {
                 world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
-            }
+            }*/
         }
     }
 
