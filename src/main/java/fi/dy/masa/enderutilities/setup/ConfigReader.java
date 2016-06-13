@@ -182,6 +182,7 @@ public class ConfigReader
         Configs.disableRecipeHandyChest_0         = conf.get(category, "disableRecipeHandyChest0", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeHandyChest_1         = conf.get(category, "disableRecipeHandyChest1", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeHandyChest_2         = conf.get(category, "disableRecipeHandyChest2", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeHandyChest_3         = conf.get(category, "disableRecipeHandyChest3", false).setRequiresMcRestart(true).getBoolean();
 
         Configs.disableRecipeMemoryChest_0        = conf.get(category, "disableRecipeMemoryChest0", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeMemoryChest_1        = conf.get(category, "disableRecipeMemoryChest1", false).setRequiresMcRestart(true).getBoolean();

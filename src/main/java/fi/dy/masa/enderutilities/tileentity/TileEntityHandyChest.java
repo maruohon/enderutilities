@@ -42,7 +42,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     public static final int INV_ID_MEMORY_CARDS         = 0;
     public static final int INV_ID_ITEMS                = 1;
-    public static final int[] INV_SIZES = new int[] { 18, 36, 54 };
+    public static final int MAX_TIER                    = 3;
+    public static final int[] INV_SIZES = new int[] { 18, 36, 54, 104 };
 
     private final IItemHandler itemHandlerMemoryCards;
     protected InventoryItemCallback itemInventory;
@@ -59,9 +60,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
-        //this.itemInventory = new InventoryItemCallback(null, 54, true, false, null, this);
-        //this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
-        //this.itemHandlerExternal = this.wrappedInventory;
         this.clickTimes = new HashMap<UUID, Long>();
     }
 
@@ -84,7 +82,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, 2);
+        this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, MAX_TIER);
         this.invSize = INV_SIZES[this.chestTier];
         this.setSelectedModule(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
@@ -195,8 +193,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void setStorageTier(int tier)
     {
-        tier = MathHelper.clamp_int(tier, 0, 2);
-        this.chestTier = tier;
+        this.chestTier = MathHelper.clamp_int(tier, 0, MAX_TIER);
         this.invSize = INV_SIZES[this.chestTier];
 
         this.initStorage(this.invSize, this.getWorld().isRemote);

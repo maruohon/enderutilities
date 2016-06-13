@@ -134,6 +134,10 @@ public class EnderUtilitiesBlocks
         {
             GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 5), "ACA", "ACA", "POP", 'P', piston, 'A', alloy1, 'C', chest, 'O', core0);
         }
+        if (Configs.disableRecipeHandyChest_3 == false && Configs.disableBlockStorage_0 == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 6), "   ", "ACA", "ACA", 'A', alloy0, 'C', new ItemStack(blockStorage_0, 1, 5));
+        }
 
         if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)
         {

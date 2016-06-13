@@ -47,6 +47,13 @@
                     "side":     "enderutilities:blocks/handychest_2_side",
                     "top":      "enderutilities:blocks/handychest_2_top"
                 }
+            },
+            "handychest_3": {
+                "textures": {
+                    "front":    "enderutilities:blocks/handychest_3_front",
+                    "side":     "enderutilities:blocks/handychest_3_side",
+                    "top":      "enderutilities:blocks/handychest_3_top"
+                }
             }
         },
         "facing": {

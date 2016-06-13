@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -13,6 +14,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
 public class ContainerHandyChest extends ContainerLargeStacks
 {
+    protected static final int[] PLAYER_INV_Y = new int[] { 95, 131, 167, 174 };
     protected TileEntityHandyChest tehc;
     public int selectedModule;
     public int actionMode;
@@ -23,25 +25,30 @@ public class ContainerHandyChest extends ContainerLargeStacks
         this.tehc = te;
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, te.getStorageTier() >= 0 && te.getStorageTier() <= 2 ? 95 + te.getStorageTier() * 36 : 95);
+
+        int tier = te.getStorageTier();
+        int y = tier >= 0 && tier <= 3 ? PLAYER_INV_Y[tier] : 95;
+        this.addPlayerInventorySlots(tier == 3 ? 44 : 8, y);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
         int customInvStart = this.inventorySlots.size();
-        int posX = 8;
-        int posY = 41;
+        int tier = MathHelper.clamp_int(this.tehc.getStorageTier(), 0, 3);
 
-        int tier = this.tehc.getStorageTier();
-        int rows = tier >= 0 && tier <= 2 ? (tier + 1) * 2 : 2;
+        int posX = 8;
+        int posY = tier <= 2 ? 41 : 13;
+
+        int rows = tier <= 2 ? (tier + 1) * 2 : 8;
+        int columns = tier == 3 ? 13 : 9;
 
         // Item inventory slots
-        for (int i = 0; i < rows; i++)
+        for (int row = 0; row < rows; row++)
         {
-            for (int j = 0; j < 9; j++)
+            for (int col = 0; col < columns; col++)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i * 9 + j, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, row * columns + col, posX + col * 18, posY + row * 18));
             }
         }
 
@@ -50,13 +57,16 @@ public class ContainerHandyChest extends ContainerLargeStacks
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
 
-        posX = 98;
-        posY = 8;
+        posX = tier <= 2 ? 98 : 224;
+        posY = tier <= 2 ? 8 : 174;
+        int modX = tier == 3 ? 0 : 18;
+        int modY = tier == 3 ? 18 : 0;
 
         // The Storage Module slots
         for (int i = 0; i < 4; i++)
         {
-            this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i, posX + i * 18, posY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
+            this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i,
+                    posX + i * modX, posY + i * modY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
     }
 

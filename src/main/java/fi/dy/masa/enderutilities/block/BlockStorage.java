@@ -72,14 +72,15 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
                 ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_2",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_0",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_1",
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2"
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2",
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_3"
         };
     }
 
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        switch(state.getValue(TYPE))
+        switch (state.getValue(TYPE))
         {
             case MEMORY_CHEST_0:    return new TileEntityMemoryChest();
             case MEMORY_CHEST_1:    return new TileEntityMemoryChest();
@@ -87,6 +88,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case HANDY_CHEST_0:     return new TileEntityHandyChest();
             case HANDY_CHEST_1:     return new TileEntityHandyChest();
             case HANDY_CHEST_2:     return new TileEntityHandyChest();
+            case HANDY_CHEST_3:     return new TileEntityHandyChest();
         }
 
         return new TileEntityMemoryChest();
@@ -103,11 +105,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof ITieredStorage)
         {
-            // FIXME add properties for the type/tier
-            int meta = state.getBlock().getMetaFromState(state);
-
-            // FIXME This will only work as long as there are three tiers of every type of storage...
-            ((ITieredStorage)te).setStorageTier(meta % 3);
+            ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getTier());
         }
     }
 
@@ -126,7 +124,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < 6; meta++)
+        for (int meta = 0; meta < EnumStorageType.values().length; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
@@ -134,28 +132,36 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
     public static enum EnumStorageType implements IStringSerializable
     {
-        MEMORY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_0"),
-        MEMORY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_1"),
-        MEMORY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST + "_2"),
-        HANDY_CHEST_0 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_0"),
-        HANDY_CHEST_1 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_1"),
-        HANDY_CHEST_2 (ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2");
+        MEMORY_CHEST_0 (0, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        MEMORY_CHEST_1 (1, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        MEMORY_CHEST_2 (2, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        HANDY_CHEST_0 (0, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_1 (1, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_2 (2, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_3 (3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
 
-        private final String name;
+        private final int tier;
+        private final String nameBase;
 
-        private EnumStorageType(String name)
+        private EnumStorageType(int tier, String nameBase)
         {
-            this.name = name;
+            this.tier = tier;
+            this.nameBase = nameBase;
         }
 
         public String toString()
         {
-            return this.name;
+            return this.nameBase + "_" + this.tier;
         }
 
         public String getName()
         {
-            return this.name;
+            return this.toString();
+        }
+
+        public int getTier()
+        {
+            return this.tier;
         }
 
         public int getMeta()
@@ -165,7 +171,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
         public static EnumStorageType fromMeta(int meta)
         {
-            return meta < values().length ? values()[meta] : MEMORY_CHEST_0;
+            return values()[meta % values().length];
         }
     }
 }

@@ -80,6 +80,7 @@ public class Configs
     public static boolean disableRecipeHandyChest_0;
     public static boolean disableRecipeHandyChest_1;
     public static boolean disableRecipeHandyChest_2;
+    public static boolean disableRecipeHandyChest_3;
 
     public static boolean disableRecipeMemoryChest_0;
     public static boolean disableRecipeMemoryChest_1;
