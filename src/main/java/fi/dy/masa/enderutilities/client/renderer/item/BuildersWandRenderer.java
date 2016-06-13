@@ -252,59 +252,66 @@ public class BuildersWandRenderer
     {
         ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
         Mode mode = Mode.getMode(stack);
-        String preAq = TextFormatting.AQUA.toString();
         String preGreen = TextFormatting.GREEN.toString();
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
         String preIta = TextFormatting.ITALIC.toString();
         int index = wand.getSelectedBlockTypeIndex(stack);
+        String str;
 
-        if (mode == Mode.COPY || mode == Mode.PASTE)
+        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
         {
-            String str = I18n.format("enderutilities.tooltip.item.template");
-            String name = wand.getTemplateName(stack, mode);
-            lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
-
-            str = I18n.format("enderutilities.tooltip.item.rotation");
-
-            if (mode == Mode.PASTE)
+            if (mode == Mode.DELETE)
             {
-                if (wand.isMirrored(stack))
-                {
-                    String mirror = wand.getMirror(stack).toString().toLowerCase();
-                    str = String.format("%s: %s%s%s - %s: %s%s%s", str, preGreen, wand.getAreaFlipAxis(stack, EnumFacing.NORTH), rst,
-                            I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
-                }
-                else
-                {
-                    str = String.format("%s: %s%s%s - %s: %s%s%s", str, preGreen, wand.getAreaFlipAxis(stack, EnumFacing.NORTH), rst,
-                            I18n.format("enderutilities.tooltip.item.mirror"), preRed, I18n.format("enderutilities.tooltip.item.no"), rst);
-                }
-
-                lines.add(str);
+                str = I18n.format("enderutilities.tooltip.item.area");
+                lines.add(String.format("%s: [%s%d/%d%s]", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst));
             }
             else
             {
-                BlockPosEU pos1 = wand.getPosition(stack, true);
+                str = I18n.format("enderutilities.tooltip.item.template");
+                String name = wand.getTemplateName(stack, mode);
+                lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
+            }
+
+            str = I18n.format("enderutilities.tooltip.item.rotation");
+
+            EnumFacing facing = wand.getAreaFacing(stack, mode);
+            String strFacing = facing != null ? preGreen + facing.toString().toLowerCase() : preRed + "N/A";
+
+            if (wand.isMirrored(stack))
+            {
+                String mirror = wand.getMirror(stack).toString().toLowerCase();
+                str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
+                        I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
+            }
+            else
+            {
+                str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
+                        I18n.format("enderutilities.tooltip.item.mirror"), preRed, I18n.format("enderutilities.tooltip.item.no"), rst);
+            }
+
+            lines.add(str);
+
+                /*BlockPosEU pos1 = wand.getPosition(stack, true);
                 BlockPosEU pos2 = wand.getPosition(stack, false);
                 if (pos1 != null && pos2 != null)
                 {
                     lines.add(str + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()) + rst);
-                }
-            }
+                }*/
+
         }
-        else if (mode != Mode.DELETE)
+        else
         {
-            String str = I18n.format("enderutilities.tooltip.item.block");
+            str = I18n.format("enderutilities.tooltip.item.block");
 
             if (index >= 0)
             {
-                lines.add(str + String.format(" [%s%d/%d%s]: %s%s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
-                        rst, preGreen, this.getBlockTypeName(wand, stack, index), rst));
+                lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
+                        rst, this.getBlockTypeName(wand, stack, index), rst));
             }
             else
             {
-                lines.add(str + ": " + preAq + this.getBlockTypeName(wand, stack, index) + rst);
+                lines.add(str + ": " + this.getBlockTypeName(wand, stack, index) + rst);
             }
 
             str = I18n.format("enderutilities.tooltip.item.area.flipped");
@@ -313,8 +320,7 @@ public class BuildersWandRenderer
             {
                 if (wand.getAreaFlipped(stack))
                 {
-                    lines.add(str + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst +
-                            " - " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
+                    lines.add(str + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
                 }
                 else
                 {
@@ -325,7 +331,7 @@ public class BuildersWandRenderer
 
         int modeId = mode.ordinal() + 1;
         int maxModeId = Mode.values().length;
-        String str = I18n.format("enderutilities.tooltip.item.mode");
+        str = I18n.format("enderutilities.tooltip.item.mode");
         String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, mode.getDisplayName(), rst);
 
         if (mode == Mode.PASTE)
@@ -355,21 +361,21 @@ public class BuildersWandRenderer
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
                 if (blockStack != null && blockStack.getItem() != null)
                 {
-                    return blockStack.getDisplayName();
+                    return TextFormatting.GREEN.toString() + blockStack.getDisplayName();
                 }
             }
 
-            return "N/A";
+            return TextFormatting.RED.toString() + "N/A";
         }
         else
         {
             if (index == ItemBuildersWand.BLOCK_TYPE_TARGETED)
             {
-                return I18n.format("enderutilities.tooltip.item.blocktype.targeted");
+                return TextFormatting.AQUA.toString() + I18n.format("enderutilities.tooltip.item.blocktype.targeted");
             }
             else
             {
-                return I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
+                return TextFormatting.AQUA.toString() + I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
             }
         }
     }
