@@ -15,6 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
@@ -280,7 +281,7 @@ public class BuildersWandRenderer
 
             if (wand.isMirrored(stack))
             {
-                String mirror = wand.getMirror(stack).toString().toLowerCase();
+                String mirror = wand.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z";
                 str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
                         I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
             }

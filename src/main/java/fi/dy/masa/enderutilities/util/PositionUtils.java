@@ -103,7 +103,7 @@ public class PositionUtils
      * Turns a mirror value into a rotation that will result in the same transform
      * in the <b>facingIn</b> facing. If the axis of <b>facingIn</b> is vertical, then NONE is returned.
      */
-    public static Rotation getRotationFromMirror(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
+    /*public static Rotation getRotationFromMirror(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
     {
         EnumFacing.Axis facingAxis = facingIn.getAxis();
 
@@ -118,7 +118,7 @@ public class PositionUtils
         }
 
         return mirror == Mirror.LEFT_RIGHT ? Rotation.CLOCKWISE_180 : Rotation.NONE;
-    }
+    }*/
 
     /**
      * Returns the facing that is mirrored by the value <b>mirror</b>
@@ -128,7 +128,7 @@ public class PositionUtils
      * If the original facing is NOT on the mirror axis, then LEFT_RIGHT
      * mirror will return the opposite facing.
      */
-    public static EnumFacing getMirroredFacing(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
+    /*public static EnumFacing getMirroredFacing(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
     {
         EnumFacing.Axis facingAxis = facingIn.getAxis();
 
@@ -143,12 +143,12 @@ public class PositionUtils
         }
 
         return mirror == Mirror.LEFT_RIGHT ? facingIn.getOpposite() : facingIn;
-    }
+    }*/
 
     /**
      * Mirrors and then rotates the given position around the origin
      */
-    public static BlockPos getTransformedBlockPos(BlockPos pos, EnumFacing facing, Mirror mirror, Rotation rotation)
+    public static BlockPos getTransformedBlockPos(BlockPos pos, Mirror mirror, Rotation rotation)
     {
         int x = pos.getX();
         int y = pos.getY();
@@ -157,31 +157,14 @@ public class PositionUtils
 
         switch (mirror)
         {
+            // LEFT_RIGHT is essentially NORTH_SOUTH
             case LEFT_RIGHT:
-                if (facing.getAxis() == EnumFacing.Axis.X)
-                {
-                    z = -z;
-                }
-                else if (facing.getAxis() == EnumFacing.Axis.Z)
-                {
-                    x = -x;
-                }
-                break;
-            case FRONT_BACK:
-                if (facing.getAxis() == EnumFacing.Axis.Z)
-                {
-                    z = -z;
-                }
-                else if (facing.getAxis() == EnumFacing.Axis.X)
-                {
-                    x = -x;
-                }
-            /*case LEFT_RIGHT:
                 z = -z;
                 break;
+            // FRONT_BACK is essentially EAST_WEST
             case FRONT_BACK:
                 x = -x;
-                break;*/
+                break;
             default:
                 isMirrored = false;
         }
@@ -202,7 +185,7 @@ public class PositionUtils
     /**
      * Mirrors and then rotates the given position around the origin
      */
-    public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, EnumFacing facing, Mirror mirror, Rotation rotation)
+    public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, Mirror mirror, Rotation rotation)
     {
         int x = pos.posX;
         int y = pos.posY;
@@ -211,25 +194,13 @@ public class PositionUtils
 
         switch (mirror)
         {
+            // LEFT_RIGHT is essentially NORTH_SOUTH
             case LEFT_RIGHT:
-                if (facing.getAxis() == EnumFacing.Axis.X)
-                {
-                    z = -z;
-                }
-                else if (facing.getAxis() == EnumFacing.Axis.Z)
-                {
-                    x = -x;
-                }
+                z = -z;
                 break;
+            // FRONT_BACK is essentially EAST_WEST
             case FRONT_BACK:
-                if (facing.getAxis() == EnumFacing.Axis.Z)
-                {
-                    z = -z;
-                }
-                else if (facing.getAxis() == EnumFacing.Axis.X)
-                {
-                    x = -x;
-                }
+                x = -x;
                 break;
             default:
                 isMirrored = false;

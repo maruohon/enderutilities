@@ -381,7 +381,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             str2 = I18n.format("enderutilities.tooltip.item.mirror") + ": ";
             if (this.isMirrored(stack))
             {
-                list.add(str2 + preGreen + this.getMirror(stack).toString().toLowerCase() + rst);
+                String m = this.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z";
+                list.add(str2 + preGreen + m + rst);
             }
             else
             {
@@ -521,7 +522,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         mirror = this.getMirror(stack);
         rotation = PositionUtils.getRotation(origFacing, adjustedFacing);
-        posEndRelative = PositionUtils.getTransformedBlockPos(posEndRelative, origFacing, mirror, rotation);
+        posEndRelative = PositionUtils.getTransformedBlockPos(posEndRelative, mirror, rotation);
 
         return posStart.add(posEndRelative);
     }
@@ -822,17 +823,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void toggleMirror(ItemStack stack, Mode mode, EntityPlayer player)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
-        EnumFacing.Axis axisPlayer = player.getHorizontalFacing().getAxis();
-        EnumFacing origFacing = this.getAreaFacing(stack, mode);
-        NBTTagCompound tag = this.getModeTag(stack, mode);
+        Mirror mirror = player.getHorizontalFacing().getAxis() == EnumFacing.Axis.Z ? Mirror.LEFT_RIGHT : Mirror.FRONT_BACK;
 
-        if (origFacing != null)
+        // Same mirror setting as the one stored, toggle mirror off
+        if (mirror == this.getMirror(stack) && this.isMirrored(stack))
         {
-            Mirror mirror = axisPlayer == origFacing.getAxis() ? Mirror.LEFT_RIGHT : Mirror.FRONT_BACK;
-            tag.setByte("Mirror_" + sel, (byte)mirror.ordinal());
-            tag.setBoolean("IsMirrored_" + sel, ! tag.getBoolean("IsMirrored_" + sel));
+            mirror = Mirror.NONE;
         }
+
+        this.setMirror(stack, mode, mirror);
     }
 
     private void setMirror(ItemStack stack, Mode mode, Mirror mirror)
@@ -1666,13 +1665,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         Rotation rotation = PositionUtils.getRotation(facing, areaFacing);
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
-        //System.out.printf("getPasteModePlacement - facingOrig: %s, rot: %s\n", facing, rotation);
-
-        /*Mirror mirror = this.getMirror(stack);
-        EnumFacing.Axis mirrorAxis = mirror == Mirror.LEFT_RIGHT ? areaFacing.rotateY().getAxis() : areaFacing.getAxis();
-        rotation = rotation.add(PositionUtils.getRotationFromMirror(facing, mirror, mirrorAxis));
-
-        return new PlacementSettings(Mirror.NONE, rotation, ignoreEntities, Blocks.BARRIER, null);*/
         return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
