@@ -13,6 +13,7 @@ import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -32,6 +33,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -1485,6 +1487,27 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 world.setBlockToAir(posMutable);
             }
         }
+
+        if (this.getRemoveEntities(stack))
+        {
+            int x1 = posStart.getX();
+            int y1 = posStart.getY();
+            int z1 = posStart.getZ();
+            int x2 = posEnd.getX();
+            int y2 = posEnd.getY();
+            int z2 = posEnd.getZ();
+
+            AxisAlignedBB bb = new AxisAlignedBB(x1, y1, z1, x2 + 1, y2 + 1, z2 + 1);
+            List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(null, bb);
+
+            for (Entity entity : entities)
+            {
+                if ((entity instanceof EntityPlayer) == false)
+                {
+                    entity.setDead();
+                }
+            }
+        }
     }
 
     private void placeHelperBlock(EntityPlayer player)
@@ -1654,6 +1677,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, Mode.PASTE).getBoolean("Replace");
     }
 
+    private void toggleRemoveEntities(ItemStack stack)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, Mode.DELETE);
+        tag.setBoolean("RemoveEntities", ! tag.getBoolean("RemoveEntities"));
+    }
+
+    public boolean getRemoveEntities(ItemStack stack)
+    {
+        return this.getModeTag(stack, Mode.DELETE).getBoolean("RemoveEntities");
+    }
+
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
@@ -1728,6 +1762,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.PASTE)
             {
                 this.toggleReplaceExisting(stack);
+            }
+            else if (mode == Mode.DELETE)
+            {
+                this.toggleRemoveEntities(stack);
             }
             else
             {

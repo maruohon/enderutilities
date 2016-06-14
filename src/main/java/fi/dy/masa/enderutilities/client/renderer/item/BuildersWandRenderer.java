@@ -340,6 +340,19 @@ public class BuildersWandRenderer
                 strMode += preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
             }
         }
+        else if (mode == Mode.DELETE)
+        {
+            strMode += " - " + I18n.format("enderutilities.tooltip.item.entities") + ": ";
+
+            if (wand.getRemoveEntities(stack) == true)
+            {
+                strMode += preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+            }
+            else
+            {
+                strMode += preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
+            }
+        }
 
         lines.add(strMode);
     }
