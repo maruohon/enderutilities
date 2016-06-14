@@ -162,7 +162,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-        if (worldIn.isRemote == false && (entityIn instanceof EntityPlayer) == false)
+        if ((entityIn instanceof EntityPlayer) == false)
         {
             this.teleportEntity(worldIn, pos, state, entityIn);
         }
@@ -170,6 +170,11 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
 
     public void teleportEntity(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
+        if (worldIn.isRemote)
+        {
+            return;
+        }
+
         TileEntity te = worldIn.getTileEntity(pos);
 
         if (te instanceof TileEntityPortal)

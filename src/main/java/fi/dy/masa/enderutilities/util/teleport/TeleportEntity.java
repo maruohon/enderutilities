@@ -208,7 +208,14 @@ public class TeleportEntity
 
         if (target.hasRotation == true && entity != null)
         {
-            entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+            if (entity instanceof EntityPlayerMP)
+            {
+                ((EntityPlayerMP) entity).connection.setPlayerLocation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+            }
+            else
+            {
+                entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
+            }
         }
 
         return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);

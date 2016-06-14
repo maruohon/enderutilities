@@ -1,5 +1,8 @@
 package fi.dy.masa.enderutilities.event;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -25,6 +28,7 @@ import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TickHandler
 {
+    private Set<UUID> portalFlags = new HashSet<UUID>();
     private int serverTickCounter;
     private int playerTickCounter;
 
@@ -59,22 +63,31 @@ public class TickHandler
     @SubscribeEvent
     public void onPlayerTick(PlayerTickEvent event)
     {
-        if (event.side == Side.CLIENT)
+        EntityPlayer player = event.player;
+
+        if (event.side == Side.CLIENT || player.worldObj.isRemote)
         {
             return;
         }
 
-        EntityPlayer player = event.player;
-
-        if (event.phase == TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.START)
         {
             World world = player.worldObj;
             BlockPos pos = player.getPosition();
             IBlockState state = world.getBlockState(pos);
+            UUID uuid = player.getUniqueID();
 
             if (state.getBlock() == EnderUtilitiesBlocks.blockPortal)
             {
-                ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
+                if (this.portalFlags.contains(uuid) == false)
+                {
+                    ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
+                    this.portalFlags.add(uuid);
+                }
+            }
+            else if (this.portalFlags.contains(uuid))
+            {
+                this.portalFlags.remove(uuid);
             }
 
             return;
