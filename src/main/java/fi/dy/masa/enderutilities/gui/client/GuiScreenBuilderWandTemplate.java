@@ -111,9 +111,21 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        
-        this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
+        // Clear the field on right click
+        if (mouseButton == 1)
+        {
+            if (mouseX >= this.nameField.xPosition && mouseX < this.nameField.xPosition + this.nameField.width &&
+                mouseY >= this.nameField.yPosition && mouseY < this.nameField.yPosition + this.nameField.height)
+            {
+                this.nameField.setText("");
+            }
+        }
+        else
+        {
+            super.mouseClicked(mouseX, mouseY, mouseButton);
+
+            this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
+        }
     }
 
     @Override
