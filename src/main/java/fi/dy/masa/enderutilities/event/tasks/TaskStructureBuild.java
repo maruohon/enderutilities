@@ -13,12 +13,14 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.TemplateBlockInfo;
 
 public class TaskStructureBuild implements IPlayerTask
 {
     protected final TemplateEnderUtilities template;
+    protected final EnumFacing templateFacing;
     protected final BlockPos posStart;
     protected final UUID playerUUID;
     protected final int dimension;
@@ -42,6 +44,7 @@ public class TaskStructureBuild implements IPlayerTask
         this.listIndex = 0;
         this.placedCount = 0;
         this.failCount = 0;
+        this.templateFacing = PositionUtils.getFacingFromPositions(posStart, posStart.add(template.getTemplateSize()));
     }
 
     @Override
@@ -70,7 +73,8 @@ public class TaskStructureBuild implements IPlayerTask
             {
                 TemplateBlockInfo blockInfo = this.template.getBlockList().get(this.listIndex);
                 IBlockState state = blockInfo.blockState.withRotation(this.template.getPlacementSettings().getRotation());
-                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(), blockInfo.pos).add(this.posStart);
+                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(),
+                        this.templateFacing, blockInfo.pos).add(this.posStart);
 
                 if (((ItemBuildersWand) stack.getItem()).placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
                 {

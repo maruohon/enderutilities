@@ -88,6 +88,21 @@ public class PositionUtils
         return pos.up().offset(facing, 2);
     }
 
+    public static Rotation getReverseRotation(Rotation rotation)
+    {
+        switch (rotation)
+        {
+            case CLOCKWISE_90:          return Rotation.COUNTERCLOCKWISE_90;
+            case COUNTERCLOCKWISE_90:   return Rotation.CLOCKWISE_90;
+            case CLOCKWISE_180:         return Rotation.CLOCKWISE_180;
+            default:                    return Rotation.NONE;
+        }
+    }
+
+    /**
+     * Turns a mirror value into a rotation that will result in the same transform
+     * in the <b>facingIn</b> facing. If the axis of <b>facingIn</b> is vertical, then NONE is returned.
+     */
     public static Rotation getRotationFromMirror(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
     {
         EnumFacing.Axis facingAxis = facingIn.getAxis();
@@ -105,6 +120,14 @@ public class PositionUtils
         return mirror == Mirror.LEFT_RIGHT ? Rotation.CLOCKWISE_180 : Rotation.NONE;
     }
 
+    /**
+     * Returns the facing that is mirrored by the value <b>mirror</b>
+     * in relation to the mirror axis <b>mirrorAxis</b>.
+     * So if the original facing is along the mirror axis, then
+     * FRONT_BACK mirror will return the opposite facing.
+     * If the original facing is NOT on the mirror axis, then LEFT_RIGHT
+     * mirror will return the opposite facing.
+     */
     public static EnumFacing getMirroredFacing(EnumFacing facingIn, Mirror mirror, EnumFacing.Axis mirrorAxis)
     {
         EnumFacing.Axis facingAxis = facingIn.getAxis();
@@ -123,9 +146,9 @@ public class PositionUtils
     }
 
     /**
-     * Rotates the given position around the origin
+     * Mirrors and then rotates the given position around the origin
      */
-    public static BlockPos getTransformedBlockPos(BlockPos pos, Mirror mirror, Rotation rotation)
+    public static BlockPos getTransformedBlockPos(BlockPos pos, EnumFacing facing, Mirror mirror, Rotation rotation)
     {
         int x = pos.getX();
         int y = pos.getY();
@@ -135,10 +158,78 @@ public class PositionUtils
         switch (mirror)
         {
             case LEFT_RIGHT:
+                if (facing.getAxis() == EnumFacing.Axis.X)
+                {
+                    z = -z;
+                }
+                else if (facing.getAxis() == EnumFacing.Axis.Z)
+                {
+                    x = -x;
+                }
+                break;
+            case FRONT_BACK:
+                if (facing.getAxis() == EnumFacing.Axis.Z)
+                {
+                    z = -z;
+                }
+                else if (facing.getAxis() == EnumFacing.Axis.X)
+                {
+                    x = -x;
+                }
+            /*case LEFT_RIGHT:
                 z = -z;
                 break;
             case FRONT_BACK:
                 x = -x;
+                break;*/
+            default:
+                isMirrored = false;
+        }
+
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                return new BlockPos(-z, y,  x);
+            case COUNTERCLOCKWISE_90:
+                return new BlockPos( z, y, -x);
+            case CLOCKWISE_180:
+                return new BlockPos(-x, y, -z);
+            default:
+                return isMirrored ? new BlockPos(x, y, z) : pos;
+        }
+    }
+
+    /**
+     * Mirrors and then rotates the given position around the origin
+     */
+    public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, EnumFacing facing, Mirror mirror, Rotation rotation)
+    {
+        int x = pos.posX;
+        int y = pos.posY;
+        int z = pos.posZ;
+        boolean isMirrored = true;
+
+        switch (mirror)
+        {
+            case LEFT_RIGHT:
+                if (facing.getAxis() == EnumFacing.Axis.X)
+                {
+                    z = -z;
+                }
+                else if (facing.getAxis() == EnumFacing.Axis.Z)
+                {
+                    x = -x;
+                }
+                break;
+            case FRONT_BACK:
+                if (facing.getAxis() == EnumFacing.Axis.Z)
+                {
+                    z = -z;
+                }
+                else if (facing.getAxis() == EnumFacing.Axis.X)
+                {
+                    x = -x;
+                }
                 break;
             default:
                 isMirrored = false;
@@ -147,22 +238,44 @@ public class PositionUtils
         switch (rotation)
         {
             case CLOCKWISE_90:
-                return new BlockPos(-z, y, x);
+                return new BlockPosEU(-z, y,  x, pos.dimension, pos.face);
             case COUNTERCLOCKWISE_90:
-                return new BlockPos(z, y, -x);
+                return new BlockPosEU( z, y, -x, pos.dimension, pos.face);
             case CLOCKWISE_180:
-                return new BlockPos(-x, y, -z);
+                return new BlockPosEU(-x, y, -z, pos.dimension, pos.face);
             default:
-                return isMirrored ? new BlockPos(x, y, z) : pos;
+                return isMirrored ? new BlockPosEU(x, y, z, pos.dimension, pos.face) : pos;
         }
     }
 
-    public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, Mirror mirror, Rotation rotation)
+    /**
+     * Does the opposite transform from getTransformedBlockPos(), to return the original,
+     * non-transformed position from the transformed position.
+     */
+    public static BlockPosEU getOriginalPositionFromTransformed(BlockPosEU pos, Mirror mirror, Rotation rotation)
     {
         int x = pos.posX;
         int y = pos.posY;
         int z = pos.posZ;
-        boolean isMirrored = true;
+        int tmp;
+        boolean noRotation = false;
+
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                tmp = x;
+                x = -z;
+                z = tmp;
+            case COUNTERCLOCKWISE_90:
+                tmp = x;
+                x = z;
+                z = -tmp;
+            case CLOCKWISE_180:
+                x = -x;
+                z = -z;
+            default:
+                noRotation = true;
+        }
 
         switch (mirror)
         {
@@ -173,20 +286,13 @@ public class PositionUtils
                 x = -x;
                 break;
             default:
-                isMirrored = false;
+                if (noRotation)
+                {
+                    return pos;
+                }
         }
 
-        switch (rotation)
-        {
-            case CLOCKWISE_90:
-                return new BlockPosEU(-z, y, x, pos.dimension, pos.face);
-            case COUNTERCLOCKWISE_90:
-                return new BlockPosEU(z, y, -x, pos.dimension, pos.face);
-            case CLOCKWISE_180:
-                return new BlockPosEU(-x, y, -z, pos.dimension, pos.face);
-            default:
-                return isMirrored ? new BlockPosEU(x, y, z, pos.dimension, pos.face) : pos;
-        }
+        return new BlockPosEU(x, y, z, pos.dimension, pos.face);
     }
 
     public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
@@ -219,6 +325,56 @@ public class PositionUtils
             default:
                 return isMirrored ? new Vec3d(x, y, z) : vec;
         }
+    }
+
+    /**
+     * Gets the "front" facing from the given positions,
+     * so that pos1 is in the "front left" corner and pos2 is in the "back right" corner
+     * of the area, when looking at the "front" face of the area.
+     */
+    public static  EnumFacing getFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        if (pos1 == null || pos2 == null)
+        {
+            return null;
+        }
+
+        return getFacingFromPositions(pos1.posX, pos1.posZ, pos2.posX, pos2.posZ);
+    }
+
+    /**
+     * Gets the "front" facing from the given positions,
+     * so that pos1 is in the "front left" corner and pos2 is in the "back right" corner
+     * of the area, when looking at the "front" face of the area.
+     */
+    public static EnumFacing getFacingFromPositions(BlockPos pos1, BlockPos pos2)
+    {
+        if (pos1 == null || pos2 == null)
+        {
+            return null;
+        }
+
+        return getFacingFromPositions(pos1.getX(), pos1.getZ(), pos2.getX(), pos2.getZ());
+    }
+
+    private static EnumFacing getFacingFromPositions(int x1,int z1, int x2, int z2)
+    {
+        if (x2 == x1)
+        {
+            return z2 > z1 ? EnumFacing.SOUTH : EnumFacing.NORTH;
+        }
+
+        if (z2 == z1)
+        {
+            return x2 > x1 ? EnumFacing.EAST : EnumFacing.WEST;
+        }
+
+        if (x2 > x1)
+        {
+            return z2 > z1 ? EnumFacing.EAST : EnumFacing.NORTH;
+        }
+
+        return z2 > z1 ? EnumFacing.SOUTH : EnumFacing.WEST;
     }
 
     public static Vec3d rotatePointAroundAxis(Vec3d point, Vec3d reference, EnumFacing from, EnumFacing to)

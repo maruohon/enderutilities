@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -30,6 +31,7 @@ public class TemplateEnderUtilities
     protected final List<TemplateEnderUtilities.TemplateBlockInfo> blocks = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
     protected final List<TemplateEnderUtilities.TemplateEntityInfo> entities = Lists.<TemplateEnderUtilities.TemplateEntityInfo>newArrayList();
     protected PlacementSettings placement;
+    protected EnumFacing templateFacing = EnumFacing.NORTH;
     protected BlockPos size = BlockPos.ORIGIN;
     protected String author = "?";
     protected boolean replaceExisting;
@@ -92,11 +94,14 @@ public class TemplateEnderUtilities
 
     public void placeBlockAtIndex(World world, int index, BlockPos posStart)
     {
+        //this.templateFacing = PositionUtils.getFacingFromPositions(posStart, posStart.add(this.size));
+        this.templateFacing = EnumFacing.EAST;
+
         if (index < this.blocks.size())
         {
             TemplateEnderUtilities.TemplateBlockInfo blockInfo = this.blocks.get(index);
 
-            BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
+            BlockPos pos = transformedBlockPos(this.placement, this.templateFacing, blockInfo.pos).add(posStart);
             //System.out.printf("placing, i: %d orig pos: %s tr pos: %s\n", index, blockInfo.pos, pos);
 
             if (this.replaceExisting == true || world.isAirBlock(pos) == true)
@@ -133,9 +138,11 @@ public class TemplateEnderUtilities
 
     public void notifyBlocks(World world, BlockPos posStart)
     {
+        this.templateFacing = PositionUtils.getFacingFromPositions(posStart, posStart.add(this.size));
+
         for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
-            BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
+            BlockPos pos = transformedBlockPos(this.placement, this.templateFacing, blockInfo.pos).add(posStart);
 
             if (blockInfo.tileEntityData != null)
             {
@@ -164,18 +171,21 @@ public class TemplateEnderUtilities
 
         Mirror mirror = this.placement.getMirror();
         Rotation rotation = this.placement.getRotation();
+        this.templateFacing = PositionUtils.getFacingFromPositions(posStart, posStart.add(this.size));
+
         int x1 = posStart.getX();
         int y1 = posStart.getY();
         int z1 = posStart.getZ();
         int x2 = this.size.getX();
         int y2 = this.size.getY();
         int z2 = this.size.getZ();
+
         AxisAlignedBB bb = new AxisAlignedBB(x1, y1, z1, x1 + x2, y1 + y2, z1 + z2);
         List<Entity> existingEntities = world.getEntitiesWithinAABBExcludingEntity(null, bb);
 
         for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
-            BlockPos pos = transformedBlockPos(this.placement, entityInfo.blockPos).add(posStart);
+            BlockPos pos = transformedBlockPos(this.placement, this.templateFacing, entityInfo.blockPos).add(posStart);
 
             NBTTagCompound nbt = entityInfo.entityData;
             UUID uuidOriginal = nbt.getUniqueId("UUID");
@@ -411,9 +421,9 @@ public class TemplateEnderUtilities
         }
     }
 
-    public static BlockPos transformedBlockPos(PlacementSettings placement, BlockPos pos)
+    public static BlockPos transformedBlockPos(PlacementSettings placement, EnumFacing facing, BlockPos pos)
     {
-        return PositionUtils.getTransformedBlockPos(pos, placement.getMirror(), placement.getRotation());
+        return PositionUtils.getTransformedBlockPos(pos, facing, placement.getMirror(), placement.getRotation());
     }
 
     public static class TemplateBlockInfo

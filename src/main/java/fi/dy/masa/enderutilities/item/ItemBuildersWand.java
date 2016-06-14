@@ -511,7 +511,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
 
             posEndRelative = posEnd.subtract(posStart);
-            origFacing = this.getFacingFromPositions(posStart, posEnd);
+            origFacing = PositionUtils.getFacingFromPositions(posStart, posEnd);
         }
 
         if (adjustedFacing == null)
@@ -521,7 +521,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         mirror = this.getMirror(stack);
         rotation = PositionUtils.getRotation(origFacing, adjustedFacing);
-        posEndRelative = PositionUtils.getTransformedBlockPos(posEndRelative, mirror, rotation);
+        posEndRelative = PositionUtils.getTransformedBlockPos(posEndRelative, origFacing, mirror, rotation);
 
         return posStart.add(posEndRelative);
     }
@@ -557,13 +557,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
         {
             this.setPerTemplateAreaCorner(stack, mode, isStart, pos);
+            this.setMirror(stack, mode, Mirror.NONE);
 
             // Update the base rotation to the current area when changing corners
             BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, true);
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, mode, false);
             if (posStart != null && posEnd != null)
             {
-                this.setAreaFacing(stack, mode, this.getFacingFromPositions(posStart, posEnd));
+                this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
             }
 
             return;
@@ -819,14 +820,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, min, MAX_BLOCKS - 1, reverse);
     }
 
-    private void toggleMirroring(ItemStack stack, EntityPlayer player)
+    private void toggleMirror(ItemStack stack, Mode mode, EntityPlayer player)
     {
-        Mode mode = Mode.getMode(stack);
         int sel = this.getSelectedBlockTypeIndex(stack);
         EnumFacing.Axis axisPlayer = player.getHorizontalFacing().getAxis();
-        EnumFacing origFacing = null;
+        EnumFacing origFacing = this.getAreaFacing(stack, mode);
         NBTTagCompound tag = this.getModeTag(stack, mode);
-        origFacing = this.getAreaFacing(stack, mode);
 
         if (origFacing != null)
         {
@@ -834,6 +833,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             tag.setByte("Mirror_" + sel, (byte)mirror.ordinal());
             tag.setBoolean("IsMirrored_" + sel, ! tag.getBoolean("IsMirrored_" + sel));
         }
+    }
+
+    private void setMirror(ItemStack stack, Mode mode, Mirror mirror)
+    {
+        int sel = this.getSelectedBlockTypeIndex(stack);
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setByte("Mirror_" + sel, (byte)mirror.ordinal());
+        tag.setBoolean("IsMirrored_" + sel, mirror != Mirror.NONE);
     }
 
     public boolean isMirrored(ItemStack stack)
@@ -998,23 +1005,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void moveEndPosition(ItemStack stack, EnumFacing direction, boolean reverse)
     {
-        BlockPosEU pos = this.getPosition(stack, POS_END);
-        if (pos == null)
+        Mode mode = Mode.getMode(stack);
+        BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, POS_START);
+        BlockPosEU posEnd = this.getPosition(stack, mode, POS_END);
+        if (posEnd == null)
         {
-            pos = this.getPosition(stack, POS_START);
+            posEnd = posStart;
         }
 
-        if (pos != null)
+        if (posStart != null && posEnd != null)
         {
             int v = reverse ? 1 : -1;
-
-            if (this.isMirrored(stack))
-            {
-                
-            }
-
-            pos = pos.add(direction.getFrontOffsetX() * v, direction.getFrontOffsetY() * v, direction.getFrontOffsetZ() * v);
-            this.setPosition(stack, pos, POS_END);
+            posEnd = posEnd.add(direction.getFrontOffsetX() * v, direction.getFrontOffsetY() * v, direction.getFrontOffsetZ() * v);
+            this.setPerTemplateAreaCorner(stack, mode, false, posEnd);
+            this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
+            this.setMirror(stack, mode, Mirror.NONE);
         }
     }
 
@@ -1400,7 +1405,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         templateManager.writeTemplate(rl);
 
         TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
-        EnumFacing facing = this.getFacingFromPositions(posStart, posStart.add(endOffset));
+        EnumFacing facing = PositionUtils.getFacingFromPositions(posStart, posStart.add(endOffset));
         templateMeta.setValues(endOffset, facing, this.getTemplateName(stack, Mode.COPY), player.getName());
         templateManager.writeTemplateMetadata(rl);
 
@@ -1621,7 +1626,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, mode, false);
             if (posStart != null && posEnd != null)
             {
-                return this.getFacingFromPositions(posStart, posEnd);
+                return PositionUtils.getFacingFromPositions(posStart, posEnd);
             }
         }
 
@@ -1671,46 +1676,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
     }
 
-    private EnumFacing getFacingFromPositions(BlockPosEU pos1, BlockPosEU pos2)
-    {
-        if (pos1 == null || pos2 == null)
-        {
-            return null;
-        }
-
-        return this.getFacingFromPositions(pos1.posX, pos1.posZ, pos2.posX, pos2.posZ);
-    }
-
-    public EnumFacing getFacingFromPositions(BlockPos pos1, BlockPos pos2)
-    {
-        if (pos1 == null || pos2 == null)
-        {
-            return null;
-        }
-
-        return this.getFacingFromPositions(pos1.getX(), pos1.getZ(), pos2.getX(), pos2.getZ());
-    }
-
-    private EnumFacing getFacingFromPositions(int x1,int z1, int x2, int z2)
-    {
-        if (x2 == x1)
-        {
-            return z2 > z1 ? EnumFacing.SOUTH : EnumFacing.NORTH;
-        }
-
-        if (z2 == z1)
-        {
-            return x2 > x1 ? EnumFacing.EAST : EnumFacing.WEST;
-        }
-
-        if (x2 > x1)
-        {
-            return z2 > z1 ? EnumFacing.EAST : EnumFacing.NORTH;
-        }
-
-        return z2 > z1 ? EnumFacing.SOUTH : EnumFacing.WEST;
-    }
-
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -1745,7 +1710,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
             {
-                this.toggleMirroring(stack, player);
+                this.toggleMirror(stack, mode, player);
             }
         }
         // Ctrl + Toggle key: Cycle the mode

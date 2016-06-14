@@ -291,14 +291,6 @@ public class BuildersWandRenderer
             }
 
             lines.add(str);
-
-                /*BlockPosEU pos1 = wand.getPosition(stack, true);
-                BlockPosEU pos2 = wand.getPosition(stack, false);
-                if (pos1 != null && pos2 != null)
-                {
-                    lines.add(str + ": " + preGreen + wand.getFacingFromPositions(pos1.toBlockPos(), pos2.toBlockPos()) + rst);
-                }*/
-
         }
         else
         {
