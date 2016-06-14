@@ -89,6 +89,10 @@ public class MessageSendString implements IMessage
                     ((IStringInput) stack.getItem()).handleString(player, stack, message.text);
                 }
             }
+            else if (player.openContainer instanceof IStringInput)
+            {
+                ((IStringInput) player.openContainer).handleString(player, null, message.text);
+            }
         }
     }
 

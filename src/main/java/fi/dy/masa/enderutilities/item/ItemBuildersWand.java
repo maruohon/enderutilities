@@ -1794,7 +1794,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public void handleString(EntityPlayer player, ItemStack stack, String text)
     {
-        this.setTemplateName(stack, text);
+        if (stack != null)
+        {
+            this.setTemplateName(stack, text);
+        }
     }
 
     @Override

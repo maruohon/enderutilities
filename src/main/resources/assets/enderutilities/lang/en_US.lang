@@ -199,7 +199,7 @@ tile.enderutilities.memorychest_0.tooltips=Each slot can be locked to an item ty
 tile.enderutilities.memorychest_1.tooltips=Each slot can be locked to an item type
 tile.enderutilities.memorychest_2.tooltips=Each slot can be locked to an item type
 tile.enderutilities.quickstackeradvanced.tooltips=- A more configurable, stationary version of Quick Stacker
-tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items
+tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items|lf- Can also rename any item for free
 
 ###################################
 # GUI and item labels/tooltips etc:
@@ -222,6 +222,7 @@ enderutilities.gui.label.filters.enabled=Use filters
 enderutilities.gui.label.holdshifttoincludehotbar=(hold shift to include hotbar)
 enderutilities.gui.label.inventoryfilters=Inventory filters
 enderutilities.gui.label.inventoryswapper.info=- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots
+enderutilities.gui.label.toolworkstation.itemtorename=Item to rename
 enderutilities.gui.label.leaveonefilledstack=Leave one filled stack of every item type
 enderutilities.gui.label.leaveoneitemongrid=Leave one item
 enderutilities.gui.label.memorycards=Memory Cards
@@ -241,11 +242,13 @@ enderutilities.gui.label.quickstacker.info=- Player inventory slots marked as bl
 enderutilities.gui.label.quickstackeradvanced.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
+enderutilities.gui.label.renameitems=Rename items
 enderutilities.gui.label.setname=Set name
 enderutilities.gui.label.sortitems=Sort items
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 enderutilities.gui.label.templatedchest.info=- Middle click to lock the current item type for the slot|lf- Only that type of item can enter an empty slot|lf- When there is space in locked slots, that item type|lf  can only go to those slots until they are full
+enderutilities.gui.label.toolworkstation.useemptynametoreset=Use empty name to reset to default
 enderutilities.gui.label.transportfilters=Transport filters
 enderutilities.gui.label.transportitemsslot=Transport items to remote inventory
 enderutilities.gui.label.use.areablock=Use area around the block

@@ -1,13 +1,12 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import org.apache.commons.lang3.StringUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
@@ -23,8 +22,9 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 {
     private ItemHandlerWrapperSelective itemHandlerToolWorkstation;
-    public static final int SLOT_TOOL = 0;
-    public static final int SLOT_MODULES_START = 1;
+    public static final int INV_SLOT_TOOL = 0;
+    public static final int INV_SLOT_MODULES_START = 1;
+    public static final int INV_SLOT_RENAME = 10;
 
     public TileEntityToolWorkstation()
     {
@@ -38,6 +38,35 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
     public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
         return this.itemHandlerToolWorkstation;
+    }
+
+    public void renameItem(String name)
+    {
+        ItemStack stack = this.getBaseItemHandler().getStackInSlot(INV_SLOT_RENAME);
+
+        if (stack != null)
+        {
+            if (StringUtils.isBlank(name))
+            {
+                stack.clearCustomName();
+            }
+            else
+            {
+                stack.setStackDisplayName(name);
+            }
+        }
+    }
+
+    public String getItemName()
+    {
+        ItemStack stack = this.getBaseItemHandler().getStackInSlot(INV_SLOT_RENAME);
+
+        if (stack != null)
+        {
+            return stack.getDisplayName();
+        }
+
+        return "";
     }
 
     private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelectiveModifiable
@@ -55,9 +84,13 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
                 return true;
             }
 
-            if (slot == SLOT_TOOL)
+            if (slot == INV_SLOT_TOOL)
             {
                 return stack.getItem() instanceof IModular;
+            }
+            else if (slot == INV_SLOT_RENAME)
+            {
+                return true;
             }
 
             return (stack.getItem() instanceof IModule) && (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false);

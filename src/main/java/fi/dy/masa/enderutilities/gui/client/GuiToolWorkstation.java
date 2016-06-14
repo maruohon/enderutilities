@@ -1,26 +1,103 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.lwjgl.input.Keyboard;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerToolWorkstation;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSendString;
+import fi.dy.masa.enderutilities.network.message.MessageSendString.Type;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 
 public class GuiToolWorkstation extends GuiEnderUtilities
 {
     private final TileEntityToolWorkstation te;
+    protected GuiTextField nameField;
+    protected String nameLast = "";
 
     public GuiToolWorkstation(ContainerToolWorkstation container, TileEntityToolWorkstation te)
     {
-        super(container, 176, 176, "gui.container." + te.getTEName());
+        super(container, 176, 217, "gui.container." + te.getTEName());
         this.te = te;
+    }
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+
+        Keyboard.enableRepeatEvents(true);
+
+        this.nameField = new GuiTextField(0, this.fontRendererObj, 34, 100, 134, 12);
+        this.nameField.setTextColor(-1);
+        this.nameField.setDisabledTextColour(-1);
+        this.nameField.setEnableBackgroundDrawing(false);
+        this.nameField.setMaxStringLength(50);
+        this.nameField.setEnabled(true);
+        this.nameField.setText(this.te.getItemName());
+        this.nameField.setFocused(false);
+        this.nameField.setCursorPositionEnd();
+
+        this.buttonList.clear();
+        this.buttonList.add(new GuiButton(1, this.guiLeft + 108, this.guiTop + 113, 60, 20, I18n.format("enderutilities.gui.label.setname")));
+    }
+
+    @Override
+    public void onGuiClosed()
+    {
+        super.onGuiClosed();
+
+        Keyboard.enableRepeatEvents(false);
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    {
+        if (this.nameField.textboxKeyTyped(typedChar, keyCode) == false)
+        {
+            super.keyTyped(typedChar, keyCode);
+        }
+    }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    {
+        // Clear the field on right click
+        if (mouseButton == 1 &&
+            mouseX >= this.guiLeft + this.nameField.xPosition &&
+            mouseX < this.guiLeft + this.nameField.xPosition + this.nameField.width &&
+            mouseY >= this.guiTop + this.nameField.yPosition &&
+            mouseY < this.guiTop + this.nameField.yPosition + this.nameField.height)
+        {
+
+            this.nameField.setText("");
+        }
+        else
+        {
+            super.mouseClicked(mouseX, mouseY, mouseButton);
+
+            this.nameField.mouseClicked(mouseX - this.guiLeft, mouseY - this.guiTop, mouseButton);
+        }
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button)
+    {
+        if (button.id == 1)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageSendString(Type.BLOCK, this.nameField.getText()));
+            this.nameLast = this.nameField.getText();
+        }
     }
 
     @Override
@@ -29,9 +106,22 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage", new Object[0]), 8, 56, 0x404025);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 84, 0x404025);
+        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage", new Object[0]), 8, 56, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.renameitems", new Object[0]), 8, 86, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 125, 0x404040);
+
+        GlStateManager.disableLighting();
+        GlStateManager.disableBlend();
+
+        String name = this.te.getItemName();
+        if (name.equals(this.nameLast) == false)
+        {
+            this.nameField.setText(name);
+            this.nameLast = name;
+        }
+
+        this.nameField.drawTextBox();
     }
 
     @Override
@@ -44,7 +134,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        ItemStack toolStack = this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM).getStack();
+        ItemStack toolStack = this.inventorySlots.getSlot(ContainerToolWorkstation.CONT_SLOT_TOOL).getStack();
         // No tool in the tool slot, draw the dark background
         if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
         {
@@ -52,7 +142,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         }
 
         // Module slots
-        for (int i = 0, slotNum = ContainerToolWorkstation.SLOT_MODULAR_ITEM + 1, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
+        for (int i = 0, slotNum = ContainerToolWorkstation.CONT_SLOT_MODULES_START, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
         {
             Slot slot = this.inventorySlots.getSlot(slotNum++);
 
@@ -91,10 +181,17 @@ public class GuiToolWorkstation extends GuiEnderUtilities
     {
         Slot slot = this.getSlotUnderMouse();
         // Hovering over the tool slot
-        if (slot != null && slot == this.inventorySlots.getSlot(ContainerToolWorkstation.SLOT_MODULAR_ITEM) && slot.getHasStack() == false)
+        if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_TOOL && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool", new Object[0]));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+        else if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_RENAME && slot.getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.useemptynametoreset", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
