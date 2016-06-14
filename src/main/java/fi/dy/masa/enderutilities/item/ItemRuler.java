@@ -19,7 +19,8 @@ import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -479,54 +480,40 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack rulerStack, int key)
+    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (rulerStack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Shift + Toggle key: Cycle location selection
-        if (ReferenceKeys.keypressContainsControl(key) == false &&
-            ReferenceKeys.keypressContainsShift(key) == true &&
-            ReferenceKeys.keypressContainsAlt(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
+            EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
-            this.cycleLocationSelection(rulerStack, ReferenceKeys.keypressActionIsReversed(key));
+            this.cycleLocationSelection(stack, EnumKey.keypressActionIsReversed(key));
         }
         // Alt + Toggle key: Toggle "Render when unselected"
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
         {
-            this.toggleRenderWhenUnselected(rulerStack);
+            this.toggleRenderWhenUnselected(stack);
         }
         // Ctrl + Alt + Toggle key: Toggle distance display mode
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL_ALT))
         {
-            this.toggleDistanceMode(rulerStack);
+            this.toggleDistanceMode(stack);
         }
         // Alt + Shift + Toggle key: Toggle "Render all locations"
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
-            this.toggleRenderAllLocations(rulerStack);
+            this.toggleRenderAllLocations(stack);
         }
         // Just Toggle key: Toggle the "Render with all" option on the selected location
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
-            this.toggleAlwaysRenderSelectedLocation(rulerStack);
+            this.toggleAlwaysRenderSelectedLocation(stack);
         }
         // Ctrl + Toggle key: Change selected Memory Card
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            this.changeSelectedModule(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC,
-                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
+                    EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
         }
     }
 }

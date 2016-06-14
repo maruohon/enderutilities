@@ -60,8 +60,9 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.BlockUtils;
@@ -854,41 +855,19 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Just Toggle mode key: Change the dig mode
-        if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.cyclePoweredMode(stack);
         }
-        // Ctrl + (Shift + ) Toggle mode
-        else if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
-        {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
-        }
-        // Shift + Alt + Toggle mode: Store the player's current location
-        else if (ReferenceKeys.keypressContainsShift(key) == true
-                && ReferenceKeys.keypressContainsAlt(key) == true
-                && ReferenceKeys.keypressContainsControl(key) == false)
-        {
-            UtilItemModular.setTarget(stack, player, true);
-        }
         // Shift + Toggle mode: Toggle the block drops handling mode: normal, player, remote
-        else if (ReferenceKeys.keypressContainsShift(key) == true
-                && ReferenceKeys.keypressContainsControl(key) == false
-                && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleDropsMode(stack);
         }
-        // Alt + Toggle mode: Toggle the private/public mode
-        else if (ReferenceKeys.keypressContainsAlt(key) == true
-                && ReferenceKeys.keypressContainsShift(key) == false
-                && ReferenceKeys.keypressContainsControl(key) == false)
+        else
         {
-            this.changePrivacyMode(stack, player);
+            super.doKeyBindingAction(player, stack, key);
         }
     }
 

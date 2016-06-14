@@ -40,9 +40,10 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -688,47 +689,34 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Alt + Toggle mode: Toggle the private/public mode
-        if (ReferenceKeys.keypressContainsAlt(key) == true
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsControl(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
         {
             UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         }
         // Just Toggle mode: Cycle Pickup Mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             // 0: None, 1: Matching, 2: All
             NBTUtils.cycleByteValue(stack, "HandyBag", "PickupMode", 2);
         }
         // Shift + Toggle mode: Toggle Locked Mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
         }
         // Alt + Shift + Toggle mode: Toggle Restock mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             // 0: None, 1: Matching, 2: All
             NBTUtils.cycleByteValue(stack, "HandyBag", "RestockMode", 1);
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
-                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+                    EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
         }
     }
 

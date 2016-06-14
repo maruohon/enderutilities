@@ -26,8 +26,9 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -423,29 +424,21 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
-        if (ReferenceKeys.keypressContainsControl(key) == true &&
-            ReferenceKeys.keypressContainsAlt(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+            EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
-                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+                    EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
         }
         // Shift + Toggle Mode: Change entity selection within the current module
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
-            this.changeEntitySelection(stack, ReferenceKeys.keypressActionIsReversed(key));
+            this.changeEntitySelection(stack, EnumKey.keypressActionIsReversed(key));
         }
         // Just Toggle key, cycle the mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_MODE, Mode.values().length - 1);
         }

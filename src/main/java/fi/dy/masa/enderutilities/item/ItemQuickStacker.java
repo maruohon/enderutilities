@@ -25,9 +25,10 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
@@ -211,31 +212,22 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Just Toggle mode or Shift + Toggle mode: Fire the swapping action
-        if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE, HotKeys.MOD_SHIFT))
         {
             quickStackItems(player);
         }
         // Alt + Shift + Toggle mode: Toggle the locked mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
         }
         // Ctrl + Toggle mode: Cycle the slot mask preset
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
-                    ReferenceKeys.keypressActionIsReversed(key));
+                    EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
         }
     }
 

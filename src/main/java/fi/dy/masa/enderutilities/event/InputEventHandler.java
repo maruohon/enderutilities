@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.event;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +20,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -108,7 +109,7 @@ public class InputEventHandler
 
                 if (isHoldingKeyboundItem(player) == true || hasKeyBoundUnselectedItem(player) == true)
                 {
-                    int keyCode = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
+                    int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
                 }
             }
@@ -141,7 +142,7 @@ public class InputEventHandler
 
                 if (state.getBlock() == EnderUtilitiesBlocks.blockElevator)
                 {
-                    int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? ReferenceKeys.KEYCODE_JUMP : ReferenceKeys.KEYCODE_SNEAK;
+                    int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? HotKeys.KEYCODE_JUMP : HotKeys.KEYCODE_SNEAK;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
                 }
             }
@@ -165,12 +166,12 @@ public class InputEventHandler
                 EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
                 if (isHoldingKeyboundItem(player) == true)
                 {
-                    int key = ReferenceKeys.KEYBIND_ID_TOGGLE_MODE | scrollingMask;
+                    int key = HotKeys.KEYCODE_SCROLL | scrollingMask;
 
                     // Scrolling up, reverse the direction.
                     if (dWheel > 0)
                     {
-                        key |= ReferenceKeys.KEYBIND_MODIFIER_REVERSE;
+                        key |= HotKeys.SCROLL_MODIFIER_REVERSE;
                     }
 
                     if (event.isCancelable() == true)
@@ -186,6 +187,11 @@ public class InputEventHandler
 
     private boolean buildersWandClientSideHandling()
     {
+        if (GuiScreen.isShiftKeyDown() || GuiScreen.isCtrlKeyDown() || GuiScreen.isAltKeyDown())
+        {
+            return false;
+        }
+
         ItemStack stack = Minecraft.getMinecraft().thePlayer.getHeldItemMainhand();
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand &&
             ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
@@ -199,11 +205,11 @@ public class InputEventHandler
 
     static
     {
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LSHIFT,      ReferenceKeys.KEYBIND_MODIFIER_SHIFT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RSHIFT,      ReferenceKeys.KEYBIND_MODIFIER_SHIFT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LCONTROL,    ReferenceKeys.KEYBIND_MODIFIER_CONTROL);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RCONTROL,    ReferenceKeys.KEYBIND_MODIFIER_CONTROL);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LMENU,       ReferenceKeys.KEYBIND_MODIFIER_ALT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RMENU,       ReferenceKeys.KEYBIND_MODIFIER_ALT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LSHIFT,      HotKeys.KEYBIND_MODIFIER_SHIFT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RSHIFT,      HotKeys.KEYBIND_MODIFIER_SHIFT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LCONTROL,    HotKeys.KEYBIND_MODIFIER_CONTROL);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RCONTROL,    HotKeys.KEYBIND_MODIFIER_CONTROL);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LMENU,       HotKeys.KEYBIND_MODIFIER_ALT);
+        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RMENU,       HotKeys.KEYBIND_MODIFIER_ALT);
     }
 }

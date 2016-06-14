@@ -45,7 +45,7 @@ import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.setup.ConfigReader;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -159,9 +159,9 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerKeyBindings()
     {
-        Keybindings.keyToggleMode = new KeyBinding(ReferenceKeys.KEYBIND_NAME_TOGGLE_MODE,
-                                                   ReferenceKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
-                                                   ReferenceKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
+        Keybindings.keyToggleMode = new KeyBinding(HotKeys.KEYBIND_NAME_TOGGLE_MODE,
+                                                   HotKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
+                                                   HotKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
 
         ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
     }

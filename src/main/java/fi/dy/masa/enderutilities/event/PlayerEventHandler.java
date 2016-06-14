@@ -18,7 +18,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -60,7 +60,7 @@ public class PlayerEventHandler
 
             if (stack != null && EnderUtilities.proxy.isControlKeyDown())
             {
-                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(ReferenceKeys.KEYCODE_CUSTOM_1));
+                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(HotKeys.KEYCODE_CUSTOM_1));
             }
         }
     }

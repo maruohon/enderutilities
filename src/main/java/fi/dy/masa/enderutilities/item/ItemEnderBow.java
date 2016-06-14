@@ -25,7 +25,7 @@ import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -256,7 +256,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change Bow mode
-        if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.toggleBowMode(player, stack);
         }

@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -104,14 +104,14 @@ public class MessageKeyPressed implements IMessage
 
         protected boolean handleEnderElevator(final MessageKeyPressed message, EntityPlayer player)
         {
-            if (message.keyPressed == ReferenceKeys.KEYCODE_JUMP || message.keyPressed == ReferenceKeys.KEYCODE_SNEAK)
+            if (message.keyPressed == HotKeys.KEYCODE_JUMP || message.keyPressed == HotKeys.KEYCODE_SNEAK)
             {
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
                 TileEntity te = player.worldObj.getTileEntity(pos.down());
 
                 if (te instanceof TileEntityEnderElevator)
                 {
-                    ((TileEntityEnderElevator)te).activateForEntity(player, message.keyPressed == ReferenceKeys.KEYCODE_JUMP);
+                    ((TileEntityEnderElevator)te).activateForEntity(player, message.keyPressed == HotKeys.KEYCODE_JUMP);
                     return true;
                 }
             }

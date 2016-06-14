@@ -50,8 +50,9 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -473,37 +474,14 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
-        // Ctrl + (Shift + ) Toggle mode
-        if (ReferenceKeys.keypressContainsControl(key) == true && ReferenceKeys.keypressContainsAlt(key) == false)
-        {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
-                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
-        }
-        // Shift + Alt + Toggle mode: Store the player's current location
-        else if (ReferenceKeys.keypressContainsShift(key) == true
-                && ReferenceKeys.keypressContainsAlt(key) == true
-                && ReferenceKeys.keypressContainsControl(key) == false)
-        {
-            UtilItemModular.setTarget(stack, player, true);
-        }
         // Shift + Toggle mode: Toggle the sword mode: normal, drops to player, drops tp remote, summon fighters
-        else if (ReferenceKeys.keypressContainsShift(key) == true
-                && ReferenceKeys.keypressContainsControl(key) == false
-                && ReferenceKeys.keypressContainsAlt(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleSwordMode(stack);
         }
-        // Alt + Toggle mode: Toggle the private/public mode
-        else if (ReferenceKeys.keypressContainsAlt(key) == true
-                && ReferenceKeys.keypressContainsShift(key) == false
-                && ReferenceKeys.keypressContainsControl(key) == false)
+        else
         {
-            this.changePrivacyMode(stack, player);
+            super.doKeyBindingAction(player, stack, key);
         }
     }
 

@@ -43,8 +43,9 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -1215,27 +1216,21 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null || ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
         // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
-        if (key == ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
+        if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.changeOperationMode(stack);
         }
         // Shift + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
-        else if (ReferenceKeys.keypressContainsShift(key) == true
-                && ReferenceKeys.keypressContainsControl(key) == false
-                && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.changeLinkMode(stack);
         }
         // Ctrl + (Shift +) Toggle mode: Change the selected link crystal, if we are in tank mode
-        else if (ReferenceKeys.keypressContainsControl(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            if (ReferenceKeys.keypressContainsAlt(key) == false && this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+            if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
             {
                 super.doKeyBindingAction(player, stack, key);
             }

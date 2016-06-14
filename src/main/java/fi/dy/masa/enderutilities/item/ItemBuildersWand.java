@@ -53,8 +53,9 @@ import fi.dy.masa.enderutilities.item.base.IStringInput;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.*;
@@ -936,7 +937,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (mode == Mode.COPY || mode == Mode.DELETE)
         {
-            this.moveEndPosition(stack, EntityUtils.getClosestLookingDirection(player));
+            this.moveEndPosition(stack, EntityUtils.getClosestLookingDirection(player), reverse);
             return;
         }
 
@@ -995,7 +996,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         area.writeToNBT(this.getModeTag(stack, mode));
     }
 
-    private void moveEndPosition(ItemStack stack, EnumFacing direction)
+    private void moveEndPosition(ItemStack stack, EnumFacing direction, boolean reverse)
     {
         BlockPosEU pos = this.getPosition(stack, POS_END);
         if (pos == null)
@@ -1005,7 +1006,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (pos != null)
         {
-            pos = pos.add(direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
+            int v = reverse ? 1 : -1;
+
+            if (this.isMirrored(stack))
+            {
+                
+            }
+
+            pos = pos.add(direction.getFrontOffsetX() * v, direction.getFrontOffsetY() * v, direction.getFrontOffsetZ() * v);
             this.setPosition(stack, pos, POS_END);
         }
     }
@@ -1706,56 +1714,45 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (stack == null)
-        {
-            return;
-        }
-
-        if (key == ReferenceKeys.KEYCODE_CUSTOM_1)
+        if (key == HotKeys.KEYCODE_CUSTOM_1)
         {
             this.placeHelperBlock(player);
-            return;
-        }
-
-        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
             return;
         }
 
         Mode mode = Mode.getMode(stack);
 
         // Alt + Toggle key: Change the selected block type
-        if (ReferenceKeys.keypressContainsControl(key) == false &&
-            ReferenceKeys.keypressContainsShift(key) == false &&
-            ReferenceKeys.keypressContainsAlt(key) == true)
+        if (EnumKey.SCROLL.matches(key, HotKeys.MOD_ALT))
         {
-            this.changeSelectedBlockType(stack, ReferenceKeys.keypressActionIsReversed(key));
+            this.changeSelectedBlockType(stack, EnumKey.keypressActionIsReversed(key));
 
             if (mode == Mode.PASTE)
             {
                 this.updateTemplateMetadata(stack);
             }
         }
-        // Shift + Toggle Mode: Change the dimensions of the current mode
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        // Shift + Scroll: Change the dimensions of the current mode
+        else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
-            // FIXME: separate scrolling from Toggle key
+            if (mode != Mode.PASTE)
+            {
+                this.changeAreaDimensions(player, stack, EnumKey.keypressActionIsReversed(key));
+            }
+        }
+        // Shift + Toggle key: Toggle the mirroring in the appropriate modes
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
+        {
             if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
             {
                 this.toggleMirroring(stack, player);
             }
-            else
-            {
-                this.changeAreaDimensions(player, stack, ReferenceKeys.keypressActionIsReversed(key));
-            }
         }
         // Ctrl + Toggle key: Cycle the mode
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            Mode.cycleMode(stack, ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            Mode.cycleMode(stack, EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
 
             if (Mode.getMode(stack) == Mode.PASTE)
             {
@@ -1763,16 +1760,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
         // Ctrl + Alt + Shift + Toggle key: Change the selected link crystal
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, ReferenceKeys.keypressActionIsReversed(key));
+            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, EnumKey.keypressActionIsReversed(key));
         }
         // Ctrl + Alt + Toggle key: Toggle "allow diagonals" in Extend Continuous mode
-        else if (ReferenceKeys.keypressContainsControl(key) == true &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL_ALT))
         {
             if (mode == Mode.PASTE)
             {
@@ -1784,16 +1778,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
         // Alt + Shift + Toggle key: Toggle ghost blocks
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == true &&
-                 ReferenceKeys.keypressContainsAlt(key) == true)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
         }
         // Just Toggle key: Toggle the area flipped property
-        else if (ReferenceKeys.keypressContainsControl(key) == false &&
-                 ReferenceKeys.keypressContainsShift(key) == false &&
-                 ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
             {

@@ -34,9 +34,10 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -547,39 +548,21 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
-        if (ReferenceKeys.getBaseKey(key) != ReferenceKeys.KEYBIND_ID_TOGGLE_MODE)
-        {
-            return;
-        }
-
-        // Alt + Toggle mode: Toggle the private/public mode
-        if (ReferenceKeys.keypressContainsAlt(key) == true
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsControl(key) == false)
-        {
-            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_LINKCRYSTAL);
-        }
         // Just Toggle mode: Toggle locked state
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
         }
         // Shift + Toggle mode: Cycle the slot mask preset
-        else if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
+                 EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
-                    ReferenceKeys.keypressActionIsReversed(key));
+                    EnumKey.keypressActionIsReversed(key));
         }
-        // Ctrl (+ Shift) + Toggle mode: Change the selected Link Crystal
-        else if (ReferenceKeys.keypressContainsControl(key) == true
-            && ReferenceKeys.keypressContainsAlt(key) == false)
+        else
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
-                    ReferenceKeys.keypressActionIsReversed(key) || ReferenceKeys.keypressContainsShift(key));
+            super.doKeyBindingAction(player, stack, key);
         }
     }
 
