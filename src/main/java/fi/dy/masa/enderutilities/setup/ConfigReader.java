@@ -87,6 +87,18 @@ public class ConfigReader
         prop.setComment("Does the block drops teleporting by Ender tools cause particle effects");
         Configs.useToolParticles = prop.getBoolean();
 
+        prop = conf.get(category, "portalFrameCheckLimit", 2000).setRequiresMcRestart(false);
+        prop.setComment("How many Portal Frame blocks to check at most");
+        Configs.portalFrameCheckLimit = prop.getInt();
+
+        prop = conf.get(category, "portalLoopCheckLimit", 1000).setRequiresMcRestart(false);
+        prop.setComment("How many blocks to check at most when checking portal enclosing loops");
+        Configs.portalLoopCheckLimit = prop.getInt();
+
+        prop = conf.get(category, "portalAreaCheckLimit", 8000).setRequiresMcRestart(false);
+        prop.setComment("How many blocks to check at most when checking that one portal area is valid");
+        Configs.portalAreaCheckLimit = prop.getInt();
+
         prop = conf.get(category, "useToolSounds", true).setRequiresMcRestart(false);
         prop.setComment("Does the block drops teleporting by Ender tools play the sound effect");
         Configs.useToolSounds = prop.getBoolean();

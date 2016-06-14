@@ -13,6 +13,9 @@ public class Configs
     public static int buildersWandBlocksPerTick;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;
+    public static int portalFrameCheckLimit;
+    public static int portalLoopCheckLimit;
+    public static int portalAreaCheckLimit;
     public static boolean useEnderCharge;
 
     // Teleport control

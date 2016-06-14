@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -56,9 +57,9 @@ public class PortalFormer
         this.blockPortal = portalBlock;
         this.startPos = startPos;
         this.lastPos = startPos;
-        this.frameCheckLimit = 500;
-        this.frameLoopCheckLimit = 1000;
-        this.portalAreaCheckLimit = 4000;
+        this.frameCheckLimit = Configs.portalFrameCheckLimit;
+        this.frameLoopCheckLimit = Configs.portalLoopCheckLimit;
+        this.portalAreaCheckLimit = Configs.portalAreaCheckLimit;
         this.portalsFound = 0;
     }
 
