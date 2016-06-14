@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.event;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -115,7 +116,7 @@ public class RenderEventHandler
                 String name = ((TileEntityPortalPanel) te).getDisplayName();
                 EnumFacing facing = state.getValue(BlockPortalPanel.FACING);
 
-                if (name != null && name.length() > 0)
+                if (StringUtils.isBlank(name) == false && name.length() > 0)
                 {
                     GlStateManager.alphaFunc(516, 0.1F);
                     this.renderPortalPanelText(name, this.mc.thePlayer, pos, facing, partialTicks);

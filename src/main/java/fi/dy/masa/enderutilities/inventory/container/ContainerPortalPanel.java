@@ -2,11 +2,13 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
+import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.item.base.IStringInput;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
-public class ContainerPortalPanel extends ContainerTileEntityInventory
+public class ContainerPortalPanel extends ContainerTileEntityInventory implements IStringInput
 {
     private final TileEntityPortalPanel tepp;
     private int targetLast;
@@ -17,7 +19,7 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
 
         this.tepp = te;
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 121);
+        this.addPlayerInventorySlots(8, 168);
     }
 
     @Override
@@ -81,5 +83,11 @@ public class ContainerPortalPanel extends ContainerTileEntityInventory
         {
             this.tepp.setActiveTargetId(data);
         }
+    }
+
+    @Override
+    public void handleString(EntityPlayer player, ItemStack stack, String text)
+    {
+        this.tepp.setTargetName(text);
     }
 }

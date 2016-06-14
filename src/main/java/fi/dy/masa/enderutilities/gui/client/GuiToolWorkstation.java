@@ -81,6 +81,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         {
 
             this.nameField.setText("");
+            this.nameField.mouseClicked(mouseX - this.guiLeft, mouseY - this.guiTop, mouseButton);
         }
         else
         {

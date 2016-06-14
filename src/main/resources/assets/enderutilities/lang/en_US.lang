@@ -244,6 +244,7 @@ enderutilities.gui.label.quickstack=Quick Stack
 enderutilities.gui.label.quicktoggle=Quick Toggle
 enderutilities.gui.label.renameitems=Rename items
 enderutilities.gui.label.setname=Set name
+enderutilities.gui.label.settargetname=Set target name
 enderutilities.gui.label.sortitems=Sort items
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify

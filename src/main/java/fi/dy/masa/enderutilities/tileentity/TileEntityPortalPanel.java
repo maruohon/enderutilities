@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import org.apache.commons.lang3.StringUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -37,7 +38,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     private final ItemHandlerWrapper inventoryWrapper;
     private byte activeTargetId;
     private byte portalTargetId;
-    private String displayName;
+    private String displayName = "";
     private int[] colors = new int[9];
 
     public TileEntityPortalPanel()
@@ -134,7 +135,29 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             }
         }
 
-        return null;
+        return "";
+    }
+
+    public void setTargetName(String name)
+    {
+        if (this.activeTargetId >= 0 && this.activeTargetId < 8)
+        {
+            ItemStack stack = this.itemHandlerBase.extractItem(this.activeTargetId, 64, false);
+
+            if (stack != null)
+            {
+                if (StringUtils.isBlank(name))
+                {
+                    stack.clearCustomName();
+                }
+                else
+                {
+                    stack.setStackDisplayName(name);
+                }
+
+                this.itemHandlerBase.insertItem(this.activeTargetId, stack, false);
+            }
+        }
     }
 
     public String getDisplayName()
@@ -169,7 +192,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         nbt.setByte("s", this.activeTargetId);
         String name = this.getActiveName();
-        if (name != null)
+        if (StringUtils.isBlank(name) == false)
         {
             nbt.setString("n", name);
         }
