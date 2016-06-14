@@ -41,6 +41,7 @@ public class RenderEventHandler
     protected RulerRenderer rulerRenderer;
 
     protected BlockPos portalPanelPosLast = BlockPos.ORIGIN;
+    protected EnumFacing panelFacingLast = EnumFacing.DOWN;
     protected List<AxisAlignedBB> panelBoxes;
     protected float partialTicks;
 
@@ -222,10 +223,13 @@ public class RenderEventHandler
 
     protected void renderPortalPanelHilight(RenderGlobal context, IBlockState state, BlockPos pos, float partialTicks)
     {
-        if (pos.equals(this.portalPanelPosLast) == false)
+        EnumFacing facing = state.getValue(BlockEnderUtilities.FACING);
+
+        if (pos.equals(this.portalPanelPosLast) == false || facing != this.panelFacingLast)
         {
-            this.updatePanelBoxBounds(pos, state.getValue(BlockEnderUtilities.FACING));
+            this.updatePanelBoxBounds(pos, facing);
             this.portalPanelPosLast = pos;
+            this.panelFacingLast = facing;
         }
 
         this.partialTicks = partialTicks;
