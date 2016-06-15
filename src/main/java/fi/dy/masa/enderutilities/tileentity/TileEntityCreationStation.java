@@ -208,9 +208,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         this.selectedModule = tag.getByte("msel");
-
         this.itemInventory.setIsRemote(true);
-        this.itemInventory.setContainerItemStack(this.getContainerStack());
 
         super.handleUpdateTag(tag);
     }
@@ -715,7 +713,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 4)
         {
-            this.itemInventory.onContentsChanged(element);
             this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
         }

@@ -97,7 +97,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         super.readItemsFromNBT(nbt);
 
         // ... and this will read the item inventory from the selected Memory Card
-        //this.initStorage(this.invSize, false);
+        this.initStorage(this.invSize, false);
     }
 
     @Override
@@ -256,7 +256,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < 4)
         {
-            this.itemInventory.onContentsChanged(element);
             this.setSelectedModule(element);
             this.inventoryChanged(0, element);
         }
