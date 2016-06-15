@@ -225,6 +225,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         int x = this.guiLeft + this.containerHB.getSlot(0).xDisplayPosition + 2;
         int y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition + 55;
 
+        // Add the quick move items buttons
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
                 "enderutilities.gui.label.moveallitemsexcepthotbar",
                 "enderutilities.gui.label.holdshifttoincludehotbar"));
@@ -241,29 +242,28 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 12, 12, 24, i * 12, this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
 
-        x = (this.width - this.xSize) / 2;
-        y = (this.height - this.ySize) / 2;
+        y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition - 11;
 
         if (this.bagTier == 0)
         {
             // Add the sort buttons
-            this.buttonList.add(new GuiButtonHoverText(10, x + 84, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(10, x + 84, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
-            this.buttonList.add(new GuiButtonHoverText(13, x + 84, y + 161, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(13, x + 84, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
         }
         else
         {
             // Add the sort buttons
-            this.buttonList.add(new GuiButtonHoverText(11, x +  33, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
-            this.buttonList.add(new GuiButtonHoverText(10, x + 124, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
-            this.buttonList.add(new GuiButtonHoverText(12, x + 215, y + 91, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(11, x -  17, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(10, x +  74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(12, x + 165, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
-            this.buttonList.add(new GuiButtonHoverText(13, x + 124, y + 161, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(13, x +  74, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
 
             // Add the section locking buttons
-            this.buttonList.add(new GuiButtonHoverText(15, x +  21, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-            this.buttonList.add(new GuiButtonHoverText(14, x + 112, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-            this.buttonList.add(new GuiButtonHoverText(16, x + 227, y + 91, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonHoverText(15, x -  29, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonHoverText(14, x +  62, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonHoverText(16, x + 177, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
         }
     }
 
