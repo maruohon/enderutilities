@@ -95,17 +95,12 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     @Override
     protected void onImpact(RayTraceResult rayTraceResult)
     {
-        if (this.worldObj.isRemote == true)
-        {
-            return;
-        }
-
         Entity thrower = this.getThrower();
 
         // Thrower not found, drop the item if applicable and bail out
         if (thrower == null)
         {
-            if (this.canPickUp == true)
+            if (this.worldObj.isRemote == false && this.canPickUp == true)
             {
                 this.dropAsItem();
             }
@@ -115,7 +110,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         // Don't collide with the thrower or the entities in the 'stack' with the thrower
-        if (rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
+        if (this.worldObj.isRemote == false && rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
         {
             if (EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, thrower) == true)
             {
@@ -153,18 +148,25 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
                 bottom.removePassengers();
             }
 
-            TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
+            if (this.worldObj.isRemote == false)
+            {
+                TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
+            }
         }
         // An Elite pearl lands, which is still being ridden by something (see above)
         else if (this.isBeingRidden() == true)
         {
             Entity entity = this.getPassengers().get(0);
-            entity.dismountRidingEntity();
-            TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
+            this.removePassengers();
+
+            if (this.worldObj.isRemote == false)
+            {
+                TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
+            }
         }
 
         // Try to add the pearl straight back to the player's inventory
-        if (this.returnToPlayersInventory() == false)
+        if (this.worldObj.isRemote == false && this.returnToPlayersInventory() == false)
         {
             this.dropAsItem();
         }
@@ -187,10 +189,15 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         int damage = (this.isElite == true ? 1 : 0);
 
         // Tried to, but failed to add the pearl straight back to the thrower's inventory
-        if ((thrower instanceof EntityPlayer) == false ||
-           ((EntityPlayer)thrower).inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage)) == false)
+        if (thrower instanceof EntityPlayer)
         {
-            return false;
+            EntityPlayer player = (EntityPlayer) thrower;
+            if (player.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage)) == false)
+            {
+                return false;
+            }
+
+            player.openContainer.detectAndSendChanges();
         }
 
         return true;

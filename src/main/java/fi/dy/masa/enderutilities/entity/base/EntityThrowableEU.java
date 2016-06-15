@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.entity.base;
 
 import java.util.List;
 import java.util.UUID;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -16,9 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
 import net.minecraftforge.common.util.Constants;
-
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public abstract class EntityThrowableEU extends EntityThrowable
@@ -79,17 +76,13 @@ public abstract class EntityThrowableEU extends EntityThrowable
             ++this.ticksInAir;
         }
 
-        Vec3d vec3 = new Vec3d(this.posX, this.posY, this.posZ);
-        Vec3d vec31 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-
-        RayTraceResult rayTraceImpact = this.worldObj.rayTraceBlocks(vec3, vec31);
-
-        vec3 = new Vec3d(this.posX, this.posY, this.posZ);
-        vec31 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        Vec3d currentPos = new Vec3d(this.posX, this.posY, this.posZ);
+        Vec3d nextPos = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
+        RayTraceResult rayTraceImpact = this.worldObj.rayTraceBlocks(currentPos, nextPos);
 
         if (rayTraceImpact != null)
         {
-            vec31 = new Vec3d(rayTraceImpact.hitVec.xCoord, rayTraceImpact.hitVec.yCoord, rayTraceImpact.hitVec.zCoord);
+            nextPos = new Vec3d(rayTraceImpact.hitVec.xCoord, rayTraceImpact.hitVec.yCoord, rayTraceImpact.hitVec.zCoord);
         }
 
         if (this.worldObj.isRemote == false)
@@ -101,7 +94,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
             for (int j = 0; j < list.size(); ++j)
             {
-                Entity entityIter = (Entity)list.get(j);
+                Entity entityIter = list.get(j);
 
                 // This line fixes the elite pearl going through blocks:
                 // The entity collision with the riding player would override the block collision.
@@ -110,11 +103,12 @@ public abstract class EntityThrowableEU extends EntityThrowable
                 {
                     double s = 0.1d;
                     AxisAlignedBB axisalignedbb = entityIter.getEntityBoundingBox().expand(s, s, s);
-                    RayTraceResult rayTraceResult1 = axisalignedbb.calculateIntercept(vec3, vec31);
+                    currentPos = new Vec3d(this.posX, this.posY, this.posZ);
+                    RayTraceResult rayTraceResult1 = axisalignedbb.calculateIntercept(currentPos, nextPos);
 
                     if (rayTraceResult1 != null)
                     {
-                        double distanceTmp = vec3.distanceTo(rayTraceResult1.hitVec);
+                        double distanceTmp = currentPos.distanceTo(rayTraceResult1.hitVec);
 
                         if (distanceTmp < distance || distance == 0.0d)
                         {
