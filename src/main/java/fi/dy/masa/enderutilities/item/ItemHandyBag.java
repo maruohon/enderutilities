@@ -353,7 +353,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // If there is no space left in existing stacks in the player's inventory
         // then add the items to the bag, if one of the pickup modes is enabled.
         if (pickupMode == PickupMode.ALL ||
-            (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(bagInv, itemsIn) != -1))
+            (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(wrappedBagInv, itemsIn) != -1))
         {
             itemsIn = InventoryUtils.tryInsertItemStackToInventory(wrappedBagInv, itemsIn);
         }
