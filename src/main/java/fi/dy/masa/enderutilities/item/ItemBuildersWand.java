@@ -1490,12 +1490,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (this.getRemoveEntities(stack))
         {
-            int x1 = posStart.getX();
-            int y1 = posStart.getY();
-            int z1 = posStart.getZ();
-            int x2 = posEnd.getX();
-            int y2 = posEnd.getY();
-            int z2 = posEnd.getZ();
+            int x1 = Math.min(posStart.getX(), posEnd.getX());
+            int y1 = Math.min(posStart.getY(), posEnd.getY());
+            int z1 = Math.min(posStart.getZ(), posEnd.getZ());
+            int x2 = Math.max(posStart.getX(), posEnd.getX());
+            int y2 = Math.max(posStart.getY(), posEnd.getY());
+            int z2 = Math.max(posStart.getZ(), posEnd.getZ());
 
             AxisAlignedBB bb = new AxisAlignedBB(x1, y1, z1, x2 + 1, y2 + 1, z2 + 1);
             List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(null, bb);
