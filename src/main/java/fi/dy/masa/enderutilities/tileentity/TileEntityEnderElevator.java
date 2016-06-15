@@ -73,6 +73,8 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         {
             this.activateByRedstone(worldIn.isBlockIndirectlyGettingPowered(pos) < 8);
         }
+
+        this.redstoneState = redstone;
     }
 
     public void activateByRedstone(boolean goingUp)
