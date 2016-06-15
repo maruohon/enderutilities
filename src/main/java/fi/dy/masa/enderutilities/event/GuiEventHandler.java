@@ -4,6 +4,7 @@ import java.io.IOException;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -83,6 +84,16 @@ public class GuiEventHandler
             {
                 EnderUtilities.logger.warn("Exception while executing handleMouseInput() on {}", event.getGui().getClass().getName());
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPotionShiftEvent(GuiScreenEvent.PotionShiftEvent event)
+    {
+        // Disable the potion shift in all my GUIs
+        if (event.getGui() instanceof GuiEnderUtilities)
+        {
+            event.setCanceled(true);
         }
     }
 }
