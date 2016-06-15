@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory.item;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 
 public class InventoryItemCallback extends InventoryItem
@@ -37,9 +38,9 @@ public class InventoryItemCallback extends InventoryItem
     {
         super.onContentsChanged(slot);
 
-        if (this.callback != null)
+        if (this.callback instanceof TileEntity)
         {
-            this.callback.markDirty();
+            ((TileEntity) this.callback).markDirty();
         }
     }
 }

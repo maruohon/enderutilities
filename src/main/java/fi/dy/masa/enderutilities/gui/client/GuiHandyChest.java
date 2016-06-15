@@ -136,9 +136,9 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        // Add the Memory Card selection buttons
         if (this.chestTier == 3)
         {
+            // Add the Memory Card selection buttons
             for (int i = 0; i < 4; i++)
             {
                 this.buttonList.add(new GuiButtonIcon(i, x + 213, y + 178 + i * 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
@@ -162,6 +162,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         }
         else
         {
+            // Add the Memory Card selection buttons
             for (int i = 0; i < 4; i++)
             {
                 this.buttonList.add(new GuiButtonIcon(i, x + 102 + i * 18, y + 27, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
