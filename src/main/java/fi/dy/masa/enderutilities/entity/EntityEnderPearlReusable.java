@@ -189,15 +189,16 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         int damage = (this.isElite == true ? 1 : 0);
 
         // Tried to, but failed to add the pearl straight back to the thrower's inventory
-        if (thrower instanceof EntityPlayer)
+        if (thrower instanceof EntityPlayerMP)
         {
-            EntityPlayer player = (EntityPlayer) thrower;
+            EntityPlayerMP player = (EntityPlayerMP) thrower;
             if (player.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage)) == false)
             {
                 return false;
             }
 
-            player.openContainer.detectAndSendChanges();
+            // This fixes the otherwise one behind lagging count on the hotbar... wtf?!
+            player.sendContainerToPlayer(player.openContainer);
         }
 
         return true;
