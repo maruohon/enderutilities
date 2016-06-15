@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.google.common.base.Predicate;
@@ -16,6 +17,7 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +25,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
@@ -322,12 +326,25 @@ public class TemplateEnderUtilities
     public void write(NBTTagCompound compound)
     {
         NBTTagList nbttaglist = new NBTTagList();
+        // FIXME: Ugly but quick-to-access storage... needs to be replaced when the world format changes some day
+        ResourceLocation idMap[] = new ResourceLocation[4096];
+        List<Integer> ids = new ArrayList<Integer>();
+        int stateId = 0;
+        int blockId = 0;
 
         for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             NBTTagCompound nbt = new NBTTagCompound();
             nbt.setTag("pos", NBTUtils.writeInts(new int[] {blockInfo.pos.getX(), blockInfo.pos.getY(), blockInfo.pos.getZ()}));
-            nbt.setInteger("state", Block.getStateId(blockInfo.blockState));
+            stateId = Block.getStateId(blockInfo.blockState);
+            nbt.setInteger("state", stateId);
+
+            blockId = stateId & 0xFFF;
+            if (idMap[blockId] == null)
+            {
+                idMap[blockId] = ForgeRegistries.BLOCKS.getKey(blockInfo.blockState.getBlock());
+                ids.add(blockId);
+            }
 
             if (blockInfo.tileEntityData != null)
             {
@@ -336,6 +353,19 @@ public class TemplateEnderUtilities
 
             nbttaglist.appendTag(nbt);
         }
+
+        NBTTagList tagIdMap = new NBTTagList();
+        for (int id : ids)
+        {
+            if (idMap[id] != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setString("name", idMap[id].toString());
+                tag.setShort("id", (short)id);
+                tagIdMap.appendTag(tag);
+            }
+        }
+        compound.setTag("blockidmap", tagIdMap);
 
         NBTTagList nbttaglist1 = new NBTTagList();
 
@@ -370,6 +400,22 @@ public class TemplateEnderUtilities
         NBTTagList tagList = compound.getTagList("size", 3);
         this.size = new BlockPos(tagList.getIntAt(0), tagList.getIntAt(1), tagList.getIntAt(2));
 
+        boolean hasIdMap = compound.hasKey("blockidmap", Constants.NBT.TAG_LIST);
+        // FIXME: Ugly but quick-to-access storage... needs to be replaced when the world format changes some day
+        Block blockMap[] = new Block[4096];
+
+        if (hasIdMap)
+        {
+            NBTTagList tagIdMap = compound.getTagList("blockidmap", Constants.NBT.TAG_COMPOUND);
+
+            for (int i = 0; i < tagIdMap.tagCount(); i++)
+            {
+                NBTTagCompound tag = tagIdMap.getCompoundTagAt(i);
+                short id = (short)(tag.getShort("id") & 0xFFF);
+                blockMap[id] = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("name")));
+            }
+        }
+
         tagList = compound.getTagList("blocks", 10);
 
         for (int i = 0; i < tagList.tagCount(); i++)
@@ -378,8 +424,20 @@ public class TemplateEnderUtilities
             NBTTagList tagListPos = tag.getTagList("pos", 3);
             BlockPos blockpos = new BlockPos(tagListPos.getIntAt(0), tagListPos.getIntAt(1), tagListPos.getIntAt(2));
 
+            IBlockState iblockstate;
             int stateId = tag.getInteger("state");
-            IBlockState iblockstate = Block.getStateById(stateId);
+
+            if (hasIdMap)
+            {
+                Block block = blockMap[stateId & 0xFFF];
+                if (block != null)
+                {
+                    stateId &= 0xF000;
+                    stateId |= Block.getIdFromBlock(block);
+                }
+            }
+
+            iblockstate = Block.getStateById(stateId);
             NBTTagCompound tagTileEntityData;
 
             if (tag.hasKey("nbt") == true)
