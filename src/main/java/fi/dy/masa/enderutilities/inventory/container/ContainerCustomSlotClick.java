@@ -350,8 +350,6 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    // FIXME quickly shift clicking is broken due to us using SlotItemHandler
-    // See GuiContainer.mouseReleased. It checks the slot.inventory reference to determine where slots are
     protected void shiftClickSlot(int slotNum, EntityPlayer player)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
@@ -361,28 +359,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             return;
         }
 
-        if (slot instanceof SlotItemHandlerCraftresult)
-        {
-            ItemStack stackOrig = stackSlot.copy();
-            // Craft up to one stack at a time
-            //int num = stackSlot.getMaxStackSize() / stackSlot.stackSize;
-            int num = 64;
-
-            while (num-- > 0)
-            {
-                // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
-                if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
-                {
-                    break;
-                }
-            }
-        }
-        // Only transfer a maximum of one regular stack
-        else
-        {
-            this.transferStackFromSlot(player, slotNum);
-            slot.onPickupFromSlot(player, stackSlot);
-        }
+        this.transferStackFromSlot(player, slotNum);
+        slot.onPickupFromSlot(player, stackSlot);
     }
 
     protected void pressDropKey(int slotNum, EntityPlayer player, boolean wholeStack)

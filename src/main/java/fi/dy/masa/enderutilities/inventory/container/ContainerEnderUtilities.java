@@ -9,12 +9,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.PlayerInvWrapperNoSync;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -36,7 +36,7 @@ public class ContainerEnderUtilities extends Container
     {
         this.player = player;
         this.inventoryPlayer = player.inventory;
-        this.playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        this.playerInv = new PlayerInvWrapperNoSync(player.inventory);
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();

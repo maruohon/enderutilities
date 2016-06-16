@@ -20,6 +20,7 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerHandyBag extends ContainerLargeStacks implements IContainerItem
 {
@@ -34,6 +35,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     private final InventoryCrafting craftMatrix;
     private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
+    private int craftingSlot = 0;
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
@@ -96,6 +98,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         // Player crafting slots
         posX += 90;
         posY = 15;
+        this.craftingSlot = this.inventorySlots.size();
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10));
 
         for (int i = 0; i < 2; ++i)
@@ -174,8 +177,6 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     public void onCraftMatrixChanged(IInventory inv)
     {
         this.craftResult.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.worldObj));
-
-        this.detectAndSendChanges();
     }
 
     public void dropCraftingGridContents()
@@ -216,6 +217,35 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         // Drop the items in the crafting grid
         this.dropCraftingGridContents();
+    }
+
+    @Override
+    protected void shiftClickSlot(int slotNum, EntityPlayer player)
+    {
+        if (slotNum != this.craftingSlot)
+        {
+            super.shiftClickSlot(slotNum, player);
+            return;
+        }
+
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        ItemStack stackSlot = slot != null ? slot.getStack() : null;
+        if (stackSlot == null)
+        {
+            return;
+        }
+
+        ItemStack stackOrig = stackSlot.copy();
+        int num = 64;
+
+        while (num-- > 0)
+        {
+            // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+            if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+            {
+                break;
+            }
+        }
     }
 
     @Override

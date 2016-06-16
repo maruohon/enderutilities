@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerCreationStation extends ContainerLargeStacks
@@ -153,8 +154,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
         this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
-
-        this.detectAndSendChanges();
     }
 
     @Override
@@ -183,7 +182,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public boolean transferStackFromSlot(EntityPlayer player, int slotNum)
+    protected boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
         // Crafting output slots; if "keep one item" is enabled and the minimum remaining
         // stack size is 1 and the auto-use feature is not enabled, then we bail out
@@ -211,6 +210,36 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
 
         return super.transferStackFromSlot(player, slotNum);
+    }
+
+    @Override
+    protected void shiftClickSlot(int slotNum, EntityPlayer player)
+    {
+        // Not a crafting output slot
+        if (slotNum != 40 && slotNum != 50)
+        {
+            super.shiftClickSlot(slotNum, player);
+            return;
+        }
+
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        ItemStack stackSlot = slot != null ? slot.getStack() : null;
+        if (stackSlot == null)
+        {
+            return;
+        }
+
+        ItemStack stackOrig = stackSlot.copy();
+        int num = 64;
+
+        while (num-- > 0)
+        {
+            // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+            if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+            {
+                break;
+            }
+        }
     }
 
     @Override
