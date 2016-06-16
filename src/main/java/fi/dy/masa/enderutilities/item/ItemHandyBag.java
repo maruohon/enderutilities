@@ -442,7 +442,8 @@ public class ItemHandyBag extends ItemInventoryModular
         EntityItem entityItem = event.getItem();
 
         if (event.getEntityPlayer().worldObj.isRemote == true || entityItem.isDead == true ||
-            entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null)
+            entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null ||
+            entityItem.getEntityItem().stackSize <= 0)
         {
             return true;
         }
