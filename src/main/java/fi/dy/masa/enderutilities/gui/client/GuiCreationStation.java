@@ -25,7 +25,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
     public static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
-            "enderutilities.gui.label.movematchingitems",
+            "enderutilities.gui.label.movematchingitemsexcepthotbar",
             "enderutilities.gui.label.leaveonefilledstack",
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",

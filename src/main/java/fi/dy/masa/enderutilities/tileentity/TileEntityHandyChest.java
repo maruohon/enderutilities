@@ -278,7 +278,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
                     InventoryUtils.tryMoveAllItemsWithinSlotRange(playerInv, inventory, new SlotRange(9, 27), new SlotRange(inventory));
                     break;
                 case 1: // Move matching items to Chest
-                    InventoryUtils.tryMoveMatchingItems(playerInv, inventory);
+                    InventoryUtils.tryMoveMatchingItemsWithinSlotRange(playerInv, inventory, new SlotRange(9, 27), new SlotRange(inventory));
                     break;
                 case 2: // Leave one stack of each item type and fill that stack
                     InventoryUtils.leaveOneFullStackOfEveryItem(playerInv, inventory, true);
