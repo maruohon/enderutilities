@@ -1398,7 +1398,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack);
+        ResourceLocation rl = this.getTemplateResource(stack, player);
 
         TemplateEnderUtilities template = templateManager.getTemplate(rl);
         template.takeBlocksFromWorld(world, posStart, endOffset, true);
@@ -1427,7 +1427,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        TemplateMetadata templateMeta = this.getTemplateMetadata(stack);
+        TemplateMetadata templateMeta = this.getTemplateMetadata(stack, player);
 
         if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), player) == false)
         {
@@ -1436,7 +1436,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         PlacementSettings placement = this.getPasteModePlacement(stack, player);
-        TemplateEnderUtilities template = this.getTemplate(world, stack, placement);
+        TemplateEnderUtilities template = this.getTemplate(world, player, stack, placement);
         //System.out.printf("pasting - posStartIn: %s size: %s rotation: %s\n", posStartIn, template.getTemplateSize(), placement.getRotation());
 
         if (player.capabilities.isCreativeMode == true)
@@ -1531,20 +1531,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return Math.abs(size.getX()) <= limit && Math.abs(size.getY()) <= limit && Math.abs(size.getZ()) <= limit;
     }
 
-    private TemplateEnderUtilities getTemplate(World world, ItemStack stack, PlacementSettings placement)
+    private TemplateEnderUtilities getTemplate(World world, EntityPlayer player, ItemStack stack, PlacementSettings placement)
     {
         TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack);
+        ResourceLocation rl = this.getTemplateResource(stack, player);
         TemplateEnderUtilities template = templateManager.getTemplate(rl);
         template.setPlacementSettings(placement);
 
         return template;
     }
 
-    private TemplateMetadata getTemplateMetadata(ItemStack stack)
+    private TemplateMetadata getTemplateMetadata(ItemStack stack, EntityPlayer player)
     {
         TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack);
+        ResourceLocation rl = this.getTemplateResource(stack, player);
         TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
 
         return templateMeta;
@@ -1561,16 +1561,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return "N/A";
     }
 
-    public void setTemplateName(ItemStack stack, String name)
+    public void setTemplateName(ItemStack stack, EntityPlayer player, String name)
     {
         TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack);
+        ResourceLocation rl = this.getTemplateResource(stack, player);
         TemplateMetadata meta = templateManager.getTemplateMetadata(rl);
         meta.setTemplateName(name);
         templateManager.writeTemplateMetadata(rl);
 
         this.setTemplateNameOnItem(stack, Mode.COPY, name);
-        this.updateTemplateMetadata(stack);
+        this.updateTemplateMetadata(stack, player);
     }
 
     public void setTemplateNameOnItem(ItemStack stack, Mode mode, String name)
@@ -1579,11 +1579,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         nbt.setString("TemplateName", name);
     }
 
-    private ResourceLocation getTemplateResource(ItemStack stack)
+    private ResourceLocation getTemplateResource(ItemStack stack, EntityPlayer player)
     {
         int id = this.getSelectedBlockTypeIndex(stack);
         UUID uuid = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-        return new ResourceLocation(Reference.MOD_ID, uuid.toString() + "_" + id);
+        String name = NBTUtils.getOrCreateString(stack, WRAPPER_TAG_NAME, "player", player.getName());
+        return new ResourceLocation(Reference.MOD_ID, name + "_" + uuid.toString() + "_" + id);
     }
 
     private TemplateManagerEU getTemplateManager()
@@ -1607,10 +1608,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return tag;
     }
 
-    private void updateTemplateMetadata(ItemStack stack)
+    private void updateTemplateMetadata(ItemStack stack, EntityPlayer player)
     {
         TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack);
+        ResourceLocation rl = this.getTemplateResource(stack, player);
         FileInfo info = templateManager.getTemplateInfo(rl);
         NBTTagCompound tag = this.getSelectedTemplateTag(stack, Mode.PASTE, true);
 
@@ -1720,7 +1721,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             if (mode == Mode.PASTE)
             {
-                this.updateTemplateMetadata(stack);
+                this.updateTemplateMetadata(stack, player);
             }
         }
         // Shift + Scroll: Change the dimensions of the current mode
@@ -1747,7 +1748,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             if (Mode.getMode(stack) == Mode.PASTE)
             {
-                this.updateTemplateMetadata(stack);
+                this.updateTemplateMetadata(stack, player);
             }
         }
         // Ctrl + Alt + Shift + Toggle key: Change the selected link crystal
@@ -1796,7 +1797,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         if (stack != null)
         {
-            this.setTemplateName(stack, text);
+            this.setTemplateName(stack, player, text);
         }
     }
 

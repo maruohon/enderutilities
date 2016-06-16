@@ -1,14 +1,12 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
-
 import net.minecraftforge.common.util.Constants;
 
 public class NBTUtils
@@ -137,6 +135,18 @@ public class NBTUtils
         }
 
         return getCompoundTag(nbt, tagName, create);
+    }
+
+    public static String getOrCreateString(ItemStack stack, String containerTagName, String tagName, String value)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        if (nbt.hasKey(tagName, Constants.NBT.TAG_STRING) == false)
+        {
+            nbt.setString(tagName, value);
+            return value;
+        }
+
+        return nbt.getString(tagName);
     }
 
     /**
