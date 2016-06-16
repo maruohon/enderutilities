@@ -195,7 +195,20 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 return false;
             }
 
-            boolean ret = super.transferStackFromSlot(player, slotNum);
+            boolean ret = false;
+
+            IItemHandler inv = this.tecs.getItemInventory(player);
+            MergeSlotRange range = new MergeSlotRange(inv);
+
+            if (InventoryUtils.matchingStackFoundInSlotRange(inv, range, this.getSlot(slotNum).getStack(), false, false))
+            {
+                ret = super.transferStackToSlotRange(player, slotNum, range, false);
+            }
+            else
+            {
+                ret = super.transferStackFromSlot(player, slotNum);
+            }
+
             this.tecs.restockCraftingGrid(invId);
 
             return ret;

@@ -1133,6 +1133,26 @@ public class InventoryUtils
     }
 
     /**
+     * If there are items in the invTarget inventory that do not match the template array, then those are tried to move
+     * to invStorage
+     * @param invTarget
+     * @param invStorage
+     * @param template
+     */
+    public static void clearInventoryToMatchTemplate(IItemHandler invTarget, IItemHandler invStorage, ItemStack[] template)
+    {
+        SlotRange rangeStorage = new SlotRange(invStorage);
+
+        for (int i = 0; i < template.length && i < invTarget.getSlots(); i++)
+        {
+            if (areItemStacksEqual(template[i], invTarget.getStackInSlot(i)) == false)
+            {
+                tryMoveAllItemsWithinSlotRange(invTarget, invStorage, new SlotRange(i, 1), rangeStorage);
+            }
+        }
+    }
+
+    /**
      * Adds amountPerStack items to all the stacks in invTarget based on the template inventory contents array <b>template</b>.
      * If the existing stack doesn't match the template, then nothing will be added to that stack.
      * If the existing stack is null, then it will be set to a new stack based on the template.

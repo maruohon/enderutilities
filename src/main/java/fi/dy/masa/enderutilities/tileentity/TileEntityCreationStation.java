@@ -467,7 +467,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
-        return InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, this.getRecipeItems(invId), 1, true, useOreDict);
+        ItemStack[] template = this.getRecipeItems(invId);
+        InventoryUtils.clearInventoryToMatchTemplate(invCrafting, this.itemInventory, template);
+        return InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, template, 1, true, useOreDict);
     }
 
     protected void fillCraftingGrid(int invId, int recipeId)
@@ -615,8 +617,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
+        InventoryUtils.clearInventoryToMatchTemplate(this.craftingInventoryWrappers[invId], this.itemInventory, this.craftingGridTemplates[invId]);
+
         InventoryUtils.restockInventoryBasedOnTemplate(this.craftingInventoryWrappers[invId], this.itemInventory,
                 this.craftingGridTemplates[invId], 1, true, useOreDict);
+
         this.craftingGridTemplates[invId] = null;
     }
 
