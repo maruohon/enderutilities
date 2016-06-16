@@ -62,7 +62,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 return EnumActionResult.SUCCESS;
             }
 
-            return this.releaseEntity(stack, world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
+            return this.releaseEntity(stack, world, pos, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
         }
 
         return EnumActionResult.PASS;
@@ -78,7 +78,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, player.worldObj, livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
+            return this.releaseEntity(stack, player.worldObj, livingBase.getPosition(), livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
         }
 
         return this.captureEntity(stack, player, livingBase);
@@ -102,7 +102,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.FAIL;
     }
 
-    public EnumActionResult releaseEntity(ItemStack containerStack, World world, double x, double y, double z, EnumFacing side)
+    public EnumActionResult releaseEntity(ItemStack containerStack, World world, BlockPos pos, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
@@ -126,15 +126,40 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         NBTTagCompound tag = tagList.getCompoundTagAt(current);
         if (tag != null)
         {
+            boolean isShulker = false;
+
+            if (tag.getString("id").equals("Shulker"))
+            {
+                // Special case to update the Shulker's attached position and position
+                if (tag.hasKey("APX", Constants.NBT.TAG_INT))
+                {
+                    int xi = pos.getX() + side.getFrontOffsetX();
+                    int yi = pos.getY() + side.getFrontOffsetY();
+                    int zi = pos.getZ() + side.getFrontOffsetZ();
+
+                    tag.setTag("Pos", NBTUtils.writeDoubles(new double[] {xi + 0.5d, yi, zi + 0.5d}));
+                    tag.setInteger("APX", xi);
+                    tag.setInteger("APY", yi);
+                    tag.setInteger("APZ", zi);
+                    System.out.printf("side: %s - %d\n", side, side.getIndex());
+                    tag.setByte("AttachFace", (byte)side.getIndex());
+                    isShulker = true;
+                }
+            }
+
             Entity entity = EntityList.createEntityFromNBT(tag, world);
             if (entity == null)
             {
                 return EnumActionResult.FAIL;
             }
 
-            PositionHelper pos = new PositionHelper(x, y, z);
-            pos.adjustPositionToTouchFace(entity, side);
-            entity.setLocationAndAngles(pos.posX, pos.posY, pos.posZ, entity.rotationYaw, entity.rotationPitch);
+            if (isShulker == false)
+            {
+                PositionHelper posHelper = new PositionHelper(x, y, z);
+                posHelper.adjustPositionToTouchFace(entity, side);
+                entity.setLocationAndAngles(posHelper.posX, posHelper.posY, posHelper.posZ, entity.rotationYaw, entity.rotationPitch);
+            }
+
             entity.motionY = 0.0;
             entity.fallDistance = 0.0f;
             entity.onGround = true;
