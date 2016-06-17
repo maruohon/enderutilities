@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -80,8 +81,11 @@ public class RenderEventHandler
             return;
         }
 
-        this.buildersWandRenderer.renderHud();
-        this.rulerRenderer.renderHud();
+        if ((this.mc.currentScreen instanceof GuiChat) == false)
+        {
+            this.buildersWandRenderer.renderHud();
+            this.rulerRenderer.renderHud();
+        }
     }
 
     @SubscribeEvent

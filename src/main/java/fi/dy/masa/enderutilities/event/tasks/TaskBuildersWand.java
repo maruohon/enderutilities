@@ -56,11 +56,14 @@ public class TaskBuildersWand implements IPlayerTask
     public boolean execute(World world, EntityPlayer player)
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
+
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
+            ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
+
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.positions.size();)
             {
-                if (((ItemBuildersWand) stack.getItem()).placeBlockToPosition(stack, world, player, this.positions.get(this.listIndex)) == true)
+                if (wand.placeBlockToPosition(stack, world, player, this.positions.get(this.listIndex)) == true)
                 {
                     this.placedCount += 1;
                     this.failCount = 0;
@@ -68,6 +71,26 @@ public class TaskBuildersWand implements IPlayerTask
                 }
 
                 this.listIndex += 1;
+            }
+
+            // Finished looping through the block positions
+            if (this.listIndex >= this.positions.size())
+            {
+                if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+                {
+                    Mode mode = Mode.getMode(stack);
+                    BlockPosEU pos = wand.getPosition(stack, ItemBuildersWand.POS_START);
+
+                    // Move the target position forward by one block after the area has been built
+                    if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && wand.getMovePosition(stack, mode))
+                    {
+                        wand.setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
+                    }
+
+                    world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);
+                }
+
+                return true;
             }
         }
         else
@@ -78,26 +101,6 @@ public class TaskBuildersWand implements IPlayerTask
         // Bail out after 10 seconds of failing to execute, or after all blocks have been placed
         if (this.failCount > 200)
         {
-            return true;
-        }
-
-        // Finished looping through the block positions
-        if (this.listIndex >= this.positions.size())
-        {
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
-            {
-                Mode mode = Mode.getMode(stack);
-                BlockPosEU pos = ((ItemBuildersWand)stack.getItem()).getPosition(stack, ItemBuildersWand.POS_START);
-
-                // Move the target position forward by one block after the area has been built
-                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
-                {
-                    ((ItemBuildersWand)stack.getItem()).setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
-                }
-
-                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);
-            }
-
             return true;
         }
 

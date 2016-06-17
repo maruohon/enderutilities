@@ -211,8 +211,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             BlockPosEU pos = this.getPosition(stack, POS_START);
             if (pos != null)
             {
-                this.useWand(stack, world, player, pos);
-                player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.4f, 0.7f);
+                if (this.useWand(stack, world, player, pos) == EnumActionResult.SUCCESS)
+                {
+                    player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.4f, 0.7f);
+                }
             }
         }
     }
@@ -403,6 +405,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 str = I18n.format("enderutilities.tooltip.item.flipaxis");
                 String preBlue = TextFormatting.BLUE.toString();
                 list.add(str + ": " + preBlue + this.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
+            }
+            else
+            {
+                str2 = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
+                list.add(str + ": " + str2 + rst);
+            }
+
+            str = I18n.format("enderutilities.tooltip.item.move");
+
+            if (this.getMovePosition(stack, mode) == true)
+            {
+                str2 = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                list.add(str + ": " + str2 + rst);
             }
             else
             {
@@ -601,6 +616,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
+        if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true) == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.notenoughendercharge"));
+            return EnumActionResult.FAIL;
+        }
+
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         BlockPosEU posStart = this.getPosition(stack, POS_START);
         BlockPosEU posEnd = this.getPosition(stack, POS_END);
@@ -616,18 +637,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else if (mode == Mode.COPY)
         {
-            this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
-            return EnumActionResult.SUCCESS;
+            return this.copyAreaToTemplate(stack, world, player, posStart, posEnd);
         }
         else if (mode == Mode.PASTE)
         {
-            this.pasteAreaIntoWorld(stack, world, player, posStart);
-            return EnumActionResult.SUCCESS;
+            return this.pasteAreaIntoWorld(stack, world, player, posStart);
         }
         else if (mode == Mode.DELETE)
         {
-            this.deleteArea(stack, world, player, posStart, posEnd);
-            return EnumActionResult.SUCCESS;
+            return this.deleteArea(stack, world, player, posStart, posEnd);
         }
         else
         {
@@ -639,12 +657,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int i = 0; i < positions.size(); i++)
             {
-                placeBlockToPosition(stack, world, player, positions.get(i));
+                this.placeBlockToPosition(stack, world, player, positions.get(i));
             }
 
             // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
             BlockPosEU pos = this.getPosition(stack, POS_START);
-            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE)
+            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && this.getMovePosition(stack, mode))
             {
                 this.setPosition(stack, pos.offset(pos.side, 1), POS_START);
             }
@@ -1374,17 +1392,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
     }
 
-    private void copyAreaToTemplate(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
+    private EnumActionResult copyAreaToTemplate(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
     {
         if (Configs.buildersWandEnableCopyPaste == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         if (posStartIn == null || posEndIn == null)
         {
-            return;
+            return EnumActionResult.FAIL;
         }
 
         BlockPos posStart = posStartIn.toBlockPos();
@@ -1394,7 +1412,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (this.isAreaWithinSizeLimit(endOffset, player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         TemplateManagerEU templateManager = this.getTemplateManager();
@@ -1411,20 +1429,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         templateManager.writeTemplateMetadata(rl);
 
         player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (this.getSelectedBlockTypeIndex(stack) + 1)));
+
+        return EnumActionResult.SUCCESS;
     }
 
-    private void pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
+    private EnumActionResult pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
         if (Configs.buildersWandEnableCopyPaste == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         if (posStartIn == null || posStartIn.dimension != player.dimension ||
             player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
         {
-            return;
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
+            return EnumActionResult.FAIL;
         }
 
         TemplateMetadata templateMeta = this.getTemplateMetadata(stack, player);
@@ -1432,7 +1453,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         PlacementSettings placement = this.getPasteModePlacement(stack, player);
@@ -1450,19 +1471,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                     player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
+
+        return EnumActionResult.SUCCESS;
     }
 
-    private void deleteArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
+    private EnumActionResult deleteArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
     {
         if (player.capabilities.isCreativeMode == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.creativeonly"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
         {
-            return;
+            return EnumActionResult.FAIL;
         }
 
         BlockPos posStart = posStartIn.toBlockPos();
@@ -1471,7 +1494,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (player.getDistanceSq(posStart) >= 16384 || player.getDistanceSq(posEnd) >= 16384 ||
             this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
         {
-            return;
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
+            return EnumActionResult.FAIL;
         }
 
         for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, posEnd))
@@ -1508,6 +1532,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
             }
         }
+
+        return EnumActionResult.SUCCESS;
     }
 
     private void placeHelperBlock(EntityPlayer player)
@@ -1667,6 +1693,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         tag.setByte("Rotation", (byte)facing.getIndex());
     }
 
+    private void toggleMovePosition(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("Move", ! tag.getBoolean("Move"));
+    }
+
+    public boolean getMovePosition(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("Move");
+    }
+
     private void toggleReplaceExisting(ItemStack stack)
     {
         NBTTagCompound tag = this.getModeTag(stack, Mode.PASTE);
@@ -1738,6 +1775,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
             {
                 this.toggleMirror(stack, mode, player);
+            }
+            else if (mode != Mode.WALLS || mode != Mode.CUBE)
+            {
+                this.toggleMovePosition(stack, mode);
             }
         }
         // Ctrl + Toggle key: Cycle the mode

@@ -257,6 +257,8 @@ public class BuildersWandRenderer
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
         String preIta = TextFormatting.ITALIC.toString();
+        String strNo = I18n.format("enderutilities.tooltip.item.no");
+        String strYes = I18n.format("enderutilities.tooltip.item.yes");
         int index = wand.getSelectedBlockTypeIndex(stack);
         String str;
 
@@ -288,7 +290,7 @@ public class BuildersWandRenderer
             else
             {
                 str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
-                        I18n.format("enderutilities.tooltip.item.mirror"), preRed, I18n.format("enderutilities.tooltip.item.no"), rst);
+                        I18n.format("enderutilities.tooltip.item.mirror"), preRed, strNo, rst);
             }
 
             lines.add(str);
@@ -307,17 +309,28 @@ public class BuildersWandRenderer
                 lines.add(str + ": " + this.getBlockTypeName(wand, stack, index) + rst);
             }
 
-            str = I18n.format("enderutilities.tooltip.item.area.flipped");
-
             if (mode != Mode.WALLS && mode != Mode.CUBE)
             {
+                str = I18n.format("enderutilities.tooltip.item.area.flipped");
+
                 if (wand.getAreaFlipped(stack))
                 {
-                    lines.add(str + ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst);
+                    str += ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst;
                 }
                 else
                 {
-                    lines.add(str + ": " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
+                    str += ": " + preRed + strNo + rst;
+                }
+
+                str += " - " + I18n.format("enderutilities.tooltip.item.move");
+
+                if (wand.getMovePosition(stack, mode))
+                {
+                    lines.add(str + ": " + preGreen + strYes + rst);
+                }
+                else
+                {
+                    lines.add(str + ": " + preRed + strNo + rst);
                 }
             }
         }
@@ -333,11 +346,11 @@ public class BuildersWandRenderer
 
             if (wand.getReplaceExisting(stack) == true)
             {
-                strMode += preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                strMode += preGreen + strYes + rst;
             }
             else
             {
-                strMode += preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
+                strMode += preRed + strNo + rst;
             }
         }
         else if (mode == Mode.DELETE)
@@ -346,11 +359,11 @@ public class BuildersWandRenderer
 
             if (wand.getRemoveEntities(stack) == true)
             {
-                strMode += preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                strMode += preGreen + strYes + rst;
             }
             else
             {
-                strMode += preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
+                strMode += preRed + strNo + rst;
             }
         }
 
