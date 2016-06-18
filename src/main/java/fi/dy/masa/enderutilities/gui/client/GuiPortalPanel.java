@@ -193,7 +193,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
 
         if (button.id >= 0 && button.id < 8)
         {
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, this.tepp.getPos(),
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tepp.getWorld().provider.getDimension(), this.tepp.getPos(),
                     ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, 0, button.id));
         }
         else if (button.id == 8)
