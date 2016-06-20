@@ -158,7 +158,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // This should make sneak building a platform a lot less annoying
         if (world.isRemote == false && (player.isSneaking() == false || side != EnumFacing.UP))
         {
-            return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
+            return this.useWand(stack, world, player, new BlockPosEU(pos.offset(side), player.dimension, side));
         }
 
         return EnumActionResult.SUCCESS;
@@ -1113,7 +1113,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     /**
-     * Get the actual block positions and block types for all other modes except Walls and Cube.
+     * Get the actual block positions and block types for all other modes except Walls/Cube/Copy/Paste/Delete etc. area modes.
      */
     public void getBlockPositions(ItemStack stack, World world, EntityPlayer player, List<BlockPosStateDist> positions, BlockPosEU center)
     {
