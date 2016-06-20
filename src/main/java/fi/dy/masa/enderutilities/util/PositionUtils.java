@@ -27,6 +27,10 @@ public class PositionUtils
     public static final EnumFacing[] ADJACENT_SIDES_ZY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH };
     public static final EnumFacing[] ADJACENT_SIDES_XY = new EnumFacing[] { EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST };
     public static final EnumFacing[] ADJACENT_SIDES_XZ = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
+    // These are additional offsets from the corresponding sides in ADJACENT_SIDES_XXX
+    public static final EnumFacing[] CORNERS_ZY = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP };
+    public static final EnumFacing[] CORNERS_XY = new EnumFacing[] { EnumFacing.WEST, EnumFacing.EAST, EnumFacing.DOWN, EnumFacing.UP };
+    public static final EnumFacing[] CORNERS_XZ = new EnumFacing[] { EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH };
 
     public static final EnumFacing[][] FROM_TO_CW_ROTATION_AXES = new EnumFacing[][] {
         { null, null, EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH }, // from down
@@ -45,6 +49,47 @@ public class PositionUtils
         }
 
         return axis == EnumFacing.Axis.Z ? ADJACENT_SIDES_XY : ADJACENT_SIDES_XZ;
+    }
+
+    private static EnumFacing[] getCornersForAxis(EnumFacing.Axis axis)
+    {
+        if (axis == EnumFacing.Axis.X)
+        {
+            return CORNERS_ZY;
+        }
+
+        return axis == EnumFacing.Axis.Z ? CORNERS_XY : CORNERS_XZ;
+    }
+
+    public static BlockPosEU[] getAdjacentPositions(BlockPosEU center, EnumFacing front, boolean diagonals)
+    {
+        if (diagonals)
+        {
+            BlockPosEU[] positions = new BlockPosEU[8];
+            EnumFacing[] corners = getCornersForAxis(front.getAxis());
+            int i = 0;
+
+            for (EnumFacing side : getSidesForAxis(front.getAxis()))
+            {
+                positions[i    ] = center.offset(side);
+                positions[i + 1] = positions[i].offset(corners[i / 2]);
+                i += 2;
+            }
+
+            return positions;
+        }
+        else
+        {
+            BlockPosEU[] positions = new BlockPosEU[4];
+            int i = 0;
+
+            for (EnumFacing side : getSidesForAxis(front.getAxis()))
+            {
+                positions[i++] = center.offset(side);
+            }
+
+            return positions;
+        }
     }
 
     public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEnd)

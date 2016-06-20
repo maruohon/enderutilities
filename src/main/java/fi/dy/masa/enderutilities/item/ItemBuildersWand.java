@@ -83,9 +83,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public static final String TAG_NAME_BLOCKS = "Blocks";
     public static final String TAG_NAME_BLOCK_PRE = "Block_";
     public static final String TAG_NAME_BLOCK_SEL = "SelBlock";
-    public static final String TAG_NAME_ALLOW_DIAGONALS ="Diag";
     public static final String TAG_NAME_TEMPLATES = "Templates";
-    public static final String TAG_NAME_GHOST_BLOCKS = "Ghost";
     public static final int BLOCK_TYPE_TARGETED = -1;
     public static final int BLOCK_TYPE_ADJACENT = -2;
     public static final boolean POS_START = true;
@@ -237,88 +235,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         Mode mode = Mode.getMode(stack);
-        String preBT = TextFormatting.AQUA.toString();
         String preGreen = TextFormatting.GREEN.toString();
-        String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         if (itemName.length() >= 14)
         {
             itemName = EUStringUtils.getInitialsWithDots(itemName);
         }
-        itemName = itemName + " " + preGreen + mode.getDisplayName() + rst;
 
-        int sel = this.getSelectedBlockTypeIndex(stack);
-
-        if (mode == Mode.COPY || mode == Mode.PASTE)
-        {
-            if (mode == Mode.PASTE)
-            {
-                //EnumFacing facing = this.getTemplateFacing(stack);
-                //itemName = itemName + " rot: " + preGreen + this.getAreaFlipAxis(stack, facing) + rst;
-
-                if (this.getReplaceExisting(stack) == true)
-                {
-                    itemName += " rep: " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
-                }
-                else
-                {
-                    itemName += " rep: " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-                }
-            }
-
-            itemName = itemName + " - " + I18n.format("enderutilities.tooltip.item.template") +
-                    ": " + preGreen + (sel + 1) + rst;
-
-            return itemName;
-        }
-
-        if (mode == Mode.DELETE)
-        {
-            return itemName;
-        }
-
-        if (mode != Mode.CUBE && mode != Mode.WALLS)
-        {
-            if (this.getAreaFlipped(stack) == true)
-            {
-                String strFlip = this.getAreaFlipAxis(stack, EnumFacing.NORTH).toString();
-                itemName = itemName + " flip: " + preGreen + strFlip + rst;
-            }
-            else
-            {
-                itemName = itemName + " flip: " + preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-            }
-        }
-
-        if (sel >= 0)
-        {
-            BlockInfo blockInfo = getSelectedFixedBlockType(stack);
-            if (blockInfo != null)
-            {
-                ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
-                if (blockStack != null && blockStack.getItem() != null)
-                {
-                    itemName = itemName + " - " + preGreen + blockStack.getDisplayName() + rst;
-                }
-            }
-
-            itemName = itemName + " (" + (sel + 1) + "/" + MAX_BLOCKS + ")";
-        }
-        else
-        {
-            String str;
-            if (sel == BLOCK_TYPE_TARGETED)
-            {
-                str = I18n.format("enderutilities.tooltip.item.blocktype.targeted");
-            }
-            else
-            {
-                str = I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
-            }
-
-            itemName = itemName + " - " + preBT + str + rst;
-        }
+        itemName = itemName + " - " + preGreen + mode.getDisplayName() + rst;
 
         return itemName;
     }
@@ -336,6 +261,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         String preGreen = TextFormatting.GREEN.toString();
         String preRed = TextFormatting.RED.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        String strYes = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+        String strNo = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
 
         Mode mode = Mode.getMode(stack);
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
@@ -392,7 +319,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else
             {
-                list.add(str2 + preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
+                list.add(str2 + strNo);
             }
         }
         else
@@ -401,8 +328,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             if (this.getAreaFlipped(stack) == true)
             {
-                str2 = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
-                list.add(str + ": " + str2 + rst);
+                list.add(str + ": " + strYes + rst);
 
                 str = I18n.format("enderutilities.tooltip.item.flipaxis");
                 String preBlue = TextFormatting.BLUE.toString();
@@ -410,54 +336,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else
             {
-                str2 = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-                list.add(str + ": " + str2 + rst);
+                list.add(str + ": " + strNo + rst);
             }
 
             str = I18n.format("enderutilities.tooltip.item.move");
-
-            if (this.getMovePosition(stack, mode) == true)
-            {
-                str2 = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
-                list.add(str + ": " + str2 + rst);
-            }
-            else
-            {
-                str2 = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-                list.add(str + ": " + str2 + rst);
-            }
+            list.add(str + ": " + (this.getMovePosition(stack, mode) ? strYes : strNo) + rst);
         }
 
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
             str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
-
-            if (NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS) == true)
-            {
-                str2 = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
-            }
-            else
-            {
-                str2 = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-            }
-
-            list.add(str + ": " + str2 + rst);
+            list.add(str + ": " + (this.getAllowDiagonals(stack, mode) ? strYes : strNo) + rst);
         }
 
         if (mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
         {
             str = I18n.format("enderutilities.tooltip.item.builderswand.renderghostblocks");
-
-            if (NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS) == true)
-            {
-                str2 = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
-            }
-            else
-            {
-                str2 = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
-            }
-
-            list.add(str + ": " + str2 + rst);
+            list.add(str + ": " + (this.getRenderGhostBlocks(stack, mode) ? strYes : strNo) + rst);
         }
 
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
@@ -1044,77 +939,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
     }
 
-    private void addAdjacent(EntityPlayer player, World world, BlockPosEU center, Area area, int posV, int posH, List<BlockPosStateDist> positions,
-             int blockType, boolean diagonals, BlockInfo blockInfo, EnumFacing axisRight, EnumFacing axisUp)
-    {
-        if (posH < -area.rNegH || posH > area.rPosH || posV < -area.rNegV || posV > area.rPosV)
-        {
-            return;
-        }
-
-        //System.out.printf("addAdjacent(): posV: %d posH: %d blockInfo: %s\n", posV, posH, blockInfo != null ? blockInfo.blockName : "null");
-        int x = center.posX + posH * axisRight.getFrontOffsetX() + posV * axisUp.getFrontOffsetX();
-        int y = center.posY + posH * axisRight.getFrontOffsetY() + posV * axisUp.getFrontOffsetY();
-        int z = center.posZ + posH * axisRight.getFrontOffsetZ() + posV * axisUp.getFrontOffsetZ();
-
-        // The location itself must be air
-        if (world.isAirBlock(new BlockPos(x, y, z)) == false)
-        {
-            return;
-        }
-
-        int xb = x - center.side.getFrontOffsetX();
-        int yb = y - center.side.getFrontOffsetY();
-        int zb = z - center.side.getFrontOffsetZ();
-
-        BlockPos blockPos = new BlockPos(xb, yb, zb);
-        IBlockState state = world.getBlockState(blockPos);
-        Block block = state.getBlock();
-        int blockMeta = block.getMetaFromState(state);
-
-        // The block on the back face must not be air or fluid ...
-        if (block.isAir(state, world, blockPos) == true || state.getMaterial().isLiquid() == true)
-        {
-            return;
-        }
-
-        // The block on the back face must not be air and also it must not be fluid.
-        // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
-        // to his position must match the targeted block.
-
-        //if (blockType >= 0 || blockType == BLOCK_TYPE_TARGETED || blockInfo == null || (blockInfo.block == block && blockInfo.meta == meta))
-        if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && blockInfo != null) ||
-           (blockInfo != null && blockInfo.block == block && blockInfo.blockMeta == blockMeta))
-        {
-            if (blockType == BLOCK_TYPE_ADJACENT)
-            {
-                blockInfo = new BlockInfo(world, blockPos);
-            }
-
-            BlockPosStateDist pos = new BlockPosStateDist(new BlockPos(x, y, z), 0, center.side, blockInfo);
-
-            if (positions.contains(pos) == false)
-            {
-                positions.add(pos);
-
-                // Adjacent blocks
-                this.addAdjacent(player, world, center, area, posV - 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(player, world, center, area, posV + 0, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(player, world, center, area, posV + 0, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                this.addAdjacent(player, world, center, area, posV + 1, posH + 0, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-
-                // Diagonals/corners
-                if (diagonals == true)
-                {
-                    this.addAdjacent(player, world, center, area, posV - 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(player, world, center, area, posV - 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(player, world, center, area, posV + 1, posH - 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                    this.addAdjacent(player, world, center, area, posV + 1, posH + 1, positions, blockType, diagonals, blockInfo, axisRight, axisUp);
-                }
-            }
-        }
-    }
-
     private List<BlockPosStateDist> getPositionsOnPlane(ItemStack stack, Mode mode, World world, BlockPosEU posStart, EnumFacing axisRight, EnumFacing axisUp)
     {
         BlockPosEU pos = posStart;
@@ -1127,28 +951,27 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         List<BlockPosEU> branches = new ArrayList<BlockPosEU>();
         Set<BlockPosEU> visited = new HashSet<BlockPosEU>();
-        boolean continueThrough = this.getContinueThrough(stack, mode);
+        boolean continueThrough = mode != Mode.EXTEND_CONTINUOUS && this.getContinueThrough(stack, mode);
+        boolean diagonals = mode == Mode.EXTEND_CONTINUOUS && this.getAllowDiagonals(stack, mode);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectedBlockTypeIndex(stack);
 
         int counter = 0;
         int branchIndex = 0;
-        EnumFacing nextSide = null;
-        EnumFacing ignoreSide = null;
+        BlockPosEU nextPos = null;
 
         while (counter <= 16641) // 129 * 129 area
         {
-            nextSide = this.checkPositionIgnoringSide(mode, world, pos, posMin, posMax, visited, branches, positions,
-                    ignoreSide, continueThrough, blockType, biTarget, biBound);
+            nextPos = this.checkPositionIgnoringSide(mode, world, pos, posMin, posMax, visited, branches, positions,
+                    continueThrough, diagonals, blockType, biTarget, biBound);
             counter++;
 
-            if (nextSide == null)
+            if (nextPos == null)
             {
                 if (branchIndex < branches.size())
                 {
                     pos = branches.get(branchIndex);
-                    ignoreSide = null;
                     branchIndex++;
                 }
                 else
@@ -1158,8 +981,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else
             {
-                pos = pos.offset(nextSide);
-                ignoreSide = nextSide.getOpposite();
+                pos = nextPos;
             }
         }
         //System.out.printf("counter: %d\n", counter);
@@ -1168,23 +990,22 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
 
 
-    private EnumFacing checkPositionIgnoringSide(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
+    private BlockPosEU checkPositionIgnoringSide(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
             Set<BlockPosEU> visited, List<BlockPosEU> branches, List<BlockPosStateDist> positions,
-            EnumFacing ignoreSide, boolean continueThrough, int blockType, BlockInfo biTarget, BlockInfo biBound)
+            boolean continueThrough, boolean diagonals, int blockType, BlockInfo biTarget, BlockInfo biBound)
     {
-        BlockPosEU pos = posIn;
-        BlockPos posTmp = pos.toBlockPos();
-        EnumFacing continueTo = null;
+        BlockPos posTmp = posIn.toBlockPos();
+        BlockPosEU continueTo = null;
         int sides = 0;
 
-        if (visited.contains(posIn) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
+        if (visited.contains(posIn) || PositionUtils.isPositionInsideArea(posIn, posMin, posMax) == false)
         {
             return null;
         }
 
         if (world.isAirBlock(posTmp))
         {
-            if (mode == Mode.EXTEND_AREA)
+            if (mode == Mode.EXTEND_AREA || mode == Mode.EXTEND_CONTINUOUS)
             {
                 BlockPos posTgt = posTmp.offset(posIn.side, -1);
 
@@ -1195,14 +1016,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 // The block on the back face must not be air and also it must not be fluid.
                 // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
                 // to his position must match the targeted block.
-                if (block.isAir(state, world, posTgt) == false && state.getMaterial().isLiquid() == false)
+                if (block.isAir(state, world, posTgt) == false && state.getMaterial().isLiquid() == false &&
+                       (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
+                       (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta)))
                 {
-                    if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
-                       (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta))
-                    {
-                        positions.add(new BlockPosStateDist(posIn,
-                                        this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
-                    }
+                    positions.add(new BlockPosStateDist(posIn,
+                                    this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
+                }
+                // Extend Continuous can't continue past air blocks on the back face
+                else if (mode == Mode.EXTEND_CONTINUOUS)
+                {
+                    return null;
                 }
             }
             else
@@ -1218,15 +1042,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         visited.add(posIn);
 
-        for (EnumFacing side : PositionUtils.getSidesForAxis(posIn.side.getAxis()))
+        for (BlockPosEU pos : PositionUtils.getAdjacentPositions(posIn, posIn.side, diagonals))
         {
-            if (side == ignoreSide)
-            {
-                continue;
-            }
-
-            pos = posIn.offset(side);
-
             if (visited.contains(pos) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
             {
                 continue;
@@ -1238,7 +1055,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 {
                     if (sides == 0)
                     {
-                        continueTo = side;
+                        continueTo = pos;
                     }
                     else if (branches.contains(pos) == false)
                     {
@@ -1380,12 +1197,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             case PLANE:
             case EXTEND_AREA:
-                positions.addAll(this.getPositionsOnPlane(stack, mode, world, center, axisRight, axisUp));
-                break;
-
             case EXTEND_CONTINUOUS:
-                boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
-                this.addAdjacent(player, world, center, area, 0, 0, positions, blockType, diagonals, biTarget, axisRight, axisUp);
+                positions.addAll(this.getPositionsOnPlane(stack, mode, world, center, axisRight, axisUp));
                 break;
 
             default:
@@ -1824,10 +1637,32 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, mode).getBoolean("Move");
     }
 
+    private void toggleAllowDiagonals(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("Diagonals", ! tag.getBoolean("Diagonals"));
+    }
+
+    public boolean getAllowDiagonals(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("Diagonals");
+    }
+
     private void toggleReplaceExisting(ItemStack stack)
     {
         NBTTagCompound tag = this.getModeTag(stack, Mode.PASTE);
         tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
+    }
+
+    public boolean getRenderGhostBlocks(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("Ghost");
+    }
+
+    private void toggleRenderGhostBlocks(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("Ghost", ! tag.getBoolean("Ghost"));
     }
 
     public boolean getReplaceExisting(ItemStack stack)
@@ -1942,7 +1777,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else if (mode == Mode.EXTEND_CONTINUOUS)
             {
-                NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
+                this.toggleAllowDiagonals(stack, mode);
             }
             else if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
             {
@@ -1952,7 +1787,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Alt + Shift + Toggle key: Toggle ghost blocks
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
-            NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_GHOST_BLOCKS);
+            this.toggleRenderGhostBlocks(stack, mode);
         }
         // Just Toggle key: Toggle the area flipped property
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))

@@ -26,7 +26,6 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BuildersWandRenderer
 {
@@ -87,7 +86,7 @@ public class BuildersWandRenderer
         GlStateManager.disableCull();
         GlStateManager.pushMatrix();
 
-        boolean renderGhostBlocks = NBTUtils.getBoolean(stack, ItemBuildersWand.WRAPPER_TAG_NAME, ItemBuildersWand.TAG_NAME_GHOST_BLOCKS);
+        boolean renderGhostBlocks = item.getRenderGhostBlocks(stack, mode);
 
         if (renderGhostBlocks == true)
         {
@@ -321,6 +320,11 @@ public class BuildersWandRenderer
                 {
                     str = I18n.format("enderutilities.tooltip.item.continuethrough");
                     lines.add(str + ": " + (wand.getContinueThrough(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                }
+                else if (mode == Mode.EXTEND_CONTINUOUS)
+                {
+                    str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
+                    lines.add(str + ": " + (wand.getAllowDiagonals(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
             }
         }
