@@ -74,6 +74,11 @@ public class BlockPosEU
         return new BlockPosEU(this.posX - other.posX, this.posY - other.posY, this.posZ - other.posZ);
     }
 
+    public BlockPosEU offset(EnumFacing facing)
+    {
+        return this.offset(facing, 1);
+    }
+
     /**
      * Offset the position by the given amount into the given direction.
      * Returns a new instance with the changes applied and does not modify the original.

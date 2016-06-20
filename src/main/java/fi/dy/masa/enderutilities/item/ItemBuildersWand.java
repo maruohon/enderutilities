@@ -3,8 +3,10 @@ package fi.dy.masa.enderutilities.item;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
@@ -1113,6 +1115,144 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
     }
 
+    private List<BlockPosStateDist> getPositionsOnPlane(ItemStack stack, Mode mode, World world, BlockPosEU posStart, EnumFacing axisRight, EnumFacing axisUp)
+    {
+        BlockPosEU pos = posStart;
+        Area area = new Area(this.getModeTag(stack, mode));
+        BlockPos pos1 = posStart.toBlockPos().offset(axisRight, -area.rNegH).offset(axisUp, -area.rNegV);
+        BlockPos pos2 = posStart.toBlockPos().offset(axisRight,  area.rPosH).offset(axisUp,  area.rPosV);
+        BlockPos posMin = PositionUtils.getMinCorner(pos1, pos2);
+        BlockPos posMax = PositionUtils.getMaxCorner(pos1, pos2);
+        EnumFacing side = posStart.side;
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        List<BlockPosEU> branches = new ArrayList<BlockPosEU>();
+        Set<BlockPosEU> visited = new HashSet<BlockPosEU>();
+        boolean continueThrough = this.getContinueThrough(stack, mode);
+        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(side, -1).toBlockPos());
+        BlockInfo biBound = getSelectedFixedBlockType(stack);
+        int blockType = this.getSelectedBlockTypeIndex(stack);
+
+        int counter = 0;
+        int branchIndex = 0;
+        EnumFacing nextSide = null;
+        EnumFacing ignoreSide = null;
+
+        while (counter <= 16641) // 129 * 129 area
+        {
+            nextSide = this.checkPositionIgnoringSide(mode, world, pos, posMin, posMax, visited, branches, positions,
+                    ignoreSide, continueThrough, blockType, biTarget, biBound);
+            counter++;
+
+            if (nextSide == null)
+            {
+                if (branchIndex < branches.size())
+                {
+                    pos = branches.get(branchIndex);
+                    ignoreSide = null;
+                    branchIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                pos = pos.offset(nextSide);
+                ignoreSide = nextSide.getOpposite();
+            }
+        }
+        //System.out.printf("counter: %d\n", counter);
+        return positions;
+    }
+
+
+
+    private EnumFacing checkPositionIgnoringSide(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
+            Set<BlockPosEU> visited, List<BlockPosEU> branches, List<BlockPosStateDist> positions,
+            EnumFacing ignoreSide, boolean continueThrough, int blockType, BlockInfo biTarget, BlockInfo biBound)
+    {
+        BlockPosEU pos = posIn;
+        BlockPos posTmp = pos.toBlockPos();
+        EnumFacing continueTo = null;
+        int sides = 0;
+
+        if (visited.contains(posIn) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
+        {
+            return null;
+        }
+
+        if (world.isAirBlock(posTmp))
+        {
+            if (mode == Mode.EXTEND_AREA)
+            {
+                BlockPos posTgt = posTmp.offset(posIn.side, -1);
+
+                IBlockState state = world.getBlockState(posTgt);
+                Block block = state.getBlock();
+                int meta = block.getMetaFromState(state);
+
+                // The block on the back face must not be air and also it must not be fluid.
+                // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
+                // to his position must match the targeted block.
+                if (block.isAir(state, world, posTgt) == false && state.getMaterial().isLiquid() == false)
+                {
+                    if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
+                       (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta))
+                    {
+                        positions.add(new BlockPosStateDist(posIn,
+                                        this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
+                    }
+                }
+            }
+            else
+            {
+                positions.add(new BlockPosStateDist(posIn,
+                            this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
+            }
+        }
+        else if (continueThrough == false)
+        {
+            return null;
+        }
+
+        visited.add(posIn);
+
+        for (EnumFacing side : PositionUtils.getSidesForAxis(posIn.side.getAxis()))
+        {
+            if (side == ignoreSide)
+            {
+                continue;
+            }
+
+            pos = posIn.offset(side);
+
+            if (visited.contains(pos) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
+            {
+                continue;
+            }
+
+            if (world.isAirBlock(pos.toBlockPos()) || continueThrough)
+            {
+                if (visited.contains(pos) == false)
+                {
+                    if (sides == 0)
+                    {
+                        continueTo = side;
+                    }
+                    else if (branches.contains(pos) == false)
+                    {
+                        branches.add(pos);
+                    }
+                }
+
+                sides++;
+            }
+        }
+
+        return continueTo;
+    }
+
     private BlockInfo getBlockInfoForAdjacentBlock(World world, BlockPos pos, EnumFacing side)
     {
         return new BlockInfo(world, pos.offset(side, -1));
@@ -1186,10 +1326,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, center.offset(side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectedBlockTypeIndex(stack);
-        Area area = new Area(this.getModeTag(stack, Mode.getMode(stack)));
-        int dim = world.provider.getDimension();
-
         Mode mode = Mode.getMode(stack);
+        Area area = new Area(this.getModeTag(stack, mode));
+        int dim = world.provider.getDimension();
+        boolean continueThrough = this.getContinueThrough(stack, mode);
+
         switch(mode)
         {
             case COLUMN:
@@ -1200,11 +1341,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                     {
                         positions.add(new BlockPosStateDist(posTmp, biTarget));
                     }
+                    else if (continueThrough == false)
+                    {
+                        break;
+                    }
                 }
                 break;
 
             case LINE:
-                for (int i = -area.rNegH; i <= area.rPosH; i++)
+                for (int i = 0; i <= area.rPosH; i++)
                 {
                     BlockPos posTmp = center.offset(axisRight, i).toBlockPos();
                     if (world.isAirBlock(posTmp) == true)
@@ -1212,60 +1357,35 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                         positions.add(new BlockPosStateDist(posTmp, dim, side,
                                         this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
                     }
+                    else if (continueThrough == false)
+                    {
+                        break;
+                    }
+                }
+
+                for (int i = -1; i >= area.rNegH; i--)
+                {
+                    BlockPos posTmp = center.offset(axisRight, i).toBlockPos();
+                    if (world.isAirBlock(posTmp) == true)
+                    {
+                        positions.add(new BlockPosStateDist(posTmp, dim, side,
+                                        this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
+                    }
+                    else if (continueThrough == false)
+                    {
+                        break;
+                    }
                 }
                 break;
 
             case PLANE:
-                for (int v = -area.rNegV; v <= area.rPosV; v++)
-                {
-                    for (int h = -area.rNegH; h <= area.rPosH; h++)
-                    {
-                        BlockPos posTmp = center.offset(axisRight, h).offset(axisUp, v).toBlockPos();
-                        if (world.isAirBlock(posTmp) == true)
-                        {
-                            positions.add(new BlockPosStateDist(posTmp, dim, side,
-                                            this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
-                        }
-                    }
-                }
+            case EXTEND_AREA:
+                positions.addAll(this.getPositionsOnPlane(stack, mode, world, center, axisRight, axisUp));
                 break;
 
             case EXTEND_CONTINUOUS:
                 boolean diagonals = NBTUtils.getBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
                 this.addAdjacent(player, world, center, area, 0, 0, positions, blockType, diagonals, biTarget, axisRight, axisUp);
-                break;
-
-            case EXTEND_AREA:
-                for (int v = -area.rNegV; v <= area.rPosV; v++)
-                {
-                    for (int h = -area.rNegH; h <= area.rPosH; h++)
-                    {
-                        BlockPos posTmp = center.offset(axisRight, h).offset(axisUp, v).toBlockPos();
-
-                        // The target position must be air
-                        if (world.isAirBlock(posTmp) == true)
-                        {
-                            BlockPos posTgt = posTmp.offset(side, -1);
-
-                            IBlockState state = world.getBlockState(posTgt);
-                            Block block = state.getBlock();
-                            int meta = block.getMetaFromState(state);
-
-                            // The block on the back face must not be air and also it must not be fluid.
-                            // If the block type to work with is BLOCK_TYPE_TARGETED, then the block adjacent
-                            // to his position must match the targeted block.
-                            if (block.isAir(state, world, posTgt) == false && state.getMaterial().isLiquid() == false)
-                            {
-                                if (blockType == BLOCK_TYPE_ADJACENT || (blockType >= 0 && biBound != null) ||
-                                   (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta))
-                                {
-                                    positions.add(new BlockPosStateDist(posTmp, dim, side,
-                                                    this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
-                                }
-                            }
-                        }
-                    }
-                }
                 break;
 
             default:
@@ -1726,6 +1846,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, Mode.DELETE).getBoolean("RemoveEntities");
     }
 
+    private void toggleContinueThrough(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("GoThrough", ! tag.getBoolean("GoThrough"));
+    }
+
+    public boolean getContinueThrough(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("GoThrough");
+    }
+
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
@@ -1809,9 +1940,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 this.toggleRemoveEntities(stack);
             }
-            else
+            else if (mode == Mode.EXTEND_CONTINUOUS)
             {
                 NBTUtils.toggleBoolean(stack, WRAPPER_TAG_NAME, TAG_NAME_ALLOW_DIAGONALS);
+            }
+            else if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
+            {
+                this.toggleContinueThrough(stack, mode);
             }
         }
         // Alt + Shift + Toggle key: Toggle ghost blocks

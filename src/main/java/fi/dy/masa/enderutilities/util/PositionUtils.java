@@ -70,6 +70,20 @@ public class PositionUtils
         return new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
     }
 
+    public static boolean isPositionInsideArea(BlockPos pos, BlockPos posMin, BlockPos posMax)
+    {
+        return pos.getX() >= posMin.getX() && pos.getX() <= posMax.getX() &&
+               pos.getY() >= posMin.getY() && pos.getY() <= posMax.getY() &&
+               pos.getZ() >= posMin.getZ() && pos.getZ() <= posMax.getZ();
+    }
+
+    public static boolean isPositionInsideArea(BlockPosEU pos, BlockPos posMin, BlockPos posMax)
+    {
+        return pos.posX >= posMin.getX() && pos.posX <= posMax.getX() &&
+               pos.posY >= posMin.getY() && pos.posY <= posMax.getY() &&
+               pos.posZ >= posMin.getZ() && pos.posZ <= posMax.getZ();
+    }
+
     public static BlockPos getPositionInfrontOfEntity(Entity entity)
     {
         BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);

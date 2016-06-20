@@ -295,6 +295,7 @@ enderutilities.tooltip.item.cached.fluid=Last seen fluid
 enderutilities.tooltip.item.cached.fluid.compact=Last
 enderutilities.tooltip.item.capture=Capture
 enderutilities.tooltip.item.charge=Charge
+enderutilities.tooltip.item.continuethrough=Continue Through
 enderutilities.tooltip.item.craftingingredient=Crafting ingredient
 enderutilities.tooltip.item.disabled=Disabled
 enderutilities.tooltip.item.durability=Durability

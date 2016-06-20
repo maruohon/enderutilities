@@ -312,25 +312,15 @@ public class BuildersWandRenderer
             if (mode != Mode.WALLS && mode != Mode.CUBE)
             {
                 str = I18n.format("enderutilities.tooltip.item.area.flipped");
-
-                if (wand.getAreaFlipped(stack))
-                {
-                    str += ": " + preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) + rst;
-                }
-                else
-                {
-                    str += ": " + preRed + strNo + rst;
-                }
+                str += ": " + (wand.getAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
 
                 str += " - " + I18n.format("enderutilities.tooltip.item.move");
+                lines.add(str + ": " + (wand.getMovePosition(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
 
-                if (wand.getMovePosition(stack, mode))
+                if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
                 {
-                    lines.add(str + ": " + preGreen + strYes + rst);
-                }
-                else
-                {
-                    lines.add(str + ": " + preRed + strNo + rst);
+                    str = I18n.format("enderutilities.tooltip.item.continuethrough");
+                    lines.add(str + ": " + (wand.getContinueThrough(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
             }
         }
@@ -342,29 +332,13 @@ public class BuildersWandRenderer
 
         if (mode == Mode.PASTE)
         {
-            strMode += " - " + I18n.format("enderutilities.tooltip.item.replace") + ": ";
-
-            if (wand.getReplaceExisting(stack) == true)
-            {
-                strMode += preGreen + strYes + rst;
-            }
-            else
-            {
-                strMode += preRed + strNo + rst;
-            }
+            strMode += " - " + I18n.format("enderutilities.tooltip.item.replace");
+            strMode += ": " + (wand.getReplaceExisting(stack) ? preGreen + strYes : preRed + strNo) + rst;
         }
         else if (mode == Mode.DELETE)
         {
-            strMode += " - " + I18n.format("enderutilities.tooltip.item.entities") + ": ";
-
-            if (wand.getRemoveEntities(stack) == true)
-            {
-                strMode += preGreen + strYes + rst;
-            }
-            else
-            {
-                strMode += preRed + strNo + rst;
-            }
+            strMode += " - " + I18n.format("enderutilities.tooltip.item.entities");
+            strMode += ": " + (wand.getRemoveEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
         }
 
         lines.add(strMode);
