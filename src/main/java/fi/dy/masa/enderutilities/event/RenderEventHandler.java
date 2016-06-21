@@ -95,8 +95,7 @@ public class RenderEventHandler
 
         if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK)
         {
-            BlockPos pos = trace.getBlockPos();
-            IBlockState state = this.mc.theWorld.getBlockState(pos);
+            IBlockState state = this.mc.theWorld.getBlockState(trace.getBlockPos());
 
             if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
             {
