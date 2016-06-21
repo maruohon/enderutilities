@@ -337,7 +337,7 @@ public class BuildersWandRenderer
         if (mode == Mode.PASTE)
         {
             strMode += " - " + I18n.format("enderutilities.tooltip.item.replace");
-            strMode += ": " + (wand.getReplaceExisting(stack) ? preGreen + strYes : preRed + strNo) + rst;
+            strMode += ": " + (wand.getReplaceExisting(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
         }
         else if (mode == Mode.DELETE)
         {

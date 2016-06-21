@@ -13,11 +13,13 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
@@ -25,6 +27,7 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
@@ -43,6 +46,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -64,6 +68,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.util.*;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
+import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.ReplaceMode;
 import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -575,12 +580,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist posStateDist)
     {
-        if (world.isAirBlock(posStateDist.toBlockPos()) == false ||
-            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
-        {
-            return false;
-        }
-
         BlockInfo blockInfo;
 
         if (this.getSelectedBlockTypeIndex(wandStack) == BLOCK_TYPE_ADJACENT)
@@ -601,38 +600,75 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
-            BlockPos pos, EnumFacing side, IBlockState iBlockState, int setBlockStateFlag)
+            BlockPos pos, EnumFacing side, IBlockState newState, int setBlockStateFlag)
     {
-        if (world.isAirBlock(pos) == false ||
-            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
+        if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
         {
             return false;
         }
 
-        Block block = iBlockState.getBlock();
+        boolean replace = this.getReplaceExisting(wandStack, Mode.getMode(wandStack));
+        boolean isAir = world.isAirBlock(pos);
+        Block blockNew = newState.getBlock();
 
         if (player.capabilities.isCreativeMode == true)
         {
-            world.setBlockState(pos, iBlockState, setBlockStateFlag);
-            SoundType soundtype = block.getSoundType();
-            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-            return true;
+            if (replace || isAir)
+            {
+                world.setBlockState(pos, newState, setBlockStateFlag);
+                SoundType soundtype = blockNew.getSoundType();
+                world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                return true;
+            }
         }
         else
         {
+            if (! (isAir || (replace && newState.getMaterial() != Material.AIR && world.getTileEntity(pos) == null)))
+            {
+                return false;
+            }
+
+            IBlockState stateExisting = world.getBlockState(pos);
+            float hardness = stateExisting.getBlockHardness(world, pos);
+            if (hardness < 0 || hardness > 10)
+            {
+                return false;
+            }
+
             @SuppressWarnings("deprecation")
-            ItemStack templateStack = block.getItem(world, pos, iBlockState);
+            ItemStack templateStack = blockNew.getItem(world, pos, newState);
+            //ItemStack templateStack = block.getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
             IItemHandler inv = this.getInventoryWithItems(wandStack, templateStack, player);
             ItemStack targetStack = this.getItemToBuildWith(inv, templateStack, 1);
 
             if (targetStack != null)
             {
-                // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, pos, side, block, targetStack) == true)
+                if (isAir == false && player instanceof EntityPlayerMP)
                 {
-                    world.setBlockState(pos, iBlockState, setBlockStateFlag);
+                    EntityPlayerMP playerMP = (EntityPlayerMP) player;
+                    PlayerInteractionManager manager = playerMP.interactionManager;
+                    int exp = ForgeHooks.onBlockBreakEvent(world, manager.getGameType(), playerMP, pos);
+                    if (exp != -1)
+                    {
+                        Block blockExisting = stateExisting.getBlock();
 
-                    SoundType soundtype = block.getSoundType();
+                        blockExisting.onBlockHarvested(world, pos, stateExisting, playerMP);
+                        boolean harvest = blockExisting.removedByPlayer(stateExisting, world, pos, playerMP, true);
+
+                        if (harvest)
+                        {
+                            blockExisting.onBlockDestroyedByPlayer(world, pos, stateExisting);
+                            blockExisting.harvestBlock(world, playerMP, pos, stateExisting, null, wandStack);
+                        }
+                    }
+                }
+
+                // Check if we can place the block
+                if (BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew, targetStack) == true)
+                {
+                    world.setBlockState(pos, newState, setBlockStateFlag);
+
+                    SoundType soundtype = blockNew.getSoundType();
                     world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
                     UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
@@ -1395,11 +1431,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (player.capabilities.isCreativeMode == true)
         {
-            template.setReplaceExistingBlocks(this.getReplaceExisting(stack));
+            template.setReplaceMode(this.getReplaceExisting(stack, Mode.PASTE) ? ReplaceMode.EVERYTHING : ReplaceMode.NOTHING);
             template.addBlocksToWorld(world, posStartIn.toBlockPos());
         }
         else
         {
+            template.setReplaceMode(this.getReplaceExisting(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
             TaskStructureBuild task = new TaskStructureBuild(template, posStartIn.toBlockPos(), player.dimension,
                     player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
@@ -1648,12 +1685,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, mode).getBoolean("Diagonals");
     }
 
-    private void toggleReplaceExisting(ItemStack stack)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, Mode.PASTE);
-        tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
-    }
-
     public boolean getRenderGhostBlocks(ItemStack stack, Mode mode)
     {
         return this.getModeTag(stack, mode).getBoolean("Ghost");
@@ -1665,9 +1696,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         tag.setBoolean("Ghost", ! tag.getBoolean("Ghost"));
     }
 
-    public boolean getReplaceExisting(ItemStack stack)
+    private void toggleReplaceExisting(ItemStack stack, Mode mode)
     {
-        return this.getModeTag(stack, Mode.PASTE).getBoolean("Replace");
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
+    }
+
+    public boolean getReplaceExisting(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("Replace");
     }
 
     private void toggleRemoveEntities(ItemStack stack)
@@ -1769,7 +1806,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.PASTE)
             {
-                this.toggleReplaceExisting(stack);
+                this.toggleReplaceExisting(stack, mode);
             }
             else if (mode == Mode.DELETE)
             {

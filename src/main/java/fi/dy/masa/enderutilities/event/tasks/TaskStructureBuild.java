@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -64,16 +65,18 @@ public class TaskStructureBuild implements IPlayerTask
     public boolean execute(World world, EntityPlayer player)
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+        if (stack != null)
         {
+            ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
+            PlacementSettings placement = this.template.getPlacementSettings();
+
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.template.getBlockList().size();)
             {
                 TemplateBlockInfo blockInfo = this.template.getBlockList().get(this.listIndex);
-                IBlockState state = blockInfo.blockState.withRotation(this.template.getPlacementSettings().getRotation());
-                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(this.template.getPlacementSettings(),
-                        blockInfo.pos).add(this.posStart);
+                IBlockState state = blockInfo.blockState.withMirror(placement.getMirror()).withRotation(placement.getRotation());
+                BlockPos pos = TemplateEnderUtilities.transformedBlockPos(placement, blockInfo.pos).add(this.posStart);
 
-                if (((ItemBuildersWand) stack.getItem()).placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
+                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

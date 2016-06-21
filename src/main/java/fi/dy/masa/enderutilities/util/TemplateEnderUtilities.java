@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -36,16 +37,16 @@ public class TemplateEnderUtilities
     protected PlacementSettings placement;
     protected BlockPos size = BlockPos.ORIGIN;
     protected String author = "?";
-    protected boolean replaceExisting;
+    protected ReplaceMode replaceMode;
 
     public TemplateEnderUtilities()
     {
     }
 
-    public TemplateEnderUtilities(PlacementSettings placement, boolean replaceExisting)
+    public TemplateEnderUtilities(PlacementSettings placement, ReplaceMode replaceMode)
     {
         this.placement = placement;
-        this.replaceExisting = replaceExisting;
+        this.replaceMode = replaceMode;
     }
 
     public void setAuthor(String author)
@@ -73,9 +74,9 @@ public class TemplateEnderUtilities
         return this.placement;
     }
 
-    public void setReplaceExistingBlocks(boolean replace)
+    public void setReplaceMode(ReplaceMode mode)
     {
-        this.replaceExisting = replace;
+        this.replaceMode = mode;
     }
 
     public List<TemplateBlockInfo> getBlockList()
@@ -102,11 +103,13 @@ public class TemplateEnderUtilities
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
             //System.out.printf("placing, i: %d orig pos: %s tr pos: %s\n", index, blockInfo.pos, pos);
+            IBlockState state = blockInfo.blockState;
 
-            if (this.replaceExisting == true || world.isAirBlock(pos) == true)
+            if (this.replaceMode == ReplaceMode.EVERYTHING ||
+                (this.replaceMode == ReplaceMode.WITH_NON_AIR && state.getMaterial() != Material.AIR) ||
+                world.isAirBlock(pos))
             {
-                IBlockState state = blockInfo.blockState.withMirror(this.placement.getMirror());
-                state = state.withRotation(this.placement.getRotation());
+                state = state.withMirror(this.placement.getMirror()).withRotation(this.placement.getRotation());
 
                 if (blockInfo.tileEntityData != null)
                 {
@@ -502,5 +505,12 @@ public class TemplateEnderUtilities
             this.blockPos = posIn;
             this.entityData = entityNBT;
         }
+    }
+
+    public enum ReplaceMode
+    {
+        NOTHING,
+        EVERYTHING,
+        WITH_NON_AIR;
     }
 }
