@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.io.IOUtils;
+import com.google.common.collect.Maps;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class TemplateManagerEU
@@ -20,14 +21,14 @@ public class TemplateManagerEU
     protected final MinecraftServer server;
     protected final Map<String, TemplateEnderUtilities> templates;
     protected final Map<String, TemplateMetadata> templateMetas;
-    protected final String baseFolder;
+    protected final File directory;
 
-    public TemplateManagerEU(String baseFolder)
+    public TemplateManagerEU(File directory)
     {
         this.server = FMLCommonHandler.instance().getMinecraftServerInstance();
         this.templates = Maps.<String, TemplateEnderUtilities>newHashMap();
         this.templateMetas = Maps.<String, TemplateMetadata>newHashMap();
-        this.baseFolder = baseFolder;
+        this.directory = directory;
     }
 
     public TemplateEnderUtilities getTemplate(ResourceLocation id)
@@ -54,8 +55,7 @@ public class TemplateManagerEU
     public boolean readTemplate(ResourceLocation id)
     {
         String fileName = id.getResourcePath();
-        File templateDir = this.server.getFile(this.baseFolder);
-        File templateFile = new File(templateDir, fileName + ".nbt");
+        File templateFile = new File(this.directory, fileName + ".nbt");
         InputStream inputStream = null;
 
         try
@@ -64,8 +64,9 @@ public class TemplateManagerEU
             this.readTemplateFromStream(fileName, inputStream);
             return true;
         }
-        catch (Throwable var12)
+        catch (Throwable e)
         {
+            //EnderUtilities.logger.warn("Failed to read template from file '{}'", templateFile);
         }
         finally
         {
@@ -93,21 +94,19 @@ public class TemplateManagerEU
         }
         else
         {
-            File templateDir = this.server.getFile(this.baseFolder);
-
-            if (templateDir.exists() == false)
+            if (this.directory.exists() == false)
             {
-                if (templateDir.mkdirs() == false)
+                if (this.directory.mkdirs() == false)
                 {
                     return false;
                 }
             }
-            else if (templateDir.isDirectory() == false)
+            else if (this.directory.isDirectory() == false)
             {
                 return false;
             }
 
-            File templateFile = new File(templateDir, fileName + ".nbt");
+            File templateFile = new File(this.directory, fileName + ".nbt");
             NBTTagCompound nbt = new NBTTagCompound();
             TemplateEnderUtilities template = this.templates.get(fileName);
             OutputStream outputStream = null;
@@ -119,8 +118,9 @@ public class TemplateManagerEU
                 CompressedStreamTools.writeCompressed(nbt, outputStream);
                 return true;
             }
-            catch (Throwable e)
+            catch (IOException e)
             {
+                EnderUtilities.logger.warn("Failed to write template to file '{}'", templateFile);
             }
             finally
             {
@@ -163,8 +163,9 @@ public class TemplateManagerEU
             this.readTemplateMetadataFromStream(rl.getResourcePath(), inputStream);
             return true;
         }
-        catch (Throwable var12)
+        catch (Throwable e)
         {
+            //EnderUtilities.logger.warn("Failed to read template metadata from file '{}'", templateFile);
         }
         finally
         {
@@ -176,10 +177,7 @@ public class TemplateManagerEU
 
     protected File getTemplateMetadataFile(ResourceLocation rl)
     {
-        String fileName = rl.getResourcePath();
-        File templateDir = this.server.getFile(this.baseFolder);
-
-        return new File(templateDir, fileName + "_meta.nbt");
+        return new File(this.directory, rl.getResourcePath() + "_meta.nbt");
     }
 
     private void readTemplateMetadataFromStream(String id, InputStream stream) throws IOException
@@ -200,21 +198,19 @@ public class TemplateManagerEU
         }
         else
         {
-            File templateDir = this.server.getFile(this.baseFolder);
-
-            if (templateDir.exists() == false)
+            if (this.directory.exists() == false)
             {
-                if (templateDir.mkdirs() == false)
+                if (this.directory.mkdirs() == false)
                 {
                     return false;
                 }
             }
-            else if (templateDir.isDirectory() == false)
+            else if (this.directory.isDirectory() == false)
             {
                 return false;
             }
 
-            File templateFile = new File(templateDir, fileName + "_meta.nbt");
+            File templateFile = new File(this.directory, fileName + "_meta.nbt");
             NBTTagCompound nbt = new NBTTagCompound();
             TemplateMetadata templateMeta = this.templateMetas.get(fileName);
             OutputStream outputStream = null;
@@ -228,6 +224,7 @@ public class TemplateManagerEU
             }
             catch (Throwable e)
             {
+                EnderUtilities.logger.warn("Failed to write template metadata to file '{}'", templateFile);
             }
             finally
             {

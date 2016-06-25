@@ -1390,14 +1390,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         TemplateEnderUtilities template = templateManager.getTemplate(rl);
         template.takeBlocksFromWorld(world, posStart, endOffset, true);
         template.setAuthor(player.getName());
-        templateManager.writeTemplate(rl);
+        boolean success = templateManager.writeTemplate(rl);
 
         TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
         EnumFacing facing = PositionUtils.getFacingFromPositions(posStart, posStart.add(endOffset));
         templateMeta.setValues(endOffset, facing, this.getTemplateName(stack, Mode.COPY), player.getName());
         templateManager.writeTemplateMetadata(rl);
 
-        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (this.getSelectedBlockTypeIndex(stack) + 1)));
+        if (success)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (this.getSelectedBlockTypeIndex(stack) + 1)));
+        }
+        else
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.failedtosaveareatotemplate"));
+        }
 
         return EnumActionResult.SUCCESS;
     }
@@ -1591,8 +1598,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return null;
         }
 
-        File file = new File(new File(saveDir, Reference.MOD_ID), this.name);
-        return new TemplateManagerEU(file.getPath());
+        return new TemplateManagerEU(new File(new File(saveDir, Reference.MOD_ID), this.name));
     }
 
     private NBTTagCompound getSelectedTemplateTag(ItemStack stack, Mode mode, boolean create)
