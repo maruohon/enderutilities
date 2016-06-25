@@ -146,6 +146,8 @@ public class TemplateEnderUtilities
                     {
                         NBTUtils.setPositionInTileEntityNBT(blockInfo.tileEntityData, pos);
                         te.readFromNBT(blockInfo.tileEntityData);
+                        te.func_189668_a(this.placement.getMirror());
+                        te.func_189667_a(this.placement.getRotation());
                         te.markDirty();
                     }
                 }

@@ -2,14 +2,12 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
@@ -18,15 +16,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -38,10 +31,13 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.Registry;
-import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
@@ -64,6 +60,8 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         NBTTagCompound bagNbt = stack.getTagCompound();
+        bagNbt.removeTag("IsOpen");
+
         TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (targetData == null || targetData.blockName == null)
         {
@@ -80,13 +78,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
             if (world.isRemote == false)
             {
-                bagNbt.setBoolean("IsOpen", true);
                 player.displayGUIChest(player.getInventoryEnderChest());
             }
 
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
+        /* Disable everything except the Ender Chest mode for now, because PlayerOpenContainerEvent is gone
         // For other targets, access is only allowed if the mode is set to public, or if the player is the owner
         if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
@@ -160,7 +158,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             block.onBlockActivated(targetWorld, targetData.pos, state, player, EnumHand.MAIN_HAND, stack, targetData.facing, hx, hy, hz);
 
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
-        }
+        }*/
 
         return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     }

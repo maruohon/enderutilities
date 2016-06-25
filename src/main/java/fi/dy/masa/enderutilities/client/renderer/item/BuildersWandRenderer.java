@@ -157,7 +157,7 @@ public class BuildersWandRenderer
             if (pos.equals(posStart) == false && pos.equals(posEnd) == false)
             {
                 AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, expand, partialTicks, player);
-                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
     }
@@ -179,7 +179,7 @@ public class BuildersWandRenderer
             int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
             int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
             AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, 0, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, r, g, b, 0xCC);
+            RenderGlobal.drawSelectionBoundingBox(aabb, r / 255f, g / 255f, b / 255f, 0xCC / 255f);
         }
 
         float expand = mode == Mode.REPLACE || mode.hasTwoPlacableCorners() ? 0.001f : 0f;
@@ -189,7 +189,7 @@ public class BuildersWandRenderer
             // Render the targeted position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, expand, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
+            RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
         if (posEnd != null && (mode.isAreaMode() || mode == Mode.WALLS || mode == Mode.CUBE))
@@ -197,7 +197,7 @@ public class BuildersWandRenderer
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, expand, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
+            RenderGlobal.drawSelectionBoundingBox(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }
 

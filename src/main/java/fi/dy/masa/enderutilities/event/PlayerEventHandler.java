@@ -1,9 +1,7 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -11,13 +9,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
@@ -65,41 +60,6 @@ public class PlayerEventHandler
             if (stack != null && EnderUtilities.proxy.isControlKeyDown())
             {
                 PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(HotKeys.KEYCODE_CUSTOM_1));
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
-    {
-        EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.enderBag);
-        if (stack == null)
-        {
-            return;
-        }
-
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null && nbt.getBoolean("IsOpen") == true)
-        {
-            if (player.openContainer != player.inventoryContainer
-                && (ItemEnderBag.targetNeedsToBeLoadedOnClient(stack) == false
-                || ItemEnderBag.targetOutsideOfPlayerRange(stack, player) == false))
-            {
-                // Allow access from anywhere with the Ender Bag (bypassing the distance checks)
-                event.setResult(Result.ALLOW);
-            }
-            // Ender Bag: Player has just closed the remote container
-            else if (player.worldObj.isRemote == false)
-            {
-                nbt.removeTag("ChunkLoadingRequired");
-                nbt.removeTag("IsOpen");
-                player.inventory.markDirty();
-            }
-
-            if (player instanceof EntityPlayerMP)
-            {
-                player.inventoryContainer.detectAndSendChanges();
             }
         }
     }

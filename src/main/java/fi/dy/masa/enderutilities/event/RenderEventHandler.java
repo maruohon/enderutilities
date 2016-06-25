@@ -133,7 +133,7 @@ public class RenderEventHandler
 
             if (te instanceof TileEntityPortalPanel)
             {
-                String name = ((TileEntityPortalPanel) te).getDisplayName();
+                String name = ((TileEntityPortalPanel) te).getPanelDisplayName();
                 EnumFacing facing = state.getValue(BlockPortalPanel.FACING);
 
                 if (StringUtils.isBlank(name) == false && name.length() > 0)

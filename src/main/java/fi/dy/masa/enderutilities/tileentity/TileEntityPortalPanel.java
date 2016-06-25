@@ -160,7 +160,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    public String getDisplayName()
+    public String getPanelDisplayName()
     {
         return this.displayName;
     }

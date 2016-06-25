@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -35,7 +35,7 @@ archivesBaseName = config.mod_id
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
-    runDir = "run"
+    runDir = "../minecraft"
 
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
@@ -60,7 +60,7 @@ minecraft {
     }
 
     // For JEI
-    useDepAts = true
+    //useDepAts = true
 }
 
 dependencies {
@@ -77,7 +77,8 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
+    deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}:api"
+    runtime "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
 }
 
 //version = "${config.minecraft_version}-${config.mod_version}-${System.getenv("BUILD_NUMBER") ?: 0}"

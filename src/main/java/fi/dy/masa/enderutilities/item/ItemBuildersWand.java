@@ -1891,7 +1891,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     private void moveAreaImmediate(World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
             Mirror mirror, Rotation rotation)
     {
-        PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
+        PlacementSettings placement = new PlacementSettings();
+        placement.setMirror(mirror);
+        placement.setRotation(rotation);
+        placement.setIgnoreEntities(false);
+        placement.setReplacedBlock(Blocks.BARRIER); // meh
+
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, ReplaceMode.EVERYTHING);
         template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true);
         this.deleteArea(world, player, posSrc1, posSrc2, true);
@@ -2168,7 +2173,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         Rotation rotation = PositionUtils.getRotation(facing, areaFacing);
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
-        return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
+        PlacementSettings placement = new PlacementSettings();
+        placement.setMirror(this.getMirror(stack));
+        placement.setRotation(rotation);
+        placement.setIgnoreEntities(ignoreEntities);
+        placement.setReplacedBlock(Blocks.BARRIER); // meh
+
+        return placement;
     }
 
     @Override
