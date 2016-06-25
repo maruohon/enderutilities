@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.client.renderer.item;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -20,6 +19,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import org.lwjgl.opengl.GL11;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -119,7 +119,7 @@ public class BuildersWandRenderer
             if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
             {
                 AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderGlobal.func_189697_a(aabb, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
     }
@@ -136,7 +136,7 @@ public class BuildersWandRenderer
             int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
             int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
             AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xCC);
+            RenderGlobal.func_189697_a(aabb, 1f, 1f, 1f, 0xCC / 255f);
         }
 
         if (posStart != null)
@@ -144,7 +144,7 @@ public class BuildersWandRenderer
             // Render the targeted position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
+            RenderGlobal.func_189697_a(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
         if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
@@ -152,7 +152,7 @@ public class BuildersWandRenderer
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
+            RenderGlobal.func_189697_a(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }
 

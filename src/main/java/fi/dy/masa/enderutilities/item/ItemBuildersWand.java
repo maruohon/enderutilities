@@ -45,14 +45,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.event.tasks.TaskStructureBuild;
@@ -66,12 +58,30 @@ import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.Configs;
-import fi.dy.masa.enderutilities.util.*;
+import fi.dy.masa.enderutilities.util.BlockInfo;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
+import fi.dy.masa.enderutilities.util.BlockPosStateDist;
+import fi.dy.masa.enderutilities.util.BlockUtils;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.ReplaceMode;
+import fi.dy.masa.enderutilities.util.TemplateManagerEU;
 import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
+import fi.dy.masa.enderutilities.util.TemplateMetadata;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public class ItemBuildersWand extends ItemLocationBoundModular implements IStringInput
 {
@@ -1746,7 +1756,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         Rotation rotation = PositionUtils.getRotation(facing, areaFacing);
         boolean ignoreEntities = player == null || player.capabilities.isCreativeMode == false;
-        return new PlacementSettings(this.getMirror(stack), rotation, ignoreEntities, Blocks.BARRIER, null);
+        PlacementSettings placement = new PlacementSettings();
+        placement.setMirror(this.getMirror(stack));
+        placement.setRotation(rotation);
+        placement.setIgnoreEntities(ignoreEntities);
+        placement.setReplacedBlock(Blocks.BARRIER); // meh
+
+        return placement;
     }
 
     @Override

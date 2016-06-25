@@ -25,7 +25,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 @SideOnly(Side.CLIENT)
 public class RulerRenderer
 {
-    public static final int[] COLORS = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x1C1CC3, 0xD9850C, 0x13A43C, 0xED2235};
+    public static final int[] COLORS = new int[] { 0x70FFFF, 0xFF70FF, 0xFFFF70, 0xA401CD, 0x3C3CC9, 0xD9850C, 0x13A43C, 0xED2235};
     protected final Minecraft mc;
     protected final Map<Integer, List<BlockPosEU>> positions;
     public float partialTicksLast;
@@ -202,7 +202,7 @@ public class RulerRenderer
                 //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
                     AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
-                    RenderGlobal.drawOutlinedBoundingBox(aabb, (color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF, 0xFF);
+                    RenderGlobal.func_189697_a(aabb, ((color >>> 16) & 0xFF) / 255f, ((color >>> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0f);
                 }
             }
         }
@@ -215,7 +215,7 @@ public class RulerRenderer
             // Render the start position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
+            RenderGlobal.func_189697_a(aabb, 0xFF / 255f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
         if (posEnd != null)
@@ -223,7 +223,7 @@ public class RulerRenderer
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
             AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
+            RenderGlobal.func_189697_a(aabb, 0x11 / 255f, 0x11 / 255f, 0xFF / 255f, 1.0f);
         }
     }
 

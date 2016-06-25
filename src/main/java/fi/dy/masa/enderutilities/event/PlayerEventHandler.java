@@ -1,26 +1,21 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PlayerEventHandler
 {
@@ -65,6 +60,7 @@ public class PlayerEventHandler
         }
     }
 
+    /* Disabled because the event was removed from Forge due to the re-licensing in 1.10
     @SubscribeEvent
     public void onPlayerOpenContainer(PlayerOpenContainerEvent event)
     {
@@ -98,5 +94,5 @@ public class PlayerEventHandler
                 player.inventoryContainer.detectAndSendChanges();
             }
         }
-    }
+    }*/
 }

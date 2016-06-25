@@ -42,7 +42,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         this.nameField.setEnableBackgroundDrawing(false);
         this.nameField.setMaxStringLength(50);
         this.nameField.setEnabled(true);
-        this.nameField.setText(this.tepp.getDisplayName());
+        this.nameField.setText(this.tepp.getPanelDisplayName());
         this.nameField.setFocused(false);
         this.nameField.setCursorPositionEnd();
 
@@ -102,7 +102,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
 
-        String name = this.tepp.getDisplayName();
+        String name = this.tepp.getPanelDisplayName();
         if (this.nameLast.equals(name) == false)
         {
             this.nameField.setText(name);
