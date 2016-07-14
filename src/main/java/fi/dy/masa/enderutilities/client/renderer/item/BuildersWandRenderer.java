@@ -271,7 +271,7 @@ public class BuildersWandRenderer
         String preIta = TextFormatting.ITALIC.toString();
         String strNo = I18n.format("enderutilities.tooltip.item.no");
         String strYes = I18n.format("enderutilities.tooltip.item.yes");
-        int index = wand.getSelectedBlockTypeIndex(stack);
+        int index = wand.getSelectionIndex(stack);
         String str;
 
         if (mode.isAreaMode())

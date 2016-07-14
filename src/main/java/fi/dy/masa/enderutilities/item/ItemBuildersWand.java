@@ -268,7 +268,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Mode mode = Mode.getMode(stack);
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         if (mode.isAreaMode())
         {
             String str;
@@ -464,7 +464,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private NBTTagCompound getCornerPositionTag(ItemStack stack, Mode mode, boolean isStart)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CORNERS + "_" + sel, true);
         tag = NBTUtils.getCompoundTag(tag, (isStart == true ? "Pos1" : "Pos2"), true);
@@ -606,7 +606,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         BlockInfo blockInfo;
 
-        if (this.getSelectedBlockTypeIndex(wandStack) == BLOCK_TYPE_ADJACENT)
+        if (this.getSelectionIndex(wandStack) == BLOCK_TYPE_ADJACENT)
         {
             blockInfo = this.getBlockInfoForAdjacentBlock(world, posStateDist.toBlockPos(), posStateDist.side);
         }
@@ -741,7 +741,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         if (sel < 0)
         {
             return;
@@ -762,7 +762,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public BlockInfo getSelectedFixedBlockType(ItemStack stack)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         if (sel < 0)
         {
             return null;
@@ -779,7 +779,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return null;
     }
 
-    public int getSelectedBlockTypeIndex(ItemStack stack)
+    public int getSelectionIndex(ItemStack stack)
     {
         int mode = Mode.getModeOrdinal(stack);
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
@@ -788,12 +788,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return tag.getByte(TAG_NAME_BLOCK_SEL);
     }
 
-    private void changeSelectedBlockType(ItemStack stack, boolean reverse)
+    private void changeSelectionIndex(ItemStack stack, boolean reverse)
     {
         Mode mode = Mode.getMode(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
 
-        int min = mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE ? 0 : -2;
+        int min = mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE || mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST ? 0 : -2;
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, min, MAX_BLOCKS - 1, reverse);
     }
 
@@ -812,7 +812,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void setMirror(ItemStack stack, Mode mode, Mirror mirror)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
         tag.setByte("Mirror_" + sel, (byte)mirror.ordinal());
         tag.setBoolean("IsMirrored_" + sel, mirror != Mirror.NONE);
@@ -820,7 +820,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public boolean isMirrored(ItemStack stack)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         return this.getModeTag(stack, Mode.getMode(stack)).getBoolean("IsMirrored_" + sel);
     }
 
@@ -831,7 +831,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public Mirror getMirror(ItemStack stack, Mode mode)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
 
         if (tag.getBoolean("IsMirrored_" + sel) && tag.hasKey("Mirror_" + sel, Constants.NBT.TAG_BYTE) == true)
@@ -1019,7 +1019,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         boolean diagonals = mode == Mode.EXTEND_CONTINUOUS && this.getAllowDiagonals(stack, mode);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int blockType = this.getSelectedBlockTypeIndex(stack);
+        int blockType = this.getSelectionIndex(stack);
 
         int counter = 0;
         int branchIndex = 0;
@@ -1141,7 +1141,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private BlockInfo getBlockInfoForTargeted(ItemStack stack, World world, BlockPos pos)
     {
-        int blockType = this.getSelectedBlockTypeIndex(stack);
+        int blockType = this.getSelectionIndex(stack);
         if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
         {
             return new BlockInfo(world, pos);
@@ -1206,7 +1206,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, center.offset(side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int blockType = this.getSelectedBlockTypeIndex(stack);
+        int blockType = this.getSelectionIndex(stack);
         Mode mode = Mode.getMode(stack);
         Area area = new Area(this.getModeTag(stack, mode));
         int dim = world.provider.getDimension();
@@ -1292,7 +1292,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPosEU targeted = pos1.offset(pos1.side, -1);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int blockType = this.getSelectedBlockTypeIndex(stack);
+        int blockType = this.getSelectionIndex(stack);
         int dim = world.provider.getDimension();
 
         for (int x = startX; x <= endX; x++)
@@ -1373,7 +1373,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPosEU targeted = pos1.offset(pos1.side, -1);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
-        int blockType = this.getSelectedBlockTypeIndex(stack);
+        int blockType = this.getSelectionIndex(stack);
         int dim = world.provider.getDimension();
 
         for (int y = startY; y <= endY; y++)
@@ -1427,7 +1427,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (success)
         {
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (this.getSelectedBlockTypeIndex(stack) + 1)));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areasavedtotemplate", (this.getSelectionIndex(stack) + 1)));
         }
         else
         {
@@ -1677,7 +1677,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private ResourceLocation getTemplateResource(ItemStack stack, EntityPlayer player)
     {
-        int id = this.getSelectedBlockTypeIndex(stack);
+        int id = this.getSelectionIndex(stack);
         UUID uuid = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
         String name = NBTUtils.getOrCreateString(stack, WRAPPER_TAG_NAME, "player", player.getName());
         return new ResourceLocation(Reference.MOD_ID, name + "_" + uuid.toString() + "_" + id);
@@ -1696,7 +1696,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private NBTTagCompound getSelectedTemplateTag(ItemStack stack, Mode mode, boolean create)
     {
-        int sel = this.getSelectedBlockTypeIndex(stack);
+        int sel = this.getSelectionIndex(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_TEMPLATES + "_" + sel, create);
 
@@ -1856,7 +1856,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Alt + Toggle key: Change the selected block type
         if (EnumKey.SCROLL.matches(key, HotKeys.MOD_ALT))
         {
-            this.changeSelectedBlockType(stack, EnumKey.keypressActionIsReversed(key));
+            this.changeSelectionIndex(stack, EnumKey.keypressActionIsReversed(key));
 
             if (mode == Mode.PASTE)
             {
