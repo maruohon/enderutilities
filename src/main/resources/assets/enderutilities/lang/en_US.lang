@@ -382,6 +382,7 @@ enderutilities.chat.message.areasavedtotemplate=Area saved to template %d
 enderutilities.chat.message.areatoofar=Area is too far away
 enderutilities.chat.message.areatoolargeortoofar=Area is too large or too far away
 enderutilities.chat.message.areatoolarge=Area is too large, maximum dimensions are %d
+enderutilities.chat.message.builderswand.areasarethesame=Areas are exactly the same - aborting
 enderutilities.chat.message.creativeonly=This feature is only available in Creative mode
 enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:

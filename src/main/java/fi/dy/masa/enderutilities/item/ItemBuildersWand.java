@@ -1576,6 +1576,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Rotation rotation = PositionUtils.getRotation(origFacing, areaFacing);
         Mirror mirror = this.getMirror(stack);
 
+        // Don't do anything if the destination is exactly the same as the source
+        if (posSrc1.equals(posDst1) && rotation == Rotation.NONE && mirror == Mirror.NONE)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.builderswand.areasarethesame"));
+            return;
+        }
+
         if (player.capabilities.isCreativeMode)
         {
             PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
