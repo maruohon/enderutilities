@@ -455,7 +455,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             adjustedFacing = origFacing;
         }
 
-        mirror = this.getMirror(stack);
+        mirror = this.getMirror(stack, mode);
         rotation = PositionUtils.getRotation(origFacing, adjustedFacing);
         posEndRelative = PositionUtils.getTransformedBlockPos(posEndRelative, mirror, rotation);
 
@@ -826,8 +826,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public Mirror getMirror(ItemStack stack)
     {
+        return getMirror(stack, Mode.getMode(stack));
+    }
+
+    public Mirror getMirror(ItemStack stack, Mode mode)
+    {
         int sel = this.getSelectedBlockTypeIndex(stack);
-        NBTTagCompound tag = this.getModeTag(stack, Mode.getMode(stack));
+        NBTTagCompound tag = this.getModeTag(stack, mode);
 
         if (tag.getBoolean("IsMirrored_" + sel) && tag.hasKey("Mirror_" + sel, Constants.NBT.TAG_BYTE) == true)
         {
@@ -1571,17 +1576,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Rotation rotation = PositionUtils.getRotation(origFacing, areaFacing);
         Mirror mirror = this.getMirror(stack);
 
-        /*if (player.capabilities.isCreativeMode)
+        if (player.capabilities.isCreativeMode)
         {
             PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
             this.moveAreaImmediate(world, player, placement, posSrc1, posSrc2, posDst1);
         }
         else
-        {*/
+        {
             TaskMoveArea task = new TaskMoveArea(stack, posSrc1, posSrc2, posDst1, posDst2, rotation, mirror,
                     player.getUniqueID(), Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
-        //}
+        }
     }
 
     private void moveAreaImmediate(World world, EntityPlayer player, PlacementSettings placement,
