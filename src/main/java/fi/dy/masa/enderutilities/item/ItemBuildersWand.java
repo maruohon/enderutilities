@@ -12,7 +12,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -27,7 +26,6 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
@@ -46,7 +44,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -55,7 +52,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
-import fi.dy.masa.enderutilities.event.tasks.TaskStructureBuild;
+import fi.dy.masa.enderutilities.event.tasks.TaskMoveArea;
+import fi.dy.masa.enderutilities.event.tasks.TaskTemplatePlaceBlocks;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.IStringInput;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
@@ -122,15 +120,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 PlayerTaskScheduler.getInstance().removeTask(player, TaskBuildersWand.class);
                 return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
             }
-            else if (mode != Mode.CUBE && mode != Mode.WALLS && mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
+            else if (mode.hasUseDelay() == false)
             {
                 EnumActionResult result = this.useWand(stack, world, player, pos);
                 return new ActionResult<ItemStack>(result, stack);
             }
         }
 
-        if ((mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE) &&
-            this.getPosition(stack, POS_END) != null)
+        if (mode.hasUseDelay() && this.getPosition(stack, POS_END) != null)
         {
             player.setActiveHand(hand);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
@@ -148,8 +145,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
-        Mode mode = Mode.getMode(stack);
-        if (mode == Mode.CUBE || mode == Mode.WALLS || mode == Mode.COPY || mode == Mode.DELETE)
+        if (Mode.getMode(stack).hasTwoPlacableCorners())
         {
             if (world.isRemote == false)
             {
@@ -189,7 +185,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             Mode mode = Mode.getMode(stack);
             // Sneak + left click: Set the selected block type (in the appropriate modes)
-            if (player.isSneaking() == true && mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
+            if (player.isSneaking() == true && mode.isAreaMode() == false)
             {
                 this.setSelectedFixedBlockType(stack, player, world, pos);
             }
@@ -273,9 +269,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
         int sel = this.getSelectedBlockTypeIndex(stack);
-        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+        if (mode.isAreaMode())
         {
-            String str = I18n.format("enderutilities.tooltip.item.selectedtemplate");
+            String str;
+            if (mode == Mode.COPY || mode == Mode.PASTE)
+            {
+                str = I18n.format("enderutilities.tooltip.item.selectedtemplate");
+            }
+            else
+            {
+                str = I18n.format("enderutilities.tooltip.item.area");
+            }
             list.add(str + ": " + preGreen + (sel + 1) + rst);
         }
         else if (sel >= 0)
@@ -309,7 +313,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         String str;
         String str2;
-        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+        if (mode.isAreaMode())
         {
             str = I18n.format("enderutilities.tooltip.item.rotation") + ": ";
             EnumFacing facing = this.getAreaFacing(stack, mode);
@@ -354,7 +358,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             list.add(str + ": " + (this.getAllowDiagonals(stack, mode) ? strYes : strNo) + rst);
         }
 
-        if (mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
+        if (mode.isAreaMode() == false)
         {
             str = I18n.format("enderutilities.tooltip.item.builderswand.renderghostblocks");
             list.add(str + ": " + (this.getRenderGhostBlocks(stack, mode) ? strYes : strNo) + rst);
@@ -380,9 +384,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getPosition(stack, Mode.getMode(stack), isStart);
     }
 
-    private BlockPosEU getPosition(ItemStack stack, Mode mode, boolean isStart)
+    public BlockPosEU getPosition(ItemStack stack, Mode mode, boolean isStart)
     {
-        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+        if (mode.isAreaMode())
         {
             if (isStart == true)
             {
@@ -421,6 +425,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             posEndRelative = new BlockPosEU(tag.getInteger("endOffsetX"), tag.getInteger("endOffsetY"), tag.getInteger("endOffsetZ"));
             origFacing = this.getTemplateFacing(stack);
+        }
+        else if (mode == Mode.MOVE_DST)
+        {
+            BlockPosEU posStartSrc = this.getPerTemplateAreaCorner(stack, Mode.MOVE_SRC, true);
+            BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, Mode.MOVE_SRC, false);
+            if (posStartSrc == null || posEnd == null)
+            {
+                return null;
+            }
+
+            posEndRelative = posEnd.subtract(posStartSrc);
+            origFacing = PositionUtils.getFacingFromPositions(posStartSrc, posEnd);
         }
         else
         {
@@ -469,12 +485,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
 
-        if (isStart == false && mode == Mode.PASTE)
+        if (isStart == false && (mode == Mode.PASTE || mode == Mode.MOVE_DST))
         {
             return;
         }
 
-        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+        if (mode.isAreaMode())
         {
             this.setPerTemplateAreaCorner(stack, mode, isStart, pos);
             this.setMirror(stack, mode, Mirror.NONE);
@@ -549,6 +565,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             return this.deleteArea(stack, world, player, posStart, posEnd);
         }
+        else if (mode == Mode.MOVE_DST)
+        {
+            this.moveArea(stack, world, player, posStart, posEnd);
+        }
+        else if (mode == Mode.MOVE_SRC)
+        {
+            return EnumActionResult.PASS;
+        }
         else
         {
             this.getBlockPositions(stack, world, player, positions, posStart != null ? posStart : posTarget);
@@ -596,84 +620,83 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockState, 3);
+        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockState, 3, true, true);
     }
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
-            BlockPos pos, EnumFacing side, IBlockState newState, int setBlockStateFlag)
+            BlockPos pos, EnumFacing side, IBlockState newState, int setBlockStateFlags, boolean requireItems, boolean dropItems)
     {
-        if (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false)
+        if (newState.getMaterial() == Material.AIR ||
+            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
         {
             return false;
         }
 
         boolean replace = this.getReplaceExisting(wandStack, Mode.getMode(wandStack));
         boolean isAir = world.isAirBlock(pos);
-        Block blockNew = newState.getBlock();
 
         if (player.capabilities.isCreativeMode == true)
         {
             if (replace || isAir)
             {
-                world.setBlockState(pos, newState, setBlockStateFlag);
-                SoundType soundtype = blockNew.getSoundType();
-                world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
                 return true;
             }
+
+            return false;
         }
-        else
+
+        IBlockState stateExisting = world.getBlockState(pos);
+        float hardness = stateExisting.getBlockHardness(world, pos);
+
+        if (isAir == false && (replace == false || hardness < 0 || hardness > 10 || world.getTileEntity(pos) != null))
         {
-            if (! (isAir || (replace && newState.getMaterial() != Material.AIR && world.getTileEntity(pos) == null)))
-            {
-                return false;
-            }
+            return false;
+        }
 
-            IBlockState stateExisting = world.getBlockState(pos);
-            float hardness = stateExisting.getBlockHardness(world, pos);
-            if (hardness < 0 || hardness > 10)
-            {
-                return false;
-            }
+        ItemStack targetStack = null;
+        Block blockNew = newState.getBlock();
 
+        if (requireItems)
+        {
             @SuppressWarnings("deprecation")
+            // FIXME
             ItemStack templateStack = blockNew.getItem(world, pos, newState);
-            //ItemStack templateStack = block.getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
             IItemHandler inv = this.getInventoryWithItems(wandStack, templateStack, player);
-            ItemStack targetStack = this.getItemToBuildWith(inv, templateStack, 1);
+            targetStack = this.getItemToBuildWith(inv, templateStack, 1);
+        }
 
-            if (targetStack != null)
+        if (targetStack != null || requireItems == false)
+        {
+            // Break the existing block
+            if (replace && isAir == false && player instanceof EntityPlayerMP)
             {
-                if (isAir == false && player instanceof EntityPlayerMP)
+                if (dropItems)
                 {
-                    EntityPlayerMP playerMP = (EntityPlayerMP) player;
-                    PlayerInteractionManager manager = playerMP.interactionManager;
-                    int exp = ForgeHooks.onBlockBreakEvent(world, manager.getGameType(), playerMP, pos);
-                    if (exp != -1)
+                    BlockUtils.breakBlockAsPlayer(world, pos, stateExisting, (EntityPlayerMP) player, wandStack);
+
+                    // Couldn't break the existing block
+                    if (world.isAirBlock(pos) == false)
                     {
-                        Block blockExisting = stateExisting.getBlock();
-
-                        blockExisting.onBlockHarvested(world, pos, stateExisting, playerMP);
-                        boolean harvest = blockExisting.removedByPlayer(stateExisting, world, pos, playerMP, true);
-
-                        if (harvest)
-                        {
-                            blockExisting.onBlockDestroyedByPlayer(world, pos, stateExisting);
-                            blockExisting.harvestBlock(world, playerMP, pos, stateExisting, null, wandStack);
-                        }
+                        return false;
                     }
                 }
-
-                // Check if we can place the block
-                if (BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew, targetStack) == true)
+                else
                 {
-                    world.setBlockState(pos, newState, setBlockStateFlag);
-
-                    SoundType soundtype = blockNew.getSoundType();
-                    world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-
-                    UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
-                    return true;
+                    world.restoringBlockSnapshots = true;
+                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+                    world.restoringBlockSnapshots = false;
                 }
+            }
+
+            // Check if we can place the block. If we don't require items, then we are moving an area
+            // and in that case we always want to place the block.
+            if (requireItems == false || BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew, targetStack) == true)
+            {
+                BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
+
+                UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
+                return true;
             }
         }
 
@@ -894,14 +917,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
 
-        if (mode == Mode.COPY || mode == Mode.DELETE)
+        if (mode == Mode.COPY || mode == Mode.DELETE || mode == Mode.MOVE_SRC)
         {
             this.moveEndPosition(stack, EntityUtils.getClosestLookingDirection(player), reverse);
             return;
         }
 
         BlockPosEU pos = this.getPosition(stack, POS_START);
-        if (pos == null || mode == Mode.WALLS || mode == Mode.CUBE)
+        if (pos == null || mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.PASTE || mode == Mode.MOVE_DST)
         {
             return;
         }
@@ -1393,7 +1416,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         boolean success = templateManager.writeTemplate(rl);
 
         TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
-        EnumFacing facing = PositionUtils.getFacingFromPositions(posStart, posStart.add(endOffset));
+        EnumFacing facing = PositionUtils.getFacingFromPositions(posStartIn, posEndIn);
         templateMeta.setValues(endOffset, facing, this.getTemplateName(stack, Mode.COPY), player.getName());
         templateManager.writeTemplateMetadata(rl);
 
@@ -1443,8 +1466,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else
         {
-            template.setReplaceMode(this.getReplaceExisting(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
-            TaskStructureBuild task = new TaskStructureBuild(template, posStartIn.toBlockPos(), player.dimension,
+            template.setReplaceMode(ReplaceMode.NOTHING);
+            TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), player.dimension,
                     player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
@@ -1460,9 +1483,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
+        this.deleteArea(world, player, posStartIn, posEndIn, this.getRemoveEntities(stack));
+
+        return EnumActionResult.SUCCESS;
+    }
+
+    private void deleteArea(World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn, boolean removeEntities)
+    {
         if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
         {
-            return EnumActionResult.FAIL;
+            return;
         }
 
         BlockPos posStart = posStartIn.toBlockPos();
@@ -1472,7 +1502,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
-            return EnumActionResult.FAIL;
+            return;
         }
 
         for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, posEnd))
@@ -1485,11 +1515,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                     ((IInventory) te).clear();
                 }
 
-                world.setBlockToAir(posMutable);
+                world.restoringBlockSnapshots = true;
+                world.setBlockState(posMutable, Blocks.AIR.getDefaultState(), 2);
+                world.restoringBlockSnapshots = false;
             }
         }
 
-        if (this.getRemoveEntities(stack))
+        if (removeEntities)
         {
             int x1 = Math.min(posStart.getX(), posEnd.getX());
             int y1 = Math.min(posStart.getY(), posEnd.getY());
@@ -1509,8 +1541,57 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
             }
         }
+    }
 
-        return EnumActionResult.SUCCESS;
+    private void moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1, BlockPosEU posDst2)
+    {
+        BlockPosEU posSrc1 = this.getPosition(stack, Mode.MOVE_SRC, true);
+        BlockPosEU posSrc2 = this.getPosition(stack, Mode.MOVE_SRC, false);
+        if (posDst1 == null || posDst2 == null || posSrc1 == null || posSrc2 == null)
+        {
+            return;
+        }
+
+        BlockPos posStart = posDst1.toBlockPos();
+        BlockPos posEnd = posDst2.toBlockPos();
+
+        if (player.getDistanceSq(posStart) >= 4096 || player.getDistanceSq(posEnd) >= 4096 ||
+            this.isAreaWithinSizeLimit(posEnd.subtract(posStart), player) == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
+            return;
+        }
+
+        EnumFacing origFacing = PositionUtils.getFacingFromPositions(posSrc1, posSrc2);
+        EnumFacing areaFacing = this.getAreaFacing(stack, Mode.MOVE_DST);
+        if (areaFacing == null)
+        {
+            areaFacing = origFacing;
+        }
+        Rotation rotation = PositionUtils.getRotation(origFacing, areaFacing);
+        Mirror mirror = this.getMirror(stack);
+
+        /*if (player.capabilities.isCreativeMode)
+        {
+            PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
+            this.moveAreaImmediate(world, player, placement, posSrc1, posSrc2, posDst1);
+        }
+        else
+        {*/
+            TaskMoveArea task = new TaskMoveArea(stack, posSrc1, posSrc2, posDst1, posDst2, rotation, mirror,
+                    player.getUniqueID(), Configs.buildersWandBlocksPerTick);
+            PlayerTaskScheduler.getInstance().addTask(player, task, 1);
+        //}
+    }
+
+    private void moveAreaImmediate(World world, EntityPlayer player, PlacementSettings placement,
+            BlockPosEU posSrc1, BlockPosEU posSrc2, BlockPosEU posDst1)
+    {
+        BlockPos posSrcStart = posSrc1.toBlockPos();
+        TemplateEnderUtilities template = new TemplateEnderUtilities(placement, ReplaceMode.EVERYTHING);
+        template.takeBlocksFromWorld(world, posSrcStart, posSrc2.toBlockPos().subtract(posSrcStart), true);
+        this.deleteArea(world, player, posSrc1, posSrc2, true);
+        template.addBlocksToWorld(world, posDst1.toBlockPos());
     }
 
     private void placeHelperBlock(EntityPlayer player)
@@ -1773,7 +1854,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Shift + Scroll: Change the dimensions of the current mode
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
-            if (mode != Mode.PASTE)
+            if (mode != Mode.PASTE && mode != Mode.MOVE_DST)
             {
                 this.changeAreaDimensions(player, stack, EnumKey.keypressActionIsReversed(key));
             }
@@ -1781,7 +1862,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Shift + Toggle key: Toggle the mirroring in the appropriate modes
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
-            if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+            if (mode.isAreaMode())
             {
                 this.toggleMirror(stack, mode, player);
             }
@@ -1810,7 +1891,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Ctrl + Alt + Toggle key: Toggle "allow diagonals" in Extend Continuous mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL_ALT))
         {
-            if (mode == Mode.PASTE)
+            if (mode == Mode.PASTE || mode == Mode.MOVE_DST)
             {
                 this.toggleReplaceExisting(stack, mode);
             }
@@ -1835,7 +1916,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Just Toggle key: Toggle the area flipped property
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
-            if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+            if (mode.isAreaMode() && mode != Mode.COPY)
             {
                 this.setAreaFacing(stack, mode, player);
             }
@@ -1993,27 +2074,62 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public static enum Mode
     {
-        EXTEND_CONTINUOUS ("enderutilities.tooltip.item.build.extend.continuous"),
-        EXTEND_AREA ("enderutilities.tooltip.item.build.extend.area"),
-        LINE ("enderutilities.tooltip.item.build.line"),
-        PLANE ("enderutilities.tooltip.item.build.plane"),
-        COLUMN ("enderutilities.tooltip.item.build.column"),
-        WALLS ("enderutilities.tooltip.item.build.walls"),
-        CUBE ("enderutilities.tooltip.item.build.cube"),
-        COPY ("enderutilities.tooltip.item.build.copy"),
-        PASTE ("enderutilities.tooltip.item.build.paste"),
-        DELETE ("enderutilities.tooltip.item.build.delete");
+        EXTEND_CONTINUOUS   ("extcont", "enderutilities.tooltip.item.build.extend.continuous"),
+        EXTEND_AREA         ("extarea", "enderutilities.tooltip.item.build.extend.area"),
+        LINE                ("line",    "enderutilities.tooltip.item.build.line"),
+        PLANE               ("plane",   "enderutilities.tooltip.item.build.plane"),
+        COLUMN              ("column",  "enderutilities.tooltip.item.build.column"),
+        WALLS               ("walls",   "enderutilities.tooltip.item.build.walls", false, true, true),
+        CUBE                ("cube",    "enderutilities.tooltip.item.build.cube", false, true, true),
+        COPY                ("copy",    "enderutilities.tooltip.item.build.copy", true, true, true),
+        PASTE               ("paste",   "enderutilities.tooltip.item.build.paste", true, false, true),
+        DELETE              ("delete",  "enderutilities.tooltip.item.build.delete", true, true, true),
+        MOVE_SRC            ("movesrc", "enderutilities.tooltip.item.build.move.source", true, true, false),
+        MOVE_DST            ("movedst", "enderutilities.tooltip.item.build.move.destination", true, false, true);
 
-        private String unlocName;
+        private final String name;
+        private final String unlocName;
+        private final boolean isAreaMode;
+        private final boolean hasTwoCorners;
+        private final boolean hasUseDelay;
 
-        Mode (String unlocName)
+        private Mode (String name, String unlocName)
         {
+            this(name, unlocName, false, false, false);
+        }
+
+        private Mode (String name, String unlocName, boolean isAreaMode, boolean twoCorners, boolean useDelay)
+        {
+            this.name = name;
             this.unlocName = unlocName;
+            this.isAreaMode = isAreaMode;
+            this.hasTwoCorners = twoCorners;
+            this.hasUseDelay = useDelay;
+        }
+
+        public String getName()
+        {
+            return this.name;
         }
 
         public String getDisplayName()
         {
             return I18n.format(this.unlocName);
+        }
+
+        public boolean isAreaMode()
+        {
+            return this.isAreaMode;
+        }
+
+        public boolean hasTwoPlacableCorners()
+        {
+            return this.hasTwoCorners;
+        }
+
+        public boolean hasUseDelay()
+        {
+            return this.hasUseDelay;
         }
 
         public static Mode getMode(ItemStack stack)

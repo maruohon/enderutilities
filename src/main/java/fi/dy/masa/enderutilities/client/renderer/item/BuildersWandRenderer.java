@@ -63,7 +63,7 @@ public class BuildersWandRenderer
         }
 
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posEnd = (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE) ?
+        BlockPosEU posEnd = mode.isAreaMode() || (mode == Mode.WALLS || mode == Mode.CUBE) ?
                 item.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
         if (partialTicks < this.partialTicksLast)
@@ -75,7 +75,7 @@ public class BuildersWandRenderer
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
                 item.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
             }
-            else if (mode != Mode.COPY && mode != Mode.PASTE && mode != Mode.DELETE)
+            else if (mode.isAreaMode() == false)
             {
                 item.getBlockPositions(stack, world, player, this.positions, posStart);
             }
@@ -95,12 +95,20 @@ public class BuildersWandRenderer
 
         GlStateManager.disableTexture2D();
 
-        if (renderGhostBlocks == false)
+        if (renderGhostBlocks == false && mode.isAreaMode() == false)
         {
             this.renderBlockOutlines(player, posStart, posEnd, partialTicks);
         }
 
         this.renderStartAndEndPositions(mode, player, posStart, posEnd, partialTicks);
+
+        // In "Move, to" mode we also render the "Move, from" area
+        if (mode == Mode.MOVE_DST)
+        {
+            posStart = item.getPosition(stack, Mode.MOVE_SRC, true);
+            posEnd = item.getPosition(stack, Mode.MOVE_SRC, false);
+            this.renderStartAndEndPositions(Mode.MOVE_SRC, player, posStart, posEnd, partialTicks, 0xFF, 0x55, 0x55);
+        }
 
         GlStateManager.popMatrix();
         GlStateManager.enableTexture2D();
@@ -126,8 +134,13 @@ public class BuildersWandRenderer
 
     private void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
+        this.renderStartAndEndPositions(mode, player, posStart, posEnd, partialTicks, 0xFF, 0xFF, 0xFF);
+    }
+
+    private void renderStartAndEndPositions(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks, int r, int g, int b)
+    {
         // Draw the area bounding box
-        if (posStart != null && posEnd != null && (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
+        if (posStart != null && posEnd != null && mode.isAreaMode())
         {
             int minX = Math.min(posStart.posX, posEnd.posX);
             int minY = Math.min(posStart.posY, posEnd.posY);
@@ -136,7 +149,7 @@ public class BuildersWandRenderer
             int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
             int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
             AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, partialTicks, player);
-            RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xCC);
+            RenderGlobal.drawOutlinedBoundingBox(aabb, r, g, b, 0xCC);
         }
 
         if (posStart != null)
@@ -147,7 +160,7 @@ public class BuildersWandRenderer
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
-        if (posEnd != null && (mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE))
+        if (posEnd != null && (mode.isAreaMode() || mode == Mode.WALLS || mode == Mode.CUBE))
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
@@ -261,9 +274,9 @@ public class BuildersWandRenderer
         int index = wand.getSelectedBlockTypeIndex(stack);
         String str;
 
-        if (mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE)
+        if (mode.isAreaMode())
         {
-            if (mode == Mode.DELETE)
+            if (mode == Mode.DELETE || mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST)
             {
                 str = I18n.format("enderutilities.tooltip.item.area");
                 lines.add(String.format("%s: [%s%d/%d%s]", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst));
@@ -334,7 +347,7 @@ public class BuildersWandRenderer
         str = I18n.format("enderutilities.tooltip.item.mode");
         String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, mode.getDisplayName(), rst);
 
-        if (mode == Mode.PASTE)
+        if (mode == Mode.PASTE || mode == Mode.MOVE_DST)
         {
             strMode += " - " + I18n.format("enderutilities.tooltip.item.replace");
             strMode += ": " + (wand.getReplaceExisting(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;

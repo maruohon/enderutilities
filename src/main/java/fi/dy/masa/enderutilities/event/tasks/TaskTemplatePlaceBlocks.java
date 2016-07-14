@@ -17,7 +17,7 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.TemplateBlockInfo;
 
-public class TaskStructureBuild implements IPlayerTask
+public class TaskTemplatePlaceBlocks implements IPlayerTask
 {
     protected final TemplateEnderUtilities template;
     protected final BlockPos posStart;
@@ -30,7 +30,7 @@ public class TaskStructureBuild implements IPlayerTask
     protected int placedCount;
     protected int failCount;
 
-    public TaskStructureBuild(TemplateEnderUtilities template, BlockPos posStart, int dimension, UUID playerUUID,
+    public TaskTemplatePlaceBlocks(TemplateEnderUtilities template, BlockPos posStart, int dimension, UUID playerUUID,
             int blocksPerTick, boolean copyTileEntities, boolean placeEntities)
     {
         this.template = template;
@@ -76,7 +76,7 @@ public class TaskStructureBuild implements IPlayerTask
                 IBlockState state = blockInfo.blockState.withMirror(placement.getMirror()).withRotation(placement.getRotation());
                 BlockPos pos = TemplateEnderUtilities.transformedBlockPos(placement, blockInfo.pos).add(this.posStart);
 
-                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2) == true)
+                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2, true, true) == true)
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

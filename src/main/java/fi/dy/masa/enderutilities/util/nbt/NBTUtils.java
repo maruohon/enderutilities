@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 public class NBTUtils
@@ -633,5 +634,12 @@ public class NBTUtils
 
         // This checks for hasNoTags and then removes the tag if it's empty
         setRootCompoundTag(containerStack, nbt);
+    }
+
+    public static void setPositionInTileEntityNBT(NBTTagCompound tag, BlockPos pos)
+    {
+        tag.setInteger("x", pos.getX());
+        tag.setInteger("y", pos.getY());
+        tag.setInteger("z", pos.getZ());
     }
 }

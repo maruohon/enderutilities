@@ -128,9 +128,7 @@ public class TemplateEnderUtilities
 
                     if (te != null)
                     {
-                        blockInfo.tileEntityData.setInteger("x", pos.getX());
-                        blockInfo.tileEntityData.setInteger("y", pos.getY());
-                        blockInfo.tileEntityData.setInteger("z", pos.getZ());
+                        NBTUtils.setPositionInTileEntityNBT(blockInfo.tileEntityData, pos);
                         te.readFromNBT(blockInfo.tileEntityData);
                     }
                 }

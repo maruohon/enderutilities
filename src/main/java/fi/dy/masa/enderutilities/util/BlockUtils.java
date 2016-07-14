@@ -1,19 +1,58 @@
 package fi.dy.masa.enderutilities.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
 {
+    /**
+     * Breaks the block as a player, and thus drops the item(s) from it
+     */
+    public static void breakBlockAsPlayer(World world, BlockPos pos, IBlockState stateExisting, EntityPlayerMP playerMP, ItemStack toolStack)
+    {
+        PlayerInteractionManager manager = playerMP.interactionManager;
+        int exp = ForgeHooks.onBlockBreakEvent(world, manager.getGameType(), playerMP, pos);
+        if (exp != -1)
+        {
+            Block blockExisting = stateExisting.getBlock();
+
+            blockExisting.onBlockHarvested(world, pos, stateExisting, playerMP);
+            boolean harvest = blockExisting.removedByPlayer(stateExisting, world, pos, playerMP, true);
+
+            if (harvest)
+            {
+                blockExisting.onBlockDestroyedByPlayer(world, pos, stateExisting);
+                blockExisting.harvestBlock(world, playerMP, pos, stateExisting, null, toolStack);
+            }
+        }
+    }
+
+    /**
+     * Sets the block state in the world and plays the placement sound
+     */
+    public static void placeBlock(World world, BlockPos pos, IBlockState newState, int setBlockStateFlags)
+    {
+        world.setBlockState(pos, newState, setBlockStateFlags);
+
+        SoundType soundtype = newState.getBlock().getSoundType();
+        world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
+                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+    }
+
     /**
      * Check if the block in the world matches the one asked for.
      * Use OreDictionary.WILDCARD_VALUE for the requiredMeta to ignore block meta.
