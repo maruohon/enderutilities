@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,7 +32,8 @@ public class EntityEventHandler
     public void onEntityInteractEvent(PlayerInteractEvent.EntityInteract event)
     {
         EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = event.getHand() == EnumHand.MAIN_HAND ? player.getHeldItemMainhand() : player.getHeldItemOffhand();
+        ItemStack stack = player.getHeldItem(event.getHand());
+
         if (stack == null)
         {
             return;
