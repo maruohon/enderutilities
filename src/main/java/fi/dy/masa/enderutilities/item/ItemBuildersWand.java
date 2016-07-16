@@ -145,7 +145,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
-        if (Mode.getMode(stack).hasTwoPlacableCorners())
+        Mode mode = Mode.getMode(stack);
+
+        if (mode.hasTwoPlacableCorners())
         {
             if (world.isRemote == false)
             {
@@ -157,9 +159,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         // Don't allow targeting the top face of blocks while sneaking
         // This should make sneak building a platform a lot less annoying
-        if (world.isRemote == false && (player.isSneaking() == false || side != EnumFacing.UP))
+        if (world.isRemote == false && (player.isSneaking() == false || side != EnumFacing.UP || mode == Mode.REPLACE))
         {
-            return this.useWand(stack, world, player, new BlockPosEU(pos.offset(side), player.dimension, side));
+            // Don't offset the position in Replace mode
+            if (mode == Mode.REPLACE)
+            {
+                return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
+            }
+            else
+            {
+                return this.useWand(stack, world, player, new BlockPosEU(pos.offset(side), player.dimension, side));
+            }
         }
 
         return EnumActionResult.SUCCESS;
@@ -188,6 +198,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (player.isSneaking() == true && mode.isAreaMode() == false)
             {
                 this.setSelectedFixedBlockType(stack, player, world, pos);
+            }
+            else if (mode == Mode.REPLACE)
+            {
+                if (this.getReplaceModeIsArea(stack))
+                {
+                    this.setPosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START);
+                }
             }
             else
             {
@@ -376,7 +393,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     private NBTTagCompound getModeTag(ItemStack stack, Mode mode)
     {
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
-        return NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode.ordinal(), true);
+        return NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode.getName(), true);
     }
 
     public BlockPosEU getPosition(ItemStack stack, boolean isStart)
@@ -396,6 +413,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 return this.getTransformedEndPosition(stack, mode);
             }
+        }
+
+        if (mode == Mode.REPLACE && this.getReplaceModeIsArea(stack) == false)
+        {
+            return null;
         }
 
         return BlockPosEU.readFromTag(this.getModeTag(stack, mode).getCompoundTag(isStart == true ? "Pos1" : "Pos2"));
@@ -485,7 +507,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
 
-        if (isStart == false && (mode == Mode.PASTE || mode == Mode.MOVE_DST))
+        if (isStart == false && (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.REPLACE))
+        {
+            return;
+        }
+
+        if (mode == Mode.REPLACE && this.getReplaceModeIsArea(stack) == false)
         {
             return;
         }
@@ -573,6 +600,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             return EnumActionResult.PASS;
         }
+        else if (mode == Mode.REPLACE)
+        {
+            return this.replaceBlocks(stack, world, player, posTarget);
+        }
         else
         {
             this.getBlockPositions(stack, world, player, positions, posStart != null ? posStart : posTarget);
@@ -588,7 +619,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
             BlockPosEU pos = this.getPosition(stack, POS_START);
-            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && this.getMovePosition(stack, mode))
+            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.REPLACE && this.getMovePosition(stack, mode))
             {
                 this.setPosition(stack, pos.offset(pos.side, 1), POS_START);
             }
@@ -620,7 +651,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockState, 3, true, true);
+        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockStateActual, 3, true, true);
     }
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
@@ -673,7 +704,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 if (dropItems)
                 {
-                    BlockUtils.breakBlockAsPlayer(world, pos, stateExisting, (EntityPlayerMP) player, wandStack);
+                    BlockUtils.breakBlockAsPlayer(world, pos, (EntityPlayerMP) player, wandStack);
 
                     // Couldn't break the existing block
                     if (world.isAirBlock(pos) == false)
@@ -695,12 +726,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
 
-                UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
+                if (player.capabilities.isCreativeMode == false)
+                {
+                    UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, false);
+                }
+
                 return true;
             }
         }
 
         return false;
+    }
+
+    private EnumActionResult replaceBlocks(ItemStack stack, World world, EntityPlayer player, BlockPosEU center)
+    {
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        this.getBlockPositions(stack, world, player, positions, center);
+        return EnumActionResult.SUCCESS;
     }
 
     private IItemHandler getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
@@ -781,9 +823,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public int getSelectionIndex(ItemStack stack)
     {
-        int mode = Mode.getModeOrdinal(stack);
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
-        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + mode, true);
+        NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + Mode.getMode(stack).getName(), true);
 
         return tag.getByte(TAG_NAME_BLOCK_SEL);
     }
@@ -793,7 +834,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Mode mode = Mode.getMode(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
 
-        int min = mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE || mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST ? 0 : -2;
+        int min = mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE ||
+                  mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST || mode == Mode.REPLACE ? 0 : -2;
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, min, MAX_BLOCKS - 1, reverse);
     }
 
@@ -1052,8 +1094,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return positions;
     }
 
-
-
     private BlockPosEU checkPositionIgnoringSide(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
             Set<BlockPosEU> visited, List<BlockPosEU> branches, List<BlockPosStateDist> positions,
             boolean continueThrough, boolean diagonals, int blockType, BlockInfo biTarget, BlockInfo biBound)
@@ -1134,9 +1174,127 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return continueTo;
     }
 
+    private List<BlockPosStateDist> getReplacePositions(ItemStack stack, World world,
+            BlockPosEU posStart, EnumFacing axisRight, EnumFacing axisUp)
+    {
+        Area area = new Area(this.getModeTag(stack, Mode.REPLACE));
+        BlockPos pos1 = posStart.toBlockPos().offset(axisRight, -area.rNegH).offset(axisUp, -area.rNegV);
+        BlockPos pos2 = posStart.toBlockPos().offset(axisRight,  area.rPosH).offset(axisUp,  area.rPosV);
+        BlockPos posMin = PositionUtils.getMinCorner(pos1, pos2);
+        BlockPos posMax = PositionUtils.getMaxCorner(pos1, pos2);
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        List<BlockPos> branches = new ArrayList<BlockPos>();
+        Set<BlockPos> visited = new HashSet<BlockPos>();
+        boolean diagonals = this.getAllowDiagonals(stack, Mode.REPLACE);
+        BlockPos pos = posStart.toBlockPos();
+        BlockInfo biTarget = BlockInfo.getBlockInfo(world, pos);
+        BlockInfo biBound = this.getSelectedFixedBlockType(stack);
+
+        if (biTarget == null || biBound == null)
+        {
+            return positions;
+        }
+
+        int counter = 0;
+        int branchIndex = 0;
+        BlockPos nextPos = null;
+
+        while (counter <= 16641) // 129 * 129 area
+        {
+            nextPos = this.checkReplacePositionIgnoringSide(world, pos, posStart.side, posMin, posMax,
+                    visited, branches, positions, diagonals, biTarget, biBound);
+            counter++;
+
+            if (nextPos == null)
+            {
+                if (branchIndex < branches.size())
+                {
+                    pos = branches.get(branchIndex);
+                    branchIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                pos = nextPos;
+            }
+        }
+        //System.out.printf("counter: %d\n", counter);
+        return positions;
+    }
+
+    private BlockPos checkReplacePositionIgnoringSide(World world, BlockPos posIn, EnumFacing side, BlockPos posMin, BlockPos posMax,
+            Set<BlockPos> visited, List<BlockPos> branches, List<BlockPosStateDist> positions, boolean diagonals, BlockInfo biTarget, BlockInfo biBound)
+    {
+        BlockPos pos = posIn;
+        BlockPos continueTo = null;
+        int sides = 0;
+
+        if (visited.contains(pos) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
+        {
+            return null;
+        }
+
+        IBlockState state = world.getBlockState(pos);
+
+        // The block must be identical to the original targeted block
+        if (state == biTarget.blockState)
+        {
+            BlockPos posAdj = pos.offset(side);
+            IBlockState stateAdj = world.getBlockState(posAdj);
+            Block blockAdj = stateAdj.getBlock();
+            // The block must have a non-full block on the front face to be valid for replacing
+            if (blockAdj.isAir(stateAdj, world, posAdj) ||
+                blockAdj.isSideSolid(stateAdj, world, posAdj, side.getOpposite()))
+            {
+                positions.add(new BlockPosStateDist(posIn, world.provider.getDimension(), side, biBound));
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+
+        visited.add(pos);
+
+        for (BlockPos posTmp : PositionUtils.getAdjacentPositions(pos, side, diagonals))
+        {
+            if (visited.contains(posTmp) || PositionUtils.isPositionInsideArea(posTmp, posMin, posMax) == false)
+            {
+                continue;
+            }
+
+            if (world.getBlockState(posTmp) == biTarget.blockState)
+            {
+                if (visited.contains(posTmp) == false)
+                {
+                    if (sides == 0)
+                    {
+                        continueTo = posTmp;
+                    }
+                    else if (branches.contains(posTmp) == false)
+                    {
+                        branches.add(posTmp);
+                    }
+                }
+
+                sides++;
+            }
+        }
+
+        return continueTo;
+    }
+
     private BlockInfo getBlockInfoForAdjacentBlock(World world, BlockPos pos, EnumFacing side)
     {
-        return new BlockInfo(world, pos.offset(side, -1));
+        return BlockInfo.getBlockInfo(world, pos.offset(side, -1));
     }
 
     private BlockInfo getBlockInfoForTargeted(ItemStack stack, World world, BlockPos pos)
@@ -1144,7 +1302,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         int blockType = this.getSelectionIndex(stack);
         if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
         {
-            return new BlockInfo(world, pos);
+            return BlockInfo.getBlockInfo(world, pos);
         }
         // Pre-determined bound block type
         else if (blockType >= 0)
@@ -1263,6 +1421,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             case EXTEND_AREA:
             case EXTEND_CONTINUOUS:
                 positions.addAll(this.getPositionsOnPlane(stack, mode, world, center, axisRight, axisUp));
+                break;
+
+            case REPLACE:
+                if (this.getReplaceModeIsArea(stack))
+                {
+                    positions.addAll(this.getReplacePositions(stack, world, center, axisRight, axisUp));
+                }
                 break;
 
             default:
@@ -1828,6 +1993,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, mode).getBoolean("GoThrough");
     }
 
+    private void toggleReplaceModeIsArea(ItemStack stack)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, Mode.REPLACE);
+        tag.setBoolean("AreaMode", ! tag.getBoolean("AreaMode"));
+    }
+
+    public boolean getReplaceModeIsArea(ItemStack stack)
+    {
+        return this.getModeTag(stack, Mode.REPLACE).getBoolean("AreaMode");
+    }
+
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
@@ -1911,7 +2087,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 this.toggleRemoveEntities(stack);
             }
-            else if (mode == Mode.EXTEND_CONTINUOUS)
+            else if (mode == Mode.EXTEND_CONTINUOUS || mode == Mode.REPLACE)
             {
                 this.toggleAllowDiagonals(stack, mode);
             }
@@ -1928,11 +2104,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Just Toggle key: Toggle the area flipped property
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
-            if (mode.isAreaMode() && mode != Mode.COPY)
+            if (mode == Mode.REPLACE)
+            {
+                this.toggleReplaceModeIsArea(stack);
+            }
+            else if (mode.isAreaMode() && mode != Mode.COPY)
             {
                 this.setAreaFacing(stack, mode, player);
             }
-            else
+            else if (mode.isAreaMode() == false)
             {
                 this.toggleAreaFlipped(stack, player);
             }
@@ -2097,7 +2277,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         PASTE               ("paste",   "enderutilities.tooltip.item.build.paste", true, false, true),
         DELETE              ("delete",  "enderutilities.tooltip.item.build.delete", true, true, true),
         MOVE_SRC            ("movesrc", "enderutilities.tooltip.item.build.move.source", true, true, false),
-        MOVE_DST            ("movedst", "enderutilities.tooltip.item.build.move.destination", true, false, true);
+        MOVE_DST            ("movedst", "enderutilities.tooltip.item.build.move.destination", true, false, true),
+        REPLACE             ("replace", "enderutilities.tooltip.item.build.replace");
 
         private final String name;
         private final String unlocName;

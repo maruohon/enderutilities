@@ -92,6 +92,37 @@ public class PositionUtils
         }
     }
 
+    public static BlockPos[] getAdjacentPositions(BlockPos center, EnumFacing front, boolean diagonals)
+    {
+        if (diagonals)
+        {
+            BlockPos[] positions = new BlockPos[8];
+            EnumFacing[] corners = getCornersForAxis(front.getAxis());
+            int i = 0;
+
+            for (EnumFacing side : getSidesForAxis(front.getAxis()))
+            {
+                positions[i    ] = center.offset(side);
+                positions[i + 1] = positions[i].offset(corners[i / 2]);
+                i += 2;
+            }
+
+            return positions;
+        }
+        else
+        {
+            BlockPos[] positions = new BlockPos[4];
+            int i = 0;
+
+            for (EnumFacing side : getSidesForAxis(front.getAxis()))
+            {
+                positions[i++] = center.offset(side);
+            }
+
+            return positions;
+        }
+    }
+
     public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEnd)
     {
         int x = posEnd.getX();

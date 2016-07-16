@@ -22,12 +22,13 @@ public class BlockUtils
     /**
      * Breaks the block as a player, and thus drops the item(s) from it
      */
-    public static void breakBlockAsPlayer(World world, BlockPos pos, IBlockState stateExisting, EntityPlayerMP playerMP, ItemStack toolStack)
+    public static void breakBlockAsPlayer(World world, BlockPos pos, EntityPlayerMP playerMP, ItemStack toolStack)
     {
         PlayerInteractionManager manager = playerMP.interactionManager;
         int exp = ForgeHooks.onBlockBreakEvent(world, manager.getGameType(), playerMP, pos);
         if (exp != -1)
         {
+            IBlockState stateExisting = world.getBlockState(pos);
             Block blockExisting = stateExisting.getBlock();
 
             blockExisting.onBlockHarvested(world, pos, stateExisting, playerMP);
@@ -36,7 +37,7 @@ public class BlockUtils
             if (harvest)
             {
                 blockExisting.onBlockDestroyedByPlayer(world, pos, stateExisting);
-                blockExisting.harvestBlock(world, playerMP, pos, stateExisting, null, toolStack);
+                blockExisting.harvestBlock(world, playerMP, pos, stateExisting, world.getTileEntity(pos), toolStack);
             }
         }
     }

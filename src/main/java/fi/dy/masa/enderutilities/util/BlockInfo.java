@@ -11,21 +11,20 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 public class BlockInfo
 {
     public final IBlockState blockState;
+    public final IBlockState blockStateActual;
     public final Block block;
     public final int blockMeta;
     public final int itemMeta;
     public final ResourceLocation resource;
 
-    public BlockInfo(World world, BlockPos pos)
+    public BlockInfo(IBlockState state, IBlockState stateActual, Block block, int meta, int itemMeta)
     {
-        this.blockState = world.getBlockState(pos).getActualState(world, pos);
-        this.block = this.blockState.getBlock();
-        this.blockMeta = this.block.getMetaFromState(this.blockState);
+        this.blockState = state;
+        this.blockStateActual = stateActual;
+        this.block = block;
+        this.blockMeta = meta;
         this.resource = ForgeRegistries.BLOCKS.getKey(this.block);
-
-        @SuppressWarnings("deprecation")
-        ItemStack stack = this.block.getItem(world, pos, this.blockState);
-        this.itemMeta = stack != null ? stack.getMetadata() : 0;
+        this.itemMeta = itemMeta;
     }
 
     public BlockInfo(ResourceLocation resource, int blockMeta, int itemMeta)
@@ -40,7 +39,18 @@ public class BlockInfo
         this.blockMeta = blockMeta;
         this.itemMeta = itemMeta;
         this.blockState = this.block.getStateFromMeta(this.blockMeta);
+        this.blockStateActual = this.blockState;
         this.resource = ForgeRegistries.BLOCKS.getKey(block);
+    }
+
+    public static BlockInfo getBlockInfo(World world, BlockPos pos)
+    {
+        IBlockState state = world.getBlockState(pos);
+        IBlockState stateActual = state.getActualState(world, pos);
+        Block block = state.getBlock();
+        @SuppressWarnings("deprecation")
+        ItemStack stack = block.getItem(world, pos, state);
+        return new BlockInfo(state, stateActual, block, block.getMetaFromState(state), stack != null ? stack.getMetadata() : 0);
     }
 
     @Override

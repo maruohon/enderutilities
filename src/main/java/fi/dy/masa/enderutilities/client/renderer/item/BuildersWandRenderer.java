@@ -41,8 +41,9 @@ public class BuildersWandRenderer
 
     public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
     {
-        ItemBuildersWand item = (ItemBuildersWand)stack.getItem();
-        BlockPosEU posStart = item.getPosition(stack, ItemBuildersWand.POS_START);
+        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
+        BlockPosEU posStart = wand.getPosition(stack, ItemBuildersWand.POS_START);
+        Mode mode = Mode.getMode(stack);
 
         RayTraceResult rayTraceResult = this.mc.objectMouseOver;
         if (posStart == null && rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
@@ -54,7 +55,15 @@ public class BuildersWandRenderer
                 return;
             }
 
-            posStart = new BlockPosEU(rayTraceResult.getBlockPos().offset(rayTraceResult.sideHit), player.dimension, rayTraceResult.sideHit);
+            // In Replace mode we want to target the pointed block, not the empty space adjacent to it
+            if (mode == Mode.REPLACE)
+            {
+                posStart = new BlockPosEU(rayTraceResult.getBlockPos(), player.dimension, rayTraceResult.sideHit);
+            }
+            else
+            {
+                posStart = new BlockPosEU(rayTraceResult.getBlockPos().offset(rayTraceResult.sideHit), player.dimension, rayTraceResult.sideHit);
+            }
         }
 
         if (posStart == null || player.dimension != posStart.dimension)
@@ -62,9 +71,8 @@ public class BuildersWandRenderer
             return;
         }
 
-        Mode mode = Mode.getMode(stack);
         BlockPosEU posEnd = mode.isAreaMode() || (mode == Mode.WALLS || mode == Mode.CUBE) ?
-                item.getPosition(stack, ItemBuildersWand.POS_END) : null;
+                wand.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
         if (partialTicks < this.partialTicksLast)
         {
@@ -73,11 +81,11 @@ public class BuildersWandRenderer
             if (mode == Mode.CUBE || mode == Mode.WALLS)
             {
                 // We use the walls mode block positions for cube rendering as well, to save on rendering burden
-                item.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
+                wand.getBlockPositionsWalls(stack, world, this.positions, posStart, posEnd);
             }
             else if (mode.isAreaMode() == false)
             {
-                item.getBlockPositions(stack, world, player, this.positions, posStart);
+                wand.getBlockPositions(stack, world, player, this.positions, posStart);
             }
         }
 
@@ -86,7 +94,7 @@ public class BuildersWandRenderer
         GlStateManager.disableCull();
         GlStateManager.pushMatrix();
 
-        boolean renderGhostBlocks = item.getRenderGhostBlocks(stack, mode);
+        boolean renderGhostBlocks = wand.getRenderGhostBlocks(stack, mode);
 
         if (renderGhostBlocks == true)
         {
@@ -105,8 +113,8 @@ public class BuildersWandRenderer
         // In "Move, to" mode we also render the "Move, from" area
         if (mode == Mode.MOVE_DST)
         {
-            posStart = item.getPosition(stack, Mode.MOVE_SRC, true);
-            posEnd = item.getPosition(stack, Mode.MOVE_SRC, false);
+            posStart = wand.getPosition(stack, Mode.MOVE_SRC, true);
+            posEnd = wand.getPosition(stack, Mode.MOVE_SRC, false);
             this.renderStartAndEndPositions(Mode.MOVE_SRC, player, posStart, posEnd, partialTicks, 0xFF, 0x55, 0x55);
         }
 
@@ -195,7 +203,7 @@ public class BuildersWandRenderer
         {
             BlockPosStateDist pos = this.positions.get(i);
 
-            if (pos.blockInfo != null && pos.blockInfo.blockState != null)
+            if (pos.blockInfo != null && pos.blockInfo.blockStateActual != null)
             {
                 GlStateManager.pushMatrix();
                 GlStateManager.enableCull();
@@ -204,7 +212,7 @@ public class BuildersWandRenderer
                 GlStateManager.translate(0, 0, -1);
                 GlStateManager.rotate(-90, 0, 1, 0);
 
-                Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(pos.blockInfo.blockState, 1.0f);
+                Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(pos.blockInfo.blockStateActual, 1.0f);
 
                 GlStateManager.popMatrix();
             }
@@ -323,18 +331,21 @@ public class BuildersWandRenderer
 
             if (mode != Mode.WALLS && mode != Mode.CUBE)
             {
-                str = I18n.format("enderutilities.tooltip.item.area.flipped");
-                str += ": " + (wand.getAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
+                if (mode != Mode.REPLACE)
+                {
+                    str = I18n.format("enderutilities.tooltip.item.area.flipped");
+                    str += ": " + (wand.getAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
 
-                str += " - " + I18n.format("enderutilities.tooltip.item.move");
-                lines.add(str + ": " + (wand.getMovePosition(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                    str += " - " + I18n.format("enderutilities.tooltip.item.move");
+                    lines.add(str + ": " + (wand.getMovePosition(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                }
 
                 if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
                 {
                     str = I18n.format("enderutilities.tooltip.item.continuethrough");
                     lines.add(str + ": " + (wand.getContinueThrough(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
-                else if (mode == Mode.EXTEND_CONTINUOUS)
+                else if (mode == Mode.EXTEND_CONTINUOUS || mode == Mode.REPLACE)
                 {
                     str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
                     lines.add(str + ": " + (wand.getAllowDiagonals(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
@@ -342,10 +353,23 @@ public class BuildersWandRenderer
             }
         }
 
+        String modeName = mode.getDisplayName();
+        if (mode == Mode.REPLACE)
+        {
+            if (wand.getReplaceModeIsArea(stack))
+            {
+                modeName += " (" + I18n.format("enderutilities.tooltip.item.area") + ")";
+            }
+            else
+            {
+                modeName += " (" + I18n.format("enderutilities.tooltip.item.single") + ")";
+            }
+        }
+
         int modeId = mode.ordinal() + 1;
         int maxModeId = Mode.values().length;
         str = I18n.format("enderutilities.tooltip.item.mode");
-        String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, mode.getDisplayName(), rst);
+        String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, modeName, rst);
 
         if (mode == Mode.PASTE || mode == Mode.MOVE_DST)
         {
