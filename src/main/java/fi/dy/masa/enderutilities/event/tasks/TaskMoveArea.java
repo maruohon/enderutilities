@@ -27,7 +27,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TaskMoveArea implements IPlayerTask
 {
-    protected final ItemStack wandStack;
     protected final BlockPos posSrcStart;
     protected final BlockPos posSrcEnd;
     protected final BlockPos posDstStart;
@@ -35,6 +34,7 @@ public class TaskMoveArea implements IPlayerTask
     protected final Rotation rotation;
     protected final Mirror mirror;
     protected final UUID playerUUID;
+    protected final UUID wandUUID;
     protected final int dimension;
     protected final int blocksPerTick;
     protected final BlockPosBox boxRelative;
@@ -48,10 +48,9 @@ public class TaskMoveArea implements IPlayerTask
     protected IBlockState overlappingState;
     protected NBTTagCompound overlappingNBT;
 
-    public TaskMoveArea(ItemStack wandStack, BlockPosEU posSrcStart, BlockPosEU posSrcEnd, BlockPosEU posDstStart, BlockPosEU posDstEnd,
-            Rotation rotationDst, Mirror mirrorDst, UUID playerUUID, int blocksPerTick)
+    public TaskMoveArea(BlockPosEU posSrcStart, BlockPosEU posSrcEnd, BlockPosEU posDstStart, BlockPosEU posDstEnd,
+            Rotation rotationDst, Mirror mirrorDst, UUID playerUUID, UUID wandUUID, int blocksPerTick)
     {
-        this.wandStack = ItemStack.copyItemStack(wandStack);
         this.posSrcStart = posSrcStart.toBlockPos();
         this.posSrcEnd = posSrcEnd.toBlockPos();
         this.posDstStart = posDstStart.toBlockPos();
@@ -59,6 +58,7 @@ public class TaskMoveArea implements IPlayerTask
         this.rotation = rotationDst;
         this.mirror = mirrorDst;
         this.playerUUID = playerUUID;
+        this.wandUUID = wandUUID;
         this.dimension = posDstStart.dimension;
         this.blocksPerTick = blocksPerTick;
         this.boxRelative = new BlockPosBox(BlockPos.ORIGIN, this.posSrcEnd.subtract(this.posSrcStart));
@@ -90,7 +90,8 @@ public class TaskMoveArea implements IPlayerTask
     public boolean execute(World world, EntityPlayer player)
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
-        if (stack != null)
+
+        if (stack != null && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
         {
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             BlockPos posRelative;
@@ -115,6 +116,7 @@ public class TaskMoveArea implements IPlayerTask
                     this.overlappingPos = null;
                     this.overlappingNBT = null;
                 }
+                // No overlapping data from last iteration
                 else
                 {
                     posRelative = this.boxRelative.getPosAtIndex(this.listIndex);
@@ -171,6 +173,7 @@ public class TaskMoveArea implements IPlayerTask
                         }
                     }
 
+                    // After the current block data has been stored for the next iteration, clear the position
                     world.restoringBlockSnapshots = true;
                     world.setBlockState(posDst, Blocks.AIR.getDefaultState(), 2);
                     world.restoringBlockSnapshots = false;
@@ -178,7 +181,7 @@ public class TaskMoveArea implements IPlayerTask
 
                 stateNew = stateNew.withMirror(this.mirror).withRotation(this.rotation);
 
-                if (wand.placeBlockToPosition(this.wandStack, world, player, posDst, EnumFacing.UP, stateNew, 2, false, overlap == false) == true)
+                if (wand.placeBlockToPosition(stack, world, player, posDst, EnumFacing.UP, stateNew, 2, false, overlap == false) == true)
                 {
                     if (nbt != null && stateNew.getBlock().hasTileEntity(stateNew))
                     {

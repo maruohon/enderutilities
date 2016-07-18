@@ -16,12 +16,14 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.TemplateBlockInfo;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TaskTemplatePlaceBlocks implements IPlayerTask
 {
     protected final TemplateEnderUtilities template;
     protected final BlockPos posStart;
     protected final UUID playerUUID;
+    protected final UUID wandUUID;
     protected final int dimension;
     protected final int blocksPerTick;
     protected final boolean tileEntities;
@@ -30,12 +32,13 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     protected int placedCount;
     protected int failCount;
 
-    public TaskTemplatePlaceBlocks(TemplateEnderUtilities template, BlockPos posStart, int dimension, UUID playerUUID,
+    public TaskTemplatePlaceBlocks(TemplateEnderUtilities template, BlockPos posStart, int dimension, UUID playerUUID, UUID wandUUID,
             int blocksPerTick, boolean copyTileEntities, boolean placeEntities)
     {
         this.template = template;
         this.posStart = posStart;
         this.playerUUID = playerUUID;
+        this.wandUUID = wandUUID;
         this.dimension = dimension;
         this.blocksPerTick = blocksPerTick;
         this.tileEntities = copyTileEntities;
@@ -65,7 +68,8 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     public boolean execute(World world, EntityPlayer player)
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
-        if (stack != null)
+
+        if (stack != null && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
         {
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             PlacementSettings placement = this.template.getPlacementSettings();

@@ -626,7 +626,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else
         {
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), positions, Configs.buildersWandBlocksPerTick);
+            UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
+            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), wandUUID, positions, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
@@ -1637,8 +1638,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else
         {
             template.setReplaceMode(ReplaceMode.NOTHING);
+
+            UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
             TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), player.dimension,
-                    player.getUniqueID(), Configs.buildersWandBlocksPerTick, false, false);
+                    player.getUniqueID(), wandUUID, Configs.buildersWandBlocksPerTick, false, false);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
@@ -1755,8 +1758,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else
         {
-            TaskMoveArea task = new TaskMoveArea(stack, posSrc1, posSrc2, posDst1, posDst2, rotation, mirror,
-                    player.getUniqueID(), Configs.buildersWandBlocksPerTick);
+            UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
+            TaskMoveArea task = new TaskMoveArea(posSrc1, posSrc2, posDst1, posDst2, rotation, mirror,
+                    player.getUniqueID(), wandUUID, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
     }

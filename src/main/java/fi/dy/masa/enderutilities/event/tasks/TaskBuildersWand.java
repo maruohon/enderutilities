@@ -14,21 +14,24 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TaskBuildersWand implements IPlayerTask
 {
-    protected int dimension;
-    protected UUID playerUUID;
-    protected List<BlockPosStateDist> positions;
-    protected int blocksPerTick;
+    protected final int dimension;
+    protected final UUID playerUUID;
+    protected final UUID wandUUID;
+    protected final List<BlockPosStateDist> positions;
+    protected final int blocksPerTick;
     protected int listIndex;
     protected int placedCount;
     protected int failCount;
 
-    public TaskBuildersWand(World world, UUID playerUUID, List<BlockPosStateDist> positions, int blocksPerTick)
+    public TaskBuildersWand(World world, UUID playerUUID, UUID wandUUID, List<BlockPosStateDist> positions, int blocksPerTick)
     {
         this.dimension = world.provider.getDimension();
         this.playerUUID = playerUUID;
+        this.wandUUID = wandUUID;
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
         this.listIndex = 0;
@@ -57,7 +60,7 @@ public class TaskBuildersWand implements IPlayerTask
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+        if (stack != null && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
         {
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
 
@@ -76,19 +79,16 @@ public class TaskBuildersWand implements IPlayerTask
             // Finished looping through the block positions
             if (this.listIndex >= this.positions.size())
             {
-                if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+                Mode mode = Mode.getMode(stack);
+                BlockPosEU pos = wand.getPosition(stack, ItemBuildersWand.POS_START);
+
+                // Move the target position forward by one block after the area has been built
+                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && wand.getMovePosition(stack, mode))
                 {
-                    Mode mode = Mode.getMode(stack);
-                    BlockPosEU pos = wand.getPosition(stack, ItemBuildersWand.POS_START);
-
-                    // Move the target position forward by one block after the area has been built
-                    if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && wand.getMovePosition(stack, mode))
-                    {
-                        wand.setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
-                    }
-
-                    world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);
+                    wand.setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
                 }
+
+                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);
 
                 return true;
             }
