@@ -9,6 +9,7 @@ public class BlockPosBox
     public final int sizeX;
     public final int sizeY;
     public final int sizeZ;
+    public final int sizeLayer;
     public final int count;
 
     public BlockPosBox(BlockPos pos1, BlockPos pos2)
@@ -18,6 +19,7 @@ public class BlockPosBox
         this.sizeX = this.posMax.getX() - this.posMin.getX() + 1;
         this.sizeY = this.posMax.getY() - this.posMin.getY() + 1;
         this.sizeZ = this.posMax.getZ() - this.posMin.getZ() + 1;
+        this.sizeLayer = this.sizeX * this.sizeZ;
         this.count = this.sizeX * this.sizeY * this.sizeZ;
     }
 
@@ -35,8 +37,13 @@ public class BlockPosBox
             return null;
         }
 
-        int sizeLayer = this.sizeX * this.sizeZ;
+        return this.posMin.add(index % this.sizeX, index / this.sizeLayer, (index / this.sizeX) % this.sizeZ);
+    }
 
-        return new BlockPos(index % this.sizeX, index / sizeLayer, (index / this.sizeX) % this.sizeZ);
+    @Override
+    public String toString()
+    {
+        return "BlockPosBox{min=" + this.posMin + ",max=" + this.posMax +
+                ",sizeX=" + this.sizeX + ",sizeY=" + this.sizeY + ",sizeZ=" + this.sizeZ + ",count=" + this.count + "}";
     }
 }

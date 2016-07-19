@@ -1650,26 +1650,28 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult deleteArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
     {
+        if (posStartIn == null || posEndIn == null)
+        {
+            return EnumActionResult.PASS;
+        }
+
         if (player.capabilities.isCreativeMode == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.creativeonly"));
             return EnumActionResult.FAIL;
         }
 
-        this.deleteArea(world, player, posStartIn, posEndIn, this.getRemoveEntities(stack));
+        this.deleteArea(world, player, posStartIn.toBlockPos(), posEndIn.toBlockPos(), this.getRemoveEntities(stack));
 
         return EnumActionResult.SUCCESS;
     }
 
-    private void deleteArea(World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn, boolean removeEntities)
+    private void deleteArea(World world, EntityPlayer player, BlockPos posStart, BlockPos posEnd, boolean removeEntities)
     {
-        if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
+        if (posStart == null || posEnd == null)
         {
             return;
         }
-
-        BlockPos posStart = posStartIn.toBlockPos();
-        BlockPos posEnd = posEndIn.toBlockPos();
 
         if (player.getDistanceSq(posStart) >= 16384 || player.getDistanceSq(posEnd) >= 16384 ||
             this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
@@ -1716,25 +1718,29 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
     }
 
-    private void moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1, BlockPosEU posDst2)
+    private void moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1EU, BlockPosEU posDst2EU)
     {
-        BlockPosEU posSrc1 = this.getPosition(stack, Mode.MOVE_SRC, true);
-        BlockPosEU posSrc2 = this.getPosition(stack, Mode.MOVE_SRC, false);
-        if (posDst1 == null || posDst2 == null || posSrc1 == null || posSrc2 == null)
+        BlockPosEU posSrc1EU = this.getPosition(stack, Mode.MOVE_SRC, true);
+        BlockPosEU posSrc2EU = this.getPosition(stack, Mode.MOVE_SRC, false);
+        if (posSrc1EU == null || posSrc2EU == null || posDst1EU == null || posDst2EU == null)
         {
             return;
         }
 
-        BlockPos posStart = posDst1.toBlockPos();
-        BlockPos posEnd = posDst2.toBlockPos();
+        int dim = world.provider.getDimension();
+        BlockPos posDst1 = posDst1EU.toBlockPos();
+        BlockPos posDst2 = posDst2EU.toBlockPos();
 
-        if (player.getDistanceSq(posStart) >= 4096 || player.getDistanceSq(posEnd) >= 4096 ||
-            this.isAreaWithinSizeLimit(posEnd.subtract(posStart), player) == false)
+        if (player.getDistanceSq(posDst1) >= 4096 || player.getDistanceSq(posDst2) >= 4096 ||
+            this.isAreaWithinSizeLimit(posDst2.subtract(posDst1), player) == false ||
+            posSrc1EU.dimension != dim || posSrc2EU.dimension != dim || posDst1EU.dimension != dim || posDst2EU.dimension != dim)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
             return;
         }
 
+        BlockPos posSrc1 = posSrc1EU.toBlockPos();
+        BlockPos posSrc2 = posSrc2EU.toBlockPos();
         EnumFacing origFacing = PositionUtils.getFacingFromPositions(posSrc1, posSrc2);
         EnumFacing areaFacing = this.getAreaFacing(stack, Mode.MOVE_DST);
         if (areaFacing == null)
@@ -1742,7 +1748,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             areaFacing = origFacing;
         }
         Rotation rotation = PositionUtils.getRotation(origFacing, areaFacing);
-        Mirror mirror = this.getMirror(stack);
+        Mirror mirror = this.getMirror(stack, Mode.MOVE_DST);
 
         // Don't do anything if the destination is exactly the same as the source
         if (posSrc1.equals(posDst1) && rotation == Rotation.NONE && mirror == Mirror.NONE)
@@ -1753,26 +1759,25 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (player.capabilities.isCreativeMode)
         {
-            PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
-            this.moveAreaImmediate(world, player, placement, posSrc1, posSrc2, posDst1);
+            this.moveAreaImmediate(world, player, posSrc1, posSrc2, posDst1, mirror, rotation);
         }
         else
         {
             UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-            TaskMoveArea task = new TaskMoveArea(posSrc1, posSrc2, posDst1, posDst2, rotation, mirror,
-                    player.getUniqueID(), wandUUID, Configs.buildersWandBlocksPerTick);
+            TaskMoveArea task = new TaskMoveArea(world.provider.getDimension(), posSrc1, posSrc2, posDst1,
+                    rotation, mirror, wandUUID, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
     }
 
-    private void moveAreaImmediate(World world, EntityPlayer player, PlacementSettings placement,
-            BlockPosEU posSrc1, BlockPosEU posSrc2, BlockPosEU posDst1)
+    private void moveAreaImmediate(World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
+            Mirror mirror, Rotation rotation)
     {
-        BlockPos posSrcStart = posSrc1.toBlockPos();
+        PlacementSettings placement = new PlacementSettings(mirror, rotation, false, Blocks.BARRIER, null);
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, ReplaceMode.EVERYTHING);
-        template.takeBlocksFromWorld(world, posSrcStart, posSrc2.toBlockPos().subtract(posSrcStart), true);
+        template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true);
         this.deleteArea(world, player, posSrc1, posSrc2, true);
-        template.addBlocksToWorld(world, posDst1.toBlockPos());
+        template.addBlocksToWorld(world, posDst1);
     }
 
     private void placeHelperBlock(EntityPlayer player)
