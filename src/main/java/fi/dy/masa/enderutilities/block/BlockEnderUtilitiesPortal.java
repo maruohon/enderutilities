@@ -43,6 +43,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
 
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
         this.setSoundType(SoundType.GLASS);
+        this.setBlockUnbreakable();
     }
 
     @Override
@@ -136,21 +137,9 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public float getBlockHardness(IBlockState state, World worldIn, BlockPos pos)
-    {
-        return -1f;
-    }
-
-    @Override
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return false;
-    }
-
-    @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
-    {
-        return 0;
     }
 
     @Override

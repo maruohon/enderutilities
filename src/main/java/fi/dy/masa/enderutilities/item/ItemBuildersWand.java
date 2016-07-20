@@ -634,6 +634,29 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return EnumActionResult.SUCCESS;
     }
 
+    public static boolean hasEnoughCharge(ItemStack stack, EntityPlayer player)
+    {
+        return UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true);
+    }
+
+    public static boolean canManipulateBlock(World world, BlockPos pos, EntityPlayer player, ItemStack stack, boolean allowTileEntities)
+    {
+        if (player.capabilities.isCreativeMode)
+        {
+            return true;
+        }
+
+        IBlockState state = world.getBlockState(pos);
+        if (state.getBlock().isAir(state, world, pos))
+        {
+            return true;
+        }
+
+        float hardness = state.getBlockHardness(world, pos);
+        return hardness >= 0 && hardness <= Configs.buildersWandMaxBlockHardness &&
+                (allowTileEntities || state.getBlock().hasTileEntity(state) == false);
+    }
+
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist posStateDist)
     {
         BlockInfo blockInfo;
@@ -658,8 +681,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
             BlockPos pos, EnumFacing side, IBlockState newState, int setBlockStateFlags, boolean requireItems, boolean dropItems)
     {
-        if (newState.getMaterial() == Material.AIR ||
-            (player.capabilities.isCreativeMode == false && UtilItemModular.useEnderCharge(wandStack, ENDER_CHARGE_COST, true) == false))
+        if (newState.getMaterial() == Material.AIR)
         {
             return false;
         }
@@ -667,7 +689,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         boolean replace = this.getReplaceExisting(wandStack, Mode.getMode(wandStack));
         boolean isAir = world.isAirBlock(pos);
 
-        if (player.capabilities.isCreativeMode == true)
+        if (player.capabilities.isCreativeMode)
         {
             if (replace || isAir)
             {
@@ -678,10 +700,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        IBlockState stateExisting = world.getBlockState(pos);
-        float hardness = stateExisting.getBlockHardness(world, pos);
-
-        if (isAir == false && (replace == false || hardness < 0 || hardness > 10 || world.getTileEntity(pos) != null))
+        if (hasEnoughCharge(wandStack, player) == false ||
+            (isAir == false && (replace == false || canManipulateBlock(world, pos, player, wandStack, false) == false)))
         {
             return false;
         }
@@ -692,10 +712,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (requireItems)
         {
             @SuppressWarnings("deprecation")
-            // FIXME
+            // FIXME - use reflection and call createStackedBlock() instead?
             ItemStack templateStack = blockNew.getItem(world, pos, newState);
+            if (templateStack == null)
+            {
+                return false;
+            }
+
             IItemHandler inv = this.getInventoryWithItems(wandStack, templateStack, player);
-            targetStack = this.getItemToBuildWith(inv, templateStack, 1);
+            targetStack = this.consumeBuildItem(inv, templateStack, 1);
         }
 
         if (targetStack != null || requireItems == false)
@@ -768,7 +793,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return null;
     }
 
-    private ItemStack getItemToBuildWith(IItemHandler inv, ItemStack templateStack, int amount)
+    private ItemStack consumeBuildItem(IItemHandler inv, ItemStack templateStack, int amount)
     {
         if (inv != null)
         {

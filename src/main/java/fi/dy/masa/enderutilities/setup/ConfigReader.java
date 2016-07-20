@@ -46,7 +46,11 @@ public class ConfigReader
         String category = CATEGORY_GENERIC;
         prop = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick, default = 10");
-        Configs.buildersWandBlocksPerTick = prop.getInt(10);
+        Configs.buildersWandBlocksPerTick = prop.getInt();
+
+        prop = conf.get(category, "lazyBuildersWandMaxBlockHardness", 10d).setRequiresMcRestart(false);
+        prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
+        Configs.buildersWandMaxBlockHardness = (float) prop.getDouble();
 
         prop = conf.get(category, "lazyBuildersWandEnableCopyPaste", true).setRequiresMcRestart(false);
         prop.setComment("Controls whether the Copy and Paste modes can be used on the Wand of the Lazy Builder");

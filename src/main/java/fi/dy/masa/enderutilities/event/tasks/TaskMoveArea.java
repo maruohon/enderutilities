@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosBox;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -42,6 +43,7 @@ public class TaskMoveArea implements IPlayerTask
     protected BlockPos overlappingRelativePos = null;
     protected IBlockState overlappingState;
     protected NBTTagCompound overlappingNBT;
+    protected boolean shouldExit = false;
 
     public TaskMoveArea(int dimension, BlockPos posSrcStart, BlockPos posSrcEnd, BlockPos posDstStart,
             Rotation rotationDst, Mirror mirrorDst, UUID wandUUID, int blocksPerTick)
@@ -89,7 +91,7 @@ public class TaskMoveArea implements IPlayerTask
         }
 
         // Bail out after 10 seconds of failing to execute, or after all blocks have been placed
-        if (this.failCount > 200)
+        if (this.shouldExit || this.failCount > 200)
         {
             world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_BASEDRUM, SoundCategory.BLOCKS, 0.6f, 1.0f);
             return true;
@@ -115,6 +117,12 @@ public class TaskMoveArea implements IPlayerTask
 
         for (int i = 0; i < this.blocksPerTick && this.listIndex < this.boxRelative.count; )
         {
+            if (ItemBuildersWand.hasEnoughCharge(stack, player) == false)
+            {
+                this.shouldExit = true;
+                break;
+            }
+
             IBlockState stateNew = null;
             NBTTagCompound nbt = null;
 
@@ -143,6 +151,22 @@ public class TaskMoveArea implements IPlayerTask
 
             posSrc = this.posSrcStart.add(posRelative);
             posDst = PositionUtils.getTransformedBlockPos(posRelative, this.mirror, this.rotation).add(this.posDstStart);
+            boolean replace = wand.getReplaceExisting(stack, Mode.MOVE_DST);
+            boolean destinationOverlapsSource = this.boxSource.containsPosition(posDst);
+
+            // If Replace is disabled and the destination is not air (and is not an overlapping source position),
+            // or if one of the source and destination blocks can't be moved/broken if necessary,
+            // or the wand doesn't have enough charge left, then skip this position
+            if ((replace == false && destinationOverlapsSource == false && world.isAirBlock(posDst) == false) ||
+                this.canMoveBlock(world, posSrc, posDst, player, stack) == false)
+            {
+                this.handledPositions.add(posRelative);
+                continue;
+            }
+
+            // FIXME We can't really properly check for the movability of blocks in the overlapping case,
+            // because that could be a recursive check through the ENTIRE area in the worst case...
+            // So there will be block loss if there are non-movable blocks in an overlapping area case...
 
             // No overlapping block data from last iteration, get the current block in the world
             if (stateNew == null)
@@ -168,7 +192,7 @@ public class TaskMoveArea implements IPlayerTask
             // the current block state and possible TE data before replacing it with the one from
             // the source box. That stored data will then be handled in the next iteration
             // instead of the regular next position.
-            if (this.boxSource.containsPosition(posDst))
+            if (destinationOverlapsSource)
             {
                 // Get the relative source position of the overlapping destination position inside the source area
                 this.overlappingRelativePos = posDst.subtract(this.posSrcStart);
@@ -196,7 +220,7 @@ public class TaskMoveArea implements IPlayerTask
 
             stateNew = stateNew.withMirror(this.mirror).withRotation(this.rotation);
 
-            if (wand.placeBlockToPosition(stack, world, player, posDst, EnumFacing.UP, stateNew, 2, false, false))
+            if (wand.placeBlockToPosition(stack, world, player, posDst, EnumFacing.UP, stateNew, 2, false, true))
             {
                 if (nbt != null)
                 {
@@ -216,6 +240,12 @@ public class TaskMoveArea implements IPlayerTask
 
             this.handledPositions.add(posRelative);
         }
+    }
+
+    public boolean canMoveBlock(World world, BlockPos posSrc, BlockPos posDst, EntityPlayer player, ItemStack stack)
+    {
+        return ItemBuildersWand.canManipulateBlock(world, posSrc, player, stack, true) &&
+               ItemBuildersWand.canManipulateBlock(world, posDst, player, stack, true);
     }
 
     @Override

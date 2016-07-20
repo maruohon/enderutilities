@@ -11,6 +11,7 @@ public class Configs
     public static int configFileVersion;
     public static boolean buildersWandEnableCopyPaste;
     public static int buildersWandBlocksPerTick;
+    public static float buildersWandMaxBlockHardness;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;
     public static int portalFrameCheckLimit;
