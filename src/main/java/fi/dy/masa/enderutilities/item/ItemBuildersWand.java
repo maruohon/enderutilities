@@ -164,11 +164,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        TileEntity te = world.getTileEntity(pos);
+        /*TileEntity te = world.getTileEntity(pos);
         if (te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class))
         {
             return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
-        }
+        }*/
 
         Mode mode = Mode.getMode(stack);
 
@@ -187,14 +187,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (world.isRemote == false && (player.isSneaking() == false || side != EnumFacing.UP || mode == Mode.REPLACE))
         {
             // Don't offset the position in Replace mode
-            if (mode == Mode.REPLACE)
+            if (mode != Mode.REPLACE)
             {
-                return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
+                pos = pos.offset(side);
             }
-            else
-            {
-                return this.useWand(stack, world, player, new BlockPosEU(pos.offset(side), player.dimension, side));
-            }
+
+            return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
         }
 
         return EnumActionResult.SUCCESS;
@@ -741,7 +739,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (requireItems)
         {
-            targetStack = getAndConsumeBuildItem(wandStack, player, newState, false);
+            targetStack = getAndConsumeBuildItem(wandStack, world, pos, newState, player, false);
         }
 
         if (targetStack != null || requireItems == false)
@@ -785,9 +783,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return false;
     }
 
-    public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, EntityPlayer player, IBlockState newState, boolean simulate)
+    public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, World world, BlockPos pos, IBlockState newState, EntityPlayer player, boolean simulate)
     {
-        ItemStack templateStack = BlockUtils.getStackedItemFromBlock(newState); // blockNew.getItem(world, pos, newState);
+        // NOTE: This isn't technically correct, because the block in the world is air and not the target block we want to place...
+        ItemStack templateStack = BlockUtils.getStackedItemFromBlock(world, pos, newState, player, EnumFacing.UP);
         if (templateStack == null)
         {
             return null;
@@ -1299,8 +1298,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             IBlockState stateAdj = world.getBlockState(posAdj);
             Block blockAdj = stateAdj.getBlock();
             // The block must have a non-full block on the front face to be valid for replacing
-            if (blockAdj.isAir(stateAdj, world, posAdj) ||
-                blockAdj.isSideSolid(stateAdj, world, posAdj, side.getOpposite()))
+            if (blockAdj.isAir(stateAdj, world, posAdj) || stateAdj.isSideSolid(world, posAdj, side.getOpposite()) == false)
             {
                 positions.add(new BlockPosStateDist(posIn, world.provider.getDimension(), side, biBound));
             }
@@ -1837,6 +1835,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult replaceBlocks(ItemStack stack, World world, EntityPlayer player, BlockPosEU center)
     {
+        BlockInfo biBound = getSelectedFixedBlockType(stack);
+        if (biBound == null || biBound.blockState == world.getBlockState(center.toBlockPos()))
+        {
+            return EnumActionResult.FAIL;
+        }
+
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         this.getBlockPositions(stack, world, player, positions, center);
 

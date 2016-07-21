@@ -50,7 +50,7 @@ public class BuildersWandRenderer
         {
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
-            if (player.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP)
+            if (player.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
             {
                 return;
             }

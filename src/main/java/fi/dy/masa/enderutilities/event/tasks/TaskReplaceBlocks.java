@@ -2,10 +2,12 @@ package fi.dy.masa.enderutilities.event.tasks;
 
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.block.SoundType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -98,7 +100,7 @@ public class TaskReplaceBlocks implements IPlayerTask
 
         if (this.canReplaceBlock(world, player, stack, posIn))
         {
-            this.handleOldBlock(world, player, pos);
+            this.handleOldBlock(world, player, pos, posIn.side);
 
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             return wand.placeBlockToPosition(stack, world, player, posIn);
@@ -112,14 +114,14 @@ public class TaskReplaceBlocks implements IPlayerTask
         return (ItemBuildersWand.hasEnoughCharge(stack, player) &&
                ItemBuildersWand.canManipulateBlock(world, posIn.toBlockPos(), player, stack, true)) &&
                (player.capabilities.isCreativeMode ||
-                   ItemBuildersWand.getAndConsumeBuildItem(stack, player, posIn.blockInfo.blockState, true) != null);
+                   ItemBuildersWand.getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true) != null);
     }
 
-    private void handleOldBlock(World world, EntityPlayer player, BlockPos pos)
+    private void handleOldBlock(World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
         if (player.capabilities.isCreativeMode == false)
         {
-            ItemStack stack = BlockUtils.getStackedItemFromBlock(world, pos);
+            ItemStack stack = BlockUtils.getStackedItemFromBlock(world, pos, player, side);
 
             if (stack != null)
             {
@@ -131,6 +133,10 @@ public class TaskReplaceBlocks implements IPlayerTask
                 }
             }
         }
+
+        SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType();
+        world.playSound(null, pos, soundtype.getBreakSound(), SoundCategory.BLOCKS,
+                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
     }

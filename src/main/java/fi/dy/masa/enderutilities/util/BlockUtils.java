@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -14,6 +15,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -57,6 +60,18 @@ public class BlockUtils
         SoundType soundtype = newState.getBlock().getSoundType();
         world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
                 (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+    }
+
+    public static ItemStack getStackedItemFromBlock(World world, BlockPos pos, EntityPlayer player, EnumFacing side)
+    {
+        IBlockState state = world.getBlockState(pos);
+        return getStackedItemFromBlock(world, pos, state, player, side);
+    }
+
+    public static ItemStack getStackedItemFromBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side)
+    {
+        RayTraceResult trace = new RayTraceResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5), side, pos);
+        return state.getBlock().getPickBlock(state, trace, world, pos, player);
     }
 
     public static ItemStack getStackedItemFromBlock(World world, BlockPos pos)

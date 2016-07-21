@@ -56,8 +56,8 @@ public class ConfigReader
         prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
         Configs.buildersWandMaxBlockHardness = (float) prop.getDouble();
 
-        prop = conf.get(category, "lazyBuildersWandReplaceInterval", 2).setRequiresMcRestart(false);
-        prop.setComment("The number of ticks between each replaced block in the Replace mode, default = 2 (= 10 blocks per second)");
+        prop = conf.get(category, "lazyBuildersWandReplaceInterval", 1).setRequiresMcRestart(false);
+        prop.setComment("The number of ticks between each replaced block in the Replace mode, default = 1 (= 20 blocks per second)");
         Configs.buildersWandReplaceInterval = prop.getInt();
 
         prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
