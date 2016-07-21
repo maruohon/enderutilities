@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -14,7 +16,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import net.minecraftforge.oredict.OreDictionary;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
@@ -52,6 +57,40 @@ public class BlockUtils
         SoundType soundtype = newState.getBlock().getSoundType();
         world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
                 (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+    }
+
+    public static ItemStack getStackedItemFromBlock(World world, BlockPos pos)
+    {
+        return getStackedItemFromBlock(world.getBlockState(pos));
+    }
+
+    public static ItemStack getStackedItemFromBlock(IBlockState state)
+    {
+        Block block = state.getBlock();
+        ItemStack stack = null;
+
+        try
+        {
+            Method method = ReflectionHelper.findMethod(Block.class, block, new String[] { "func_180643_i", "createStackedBlock" }, new Class[] { IBlockState.class });
+            stack = (ItemStack) method.invoke(block, state);
+        }
+        catch (UnableToFindMethodException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (UnableToFindMethodException)", block.getClass().getSimpleName());
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (InvocationTargetException)", block.getClass().getSimpleName());
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (IllegalAccessException)", block.getClass().getSimpleName());
+            e.printStackTrace();
+        }
+
+        return stack;
     }
 
     /**

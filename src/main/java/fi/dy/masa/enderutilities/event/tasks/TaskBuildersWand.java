@@ -7,7 +7,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -19,7 +18,6 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class TaskBuildersWand implements IPlayerTask
 {
     protected final int dimension;
-    protected final UUID playerUUID;
     protected final UUID wandUUID;
     protected final List<BlockPosStateDist> positions;
     protected final int blocksPerTick;
@@ -27,10 +25,9 @@ public class TaskBuildersWand implements IPlayerTask
     protected int placedCount;
     protected int failCount;
 
-    public TaskBuildersWand(World world, UUID playerUUID, UUID wandUUID, List<BlockPosStateDist> positions, int blocksPerTick)
+    public TaskBuildersWand(World world, UUID wandUUID, List<BlockPosStateDist> positions, int blocksPerTick)
     {
         this.dimension = world.provider.getDimension();
-        this.playerUUID = playerUUID;
         this.wandUUID = wandUUID;
         this.positions = positions;
         this.blocksPerTick = blocksPerTick;
@@ -110,7 +107,7 @@ public class TaskBuildersWand implements IPlayerTask
     @Override
     public void stop()
     {
-        EnderUtilities.logger.info("TaskBuildersWand exiting, placed " + this.placedCount + " blocks in total.");
         this.positions.clear();
+        //EnderUtilities.logger.info("TaskBuildersWand exiting, placed " + this.placedCount + " blocks in total.");
     }
 }

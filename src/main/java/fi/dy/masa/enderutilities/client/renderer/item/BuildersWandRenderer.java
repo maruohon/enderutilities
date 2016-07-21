@@ -345,7 +345,7 @@ public class BuildersWandRenderer
                     str = I18n.format("enderutilities.tooltip.item.continuethrough");
                     lines.add(str + ": " + (wand.getContinueThrough(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
-                else if (mode == Mode.EXTEND_CONTINUOUS || mode == Mode.REPLACE)
+                else if (mode == Mode.EXTEND_CONTINUOUS || (mode == Mode.REPLACE && wand.getReplaceModeIsArea(stack)))
                 {
                     str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
                     lines.add(str + ": " + (wand.getAllowDiagonals(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);

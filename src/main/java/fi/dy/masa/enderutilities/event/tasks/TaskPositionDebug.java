@@ -94,7 +94,7 @@ public class TaskPositionDebug implements ITask
     @Override
     public void stop()
     {
-        EnderUtilities.logger.info("TaskPositionDebug exiting, handled {} positions", this.count);
         this.positions.clear();
+        EnderUtilities.logger.info("TaskPositionDebug exiting, handled {} positions", this.count);
     }
 }

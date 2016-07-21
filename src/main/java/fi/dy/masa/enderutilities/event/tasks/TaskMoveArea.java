@@ -16,7 +16,6 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -100,7 +99,6 @@ public class TaskMoveArea implements IPlayerTask
         // Finished looping through the block positions
         if (this.listIndex >= this.boxRelative.count)
         {
-            this.handledPositions.clear();
             world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.6f, 1.0f);
             return true;
         }
@@ -166,7 +164,7 @@ public class TaskMoveArea implements IPlayerTask
 
             // FIXME We can't really properly check for the movability of blocks in the overlapping case,
             // because that could be a recursive check through the ENTIRE area in the worst case...
-            // So there will be block loss if there are non-movable blocks in an overlapping area case...
+            // So there will be block loss if there are non-movable blocks in an overlapping area...
 
             // No overlapping block data from last iteration, get the current block in the world
             if (stateNew == null)
@@ -251,6 +249,7 @@ public class TaskMoveArea implements IPlayerTask
     @Override
     public void stop()
     {
-        EnderUtilities.logger.info("TaskMoveArea exiting, moved " + this.placedCount + " blocks in total.");
+        this.handledPositions.clear();
+        //EnderUtilities.logger.info("TaskMoveArea exiting, moved " + this.placedCount + " blocks in total.");
     }
 }

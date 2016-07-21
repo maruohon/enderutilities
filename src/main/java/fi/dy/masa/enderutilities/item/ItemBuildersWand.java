@@ -50,9 +50,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.event.tasks.IPlayerTask;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.event.tasks.TaskMoveArea;
+import fi.dy.masa.enderutilities.event.tasks.TaskReplaceBlocks;
 import fi.dy.masa.enderutilities.event.tasks.TaskTemplatePlaceBlocks;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.IStringInput;
@@ -115,9 +117,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (world.isRemote == false)
         {
-            if (PlayerTaskScheduler.getInstance().hasTask(player, TaskBuildersWand.class) == true)
+            if (this.cancelRunningTask(player))
             {
-                PlayerTaskScheduler.getInstance().removeTask(player, TaskBuildersWand.class);
                 return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
             }
             else if (mode.hasUseDelay() == false)
@@ -134,6 +135,30 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+    }
+
+    private boolean cancelRunningTask(EntityPlayer player)
+    {
+        boolean removed = false;
+        @SuppressWarnings("unchecked")
+        Class<? extends IPlayerTask>[] classes = new Class[] {
+                TaskBuildersWand.class,
+                //TaskMoveArea.class,
+                TaskReplaceBlocks.class,
+                TaskTemplatePlaceBlocks.class };
+
+        PlayerTaskScheduler scheduler = PlayerTaskScheduler.getInstance();
+
+        for (Class<? extends IPlayerTask> clazz : classes)
+        {
+            if (scheduler.hasTask(player, clazz))
+            {
+                PlayerTaskScheduler.getInstance().removeTask(player, clazz);
+                removed = true;
+            }
+        }
+
+        return removed;
     }
 
     @Override
@@ -627,7 +652,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else
         {
             UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-            TaskBuildersWand task = new TaskBuildersWand(world, player.getUniqueID(), wandUUID, positions, Configs.buildersWandBlocksPerTick);
+            TaskBuildersWand task = new TaskBuildersWand(world, wandUUID, positions, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
 
@@ -636,6 +661,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public static boolean hasEnoughCharge(ItemStack stack, EntityPlayer player)
     {
+        if (player.capabilities.isCreativeMode)
+        {
+            return true;
+        }
+
         return UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true);
     }
 
@@ -711,16 +741,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (requireItems)
         {
-            @SuppressWarnings("deprecation")
-            // FIXME - use reflection and call createStackedBlock() instead?
-            ItemStack templateStack = blockNew.getItem(world, pos, newState);
-            if (templateStack == null)
-            {
-                return false;
-            }
-
-            IItemHandler inv = this.getInventoryWithItems(wandStack, templateStack, player);
-            targetStack = this.consumeBuildItem(inv, templateStack, 1);
+            targetStack = getAndConsumeBuildItem(wandStack, player, newState, false);
         }
 
         if (targetStack != null || requireItems == false)
@@ -764,14 +785,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return false;
     }
 
-    private EnumActionResult replaceBlocks(ItemStack stack, World world, EntityPlayer player, BlockPosEU center)
+    public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, EntityPlayer player, IBlockState newState, boolean simulate)
     {
-        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
-        this.getBlockPositions(stack, world, player, positions, center);
-        return EnumActionResult.SUCCESS;
+        ItemStack templateStack = BlockUtils.getStackedItemFromBlock(newState); // blockNew.getItem(world, pos, newState);
+        if (templateStack == null)
+        {
+            return null;
+        }
+
+        IItemHandler inv = getInventoryWithItems(wandStack, templateStack, player);
+        return consumeBuildItem(inv, templateStack, 1, simulate);
     }
 
-    private IItemHandler getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
+    private static IItemHandler getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
     {
         IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
@@ -793,14 +819,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return null;
     }
 
-    private ItemStack consumeBuildItem(IItemHandler inv, ItemStack templateStack, int amount)
+    private static ItemStack consumeBuildItem(IItemHandler inv, ItemStack templateStack, int amount, boolean simulate)
     {
         if (inv != null)
         {
             int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
             if (slot != -1)
             {
-                return inv.extractItem(slot, amount, false);
+                return inv.extractItem(slot, amount, simulate);
             }
         }
 
@@ -1454,6 +1480,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 {
                     positions.addAll(this.getReplacePositions(stack, world, center, axisRight, axisUp));
                 }
+                else
+                {
+                    positions.add(new BlockPosStateDist(center, biBound));
+                }
                 break;
 
             default:
@@ -1803,6 +1833,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true);
         this.deleteArea(world, player, posSrc1, posSrc2, true);
         template.addBlocksToWorld(world, posDst1);
+    }
+
+    private EnumActionResult replaceBlocks(ItemStack stack, World world, EntityPlayer player, BlockPosEU center)
+    {
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        this.getBlockPositions(stack, world, player, positions, center);
+
+        UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
+        TaskReplaceBlocks task = new TaskReplaceBlocks(world, wandUUID, positions, 1);
+        PlayerTaskScheduler.getInstance().addTask(player, task, Configs.buildersWandReplaceInterval);
+
+        return EnumActionResult.SUCCESS;
     }
 
     private void placeHelperBlock(EntityPlayer player)

@@ -10,7 +10,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -120,6 +119,6 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     @Override
     public void stop()
     {
-        EnderUtilities.logger.info("TaskStructureBuild exiting, placed " + this.placedCount + " blocks in total.");
+        //EnderUtilities.logger.info("TaskStructureBuild exiting, placed " + this.placedCount + " blocks in total.");
     }
 }
