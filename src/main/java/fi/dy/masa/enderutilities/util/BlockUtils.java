@@ -86,7 +86,7 @@ public class BlockUtils
 
         try
         {
-            Method method = ReflectionHelper.findMethod(Block.class, block, new String[] { "func_180643_i", "createStackedBlock" }, new Class[] { IBlockState.class });
+            Method method = ReflectionHelper.findMethod(Block.class, block, new String[] { "func_180643_i", "createStackedBlock" }, IBlockState.class);
             stack = (ItemStack) method.invoke(block, state);
         }
         catch (UnableToFindMethodException e)
