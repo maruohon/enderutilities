@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.setup;
 
 import java.io.File;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -64,6 +65,10 @@ public class ConfigReader
         prop.setComment("Enables the Replace mode functionality in survival mode");
         Configs.buildersWandEnableReplaceMode = prop.getBoolean();
 
+        prop = conf.get(category, "lazyBuildersWandGhostBlockAlpha", 0.7d).setRequiresMcRestart(false);
+        prop.setComment("The alpha value to use for the translucent ghost block rendering mode");
+        Configs.buildersWandGhostBlockAlpha = (float) MathHelper.clamp_double(prop.getDouble(), 0, 1);
+
         prop = conf.get(category, "lazyBuildersWandMaxBlockHardness", 10d).setRequiresMcRestart(false);
         prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
         Configs.buildersWandMaxBlockHardness = (float) prop.getDouble();
@@ -71,6 +76,10 @@ public class ConfigReader
         prop = conf.get(category, "lazyBuildersWandReplaceBlocksPerTick", 1).setRequiresMcRestart(false);
         prop.setComment("The number of blocks to replace per game tick in the Replace mode, default = 1 (= 20 blocks per second)");
         Configs.buildersWandReplaceBlocksPerTick = prop.getInt();
+
+        prop = conf.get(category, "lazyBuildersWandUseTranslucentGhostBlocks", true).setRequiresMcRestart(false);
+        prop.setComment("Use translucent ghost block rendering");
+        Configs.buildersWandUseTranslucentGhostBlocks = prop.getBoolean();
 
         prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
         prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");

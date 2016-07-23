@@ -13,8 +13,10 @@ public class Configs
     public static boolean buildersWandEnablePasteMode;
     public static boolean buildersWandEnableMoveMode;
     public static boolean buildersWandEnableReplaceMode;
+    public static boolean buildersWandUseTranslucentGhostBlocks;
     public static int buildersWandBlocksPerTick;
     public static int buildersWandReplaceBlocksPerTick;
+    public static float buildersWandGhostBlockAlpha;
     public static float buildersWandMaxBlockHardness;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;

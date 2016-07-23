@@ -4,24 +4,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -191,10 +200,6 @@ public class BuildersWandRenderer
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-        GlStateManager.pushMatrix();
-        this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        GlStateManager.color(1f, 1f, 1f, 1f);
-
         if (partialTicks < this.partialTicksLast)
         {
             for (int i = 0; i < this.positions.size(); i++)
@@ -207,26 +212,61 @@ public class BuildersWandRenderer
             Collections.reverse(this.positions);
         }
 
+        this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        GlStateManager.color(1f, 1f, 1f, 1f);
+
         for (int i = 0; i < this.positions.size(); i++)
         {
-            BlockPosStateDist pos = this.positions.get(i);
+            BlockPosStateDist posEU = this.positions.get(i);
 
-            if (pos.blockInfo != null && pos.blockInfo.blockStateActual != null)
+            if (posEU.blockInfo != null && posEU.blockInfo.blockStateActual != null)
             {
+                IBlockState stateActual = posEU.blockInfo.blockStateActual;
+                BlockPos pos = posEU.toBlockPos();
+
                 GlStateManager.pushMatrix();
                 GlStateManager.enableCull();
                 GlStateManager.enableDepth();
-                GlStateManager.translate(pos.posX - dx + 0.0d, pos.posY - dy + 0.0d, pos.posZ - dz + 1.0d);
-                GlStateManager.translate(0, 0, -1);
-                GlStateManager.rotate(-90, 0, 1, 0);
+                GlStateManager.translate(posEU.posX - dx, posEU.posY - dy, posEU.posZ - dz);
 
-                Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(pos.blockInfo.blockStateActual, 1.0f);
+                GlStateManager.color(1f, 1f, 1f, 1f);
+
+                // Existing block
+                if (this.mc.theWorld.isAirBlock(pos) == false)
+                {
+                    GlStateManager.translate(-0.001, -0.001, -0.001);
+                    GlStateManager.scale(1.002, 1.002, 1.002);
+                }
+
+                // Translucent ghost block rendering
+                if (Configs.buildersWandUseTranslucentGhostBlocks)
+                {
+                    IBakedModel model = this.mc.getBlockRendererDispatcher().getModelForState(stateActual);
+                    int alpha = ((int)(Configs.buildersWandGhostBlockAlpha * 0xFF)) << 24;
+
+                    GlStateManager.enableBlend();
+                    GlStateManager.enableTexture2D();
+
+                    GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    GlStateManager.colorMask(false, false, false, false);
+                    this.renderModel(stateActual, model, pos, alpha);
+
+                    GlStateManager.colorMask(true, true, true, true);
+                    GlStateManager.depthFunc(GL11.GL_LEQUAL);
+                    this.renderModel(stateActual, model, pos, alpha);
+
+                    GlStateManager.disableBlend();
+                }
+                // Normal fully opaque ghost block rendering
+                else
+                {
+                    GlStateManager.rotate(-90, 0, 1, 0);
+                    Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(stateActual, 0.9f);
+                }
 
                 GlStateManager.popMatrix();
             }
         }
-
-        GlStateManager.popMatrix();
     }
 
     public void renderHud()
@@ -434,5 +474,36 @@ public class BuildersWandRenderer
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
         return new AxisAlignedBB(minX - dx - expand, minY - dy - expand, minZ - dz - expand, maxX - dx + expand, maxY - dy + expand, maxZ - dz + expand);
+    }
+
+    private void renderModel(final IBlockState state, final IBakedModel model, final BlockPos pos, final int alpha)
+    {
+        final Tessellator tessellator = Tessellator.getInstance();
+        final VertexBuffer buffer = tessellator.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+
+        for (final EnumFacing facing : EnumFacing.values())
+        {
+            this.renderQuads(state, pos, buffer, model.getQuads(state, facing, 0), alpha);
+        }
+
+        this.renderQuads(state, pos, buffer, model.getQuads(state, null, 0), alpha);
+        tessellator.draw();
+    }
+
+    private void renderQuads(final IBlockState state, final BlockPos pos, final VertexBuffer buffer, final List<BakedQuad> quads, final int alpha)
+    {
+        int i = 0;
+        for (final int j = quads.size(); i < j; ++i)
+        {
+            final BakedQuad quad = quads.get(i);
+            final int color = quad.getTintIndex() == -1 ? alpha | 0xffffff : this.getTint(state, pos, alpha, quad.getTintIndex());
+            LightUtil.renderQuadColor(buffer, quad, color);
+        }
+    }
+
+    private int getTint(final IBlockState state, final BlockPos pos, final int alpha, final int tintIndex)
+    {
+        return alpha | this.mc.getBlockColors().colorMultiplier(state, null, pos, tintIndex);
     }
 }
