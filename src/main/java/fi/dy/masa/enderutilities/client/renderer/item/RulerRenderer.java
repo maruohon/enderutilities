@@ -201,7 +201,7 @@ public class RulerRenderer
                 BlockPosEU pos = column.get(i);
                 //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
-                    AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+                    AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, 0, partialTicks, player);
                     RenderGlobal.drawOutlinedBoundingBox(aabb, (color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF, 0xFF);
                 }
             }
@@ -214,7 +214,7 @@ public class RulerRenderer
         {
             // Render the start position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
+            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, 0, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
@@ -222,7 +222,7 @@ public class RulerRenderer
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
+            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, 0, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
         }
     }

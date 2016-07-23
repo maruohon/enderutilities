@@ -203,10 +203,9 @@ public class BlockPosEU
     {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (obj == null || (obj instanceof BlockPosEU) == false)
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+
         BlockPosEU other = (BlockPosEU) obj;
         if (dimension != other.dimension)
             return false;

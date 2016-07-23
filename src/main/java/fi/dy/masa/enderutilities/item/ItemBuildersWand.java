@@ -164,11 +164,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        /*TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getTileEntity(pos);
         if (te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class))
         {
             return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
-        }*/
+        }
 
         Mode mode = Mode.getMode(stack);
 
@@ -1015,14 +1015,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
 
-        if (mode == Mode.COPY || mode == Mode.DELETE || mode == Mode.MOVE_SRC)
+        if (mode.hasTwoPlacableCorners())
         {
             this.moveEndPosition(stack, EntityUtils.getClosestLookingDirection(player), reverse);
             return;
         }
 
         BlockPosEU pos = this.getPosition(stack, POS_START);
-        if (pos == null || mode == Mode.WALLS || mode == Mode.CUBE || mode == Mode.PASTE || mode == Mode.MOVE_DST)
+        if (pos == null || mode == Mode.PASTE || mode == Mode.MOVE_DST)
         {
             return;
         }
@@ -1079,7 +1079,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     private void moveEndPosition(ItemStack stack, EnumFacing direction, boolean reverse)
     {
         Mode mode = Mode.getMode(stack);
-        BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, POS_START);
+        BlockPosEU posStart = mode == Mode.CUBE || mode == Mode.WALLS ?
+                this.getPosition(stack, mode, POS_START) : this.getPerTemplateAreaCorner(stack, mode, POS_START);
         BlockPosEU posEnd = this.getPosition(stack, mode, POS_END);
         if (posEnd == null)
         {
@@ -1090,9 +1091,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             int v = reverse ? 1 : -1;
             posEnd = posEnd.add(direction.getFrontOffsetX() * v, direction.getFrontOffsetY() * v, direction.getFrontOffsetZ() * v);
-            this.setPerTemplateAreaCorner(stack, mode, false, posEnd);
-            this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
-            this.setMirror(stack, mode, Mirror.NONE);
+
+            if (mode == Mode.WALLS || mode == Mode.CUBE)
+            {
+                this.setPosition(stack, posEnd, false);
+            }
+            else
+            {
+                this.setPerTemplateAreaCorner(stack, mode, false, posEnd);
+                this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
+                this.setMirror(stack, mode, Mirror.NONE);
+            }
         }
     }
 

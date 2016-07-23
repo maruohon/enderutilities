@@ -32,6 +32,7 @@ public class BuildersWandRenderer
     protected final Minecraft mc;
     protected final List<BlockPosStateDist> positions;
     protected float partialTicksLast;
+    protected BlockPosEU posStartLast;
 
     public BuildersWandRenderer()
     {
@@ -74,7 +75,7 @@ public class BuildersWandRenderer
         BlockPosEU posEnd = mode.isAreaMode() || (mode == Mode.WALLS || mode == Mode.CUBE) ?
                 wand.getPosition(stack, ItemBuildersWand.POS_END) : null;
 
-        if (partialTicks < this.partialTicksLast)
+        if (partialTicks < this.partialTicksLast || posStart.equals(this.posStartLast) == false)
         {
             this.positions.clear();
 
@@ -88,6 +89,8 @@ public class BuildersWandRenderer
                 wand.getBlockPositions(stack, world, player, this.positions, posStart);
             }
         }
+
+        this.posStartLast = posStart;
 
         GlStateManager.depthMask(false);
         GlStateManager.disableLighting();
@@ -105,7 +108,7 @@ public class BuildersWandRenderer
 
         if (renderGhostBlocks == false && mode.isAreaMode() == false)
         {
-            this.renderBlockOutlines(player, posStart, posEnd, partialTicks);
+            this.renderBlockOutlines(mode, player, posStart, posEnd, partialTicks);
         }
 
         this.renderStartAndEndPositions(mode, player, posStart, posEnd, partialTicks);
@@ -126,15 +129,18 @@ public class BuildersWandRenderer
         this.partialTicksLast = partialTicks;
     }
 
-    private void renderBlockOutlines(EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    private void renderBlockOutlines(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
         GL11.glLineWidth(2.0f);
+        float expand = mode == Mode.REPLACE ? 0.001f : 0f;
+
         for (int i = 0; i < this.positions.size(); i++)
         {
             BlockPosEU pos = this.positions.get(i);
-            if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+
+            if (pos.equals(posStart) == false && pos.equals(posEnd) == false)
             {
-                AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, partialTicks, player);
+                AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, expand, partialTicks, player);
                 RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0xFF, 0xFF, 0xFF);
             }
         }
@@ -156,15 +162,17 @@ public class BuildersWandRenderer
             int maxX = Math.max(posStart.posX, posEnd.posX) + 1;
             int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
             int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
-            AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, partialTicks, player);
+            AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, 0, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, r, g, b, 0xCC);
         }
+
+        float expand = mode == Mode.REPLACE || mode.hasTwoPlacableCorners() ? 0.001f : 0f;
 
         if (posStart != null)
         {
             // Render the targeted position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, partialTicks, player);
+            AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, expand, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0xFF, 0x11, 0x11, 0xFF);
         }
 
@@ -172,7 +180,7 @@ public class BuildersWandRenderer
         {
             // Render the end position in a different (hilighted) color
             GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, partialTicks, player);
+            AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, expand, partialTicks, player);
             RenderGlobal.drawOutlinedBoundingBox(aabb, 0x11, 0x11, 0xFF, 0xFF);
         }
     }
@@ -414,24 +422,17 @@ public class BuildersWandRenderer
         }
     }
 
-    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double partialTicks, EntityPlayer player)
+    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double expand, double partialTicks, EntityPlayer player)
     {
-        double offset1 = 0.000d;
-        double offset2 = 1.000d;
-
-        double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
-        double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
-        double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-
-        return new AxisAlignedBB(x - offset1 - dx, y - offset1 - dy, z - offset1 - dz, x + offset2 - dx, y + offset2 - dy, z + offset2 - dz);
+        return makeBoundingBox(x, y, z, x + 1, y + 1, z + 1, expand, partialTicks, player);
     }
 
-    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double partialTicks, EntityPlayer player)
+    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double expand, double partialTicks, EntityPlayer player)
     {
         double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-        return new AxisAlignedBB(minX - dx, minY - dy, minZ - dz, maxX - dx, maxY - dy, maxZ - dz);
+        return new AxisAlignedBB(minX - dx - expand, minY - dy - expand, minZ - dz - expand, maxX - dx + expand, maxY - dy + expand, maxZ - dz + expand);
     }
 }
