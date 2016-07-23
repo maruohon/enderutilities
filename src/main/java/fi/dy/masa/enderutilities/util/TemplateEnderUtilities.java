@@ -12,7 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
@@ -38,6 +38,7 @@ public class TemplateEnderUtilities
     protected BlockPos size = BlockPos.ORIGIN;
     protected String author = "?";
     protected ReplaceMode replaceMode;
+    protected boolean dropOldBlocks;
 
     public TemplateEnderUtilities()
     {
@@ -84,6 +85,11 @@ public class TemplateEnderUtilities
         return this.blocks;
     }
 
+    public void setDropOldBlocks(boolean drop)
+    {
+        this.dropOldBlocks = drop;
+    }
+
     public void addBlocksToWorld(World world, BlockPos posStart)
     {
         for (int i = 0; i < this.blocks.size(); i++)
@@ -91,7 +97,7 @@ public class TemplateEnderUtilities
             this.placeBlockAtIndex(world, i, posStart);
         }
 
-        this.notifyBlocks(world, posStart);
+        //this.notifyBlocks(world, posStart);
         this.addEntitiesToWorld(world, posStart);
     }
 
@@ -102,27 +108,37 @@ public class TemplateEnderUtilities
             TemplateEnderUtilities.TemplateBlockInfo blockInfo = this.blocks.get(index);
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
-            //System.out.printf("placing, i: %d orig pos: %s tr pos: %s\n", index, blockInfo.pos, pos);
             IBlockState state = blockInfo.blockState;
 
             if (this.replaceMode == ReplaceMode.EVERYTHING ||
-                (this.replaceMode == ReplaceMode.WITH_NON_AIR && state.getMaterial() != Material.AIR) ||
-                world.isAirBlock(pos))
+                (this.replaceMode == ReplaceMode.WITH_NON_AIR && state.getMaterial() != Material.AIR) || world.isAirBlock(pos))
             {
                 state = state.withMirror(this.placement.getMirror()).withRotation(this.placement.getRotation());
 
-                if (blockInfo.tileEntityData != null)
-                {
-                    TileEntity te = world.getTileEntity(pos);
-                    if (te instanceof IInventory)
-                    {
-                        ((IInventory)te).clear();
-                    }
+                boolean success = false;
 
-                    //world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
+                if (this.dropOldBlocks)
+                {
+                    IBlockState stateOld = world.getBlockState(pos);
+                    stateOld.getBlock().dropBlockAsItem(world, pos, stateOld, 0);
+
+                    // Replace the block temporarily so that the old TE gets cleared for sure
+                    world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
+
+                    success = world.setBlockState(pos, state, 2);
+                }
+                else
+                {
+                    world.restoringBlockSnapshots = true;
+
+                    // Replace the block temporarily so that the old TE gets cleared for sure
+                    world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
+
+                    success = world.setBlockState(pos, state, 2);
+                    world.restoringBlockSnapshots = false;
                 }
 
-                if (world.setBlockState(pos, state, 2) == true && blockInfo.tileEntityData != null)
+                if (success && blockInfo.tileEntityData != null)
                 {
                     TileEntity te = world.getTileEntity(pos);
 
@@ -130,6 +146,7 @@ public class TemplateEnderUtilities
                     {
                         NBTUtils.setPositionInTileEntityNBT(blockInfo.tileEntityData, pos);
                         te.readFromNBT(blockInfo.tileEntityData);
+                        te.markDirty();
                     }
                 }
             }
@@ -141,6 +158,7 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.TemplateBlockInfo blockInfo : this.blocks)
         {
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
+            IBlockState state = world.getBlockState(pos);
 
             if (blockInfo.tileEntityData != null)
             {
@@ -151,12 +169,12 @@ public class TemplateEnderUtilities
                     te.markDirty();
                 }
 
-                //world.notifyBlockUpdate(pos, blockInfo.blockState, blockInfo.blockState, 7);
+                world.notifyBlockUpdate(pos, state, state, 7);
             }
-            /*else
+            else
             {
                 world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
-            }*/
+            }
         }
     }
 

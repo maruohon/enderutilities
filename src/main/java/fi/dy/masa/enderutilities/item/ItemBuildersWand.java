@@ -2015,6 +2015,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             tag.setInteger("endOffsetZ", size.getZ());
             tag.setByte("TemplateFacing", (byte)meta.getFacing().getIndex());
             tag.setString("TemplateName", meta.getTemplateName());
+
+            this.setTemplateNameOnItem(stack, Mode.COPY, meta.getTemplateName());
         }
     }
 

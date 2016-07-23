@@ -105,7 +105,7 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
         // Finished looping through the block positions
         if (this.listIndex >= this.template.getBlockList().size())
         {
-            this.template.notifyBlocks(world, this.posStart);
+            //this.template.notifyBlocks(world, this.posStart);
             this.template.addEntitiesToWorld(world, this.posStart);
 
             world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.6f, 1.0f);
