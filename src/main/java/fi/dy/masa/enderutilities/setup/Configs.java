@@ -9,9 +9,12 @@ public class Configs
 
     // Generic
     public static int configFileVersion;
-    public static boolean buildersWandEnableCopyPaste;
+    public static boolean buildersWandEnableCopyMode;
+    public static boolean buildersWandEnablePasteMode;
+    public static boolean buildersWandEnableMoveMode;
+    public static boolean buildersWandEnableReplaceMode;
     public static int buildersWandBlocksPerTick;
-    public static int buildersWandReplaceInterval;
+    public static int buildersWandReplaceBlocksPerTick;
     public static float buildersWandMaxBlockHardness;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;

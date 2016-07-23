@@ -21,7 +21,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
@@ -625,7 +624,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else if (mode == Mode.REPLACE)
         {
-            return this.replaceBlocks(stack, world, player, posTarget);
+            return this.replaceBlocks(stack, world, player, posStart != null ? posStart : posTarget);
         }
         else
         {
@@ -1619,9 +1618,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult copyAreaToTemplate(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn, BlockPosEU posEndIn)
     {
-        if (Configs.buildersWandEnableCopyPaste == false)
+        if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnableCopyMode == false)
         {
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
             return EnumActionResult.FAIL;
         }
 
@@ -1667,9 +1666,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
-        if (Configs.buildersWandEnableCopyPaste == false)
+        if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnablePasteMode == false)
         {
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabled"));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
             return EnumActionResult.FAIL;
         }
 
@@ -1746,12 +1745,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (world.isAirBlock(posMutable) == false)
             {
-                TileEntity te = world.getTileEntity(posMutable);
-                if (te instanceof IInventory)
-                {
-                    ((IInventory) te).clear();
-                }
-
                 world.restoringBlockSnapshots = true;
                 world.setBlockState(posMutable, Blocks.AIR.getDefaultState(), 2);
                 world.restoringBlockSnapshots = false;
@@ -1782,6 +1775,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1EU, BlockPosEU posDst2EU)
     {
+        if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnableMoveMode == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
+            return;
+        }
+
         BlockPosEU posSrc1EU = this.getPosition(stack, Mode.MOVE_SRC, true);
         BlockPosEU posSrc2EU = this.getPosition(stack, Mode.MOVE_SRC, false);
         if (posSrc1EU == null || posSrc2EU == null || posDst1EU == null || posDst2EU == null)
@@ -1844,6 +1843,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult replaceBlocks(ItemStack stack, World world, EntityPlayer player, BlockPosEU center)
     {
+        if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnableReplaceMode == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
+            return EnumActionResult.FAIL;
+        }
+
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         if (biBound == null || biBound.blockState == world.getBlockState(center.toBlockPos()))
         {
@@ -1854,8 +1859,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         this.getBlockPositions(stack, world, player, positions, center);
 
         UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-        TaskReplaceBlocks task = new TaskReplaceBlocks(world, wandUUID, positions, 1);
-        PlayerTaskScheduler.getInstance().addTask(player, task, Configs.buildersWandReplaceInterval);
+        TaskReplaceBlocks task = new TaskReplaceBlocks(world, wandUUID, positions, Configs.buildersWandReplaceBlocksPerTick);
+        PlayerTaskScheduler.getInstance().addTask(player, task, 1);
 
         return EnumActionResult.SUCCESS;
     }

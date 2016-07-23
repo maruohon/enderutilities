@@ -45,20 +45,32 @@ public class ConfigReader
         Property prop;
         String category = CATEGORY_GENERIC;
         prop = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
-        prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick, default = 10");
+        prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick in the \"build modes\", default = 10");
         Configs.buildersWandBlocksPerTick = prop.getInt();
 
-        prop = conf.get(category, "lazyBuildersWandEnableCopyPaste", true).setRequiresMcRestart(false);
-        prop.setComment("Controls whether the Copy and Paste modes can be used on the Wand of the Lazy Builder");
-        Configs.buildersWandEnableCopyPaste = prop.getBoolean();
+        prop = conf.get(category, "lazyBuildersWandEnableCopyMode", true).setRequiresMcRestart(false);
+        prop.setComment("Enables the Copy mode functionality in survival mode");
+        Configs.buildersWandEnableCopyMode = prop.getBoolean();
+
+        prop = conf.get(category, "lazyBuildersWandEnableMoveMode", true).setRequiresMcRestart(false);
+        prop.setComment("Enables the Move mode functionality in survival mode");
+        Configs.buildersWandEnableMoveMode = prop.getBoolean();
+
+        prop = conf.get(category, "lazyBuildersWandEnablePasteMode", true).setRequiresMcRestart(false);
+        prop.setComment("Enables the Paste mode functionality in survival mode");
+        Configs.buildersWandEnablePasteMode = prop.getBoolean();
+
+        prop = conf.get(category, "lazyBuildersWandEnableReplaceMode", true).setRequiresMcRestart(false);
+        prop.setComment("Enables the Replace mode functionality in survival mode");
+        Configs.buildersWandEnableReplaceMode = prop.getBoolean();
 
         prop = conf.get(category, "lazyBuildersWandMaxBlockHardness", 10d).setRequiresMcRestart(false);
         prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
         Configs.buildersWandMaxBlockHardness = (float) prop.getDouble();
 
-        prop = conf.get(category, "lazyBuildersWandReplaceInterval", 1).setRequiresMcRestart(false);
-        prop.setComment("The number of ticks between each replaced block in the Replace mode, default = 1 (= 20 blocks per second)");
-        Configs.buildersWandReplaceInterval = prop.getInt();
+        prop = conf.get(category, "lazyBuildersWandReplaceBlocksPerTick", 1).setRequiresMcRestart(false);
+        prop.setComment("The number of blocks to replace per game tick in the Replace mode, default = 1 (= 20 blocks per second)");
+        Configs.buildersWandReplaceBlocksPerTick = prop.getInt();
 
         prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
         prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
