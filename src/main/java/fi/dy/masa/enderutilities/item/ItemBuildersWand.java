@@ -1639,18 +1639,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        TemplateManagerEU templateManager = this.getTemplateManager();
-        ResourceLocation rl = this.getTemplateResource(stack, player);
+        ResourceLocation templateLocation = this.getTemplateResource(stack, player);
 
-        TemplateEnderUtilities template = templateManager.getTemplate(rl);
-        template.takeBlocksFromWorld(world, posStart, endOffset, true);
-        template.setAuthor(player.getName());
-        boolean success = templateManager.writeTemplate(rl);
-
-        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(rl);
-        EnumFacing facing = PositionUtils.getFacingFromPositions(posStartIn, posEndIn);
-        templateMeta.setValues(endOffset, facing, this.getTemplateName(stack, Mode.COPY), player.getName());
-        templateManager.writeTemplateMetadata(rl);
+        boolean success = this.saveAreaToTemplate(world, posStart, endOffset, templateLocation,
+                this.getTemplateName(stack, Mode.COPY), player.getName());
 
         if (success)
         {
@@ -1662,6 +1654,28 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         return EnumActionResult.SUCCESS;
+    }
+
+    /**
+     * Saves an area of the world into a template.
+     * The positions must not be null!
+     */
+    private boolean saveAreaToTemplate(World world, BlockPos posStart, BlockPos endOffset,
+            ResourceLocation templateLocation, String templateName, String author)
+    {
+        TemplateManagerEU templateManager = this.getTemplateManager();
+        TemplateEnderUtilities template = templateManager.getTemplate(templateLocation);
+        template.takeBlocksFromWorld(world, posStart, endOffset, true);
+        template.setAuthor(author);
+
+        boolean success = templateManager.writeTemplate(templateLocation);
+
+        TemplateMetadata templateMeta = templateManager.getTemplateMetadata(templateLocation);
+        EnumFacing facing = PositionUtils.getFacingFromPositions(posStart, posStart.add(endOffset));
+        templateMeta.setValues(endOffset, facing, templateName, author);
+        templateManager.writeTemplateMetadata(templateLocation);
+
+        return success;
     }
 
     private EnumActionResult pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
@@ -1815,6 +1829,27 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (posSrc1.equals(posDst1) && rotation == Rotation.NONE && mirror == Mirror.NONE)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.builderswand.areasarethesame"));
+            return;
+        }
+
+        // Create "backup templates" of the source and destination areas, just in case...
+        int id = this.getSelectionIndex(stack);
+        UUID uuid = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
+        String name = player.getName();
+
+        ResourceLocation rl = new ResourceLocation(Reference.MOD_ID, "move_src_" + name + "_" + uuid.toString() + "_" + id);
+        boolean success = this.saveAreaToTemplate(world, posSrc1, posSrc2.subtract(posSrc1), rl, "Move source", name);
+
+        if (success == false)
+        {
+            return;
+        }
+
+        rl = new ResourceLocation(Reference.MOD_ID, "move_dst_" + name + "_" + uuid.toString() + "_" + id);
+        success = this.saveAreaToTemplate(world, posDst1, posDst2.subtract(posDst1), rl, "Move destination", name);
+
+        if (success == false)
+        {
             return;
         }
 
