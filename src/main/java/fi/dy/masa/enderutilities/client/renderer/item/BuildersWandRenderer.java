@@ -35,6 +35,7 @@ import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BuildersWandRenderer
 {
@@ -55,9 +56,15 @@ public class BuildersWandRenderer
         BlockPosEU posStart = wand.getPosition(stack, ItemBuildersWand.POS_START);
         Mode mode = Mode.getMode(stack);
 
-        RayTraceResult rayTraceResult = this.mc.objectMouseOver;
-        if (posStart == null && rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
+        if (posStart == null)
         {
+            RayTraceResult rayTraceResult = EntityUtils.getRayTraceFromPlayer(world, usingPlayer, false);
+
+            if (rayTraceResult == null || rayTraceResult.typeOfHit != RayTraceResult.Type.BLOCK)
+            {
+                return;
+            }
+
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
             if (usingPlayer.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
