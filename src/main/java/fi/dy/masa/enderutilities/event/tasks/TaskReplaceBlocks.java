@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.event.tasks;
 
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.block.SoundType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -133,10 +132,6 @@ public class TaskReplaceBlocks implements IPlayerTask
                 }
             }
         }
-
-        SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType();
-        world.playSound(null, pos, soundtype.getBreakSound(), SoundCategory.BLOCKS,
-                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
     }
