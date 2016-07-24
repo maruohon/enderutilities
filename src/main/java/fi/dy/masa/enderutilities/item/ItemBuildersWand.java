@@ -616,7 +616,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else if (mode == Mode.MOVE_DST)
         {
-            this.moveArea(stack, world, player, posStart, posEnd);
+            return this.moveArea(stack, world, player, posStart, posEnd);
         }
         else if (mode == Mode.MOVE_SRC)
         {
@@ -1629,7 +1629,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        if (posStartIn == null || posEndIn == null)
+        if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
         {
             return EnumActionResult.FAIL;
         }
@@ -1641,6 +1641,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (this.isAreaWithinSizeLimit(endOffset, player) == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
+            return EnumActionResult.FAIL;
+        }
+
+        if (posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension ||
+            player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
         }
 
@@ -1685,14 +1692,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult pasteAreaIntoWorld(ItemStack stack, World world, EntityPlayer player, BlockPosEU posStartIn)
     {
+        if (posStartIn == null)
+        {
+            return EnumActionResult.FAIL;
+        }
+
         if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnablePasteMode == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
             return EnumActionResult.FAIL;
         }
 
-        if (posStartIn == null || posStartIn.dimension != player.dimension ||
-            player.getDistanceSq(posStartIn.toBlockPos()) > 16384)
+        if (posStartIn.dimension != player.dimension || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -1753,10 +1764,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        if (player.getDistanceSq(posStart) >= 16384 || player.getDistanceSq(posEnd) >= 16384 ||
-            this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
+        if (player.getDistanceSq(posStart) > 160 * 160)
         {
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
+        }
+
+        if (this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge"));
             return;
         }
 
@@ -1792,31 +1807,31 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
     }
 
-    private void moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1EU, BlockPosEU posDst2EU)
+    private EnumActionResult moveArea(ItemStack stack, World world, EntityPlayer player, BlockPosEU posDst1EU, BlockPosEU posDst2EU)
     {
         if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnableMoveMode == false)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         BlockPosEU posSrc1EU = this.getPosition(stack, Mode.MOVE_SRC, true);
         BlockPosEU posSrc2EU = this.getPosition(stack, Mode.MOVE_SRC, false);
         if (posSrc1EU == null || posSrc2EU == null || posDst1EU == null || posDst2EU == null)
         {
-            return;
+            return EnumActionResult.FAIL;
         }
 
         int dim = world.provider.getDimension();
         BlockPos posDst1 = posDst1EU.toBlockPos();
         BlockPos posDst2 = posDst2EU.toBlockPos();
 
-        if (player.getDistanceSq(posDst1) >= 4096 || player.getDistanceSq(posDst2) >= 4096 ||
+        if (player.getDistanceSq(posDst1) > 128 * 128 || player.getDistanceSq(posDst2) > 128 * 128 ||
             this.isAreaWithinSizeLimit(posDst2.subtract(posDst1), player) == false ||
             posSrc1EU.dimension != dim || posSrc2EU.dimension != dim || posDst1EU.dimension != dim || posDst2EU.dimension != dim)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         BlockPos posSrc1 = posSrc1EU.toBlockPos();
@@ -1834,7 +1849,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (posSrc1.equals(posDst1) && rotation == Rotation.NONE && mirror == Mirror.NONE)
         {
             player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.builderswand.areasarethesame"));
-            return;
+            return EnumActionResult.FAIL;
         }
 
         // Create "backup templates" of the source and destination areas, just in case...
@@ -1847,7 +1862,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (success == false)
         {
-            return;
+            return EnumActionResult.FAIL;
         }
 
         rl = new ResourceLocation(Reference.MOD_ID, "move_dst_" + name + "_" + uuid.toString() + "_" + id);
@@ -1855,7 +1870,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (success == false)
         {
-            return;
+            return EnumActionResult.FAIL;
         }
 
         if (player.capabilities.isCreativeMode)
@@ -1869,6 +1884,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                     rotation, mirror, wandUUID, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
+
+        return EnumActionResult.SUCCESS;
     }
 
     private void moveAreaImmediate(World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
