@@ -49,7 +49,7 @@ public class BuildersWandRenderer
         this.positions = new ArrayList<BlockPosStateDist>();
     }
 
-    public void renderSelectedArea(World world, EntityPlayer player, ItemStack stack, float partialTicks)
+    public void renderSelectedArea(World world, EntityPlayer usingPlayer, ItemStack stack, EntityPlayer clientPlayer, float partialTicks)
     {
         ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
         BlockPosEU posStart = wand.getPosition(stack, ItemBuildersWand.POS_START);
@@ -60,7 +60,7 @@ public class BuildersWandRenderer
         {
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
-            if (player.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
+            if (usingPlayer.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
             {
                 return;
             }
@@ -68,15 +68,15 @@ public class BuildersWandRenderer
             // In Replace mode we want to target the pointed block, not the empty space adjacent to it
             if (mode == Mode.REPLACE)
             {
-                posStart = new BlockPosEU(rayTraceResult.getBlockPos(), player.dimension, rayTraceResult.sideHit);
+                posStart = new BlockPosEU(rayTraceResult.getBlockPos(), usingPlayer.dimension, rayTraceResult.sideHit);
             }
             else
             {
-                posStart = new BlockPosEU(rayTraceResult.getBlockPos().offset(rayTraceResult.sideHit), player.dimension, rayTraceResult.sideHit);
+                posStart = new BlockPosEU(rayTraceResult.getBlockPos().offset(rayTraceResult.sideHit), usingPlayer.dimension, rayTraceResult.sideHit);
             }
         }
 
-        if (posStart == null || player.dimension != posStart.dimension)
+        if (posStart == null || usingPlayer.dimension != posStart.dimension)
         {
             return;
         }
@@ -95,7 +95,7 @@ public class BuildersWandRenderer
             }
             else if (mode.isAreaMode() == false)
             {
-                wand.getBlockPositions(stack, world, player, this.positions, posStart);
+                wand.getBlockPositions(stack, world, usingPlayer, this.positions, posStart);
             }
         }
 
@@ -110,24 +110,24 @@ public class BuildersWandRenderer
 
         if (renderGhostBlocks == true)
         {
-            this.renderGhostBlocks(player, partialTicks);
+            this.renderGhostBlocks(clientPlayer, partialTicks);
         }
 
         GlStateManager.disableTexture2D();
 
         if (renderGhostBlocks == false && mode.isAreaMode() == false)
         {
-            this.renderBlockOutlines(mode, player, posStart, posEnd, partialTicks);
+            this.renderBlockOutlines(mode, clientPlayer, posStart, posEnd, partialTicks);
         }
 
-        this.renderStartAndEndPositions(mode, player, posStart, posEnd, partialTicks);
+        this.renderStartAndEndPositions(mode, clientPlayer, posStart, posEnd, partialTicks);
 
         // In "Move, to" mode we also render the "Move, from" area
         if (mode == Mode.MOVE_DST)
         {
             posStart = wand.getPosition(stack, Mode.MOVE_SRC, true);
             posEnd = wand.getPosition(stack, Mode.MOVE_SRC, false);
-            this.renderStartAndEndPositions(Mode.MOVE_SRC, player, posStart, posEnd, partialTicks, 0xFF, 0x55, 0x55);
+            this.renderStartAndEndPositions(Mode.MOVE_SRC, clientPlayer, posStart, posEnd, partialTicks, 0xFF, 0x55, 0x55);
         }
 
         GlStateManager.popMatrix();

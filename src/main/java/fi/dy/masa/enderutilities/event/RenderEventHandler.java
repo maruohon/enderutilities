@@ -15,11 +15,13 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -29,6 +31,7 @@ import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
@@ -64,13 +67,27 @@ public class RenderEventHandler
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(this.mc.thePlayer, EnderUtilitiesItems.buildersWand);
+        this.renderItemExtras(this.mc.theWorld, this.mc.thePlayer, this.mc.thePlayer, event.getPartialTicks());
+
+        if (Configs.buildersWandRenderForOtherPlayers)
+        {
+            for (EntityPlayer player : this.mc.theWorld.getPlayers(EntityPlayer.class, EntitySelectors.NOT_SPECTATING))
+            {
+                this.renderItemExtras(this.mc.theWorld, player, this.mc.thePlayer, event.getPartialTicks());
+            }
+        }
+    }
+
+    private void renderItemExtras(World world, EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
+    {
+        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.buildersWand);
+
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
-            this.buildersWandRenderer.renderSelectedArea(this.mc.theWorld, this.mc.thePlayer, stack, event.getPartialTicks());
+            this.buildersWandRenderer.renderSelectedArea(world, usingPlayer, stack, clientPlayer, partialTicks);
         }
 
-        this.rulerRenderer.renderAllPositionPairs(event.getPartialTicks());
+        this.rulerRenderer.renderAllPositionPairs(usingPlayer, clientPlayer, partialTicks);
     }
 
     @SubscribeEvent
