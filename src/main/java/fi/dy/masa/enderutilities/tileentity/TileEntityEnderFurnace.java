@@ -15,7 +15,7 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
-import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -533,18 +533,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         FluidStack fluidStack = ((IFluidContainerItem)stack.getItem()).getFluid(stack);
-        if (fluidStack == null || fluidStack.amount <= 0)
-        {
-            return false;
-        }
-
-        Fluid fluid = fluidStack.getFluid();
-        if (fluid != null && fluid.getName() != null && fluid.getName().equals("lava") == true)
-        {
-            return true;
-        }
-
-        return false;
+        return fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() == FluidRegistry.LAVA;
     }
 
     private class ItemHandlerWrapperEnderFurnace extends ItemHandlerWrapperSelective
