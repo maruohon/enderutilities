@@ -247,9 +247,9 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         if (this.bagTier == 0)
         {
             // Add the sort buttons
-            this.buttonList.add(new GuiButtonHoverText(10, x + 84, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(10, x + 74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
-            this.buttonList.add(new GuiButtonHoverText(13, x + 84, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
         }
         else
         {
