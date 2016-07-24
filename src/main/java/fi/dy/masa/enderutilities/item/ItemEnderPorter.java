@@ -173,6 +173,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     }
 
     @Override
+    public boolean useBindLocking(ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
         return slotChanged || oldStack.getItem() != newStack.getItem();

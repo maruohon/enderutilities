@@ -27,6 +27,12 @@ public class ItemEnderLasso extends ItemLocationBoundModular
     }
 
     @Override
+    public boolean useBindLocking(ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
     public int getMaxModules(ItemStack containerStack)
     {
         return 10;

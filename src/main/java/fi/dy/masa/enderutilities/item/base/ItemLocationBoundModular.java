@@ -10,6 +10,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,6 +21,7 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -33,8 +35,15 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         {
             if (world.isRemote == false)
             {
-                boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
-                this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
+                if (this.useBindLocking(stack) == false || this.isBindLocked(stack) == false)
+                {
+                    boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
+                    this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
+                }
+                else
+                {
+                    player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.itembindlocked"));
+                }
             }
 
             return EnumActionResult.SUCCESS;
@@ -148,6 +157,21 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 list.add(s);
             }
 
+            if (this.useBindLocking(stack))
+            {
+                String s;
+                if (this.isBindLocked(stack))
+                {
+                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " + TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                }
+                else
+                {
+                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " + TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
+                }
+
+                list.add(s);
+            }
+
             // Ender Capacitor charge, if one has been installed
             ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
             if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
@@ -182,6 +206,16 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         return false;
     }
 
+    public boolean useBindLocking(ItemStack stack)
+    {
+        return false;
+    }
+
+    public boolean isBindLocked(ItemStack stack)
+    {
+        return NBTUtils.getBoolean(stack, null, "BindLocked");
+    }
+
     @Override
     public void changePrivacyMode(ItemStack containerStack, EntityPlayer player)
     {
@@ -204,6 +238,14 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+        }
+        // Shift + Toggle: Toggle bind lockd state
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
+        {
+            if (this.useBindLocking(stack))
+            {
+                NBTUtils.toggleBoolean(stack, null, "BindLocked");
+            }
         }
         else
         {
