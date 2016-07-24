@@ -54,7 +54,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
     public GuiHandyBag(ContainerHandyBag container)
     {
-        super(container, 256, 256, "gui.container.handybag." + container.getBagTier());
+        super(container, container.getBagTier() == 1 ? 256 : 176, 256, "gui.container.handybag." + container.getBagTier());
 
         this.containerHB = container;
         this.invModular = container.inventoryItemModular;
