@@ -27,7 +27,6 @@ import net.minecraft.world.end.DragonFightManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
@@ -455,13 +454,6 @@ public class TeleportEntity
     private static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
     {
         if (player == null || player.isDead == true || player.dimension == dimDst || player.worldObj.isRemote == true)
-        {
-            return null;
-        }
-
-        // Post the event and check if the teleport should be allowed
-        PlayerChangedDimensionEvent pcdEvent = new PlayerChangedDimensionEvent(player, player.dimension, dimDst);
-        if (MinecraftForge.EVENT_BUS.post(pcdEvent) == true)
         {
             return null;
         }
