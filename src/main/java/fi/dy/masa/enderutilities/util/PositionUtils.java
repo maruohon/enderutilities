@@ -170,12 +170,25 @@ public class PositionUtils
         }
         else if (entity.rotationPitch <= -80)
         {
-            return pos.up((int)Math.ceil(entity.getEntityBoundingBox().maxY - entity.posY) + 1);
+            return new BlockPos(entity.posX, Math.ceil(entity.getEntityBoundingBox().maxY), entity.posZ);
         }
 
-        EnumFacing facing = entity.getHorizontalFacing();
+        double y = Math.floor(entity.posY + entity.getEyeHeight());
 
-        return pos.up().offset(facing, 2);
+        switch (entity.getHorizontalFacing())
+        {
+            case EAST:
+                return new BlockPos((int) Math.ceil( entity.posX + entity.width / 2),     (int) y, (int) Math.floor(entity.posZ));
+            case WEST:
+                return new BlockPos((int) Math.floor(entity.posX - entity.width / 2) - 1, (int) y, (int) Math.floor(entity.posZ));
+            case SOUTH:
+                return new BlockPos((int) Math.floor(entity.posX), (int) y, (int) Math.ceil( entity.posZ + entity.width / 2)    );
+            case NORTH:
+                return new BlockPos((int) Math.floor(entity.posX), (int) y, (int) Math.floor(entity.posZ - entity.width / 2) - 1);
+            default:
+        }
+
+        return pos;
     }
 
     public static Rotation getReverseRotation(Rotation rotation)
