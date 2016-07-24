@@ -79,7 +79,10 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         super.onUpdate(stack, world, entity, slot, isCurrent);
 
-        this.restockPlayerInventory(stack, world, entity);
+        if (entity instanceof EntityPlayer)
+        {
+            this.restockPlayerInventory(stack, world, (EntityPlayer) entity);
+        }
     }
 
     @Override
@@ -172,7 +175,9 @@ public class ItemHandyBag extends ItemInventoryModular
 
         RestockMode restockMode = RestockMode.fromStack(containerStack);
         if (restockMode == RestockMode.DISABLED) strRestockMode += preRed;
-        else strRestockMode += preGreen;
+        else if (restockMode == RestockMode.ALL) strRestockMode += preGreen;
+        else strRestockMode += TextFormatting.YELLOW.toString();
+
         strRestockMode += restockMode.getDisplayName() + rst;
 
         if (verbose == true)
@@ -235,12 +240,13 @@ public class ItemHandyBag extends ItemInventoryModular
         addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
-    public void restockPlayerInventory(ItemStack stack, World world, Entity entity)
+    public void restockPlayerInventory(ItemStack stack, World world, EntityPlayer player)
     {
+        RestockMode mode = RestockMode.fromStack(stack);
+
         // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
-        if (world.isRemote == false && entity instanceof EntityPlayer && RestockMode.fromStack(stack) == RestockMode.ENABLED)
+        if (world.isRemote == false && mode != RestockMode.DISABLED)
         {
-            EntityPlayer player = (EntityPlayer)entity;
             InventoryItemModular bagInv;
 
             // Only re-stock stacks when the player doesn't have a GUI open
@@ -261,8 +267,15 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
 
                 IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
+                IItemHandlerModifiable playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
-                InventoryUtils.fillStacksOfMatchingItems(wrappedBagInv, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
+                // Only re-stock the hotbar and the offhand slot
+                if (mode == RestockMode.HOTBAR)
+                {
+                    playerInv = new CombinedInvWrapper(new RangedWrapper(playerInv, 0, 9), new PlayerOffhandInvWrapper(player.inventory));
+                }
+
+                InventoryUtils.fillStacksOfMatchingItems(wrappedBagInv, playerInv);
                 player.openContainer.detectAndSendChanges();
             }
         }
@@ -285,7 +298,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
 
-        if (RestockMode.fromStack(stack) == RestockMode.ENABLED)
+        if (RestockMode.fromStack(stack) != RestockMode.DISABLED)
         {
             if (world.isRemote == false)
             {
@@ -715,8 +728,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // Alt + Shift + Toggle mode: Toggle Restock mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
-            // 0: None, 1: Matching, 2: All
-            NBTUtils.cycleByteValue(stack, "HandyBag", "RestockMode", 1);
+            RestockMode.cycleMode(stack, EnumKey.keypressActionIsReversed(key));
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -779,14 +791,14 @@ public class ItemHandyBag extends ItemInventoryModular
     public ResourceLocation[] getItemVariants()
     {
         String rl = Reference.MOD_ID + ":" + "item_" + this.name;
-        ResourceLocation[] variants = new ResourceLocation[24];
+        ResourceLocation[] variants = new ResourceLocation[36];
         int i = 0;
 
         for (String strL : new String[] { "false", "true" })
         {
             for (String strP : new String[] { "none", "matching", "all" })
             {
-                for (String strR : new String[] { "false", "true" })
+                for (String strR : new String[] { "disabled", "all", "hotbar" })
                 {
                     for (String strT : new String[] { "0", "1" })
                     {
@@ -806,7 +818,7 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         String variant = "locked=" + (bagIsOpenable(stack) == true ? "false" : "true") +
                          ",pickupmode=" + PickupMode.fromStack(stack).getVariantName() +
-                         ",restockmode=" + (RestockMode.fromStack(stack) == RestockMode.ENABLED ? "true" : "false") +
+                         ",restockmode=" + RestockMode.fromStack(stack).getName() +
                          ",tier=" + MathHelper.clamp_int(stack.getMetadata(), 0, 1);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
@@ -846,25 +858,48 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public enum RestockMode
     {
-        DISABLED (0, "enderutilities.tooltip.item.disabled"),
-        ENABLED  (1, "enderutilities.tooltip.item.enabled");
+        DISABLED ("disabled"),
+        ALL      ("all"),
+        HOTBAR   ("hotbar");
 
-        private final String displayName;
+        private final String name;
 
-        private RestockMode (int id, String displayName)
+        private RestockMode (String name)
         {
-            this.displayName = displayName;
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return this.name;
         }
 
         public String getDisplayName()
         {
-            return I18n.format(this.displayName);
+            return I18n.format("enderutilities.tooltip.item." + this.getName());
         }
 
         public static RestockMode fromStack(ItemStack stack)
         {
             int id = NBTUtils.getByte(stack, "HandyBag", "RestockMode");
             return (id >= 0 && id < values().length) ? values()[id] : DISABLED;
+        }
+
+        public static void cycleMode(ItemStack stack, boolean reverse)
+        {
+            RestockMode mode = RestockMode.fromStack(stack);
+            int id = mode.ordinal() + (reverse ? -1 : 1);
+
+            if (id < 0)
+            {
+                id = values().length - 1;
+            }
+            else if (id >= values().length)
+            {
+                id = 0;
+            }
+
+            NBTUtils.setByte(stack, "HandyBag", "RestockMode", (byte) id);
         }
     }
 }

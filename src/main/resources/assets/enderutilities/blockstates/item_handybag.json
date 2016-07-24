@@ -41,13 +41,23 @@
             }
         },
         "restockmode": {
-            "false": {},
-            "true": {
+            "disabled": {},
+            "all": {
                 "submodel": {
                     "overlay_rm": {
                         "model": "enderutilities:item_default",
                         "textures": {
-                            "layer0": "enderutilities:items/handybag_overlay_restock"
+                            "layer0": "enderutilities:items/handybag_overlay_restock_all"
+                        }
+                    }
+                }
+            },
+            "hotbar": {
+                "submodel": {
+                    "overlay_rm": {
+                        "model": "enderutilities:item_default",
+                        "textures": {
+                            "layer0": "enderutilities:items/handybag_overlay_restock_hotbar"
                         }
                     }
                 }
