@@ -395,6 +395,7 @@ enderutilities.chat.message.failedtosaveareatotemplate=Failed to save area to te
 enderutilities.chat.message.featuredisabled=This feature has been disabled on the server
 enderutilities.chat.message.featuredisabledinsurvivalmode=This feature has been disabled for survival mode players on this server
 enderutilities.chat.message.itembindlocked=The item is currently locked from binding
+enderutilities.chat.message.itemboundtolocation=Bound to this location
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
 enderutilities.chat.message.notenoughendercharge=Not enough Ender Charge

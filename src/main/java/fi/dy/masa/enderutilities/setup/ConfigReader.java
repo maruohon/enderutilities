@@ -45,6 +45,11 @@ public class ConfigReader
     {
         Property prop;
         String category = CATEGORY_GENERIC;
+
+        prop = conf.get(category, "announceLocationBindingInChat", false).setRequiresMcRestart(false);
+        prop.setComment("Prints a chat message when items are bound to a new location");
+        Configs.announceLocationBindingInChat = prop.getBoolean();
+
         prop = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick in the \"build modes\", default = 10");
         Configs.buildersWandBlocksPerTick = prop.getInt();

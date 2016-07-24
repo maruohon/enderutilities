@@ -6,7 +6,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -19,6 +22,7 @@ import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -96,6 +100,20 @@ public class PlayerEventHandler
             if (player instanceof EntityPlayerMP)
             {
                 player.inventoryContainer.detectAndSendChanges();
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onClientChatReceived(ClientChatReceivedEvent event)
+    {
+        ITextComponent message = event.getMessage();
+
+        if (Configs.announceLocationBindingInChat == false && message instanceof TextComponentTranslation)
+        {
+            if ("enderutilities.chat.message.itemboundtolocation".equals(((TextComponentTranslation) message).getKey()))
+            {
+                event.setCanceled(true);
             }
         }
     }

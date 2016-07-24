@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.setup;
 public class Configs
 {
     // Client
+    public static boolean announceLocationBindingInChat;
     public static boolean handyBagOpenRequiresSneak;
     public static boolean useToolParticles;
     public static boolean useToolSounds;
