@@ -657,6 +657,12 @@ public class ItemHandyBag extends ItemInventoryModular
 
     public static IItemHandler getWrappedEnabledInv(ItemStack stack, IItemHandlerModifiable baseInv)
     {
+        // For the basic version of the bag, there is no locking/sections, so just return the base inventory
+        if (stack.getMetadata() != 1)
+        {
+            return baseInv;
+        }
+
         long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
 
         ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
