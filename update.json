@@ -1,14 +1,15 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.9.4-latest": "0.6.2",
-        "1.9.4-recommended": "0.6.2",
+        "1.9.4-latest": "0.6.5",
+        "1.9.4-recommended": "0.6.5",
         "1.9-latest": "0.6.1",
         "1.9-recommended": "0.6.1",
         "1.8.9-latest": "0.5.6",
         "1.8.9-recommended": "0.5.6"
     },
     "1.9.4": {
+        "0.6.5": "Lots of changes/fixes, see the full changelog on the CurseForge files page",
         "0.6.4": "Disabled the potion shift inside my GUIs\nHandy Bag: Fixed the pickup-matching mode also looking inside the locked bag sections for matches\nHandy Bag & Creation Station: Fixed slow and derpy mass crafting of items\nHandy Chest & Creation Station: Ignore hotbar when moving matching items to chest\nEnder Pearls: Some tweaks and minor fixes\nHandy Chest: Fix an inventory init issue, that should't happen in normal game-play\nEnder Elevator: Fix a derp with the redstone state checking\nLiving Matter Manipulator: Added special case support for Shulkers\nCreation Station: Add cleaning up the crafting grid of left-over items after crafting - allows proper mass-crafting of things like Cake now\nBuilder's Wand: Changed the template file names to include the player name who first used the wand in the Copy mode\nBuilder's Wand: Added a toggle for advancing the position after placing the blocks, added some error messages to chat, and don't render the HUD if the chat is open\nHandy Bag & Item Pickup Manager: Check for and ignore stacks with size 0",
         "0.6.3": "Fix Handy Chest/Creation Station not storing items on Private mode Memory Cards\nAdd toggling item type Memory Card Public/Private mode by right clicking\nFix Ender Bag not showing capacitor charge in Ender Chest mode\nFix Portal activation logic was partially broken in 0.6.2\nHandy Bag: Changed 'Move mathing items to bag' to exclude hotbar by default\nHandy Bag: Changed the block-quick-actions state to be stored per Memory Card\nFix Ender Tools not requiring an Ender Core module when combined with Handy Bag item pickup\nBuilder'sa Wand: Removed block updates from Paste mode (pasting floating blocks is now possible)\nBuilder's Wand: change the mirroring, rotation and corners to be per-mode and per-template/area in Copy, Paste and Delete modes\nBuilder's Wand: Add Copy and Delete mode second position adjustment by shift + scrolling\nBuilder's Wand: Added an option to also delete entities in the Delete mode (creative-only)\nPortal: Added config options to set the portal activation block search limits, plus increased the defaults\nPortal Panel: Fixed a case where the selection box wouldn't update\nAdded a new extra-large variant of the Handy Chest\nRefactored all hotkey/keybind things - scroll wheel doesn't pretend to be the Toggle key anymore, and in some cases they now do separate things\nAdded the ability to rename any items in the Tool Workstation\nAdded the ability to directly rename the Link Crystals in the Portal Panel GUI\nPortal: Added a check to prevent repeated teleporting in some cases\nImproved a few tooltips",
         "0.6.2": "Fix a crash with the Portal Panel and running particles(!!)\nTweak the Portal Panel internal logic - multiple panels on one portal should work better now\nChange several recipes, generally making things cheaper",
