@@ -84,7 +84,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
                 ItemStack stackSlot = this.inventory.getStackInSlot(invSlotNum);
                 ItemStack stackCursor = this.player.inventory.getItemStack();
 
-                if (stackCursor != null && stackSlot == null && (this.temc.getTemplateMask() & (1 << invSlotNum)) == 0)
+                if (stackCursor != null && stackSlot == null && (this.temc.getTemplateMask() & (1L << invSlotNum)) == 0)
                 {
                     this.temc.setTemplateStack(invSlotNum, stackCursor);
                 }
