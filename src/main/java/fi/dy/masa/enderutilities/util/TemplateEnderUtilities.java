@@ -232,6 +232,8 @@ public class TemplateEnderUtilities
                     float f = entity.getMirroredYaw(mirror);
                     f = f + (entity.rotationYaw - entity.getRotatedYaw(rotation));
                     entity.setLocationAndAngles(vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, f, entity.rotationPitch);
+                    // FIXME should call updateFacingWithBoundingBox(EnumFacing) for EntityHanging, otherwise a world reload is needed
+                    // for ItemFrames for example to visually update to the correct facing
                 }
 
                 // Use the original UUID if possible. If there is an entity with the same UUID within the pasted area,
