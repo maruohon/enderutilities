@@ -108,12 +108,12 @@ public class TemplateEnderUtilities
             TemplateEnderUtilities.TemplateBlockInfo blockInfo = this.blocks.get(index);
 
             BlockPos pos = transformedBlockPos(this.placement, blockInfo.pos).add(posStart);
-            IBlockState state = blockInfo.blockState;
+            IBlockState stateNew = blockInfo.blockState;
 
             if (this.replaceMode == ReplaceMode.EVERYTHING ||
-                (this.replaceMode == ReplaceMode.WITH_NON_AIR && state.getMaterial() != Material.AIR) || world.isAirBlock(pos))
+                (this.replaceMode == ReplaceMode.WITH_NON_AIR && stateNew.getMaterial() != Material.AIR) || world.isAirBlock(pos))
             {
-                state = state.withMirror(this.placement.getMirror()).withRotation(this.placement.getRotation());
+                stateNew = stateNew.withMirror(this.placement.getMirror()).withRotation(this.placement.getRotation());
 
                 boolean success = false;
 
@@ -125,7 +125,7 @@ public class TemplateEnderUtilities
                     // Replace the block temporarily so that the old TE gets cleared for sure
                     world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
 
-                    success = world.setBlockState(pos, state, 2);
+                    success = world.setBlockState(pos, stateNew, 2);
                 }
                 else
                 {
@@ -134,7 +134,7 @@ public class TemplateEnderUtilities
                     // Replace the block temporarily so that the old TE gets cleared for sure
                     world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
 
-                    success = world.setBlockState(pos, state, 2);
+                    success = world.setBlockState(pos, stateNew, 2);
                     world.restoringBlockSnapshots = false;
                 }
 
@@ -188,15 +188,10 @@ public class TemplateEnderUtilities
         Mirror mirror = this.placement.getMirror();
         Rotation rotation = this.placement.getRotation();
 
-        int x1 = posStart.getX();
-        int y1 = posStart.getY();
-        int z1 = posStart.getZ();
-        int x2 = this.size.getX();
-        int y2 = this.size.getY();
-        int z2 = this.size.getZ();
-
-        AxisAlignedBB bb = new AxisAlignedBB(x1, y1, z1, x1 + x2, y1 + y2, z1 + z2);
-        List<Entity> existingEntities = world.getEntitiesWithinAABBExcludingEntity(null, bb);
+        BlockPos posEnd = posStart.add(PositionUtils.getRelativeEndPositionFromAreaSize(this.size));
+        BlockPos pos1 = PositionUtils.getMinCorner(posStart, posEnd);
+        BlockPos pos2 = PositionUtils.getMaxCorner(posStart, posEnd).add(1, 1, 1);
+        List<Entity> existingEntities = world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(pos1, pos2));
 
         for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
@@ -258,18 +253,18 @@ public class TemplateEnderUtilities
         }
     }
 
-    public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos endPosRelative, boolean takeEntities)
+    public void takeBlocksFromWorld(World worldIn, BlockPos posStart, BlockPos posEndRelative, boolean takeEntities)
     {
-        BlockPos endPos = startPos.add(endPosRelative);
+        BlockPos endPos = posStart.add(posEndRelative);
         List<TemplateEnderUtilities.TemplateBlockInfo> list = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
         List<TemplateEnderUtilities.TemplateBlockInfo> list1 = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
         List<TemplateEnderUtilities.TemplateBlockInfo> list2 = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
 
-        this.size = PositionUtils.getAreaSizeFromRelativeEndPosition(endPosRelative);
+        this.size = PositionUtils.getAreaSizeFromRelativeEndPosition(posEndRelative);
 
-        for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(startPos, endPos))
+        for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, endPos))
         {
-            BlockPos posRelative = posMutable.subtract(startPos);
+            BlockPos posRelative = posMutable.subtract(posStart);
             IBlockState state = worldIn.getBlockState(posMutable);
 
             TileEntity te = worldIn.getTileEntity(posMutable);
@@ -302,7 +297,7 @@ public class TemplateEnderUtilities
 
         if (takeEntities)
         {
-            this.takeEntitiesFromWorld(worldIn, startPos, endPos.add(1, 1, 1));
+            this.takeEntitiesFromWorld(worldIn, posStart, posEndRelative);
         }
         else
         {
@@ -310,9 +305,12 @@ public class TemplateEnderUtilities
         }
     }
 
-    public void takeEntitiesFromWorld(World world, BlockPos startPos, BlockPos endPos)
+    public void takeEntitiesFromWorld(World world, BlockPos posStart, BlockPos posEndRelative)
     {
-        List<Entity> list = world.<Entity>getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(startPos, endPos), new Predicate<Entity>()
+        BlockPos posEnd = posStart.add(posEndRelative);
+        BlockPos pos1 = PositionUtils.getMinCorner(posStart, posEnd);
+        BlockPos pos2 = PositionUtils.getMaxCorner(posStart, posEnd).add(1, 1, 1);
+        List<Entity> list = world.<Entity>getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos1, pos2), new Predicate<Entity>()
         {
             public boolean apply(Entity entity)
             {
@@ -324,14 +322,14 @@ public class TemplateEnderUtilities
 
         for (Entity entity : list)
         {
-            Vec3d vec3d = new Vec3d(entity.posX - startPos.getX(), entity.posY - startPos.getY(), entity.posZ - startPos.getZ());
+            Vec3d vec3d = new Vec3d(entity.posX - posStart.getX(), entity.posY - posStart.getY(), entity.posZ - posStart.getZ());
             NBTTagCompound nbt = new NBTTagCompound();
             entity.writeToNBTOptional(nbt);
             BlockPos pos;
 
             if (entity instanceof EntityPainting)
             {
-                pos = ((EntityPainting)entity).getHangingPosition().subtract(startPos);
+                pos = ((EntityPainting)entity).getHangingPosition().subtract(posStart);
             }
             else
             {
