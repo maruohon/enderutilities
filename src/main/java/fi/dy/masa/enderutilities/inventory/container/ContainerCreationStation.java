@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
@@ -17,6 +18,8 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -36,6 +39,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
+    private final ItemStack[] recipeStacks;
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -47,6 +51,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftMatrixWrappers = new IItemHandler[] { te.getCraftingInventoryWrapper(0), te.getCraftingInventoryWrapper(1) };
         this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
         this.furnaceInventory = this.tecs.getFurnaceInventory();
+        this.recipeStacks = new ItemStack[18];
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -320,6 +325,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super.detectAndSendChanges();
 
+        this.syncRecipeStacks();
+
         if (this.tecs.getWorld().isRemote == true)
         {
             return;
@@ -361,6 +368,54 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.fuelProgress = fuelProgress;
         this.smeltProgress = smeltProgress;
         this.lastInteractedCraftingGrid = this.tecs.lastInteractedCraftingGrid;
+    }
+
+    private void syncRecipeStacks()
+    {
+        int start = this.inventorySlots.size();
+
+        for (int slot = 0; slot < this.recipeStacks.length; slot++)
+        {
+            ItemStack currentStack = this.tecs.getRecipeItems(slot / 9)[slot % 9];
+            ItemStack prevStack = this.recipeStacks[slot];
+
+            if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+            {
+                prevStack = ItemStack.copyItemStack(currentStack);
+                this.recipeStacks[slot] = prevStack;
+
+                for (int i = 0; i < this.listeners.size(); i++)
+                {
+                    IContainerListener listener = this.listeners.get(i);
+
+                    if (listener instanceof EntityPlayerMP)
+                    {
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, start + slot, prevStack), (EntityPlayerMP) listener);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void syncStackInSlot(int slotId, ItemStack stack)
+    {
+        int size = this.inventorySlots.size();
+
+        // Syncing the recipe items
+        if (slotId >= size)
+        {
+            this.recipeStacks[slotId - size] = stack;
+        }
+        else
+        {
+            super.syncStackInSlot(slotId, stack);
+        }
+    }
+
+    public ItemStack getRecipeItem(int invId, int slot)
+    {
+        return this.recipeStacks[invId * 9 + slot];
     }
 
     @Override

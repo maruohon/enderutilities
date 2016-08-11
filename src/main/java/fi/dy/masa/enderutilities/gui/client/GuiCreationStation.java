@@ -193,18 +193,18 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
 
         // Draw the red or purple background under non-matching crafting grid slots
-        for (int i = 0; i < 2; i++)
+        for (int invId = 0; invId < 2; invId++)
         {
-            if (this.tecs.getShowRecipe(i) == true)
+            if (this.tecs.getShowRecipe(invId) == true)
             {
                 for (int slotNum = 0; slotNum < 9; slotNum++)
                 {
-                    ItemStack gridStack = this.containerCS.getCraftMatrixWrapper(i).getStackInSlot(slotNum);
-                    ItemStack recipeStack = this.tecs.getRecipeItems(i)[slotNum];
+                    ItemStack gridStack = this.containerCS.getCraftMatrixWrapper(invId).getStackInSlot(slotNum);
+                    ItemStack recipeStack = this.containerCS.getRecipeItem(invId, slotNum);
 
                     if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)
                     {
-                        Slot slot = this.containerCS.getSlot(31 + i * 10 + slotNum);
+                        Slot slot = this.containerCS.getSlot(31 + invId * 10 + slotNum);
                         x = this.guiLeft + slot.xDisplayPosition - 1;
                         y = this.guiTop + slot.yDisplayPosition - 1;
 

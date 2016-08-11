@@ -317,13 +317,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    public int getRecipeId(int invId)
+    protected int getRecipeId(int invId)
     {
         int s = (invId == 1) ? 11 : 8;
         return (this.modeMask >> s) & 0x7;
     }
 
-    public void setRecipeId(int invId, int recipeId)
+    protected void setRecipeId(int invId, int recipeId)
     {
         int shift = (invId == 1) ? 11 : 8;
         int mask = (invId == 1) ? 0x3800 : 0x0700;
@@ -335,7 +335,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return invId == 1 ? (this.modeMask & MODE_BIT_SHOW_RECIPE_RIGHT) != 0 : (this.modeMask & MODE_BIT_SHOW_RECIPE_LEFT) != 0;
     }
 
-    public void setShowRecipe(int invId, boolean show)
+    protected void setShowRecipe(int invId, boolean show)
     {
         int mask = (invId == 1) ? MODE_BIT_SHOW_RECIPE_RIGHT : MODE_BIT_SHOW_RECIPE_LEFT;
 
@@ -350,27 +350,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     }
 
     /**
-     * Gets the result ItemStack from a stored recipe.
-     * The recipe items will be in the recipeItems array
-     * @param invId
-     * @param recipeId
-     */
-    public void getRecipeOutput(int invId, int recipeId)
-    {
-        
-    }
-
-    /**
      * Gets the recipeItems array of ItemStacks for the currently selected recipe
      * @param invId
      */
     public ItemStack[] getRecipeItems(int invId)
     {
-        invId = MathHelper.clamp_int(invId, 0, 1);
-        return this.recipeItems[invId];
+        return this.recipeItems[MathHelper.clamp_int(invId, 0, 1)];
     }
 
-    public NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
+    protected NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
     {
         ItemStack stack = this.getContainerStack();
         if (stack == null)
@@ -659,14 +647,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             this.craftingInventories[1].setContainerItemStack(this.getContainerStack());
         }
-
-        //if (this.worldObj.isRemote == false)
-        {
-            this.loadRecipe(0, this.getRecipeId(0));
-            this.loadRecipe(1, this.getRecipeId(1));
-        }
-
-        this.markDirty();
     }
 
     public boolean isInventoryAccessible(EntityPlayer player)
@@ -720,6 +700,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
+            this.loadRecipe(0, this.getRecipeId(0));
+            this.loadRecipe(1, this.getRecipeId(1));
+            this.markDirty();
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
@@ -903,12 +886,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    public boolean isBurning(int id)
-    {
-        // This returns if the furnace is actually burning fuel at the moment
-        return this.burnTimeRemaining[id] > 0;
-    }
-
     /**
      * Updates the cached smelting result for the current input item, if the input has changed since last caching the result.
      */
@@ -934,7 +911,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * Checks if there is a valid fuel item in the fuel slot.
      * @return true if the fuel slot has an item that can be used as fuel
      */
-    public boolean hasFuelAvailable(int id)
+    protected boolean hasFuelAvailable(int id)
     {
         ItemStack fuelStack = this.furnaceInventory.getStackInSlot(id * 3 + 1);
         if (fuelStack == null)
@@ -950,7 +927,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * Consumes one fuel item or one dose of fluid fuel. Sets the burnTimeFresh field to the amount of burn time gained.
      * @return returns the amount of furnace burn time that was gained from the fuel
      */
-    public int consumeFuelItem(int id)
+    protected int consumeFuelItem(int id)
     {
         if (this.furnaceInventory.getStackInSlot(id * 3 + 1) == null)
         {
@@ -992,7 +969,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * for an equal item and free space or empty buffer. Does not check the fuel.
      * @return true if input and output item stacks allow the current item to be smelted
      */
-    public boolean canSmelt(int id)
+    protected boolean canSmelt(int id)
     {
         ItemStack inputStack = this.furnaceInventory.getStackInSlot(id * 3);
 
@@ -1024,7 +1001,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     /**
      * Turn one item from the furnace input slot into a smelted item in the furnace output buffer.
      */
-    public void smeltItem(int id)
+    protected void smeltItem(int id)
     {
         if (this.canSmelt(id) == true)
         {
