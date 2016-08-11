@@ -37,10 +37,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -187,11 +189,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
             // Check if we can place the block
             if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block, targetStack) == true)
             {
-                EnumActionResult success;
+                EnumActionResult result;
                 // Off-hand
                 if (slot == -1)
                 {
-                    success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.OFF_HAND, side, hitX, hitY, hitZ);
+                    result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.OFF_HAND);
                     if (targetStack.stackSize <= 0)
                     {
                         playerIn.setHeldItem(EnumHand.OFF_HAND, null);
@@ -200,7 +202,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                 else
                 {
                     playerIn.inventory.currentItem = slot;
-                    success = targetStack.onItemUse(playerIn, worldIn, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ);
+                    result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND);
                     if (targetStack.stackSize <= 0)
                     {
                         playerIn.inventory.setInventorySlotContents(slot, null);
@@ -208,10 +210,16 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     playerIn.inventory.currentItem = origSlot;
                 }
 
+                if (result == EnumActionResult.SUCCESS)
+                {
+                    SoundEvent sound = ((ItemBlock)targetStack.getItem()).block.getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn).getPlaceSound();
+                    worldIn.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                }
+
                 playerIn.inventory.markDirty();
                 playerIn.inventoryContainer.detectAndSendChanges();
 
-                return success;
+                return result;
             }
         }
 
