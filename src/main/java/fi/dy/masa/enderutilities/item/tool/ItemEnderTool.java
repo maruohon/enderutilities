@@ -44,7 +44,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -150,7 +149,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             }
         }
         // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (player != null && (player instanceof FakePlayer) == false)
+        else if (player != null)
         {
             if (world.isRemote == false)
             {
@@ -552,8 +551,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         // 1: Add drops to player's inventory; To allow this, we require at least the lowest tier Ender Core (active) installed
-        if (mode == DropsMode.PLAYER && (player instanceof FakePlayer) == false &&
-                this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
+        if (mode == DropsMode.PLAYER && this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC)
         {
             return player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP); // main inventory
         }

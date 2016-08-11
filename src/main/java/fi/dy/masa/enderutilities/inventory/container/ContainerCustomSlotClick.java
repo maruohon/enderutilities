@@ -234,7 +234,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 }
             }
             // Different items, try to swap the stacks
-            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true)
+            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true &&
+                     stackSlot.stackSize <= stackSlot.getMaxStackSize() && slot.getItemStackLimit(stackCursor) >= stackCursor.stackSize)
             {
                 this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
                 slot.onPickupFromSlot(this.player, stackSlot);
@@ -282,7 +283,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 }
             }
             // Different items, try to swap the stacks
-            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true)
+            else if (slot.canTakeStack(this.player) == true && slot.canTakeAll() == true && slot.isItemValid(stackCursor) == true &&
+                    stackSlot.stackSize <= stackSlot.getMaxStackSize() && slot.getItemStackLimit(stackCursor) >= stackCursor.stackSize)
             {
                 this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
                 slot.onPickupFromSlot(this.player, stackSlot);

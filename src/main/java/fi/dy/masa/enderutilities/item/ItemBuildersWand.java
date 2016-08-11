@@ -44,6 +44,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -1785,6 +1786,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
 
+        int count = 0;
+
         if (removeEntities)
         {
             int x1 = Math.min(posStart.getX(), posEnd.getX());
@@ -1799,10 +1802,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             for (Entity entity : entities)
             {
-                if ((entity instanceof EntityPlayer) == false)
+                if ((entity instanceof EntityPlayer) == false || entity instanceof FakePlayer)
                 {
                     entity.setDead();
+                    count++;
                 }
+            }
+
+            if (count > 0)
+            {
+                player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.killedentitieswithcount", count));
             }
         }
     }

@@ -75,7 +75,9 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         // Middle click
-        if (clickType == ClickType.CLONE && dragType == 2 && slotNum >= 0 && slotNum < this.inventory.getSlots())
+        if (((clickType == ClickType.CLONE && dragType == 2) ||
+            (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
+            slotNum >= 0 && slotNum < this.inventory.getSlots())
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
 
@@ -84,7 +86,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
                 ItemStack stackSlot = this.inventory.getStackInSlot(invSlotNum);
                 ItemStack stackCursor = this.player.inventory.getItemStack();
 
-                if (stackCursor != null && stackSlot == null && (this.temc.getTemplateMask() & (1 << invSlotNum)) == 0)
+                if (stackCursor != null && stackSlot == null && (this.temc.getTemplateMask() & (1L << invSlotNum)) == 0)
                 {
                     this.temc.setTemplateStack(invSlotNum, stackCursor);
                 }

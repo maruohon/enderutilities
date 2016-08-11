@@ -255,7 +255,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
             }
 
             // No template locked for this slot, or the item matches with the template item
-            return (this.temc.templateMask & (1 << slot)) == 0 || InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]);
+            return (this.temc.templateMask & (1L << slot)) == 0 || InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]);
         }
     }
 

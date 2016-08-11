@@ -123,15 +123,28 @@ public class PositionUtils
         }
     }
 
-    public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEnd)
+    public static BlockPos getAreaSizeFromRelativeEndPosition(BlockPos posEndRelative)
     {
-        int x = posEnd.getX();
-        int y = posEnd.getY();
-        int z = posEnd.getZ();
+        int x = posEndRelative.getX();
+        int y = posEndRelative.getY();
+        int z = posEndRelative.getZ();
 
         x = x >= 0 ? x + 1 : x - 1;
         y = y >= 0 ? y + 1 : y - 1;
         z = z >= 0 ? z + 1 : z - 1;
+
+        return new BlockPos(x, y, z);
+    }
+
+    public static BlockPos getRelativeEndPositionFromAreaSize(BlockPos size)
+    {
+        int x = size.getX();
+        int y = size.getY();
+        int z = size.getZ();
+
+        x = x >= 0 ? x - 1 : x + 1;
+        y = y >= 0 ? y - 1 : y + 1;
+        z = z >= 0 ? z - 1 : z + 1;
 
         return new BlockPos(x, y, z);
     }
