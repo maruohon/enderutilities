@@ -10,9 +10,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import fi.dy.masa.enderutilities.inventory.InventoryCraftingWrapper;
+import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
-import fi.dy.masa.enderutilities.inventory.item.InventoryItemCrafting;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -33,8 +35,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     public int smeltProgress;
     private int lastInteractedCraftingGrid;
 
-    private final InventoryItemCrafting[] craftMatrices;
-    private final IItemHandler[] craftMatrixWrappers;
+    private final ItemHandlerWrapperPermissions[] craftMatrixWrappers;
+    private final InventoryCraftingWrapper[] craftMatrices;
     private final ItemStackHandlerBasic[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
@@ -45,13 +47,19 @@ public class ContainerCreationStation extends ContainerLargeStacks
     {
         super(player, te.getItemInventory(player));
         this.tecs = te;
-        this.tecs.openInventory(player);
 
-        this.craftMatrices = new InventoryItemCrafting[] { te.getCraftingInventory(0, this, player), te.getCraftingInventory(1, this, player) };
-        this.craftMatrixWrappers = new IItemHandler[] { te.getCraftingInventoryWrapper(0), te.getCraftingInventoryWrapper(1) };
+        this.craftMatrixWrappers = new ItemHandlerWrapperPermissions[2];
+        this.craftMatrixWrappers[0] = te.getCraftingInventoryWrapper(0, player);
+        this.craftMatrixWrappers[1] = te.getCraftingInventoryWrapper(1, player);
+
+        this.craftMatrices = new InventoryCraftingWrapper[2];
+        this.craftMatrices[0] = new InventoryCraftingWrapper(this, 3, 3, this.craftMatrixWrappers[0]);
+        this.craftMatrices[1] = new InventoryCraftingWrapper(this, 3, 3, this.craftMatrixWrappers[1]);
+
         this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
-        this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.recipeStacks = new ItemStack[18];
+
+        this.furnaceInventory = this.tecs.getFurnaceInventory();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);
@@ -91,11 +99,12 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftingGridSlotsLeft = new SlotRange(this.inventorySlots.size(), 9);
         posX = 40;
         posY = 33;
+        IItemHandler invWrapper = new InvWrapper(this.craftMatrices[0]);
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[0], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(invWrapper, j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
@@ -104,11 +113,12 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
         posX = 148;
         posY = 33;
+        invWrapper = new InvWrapper(this.craftMatrices[1]);
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(this.craftMatrixWrappers[1], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(invWrapper, j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
@@ -162,14 +172,6 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
-    public void onContainerClosed(EntityPlayer player)
-    {
-        super.onContainerClosed(player);
-
-        this.tecs.closeInventory(player);
-    }
-
-    @Override
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
         // Our main item inventory or the furnace inventory
@@ -195,7 +197,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             int invId = slotNum == 50 ? 1 : 0;
 
-            if (this.tecs.canCraftItems(invId) == false)
+            if (this.tecs.canCraftItems(this.craftMatrixWrappers[invId], invId) == false)
             {
                 return false;
             }
@@ -214,7 +216,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
                 ret = super.transferStackFromSlot(player, slotNum);
             }
 
-            this.tecs.restockCraftingGrid(invId);
+            this.tecs.restockCraftingGrid(this.craftMatrixWrappers[invId], invId);
+            this.onCraftMatrixChanged(this.craftMatrices[invId]);
 
             return ret;
         }
@@ -287,13 +290,14 @@ public class ContainerCreationStation extends ContainerLargeStacks
         {
             int invId = slotNum == 50 ? 1 : 0;
 
-            if (this.tecs.canCraftItems(invId) == false)
+            if (this.tecs.canCraftItems(this.craftMatrixWrappers[invId], invId) == false)
             {
                 return null;
             }
 
             ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
-            this.tecs.restockCraftingGrid(invId);
+            this.tecs.restockCraftingGrid(this.craftMatrixWrappers[invId], invId);
+            this.onCraftMatrixChanged(this.craftMatrices[invId]);
 
             return stack;
         }
