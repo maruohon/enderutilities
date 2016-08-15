@@ -77,7 +77,7 @@ public class TaskPositionDebug implements ITask
                 IBlockState state = this.blockState != null ? this.blockState : Blocks.STAINED_GLASS.getStateFromMeta(meta);
 
                 world.setBlockState(pos, state, 3);
-                world.playSound(null, pos, state.getBlock().getSoundType().getPlaceSound(), SoundCategory.BLOCKS, 1.0f, 1.0f);
+                world.playSound(null, pos, state.getBlock().getSoundType(state, world, pos, null).getPlaceSound(), SoundCategory.BLOCKS, 1.0f, 1.0f);
             }
 
             if (this.useParticles)

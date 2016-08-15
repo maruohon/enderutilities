@@ -57,7 +57,7 @@ public class BlockUtils
     {
         world.setBlockState(pos, newState, setBlockStateFlags);
 
-        SoundType soundtype = newState.getBlock().getSoundType();
+        SoundType soundtype = newState.getBlock().getSoundType(newState, world, pos, null);
         world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
                 (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
     }
