@@ -2,10 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
@@ -68,19 +65,6 @@ public class ContainerHandyChest extends ContainerLargeStacks
             this.addSlotToContainer(new SlotItemHandlerModule(this.tehc.getModuleInventory(), i,
                     posX + i * modX, posY + i * modY, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         }
-    }
-
-    @Override
-    protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
-    {
-        // Our main item inventory
-        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).getItemHandler() == this.inventory)
-        {
-            return slot.getItemStackLimit(stack);
-        }
-
-        // Player inventory or module slots
-        return super.getMaxStackSizeFromSlotAndStack(slot, stack);
     }
 
     @Override

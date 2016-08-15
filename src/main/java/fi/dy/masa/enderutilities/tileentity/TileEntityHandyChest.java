@@ -136,7 +136,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
-    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
+    public ItemHandlerWrapperPermissions getWrappedInventoryForContainer(EntityPlayer player)
     {
         return new ItemHandlerWrapperPermissions(this.itemInventory, player);
     }
@@ -261,7 +261,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
-            ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+            ItemHandlerWrapperPermissions inventory = this.getWrappedInventoryForContainer(player);
 
             if (inventory.isAccessibleByPlayer(player) == false)
             {
@@ -305,7 +305,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
             // Chest inventory
             if (element == 0)
             {
-                ItemHandlerWrapperPermissions inventory = new ItemHandlerWrapperPermissions(this.itemInventory, player);
+                ItemHandlerWrapperPermissions inventory = this.getWrappedInventoryForContainer(player);
 
                 if (inventory.isAccessibleByPlayer(player) == false)
                 {
