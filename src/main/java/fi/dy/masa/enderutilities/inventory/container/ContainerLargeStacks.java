@@ -65,6 +65,11 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     @Override
     public void detectAndSendChanges()
     {
+        if (this.player.worldObj.isRemote == true)
+        {
+            return;
+        }
+
         for (int slot = 0; slot < this.inventorySlots.size(); slot++)
         {
             ItemStack currentStack = this.inventorySlots.get(slot).getStack();

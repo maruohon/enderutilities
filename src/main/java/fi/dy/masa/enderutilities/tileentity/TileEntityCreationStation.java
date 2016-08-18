@@ -76,9 +76,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public static final int MODE_BIT_SHOW_RECIPE_LEFT       = 0x4000;
     public static final int MODE_BIT_SHOW_RECIPE_RIGHT      = 0x8000;
 
+    private InventoryItemCallback itemInventory;
+    private ItemHandlerWrapperPermissions wrappedInventory;
     private final IItemHandler itemHandlerMemoryCards;
-    private final InventoryItemCallback itemInventory;
-    private final ItemHandlerWrapperPermissions wrappedInventory;
     private final ItemStackHandlerTileEntity furnaceInventory;
     private final IItemHandler furnaceInventoryWrapper;
 
@@ -107,10 +107,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MODULES, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
-
-        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, false, null, this);
-        this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
-        this.itemHandlerExternal = this.wrappedInventory;
 
         this.craftingInventories = new InventoryItemCallback[2];
         this.craftingGridTemplates = new ItemStack[][] { null, null };
@@ -141,12 +137,21 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private void initStorage(boolean isRemote)
     {
+        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, isRemote, null, this);
+        this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
+        this.itemHandlerExternal = this.wrappedInventory;
+
         this.craftingInventories[0] = new InventoryItemCallback(null, 9, 64, false, isRemote, null, this, "CraftItems_0");
         this.craftingInventories[1] = new InventoryItemCallback(null, 9, 64, false, isRemote, null, this, "CraftItems_1");
 
         ItemStack containerStack = this.getContainerStack();
+        this.itemInventory.setContainerItemStack(containerStack);
         this.craftingInventories[0].setContainerItemStack(containerStack);
         this.craftingInventories[1].setContainerItemStack(containerStack);
+
+        this.readModeMaskFromModule();
+        this.loadRecipe(0, this.getRecipeId(0));
+        this.loadRecipe(1, this.getRecipeId(1));
     }
 
     @Override
@@ -164,10 +169,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         super.readFromNBTCustom(nbt);
-
-        this.readModeMaskFromModule();
-        this.loadRecipe(0, this.getRecipeId(0));
-        this.loadRecipe(1, this.getRecipeId(1));
     }
 
     @Override
@@ -176,8 +177,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super.readItemsFromNBT(nbt);
 
         this.furnaceInventory.deserializeNBT(nbt);
-
-        this.itemInventory.setContainerItemStack(this.getContainerStack());
     }
 
     @Override
@@ -221,7 +220,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         this.selectedModule = tag.getByte("msel");
-        this.itemInventory.setIsRemote(true);
 
         super.handleUpdateTag(tag);
     }
@@ -286,10 +284,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         this.modeMask &= (MODE_BIT_LEFT_FAST | MODE_BIT_RIGHT_FAST);
 
+        ItemStack containerStack = this.getContainerStack();
+
         // Furnace modes are stored in the TileEntity itself, other modes are on the modules
-        if (this.getContainerStack() != null)
+        if (containerStack != null)
         {
-            NBTTagCompound tag = NBTUtils.getCompoundTag(this.getContainerStack(), null, "CreationStation", false);
+            NBTTagCompound tag = NBTUtils.getCompoundTag(containerStack, null, "CreationStation", false);
             if (tag != null)
             {
                 this.modeMask |= tag.getShort("ConfigMask");
@@ -359,13 +359,14 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
     {
-        ItemStack stack = this.getContainerStack();
-        if (stack == null)
+        ItemStack containerStack = this.getContainerStack();
+
+        if (containerStack != null)
         {
-            return null;
+            return NBTUtils.getCompoundTag(containerStack, "CreationStation", "Recipes_" + invId, create);
         }
 
-        return NBTUtils.getCompoundTag(stack, "CreationStation", "Recipes_" + invId, create);
+        return null;
     }
 
     protected void loadRecipe(int invId, int recipeId)
@@ -390,8 +391,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         if (tag != null)
         {
             int invSize = invCrafting.getSlots();
-            //ItemStack items[] = new ItemStack[invCrafting.getSlots() + 1];
             ItemStack items[] = this.getRecipeItems(invId);
+
             for (int i = 0; i < invSize; i++)
             {
                 ItemStack stack = invCrafting.getStackInSlot(i);
@@ -605,11 +606,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         ItemStack containerStack = this.getContainerStack();
 
-        this.itemInventory.setContainerItemStack(this.getContainerStack());
+        this.itemInventory.setContainerItemStack(containerStack);
         this.craftingInventories[0].setContainerItemStack(containerStack);
         this.craftingInventories[1].setContainerItemStack(containerStack);
 
         this.readModeMaskFromModule();
+        this.loadRecipe(0, this.getRecipeId(0));
+        this.loadRecipe(1, this.getRecipeId(1));
     }
 
     public boolean isInventoryAccessible(EntityPlayer player)
@@ -646,8 +649,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
-            this.loadRecipe(0, this.getRecipeId(0));
-            this.loadRecipe(1, this.getRecipeId(1));
             this.markDirty();
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)

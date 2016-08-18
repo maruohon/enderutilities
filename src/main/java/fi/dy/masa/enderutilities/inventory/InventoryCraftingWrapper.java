@@ -18,6 +18,11 @@ public class InventoryCraftingWrapper extends InventoryCrafting
         this.craftMatrix = craftMatrix;
     }
 
+    public ItemHandlerWrapperPermissions getBaseInventory()
+    {
+        return this.craftMatrix;
+    }
+
     @Override
     public int getSizeInventory()
     {
@@ -42,11 +47,11 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     @Nullable
     public ItemStack decrStackSize(int slot, int amount)
     {
-        ItemStack stack = this.craftMatrix.extractItem(slot, amount, false); //ItemStackHelper.getAndSplit(this.stackList, index, count);
+        ItemStack stack = this.craftMatrix.extractItem(slot, amount, false);
 
         if (stack != null)
         {
-            this.container.onCraftMatrixChanged(this);
+            this.markDirty();
         }
 
         return stack;
@@ -56,7 +61,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     public void setInventorySlotContents(int slot, @Nullable ItemStack stack)
     {
         this.craftMatrix.setStackInSlot(slot, stack);
-        this.container.onCraftMatrixChanged(this);
+        this.markDirty();
     }
 
     @Override
@@ -75,6 +80,14 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
         return this.craftMatrix.isItemValidForSlot(slot, stack);
+    }
+
+    @Override
+    public void markDirty()
+    {
+        super.markDirty();
+
+        this.container.onCraftMatrixChanged(this);
     }
 
     @Override

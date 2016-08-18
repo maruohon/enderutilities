@@ -83,10 +83,11 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, MAX_TIER);
-        this.invSize = INV_SIZES[this.chestTier];
-        this.setSelectedModule(nbt.getByte("SelModule"));
         this.actionMode = nbt.getByte("QuickMode");
+        this.setSelectedModule(nbt.getByte("SelModule"));
+        this.invSize = INV_SIZES[this.chestTier];
 
+        // This needs to happen after setting the invSize and tier etc.
         super.readFromNBTCustom(nbt);
     }
 
@@ -130,7 +131,8 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.selectedModule = tag.getByte("msel");
         this.invSize = INV_SIZES[this.chestTier];
 
-        this.initStorage(this.invSize, true);
+        // Needs re-initialization after the invSize has been set
+        this.initStorage(this.invSize, this.getWorld().isRemote);
 
         super.handleUpdateTag(tag);
     }

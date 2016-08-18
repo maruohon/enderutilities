@@ -10,11 +10,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.inventory.InventoryCraftingWrapper;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.slot.SlotCraftingWrapper;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -99,12 +99,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftingGridSlotsLeft = new SlotRange(this.inventorySlots.size(), 9);
         posX = 40;
         posY = 33;
-        IItemHandler invWrapper = new InvWrapper(this.craftMatrices[0]);
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(invWrapper, j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
@@ -113,12 +112,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
         posX = 148;
         posY = 33;
-        invWrapper = new InvWrapper(this.craftMatrices[1]);
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(invWrapper, j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
         this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
@@ -327,14 +325,13 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public void detectAndSendChanges()
     {
-        super.detectAndSendChanges();
-
-        this.syncRecipeStacks();
-
         if (this.tecs.getWorld().isRemote == true)
         {
             return;
         }
+
+        super.detectAndSendChanges();
+        this.syncRecipeStacks();
 
         int modeMask = this.tecs.getModeMask();
         int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
@@ -394,6 +391,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
                     if (listener instanceof EntityPlayerMP)
                     {
+                        //System.out.printf("syncing recipe stack %d in inv %d\n", slot % 9, slot / 9);
                         PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, start + slot, prevStack), (EntityPlayerMP) listener);
                     }
                 }
