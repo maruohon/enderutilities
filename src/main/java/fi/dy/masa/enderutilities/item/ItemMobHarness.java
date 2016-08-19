@@ -198,7 +198,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (storedUUID.equals(targetEntity.getUniqueID()))
         {
             EntityUtils.unmountFirstRider(player);
-            targetEntity.startRiding(player);
+            targetEntity.startRiding(player, true);
             this.clearData(stack);
 
             return true;
@@ -223,7 +223,6 @@ public class ItemMobHarness extends ItemEnderUtilities
             // Matching (stored) entity found
             if (storedEntity != null && storedEntity.dimension == player.dimension)
             {
-
                 // Don't allow mounting the entity into the same stack, or nasty infinite loops will happen >_>
                 if (EntityUtils.doesEntityStackContainEntity(storedEntity, targetEntity) == false)
                 {
