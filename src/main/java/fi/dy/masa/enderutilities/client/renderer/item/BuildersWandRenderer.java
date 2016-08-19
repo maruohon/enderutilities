@@ -88,8 +88,13 @@ public class BuildersWandRenderer
             return;
         }
 
-        BlockPosEU posEnd = mode.isAreaMode() || (mode == Mode.WALLS || mode == Mode.CUBE) ?
-                wand.getPosition(stack, ItemBuildersWand.POS_END) : null;
+        BlockPosEU posEnd = mode.isAreaMode() || (mode == Mode.WALLS || mode == Mode.CUBE) ? wand.getPosition(stack, ItemBuildersWand.POS_END) : null;
+
+        // If the start position hasn't been set but is ray traced, then get a "floating" end position for it
+        if (posEnd == null && mode.isAreaMode())
+        {
+            posEnd = wand.getTransformedEndPosition(stack, mode, posStart);
+        }
 
         if (partialTicks < this.partialTicksLast || posStart.equals(this.posStartLast) == false)
         {

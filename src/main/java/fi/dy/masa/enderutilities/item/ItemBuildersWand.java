@@ -448,7 +448,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private BlockPosEU getTransformedEndPosition(ItemStack stack, Mode mode)
     {
-        BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, true);
+        return this.getTransformedEndPosition(stack, mode, this.getPerTemplateAreaCorner(stack, mode, true));
+    }
+
+    public BlockPosEU getTransformedEndPosition(ItemStack stack, Mode mode, BlockPosEU posStart)
+    {
         if (posStart == null)
         {
             return null;
@@ -516,6 +520,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return tag;
     }
 
+    private void removeCornerPositionTag(ItemStack stack, Mode mode, boolean isStart)
+    {
+        int sel = this.getSelectionIndex(stack);
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CORNERS + "_" + sel, true);
+        tag.removeTag(isStart == true ? "Pos1" : "Pos2");
+    }
+
     private BlockPosEU getPerTemplateAreaCorner(ItemStack stack, Mode mode, boolean isStart)
     {
         return BlockPosEU.readFromTag(this.getCornerPositionTag(stack, mode, isStart));
@@ -523,7 +535,16 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private void setPerTemplateAreaCorner(ItemStack stack, Mode mode, boolean isStart, BlockPosEU pos)
     {
-        pos.writeToTag(this.getCornerPositionTag(stack, mode, isStart));
+        BlockPosEU oldPos = this.getPerTemplateAreaCorner(stack, mode, isStart);
+
+        if (oldPos != null && oldPos.equals(pos))
+        {
+            this.removeCornerPositionTag(stack, mode, isStart);
+        }
+        else
+        {
+            pos.writeToTag(this.getCornerPositionTag(stack, mode, isStart));
+        }
     }
 
     public void setPosition(ItemStack stack, BlockPosEU pos, boolean isStart)
