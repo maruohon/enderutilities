@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.compat.jei.crafting;
+package fi.dy.masa.enderutilities.compat.jei;
 
 import java.util.ArrayList;
 import java.util.List;
