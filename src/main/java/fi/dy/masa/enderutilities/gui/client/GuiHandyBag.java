@@ -20,6 +20,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class GuiHandyBag extends GuiContainerLargeStacks
@@ -28,6 +29,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
     public static final int BTN_ID_FIRST_SORT          = 10;
     public static final int BTN_ID_FIRST_BLOCK         = 14;
+    public static final int BTN_ID_BAUBLES             = 100;
 
     private static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
@@ -45,12 +47,15 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     private final int invSize;
     private final int numModuleSlots;
     private final int bagTier;
+    private final int offsetXTier;
     private float oldMouseX;
     private float oldMouseY;
     private int firstModuleSlotX;
     private int firstModuleSlotY;
     private boolean hasActivePotionEffects;
     private int[] lastPos = new int[2];
+    private boolean baublesLoaded;
+    public static final ResourceLocation baublesButton = new ResourceLocation(ModRegistry.MODID_BAUBLES.toLowerCase(), "textures/gui/expanded_inventory.png");
 
     public GuiHandyBag(ContainerHandyBag container)
     {
@@ -61,6 +66,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         this.invSize = this.invModular.getSlots();
         this.numModuleSlots = this.invModular.getModuleInventory().getSlots();
         this.bagTier = this.containerHB.getBagTier();
+        this.offsetXTier = this.bagTier == 1 ? 40 : 0;
+        this.baublesLoaded = ModRegistry.isModLoadedBaubles();
 
         this.scaledStackSizeTextInventories.add(this.invModular);
     }
@@ -197,7 +204,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             }
         }
 
-        int xOff = this.guiLeft + (this.bagTier == 1 ? 91 : 51);
+        int xOff = this.guiLeft + 51 + this.offsetXTier;
         // Draw the player model
         GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.thePlayer);
     }
@@ -205,7 +212,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        int xOff = this.bagTier == 1 ? 40 : 0;
+        int xOff = this.offsetXTier;
         this.fontRendererObj.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 99, 59, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 90, 0x404040);
@@ -265,6 +272,12 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonHoverText(14, x +  62, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
             this.buttonList.add(new GuiButtonHoverText(16, x + 177, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
         }
+
+        if (this.baublesLoaded)
+        {
+            // The texture comes from the Baubles expanded inventory texture
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_BAUBLES, this.guiLeft + 68 + this.offsetXTier, this.guiTop + 15, 10, 10, 190, 48, baublesButton, 10, 0));
+        }
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
@@ -316,6 +329,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_BLOCK, button.id - BTN_ID_FIRST_BLOCK));
+        }
+        else if (button.id == 100 && this.baublesLoaded)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                    ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_OPEN_BAUBLES, 0));
         }
     }
 

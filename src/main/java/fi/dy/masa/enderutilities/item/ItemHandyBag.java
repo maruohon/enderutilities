@@ -24,6 +24,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -46,6 +48,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -64,6 +67,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
     public static final int GUI_ACTION_SORT_ITEMS    = 2;
     public static final int GUI_ACTION_TOGGLE_BLOCK  = 3;
+    public static final int GUI_ACTION_OPEN_BAUBLES  = 100;
 
     public ItemHandyBag()
     {
@@ -648,6 +652,24 @@ public class ItemHandyBag extends ItemInventoryModular
                             NBTUtils.setLong(cardStack, "HandyBag", "LockMask", lockMask);
                             UtilItemModular.setSelectedModuleStackAbs(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
                         }
+                    }
+                }
+                else if (action == GUI_ACTION_OPEN_BAUBLES && ModRegistry.isModLoadedBaubles())
+                {
+                    try
+                    {
+                        ModContainer baublesContainer = Loader.instance().getIndexedModList().get(ModRegistry.MODID_BAUBLES);
+
+                        if (baublesContainer != null)
+                        {
+                            Object baubles = baublesContainer.getMod();
+                            BlockPos pos = player.getPosition();
+                            player.openGui(baubles, 0, player.worldObj, pos.getX(), pos.getY(), pos.getZ());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        EnderUtilities.logger.warn("Failed to open the Baubles GUI from Handy Bag");
                     }
                 }
             }
