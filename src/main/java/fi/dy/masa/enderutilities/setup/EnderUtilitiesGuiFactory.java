@@ -1,10 +1,8 @@
 package fi.dy.masa.enderutilities.setup;
 
 import java.util.Set;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-
 import net.minecraftforge.fml.client.IModGuiFactory;
 
 public class EnderUtilitiesGuiFactory implements IModGuiFactory
@@ -26,6 +24,7 @@ public class EnderUtilitiesGuiFactory implements IModGuiFactory
         return null;
     }
 
+    @Deprecated
     @Override
     public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
     {
