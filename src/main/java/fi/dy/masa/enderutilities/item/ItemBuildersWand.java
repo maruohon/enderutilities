@@ -41,6 +41,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
@@ -1797,6 +1798,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
+        // Set all blocks to air
         for (BlockPos.MutableBlockPos posMutable : BlockPos.getAllInBoxMutable(posStart, posEnd))
         {
             if (world.isAirBlock(posMutable) == false)
@@ -1807,6 +1809,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
 
+        // Remove pending block updates from within the area
+        BlockPos posMin = PositionUtils.getMinCorner(posStart, posEnd);
+        BlockPos posMax = PositionUtils.getMaxCorner(posStart, posEnd).add(1, 1, 1);
+        StructureBoundingBox sbb = StructureBoundingBox.createProper(posMin.getX(), posMin.getY(), posMin.getZ(), posMax.getX(), posMax.getY(), posMax.getZ());
+        world.getPendingBlockUpdates(sbb, true); // The boolean parameter indicates whether the entries will be removed
+
+        // Remove all entities within the area
         int count = 0;
 
         if (removeEntities)
