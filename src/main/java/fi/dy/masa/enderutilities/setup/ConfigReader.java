@@ -46,9 +46,25 @@ public class ConfigReader
         Property prop;
         String category = CATEGORY_GENERIC;
 
-        prop = conf.get(category, "announceLocationBindingInChat", false).setRequiresMcRestart(false);
-        prop.setComment("Prints a chat message when items are bound to a new location");
-        Configs.announceLocationBindingInChat = prop.getBoolean();
+        prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
+        prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
+        Configs.enderBowAllowPlayers = prop.getBoolean();
+
+        prop = conf.get(category, "enderBowAllowSelfTP", true).setRequiresMcRestart(false);
+        prop.setComment("Can the Ender Bow be used in the 'TP Self' mode");
+        Configs.enderBowAllowSelfTP = prop.getBoolean();
+
+        prop = conf.get(category, "enderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
+        prop.setComment("Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).");
+        Configs.enderBucketCapacity = prop.getInt();
+
+        prop = conf.get(category, "enderLassoAllowPlayers", true).setRequiresMcRestart(false);
+        prop.setComment("Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)");
+        Configs.enderLassoAllowPlayers = prop.getBoolean();
+
+        prop = conf.get(category, "harvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
+        prop.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
+        Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
 
         prop = conf.get(category, "lazyBuildersWandBlocksPerTick", 10).setRequiresMcRestart(false);
         prop.setComment("The number of blocks the Lazy Builder's Wand will place each game tick in the \"build modes\", default = 10");
@@ -90,40 +106,9 @@ public class ConfigReader
         prop.setComment("Use translucent ghost block rendering");
         Configs.buildersWandUseTranslucentGhostBlocks = prop.getBoolean();
 
-        prop = conf.get(category, "enderBowAllowPlayers", true).setRequiresMcRestart(false);
-        prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
-        Configs.enderBowAllowPlayers = prop.getBoolean();
-
-        prop = conf.get(category, "enderBowAllowSelfTP", true).setRequiresMcRestart(false);
-        prop.setComment("Can the Ender Bow be used in the 'TP Self' mode");
-        Configs.enderBowAllowSelfTP = prop.getBoolean();
-
-        prop = conf.get(category, "enderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
-        prop.setComment("Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).");
-        Configs.enderBucketCapacity = prop.getInt();
-
-        prop = conf.get(category, "enderLassoAllowPlayers", true).setRequiresMcRestart(false);
-        prop.setComment("Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)");
-        Configs.enderLassoAllowPlayers = prop.getBoolean();
-
-        prop = conf.get(category, "harvestLevelEnderAlloyAdvanced", 3).setRequiresMcRestart(true);
-        prop.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
-        Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
-
         prop = conf.get(category, "useEnderCharge", true).setRequiresMcRestart(false);
         prop.setComment("Do items require Ender Charge to operate? (stored in Ender Capacitors)");
         Configs.useEnderCharge = prop.getBoolean(true);
-
-        category = CATEGORY_CLIENT;
-        conf.addCustomCategoryComment(category, "Client side configs");
-
-        prop = conf.get(category, "handyBagOpenRequiresSneak", false).setRequiresMcRestart(false);
-        prop.setComment("Reverse the sneak behaviour on opening the Handy Bag instead of the regular inventory");
-        Configs.handyBagOpenRequiresSneak = prop.getBoolean(false);
-
-        prop = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
-        prop.setComment("Does the block drops teleporting by Ender tools cause particle effects");
-        Configs.useToolParticles = prop.getBoolean();
 
         prop = conf.get(category, "portalFrameCheckLimit", 2000).setRequiresMcRestart(false);
         prop.setComment("How many Portal Frame blocks to check at most");
@@ -137,12 +122,27 @@ public class ConfigReader
         prop.setComment("How many blocks to check at most when checking that one portal area is valid");
         Configs.portalAreaCheckLimit = prop.getInt();
 
+        category = CATEGORY_CLIENT;
+        conf.addCustomCategoryComment(category, "Client side configs");
+
+        prop = conf.get(category, "announceLocationBindingInChat", false).setRequiresMcRestart(false);
+        prop.setComment("Prints a chat message when items are bound to a new location");
+        Configs.announceLocationBindingInChat = prop.getBoolean();
+
+        prop = conf.get(category, "handyBagOpenRequiresSneak", false).setRequiresMcRestart(false);
+        prop.setComment("Reverse the sneak behaviour on opening the Handy Bag instead of the regular inventory");
+        Configs.handyBagOpenRequiresSneak = prop.getBoolean(false);
+
+        prop = conf.get(category, "useToolParticles", true).setRequiresMcRestart(false);
+        prop.setComment("Does the block drops teleporting by Ender tools cause particle effects");
+        Configs.useToolParticles = prop.getBoolean();
+
         prop = conf.get(category, "useToolSounds", true).setRequiresMcRestart(false);
         prop.setComment("Does the block drops teleporting by Ender tools play the sound effect");
         Configs.useToolSounds = prop.getBoolean();
 
         category = "Version";
-        prop = conf.get(category, "configFileVersion", 5000).setRequiresMcRestart(false);
+        prop = conf.get(category, "configFileVersion", 6500).setRequiresMcRestart(false);
         prop.setComment("Internal config file version tracking. DO NOT CHANGE!!");
         confVersion = prop.getInt();
 
