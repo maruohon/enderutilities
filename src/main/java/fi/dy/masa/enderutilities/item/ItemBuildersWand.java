@@ -2257,7 +2257,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
                  EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            Mode.cycleMode(stack, EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            Mode.cycleMode(stack, EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key), player);
 
             if (Mode.getMode(stack) == Mode.PASTE)
             {
@@ -2467,18 +2467,32 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         COLUMN              ("column",  "enderutilities.tooltip.item.build.column"),
         WALLS               ("walls",   "enderutilities.tooltip.item.build.walls", false, true, true),
         CUBE                ("cube",    "enderutilities.tooltip.item.build.cube", false, true, true),
-        COPY                ("copy",    "enderutilities.tooltip.item.build.copy", true, true, true),
-        PASTE               ("paste",   "enderutilities.tooltip.item.build.paste", true, false, true),
-        DELETE              ("delete",  "enderutilities.tooltip.item.build.delete", true, true, true),
+        REPLACE             ("replace", "enderutilities.tooltip.item.build.replace"),
         MOVE_SRC            ("movesrc", "enderutilities.tooltip.item.build.move.source", true, true, false),
         MOVE_DST            ("movedst", "enderutilities.tooltip.item.build.move.destination", true, false, true),
-        REPLACE             ("replace", "enderutilities.tooltip.item.build.replace");
+        COPY                ("copy",    "enderutilities.tooltip.item.build.copy", true, true, true),
+        PASTE               ("paste",   "enderutilities.tooltip.item.build.paste", true, false, true),
+        // Creative-only modes are at the end.
+        DELETE              ("delete",  "enderutilities.tooltip.item.build.delete", true, true, true, true);
 
         private final String name;
         private final String unlocName;
         private final boolean isAreaMode;
         private final boolean hasTwoCorners;
         private final boolean hasUseDelay;
+        private boolean creativeOnly;
+        private static int numCreativeOnly;
+
+        static
+        {
+            for (Mode mode : values())
+            {
+                if (mode.creativeOnly)
+                {
+                    numCreativeOnly++;
+                }
+            }
+        }
 
         private Mode (String name, String unlocName)
         {
@@ -2487,11 +2501,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         private Mode (String name, String unlocName, boolean isAreaMode, boolean twoCorners, boolean useDelay)
         {
+            this(name, unlocName, isAreaMode, twoCorners, useDelay, false);
+        }
+
+        private Mode (String name, String unlocName, boolean isAreaMode, boolean twoCorners, boolean useDelay, boolean creativeOnly)
+        {
             this.name = name;
             this.unlocName = unlocName;
             this.isAreaMode = isAreaMode;
             this.hasTwoCorners = twoCorners;
             this.hasUseDelay = useDelay;
+            this.creativeOnly = creativeOnly;
         }
 
         public String getName()
@@ -2524,15 +2544,21 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return values()[getModeOrdinal(stack)];
         }
 
-        public static void cycleMode(ItemStack stack, boolean reverse)
+        public static void cycleMode(ItemStack stack, boolean reverse, EntityPlayer player)
         {
-            NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_MODE, values().length - 1, reverse);
+            int max = player.capabilities.isCreativeMode ? values().length - 1 : values().length - 1 - numCreativeOnly;
+            NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_MODE, max, reverse);
         }
 
         public static int getModeOrdinal(ItemStack stack)
         {
             int id = NBTUtils.getByte(stack, WRAPPER_TAG_NAME, TAG_NAME_MODE);
             return (id >= 0 && id < values().length) ? id : 0;
+        }
+
+        public static int getModeCount(EntityPlayer player)
+        {
+            return player.capabilities.isCreativeMode ? values().length : values().length - numCreativeOnly;
         }
     }
 

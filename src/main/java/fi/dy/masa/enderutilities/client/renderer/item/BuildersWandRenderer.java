@@ -281,7 +281,7 @@ public class BuildersWandRenderer
         }
     }
 
-    public void renderHud()
+    public void renderHud(EntityPlayer player)
     {
         ItemStack stack = this.mc.thePlayer.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
@@ -291,7 +291,7 @@ public class BuildersWandRenderer
 
         List<String> lines = new ArrayList<String>();
 
-        this.getText(lines, stack);
+        this.getText(lines, stack, player);
 
         ScaledResolution scaledResolution = new ScaledResolution(this.mc);
         int scaledY = scaledResolution.getScaledHeight();
@@ -329,7 +329,7 @@ public class BuildersWandRenderer
         }
     }
 
-    private void getText(List<String> lines, ItemStack stack)
+    private void getText(List<String> lines, ItemStack stack, EntityPlayer player)
     {
         ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
         Mode mode = Mode.getMode(stack);
@@ -427,7 +427,7 @@ public class BuildersWandRenderer
         }
 
         int modeId = mode.ordinal() + 1;
-        int maxModeId = Mode.values().length;
+        int maxModeId = Mode.getModeCount(player);
         str = I18n.format("enderutilities.tooltip.item.mode");
         String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, modeName, rst);
 

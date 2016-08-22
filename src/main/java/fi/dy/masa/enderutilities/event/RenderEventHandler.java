@@ -98,9 +98,9 @@ public class RenderEventHandler
             return;
         }
 
-        if ((this.mc.currentScreen instanceof GuiChat) == false)
+        if ((this.mc.currentScreen instanceof GuiChat) == false && this.mc.thePlayer != null)
         {
-            this.buildersWandRenderer.renderHud();
+            this.buildersWandRenderer.renderHud(this.mc.thePlayer);
             this.rulerRenderer.renderHud();
         }
     }
