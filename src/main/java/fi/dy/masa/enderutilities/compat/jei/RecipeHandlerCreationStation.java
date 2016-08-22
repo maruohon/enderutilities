@@ -2,19 +2,16 @@ package fi.dy.masa.enderutilities.compat.jei;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 
-public class RecipeHandlerCreationStation implements IRecipeTransferInfo
+public class RecipeHandlerCreationStation implements IRecipeTransferInfo<ContainerCreationStation>
 {
     @Override
-    public Class<? extends Container> getContainerClass()
+    public Class<ContainerCreationStation> getContainerClass()
     {
         return ContainerCreationStation.class;
     }
@@ -26,16 +23,10 @@ public class RecipeHandlerCreationStation implements IRecipeTransferInfo
     }
 
     @Override
-    public List<Slot> getRecipeSlots(Container container)
+    public List<Slot> getRecipeSlots(ContainerCreationStation container)
     {
-        if ((container instanceof ContainerCreationStation) == false)
-        {
-            return new ArrayList<Slot>();
-        }
-
         List<Slot> slots = new ArrayList<Slot>();
-        ContainerCreationStation containerCS = (ContainerCreationStation)container;
-        SlotRange slotRange = containerCS.getCraftingGridSlotRange(containerCS.getLastInteractedCraftingGridId());
+        SlotRange slotRange = container.getCraftingGridSlotRange(container.getLastInteractedCraftingGridId());
 
         for (int slotNum = slotRange.first; slotNum < slotRange.lastExc; slotNum++)
         {
@@ -46,17 +37,11 @@ public class RecipeHandlerCreationStation implements IRecipeTransferInfo
     }
 
     @Override
-    public List<Slot> getInventorySlots(Container container)
+    public List<Slot> getInventorySlots(ContainerCreationStation container)
     {
-        if ((container instanceof ContainerCreationStation) == false)
-        {
-            return new ArrayList<Slot>();
-        }
-
         List<Slot> slots = new ArrayList<Slot>();
-        ContainerCreationStation containerCS = (ContainerCreationStation)container;
-        SlotRange playerInventorySlots = containerCS.getPlayerMainInventorySlotRange();
-        SlotRange customInventorySlots = containerCS.getCustomInventorySlotRange();
+        SlotRange playerInventorySlots = container.getPlayerMainInventorySlotRange();
+        SlotRange customInventorySlots = container.getCustomInventorySlotRange();
 
         for (int slotNum = customInventorySlots.first; slotNum < customInventorySlots.lastExc; slotNum++)
         {
