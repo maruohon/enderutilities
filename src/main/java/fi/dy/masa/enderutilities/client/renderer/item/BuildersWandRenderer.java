@@ -187,7 +187,7 @@ public class BuildersWandRenderer
             RenderGlobal.drawSelectionBoundingBox(aabb, r / 255f, g / 255f, b / 255f, 0xCC / 255f);
         }
 
-        float expand = mode == Mode.REPLACE || mode.hasTwoPlacableCorners() ? 0.001f : 0f;
+        float expand = mode == Mode.REPLACE || mode == Mode.REPLACE_3D || mode.hasTwoPlacableCorners() ? 0.001f : 0f;
 
         if (posStart != null)
         {
@@ -342,7 +342,31 @@ public class BuildersWandRenderer
         int index = wand.getSelectionIndex(stack);
         String str;
 
-        if (mode.isAreaMode())
+        if (mode == Mode.REPLACE_3D)
+        {
+            int index1 = index;
+
+            str = I18n.format("enderutilities.tooltip.item.build.target");
+            index = wand.getSelectionIndex(stack, true);
+            lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
+                    rst, this.getBlockTypeName(wand, stack, index, true), rst));
+
+            str = I18n.format("enderutilities.tooltip.item.build.replacement");
+            lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index1 + 1), ItemBuildersWand.MAX_BLOCKS,
+                    rst, this.getBlockTypeName(wand, stack, index1), rst));
+
+            str = I18n.format("enderutilities.tooltip.item.build.bindmode");
+
+            if (wand.getBindModeEnabled(stack, mode))
+            {
+                lines.add(String.format("%s: %s%s%s", str, preGreen, strYes, rst));
+            }
+            else
+            {
+                lines.add(String.format("%s: %s%s%s", str, preRed, strNo, rst));
+            }
+        }
+        else if (mode.isAreaMode())
         {
             if (mode == Mode.DELETE || mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST)
             {
@@ -447,9 +471,14 @@ public class BuildersWandRenderer
 
     private String getBlockTypeName(ItemBuildersWand wand, ItemStack stack, int index)
     {
+        return this.getBlockTypeName(wand, stack, index, false);
+    }
+
+    private String getBlockTypeName(ItemBuildersWand wand, ItemStack stack, int index, boolean secondary)
+    {
         if (index >= 0)
         {
-            BlockInfo blockInfo = wand.getSelectedFixedBlockType(stack);
+            BlockInfo blockInfo = wand.getSelectedFixedBlockType(stack, secondary);
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);

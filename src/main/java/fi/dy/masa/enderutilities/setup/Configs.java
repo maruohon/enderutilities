@@ -14,6 +14,7 @@ public class Configs
     public static boolean buildersWandEnablePasteMode;
     public static boolean buildersWandEnableMoveMode;
     public static boolean buildersWandEnableReplaceMode;
+    public static boolean buildersWandEnableReplace3DMode;
     public static boolean buildersWandRenderForOtherPlayers;
     public static boolean buildersWandUseTranslucentGhostBlocks;
     public static int buildersWandBlocksPerTick;

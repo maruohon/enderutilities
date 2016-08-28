@@ -86,6 +86,10 @@ public class ConfigReader
         prop.setComment("Enables the Replace mode functionality in survival mode");
         Configs.buildersWandEnableReplaceMode = prop.getBoolean();
 
+        prop = conf.get(category, "lazyBuildersWandEnableReplace3DMode", true).setRequiresMcRestart(false);
+        prop.setComment("Enables the Replace 3D mode functionality in survival mode");
+        Configs.buildersWandEnableReplace3DMode = prop.getBoolean();
+
         prop = conf.get(category, "lazyBuildersWandGhostBlockAlpha", 0.7d).setRequiresMcRestart(false);
         prop.setComment("The alpha value to use for the translucent ghost block rendering mode");
         Configs.buildersWandGhostBlockAlpha = (float) MathHelper.clamp_double(prop.getDouble(), 0, 1);

@@ -12,6 +12,11 @@ public class BlockPosBox
     public final int sizeLayer;
     public final int count;
 
+    public BlockPosBox(BlockPosEU pos1, BlockPosEU pos2)
+    {
+        this(pos1.toBlockPos(), pos2.toBlockPos());
+    }
+
     public BlockPosBox(BlockPos pos1, BlockPos pos2)
     {
         this.posMin = PositionUtils.getMinCorner(pos1, pos2);

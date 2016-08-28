@@ -56,6 +56,7 @@ import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.event.tasks.TaskBuildersWand;
 import fi.dy.masa.enderutilities.event.tasks.TaskMoveArea;
 import fi.dy.masa.enderutilities.event.tasks.TaskReplaceBlocks;
+import fi.dy.masa.enderutilities.event.tasks.TaskReplaceBlocks3D;
 import fi.dy.masa.enderutilities.event.tasks.TaskTemplatePlaceBlocks;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.IStringInput;
@@ -177,7 +178,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (world.isRemote == false)
             {
-                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_END);
+                if (mode == Mode.REPLACE_3D && player.isSneaking() && this.getBindModeEnabled(stack, mode))
+                {
+                    this.setSelectedFixedBlockType(stack, player, world, pos, true);
+                }
+                else
+                {
+                    this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_END);
+                }
             }
 
             return EnumActionResult.SUCCESS;
@@ -215,13 +223,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Hack to work around the fact that when the NBT changes, the left click event will fire again the next tick,
         // so it would easily result in the state toggling multiple times per left click
         Long last = this.lastLeftClick.get(player.getUniqueID());
+
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
             Mode mode = Mode.getMode(stack);
             // Sneak + left click: Set the selected block type (in the appropriate modes)
-            if (player.isSneaking() == true && mode.isAreaMode() == false)
+            if (player.isSneaking() == true && (mode.isAreaMode() == false || (mode == Mode.REPLACE_3D && this.getBindModeEnabled(stack, mode))))
             {
-                this.setSelectedFixedBlockType(stack, player, world, pos);
+                this.setSelectedFixedBlockType(stack, player, world, pos, false);
             }
             else if (mode == Mode.REPLACE)
             {
@@ -514,7 +523,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private NBTTagCompound getCornerPositionTag(ItemStack stack, Mode mode, boolean isStart)
     {
-        int sel = this.getSelectionIndex(stack);
+        int sel = mode == Mode.REPLACE_3D ? 0 : this.getSelectionIndex(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
         tag = NBTUtils.getCompoundTag(tag, TAG_NAME_CORNERS + "_" + sel, true);
         tag = NBTUtils.getCompoundTag(tag, (isStart == true ? "Pos1" : "Pos2"), true);
@@ -648,6 +657,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else if (mode == Mode.REPLACE)
         {
             return this.replaceBlocks(stack, world, player, posStart != null ? posStart : posTarget);
+        }
+        else if (mode == Mode.REPLACE_3D)
+        {
+            return this.replaceBlocks3D(stack, world, player);
         }
         else
         {
@@ -805,6 +818,49 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return false;
     }
 
+    public boolean replaceBlock(World world, EntityPlayer player, ItemStack stack, BlockPosStateDist posIn)
+    {
+        BlockPos pos = posIn.toBlockPos();
+
+        if (this.canReplaceBlock(world, player, stack, posIn))
+        {
+            this.handleOldBlock(world, player, pos, posIn.side);
+
+            ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
+            return wand.placeBlockToPosition(stack, world, player, posIn);
+        }
+
+        return false;
+    }
+
+    private boolean canReplaceBlock(World world, EntityPlayer player, ItemStack stack, BlockPosStateDist posIn)
+    {
+        return (ItemBuildersWand.hasEnoughCharge(stack, player) &&
+               ItemBuildersWand.canManipulateBlock(world, posIn.toBlockPos(), player, stack, true)) &&
+               (player.capabilities.isCreativeMode ||
+                   ItemBuildersWand.getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true) != null);
+    }
+
+    private void handleOldBlock(World world, EntityPlayer player, BlockPos pos, EnumFacing side)
+    {
+        if (player.capabilities.isCreativeMode == false)
+        {
+            ItemStack stack = BlockUtils.getStackedItemFromBlock(world, pos, player, side);
+
+            if (stack != null)
+            {
+                stack = InventoryUtils.tryInsertItemStackToInventory(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack);
+
+                if (stack != null)
+                {
+                    EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
+                }
+            }
+        }
+
+        world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+    }
+
     public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, World world, BlockPos pos, IBlockState newState, EntityPlayer player, boolean simulate)
     {
         // NOTE: This isn't technically correct, because the block in the world is air and not the target block we want to place...
@@ -854,17 +910,23 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return null;
     }
 
-    private void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos)
+    private void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos, boolean secondary)
     {
-        int sel = this.getSelectionIndex(stack);
+        int sel = this.getSelectionIndex(stack, secondary);
         if (sel < 0)
         {
             return;
         }
 
-        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, true);
+        String tagName = secondary ? TAG_NAME_BLOCKS + "2" : TAG_NAME_BLOCKS;
+        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, true);
         NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, true);
 
+        this.setSelectedFixedBlockType(tag, player, world, pos);
+    }
+
+    private void setSelectedFixedBlockType(NBTTagCompound tag, EntityPlayer player, World world, BlockPos pos)
+    {
         IBlockState state = world.getBlockState(pos);
         tag.setString("BlockName", ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString());
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
@@ -877,13 +939,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public BlockInfo getSelectedFixedBlockType(ItemStack stack)
     {
-        int sel = this.getSelectionIndex(stack);
+        return this.getSelectedFixedBlockType(stack, false);
+    }
+
+    public BlockInfo getSelectedFixedBlockType(ItemStack stack, boolean secondary)
+    {
+        int sel = this.getSelectionIndex(stack, secondary);
         if (sel < 0)
         {
             return null;
         }
 
-        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_BLOCKS, false);
+        String tagName = secondary ? TAG_NAME_BLOCKS + "2" : TAG_NAME_BLOCKS;
+        NBTTagCompound blocksTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, tagName, false);
         NBTTagCompound tag = NBTUtils.getCompoundTag(blocksTag, TAG_NAME_BLOCK_PRE + sel, false);
 
         if (tag != null && tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true)
@@ -896,10 +964,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     public int getSelectionIndex(ItemStack stack)
     {
+        return this.getSelectionIndex(stack, false);
+    }
+
+    public int getSelectionIndex(ItemStack stack, boolean secondary)
+    {
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);
         NBTTagCompound tag = NBTUtils.getCompoundTag(configsTag, TAG_NAME_CONFIG_PRE + Mode.getMode(stack).getName(), true);
 
-        return tag.getByte(TAG_NAME_BLOCK_SEL);
+        return tag.getByte(secondary ? TAG_NAME_BLOCK_SEL + "2" : TAG_NAME_BLOCK_SEL);
     }
 
     private void changeSelectionIndex(ItemStack stack, boolean reverse)
@@ -907,9 +980,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Mode mode = Mode.getMode(stack);
         NBTTagCompound tag = this.getModeTag(stack, mode);
 
-        int min = mode == Mode.COPY || mode == Mode.PASTE || mode == Mode.DELETE ||
-                  mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST || mode == Mode.REPLACE ? 0 : -2;
+        int min = mode.isAreaMode() || mode == Mode.REPLACE ? 0 : -2;
         NBTUtils.cycleByteValue(tag, TAG_NAME_BLOCK_SEL, min, MAX_BLOCKS - 1, reverse);
+    }
+
+    private void changeSecondarySelectionIndex(ItemStack stack, boolean reverse)
+    {
+        NBTUtils.cycleByteValue(this.getModeTag(stack, Mode.getMode(stack)), TAG_NAME_BLOCK_SEL + "2", 0, MAX_BLOCKS - 1, reverse);
     }
 
     private void toggleMirror(ItemStack stack, Mode mode, EntityPlayer player)
@@ -1966,6 +2043,36 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return EnumActionResult.SUCCESS;
     }
 
+    private EnumActionResult replaceBlocks3D(ItemStack stack, World world, EntityPlayer player)
+    {
+        if (player.capabilities.isCreativeMode == false && Configs.buildersWandEnableReplace3DMode == false)
+        {
+            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.featuredisabledinsurvivalmode"));
+            return EnumActionResult.FAIL;
+        }
+
+        BlockPosEU pos1 = this.getPosition(stack, true);
+        BlockPosEU pos2 = this.getPosition(stack, false);
+        if (pos1 == null || pos2 == null)
+        {
+            return EnumActionResult.FAIL;
+        }
+
+        BlockInfo blockInfoTarget = getSelectedFixedBlockType(stack, true);
+        BlockInfo blockInfoReplacement = getSelectedFixedBlockType(stack, false);
+
+        if (blockInfoTarget != null && blockInfoReplacement != null)
+        {
+            UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
+            TaskReplaceBlocks3D task = new TaskReplaceBlocks3D(world, wandUUID, pos1, pos2, blockInfoTarget.blockState, blockInfoReplacement, 5);
+            PlayerTaskScheduler.getInstance().addTask(player, task, 1);
+
+            return EnumActionResult.SUCCESS;
+        }
+
+        return EnumActionResult.FAIL;
+    }
+
     private void placeHelperBlock(EntityPlayer player)
     {
         BlockPos pos = PositionUtils.getPositionInfrontOfEntity(player);
@@ -2201,6 +2308,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return this.getModeTag(stack, Mode.REPLACE).getBoolean("AreaMode");
     }
 
+    private void toggleBindModeEnabled(ItemStack stack, Mode mode)
+    {
+        NBTTagCompound tag = this.getModeTag(stack, mode);
+        tag.setBoolean("BindMode", ! tag.getBoolean("BindMode"));
+    }
+
+    public boolean getBindModeEnabled(ItemStack stack, Mode mode)
+    {
+        return this.getModeTag(stack, mode).getBoolean("BindMode");
+    }
+
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
@@ -2232,8 +2350,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         Mode mode = Mode.getMode(stack);
 
-        // Alt + Toggle key: Change the selected block type
-        if (EnumKey.SCROLL.matches(key, HotKeys.MOD_ALT))
+        // Alt + Shift + Scroll: Change the secondary selected block type
+        if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT_ALT))
+        {
+            this.changeSecondarySelectionIndex(stack, EnumKey.keypressActionIsReversed(key));
+        }
+        // Alt + Scroll: Change the selected block type
+        else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_ALT))
         {
             this.changeSelectionIndex(stack, EnumKey.keypressActionIsReversed(key));
 
@@ -2253,7 +2376,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         // Shift + Toggle key: Toggle the mirroring in the appropriate modes
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
-            if (mode.isAreaMode())
+            if (mode == Mode.REPLACE_3D)
+            {
+                this.toggleBindModeEnabled(stack, mode);
+            }
+            else if (mode.isAreaMode())
             {
                 this.toggleMirror(stack, mode, player);
             }
@@ -2477,6 +2604,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         WALLS               ("walls",   "enderutilities.tooltip.item.build.walls", false, true, true),
         CUBE                ("cube",    "enderutilities.tooltip.item.build.cube", false, true, true),
         REPLACE             ("replace", "enderutilities.tooltip.item.build.replace"),
+        REPLACE_3D          ("replace3d", "enderutilities.tooltip.item.build.replace.3d", true, true, true),
         MOVE_SRC            ("movesrc", "enderutilities.tooltip.item.build.move.source", true, true, false),
         MOVE_DST            ("movedst", "enderutilities.tooltip.item.build.move.destination", true, false, true),
         COPY                ("copy",    "enderutilities.tooltip.item.build.copy", true, true, true),
