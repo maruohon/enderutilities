@@ -29,6 +29,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.Area3D;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.setup.Configs;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
@@ -132,7 +133,15 @@ public class BuildersWandRenderer
             this.renderBlockOutlines(mode, clientPlayer, posStart, posEnd, partialTicks);
         }
 
-        this.renderStartAndEndPositions(mode, clientPlayer, posStart, posEnd, partialTicks);
+        if (mode == Mode.STACK)
+        {
+            this.renderStackedArea(Area3D.getAreaFromNBT(wand.getAreaTag(stack)), clientPlayer, posStart, posEnd, partialTicks);
+            this.renderStartAndEndPositions(mode, clientPlayer, posStart, posEnd, partialTicks, 0x22, 0xFF, 0x22);
+        }
+        else
+        {
+            this.renderStartAndEndPositions(mode, clientPlayer, posStart, posEnd, partialTicks);
+        }
 
         // In "Move, to" mode we also render the "Move, from" area
         if (mode == Mode.MOVE_DST)
@@ -152,7 +161,7 @@ public class BuildersWandRenderer
 
     private void renderBlockOutlines(Mode mode, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
     {
-        GL11.glLineWidth(2.0f);
+        GlStateManager.glLineWidth(2.0f);
         float expand = mode == Mode.REPLACE ? 0.001f : 0f;
 
         for (int i = 0; i < this.positions.size(); i++)
@@ -161,7 +170,7 @@ public class BuildersWandRenderer
 
             if (pos.equals(posStart) == false && pos.equals(posEnd) == false)
             {
-                AxisAlignedBB aabb = makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, expand, partialTicks, player);
+                AxisAlignedBB aabb = createAABB(pos.posX, pos.posY, pos.posZ, expand, partialTicks, player);
                 RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
@@ -177,13 +186,7 @@ public class BuildersWandRenderer
         // Draw the area bounding box
         if (posStart != null && posEnd != null && mode.isAreaMode())
         {
-            int minX = Math.min(posStart.posX, posEnd.posX);
-            int minY = Math.min(posStart.posY, posEnd.posY);
-            int minZ = Math.min(posStart.posZ, posEnd.posZ);
-            int maxX = Math.max(posStart.posX, posEnd.posX) + 1;
-            int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
-            int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
-            AxisAlignedBB aabb = makeBoundingBox(minX, minY, minZ, maxX, maxY, maxZ, 0, partialTicks, player);
+            AxisAlignedBB aabb = createEnclosingAABB(posStart, posEnd, player, partialTicks);
             RenderGlobal.drawSelectionBoundingBox(aabb, r / 255f, g / 255f, b / 255f, 0xCC / 255f);
         }
 
@@ -192,16 +195,16 @@ public class BuildersWandRenderer
         if (posStart != null)
         {
             // Render the targeted position in a different (hilighted) color
-            GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, expand, partialTicks, player);
+            GlStateManager.glLineWidth(3.0f);
+            AxisAlignedBB aabb = createAABB(posStart.posX, posStart.posY, posStart.posZ, expand, partialTicks, player);
             RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
         if (posEnd != null && (mode.isAreaMode() || mode == Mode.WALLS || mode == Mode.CUBE))
         {
             // Render the end position in a different (hilighted) color
-            GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, expand, partialTicks, player);
+            GlStateManager.glLineWidth(3.0f);
+            AxisAlignedBB aabb = createAABB(posEnd.posX, posEnd.posY, posEnd.posZ, expand, partialTicks, player);
             RenderGlobal.drawSelectionBoundingBox(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }
@@ -277,6 +280,51 @@ public class BuildersWandRenderer
                 }
 
                 GlStateManager.popMatrix();
+            }
+        }
+    }
+
+    private void renderStackedArea(Area3D area, EntityPlayer player, BlockPosEU posStart, BlockPosEU posEnd, float partialTicks)
+    {
+        if (posStart == null || posEnd == null)
+        {
+            return;
+        }
+
+        int xp = area.getXPos();
+        int yp = area.getYPos();
+        int zp = area.getZPos();
+        int xn = area.getXNeg();
+        int yn = area.getYNeg();
+        int zn = area.getZNeg();
+        int sx = Math.abs(posEnd.posX - posStart.posX) + 1;
+        int sy = Math.abs(posEnd.posY - posStart.posY) + 1;
+        int sz = Math.abs(posEnd.posZ - posStart.posZ) + 1;
+        AxisAlignedBB originalBox = createEnclosingAABB(posStart, posEnd, player, partialTicks);
+
+        GlStateManager.glLineWidth(2.0f);
+
+        // Non-empty area on at least one axis
+        if ((xp + xn + yp + yn + zp + zn) != 0)
+        {
+            for (int y = -yn; y <= yp; y++)
+            {
+                for (int x = -xn; x <= xp; x++)
+                {
+                    for (int z = -zn; z <= zp; z++)
+                    {
+                        AxisAlignedBB aabb = originalBox.offset(x * sx, y * sy, z * sz);
+
+                        if (x != 0 || y != 0 || z != 0)
+                        {
+                            RenderGlobal.drawSelectionBoundingBox(aabb, 1f, 1f, 1f, 0xCC / 255f);
+                        }
+                        else
+                        {
+                            RenderGlobal.drawSelectionBoundingBox(aabb, 0.5f, 1f, 0.5f, 0xCC / 255f);
+                        }
+                    }
+                }
             }
         }
     }
@@ -368,16 +416,16 @@ public class BuildersWandRenderer
         }
         else if (mode.isAreaMode())
         {
-            if (mode == Mode.DELETE || mode == Mode.MOVE_SRC || mode == Mode.MOVE_DST)
-            {
-                str = I18n.format("enderutilities.tooltip.item.area");
-                lines.add(String.format("%s: [%s%d/%d%s]", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst));
-            }
-            else
+            if (mode == Mode.COPY || mode == Mode.PASTE)
             {
                 str = I18n.format("enderutilities.tooltip.item.template");
                 String name = wand.getTemplateName(stack, mode);
                 lines.add(String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst, preIta, name, rst));
+            }
+            else
+            {
+                str = I18n.format("enderutilities.tooltip.item.area");
+                lines.add(String.format("%s: [%s%d/%d%s]", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst));
             }
 
             str = I18n.format("enderutilities.tooltip.item.rotation");
@@ -398,6 +446,27 @@ public class BuildersWandRenderer
             }
 
             lines.add(str);
+
+            if (mode == Mode.DELETE)
+            {
+                str = I18n.format("enderutilities.tooltip.item.entities");
+                str += ": " + (wand.getAffectEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
+
+                lines.add(str);
+            }
+            else if (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.STACK)
+            {
+                str = I18n.format("enderutilities.tooltip.item.replace");
+                str += ": " + (wand.getReplaceExisting(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
+
+                if (mode != Mode.MOVE_DST)
+                {
+                    str += " - " + I18n.format("enderutilities.tooltip.item.entities");
+                    str += ": " + (wand.getAffectEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
+                }
+
+                lines.add(str);
+            }
         }
         else
         {
@@ -455,17 +524,6 @@ public class BuildersWandRenderer
         str = I18n.format("enderutilities.tooltip.item.mode");
         String strMode = String.format("%s [%s%d/%d%s]: %s%s%s", str, preGreen, modeId, maxModeId, rst, preGreen, modeName, rst);
 
-        if (mode == Mode.PASTE || mode == Mode.MOVE_DST)
-        {
-            strMode += " - " + I18n.format("enderutilities.tooltip.item.replace");
-            strMode += ": " + (wand.getReplaceExisting(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
-        }
-        else if (mode == Mode.DELETE)
-        {
-            strMode += " - " + I18n.format("enderutilities.tooltip.item.entities");
-            strMode += ": " + (wand.getRemoveEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
-        }
-
         lines.add(strMode);
     }
 
@@ -503,18 +561,31 @@ public class BuildersWandRenderer
         }
     }
 
-    public static AxisAlignedBB makeBlockBoundingBox(int x, int y, int z, double expand, double partialTicks, EntityPlayer player)
+    private AxisAlignedBB createEnclosingAABB(BlockPosEU posStart, BlockPosEU posEnd, EntityPlayer player, float partialTicks)
     {
-        return makeBoundingBox(x, y, z, x + 1, y + 1, z + 1, expand, partialTicks, player);
+        int minX = Math.min(posStart.posX, posEnd.posX);
+        int minY = Math.min(posStart.posY, posEnd.posY);
+        int minZ = Math.min(posStart.posZ, posEnd.posZ);
+        int maxX = Math.max(posStart.posX, posEnd.posX) + 1;
+        int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
+        int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
+
+        return createAABB(minX, minY, minZ, maxX, maxY, maxZ, 0, partialTicks, player);
     }
 
-    public static AxisAlignedBB makeBoundingBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double expand, double partialTicks, EntityPlayer player)
+    public static AxisAlignedBB createAABB(int x, int y, int z, double expand, double partialTicks, EntityPlayer player)
+    {
+        return createAABB(x, y, z, x + 1, y + 1, z + 1, expand, partialTicks, player);
+    }
+
+    public static AxisAlignedBB createAABB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, double expand, double partialTicks, EntityPlayer player)
     {
         double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
-        return new AxisAlignedBB(minX - dx - expand, minY - dy - expand, minZ - dz - expand, maxX - dx + expand, maxY - dy + expand, maxZ - dz + expand);
+        return new AxisAlignedBB(   minX - dx - expand, minY - dy - expand, minZ - dz - expand,
+                                    maxX - dx + expand, maxY - dy + expand, maxZ - dz + expand);
     }
 
     private void renderModel(final IBlockState state, final IBakedModel model, final BlockPos pos, final int alpha)

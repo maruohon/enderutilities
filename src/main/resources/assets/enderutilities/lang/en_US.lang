@@ -294,6 +294,7 @@ enderutilities.tooltip.item.build.plane=Plane
 enderutilities.tooltip.item.build.replace=Replace
 enderutilities.tooltip.item.build.replace.3d=Replace 3D
 enderutilities.tooltip.item.build.replacement=Replacement
+enderutilities.tooltip.item.build.stack=Stack
 enderutilities.tooltip.item.build.target=Target
 enderutilities.tooltip.item.build.walls=Walls
 enderutilities.tooltip.item.builderswand.allowdiagonals=Allow diagonals

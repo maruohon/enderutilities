@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -185,7 +184,8 @@ public class RulerRenderer
 
     private void renderPositions(EntityPlayer clientPlayer, BlockPosEU posStart, BlockPosEU posEnd, int color, float partialTicks)
     {
-        GL11.glLineWidth(2.0f);
+        GlStateManager.glLineWidth(2.0f);
+
         for (int a = 0; a < 3; a++)
         {
             List<BlockPosEU> column = this.positions.get(a);
@@ -199,7 +199,7 @@ public class RulerRenderer
                 BlockPosEU pos = column.get(i);
                 //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                 {
-                    AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(pos.posX, pos.posY, pos.posZ, 0, partialTicks, clientPlayer);
+                    AxisAlignedBB aabb = BuildersWandRenderer.createAABB(pos.posX, pos.posY, pos.posZ, 0, partialTicks, clientPlayer);
                     RenderGlobal.drawSelectionBoundingBox(aabb, ((color >>> 16) & 0xFF) / 255f, ((color >>> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0f);
                 }
             }
@@ -211,16 +211,16 @@ public class RulerRenderer
         if (posStart != null)
         {
             // Render the start position in a different (hilighted) color
-            GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posStart.posX, posStart.posY, posStart.posZ, 0, partialTicks, clientPlayer);
+            GlStateManager.glLineWidth(3.0f);
+            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posStart.posX, posStart.posY, posStart.posZ, 0, partialTicks, clientPlayer);
             RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
         if (posEnd != null)
         {
             // Render the end position in a different (hilighted) color
-            GL11.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.makeBlockBoundingBox(posEnd.posX, posEnd.posY, posEnd.posZ, 0, partialTicks, clientPlayer);
+            GlStateManager.glLineWidth(3.0f);
+            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posEnd.posX, posEnd.posY, posEnd.posZ, 0, partialTicks, clientPlayer);
             RenderGlobal.drawSelectionBoundingBox(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }

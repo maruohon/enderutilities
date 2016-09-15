@@ -51,9 +51,13 @@ public class PlayerTaskScheduler
 
             if (timer.tick() == true)
             {
-                if (task.canExecute(world, player) == true)
+                if (task.canExecute(world, player))
                 {
                     finished = task.execute(world, player);
+                }
+                else
+                {
+                    finished = true;
                 }
             }
 

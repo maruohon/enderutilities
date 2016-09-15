@@ -34,10 +34,10 @@ public class TemplateEnderUtilities
 {
     protected final List<TemplateEnderUtilities.TemplateBlockInfo> blocks = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
     protected final List<TemplateEnderUtilities.TemplateEntityInfo> entities = Lists.<TemplateEnderUtilities.TemplateEntityInfo>newArrayList();
-    protected PlacementSettings placement;
+    protected PlacementSettings placement = new PlacementSettings().setIgnoreEntities(true);
     protected BlockPos size = BlockPos.ORIGIN;
     protected String author = "?";
-    protected ReplaceMode replaceMode;
+    protected ReplaceMode replaceMode = ReplaceMode.NOTHING;
     protected boolean dropOldBlocks;
 
     public TemplateEnderUtilities()

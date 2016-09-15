@@ -25,14 +25,12 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     protected final UUID wandUUID;
     protected final int dimension;
     protected final int blocksPerTick;
-    protected final boolean tileEntities;
-    protected final boolean entities;
     protected int listIndex;
     protected int placedCount;
     protected int failCount;
 
-    public TaskTemplatePlaceBlocks(TemplateEnderUtilities template, BlockPos posStart, int dimension, UUID playerUUID, UUID wandUUID,
-            int blocksPerTick, boolean copyTileEntities, boolean placeEntities)
+    public TaskTemplatePlaceBlocks(TemplateEnderUtilities template, BlockPos posStart, int dimension,
+            UUID playerUUID, UUID wandUUID, int blocksPerTick)
     {
         this.template = template;
         this.posStart = posStart;
@@ -40,8 +38,6 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
         this.wandUUID = wandUUID;
         this.dimension = dimension;
         this.blocksPerTick = blocksPerTick;
-        this.tileEntities = copyTileEntities;
-        this.entities = placeEntities;
         this.listIndex = 0;
         this.placedCount = 0;
         this.failCount = 0;
@@ -55,12 +51,7 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     @Override
     public boolean canExecute(World world, EntityPlayer player)
     {
-        if (world.provider.getDimension() != this.dimension)
-        {
-            return false;
-        }
-
-        return true;
+        return world.provider.getDimension() == this.dimension;
     }
 
     @Override

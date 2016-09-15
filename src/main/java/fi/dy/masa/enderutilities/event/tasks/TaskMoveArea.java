@@ -67,12 +67,7 @@ public class TaskMoveArea implements IPlayerTask
     @Override
     public boolean canExecute(World world, EntityPlayer player)
     {
-        if (world.provider.getDimension() != this.dimension)
-        {
-            return false;
-        }
-
-        return true;
+        return world.provider.getDimension() == this.dimension;
     }
 
     @Override
