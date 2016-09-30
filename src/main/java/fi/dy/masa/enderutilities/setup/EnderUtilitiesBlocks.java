@@ -39,9 +39,9 @@ public class EnderUtilitiesBlocks
         registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
-        registerBlock(blockPortal,          Configs.disableBlockPortal, false);
-        registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame);
-        registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel || Configs.disableBlockPortal);
+        registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
+        registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
+        registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel || Configs.disableBlockPortal, true, false);
         registerBlock(blockStorage_0,       Configs.disableBlockStorage_0);
 
         ItemStack chest = new ItemStack(Blocks.CHEST);
@@ -156,13 +156,18 @@ public class EnderUtilitiesBlocks
 
     private static void registerBlock(Block block, boolean isDisabled, boolean createItemBlock)
     {
+        registerBlock(block, isDisabled, createItemBlock, true);
+    }
+
+    private static void registerBlock(Block block, boolean isDisabled, boolean createItemBlock, boolean hasSubtypes)
+    {
         if (isDisabled == false)
         {
             GameRegistry.register(block);
 
             if (createItemBlock)
             {
-                GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(block.getRegistryName()));
+                GameRegistry.register(new ItemBlockEnderUtilities(block).setHasSubtypes(hasSubtypes).setRegistryName(block.getRegistryName()));
             }
         }
     }
