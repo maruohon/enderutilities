@@ -280,6 +280,7 @@ enderutilities.tooltip.item.bucket.mode.fill=Fill bucket
 enderutilities.tooltip.item.bucket.mode.drain=Drain bucket
 enderutilities.tooltip.item.bucket.mode.normal=Normal
 enderutilities.tooltip.item.build.bindmode=Bind mode
+enderutilities.tooltip.item.build.circle=Circle
 enderutilities.tooltip.item.build.column=Column
 enderutilities.tooltip.item.build.copy=Copy
 enderutilities.tooltip.item.build.cube=Cube (solid)

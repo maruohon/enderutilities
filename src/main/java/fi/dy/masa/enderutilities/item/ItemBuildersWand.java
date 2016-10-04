@@ -349,47 +349,45 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
             }
 
-            blockInfo = getSelectedFixedBlockType(stack, true);
-            if (blockInfo != null)
+            if (mode == Mode.REPLACE_3D)
             {
-                ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
-                if (blockStack != null && blockStack.getItem() != null)
+                blockInfo = getSelectedFixedBlockType(stack, true);
+                if (blockInfo != null)
                 {
-                    String str = I18n.format("enderutilities.tooltip.item.build.replacement");
-                    list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
+                    ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
+                    if (blockStack != null && blockStack.getItem() != null)
+                    {
+                        String str = I18n.format("enderutilities.tooltip.item.build.replacement");
+                        list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
+                    }
                 }
             }
         }
         else
         {
             String str = I18n.format("enderutilities.tooltip.item.selectedblock");
-            String str2;
             if (sel == BLOCK_TYPE_TARGETED)
             {
-                str2 = I18n.format("enderutilities.tooltip.item.blocktype.targeted");
+                list.add(str + ": " + pre + I18n.format("enderutilities.tooltip.item.blocktype.targeted") + rst);
             }
-            else
+            else if (sel == BLOCK_TYPE_ADJACENT)
             {
-                str2 = I18n.format("enderutilities.tooltip.item.blocktype.adjacent");
+                list.add(str + ": " + pre + I18n.format("enderutilities.tooltip.item.blocktype.adjacent") + rst);
             }
-
-            list.add(str + ": " + pre + str2 + rst);
         }
 
         String str;
-        String str2;
         if (mode.isAreaMode())
         {
             str = I18n.format("enderutilities.tooltip.item.rotation") + ": ";
             EnumFacing facing = this.getAreaFacing(stack, mode);
-            str2 = facing != null ? preGreen + facing.toString().toLowerCase() : preRed + "N/A";
+            String str2 = facing != null ? preGreen + facing.toString().toLowerCase() : preRed + "N/A";
             list.add(str + str2 + rst);
 
             str2 = I18n.format("enderutilities.tooltip.item.mirror") + ": ";
             if (this.isMirrored(stack))
             {
-                String m = this.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z";
-                list.add(str2 + preGreen + m + rst);
+                list.add(str2 + preGreen + (this.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z") + rst);
             }
             else
             {
@@ -1266,7 +1264,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         while (counter <= 16641) // 129 * 129 area
         {
-            nextPos = this.checkPositionIgnoringSide(mode, world, pos, posMin, posMax, visited, branches, positions,
+            nextPos = this.checkPositionOnPlane(mode, world, pos, posMin, posMax, visited, branches, positions,
                     continueThrough, diagonals, blockType, biTarget, biBound);
             counter++;
 
@@ -1291,7 +1289,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return positions;
     }
 
-    private BlockPosEU checkPositionIgnoringSide(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
+    private BlockPosEU checkPositionOnPlane(Mode mode, World world, BlockPosEU posIn, BlockPos posMin, BlockPos posMax,
             Set<BlockPosEU> visited, List<BlockPosEU> branches, List<BlockPosStateDist> positions,
             boolean continueThrough, boolean diagonals, int blockType, BlockInfo biTarget, BlockInfo biBound)
     {
@@ -1369,6 +1367,62 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         return continueTo;
+    }
+
+    private List<BlockPosStateDist> getPositionsOnCircle(ItemStack stack, World world, BlockPosEU posCenter, EnumFacing axisRight, EnumFacing axisUp)
+    {
+        int radius = new Area(this.getModeTag(stack, Mode.CIRCLE)).rPosH;
+        List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
+        List<BlockPos> branches = new ArrayList<BlockPos>();
+        Set<BlockPos> visited = new HashSet<BlockPos>();
+        boolean continueThrough = this.getContinueThrough(stack, Mode.CIRCLE);
+        boolean diagonals = this.getAllowDiagonals(stack, Mode.CIRCLE);
+        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posCenter.offset(posCenter.side, -1).toBlockPos());
+        BlockInfo biBound = getSelectedFixedBlockType(stack);
+        int blockType = this.getSelectionIndex(stack);
+
+        // Radius = 0 means only the targeted block position
+        if (radius < 1)
+        {
+            positions.add(new BlockPosStateDist(posCenter, this.getBlockInfoForAdjacentBlock(world, posCenter.toBlockPos(), posCenter.side)));
+            return positions;
+        }
+
+        int counter = 0;
+        int branchIndex = 0;
+        BlockPos nextPos = null;
+        BlockPos pos = null;//this.getCircleStartPosition(world, posCenter, radius, axisRight);
+
+        while (counter <= 16641) // 129 * 129 area
+        {
+            nextPos = this.checkCirclePositionIgnoringSide(world, pos, visited, branches, positions, continueThrough, diagonals, blockType, biTarget, biBound);
+            counter++;
+
+            if (nextPos == null)
+            {
+                if (branchIndex < branches.size())
+                {
+                    pos = branches.get(branchIndex);
+                    branchIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                pos = nextPos;
+            }
+        }
+        System.out.printf("counter: %d\n", counter);
+        return positions;
+    }
+
+    private BlockPos checkCirclePositionIgnoringSide(World world, BlockPos pos, Set<BlockPos> visited, List<BlockPos> branches,
+            List<BlockPosStateDist> positions, boolean continueThrough, boolean diagonals, int blockType, BlockInfo biTarget, BlockInfo biBound)
+    {
+        return null;
     }
 
     private List<BlockPosStateDist> getReplacePositions(ItemStack stack, World world,
@@ -1616,6 +1670,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                         break;
                     }
                 }
+                break;
+
+            case CIRCLE:
+                positions.addAll(this.getPositionsOnCircle(stack, world, flippedCenter, axisRight, axisUp));
                 break;
 
             case PLANE:
@@ -2858,9 +2916,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         EXTEND_CONTINUOUS   ("extcont", "enderutilities.tooltip.item.build.extend.continuous"),
         EXTEND_AREA         ("extarea", "enderutilities.tooltip.item.build.extend.area"),
+        COLUMN              ("column",  "enderutilities.tooltip.item.build.column"),
         LINE                ("line",    "enderutilities.tooltip.item.build.line"),
         PLANE               ("plane",   "enderutilities.tooltip.item.build.plane"),
-        COLUMN              ("column",  "enderutilities.tooltip.item.build.column"),
+        CIRCLE              ("circle",  "enderutilities.tooltip.item.build.circle"),
         WALLS               ("walls",   "enderutilities.tooltip.item.build.walls", false, true, true),
         CUBE                ("cube",    "enderutilities.tooltip.item.build.cube", false, true, true),
         REPLACE             ("replace", "enderutilities.tooltip.item.build.replace"),
