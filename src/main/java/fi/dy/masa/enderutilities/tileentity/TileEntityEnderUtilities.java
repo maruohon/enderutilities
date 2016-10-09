@@ -47,13 +47,13 @@ public class TileEntityEnderUtilities extends TileEntity
     }
 
     @Override
-    public void func_189668_a(Mirror mirrorIn)
+    public void mirror(Mirror mirrorIn)
     {
-        this.func_189667_a(mirrorIn.toRotation(this.facing));
+        this.rotate(mirrorIn.toRotation(this.facing));
     }
 
     @Override
-    public void func_189667_a(Rotation rotationIn)
+    public void rotate(Rotation rotationIn)
     {
         this.facing = rotationIn.rotate(this.facing);
     }
