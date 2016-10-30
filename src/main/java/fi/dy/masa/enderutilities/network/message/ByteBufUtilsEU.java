@@ -1,13 +1,11 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import java.io.IOException;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -18,7 +16,7 @@ public class ByteBufUtilsEU
 {
     public static void writeItemStackToBuffer(ByteBuf buf, ItemStack stack)
     {
-        if (stack == null)
+        if (stack == null || stack.getItem() == null)
         {
             buf.writeShort(-1);
             return;
@@ -48,6 +46,11 @@ public class ByteBufUtilsEU
             int stackSize = buf.readInt();
             stack = new ItemStack(Item.getItemById(id), stackSize, meta);
             stack.setTagCompound(readNBTTagCompoundFromBuffer(buf));
+
+            if (stack.getItem() == null)
+            {
+                return null;
+            }
         }
 
         return stack;
