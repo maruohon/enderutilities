@@ -319,10 +319,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         this.buttonList.add(new GuiButtonHoverText(31, x + 116, y + 162, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[11]));
 
         // Add the left and right side furnace mode buttons
-        this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
-                0, this, BUTTON_STRINGS[6]));
-        this.buttonList.add(new GuiButtonCallback(19, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0,
-                1, this, BUTTON_STRINGS[6]));
+        this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0, this, BUTTON_STRINGS[6]));
+        this.buttonList.add(new GuiButtonCallback(19, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0, this, BUTTON_STRINGS[6]));
 
         // Add the recipe recall buttons
         for (int i = 0; i < 5; i++)
@@ -333,15 +331,15 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     }
 
     @Override
-    public int getButtonU(int callbackId)
+    public int getButtonU(int callbackId, int defaultU)
     {
-        return 60;
+        return defaultU;
     }
 
     @Override
-    public int getButtonV(int callbackId)
+    public int getButtonV(int callbackId, int defaultV)
     {
-        if (callbackId == 1)
+        if (callbackId == 19)
         {
             return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 14 : 0;
         }

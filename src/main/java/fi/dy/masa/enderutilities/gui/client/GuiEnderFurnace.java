@@ -91,10 +91,10 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks
 
         this.buttonList.clear();
 
-        this.buttonList.add(new GuiButtonHoverText(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, 200, 14 + modeOffset, this.guiTexture,
+        this.buttonList.add(new GuiButtonHoverText(0, this.guiLeft + 10, this.guiTop + 53, 16, 16, 200, 14 + modeOffset, this.guiTexture, 16, 0,
             new String[] { I18n.format("enderutilities.gui.label.slowfasttoggle", new Object[0]) }));
 
-        this.buttonList.add(new GuiButtonHoverText(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, 200, 46 + outputOffset, this.guiTexture,
+        this.buttonList.add(new GuiButtonHoverText(1, this.guiLeft + 145, this.guiTop + 53, 16, 16, 200, 46 + outputOffset, this.guiTexture, 16, 0,
             new String[] { I18n.format("enderutilities.gui.label.outputtoenderchest", new Object[0]) }));
     }
 

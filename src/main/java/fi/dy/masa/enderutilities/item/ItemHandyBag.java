@@ -67,6 +67,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
     public static final int GUI_ACTION_SORT_ITEMS    = 2;
     public static final int GUI_ACTION_TOGGLE_BLOCK  = 3;
+    public static final int GUI_ACTION_TOGGLE_MODES  = 4;
     public static final int GUI_ACTION_OPEN_BAUBLES  = 100;
 
     public ItemHandyBag()
@@ -654,6 +655,22 @@ public class ItemHandyBag extends ItemInventoryModular
                         }
                     }
                 }
+                else if (action == GUI_ACTION_TOGGLE_MODES && element >= 0 && element <= 2)
+                {
+                    switch (element)
+                    {
+                        case 0:
+                            NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
+                            break;
+                        case 1:
+                            PickupMode.cycleMode(stack, false);
+                            break;
+                        case 2:
+                            RestockMode.cycleMode(stack, false);
+                            break;
+                        default:
+                    }
+                }
                 else if (action == GUI_ACTION_OPEN_BAUBLES && ModRegistry.isModLoadedBaubles())
                 {
                     try
@@ -736,21 +753,20 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         }
-        // Just Toggle mode: Cycle Pickup Mode
-        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
-        {
-            // 0: None, 1: Matching, 2: All
-            NBTUtils.cycleByteValue(stack, "HandyBag", "PickupMode", 2);
-        }
-        // Shift + Toggle mode: Toggle Locked Mode
+        // Shift + Toggle mode: Cycle Pickup Mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
-            NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
+            PickupMode.cycleMode(stack, EnumKey.keypressActionIsReversed(key));
         }
-        // Alt + Shift + Toggle mode: Toggle Restock mode
-        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
+        // Just Toggle mode: Toggle Restock mode
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             RestockMode.cycleMode(stack, EnumKey.keypressActionIsReversed(key));
+        }
+        // Alt + Shift + Toggle mode: Toggle Locked Mode
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
+        {
+            NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -875,6 +891,23 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             int id = NBTUtils.getByte(stack, "HandyBag", "PickupMode");
             return (id >= 0 && id < values().length) ? values()[id] : NONE;
+        }
+
+        public static void cycleMode(ItemStack stack, boolean reverse)
+        {
+            PickupMode mode = PickupMode.fromStack(stack);
+            int id = mode.ordinal() + (reverse ? -1 : 1);
+
+            if (id < 0)
+            {
+                id = values().length - 1;
+            }
+            else if (id >= values().length)
+            {
+                id = 0;
+            }
+
+            NBTUtils.setByte(stack, "HandyBag", "PickupMode", (byte) id);
         }
     }
 

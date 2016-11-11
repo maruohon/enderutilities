@@ -17,18 +17,21 @@ import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.item.ItemHandyBag.PickupMode;
+import fi.dy.masa.enderutilities.item.ItemHandyBag.RestockMode;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.ModRegistry;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class GuiHandyBag extends GuiContainerLargeStacks
+public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallback
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
     public static final int BTN_ID_FIRST_SORT          = 10;
     public static final int BTN_ID_FIRST_BLOCK         = 14;
+    public static final int BTN_ID_FIRST_MODES         = 17;
     public static final int BTN_ID_BAUBLES             = 100;
 
     private static final String[] BUTTON_STRINGS = new String[] {
@@ -39,7 +42,10 @@ public class GuiHandyBag extends GuiContainerLargeStacks
             "enderutilities.gui.label.movematchingitems",
             "enderutilities.gui.label.moveallitems",
             "enderutilities.gui.label.sortitems",
-            "enderutilities.gui.label.blockquickactions"
+            "enderutilities.gui.label.blockquickactions",
+            "enderutilities.tooltip.item.bag.enabled",
+            "enderutilities.tooltip.item.pickupmode",
+            "enderutilities.tooltip.item.restockmode"
     };
 
     private final ContainerHandyBag containerHB;
@@ -215,7 +221,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         int xOff = this.offsetXTier;
         this.fontRendererObj.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 99, 59, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 90, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 5, 0x404040);
     }
 
     protected void createButtons()
@@ -251,9 +257,16 @@ public class GuiHandyBag extends GuiContainerLargeStacks
 
         y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition - 11;
 
+        // Locked mode toggle
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[8]));
+        // Pickup mode toggle
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[9]));
+        // Restock mode toggle
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[10]));
+
         if (this.bagTier == 0)
         {
-            // Add the sort buttons
+            // Add the sort button
             this.buttonList.add(new GuiButtonHoverText(10, x + 74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
             this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
@@ -329,6 +342,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_BLOCK, button.id - BTN_ID_FIRST_BLOCK));
+        }
+        else if (button.id >= BTN_ID_FIRST_MODES && button.id < (BTN_ID_FIRST_MODES + 3))
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_MODES, button.id - BTN_ID_FIRST_MODES));
         }
         else if (button.id == 100 && this.baublesLoaded)
         {
@@ -419,5 +437,45 @@ public class GuiHandyBag extends GuiContainerLargeStacks
                 j += l;
             }
         }
+    }
+
+    @Override
+    public int getButtonU(int callbackId, int defaultU)
+    {
+        return defaultU;
+    }
+
+    @Override
+    public int getButtonV(int callbackId, int defaultV)
+    {
+        ItemStack stack = this.containerHB.getContainerItem();
+        if (stack == null)
+        {
+            return defaultV;
+        }
+
+        // Locked mode
+        if (callbackId == BTN_ID_FIRST_MODES)
+        {
+            return NBTUtils.getBoolean(stack, "HandyBag", "DisableOpen") ? 48 : 0;
+        }
+        // Pickup mode
+        else if (callbackId == BTN_ID_FIRST_MODES + 1)
+        {
+            PickupMode mode = ItemHandyBag.PickupMode.fromStack(stack);
+            if (mode == PickupMode.ALL) { return 64; }
+            else if (mode == PickupMode.MATCHING) { return 56; }
+            return 40; // blocked/none
+        }
+        // Restock mode
+        else if (callbackId == BTN_ID_FIRST_MODES + 2)
+        {
+            RestockMode mode = ItemHandyBag.RestockMode.fromStack(stack);
+            if (mode == RestockMode.ALL) { return 72; }
+            else if (mode == RestockMode.HOTBAR) { return 80; }
+            return 40; // blocked/none
+        }
+
+        return defaultV;
     }
 }
