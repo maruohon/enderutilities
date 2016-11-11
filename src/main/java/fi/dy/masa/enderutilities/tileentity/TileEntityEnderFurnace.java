@@ -400,7 +400,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
         int origSize = stack.stackSize;
         IItemHandler inv = new InvWrapper(player.getInventoryEnderChest());
-
         stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
 
         if (stack == null)
@@ -408,9 +407,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             return true;
         }
 
+        boolean movedItems = origSize != stack.stackSize;
         this.getBaseItemHandler().insertItem(SLOT_OUTPUT, stack, false);
 
-        return origSize != stack.stackSize;
+        return movedItems;
     }
 
     /**

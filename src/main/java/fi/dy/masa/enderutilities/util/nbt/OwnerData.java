@@ -18,16 +18,15 @@ public class OwnerData
     public OwnerData(Entity entity)
     {
         UUID uuid = entity.getUniqueID();
+        this.ownerUUID = uuid;
         this.ownerUUIDMost = uuid != null ? uuid.getMostSignificantBits() : 0;
         this.ownerUUIDLeast = uuid != null ? uuid.getLeastSignificantBits() : 0;
         this.ownerName = entity.getName();
         this.isPublic = true;
     }
 
-    public OwnerData()
+    private OwnerData()
     {
-        this.ownerUUIDMost = 0;
-        this.ownerUUIDLeast = 0;
         this.ownerName = "";
         this.isPublic = true;
     }
@@ -289,10 +288,8 @@ public class OwnerData
             return null;
         }
 
-        NBTTagCompound tag = nbt.hasKey("Owner", Constants.NBT.TAG_COMPOUND) ?
-                nbt.getCompoundTag("Owner") : nbt.getCompoundTag("Player");
-
-                this.ownerUUIDMost = tag.getLong("UUIDM");
+        NBTTagCompound tag = nbt.hasKey("Owner", Constants.NBT.TAG_COMPOUND) ? nbt.getCompoundTag("Owner") : nbt.getCompoundTag("Player");
+        this.ownerUUIDMost = tag.getLong("UUIDM");
         this.ownerUUIDLeast = tag.getLong("UUIDL");
         this.ownerName = tag.getString("Name");
         this.isPublic = tag.getBoolean("Public");
