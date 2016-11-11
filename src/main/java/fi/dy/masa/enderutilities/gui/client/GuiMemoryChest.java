@@ -149,7 +149,7 @@ public class GuiMemoryChest extends GuiEnderUtilities
         if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
         {
             List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.templatedchest.info", list, false);
+            ItemEnderUtilities.addTooltips("enderutilities.gui.label.memorychest.info", list, false);
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
