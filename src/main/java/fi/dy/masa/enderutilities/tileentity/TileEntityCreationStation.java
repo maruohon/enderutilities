@@ -178,9 +178,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super.readItemsFromNBT(nbt);
 
         this.furnaceInventory.deserializeNBT(nbt);
-
-        // This will read the item inventory from the selected Memory Card
-        this.initStorage(false);
     }
 
     @Override

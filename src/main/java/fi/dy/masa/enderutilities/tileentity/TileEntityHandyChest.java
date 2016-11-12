@@ -96,9 +96,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         // This will read the Memory Cards themselves into the Memory Card inventory
         super.readItemsFromNBT(nbt);
-
-        // ... and this will read the item inventory from the selected Memory Card
-        this.initStorage(this.invSize, false);
     }
 
     @Override

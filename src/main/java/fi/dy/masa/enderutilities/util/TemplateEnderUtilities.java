@@ -140,12 +140,16 @@ public class TemplateEnderUtilities
 
                 if (success && blockInfo.tileEntityData != null)
                 {
-                    TileEntity te = world.getTileEntity(pos);
+                    // Re-creating the TE from NBT and then calling World#setTileEntity() causes
+                    // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
+                    // from Chunk#addTileEntity(), which should hopefully be more mod
+                    // friendly than just doing te.readFromNBT(tag).
+                    TileEntity te = TileEntity.create(world, blockInfo.tileEntityData);
 
                     if (te != null)
                     {
-                        NBTUtils.setPositionInTileEntityNBT(blockInfo.tileEntityData, pos);
-                        te.readFromNBT(blockInfo.tileEntityData);
+                        te.setPos(pos);
+                        world.setTileEntity(pos, te);
                         te.mirror(this.placement.getMirror());
                         te.rotate(this.placement.getRotation());
                         te.markDirty();
