@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -108,9 +109,16 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
     {
-        return slotChanged || oldStack.getItem() != newStack.getItem();
+        int dim = world.provider.getDimension();
+
+        if (world.isRemote == false &&
+            EnergyBridgeTracker.dimensionHasEnergyBridge(dim) &&
+            (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1)))
+        {
+            UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
+        }
     }
 
     public boolean usePortalWithPortalScaler(ItemStack stack, World world, EntityPlayer player)

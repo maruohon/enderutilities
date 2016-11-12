@@ -211,12 +211,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return EnumActionResult.SUCCESS;
     }
 
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
-        return slotChanged || oldStack.equals(newStack) == false;
-    }
-
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, BlockPos pos, int dimension, EnumFacing side)
     {
         if (world.isRemote == true)

@@ -39,7 +39,7 @@ public class ItemEnderUtilities extends Item
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
-        return slotChanged || oldStack.equals(newStack) == false;
+        return slotChanged || oldStack.getItem() != newStack.getItem() || oldStack.getMetadata() != newStack.getMetadata();
     }
 
     public String getBaseItemDisplayName(ItemStack stack)

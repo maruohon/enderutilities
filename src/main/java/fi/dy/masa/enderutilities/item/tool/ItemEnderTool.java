@@ -398,6 +398,12 @@ public class ItemEnderTool extends ItemLocationBoundModular
     }
 
     @Override
+    public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack)
+    {
+        return newStack.getItem() != oldStack.getItem() || newStack.getMetadata() != oldStack.getMetadata();
+    }
+
+    @Override
     public boolean isItemTool(ItemStack stack)
     {
         return true;

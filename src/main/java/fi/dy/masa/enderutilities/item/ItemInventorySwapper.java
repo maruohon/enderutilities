@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -96,11 +95,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
-    }
-
-    @Override
-    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
-    {
     }
 
     @Override

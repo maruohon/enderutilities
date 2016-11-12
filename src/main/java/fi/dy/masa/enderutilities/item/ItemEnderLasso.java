@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item;
 
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -18,12 +17,6 @@ public class ItemEnderLasso extends ItemLocationBoundModular
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_LASSO);
-    }
-
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
-        return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
     @Override

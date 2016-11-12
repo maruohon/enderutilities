@@ -56,15 +56,21 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isCurrent)
     {
-        super.onUpdate(stack, world, entity, slot, isCurrent);
+        int dim = world.provider.getDimension();
 
-        if (world.isRemote == false && EnergyBridgeTracker.dimensionHasEnergyBridge(world.provider.getDimension()) == true &&
-            ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isHandActive() == false ||
-            ((EntityPlayer)entity).getActiveItemStack() != stack) &&
-            (world.provider.getDimension() == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true))
+        if (world.isRemote == false &&
+            EnergyBridgeTracker.dimensionHasEnergyBridge(dim) &&
+            (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1)))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
         }
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged) ||
+                (this.useBindLocking(oldStack) && (this.isBindLocked(oldStack) != this.isBindLocked(newStack)));
     }
 
     @Override
