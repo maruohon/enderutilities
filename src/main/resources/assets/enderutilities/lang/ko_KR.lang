@@ -42,5 +42,4 @@ enderutilities.tooltip.item.notlinked=링크되지 않은
 enderutilities.tooltip.item.private=사유
 enderutilities.tooltip.item.public=공동
 
-enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
 enderutilities.chat.message.enderbag.blocknotwhitelisted=해당 블럭이 화이트 리스트에 등록되지 않았습니다 :

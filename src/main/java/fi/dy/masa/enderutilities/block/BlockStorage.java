@@ -78,6 +78,20 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    protected String[] generateTooltipNames()
+    {
+        return new String[] {
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST
+        };
+    }
+
+    @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         switch (state.getValue(TYPE))

@@ -23,7 +23,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -55,10 +54,17 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         int i = 0;
         for (EnumDyeColor color : EnumDyeColor.values())
         {
-            names[i++] = ReferenceNames.NAME_TILE_ENDER_ELEVATOR + "_" + color.getName();
+            names[i++] = this.blockName + "_" + color.getName();
         }
 
         return names;
+    }
+
+    @Override
+    protected String[] generateTooltipNames()
+    {
+        // Use a common tooltip by adding exactly one entry into the array
+        return new String[] { this.blockName };
     }
 
     @Override

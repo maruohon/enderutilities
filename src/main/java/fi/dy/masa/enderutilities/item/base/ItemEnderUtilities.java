@@ -33,7 +33,7 @@ public class ItemEnderUtilities extends Item
     public Item setUnlocalizedName(String name)
     {
         this.name = name;
-        return super.setUnlocalizedName(ReferenceNames.getPrefixedName(name));
+        return super.setUnlocalizedName(ReferenceNames.getDotPrefixedName(name));
     }
 
     @Override

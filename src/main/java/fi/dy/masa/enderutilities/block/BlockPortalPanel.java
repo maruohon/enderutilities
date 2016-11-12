@@ -25,7 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -69,7 +68,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     @Override
     protected String[] generateUnlocalizedNames()
     {
-        return new String[] { ReferenceNames.NAME_TILE_PORTAL_PANEL };
+        return new String[] { this.blockName };
     }
 
     @Override

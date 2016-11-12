@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class ItemBlockEnderUtilities extends ItemBlock
 {
     protected String[] blockNames;
+    protected String[] tooltipNames;
 
     public ItemBlockEnderUtilities(Block block)
     {
@@ -25,13 +26,19 @@ public class ItemBlockEnderUtilities extends ItemBlock
 
         if (block instanceof BlockEnderUtilities)
         {
-            this.setNames(((BlockEnderUtilities)block).getUnlocalizedNames());
+            this.setBlockNames(((BlockEnderUtilities)block).getUnlocalizedNames());
+            this.setTooltipNames(((BlockEnderUtilities)block).getTooltipNames());
         }
     }
 
-    public void setNames(String[] names)
+    public void setBlockNames(String[] names)
     {
         this.blockNames = names;
+    }
+
+    public void setTooltipNames(String[] names)
+    {
+        this.tooltipNames = names;
     }
 
     @Override
@@ -49,6 +56,25 @@ public class ItemBlockEnderUtilities extends ItemBlock
         }
 
         return super.getUnlocalizedName(stack);
+    }
+
+    public String getTooltipName(ItemStack stack)
+    {
+        if (this.tooltipNames != null)
+        {
+            if (stack.getMetadata() < this.tooltipNames.length)
+            {
+                return "tile." + ReferenceNames.getDotPrefixedName(this.tooltipNames[stack.getMetadata()]);
+            }
+            // Some blocks may have a common tooltip for all different states/meta values,
+            // by only including one entry in the array
+            else if (this.tooltipNames.length == 1)
+            {
+                return "tile." + ReferenceNames.getDotPrefixedName(this.tooltipNames[0]);
+            }
+        }
+
+        return this.getUnlocalizedName(stack);
     }
 
     @SideOnly(Side.CLIENT)
@@ -77,7 +103,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
     @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        ItemEnderUtilities.addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+        ItemEnderUtilities.addTooltips(this.getTooltipName(stack) + ".tooltips", list, verbose);
     }
 
     @SideOnly(Side.CLIENT)

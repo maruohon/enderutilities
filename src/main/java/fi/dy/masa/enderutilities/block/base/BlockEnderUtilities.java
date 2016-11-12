@@ -15,6 +15,7 @@ public class BlockEnderUtilities extends Block
 
     protected String blockName;
     protected String[] unlocalizedNames;
+    protected String[] tooltipNames;
 
     public BlockEnderUtilities(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -27,6 +28,7 @@ public class BlockEnderUtilities extends Block
         this.setSoundType(SoundType.STONE);
         this.blockName = name;
         this.unlocalizedNames = this.generateUnlocalizedNames();
+        this.tooltipNames = this.generateTooltipNames();
     }
 
     @Override
@@ -40,8 +42,23 @@ public class BlockEnderUtilities extends Block
         return new String[] { this.blockName };
     }
 
+    /**
+     * Generate the names used to look up tooltips for the ItemBlocks.
+     * To use a common tooltip for all variants of the block, return an array with exactly one entry in it.
+     * @return
+     */
+    protected String[] generateTooltipNames()
+    {
+        return this.generateUnlocalizedNames();
+    }
+
     public String[] getUnlocalizedNames()
     {
         return this.unlocalizedNames;
+    }
+
+    public String[] getTooltipNames()
+    {
+        return this.tooltipNames;
     }
 }

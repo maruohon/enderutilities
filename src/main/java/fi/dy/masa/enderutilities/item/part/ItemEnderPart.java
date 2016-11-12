@@ -191,9 +191,7 @@ public class ItemEnderPart extends ItemModule
 
             if (listDataTypes.size() > 0)
             {
-                String str1 = I18n.format("enderutilities.tooltip.item.memorycard.datatypecount.1");
-                String str2 = I18n.format("enderutilities.tooltip.item.memorycard.datatypecount.2");
-                list.add(String.format("%s %d %s", str1, listDataTypes.size(), str2));
+                list.add(I18n.format("enderutilities.tooltip.item.memorycard.datatypecount", listDataTypes.size()));
                 list.addAll(listDataTypes);
             }
             else
@@ -209,10 +207,7 @@ public class ItemEnderPart extends ItemModule
             {
                 NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
                 int stackCount = tagList != null ? tagList.tagCount() : 0;
-                String str1 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.1");
-                String str2 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.2");
-                String str3 = I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount.3");
-                list.add(String.format("%s %d %s %d %s", str1, stackCount, str2, itemCount, str3));
+                list.add(I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount", stackCount, itemCount));
                 list.addAll(lines);
             }
             else
