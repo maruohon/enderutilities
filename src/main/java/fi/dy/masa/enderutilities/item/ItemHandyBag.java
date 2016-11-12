@@ -86,6 +86,14 @@ public class ItemHandyBag extends ItemInventoryModular
 
         if (entity instanceof EntityPlayer)
         {
+            if (world.isRemote == false)
+            {
+                // These two lines are to fix the UUID being missing the first time the GUI opens,
+                // if the item is grabbed from the creative inventory or from JEI or from /give
+                NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+                ((EntityPlayer) entity).openContainer.detectAndSendChanges();
+            }
+
             this.restockPlayerInventory(stack, world, (EntityPlayer) entity);
         }
     }

@@ -90,7 +90,16 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+        if (world.isRemote == false)
+        {
+            // These two lines are to fix the UUID being missing the first time the GUI opens,
+            // if the item is grabbed from the creative inventory or from JEI or from /give
+            NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+            player.openContainer.detectAndSendChanges();
+
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+        }
+
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
 

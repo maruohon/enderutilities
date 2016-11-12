@@ -70,6 +70,11 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     {
         if (world.isRemote == false)
         {
+            // These two lines are to fix the UUID being missing the first time the GUI opens,
+            // if the item is grabbed from the creative inventory or from JEI or from /give
+            NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+            player.openContainer.detectAndSendChanges();
+
             player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
