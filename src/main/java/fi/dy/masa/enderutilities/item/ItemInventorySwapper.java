@@ -48,6 +48,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     public static final String TAG_NAME_PRESET_SELECTION = "SelectedPreset";
     public static final String TAG_NAME_PRESET = "Preset_";
     public static final String TAG_NAME_LOCKED = "Locked";
+    public static final String TAG_NAME_CYCLE_MODE = "Cycle";
 
     public static final int NUM_PRESETS = 4;
 
@@ -160,19 +161,26 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String preRed = TextFormatting.RED.toString();
         String preWhite = TextFormatting.WHITE.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        String strYes = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
+        String strNo = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
 
-        String str;
         if (this.isEnabled(containerStack) == true)
         {
-            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
-                    preGreen + I18n.format("enderutilities.tooltip.item.yes");
+            list.add(I18n.format("enderutilities.tooltip.item.enabled") + ": " + strYes);
         }
         else
         {
-            str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
-                    preRed + I18n.format("enderutilities.tooltip.item.no");
+            list.add(I18n.format("enderutilities.tooltip.item.enabled") + ": " + strNo);
         }
-        list.add(str);
+
+        if (NBTUtils.getBoolean(containerStack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE))
+        {
+            list.add(I18n.format("enderutilities.tooltip.item.cyclemode") + ": " + strYes);
+        }
+        else
+        {
+            list.add(I18n.format("enderutilities.tooltip.item.cyclemode") + ": " + strNo);
+        }
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
         list.add(I18n.format("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
@@ -364,23 +372,33 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     private void swapPlayerInventory(EntityPlayer player)
     {
         int slot = this.getSlotContainingEnabledItem(player);
+
         if (slot != -1)
         {
             this.swapPlayerInventory(slot, player);
         }
     }
 
+    private void cycleInventory(EntityPlayer player, boolean reverse)
+    {
+        int slot = this.getSlotContainingEnabledItem(player);
+
+        if (slot != -1)
+        {
+            ItemStack stack = player.inventory.getStackInSlot(slot);
+
+            if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS) > 1)
+            {
+                this.swapPlayerInventory(slot, player);
+                this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, reverse);
+                this.swapPlayerInventory(slot, player);
+            }
+        }
+    }
+
     @Override
     public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
-        // Just Toggle mode: Fire the swapping action
-        /*if (ReferenceKeys.keypressContainsControl(key) == false
-            && ReferenceKeys.keypressContainsShift(key) == false
-            && ReferenceKeys.keypressContainsAlt(key) == false)
-        {
-            swapInventory(player);
-        }*/
-
         // Re-fetch the item to check if it's enabled
         stack = this.getEnabledItem(player);
 
@@ -415,12 +433,24 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
                     EnumKey.keypressActionIsReversed(key));
         }
-        // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card
+        // Ctrl + Alt + Shift + Toggle: Toggle cycle mode
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
+        {
+            NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE);
+        }
+        // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card, or Cycle the inventory to the next card
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
                  EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
+            if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE))
+            {
+                this.cycleInventory(player, EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            }
+            else
+            {
+                this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            }
         }
     }
 
