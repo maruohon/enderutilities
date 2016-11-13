@@ -1,15 +1,12 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -28,6 +25,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
     public GuiQuickStacker(ContainerQuickStacker container)
     {
         super(container, 192, 126, "gui.container.quickstacker");
+
+        this.infoArea = new InfoArea(6, 6, 17, 17, "enderutilities.gui.label.quickstacker.info");
         this.containerQS = container;
     }
 
@@ -96,21 +95,6 @@ public class GuiQuickStacker extends GuiEnderUtilities
             {
                 this.drawTexturedModalRect(this.firstInvSlotX - 1 - 18, this.firstInvSlotY - 1 - 18, 102, 18, 18, 18);
             }
-        }
-    }
-
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        int x = ((this.width - this.xSize) / 2) + 6;
-        int y = ((this.height - this.ySize) / 2) + 6;
-
-        // Hovering over the info icon
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.quickstacker.info", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
 

@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,7 +10,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -45,6 +42,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {
         super(container, 240, 256, "gui.container.creationstation");
+
+        this.infoArea = new InfoArea(7, 89, 17, 17, "enderutilities.gui.label.creationstation.info");
         this.tecs = te;
         this.containerCS = container;
         this.invSize = container.inventory.getSlots();
@@ -258,24 +257,6 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
 
         RenderHelper.enableGUIStandardItemLighting();
-    }
-
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        super.drawTooltips(mouseX, mouseY);
-
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-        x += 7;
-        y += 89;
-
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.creationstation.info", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
     }
 
     protected void createButtons()

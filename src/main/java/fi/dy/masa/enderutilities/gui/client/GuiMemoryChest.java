@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.gui.client;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -11,7 +9,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class GuiMemoryChest extends GuiEnderUtilities
@@ -23,6 +20,8 @@ public class GuiMemoryChest extends GuiEnderUtilities
     public GuiMemoryChest(ContainerMemoryChest container, TileEntityMemoryChest te)
     {
         super(container, 176, 176, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
+
+        this.infoArea = new InfoArea(151, 5, 17, 17, "enderutilities.gui.label.memorychest.info");
         this.temc = te;
         this.inventory = this.container.inventory;
         this.chestTier = te.getStorageTier();
@@ -134,23 +133,5 @@ public class GuiMemoryChest extends GuiEnderUtilities
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
-    }
-
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
-        x += 152;
-        y += 6;
-
-        // Hovering over the info icon
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.memorychest.info", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
     }
 }

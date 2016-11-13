@@ -1,15 +1,12 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -23,6 +20,8 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
     public GuiQuickStackerAdvanced(ContainerQuickStackerAdvanced container, TileEntityQuickStackerAdvanced te)
     {
         super(container, 192, 256, "gui.container.quickstacker.advanced");
+
+        this.infoArea = new InfoArea(4, 16, 17, 17, "enderutilities.gui.label.quickstackeradvanced.info");
         this.teqsa = te;
     }
 
@@ -61,7 +60,7 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         {
             int index = this.teqsa.getSelectedTarget();
             // Draw the selection border around the active Link Crystals' selection button
-            this.drawTexturedModalRect(x + 26 + index * 18, y + 53, 120, 24, 10, 10);
+            this.drawTexturedModalRect(x + 26 + index * 18, y + 53, 120, 0, 10, 10);
         }
 
         int enabledTargets = this.teqsa.getEnabledTargetsMask();
@@ -167,26 +166,6 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         if ((mask & bit) != 0)
         {
             this.drawTexturedModalRect(x + 4, y + 155, 102, 18, 18, 18);
-        }
-    }
-
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        super.drawTooltips(mouseX, mouseY);
-
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
-        x += 4;
-        y += 16;
-
-        // Hovering over the info icon
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.quickstackeradvanced.info", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
 

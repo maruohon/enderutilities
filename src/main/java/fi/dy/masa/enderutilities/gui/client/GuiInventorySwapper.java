@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
@@ -11,7 +9,6 @@ import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.inventory.container.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -39,6 +36,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     public GuiInventorySwapper(ContainerInventorySwapper container)
     {
         super(container, 199, 249, "gui.container.inventoryswapper");
+
+        this.infoArea = new InfoArea(7, 36, 17, 17, "enderutilities.gui.label.inventoryswapper.info");
         this.containerInvSwapper = container;
         this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSlots();
@@ -164,22 +163,6 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             {
                 this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 144, 16, 16);
             }
-        }
-    }
-
-    @Override
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        int x = (this.width - this.xSize) / 2 + 7;
-        int y = (this.height - this.ySize) / 2 + 36;
-
-        // Hovering over the info icon
-        if (mouseX >= x && mouseX <= x + 17 && mouseY >= y && mouseY <= y + 17)
-        {
-            List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.inventoryswapper.info", list, false);
-            //list.add(I18n.format("enderutilities.gui.label.inventoryswapper.info", new Object[0]));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }
 

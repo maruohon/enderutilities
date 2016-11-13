@@ -293,25 +293,6 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
         }
     }
 
-    protected void drawTooltips(int mouseX, int mouseY)
-    {
-        for (int i = 0; i < this.buttonList.size(); i++)
-        {
-            GuiButton button = (GuiButton)this.buttonList.get(i);
-
-            // Mouse is over the button
-            if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY) == true)
-            {
-                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
-            }
-        }
-    }
-
-    protected void bindTexture(ResourceLocation rl)
-    {
-        this.mc.getTextureManager().bindTexture(rl);
-    }
-
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {

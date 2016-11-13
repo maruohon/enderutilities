@@ -32,6 +32,8 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     public GuiPickupManager(ContainerPickupManager container)
     {
         super(container, 176, 256, "gui.container.pickupmanager");
+
+        this.infoArea = new InfoArea(153, 87, 17, 17, "enderutilities.gui.label.pickupmanager.info");
         this.containerPickupManager = container;
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;
@@ -145,15 +147,18 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        super.drawTooltips(mouseX, mouseY);
-
         Slot slot = this.getSlotUnderMouse();
-        // Hovering over the tool slot
+
+        // Hovering over the transport slot
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.transportitemsslot", new Object[0]));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+        }
+        else
+        {
+            super.drawTooltips(mouseX, mouseY);
         }
     }
 
