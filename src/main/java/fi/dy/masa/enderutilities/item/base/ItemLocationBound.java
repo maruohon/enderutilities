@@ -111,18 +111,17 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        TargetData target = this.getTarget(stack);
-        if (target == null)
-        {
-            list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
-            return;
-        }
-
         String preBlue = TextFormatting.BLUE.toString();
         String preDGreen = TextFormatting.DARK_GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        TargetData target = this.getTarget(stack);
+        OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
 
-        if (OwnerData.canAccessItem(stack, player) == true)
+        if (target == null)
+        {
+            list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
+        }
+        else if (ownerData == null || ownerData.canAccess(player))
         {
             String dimName = target.getDimensionName(false);
 
@@ -142,7 +141,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             }
 
             // Full tooltip
-            if (verbose == true)
+            if (verbose)
             {
                 String s = I18n.format("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
                 if (dimName.length() > 0)
@@ -152,15 +151,15 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 list.add(s);
                 list.add(String.format("x: %s%.2f%s y: %s%.2f%s z: %s%.2f%s", preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
 
-                if (target.hasRotation == true)
+                if (target.hasRotation)
                 {
                     list.add(String.format("yaw: %s%.1f%s pitch: %s%.1f%s", preBlue, target.yaw, rst, preBlue, target.pitch, rst));
                 }
 
-                if (showBlock == true)
+                if (showBlock)
                 {
                     list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
-                    if (advancedTooltips == true)
+                    if (advancedTooltips)
                     {
                         list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
                     }
@@ -175,7 +174,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                     s = I18n.format("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
                 }
 
-                if (showBlock == true)
+                if (showBlock)
                 {
                     list.add(String.format("%s%s%s - %s @ %s%.2f%s %s%.2f%s %s%.2f%s", preDGreen, blockName, rst, s, preBlue, target.dPosX, rst, preBlue, target.dPosY, rst, preBlue, target.dPosZ, rst));
                 }
@@ -186,33 +185,30 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             }
         }
 
-        // Player tag data
-        OwnerData playerData = OwnerData.getOwnerDataFromItem(stack);
-        if (playerData == null)
+        if (ownerData != null)
         {
-            return;
-        }
+            String strPublic;
 
-        String strPublic = "";
-        if (playerData.getIsPublic() == true)
-        {
-            strPublic = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.public") + rst;
-        }
-        else
-        {
-            strPublic = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.private") + rst;
-        }
+            if (ownerData.getIsPublic())
+            {
+                strPublic = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.public") + rst;
+            }
+            else
+            {
+                strPublic = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.private") + rst;
+            }
 
-        // Full tooltip
-        if (verbose == true)
-        {
-            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + strPublic);
-            list.add(I18n.format("enderutilities.tooltip.item.owner") + ": " + preDGreen + playerData.getOwnerName() + rst);
-        }
-        // Compact/short tooltip
-        else
-        {
-            list.add(strPublic + " - " + preDGreen + playerData.getOwnerName() + rst);
+            // Full tooltip
+            if (verbose)
+            {
+                list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + strPublic);
+                list.add(I18n.format("enderutilities.tooltip.item.owner") + ": " + preDGreen + ownerData.getOwnerName() + rst);
+            }
+            // Compact/short tooltip
+            else
+            {
+                list.add(strPublic + " - " + preDGreen + ownerData.getOwnerName() + rst);
+            }
         }
     }
 

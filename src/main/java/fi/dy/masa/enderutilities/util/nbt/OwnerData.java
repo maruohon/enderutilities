@@ -119,7 +119,15 @@ public class OwnerData
         else if (data.isOwner(entity))
         {
             data.isPublic = ! data.isPublic;
-            data.writeToItem(stack);
+
+            if (data.isPublic)
+            {
+                removeOwnerDataFromItem(stack, entity);
+            }
+            else
+            {
+                data.writeToItem(stack);
+            }
         }
     }
 
@@ -138,7 +146,15 @@ public class OwnerData
         else if (data.isOwner(entity))
         {
             data.isPublic = ! data.isPublic;
-            data.writeToSelectedModule(toolStack, moduleType);
+
+            if (data.isPublic)
+            {
+                removeOwnerDataFromSelectedModule(toolStack, moduleType, entity);
+            }
+            else
+            {
+                data.writeToSelectedModule(toolStack, moduleType);
+            }
         }
     }
 
@@ -324,10 +340,54 @@ public class OwnerData
 
     private static void writeOwnerTagToItem(ItemStack stack, Entity entity, boolean isPublic)
     {
-        if (stack != null)
+        stack.setTagCompound(writeOwnerTagToNBT(stack.getTagCompound(), entity, isPublic));
+    }
+
+    /**
+     * Removes the OwnerData from this ItemStack, if the entity doing this is the current owner.
+     * @param stack
+     * @param entity
+     * @return true if the OwnerData tag was successfully removed
+     */
+    public static boolean removeOwnerDataFromItem(ItemStack stack, Entity entity)
+    {
+        OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
+
+        if (ownerData != null && ownerData.isOwner(entity))
         {
-            stack.setTagCompound(writeOwnerTagToNBT(stack.getTagCompound(), entity, isPublic));
+            stack.getTagCompound().removeTag("Owner");
+
+            if (stack.getTagCompound().hasNoTags())
+            {
+                stack.setTagCompound(null);
+            }
+
+            return true;
         }
+
+        return false;
+    }
+
+    /**
+     * Removes the OwnerData from the currently selected module ItemStack, if the entity doing this is the current owner.
+     * @param toolStack
+     * @param moduleType
+     * @param entity
+     * @return true if the OwnerData tag was successfully removed
+     */
+    public static boolean removeOwnerDataFromSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity)
+    {
+        ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
+
+        if (moduleStack != null)
+        {
+            removeOwnerDataFromItem(moduleStack, entity);
+            UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
+
+            return true;
+        }
+
+        return false;
     }
 
     private static boolean writeOwnerTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity, boolean isPublic)

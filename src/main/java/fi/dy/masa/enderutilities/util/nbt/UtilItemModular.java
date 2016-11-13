@@ -291,12 +291,15 @@ public class UtilItemModular
         for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
+
             if (moduleTypeEquals(ItemStack.loadItemStackFromNBT(moduleTag), moduleType) == true)
             {
                 if (++count >= selected)
                 {
                     // Write the new module ItemStack to the compound tag of the old one, so that we
                     // preserve the Slot tag and any other non-ItemStack tags of the old one.
+                    // However, remove the old stackCompound first, otherwise an empty tag can linger around.
+                    moduleTag.removeTag("tag");
                     nbtTagList.set(i, newModuleStack.writeToNBT(moduleTag));
                     return true;
                 }
@@ -329,10 +332,13 @@ public class UtilItemModular
         for (int i = 0; i < listNumStacks; ++i)
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
-            if (moduleTag.hasKey("Slot", Constants.NBT.TAG_BYTE) == true && moduleTag.getByte("Slot") == slotNum)
+
+            if (moduleTag.hasKey("Slot", Constants.NBT.TAG_BYTE) && moduleTag.getByte("Slot") == slotNum)
             {
                 // Write the new module ItemStack to the compound tag of the old one, so that we
                 // preserve the Slot tag and any other non-ItemStack tags of the old one.
+                // However, remove the old stackCompound first, otherwise an empty tag can linger around.
+                moduleTag.removeTag("tag");
                 nbtTagList.set(i, moduleStack.writeToNBT(moduleTag));
                 return true;
             }
