@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class GuiInventorySwapper extends GuiEnderUtilities
@@ -105,14 +106,15 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         }
 
         ItemStack stack = this.containerInvSwapper.getContainerItem();
-        if (stack != null)
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
         {
+            ItemInventorySwapper swapper = (ItemInventorySwapper) stack.getItem();
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET_SELECTION);
             this.drawTexturedModalRect(this.firstInvSlotX + 93 + sel * 18, this.firstInvSlotY - 29, 120, 0, 10, 10);
 
             // Draw the colored background for the selected/enabled inventory slots
-            final long mask = ItemInventorySwapper.getEnabledSlotsMask(stack);
+            final long mask = swapper.getEnabledSlotsMask(stack);
             long bit = 0x1;
             // Hotbar
             for (int c = 0; c < 9; c++)

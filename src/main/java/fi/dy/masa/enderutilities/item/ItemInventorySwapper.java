@@ -162,7 +162,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
-        if (isEnabled(containerStack) == true)
+        if (this.isEnabled(containerStack) == true)
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
                     preGreen + I18n.format("enderutilities.tooltip.item.yes");
@@ -207,7 +207,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return 41;
     }
 
-    public static boolean isEnabled(ItemStack stack)
+    public boolean isEnabled(ItemStack stack)
     {
         return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED) == false;
     }
@@ -215,13 +215,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     /**
      * Returns the slot number of the first enabled/usable Inventory Swapper in the player's inventory, or -1 if none is found.
      */
-    public static int getSlotContainingEnabledItem(EntityPlayer player)
+    private int getSlotContainingEnabledItem(EntityPlayer player)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.inventorySwapper);
         for (int slot : slots)
         {
-            if (isEnabled(playerInv.getStackInSlot(slot)) == true)
+            if (this.isEnabled(playerInv.getStackInSlot(slot)) == true)
             {
                 return slot;
             }
@@ -233,19 +233,19 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     /**
      * Returns an ItemStack containing an enabled Inventory Swapper in the player's inventory, or null if none is found.
      */
-    public static ItemStack getEnabledItem(EntityPlayer player)
+    private ItemStack getEnabledItem(EntityPlayer player)
     {
-        int slotNum = getSlotContainingEnabledItem(player);
+        int slotNum = this.getSlotContainingEnabledItem(player);
         return slotNum != -1 ? player.inventory.getStackInSlot(slotNum) : null;
     }
 
-    public static long getEnabledSlotsMask(ItemStack stack)
+    public long getEnabledSlotsMask(ItemStack stack)
     {
         byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
         return NBTUtils.getLong(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET + selected);
     }
 
-    public void swapInventory(long slotMask, InventoryItemModular swapperInv, IItemHandler externalInv)
+    private void swapInventory(long slotMask, InventoryItemModular swapperInv, IItemHandler externalInv)
     {
         // Only swap up to 36 slots (which fit in the swapper's GUI, excluding armor slots)
         final int invSize = Math.min(36, externalInv.getSlots());
@@ -277,7 +277,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    public void swapInventory(ItemStack swapperStack, IItemHandler inv, EntityPlayer player)
+    private void swapInventory(ItemStack swapperStack, IItemHandler inv, EntityPlayer player)
     {
         InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
         if (swapperInv.isAccessibleByPlayer(player) == false)
@@ -290,7 +290,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
-    public static void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
+    private void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
     {
         ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
         if (swapperStack == null)
@@ -361,12 +361,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
-    public static void swapPlayerInventory(EntityPlayer player)
+    private void swapPlayerInventory(EntityPlayer player)
     {
-        int slot = getSlotContainingEnabledItem(player);
+        int slot = this.getSlotContainingEnabledItem(player);
         if (slot != -1)
         {
-            swapPlayerInventory(slot, player);
+            this.swapPlayerInventory(slot, player);
         }
     }
 
@@ -382,7 +382,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }*/
 
         // Re-fetch the item to check if it's enabled
-        stack = getEnabledItem(player);
+        stack = this.getEnabledItem(player);
 
         if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
         {
@@ -396,7 +396,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         // Just Toggle mode: Fire the swapping action
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
-            swapPlayerInventory(player);
+            this.swapPlayerInventory(player);
         }
         // Alt + Toggle mode: Toggle the private/public mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
@@ -431,7 +431,9 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getContainerItem();
             if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
             {
-                int max = ((ItemInventorySwapper)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+                ItemInventorySwapper swapper = (ItemInventorySwapper)stack.getItem();
+                int max = swapper.getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
                 // Changing the selected module via the GUI buttons
                 if (action == GUI_ACTION_SELECT_MODULE && element >= 0 && element < max)
                 {
@@ -444,14 +446,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 }
                 else if (action == GUI_ACTION_TOGGLE_ROWS && element >= 0 && element < 4)
                 {
-                    long mask = getEnabledSlotsMask(stack);
+                    long mask = swapper.getEnabledSlotsMask(stack);
                     mask ^= (0x1FFL << (element * 9));
                     NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
                             TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
                 }
                 else if (action == GUI_ACTION_TOGGLE_COLUMNS)
                 {
-                    long mask = getEnabledSlotsMask(stack);
+                    long mask = swapper.getEnabledSlotsMask(stack);
 
                     // Player inventory
                     if (element >= 0 && element < 9)
