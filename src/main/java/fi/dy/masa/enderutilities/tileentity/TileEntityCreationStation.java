@@ -438,18 +438,21 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * @param invId
      * @param recipeId
      */
-    protected boolean addOneSetOfRecipeItemsIntoGrid(IItemHandler invCrafting, int invId, int recipeId)
+    protected boolean addOneSetOfRecipeItemsIntoGrid(IItemHandler invCrafting, int invId, int recipeId, EntityPlayer player)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
         ItemStack[] template = this.getRecipeItems(invId);
-        InventoryUtils.clearInventoryToMatchTemplate(invCrafting, this.itemInventory, template);
-        return InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, template, 1, true, useOreDict);
+        IItemHandlerModifiable playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+        IItemHandler invWrapper = new CombinedInvWrapper(this.itemInventory, playerInv);
+        InventoryUtils.clearInventoryToMatchTemplate(invCrafting, invWrapper, template);
+
+        return InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, invWrapper, template, 1, true, useOreDict);
     }
 
-    protected void fillCraftingGrid(IItemHandler invCrafting, int invId, int recipeId)
+    protected void fillCraftingGrid(IItemHandler invCrafting, int invId, int recipeId, EntityPlayer player)
     {
         invId = MathHelper.clamp_int(invId, 0, 1);
         int largestStack = InventoryUtils.getLargestExistingStackSize(invCrafting);
@@ -468,6 +471,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         // Clear old contents and then fill all the slots back up
         if (InventoryUtils.tryMoveAllItems(invCrafting, this.itemInventory) == InvResult.MOVED_ALL)
         {
+            IItemHandlerModifiable playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+            IItemHandler invWrapper = new CombinedInvWrapper(this.itemInventory, playerInv);
+
             // Next we find out how many items we have available for each item type on the crafting grid
             // and we cap the max stack size to that value, so the stacks will be balanced
             Iterator<Entry<ItemType, Integer>> iter = slotCounts.entrySet().iterator();
@@ -481,7 +487,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                     continue;
                 }
 
-                int numFound = InventoryUtils.getNumberOfMatchingItemsInInventory(this.itemInventory, item.getStack(), useOreDict);
+                int numFound = InventoryUtils.getNumberOfMatchingItemsInInventory(invWrapper, item.getStack(), useOreDict);
                 int numSlots = entry.getValue();
                 int maxSize = numFound / numSlots;
 
@@ -491,7 +497,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 }
             }
 
-            InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, this.itemInventory, template, largestStack, false, useOreDict);
+            InventoryUtils.restockInventoryBasedOnTemplate(invCrafting, invWrapper, template, largestStack, false, useOreDict);
         }
     }
 
@@ -730,15 +736,15 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             // Clicked again on a recipe button that is already currently selected => load items into crafting grid
-            if (this.getRecipeId(invId) == recipeId && this.getShowRecipe(invId) == true)
+            if (this.getRecipeId(invId) == recipeId && this.getShowRecipe(invId))
             {
                 // First click after loading the recipe itself: load one item to each slot
                 if (this.recipeLoadClickCount == 0)
                 {
                     // First clear away the old contents
-                    //if (this.clearCraftingGrid(invId, player) == true)
+                    //if (this.clearCraftingGrid(inv, invId, player) == InvResult.MOVED_ALL)
                     {
-                        if (this.addOneSetOfRecipeItemsIntoGrid(inv, invId, recipeId) == true)
+                        if (this.addOneSetOfRecipeItemsIntoGrid(inv, invId, recipeId, player))
                         {
                             this.recipeLoadClickCount += 1;
                         }
@@ -748,7 +754,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 // or the max stack size if the largest existing stack size is 1
                 else
                 {
-                    this.fillCraftingGrid(inv, invId, recipeId);
+                    this.fillCraftingGrid(inv, invId, recipeId, player);
                 }
             }
             // Clicked on a different recipe button, or the recipe was hidden => load the recipe

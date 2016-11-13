@@ -1209,7 +1209,7 @@ public class InventoryUtils
                 continue;
             }
 
-            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, true, useOreDict);
+            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false, useOreDict);
 
             if (stackNew == null)
             {
