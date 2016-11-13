@@ -77,16 +77,15 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_TARGET_INVENTORIES * 2, 1, false, "Items", this);
         this.inventoryFiltersAreaMode = new ItemStackHandlerTileEntity(1, 36, 1, false, "FilterItems", this);
-        this.inventoryFiltersBound = new InventoryItemCallback(null, 36, 1, false, false, null, this, "FilterItems");
-        this.inventoryFiltersBoundTemp = new InventoryItem(null, 36, 1, false, false, null, "FilterItems");
         this.filtersAreaMode = new FilterSettings(this.inventoryFiltersAreaMode);
-        this.filtersBound = new FilterSettings(this.inventoryFiltersBound);
         this.clickTimes = new HashMap<UUID, Long>();
     }
 
-    private void initStorage()
+    private void initStorage(boolean isRemote)
     {
-        this.inventoryFiltersBound.setIsRemote(this.getWorld().isRemote);
+        this.inventoryFiltersBound = new InventoryItemCallback(null, 36, 1, false, isRemote, null, this, "FilterItems");
+        this.inventoryFiltersBoundTemp = new InventoryItem(null, 36, 1, false, isRemote, null, "FilterItems");
+        this.filtersBound = new FilterSettings(this.inventoryFiltersBound);
         this.readFilterSettingsFromModule(this.getContainerStack());
     }
 
@@ -174,7 +173,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public boolean isInventoryAccessible(EntityPlayer player)
     {
-        return this.isAreaMode || this.inventoryFiltersBound.isAccessibleByPlayer(player);
+        return this.isAreaMode || this.getContainerStack() != null;
     }
 
     @Override
@@ -300,7 +299,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     @Override
     public void onLoad()
     {
-        this.initStorage();
+        this.initStorage(this.getWorld().isRemote);
     }
 
     @Override

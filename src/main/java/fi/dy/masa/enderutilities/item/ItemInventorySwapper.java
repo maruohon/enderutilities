@@ -288,7 +288,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     private void swapInventory(ItemStack swapperStack, IItemHandler inv, EntityPlayer player)
     {
         InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (swapperInv.isAccessibleByPlayer(player) == false)
+        if (swapperInv.isAccessibleBy(player) == false)
         {
             return;
         }
@@ -307,7 +307,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         InventoryItemModular inv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (inv.isAccessibleByPlayer(player) == false)
+        if (inv.isAccessibleBy(player) == false)
         {
             return;
         }

@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.ItemInventoryModular;
@@ -135,7 +136,7 @@ public class InventoryItemModular extends InventoryItemPermissions
     }
 
     @Override
-    public boolean isAccessibleByPlayer(EntityPlayer player)
+    public boolean isAccessibleBy(Entity entity)
     {
         ItemStack stack = this.getModularItemStack();
         if (stack == null)
@@ -144,6 +145,6 @@ public class InventoryItemModular extends InventoryItemPermissions
             return false;
         }
 
-        return super.isAccessibleByPlayer(player);
+        return super.isAccessibleBy(entity);
     }
 }

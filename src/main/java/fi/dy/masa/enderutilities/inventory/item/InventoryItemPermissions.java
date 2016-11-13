@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
 import java.util.UUID;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -41,10 +42,10 @@ public class InventoryItemPermissions extends InventoryItem
     }
 
     @Override
-    public boolean isAccessibleByPlayer(EntityPlayer player)
+    public boolean isAccessibleBy(Entity entity)
     {
         //System.out.println("InventoryItemPermissions#isAccessibleByPlayer() - " + (this.isRemote ? "client" : "server"));
-        return OwnerData.canAccessItem(this.getContainerItemStack(), player);
+        return OwnerData.canAccessItem(this.getContainerItemStack(), entity);
     }
 
     @Override

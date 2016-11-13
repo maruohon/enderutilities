@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
 import java.util.UUID;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -151,7 +152,7 @@ public class InventoryItem extends ItemStackHandlerBasic
         return true;
     }
 
-    public boolean isAccessibleByPlayer(EntityPlayer player)
+    public boolean isAccessibleBy(Entity entity)
     {
         //System.out.println("InventoryItem#isAccessibleByPlayer() - " + (this.isRemote ? "client" : "server"));
         return true;

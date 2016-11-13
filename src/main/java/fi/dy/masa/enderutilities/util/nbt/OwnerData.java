@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
+import javax.annotation.Nonnull;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -210,28 +211,17 @@ public class OwnerData
     */
 
     /**
-     * Check if the given player is allowed to access this item.
-     * Returns true if there is no player information stored yet, or if the privacy mode is set to Public, or if the given player is the owner.
+     * Check if the given entity is allowed to access this item.
+     * Returns true if there is no owner information stored yet, or if the privacy mode is set to Public, or if the given entity is the owner.
      */
-    public static boolean canAccessItem(ItemStack stack, Entity entity)
+    public static boolean canAccessItem(ItemStack stack, @Nonnull Entity entity)
     {
-        if (stack == null)
-        {
-            return false;
-        }
-
-        if (stack.getTagCompound() == null)
-        {
-            return true;
-        }
-
-        OwnerData data = getOwnerDataFromItem(stack);
-        return data == null || data.isPublic || data.isOwner(entity);
+        return canAccessItem(stack, entity.getUniqueID());
     }
 
     /**
-     * Check if the given player is allowed to access this item.
-     * Returns true if there is no player information stored yet, or if the privacy mode is set to Public, or if the given player is the owner.
+     * Check if the given UUID is allowed to access this item.
+     * Returns true if there is no owner information stored yet, or if the privacy mode is set to Public, or if the given UUID is the owner.
      */
     public static boolean canAccessItem(ItemStack stack, UUID uuid)
     {
