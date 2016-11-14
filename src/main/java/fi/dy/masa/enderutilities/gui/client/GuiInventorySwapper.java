@@ -15,12 +15,14 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class GuiInventorySwapper extends GuiEnderUtilities
+public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCallback
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE  = 0;
     public static final int BTN_ID_FIRST_SELECT_PRESET  = 4;
     public static final int BTN_ID_FIRST_TOGGLE_ROWS    = 8;
     public static final int BTN_ID_FIRST_TOGGLE_COLUMNS = 12;
+    public static final int BTN_ID_LOCKED               = 22;
+    public static final int BTN_ID_CYCLE                = 23;
 
     private final ContainerInventorySwapper containerInvSwapper;
     private final InventoryItemModular inventory;
@@ -62,9 +64,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 6, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards", new Object[0]), 120, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 57, 139, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 6, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 30, 139, 0x404040);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         {
             this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 102, 18, 18, 18);
             // Draw the selection border around the selected memory card module's selection button
-            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
+            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY - 13, 120, 0, 10, 10);
         }
 
         ItemStack stack = this.containerInvSwapper.getContainerItem();
@@ -173,7 +174,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         // Add the Memory Card selection buttons
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19,
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY - 12,
                     8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
@@ -205,6 +206,14 @@ public class GuiInventorySwapper extends GuiEnderUtilities
         // Toggle button for armor
         this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_TOGGLE_COLUMNS + 9, this.firstArmorSlotX + 1, this.firstArmorSlotY + 91,
                 14, 14, 60, 56, this.guiTextureWidgets, 14, 0));
+
+        // Locked mode toggle
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_LOCKED, this.firstModuleSlotX - 29, this.firstModuleSlotY - 12, 8, 8, 0, 0,
+                this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.enabled"));
+
+        // Cycle mode toggle
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_CYCLE, this.firstModuleSlotX - 17, this.firstModuleSlotY - 12, 8, 8, 0, 40,
+                this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.cyclemode"));
     }
 
     @Override
@@ -232,5 +241,44 @@ public class GuiInventorySwapper extends GuiEnderUtilities
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, ItemInventorySwapper.GUI_ACTION_TOGGLE_COLUMNS, button.id - BTN_ID_FIRST_TOGGLE_COLUMNS));
         }
+        else if (button.id == BTN_ID_LOCKED)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, ItemInventorySwapper.GUI_ACTION_TOGGLE_LOCKED, 0));
+        }
+        else if (button.id == BTN_ID_CYCLE)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER, ItemInventorySwapper.GUI_ACTION_TOGGLE_CYCLE_MODE, 0));
+        }
+    }
+
+    @Override
+    public int getButtonU(int callbackId, int defaultU)
+    {
+        return defaultU;
+    }
+
+    @Override
+    public int getButtonV(int callbackId, int defaultV)
+    {
+        ItemStack stack = this.containerInvSwapper.getContainerItem();
+        if (stack == null)
+        {
+            return defaultV;
+        }
+
+        // Locked mode
+        if (callbackId == BTN_ID_LOCKED)
+        {
+            return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_LOCKED) ? 48 : 0;
+        }
+        // Cycle mode
+        else if (callbackId == BTN_ID_CYCLE)
+        {
+            return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_CYCLE_MODE) ? 88 : 40;
+        }
+
+        return defaultV;
     }
 }

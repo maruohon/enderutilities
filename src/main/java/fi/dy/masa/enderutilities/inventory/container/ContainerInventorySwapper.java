@@ -97,7 +97,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Add the armor slots inside the Inventory Swapper as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
 
-        posY = 37;
+        posY = 35;
         // Inventory Swapper's armor slots
         for (int i = 0; i < 4; i++)
         {
@@ -138,7 +138,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         });
 
         posX = 121;
-        posY = 15;
+        posY = 35;
         int moduleSlots = this.inventoryItemModular.getModuleInventory().getSlots();
         // The Storage Module slots
         for (int i = 0; i < moduleSlots; i++)

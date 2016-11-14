@@ -52,10 +52,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
     public static final int NUM_PRESETS = 4;
 
-    public static final int GUI_ACTION_SELECT_MODULE = 0;
-    public static final int GUI_ACTION_CHANGE_PRESET = 1;
-    public static final int GUI_ACTION_TOGGLE_ROWS = 2;
-    public static final int GUI_ACTION_TOGGLE_COLUMNS = 3;
+    public static final int GUI_ACTION_SELECT_MODULE        = 0;
+    public static final int GUI_ACTION_CHANGE_PRESET        = 1;
+    public static final int GUI_ACTION_TOGGLE_ROWS          = 2;
+    public static final int GUI_ACTION_TOGGLE_COLUMNS       = 3;
+    public static final int GUI_ACTION_TOGGLE_LOCKED        = 4;
+    public static final int GUI_ACTION_TOGGLE_CYCLE_MODE    = 5;
 
     public ItemInventorySwapper()
     {
@@ -498,6 +500,14 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
                     NBTUtils.setLong(stack, TAG_NAME_CONTAINER,
                             TAG_NAME_PRESET + NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION), mask);
+                }
+                else if (action == GUI_ACTION_TOGGLE_LOCKED)
+                {
+                    NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
+                }
+                else if (action == GUI_ACTION_TOGGLE_CYCLE_MODE)
+                {
+                    NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE);
                 }
             }
         }
