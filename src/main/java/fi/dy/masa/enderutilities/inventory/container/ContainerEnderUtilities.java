@@ -27,8 +27,9 @@ public class ContainerEnderUtilities extends Container
     protected final IItemHandlerModifiable playerInv;
     public final IItemHandler inventory;
     protected MergeSlotRange customInventorySlots;
-    protected MergeSlotRange playerArmorSlots;
     protected MergeSlotRange playerMainSlots;
+    protected MergeSlotRange playerOffhandSlots;
+    protected MergeSlotRange playerArmorSlots;
     protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
     protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
 
@@ -41,8 +42,9 @@ public class ContainerEnderUtilities extends Container
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
         this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
-        this.playerArmorSlots = new MergeSlotRange(0, 0);
         this.playerMainSlots = new MergeSlotRange(0, 0);
+        this.playerOffhandSlots = new MergeSlotRange(0, 0);
+        this.playerArmorSlots = new MergeSlotRange(0, 0);
     }
 
     /**
@@ -85,6 +87,8 @@ public class ContainerEnderUtilities extends Container
 
     protected void addOffhandSlot(int posX, int posY)
     {
+        this.playerOffhandSlots = new MergeSlotRange(this.inventorySlots.size(), 1);
+
         // Add the Offhand slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX, posY)
         {
@@ -94,9 +98,6 @@ public class ContainerEnderUtilities extends Container
                 return "minecraft:items/empty_armor_slot_shield";
             }
         });
-
-        // Update the slot range set in the super class, to add the Offhand slot
-        this.playerMainSlots = new MergeSlotRange(this.playerMainSlots.first, this.playerMainSlots.lastExc - this.playerMainSlots.first + 1);
     }
 
     public EntityPlayer getPlayer()
@@ -185,20 +186,20 @@ public class ContainerEnderUtilities extends Container
             return false;
         }
 
-        // From player armor slot to player main inventory
-        if (this.playerArmorSlots.contains(slotNum) == true)
+        // From player armor or offhand slots to the player main inventory
+        if (this.playerArmorSlots.contains(slotNum) || this.playerOffhandSlots.contains(slotNum))
         {
             return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
         }
         // From player main inventory to armor slot or the "external" inventory
-        else if (this.playerMainSlots.contains(slotNum) == true)
+        else if (this.playerMainSlots.contains(slotNum))
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false))
             {
                 return true;
             }
 
-            if (this.transferStackToPrioritySlots(player, slotNum, false) == true)
+            if (this.transferStackToPrioritySlots(player, slotNum, false))
             {
                 return true;
             }
@@ -297,36 +298,36 @@ public class ContainerEnderUtilities extends Container
     {
         int slotStart = slotRange.first;
         int slotEndExclusive = slotRange.lastExc;
-        int slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
+        int slotIndex = (reverse ? slotEndExclusive - 1 : slotStart);
 
         // First try to merge the stack into existing stacks in the container
         while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
         {
             SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
-            if (slot != null && slot.getHasStack() == true && slot.isItemValid(stack) == true)
+            if (slot != null && slot.getHasStack() && slot.isItemValid(stack))
             {
                 stack = slot.insertItem(stack, simulate);
             }
 
-            slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
+            slotIndex = (reverse ? slotIndex - 1 : slotIndex + 1);
         }
 
         // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
         if (stack != null && slotRange.existingOnly == false)
         {
-            slotIndex = (reverse == true ? slotEndExclusive - 1 : slotStart);
+            slotIndex = (reverse ? slotEndExclusive - 1 : slotStart);
 
             while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
                 SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
-                if (slot != null && slot.getHasStack() == false && slot.isItemValid(stack) == true)
+                if (slot != null && slot.getHasStack() == false && slot.isItemValid(stack))
                 {
                     stack = slot.insertItem(stack, simulate);
                 }
 
-                slotIndex = (reverse == true ? slotIndex - 1 : slotIndex + 1);
+                slotIndex = (reverse ? slotIndex - 1 : slotIndex + 1);
             }
         }
 
