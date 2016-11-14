@@ -119,15 +119,7 @@ public class OwnerData
         else if (data.isOwner(entity))
         {
             data.isPublic = ! data.isPublic;
-
-            if (data.isPublic)
-            {
-                removeOwnerDataFromItem(stack, entity);
-            }
-            else
-            {
-                data.writeToItem(stack);
-            }
+            data.writeToItem(stack);
         }
     }
 
@@ -146,15 +138,7 @@ public class OwnerData
         else if (data.isOwner(entity))
         {
             data.isPublic = ! data.isPublic;
-
-            if (data.isPublic)
-            {
-                removeOwnerDataFromSelectedModule(toolStack, moduleType, entity);
-            }
-            else
-            {
-                data.writeToSelectedModule(toolStack, moduleType);
-            }
+            data.writeToSelectedModule(toolStack, moduleType);
         }
     }
 

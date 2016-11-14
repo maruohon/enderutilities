@@ -12,6 +12,9 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 
 public class GuiHandyChest extends GuiContainerLargeStacks
 {
+    public static final int BTN_ID_SORT_CHEST       = 10;
+    public static final int BTN_ID_SORT_PLAYER      = 11;
+
     private static final String[] BUTTON_STRINGS = new String[] {
             "enderutilities.gui.label.moveallitemsexcepthotbar",
             "enderutilities.gui.label.movematchingitemsexcepthotbar",
@@ -118,13 +121,21 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
         }
 
-        // Draw the background icon over empty storage module slots
+        int mask = this.tehc.getLockMask();
         for (int i = 0; i < 4; i++)
         {
+            // Draw the background icon over empty storage module slots
             if (this.tehc.getModuleInventory().getStackInSlot(i) == null)
             {
                 slot = this.inventorySlots.getSlot(this.invSize + i);
                 this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition, this.guiTop + slot.yDisplayPosition, 240, 80, 16, 16);
+            }
+
+            // This card has been locked in place
+            if ((mask & (1 << i)) != 0)
+            {
+                button = this.buttonList.get(i);
+                this.drawTexturedModalRect(button.xPosition - 2, button.yPosition - 2, 120, 34, 12, 12);
             }
         }
     }
@@ -179,23 +190,30 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             }
 
             // Add the sort button for the Handy Chest inventory
-            this.buttonList.add(new GuiButtonHoverText(10, x + 9, y + 30, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_SORT_CHEST, x + 9, y + 30, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
 
             // Add the sort button for the player inventory
-            this.buttonList.add(new GuiButtonHoverText(11, x + 84, y + yOff + 4, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_SORT_PLAYER, x + 84, y + yOff + 4, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
         }
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
     {
-        super.actionPerformed(button);
-
         if (button.id >= 0 && button.id < 4)
         {
-            PacketHandler.INSTANCE.sendToServer(
-                new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
-                    ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SELECT_MODULE, button.id));
+            if (mouseButton == 0)
+            {
+                PacketHandler.INSTANCE.sendToServer(
+                    new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
+                        ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SELECT_MODULE, button.id));
+            }
+            else if (mouseButton == 1)
+            {
+                PacketHandler.INSTANCE.sendToServer(
+                    new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
+                        ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_LOCK_MODULE, button.id));
+            }
         }
         else if (button.id >= 4 && button.id < 10)
         {
@@ -212,10 +230,10 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                         ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
             }
         }
-        else if (button.id >= 10 && button.id <= 11)
+        else if (button.id == BTN_ID_SORT_CHEST && button.id == BTN_ID_SORT_CHEST)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, button.id - 10));
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, button.id - BTN_ID_SORT_CHEST));
         }
     }
 }

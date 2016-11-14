@@ -1,20 +1,26 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
+import fi.dy.masa.enderutilities.util.SlotRange;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class ContainerHandyChest extends ContainerLargeStacks
 {
     protected static final int[] PLAYER_INV_Y = new int[] { 95, 131, 167, 174 };
     protected TileEntityHandyChest tehc;
+    protected SlotRange cardSlots;
     public int selectedModule;
     public int actionMode;
+    public int lockMask;
 
     public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
@@ -53,6 +59,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
         // Add the module slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 4);
+        this.cardSlots = new SlotRange(this.inventorySlots.size(), 4);
 
         posX = tier <= 2 ? 98 : 224;
         posY = tier <= 2 ? 8 : 174;
@@ -74,6 +81,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
         listener.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
         listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
+        listener.sendProgressBarUpdate(this, 2, this.tehc.getLockMask());
     }
 
     @Override
@@ -97,10 +105,16 @@ public class ContainerHandyChest extends ContainerLargeStacks
             {
                 listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
             }
+
+            if (this.lockMask != this.tehc.getLockMask())
+            {
+                listener.sendProgressBarUpdate(this, 2, this.tehc.getLockMask());
+            }
         }
 
         this.selectedModule = this.tehc.getSelectedModule();
         this.actionMode = this.tehc.getQuickMode();
+        this.lockMask = this.tehc.getLockMask();
 
         super.detectAndSendChanges();
     }
@@ -118,7 +132,44 @@ public class ContainerHandyChest extends ContainerLargeStacks
             case 1:
                 this.tehc.setQuickMode(val);
                 break;
+            case 2:
+                this.tehc.setLockMask(val);
+                break;
             default:
         }
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    {
+        int mask = this.tehc.getLockMask();
+
+        // Clicked on slot is a Memory Card slot, and that slot has been locked to prevent card removal
+        // by the owner of that card
+        if (slotNum >= 0 && this.cardSlots.contains(slotNum) &&
+            (mask & (1 << (slotNum - this.cardSlots.first))) != 0 && this.getSlot(slotNum).getHasStack())
+        {
+            ItemStack cardStack = this.getSlot(slotNum).getStack();
+            OwnerData ownerData = OwnerData.getOwnerDataFromItem(cardStack);
+
+            if (ownerData != null && ownerData.isOwner(player) == false)
+            {
+                return null;
+            }
+
+            super.slotClick(slotNum, dragType, clickType, player);
+
+            // A Memory Card was just removed from a locked slot by the owner.
+            // Remove the lock from that slot
+            if (this.getSlot(slotNum).getHasStack() == false)
+            {
+                mask &= ~(1 << (slotNum - this.cardSlots.first));
+                this.tehc.setLockMask(mask);
+            }
+
+            return null;
+        }
+
+        return super.slotClick(slotNum, dragType, clickType, player);
     }
 }

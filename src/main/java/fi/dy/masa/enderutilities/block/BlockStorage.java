@@ -124,6 +124,35 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    @Deprecated
+    public float getBlockHardness(IBlockState state, World world, BlockPos pos)
+    {
+        switch (state.getValue(TYPE))
+        {
+            case HANDY_CHEST_0:
+            case HANDY_CHEST_1:
+            case HANDY_CHEST_2:
+            case HANDY_CHEST_3:
+                TileEntity te = world.getTileEntity(pos);
+
+                if (te != null && te instanceof TileEntityHandyChest)
+                {
+                    // If a Handy Chest has any locked memory card slots, then the chest itself shall be unbreakable
+                    if (((TileEntityHandyChest) te).getLockMask() != 0)
+                    {
+                        return -1f;
+                    }
+                }
+
+                break;
+
+            default:
+        }
+
+        return super.getBlockHardness(state, world, pos);
+    }
+
+    @Override
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(TYPE, EnumStorageType.fromMeta(meta));

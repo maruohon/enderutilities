@@ -32,13 +32,15 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryHolder
 {
     public static final int GUI_ACTION_SELECT_MODULE    = 0;
-    public static final int GUI_ACTION_MOVE_ITEMS       = 1;
-    public static final int GUI_ACTION_SET_QUICK_ACTION = 2;
-    public static final int GUI_ACTION_SORT_ITEMS       = 3;
+    public static final int GUI_ACTION_LOCK_MODULE      = 1;
+    public static final int GUI_ACTION_MOVE_ITEMS       = 2;
+    public static final int GUI_ACTION_SET_QUICK_ACTION = 3;
+    public static final int GUI_ACTION_SORT_ITEMS       = 4;
 
     public static final int INV_ID_MEMORY_CARDS         = 0;
     public static final int INV_ID_ITEMS                = 1;
@@ -51,6 +53,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     protected int selectedModule;
     protected int chestTier;
     protected int actionMode;
+    protected int lockedModules;
     protected int invSize;
     protected final Map<UUID, Long> clickTimes;
 
@@ -85,6 +88,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, MAX_TIER);
         this.actionMode = nbt.getByte("QuickMode");
         this.setSelectedModule(nbt.getByte("SelModule"));
+        this.setLockMask(nbt.getByte("LockMask"));
         this.invSize = INV_SIZES[this.chestTier];
 
         // This needs to happen after setting the invSize and tier etc.
@@ -104,6 +108,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         nbt.setByte("ChestTier", (byte)this.chestTier);
         nbt.setByte("QuickMode", (byte)this.actionMode);
         nbt.setByte("SelModule", (byte)this.selectedModule);
+        nbt.setByte("LockMask", (byte)this.lockedModules);
 
         super.writeToNBT(nbt);
 
@@ -117,6 +122,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         nbt.setByte("tier", (byte)this.chestTier);
         nbt.setByte("msel", (byte)this.selectedModule);
+        nbt.setByte("lck", (byte)this.lockedModules);
 
         return nbt;
     }
@@ -126,6 +132,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         this.chestTier = tag.getByte("tier");
         this.selectedModule = tag.getByte("msel");
+        this.setLockMask(tag.getByte("lck"));
         this.invSize = INV_SIZES[this.chestTier];
 
         // Needs re-initialization after the invSize has been set
@@ -158,6 +165,16 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void setQuickMode(int mode)
     {
         this.actionMode = mode;
+    }
+
+    public int getLockMask()
+    {
+        return this.lockedModules;
+    }
+
+    public void setLockMask(int mask)
+    {
+        this.lockedModules = mask;
     }
 
     public int getSelectedModule()
@@ -250,6 +267,22 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
     }
 
+    private void toggleCardLocked(EntityPlayer player, int cardIndex)
+    {
+        ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(cardIndex);
+
+        if (stack != null)
+        {
+            OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
+
+            if (ownerData != null && ownerData.isOwner(player))
+            {
+                this.lockedModules ^= (1 << cardIndex);
+                this.markDirty();
+            }
+        }
+    }
+
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
@@ -257,6 +290,10 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         {
             this.setSelectedModule(element);
             this.inventoryChanged(0, element);
+        }
+        else if (action == GUI_ACTION_LOCK_MODULE && element >= 0 && element < 4)
+        {
+            this.toggleCardLocked(player, element);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {

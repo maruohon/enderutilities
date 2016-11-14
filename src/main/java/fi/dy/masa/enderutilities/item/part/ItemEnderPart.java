@@ -128,7 +128,15 @@ public class ItemEnderPart extends ItemModule
     {
         if (worldIn.isRemote == false && stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
-            OwnerData.togglePrivacyModeOnItem(stack, playerIn);
+            if (playerIn.isSneaking())
+            {
+                OwnerData.removeOwnerDataFromItem(stack, playerIn);
+            }
+            else
+            {
+                OwnerData.togglePrivacyModeOnItem(stack, playerIn);
+            }
+
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
