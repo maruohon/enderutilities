@@ -222,7 +222,7 @@ enderutilities.gui.label.inventoryswapper.info=- Can swap the player's inventory
 enderutilities.gui.label.leaveonefilledstack=Leave one filled stack of every item type
 enderutilities.gui.label.leaveoneitemongrid=Leave one item
 enderutilities.gui.label.memorycards=Memory Cards
-enderutilities.gui.label.memorychest.info=- Middle click to lock the current item type for the slot|lf- You can also middle click (and/or drag)|lf  with items in cursor to do it faster|lf- Only that type of item can enter an empty slot|lf- When there is room in locked slots, that item type|lf  can only go to those slots until they are full (this restriction|lf  doesn't apply to the player using the chest via the GUI)
+enderutilities.gui.label.memorychest.info=- Middle click to lock the current item type for the slot|lf- You can also middle click (and/or drag)|lf  with items in cursor to do it faster|lf- Only that type of item can enter an empty slot|lf- When there is room in locked slots, that item type|lf  can only go to those slots until they are full (this restriction|lf  doesn't apply to the player using the chest via the GUI)|lf- A Private chest can't be opened by others,|lf  and it is also unbreakable
 enderutilities.gui.label.meta.ignore=Ignore damage/metadata
 enderutilities.gui.label.meta.match=Match damage/metadata
 enderutilities.gui.label.modulestorage=Module storage
@@ -234,6 +234,7 @@ enderutilities.gui.label.nbt.ignore=Ignore NBT
 enderutilities.gui.label.nbt.match=Match NBT
 enderutilities.gui.label.outputtoenderchest=Enable/disable output to Ender Chest
 enderutilities.gui.label.pickupmanager.info=- Can control what the player is allowed to pick up|lf- Can also directly transport items to a remote inventory|lf- The transport filters are checked first|lf- If they are disabled, or the item is not allowed there|lf  then the Inventory filters are checked next|lf- The transport filters determine which items will get transported on pickup|lf- The Inventory filters determine which items the player can pick up,|lf  assuming the item didn't get transported|lf- Note: Needs a capacitor to transport items! (add in a Tool Workstation)
+enderutilities.gui.label.publicprivate=Public/Private
 enderutilities.gui.label.quickstacker.info=- By default only moves items that|lf  already exist in the target inventory|lf- Sneak to move all items from enabled slots|lf  (even if they aren't already present in the target inventory)|lf- Use the Toggle hotkey to activate|lf- Can be sneak + right clicked on inventories|lf  to quick stack matching items to that inventory|lf- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- Doesn't need to be held to use|lf  (but does then need to be the first found|lf  "unselected keybind operatable item" in the inventory)
 enderutilities.gui.label.quickstackeradvanced.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- Double left-click the block to activate|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 enderutilities.gui.label.quickstack=Quick Stack
@@ -402,6 +403,7 @@ enderutilities.chat.message.killedentitieswithcount=Killed %d entities
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
 enderutilities.chat.message.notenoughendercharge=Not enough Ender Charge
+enderutilities.chat.message.private.owned.by=Set to Private, owned by %s
 
 ##################
 #   Subtitles    #

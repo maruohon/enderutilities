@@ -9,10 +9,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -49,21 +47,24 @@ public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote == false)
+        if (worldIn.isRemote)
         {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityEnderUtilities == false)
-            {
-                return false;
-            }
-
-            if (this.isTileEntityValid(te) == true)
-            {
-                playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, worldIn, pos.getX(), pos.getY(), pos.getZ());
-            }
+            return true;
         }
 
-        return true;
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityEnderUtilities == false)
+        {
+            return false;
+        }
+
+        if (this.isTileEntityValid(te))
+        {
+            playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, worldIn, pos.getX(), pos.getY(), pos.getZ());
+            return true;
+        }
+
+        return false;
     }
 
     @Override

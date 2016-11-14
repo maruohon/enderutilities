@@ -20,6 +20,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     protected TileEntityMemoryChest temc;
     protected List<ItemStack> templateStacksLast;
     protected long templateMask;
+    protected boolean isPublic;
 
     public ContainerMemoryChest(EntityPlayer player, TileEntityMemoryChest te)
     {
@@ -159,21 +160,29 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
         }
 
         long mask = this.temc.getTemplateMask();
+        boolean isPublic = this.temc.isPublic();
 
         for (int j = 0; j < this.listeners.size(); ++j)
         {
+            IContainerListener listener = this.listeners.get(j);
+
             if (this.templateMask != mask)
             {
-                IContainerListener listener = this.listeners.get(j);
                 // Send the long in 16-bit pieces because of the network packet limitation in MP
                 listener.sendProgressBarUpdate(this, 0, (int)(mask & 0xFFFF));
                 listener.sendProgressBarUpdate(this, 1, (int)((mask >> 16) & 0xFFFF));
                 listener.sendProgressBarUpdate(this, 2, (int)((mask >> 32) & 0xFFFF));
                 listener.sendProgressBarUpdate(this, 3, (int)((mask >> 48) & 0xFFFF));
             }
+
+            if (this.isPublic != isPublic)
+            {
+                listener.sendProgressBarUpdate(this, 4, isPublic ? 1 : 0);
+            }
         }
 
         this.templateMask = mask;
+        this.isPublic = isPublic;
     }
 
     @Override
@@ -184,6 +193,10 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
             this.templateMask &= ~(0xFFFFL << (var * 16));
             this.templateMask |= (((long)val) << (var * 16));
             this.temc.setTemplateMask(this.templateMask);
+        }
+        else if (var == 4)
+        {
+            this.temc.setIsPublic(val == 1);
         }
     }
 }

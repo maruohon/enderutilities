@@ -26,6 +26,12 @@ public class OwnerData
         this.isPublic = true;
     }
 
+    public OwnerData(String name, boolean isPublic)
+    {
+        this.ownerName = name;
+        this.isPublic = isPublic;
+    }
+
     private OwnerData()
     {
         this.ownerName = "";

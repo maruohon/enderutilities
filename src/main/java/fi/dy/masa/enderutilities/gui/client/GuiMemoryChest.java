@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.gui.client;
 
+import java.io.IOException;
 import org.lwjgl.opengl.GL11;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -9,10 +11,15 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
-public class GuiMemoryChest extends GuiEnderUtilities
+public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
 {
+    public static final int BTN_ID_TOGGLE_LOCK = 1;
+
     private final TileEntityMemoryChest temc;
     private final IItemHandler inventory;
     private final int chestTier;
@@ -33,6 +40,7 @@ public class GuiMemoryChest extends GuiEnderUtilities
         this.setGuiYSize();
 
         super.initGui();
+        this.createButtons();
     }
 
     protected void setGuiYSize()
@@ -133,5 +141,47 @@ public class GuiMemoryChest extends GuiEnderUtilities
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
+    }
+
+    protected void createButtons()
+    {
+        this.buttonList.clear();
+
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
+
+        String str = I18n.format("enderutilities.gui.label.publicprivate") + " (" +
+                I18n.format("enderutilities.tooltip.item.owner") + ": " + this.temc.getOwnerName() + ")";
+
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_TOGGLE_LOCK, x + 138, y + 15, 8, 8, 0, 0,
+                this.guiTextureWidgets, 8, 0, this, str));
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        if (button.id == BTN_ID_TOGGLE_LOCK)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.temc.getWorld().provider.getDimension(), this.temc.getPos(),
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityMemoryChest.GUI_ACTION_TOGGLE_LOCKED, 0));
+        }
+    }
+
+    @Override
+    public int getButtonU(int callbackId, int defaultU)
+    {
+        return defaultU;
+    }
+
+    @Override
+    public int getButtonV(int callbackId, int defaultV)
+    {
+        // Locked mode
+        if (callbackId == BTN_ID_TOGGLE_LOCK)
+        {
+            return this.temc.isPublic() ? 0 : 48;
+        }
+
+        return defaultV;
     }
 }

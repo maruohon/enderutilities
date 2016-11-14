@@ -18,9 +18,11 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
+    public static final int GUI_ACTION_TOGGLE_LOCKED = 1;
     public static final int[] INV_SIZES = new int[] { 9, 27, 54 };
 
     protected ItemStack[] templateStacks;
@@ -105,7 +107,6 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     {
         this.chestTier = tag.getByte("tier");
         this.invSize = INV_SIZES[this.chestTier];
-        //this.templateStacks = new ItemStack[this.invSize];
         this.initStorage(this.invSize);
 
         super.handleUpdateTag(tag);
@@ -178,6 +179,39 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
         {
             super(baseHandler);
             this.temc = te;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            if (this.temc.isPublic() == false)
+            {
+                return null;
+            }
+
+            return super.getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            if (this.temc.isPublic() == false)
+            {
+                return stack;
+            }
+
+            return super.insertItem(slot, stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            if (this.temc.isPublic() == false)
+            {
+                return null;
+            }
+
+            return super.extractItem(slot, amount, simulate);
         }
 
         @Override
@@ -256,6 +290,23 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
 
             // No template locked for this slot, or the item matches with the template item
             return (this.temc.templateMask & (1L << slot)) == 0 || InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]);
+        }
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == GUI_ACTION_TOGGLE_LOCKED)
+        {
+            if (this.ownerData == null)
+            {
+                this.ownerData = new OwnerData(player);
+                this.ownerData.setIsPublic(false);
+            }
+            else if (player.capabilities.isCreativeMode || this.ownerData.isOwner(player))
+            {
+                this.setIsPublic(! this.isPublic());
+            }
         }
     }
 

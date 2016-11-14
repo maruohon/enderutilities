@@ -21,13 +21,10 @@ public class TileEntityEnderUtilities extends TileEntity
     protected String tileEntityName;
     protected EnumFacing facing;
     protected OwnerData ownerData;
-    protected String ownerName;
 
     public TileEntityEnderUtilities(String name)
     {
         this.facing = BlockEnderUtilities.DEFAULT_FACING;
-        this.ownerData = null;
-        this.ownerName = null;
         this.tileEntityName = name;
     }
 
@@ -63,14 +60,36 @@ public class TileEntityEnderUtilities extends TileEntity
         this.ownerData = player != null ? new OwnerData(player) : null;
     }
 
+    public void setIsPublic(boolean isPublic)
+    {
+        if (this.ownerData == null)
+        {
+            this.ownerData = new OwnerData("", isPublic);
+        }
+        else
+        {
+            this.ownerData.setIsPublic(isPublic);
+        }
+    }
+
     public String getOwnerName()
     {
-        return this.ownerName;
+        return this.ownerData != null ? this.ownerData.getOwnerName() : "";
     }
 
     public UUID getOwnerUUID()
     {
         return this.ownerData != null ? this.ownerData.getOwnerUUID() : null;
+    }
+
+    public boolean isPublic()
+    {
+        return this.ownerData == null || this.ownerData.getIsPublic();
+    }
+
+    public boolean isUseableByPlayer(EntityPlayer player)
+    {
+        return this.ownerData == null || this.ownerData.canAccess(player);
     }
 
     public void onLeftClickBlock(EntityPlayer player) { }
@@ -121,6 +140,7 @@ public class TileEntityEnderUtilities extends TileEntity
         if (this.ownerData != null)
         {
             nbt.setString("o", this.ownerData.getOwnerName());
+            nbt.setBoolean("pu", this.ownerData.getIsPublic());
         }
 
         return nbt;
@@ -159,9 +179,10 @@ public class TileEntityEnderUtilities extends TileEntity
         {
             this.setFacing(EnumFacing.getFront((byte)(tag.getByte("r") & 0x07)));
         }
-        if (tag.hasKey("o", Constants.NBT.TAG_STRING) == true)
+
+        if (tag.hasKey("o", Constants.NBT.TAG_STRING))
         {
-            this.ownerName = tag.getString("o");
+            this.ownerData = new OwnerData(tag.getString("o"), tag.getBoolean("pu"));
         }
 
         IBlockState state = this.worldObj.getBlockState(this.getPos());

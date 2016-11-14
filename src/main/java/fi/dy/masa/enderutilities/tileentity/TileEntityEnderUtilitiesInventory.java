@@ -122,19 +122,15 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 
     public void inventoryChanged(int inventoryId, int slot) { }
 
+    @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        if (this.worldObj.getTileEntity(this.getPos()) != this)
+        if (this.worldObj.getTileEntity(this.getPos()) != this || player.getDistanceSq(this.getPos()) >= 64.0d)
         {
             return false;
         }
 
-        if (player.getDistanceSq(this.getPos()) >= 64.0d)
-        {
-            return false;
-        }
-
-        return true;
+        return super.isUseableByPlayer(player);
     }
 
     public void performGuiAction(EntityPlayer player, int action, int element)
