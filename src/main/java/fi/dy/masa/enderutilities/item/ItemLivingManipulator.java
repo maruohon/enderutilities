@@ -141,7 +141,6 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                     tag.setInteger("APX", xi);
                     tag.setInteger("APY", yi);
                     tag.setInteger("APZ", zi);
-                    System.out.printf("side: %s - %d\n", side, side.getIndex());
                     tag.setByte("AttachFace", (byte)side.getIndex());
                     isShulker = true;
                 }
