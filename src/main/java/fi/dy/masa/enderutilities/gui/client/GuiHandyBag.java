@@ -258,11 +258,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
         y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition - 11;
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 0,  0, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[8]));
         // Pickup mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[9]));
         // Restock mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[10]));
 
         if (this.bagTier == 0)
         {
