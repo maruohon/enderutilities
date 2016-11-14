@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.recipes.ShapedUpgradeOreRecipe;
 
 public class EnderUtilitiesItems
 {
@@ -127,7 +128,7 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeHandyBag == false && Configs.disableItemHandyBag == false)
         {
             GameRegistry.addRecipe(new ItemStack(handyBag, 1, 0), "RAR", "ACA", "LAL", 'R', rope, 'A', alloy1, 'C', Blocks.ENDER_CHEST, 'L', Items.LEATHER);
-            GameRegistry.addRecipe(new ItemStack(handyBag, 1, 1), "DAD", "CBC", "DAD", 'D', alloy0, 'A', alloy2, 'B', new ItemStack(handyBag, 1, 0), 'C', Blocks.CHEST);
+            GameRegistry.addRecipe(new ShapedUpgradeOreRecipe(new ItemStack(handyBag, 1, 1), handyBag, 0, "AAA", "CBC", "AAA", 'A', alloy2, 'B', new ItemStack(handyBag, 1, 0), 'C', Blocks.CHEST));
         }
         if (Configs.disableRecipeInventorySwapper == false && Configs.disableItemInventorySwapper == false)
         {
